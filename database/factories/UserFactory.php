@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -52,6 +53,21 @@ class UserFactory extends Factory
             'password' => null,
             'google_id' => fake()->numerify('#####################'),
             'avatar' => fake()->imageUrl(),
+        ]);
+    }
+
+    public function forTenant(Tenant|int $tenant): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'tenant_id' => $tenant instanceof Tenant ? $tenant->id : $tenant,
+        ]);
+    }
+
+    public function superadmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'tenant_id' => null,
+            'is_superadmin' => true,
         ]);
     }
 
