@@ -35,11 +35,45 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $tenantData = null;
+        $roles = [];
+        $permissions = [];
+        $modules = [];
+
+        if ($user) {
+            if ($user->tenant_id && $user->tenant) {
+                setPermissionsTeamId($user->tenant_id);
+                $tenantData = [
+                    'id' => $user->tenant->id,
+                    'name' => $user->tenant->name,
+                    'cuit_tax_id' => $user->tenant->cuit_tax_id,
+                    'is_active' => $user->tenant->is_active,
+                ];
+                $modules = $user->tenant->modules()
+                    ->where('modules.is_active', true)
+                    ->where(function ($query) {
+                        $query->whereNull('tenant_modules.expires_at')
+                            ->orWhere('tenant_modules.expires_at', '>', now());
+                    })
+                    ->pluck('code')
+                    ->all();
+            }
+
+            $roles = $user->getRoleNames()->all();
+            $permissions = $user->getAllPermissions()->pluck('name')->all();
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+                'tenant' => $tenantData,
+                'roles' => $roles,
+                'permissions' => $permissions,
+                'modules' => $modules,
+                'is_admin' => $user ? ($user->isSuperAdmin() || in_array('admin', $roles)) : false,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

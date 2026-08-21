@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\CheckModuleAccess;
 use App\Http\Middleware\EnsureSuperAdmin;
+use App\Http\Middleware\EnsureTenantContext;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\TenantContext;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'superadmin' => EnsureSuperAdmin::class,
+            'tenant' => EnsureTenantContext::class,
             'module' => CheckModuleAccess::class,
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,

@@ -3,6 +3,10 @@
     import LayoutGrid from 'lucide-svelte/icons/layout-grid';
     import Building2 from 'lucide-svelte/icons/building-2';
     import Boxes from 'lucide-svelte/icons/boxes';
+    import Users from 'lucide-svelte/icons/users';
+    import Shield from 'lucide-svelte/icons/shield';
+    import FileText from 'lucide-svelte/icons/file-text';
+    import Package from 'lucide-svelte/icons/package';
     import type { Snippet } from 'svelte';
     import AppLogo from '@/components/AppLogo.svelte';
     import NavMain from '@/components/NavMain.svelte';
@@ -26,7 +30,11 @@
         children?: Snippet;
     } = $props();
 
-    let user = $derived(page.props.auth?.user);
+    let auth = $derived(page.props.auth);
+    let user = $derived(auth?.user);
+    let tenant = $derived(auth?.tenant);
+    let roles = $derived(auth?.roles ?? []);
+    let modules = $derived(auth?.modules ?? []);
 
     let mainNavItems = $derived.by(() => {
         const items: NavItem[] = [
@@ -37,6 +45,7 @@
             },
         ];
 
+        // Superadmin navigation
         if (user?.is_superadmin) {
             items.push(
                 {
@@ -50,6 +59,39 @@
                     icon: Boxes,
                 },
             );
+        }
+
+        // Tenant administration (Admin role)
+        if (tenant && (roles.includes('admin') || user?.is_superadmin)) {
+            items.push(
+                {
+                    title: 'Personal / Empleados',
+                    href: '/tenant/users',
+                    icon: Users,
+                },
+                {
+                    title: 'Roles y Permisos',
+                    href: '/tenant/roles',
+                    icon: Shield,
+                },
+            );
+        }
+
+        // Active contracted modules
+        if (modules.includes('facturacion_arca')) {
+            items.push({
+                title: 'Facturación ARCA',
+                href: '/playground/arca',
+                icon: FileText,
+            });
+        }
+
+        if (modules.includes('stock')) {
+            items.push({
+                title: 'Stock e Inventario',
+                href: '#',
+                icon: Package,
+            });
         }
 
         return items;
