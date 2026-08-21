@@ -19,6 +19,7 @@ class SecurityController extends Controller
     {
         $props = [
             'passwordRules' => Password::defaults()->toPasswordRulesString(),
+            'hasPassword' => ! is_null($request->user()->password),
         ];
 
         return Inertia::render('settings/Security', $props);

@@ -44,6 +44,18 @@ class UserFactory extends Factory
     }
 
     /**
+     * Indicate that the user authenticated via Google without a password.
+     */
+    public function googleUser(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'password' => null,
+            'google_id' => fake()->numerify('#####################'),
+            'avatar' => fake()->imageUrl(),
+        ]);
+    }
+
+    /**
      * Indicate that the model has two-factor authentication configured.
      */
     public function withTwoFactor(): static {}

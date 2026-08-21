@@ -77,3 +77,33 @@ test('correct password must be provided to update password', function () {
         ->assertSessionHasErrors('current_password')
         ->assertRedirect(route('security.edit'));
 });
+
+test('user without password can set a new password without providing current password', function () {
+    $user = User::factory()->googleUser()->create();
+
+    expect($user->hasPassword())->toBeFalse();
+
+    $this->actingAs($user)
+        ->get(route('security.edit'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('settings/Security')
+            ->where('hasPassword', false)
+        );
+
+    $response = $this
+        ->actingAs($user)
+        ->from(route('security.edit'))
+        ->put(route('user-password.update'), [
+            'password' => 'new-secure-password',
+            'password_confirmation' => 'new-secure-password',
+        ]);
+
+    $response
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('security.edit'));
+
+    $user->refresh();
+    expect($user->hasPassword())->toBeTrue()
+        ->and(Hash::check('new-secure-password', $user->password))->toBeTrue();
+});

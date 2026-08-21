@@ -21,7 +21,13 @@
     import { Button } from '@/components/ui/button';
     import { Label } from '@/components/ui/label';
 
-    let { passwordRules }: { passwordRules: string } = $props();
+    let {
+        passwordRules,
+        hasPassword = true,
+    }: {
+        passwordRules: string;
+        hasPassword?: boolean;
+    } = $props();
 </script>
 
 <AppHead title="Security settings" />
@@ -31,8 +37,10 @@
 <div class="space-y-6">
     <Heading
         variant="small"
-        title="Update password"
-        description="Ensure your account is using a long, random password to stay secure"
+        title={hasPassword ? 'Update password' : 'Set password'}
+        description={hasPassword
+            ? 'Ensure your account is using a long, random password to stay secure'
+            : 'Set a password to enable logging in with your email and password'}
     />
 
     <Form
@@ -43,26 +51,28 @@
         resetOnError={['password', 'password_confirmation', 'current_password']}
     >
         {#snippet children({ errors, processing })}
-            <div class="grid gap-2">
-                <Label for="current_password">Current password</Label>
-                <PasswordInput
-                    id="current_password"
-                    name="current_password"
-                    class="mt-1 block w-full"
-                    autocomplete="current-password"
-                    placeholder="Current password"
-                />
-                <InputError message={errors.current_password} />
-            </div>
+            {#if hasPassword}
+                <div class="grid gap-2">
+                    <Label for="current_password">Current password</Label>
+                    <PasswordInput
+                        id="current_password"
+                        name="current_password"
+                        class="mt-1 block w-full"
+                        autocomplete="current-password"
+                        placeholder="Current password"
+                    />
+                    <InputError message={errors.current_password} />
+                </div>
+            {/if}
 
             <div class="grid gap-2">
-                <Label for="password">New password</Label>
+                <Label for="password">{hasPassword ? 'New password' : 'Password'}</Label>
                 <PasswordInput
                     id="password"
                     name="password"
                     class="mt-1 block w-full"
                     autocomplete="new-password"
-                    placeholder="New password"
+                    placeholder={hasPassword ? 'New password' : 'Password'}
                     passwordrules={passwordRules}
                 />
                 <InputError message={errors.password} />

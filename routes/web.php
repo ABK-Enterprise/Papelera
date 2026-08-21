@@ -1,9 +1,17 @@
 <?php
 
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Playground\ArcaPlaygroundController;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'Welcome')->name('home');
+Route::get('/', function () {
+    return redirect()->route('dashboard');
+})->name('home');
+
+Route::middleware('guest')->group(function () {
+    Route::get('auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
+    Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
