@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Database\Seeders\BaseSeeder;
 use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
 
@@ -74,4 +75,16 @@ test('users are rate limited', function () {
     ]);
 
     $response->assertTooManyRequests();
+});
+
+test('superadmin created in BaseSeeder can authenticate with admin credentials via email', function () {
+    $this->seed(BaseSeeder::class);
+
+    $response = $this->post(route('login.store'), [
+        'email' => 'admin@admin.com',
+        'password' => 'admin',
+    ]);
+
+    $this->assertAuthenticated();
+    $response->assertRedirect('/dashboard');
 });

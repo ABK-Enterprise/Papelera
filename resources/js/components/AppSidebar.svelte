@@ -1,6 +1,8 @@
 <script lang="ts">
-    import { Link } from '@inertiajs/svelte';
+    import { Link, page } from '@inertiajs/svelte';
     import LayoutGrid from 'lucide-svelte/icons/layout-grid';
+    import Building2 from 'lucide-svelte/icons/building-2';
+    import Boxes from 'lucide-svelte/icons/boxes';
     import type { Snippet } from 'svelte';
     import AppLogo from '@/components/AppLogo.svelte';
     import NavMain from '@/components/NavMain.svelte';
@@ -24,13 +26,35 @@
         children?: Snippet;
     } = $props();
 
-    const mainNavItems: NavItem[] = [
-        {
-            title: 'Dashboard',
-            href: dashboard(),
-            icon: LayoutGrid,
-        },
-    ];
+    let user = $derived(page.props.auth?.user);
+
+    let mainNavItems = $derived.by(() => {
+        const items: NavItem[] = [
+            {
+                title: 'Dashboard',
+                href: dashboard(),
+                icon: LayoutGrid,
+            },
+        ];
+
+        if (user?.is_superadmin) {
+            items.push(
+                {
+                    title: 'Comercios',
+                    href: '/platform/tenants',
+                    icon: Building2,
+                },
+                {
+                    title: 'Módulos y Permisos',
+                    href: '/platform/modules',
+                    icon: Boxes,
+                },
+            );
+        }
+
+        return items;
+    });
+
 </script>
 
 <Sidebar collapsible="icon" variant="inset">

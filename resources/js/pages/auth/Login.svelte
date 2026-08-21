@@ -60,6 +60,8 @@
                 <InputError message={errors.email} />
             </div>
 
+
+
             <div class="grid gap-2">
                 <div class="flex items-center justify-between">
                     <Label for="password" class="text-sm font-medium text-foreground">Contraseña</Label>

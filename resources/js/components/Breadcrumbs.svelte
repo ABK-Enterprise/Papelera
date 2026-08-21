@@ -19,8 +19,9 @@
 
 <Breadcrumb>
     <BreadcrumbList>
-        {#each breadcrumbs as item, index (item.href)}
+        {#each breadcrumbs as item, index (item.href ? item.href + '-' + index : index)}
             <BreadcrumbItem>
+
                 {#if index === breadcrumbs.length - 1}
                     <BreadcrumbPage>{item.title}</BreadcrumbPage>
                 {:else}
