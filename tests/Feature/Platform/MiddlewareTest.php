@@ -12,7 +12,7 @@ beforeEach(function () {
 
     Route::get('/test-module-stock', function () {
         return response()->json(['message' => 'welcome stock module']);
-    })->middleware(['web', 'auth', 'module:stock']);
+    })->middleware(['web', 'auth', 'module:inventario_stock']);
 });
 
 test('superadmin can access superadmin protected route', function () {
@@ -49,7 +49,7 @@ test('tenant context middleware sets spatie permissions team id', function () {
 
 test('tenant user can access route when tenant has the module assigned', function () {
     $tenant = Tenant::factory()->create();
-    $module = Module::factory()->create(['code' => 'stock', 'is_active' => true]);
+    $module = Module::factory()->create(['code' => 'inventario_stock', 'is_active' => true]);
     $tenant->modules()->attach($module->id);
 
     $user = User::factory()->forTenant($tenant)->create();

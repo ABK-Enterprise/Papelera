@@ -17,7 +17,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
         Route::resource('roles', RoleController::class)->except(['show']);
 
         // Products & Categories (Stock / Inventory module)
-        Route::middleware('module:stock')->group(function () {
+        Route::middleware('module:inventario_stock')->group(function () {
             Route::resource('products', ProductController::class)->except(['show']);
             Route::resource('categories', CategoryController::class)->except(['show', 'create', 'edit']);
         });

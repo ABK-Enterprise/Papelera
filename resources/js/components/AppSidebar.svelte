@@ -86,10 +86,10 @@
             });
         }
 
-        if (modules.includes('stock')) {
+        if (modules.includes('inventario_stock') || modules.includes('stock')) {
             items.push({
                 title: 'Stock e Inventario',
-                href: '#',
+                href: '/tenant/products',
                 icon: Package,
             });
         }

@@ -58,7 +58,7 @@
         // Tenant modular navigation
         if (tenant) {
             // Products catalog (Stock module)
-            if (modules.includes('stock') || user?.is_superadmin || roles.includes('admin')) {
+            if (modules.includes('inventario_stock') || modules.includes('stock') || user?.is_superadmin || roles.includes('admin')) {
                 items.push({
                     title: 'Productos',
                     href: '/tenant/products',

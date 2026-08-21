@@ -56,7 +56,7 @@
         }
 
         if (tenant) {
-            if (modules.includes('stock') || user?.is_superadmin || roles.includes('admin')) {
+            if (modules.includes('inventario_stock') || modules.includes('stock') || user?.is_superadmin || roles.includes('admin')) {
                 items.push({
                     title: 'Productos e Inventario',
                     href: '/tenant/products',

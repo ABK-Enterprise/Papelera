@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\SystemModule;
 use App\Models\Module;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -32,8 +33,8 @@ class BaseSeeder extends Seeder
         // 2. Initial Modules & Permissions
         $modules = [
             [
-                'name' => 'Facturación ARCA',
-                'code' => 'facturacion_arca',
+                'name' => SystemModule::FacturacionArca->label(),
+                'code' => SystemModule::FacturacionArca->value,
                 'description' => 'Emisión de comprobantes electrónicos (Facturas A, B, C, ND, NC) y conexión con ARCA.',
                 'permissions' => [
                     'facturas.emitir',
@@ -43,22 +44,23 @@ class BaseSeeder extends Seeder
                 ],
             ],
             [
-                'name' => 'Inventario y Stock',
-                'code' => 'inventario_stock',
+                'name' => SystemModule::InventarioStock->label(),
+                'code' => SystemModule::InventarioStock->value,
                 'description' => 'Gestión de productos, categorías, control de stock, ingresos y egresos de mercadería.',
                 'permissions' => [
                     'stock.ver',
                     'stock.ingresar',
                     'stock.egresar',
                     'stock.ajustar',
+                    'productos.ver',
                     'productos.crear',
                     'productos.editar',
                     'productos.eliminar',
                 ],
             ],
             [
-                'name' => 'Cuentas Corrientes',
-                'code' => 'cuentas_corrientes',
+                'name' => SystemModule::CuentasCorrientes->label(),
+                'code' => SystemModule::CuentasCorrientes->value,
                 'description' => 'Gestión de saldos, cobros, pagos y estados de cuenta de clientes y proveedores.',
                 'permissions' => [
                     'ctasctes.ver',
@@ -67,8 +69,8 @@ class BaseSeeder extends Seeder
                 ],
             ],
             [
-                'name' => 'Punto de Venta (POS)',
-                'code' => 'punto_de_venta',
+                'name' => SystemModule::PuntoDeVenta->label(),
+                'code' => SystemModule::PuntoDeVenta->value,
                 'description' => 'Terminal de cobro rápido para mostrador con tickets y lector de código de barras.',
                 'permissions' => [
                     'pos.vender',

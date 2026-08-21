@@ -10,8 +10,8 @@ use Inertia\Testing\AssertableInertia as Assert;
 beforeEach(function () {
     $this->tenant = Tenant::factory()->create(['is_active' => true]);
     $this->stockModule = Module::firstOrCreate(
-        ['code' => 'stock'],
-        ['name' => 'Stock e Inventario', 'is_active' => true]
+        ['code' => 'inventario_stock'],
+        ['name' => 'Inventario y Stock', 'is_active' => true]
     );
     $this->tenant->modules()->syncWithoutDetaching([$this->stockModule->id]);
 

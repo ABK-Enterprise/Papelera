@@ -22,8 +22,8 @@ beforeEach(function () {
 
     // Create 2 modules: 1 active & contracted, 1 inactive/not contracted
     $this->contractedModule = Module::factory()->create([
-        'name' => 'Stock e Inventario',
-        'code' => 'stock',
+        'name' => 'Inventario y Stock',
+        'code' => 'inventario_stock',
         'is_active' => true,
     ]);
     $this->permStockView = Permission::create(['name' => 'stock.view', 'guard_name' => 'web', 'module_id' => $this->contractedModule->id]);
@@ -74,7 +74,7 @@ test('tenant admin sees only permissions of contracted active modules on role cr
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/roles/Create')
             ->has('modules', 1)
-            ->where('modules.0.code', 'stock')
+            ->where('modules.0.code', 'inventario_stock')
             ->has('modules.0.permissions', 2)
         );
 });
