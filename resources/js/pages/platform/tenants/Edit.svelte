@@ -1,5 +1,4 @@
 <script lang="ts">
-    import AppLayout from '@/layouts/AppLayout.svelte';
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -50,15 +49,7 @@
 
 <AppHead title={`Editar ${tenant.name} - Plataforma`} />
 
-<AppLayout
-    breadcrumbs={[
-        { title: 'Plataforma', href: '/dashboard' },
-        { title: 'Comercios', href: '/platform/tenants' },
-        { title: tenant.name, href: `/platform/tenants/${tenant.id}/edit` },
-    ]}
->
-
-    <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-4xl mx-auto w-full">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-4xl mx-auto w-full">
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">Configurar Comercio: {tenant.name}</h1>
@@ -152,4 +143,3 @@
             </div>
         </form>
     </div>
-</AppLayout>

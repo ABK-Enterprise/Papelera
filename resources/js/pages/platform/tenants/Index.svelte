@@ -2,7 +2,6 @@
     import AppHead from '@/components/AppHead.svelte';
     import { Badge } from '@/components/ui/badge';
     import { Button } from '@/components/ui/button';
-    import AppLayout from '@/layouts/AppLayout.svelte';
     import CreateTenantDialog from '@/pages/platform/tenants/CreateTenantDialog.svelte';
     import { Link, router } from '@inertiajs/svelte';
     import Building2 from 'lucide-svelte/icons/building-2';
@@ -143,13 +142,7 @@
 
 <AppHead title="Gestión de Comercios - Luminous" />
 
-<AppLayout
-    breadcrumbs={[
-        { title: 'Plataforma', href: '/dashboard' },
-        { title: 'Comercios', href: '/platform/tenants' },
-    ]}
->
-    <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
         <!-- Page Header & Actions -->
         <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -377,4 +370,3 @@
         bind:open={isCreateModalOpen}
         modules={availableModules}
     />
-</AppLayout>

@@ -1,5 +1,4 @@
 <script lang="ts">
-    import AppLayout from '@/layouts/AppLayout.svelte';
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -94,14 +93,7 @@
 
 <AppHead title="Catálogo de Módulos - Plataforma" />
 
-<AppLayout
-    breadcrumbs={[
-        { title: 'Plataforma', href: '/dashboard' },
-        { title: 'Módulos y Permisos', href: '/platform/modules' },
-    ]}
->
-
-    <div class="flex flex-1 flex-col gap-6 p-4 md:p-8">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">Catálogo de Módulos del Sistema</h1>
@@ -271,4 +263,3 @@
             {/if}
         </div>
     </div>
-</AppLayout>

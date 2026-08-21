@@ -1,5 +1,4 @@
 <script lang="ts">
-    import AppLayout from '@/layouts/AppLayout.svelte';
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,14 +29,7 @@
 
 <AppHead title="Nuevo Empleado - Comercio" />
 
-<AppLayout
-    breadcrumbs={[
-        { title: 'Dashboard', href: '/dashboard' },
-        { title: 'Empleados', href: '/tenant/users' },
-        { title: 'Nuevo Empleado', href: '/tenant/users/create' },
-    ]}
->
-    <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-2xl mx-auto w-full">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-2xl mx-auto w-full">
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">Agregar Nuevo Empleado</h1>
@@ -140,4 +132,3 @@
             </div>
         </form>
     </div>
-</AppLayout>

@@ -1,5 +1,4 @@
 <script lang="ts">
-    import AppLayout from '@/layouts/AppLayout.svelte';
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -29,14 +28,7 @@
 
 <AppHead title="Roles y Permisos - Comercio" />
 
-<AppLayout
-    breadcrumbs={[
-        { title: 'Dashboard', href: '/dashboard' },
-        { title: 'Empleados', href: '/tenant/users' },
-        { title: 'Roles y Permisos', href: '/tenant/roles' },
-    ]}
->
-    <div class="flex flex-1 flex-col gap-6 p-4 md:p-8">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">Roles y Permisos</h1>
@@ -122,4 +114,3 @@
             {/if}
         </div>
     </div>
-</AppLayout>

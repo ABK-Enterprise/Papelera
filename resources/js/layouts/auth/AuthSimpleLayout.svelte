@@ -27,7 +27,7 @@
     <main class="relative z-10 mx-auto flex w-full max-w-7xl flex-1 items-center justify-center px-4 py-12 md:px-12">
         <div class="w-full max-w-[440px]">
             <div
-                class="w-full rounded-2xl border border-white/70 bg-[#fffdf0]/80 p-8 shadow-xl backdrop-blur-2xl transition-all sm:p-10 dark:border-[#e4e3d6]/30 dark:bg-[#fffdf0]/85 dark:shadow-2xl"
+                class="w-full rounded-2xl border border-white/70 bg-[#fffdf0]/90 p-8 shadow-xl backdrop-blur-2xl transition-all sm:p-10 dark:border-[#e4e3d6]/30 dark:bg-[#fffdf0]/85 dark:shadow-2xl"
                 style="box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);"
             >
                 <div class="mb-6 flex flex-col space-y-2 text-center">
@@ -51,4 +51,3 @@
         <span>&copy; {new Date().getFullYear()} Todos los derechos reservados.</span>
     </footer>
 </div>
-

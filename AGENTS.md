@@ -17,6 +17,10 @@ Before relying on a package's API, confirm its installed version:
 
 This project has domain-specific skills available in `**/skills/**`. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
 
+## Reglas Primordiales (Primordial)
+
+- **Desglose Estricto de UI Mobile y Desktop**: Desglosar siempre las interfaces en módulos y directorios separados para Mobile y Desktop (por ejemplo: `resources/js/pages/auth/mobile/` y `resources/js/pages/auth/desktop/`, o subcarpetas dedicadas en componentes). Aunque puedan reutilizar componentes atómicos base y lógica compartida, las vistas, layouts y adaptaciones específicas de cada viewport deben mantenerse aisladas en sus respectivos módulos para evitar regresiones o corrupciones cruzadas entre Desktop y Mobile.
+
 ## Conventions
 
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.

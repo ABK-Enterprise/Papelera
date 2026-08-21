@@ -1,5 +1,4 @@
 <script lang="ts">
-    import AppLayout from '@/layouts/AppLayout.svelte';
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -58,14 +57,7 @@
 
 <AppHead title="Nuevo Rol - Comercio" />
 
-<AppLayout
-    breadcrumbs={[
-        { title: 'Dashboard', href: '/dashboard' },
-        { title: 'Roles y Permisos', href: '/tenant/roles' },
-        { title: 'Nuevo Rol', href: '/tenant/roles/create' },
-    ]}
->
-    <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-4xl mx-auto w-full">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-4xl mx-auto w-full">
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">Crear Nuevo Rol</h1>
@@ -172,4 +164,3 @@
             </div>
         </form>
     </div>
-</AppLayout>

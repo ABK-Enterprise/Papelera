@@ -24,7 +24,13 @@
         children?: Snippet;
     } = $props();
 
-    const { isMobile, state, openMobile, setOpenMobile } = getContext<SidebarContext>(SIDEBAR_CONTEXT);
+    import { readable } from 'svelte/store';
+
+    const context = getContext<SidebarContext | undefined>(SIDEBAR_CONTEXT);
+    const isMobile = context?.isMobile ?? readable(false);
+    const state = context?.state ?? readable('expanded');
+    const openMobile = context?.openMobile ?? readable(false);
+    const setOpenMobile = context?.setOpenMobile ?? (() => {});
 </script>
 
 {#if collapsible === 'none'}
