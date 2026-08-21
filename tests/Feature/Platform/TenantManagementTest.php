@@ -6,7 +6,7 @@ use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Role;
 
-test('superadmin can view tenants list', function () {
+test('superadmin can view tenants list with filters and search', function () {
     $superadmin = User::factory()->superadmin()->create();
     Tenant::factory()->count(3)->create();
 
@@ -16,6 +16,69 @@ test('superadmin can view tenants list', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->component('platform/tenants/Index')
             ->has('tenants', 3)
+            ->has('availableModules')
+            ->has('filters')
+        );
+});
+
+test('superadmin can search tenants by name or cuit using scout', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    Tenant::factory()->create(['name' => 'Papelera San Martin', 'cuit_tax_id' => '30123456789']);
+    Tenant::factory()->create(['name' => 'Libreria Rivadavia', 'cuit_tax_id' => '30987654321']);
+
+    $this->actingAs($superadmin)
+        ->get('/platform/tenants?search=Papelera')
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('platform/tenants/Index')
+            ->has('tenants', 1)
+            ->where('tenants.0.name', 'Papelera San Martin')
+        );
+});
+
+test('superadmin can filter tenants by active or suspended status', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    Tenant::factory()->create(['name' => 'Activo Corp', 'is_active' => true]);
+    Tenant::factory()->create(['name' => 'Suspendido Corp', 'is_active' => false]);
+
+    $this->actingAs($superadmin)
+        ->get('/platform/tenants?status=activo')
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('platform/tenants/Index')
+            ->has('tenants', 1)
+            ->where('tenants.0.name', 'Activo Corp')
+        );
+
+    $this->actingAs($superadmin)
+        ->get('/platform/tenants?status=suspendido')
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('platform/tenants/Index')
+            ->has('tenants', 1)
+            ->where('tenants.0.name', 'Suspendido Corp')
+        );
+});
+
+test('superadmin can sort tenants by oldest or name', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    $tenantA = Tenant::factory()->create(['name' => 'Alfa Corp', 'created_at' => now()->subDays(5)]);
+    $tenantZ = Tenant::factory()->create(['name' => 'Zeta Corp', 'created_at' => now()]);
+
+    $this->actingAs($superadmin)
+        ->get('/platform/tenants?sort=oldest')
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('platform/tenants/Index')
+            ->where('tenants.0.id', $tenantA->id)
+        );
+
+    $this->actingAs($superadmin)
+        ->get('/platform/tenants?sort=name_asc')
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('platform/tenants/Index')
+            ->where('tenants.0.name', 'Alfa Corp')
         );
 });
 

@@ -11,10 +11,10 @@
         "infer-conventions",
         "fortify-development",
         "laravel-best-practices",
+        "scout-development",
         "socialite-development",
         "wayfinder-development",
         "pest-testing",
-        "inertia-svelte-development",
         "tailwindcss-development"
     ]
 }
