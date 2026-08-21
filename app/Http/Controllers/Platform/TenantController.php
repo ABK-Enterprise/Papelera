@@ -9,6 +9,7 @@ use App\Models\Module;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,17 +17,54 @@ use Spatie\Permission\Models\Role;
 
 class TenantController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $tenants = Tenant::with(['modules' => function ($query) {
-            $query->select('modules.id', 'modules.name', 'modules.code');
-        }])
-            ->withCount('users')
-            ->latest()
+        $search = $request->string('search')->trim()->toString();
+        $status = $request->string('status')->trim()->toString();
+        $sort = $request->string('sort')->trim()->toString();
+
+        $applyFilters = function ($query) use ($status, $sort) {
+            $query->with(['modules' => function ($q) {
+                $q->select('modules.id', 'modules.name', 'modules.code');
+            }])->withCount('users');
+
+            if ($status === 'activo') {
+                $query->where('is_active', true);
+            } elseif ($status === 'suspendido') {
+                $query->where('is_active', false);
+            }
+
+            if ($sort === 'oldest') {
+                $query->oldest();
+            } elseif ($sort === 'name_asc') {
+                $query->orderBy('name', 'asc');
+            } else {
+                $query->latest();
+            }
+        };
+
+        if ($search !== '') {
+            $tenants = Tenant::search($search)
+                ->query($applyFilters)
+                ->get();
+        } else {
+            $query = Tenant::query();
+            $applyFilters($query);
+            $tenants = $query->get();
+        }
+
+        $availableModules = Module::where('is_active', true)
+            ->select('id', 'name', 'code', 'description')
             ->get();
 
         return Inertia::render('platform/tenants/Index', [
             'tenants' => $tenants,
+            'availableModules' => $availableModules,
+            'filters' => [
+                'search' => $search,
+                'status' => $status ?: 'all',
+                'sort' => $sort ?: 'latest',
+            ],
         ]);
     }
 
