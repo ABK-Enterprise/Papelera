@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "laravel-permission-development": {
+      "source": "spatie/laravel-permission",
+      "sourceType": "github",
+      "skillPath": "resources/boost/skills/laravel-permission-development/SKILL.md",
+      "computedHash": "bc04d1b77c89b3183eeeddda9c46c42631849329c7a8e377614dea61b6a15b1a"
+    }
+  }
+}
