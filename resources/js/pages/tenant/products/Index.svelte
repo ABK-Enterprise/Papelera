@@ -1,5 +1,4 @@
 <script lang="ts">
-    import AppLayout from '@/layouts/AppLayout.svelte';
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
@@ -95,13 +94,7 @@
 
 <AppHead title="Catálogo de Productos - Comercio" />
 
-<AppLayout
-    breadcrumbs={[
-        { title: 'Dashboard', href: '/dashboard' },
-        { title: 'Productos', href: '/tenant/products' },
-    ]}
->
-    <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
         <!-- Sub-Navegación de Pestañas de Stock y Productos -->
         <StockNavigationTabs activeTab="products" />
 
@@ -222,4 +215,3 @@
             <ProductListMobile {products} />
         </div>
     </div>
-</AppLayout>

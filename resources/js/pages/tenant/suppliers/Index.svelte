@@ -1,5 +1,4 @@
 <script lang="ts">
-    import AppLayout from '@/layouts/AppLayout.svelte';
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
@@ -75,13 +74,7 @@
 
 <AppHead title="Gestión de Proveedores - Comercio" />
 
-<AppLayout
-    breadcrumbs={[
-        { title: 'Dashboard', href: '/dashboard' },
-        { title: 'Proveedores', href: '/tenant/suppliers' },
-    ]}
->
-    <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
         <!-- Header de la Página -->
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -200,4 +193,3 @@
     <CreateSupplierModal bind:open={showCreateModal} />
 
     <ManageSupplierModal bind:open={showManageModal} supplier={selectedSupplier} />
-</AppLayout>
