@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AccessDeniedController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Playground\ArcaPlaygroundController;
@@ -8,6 +9,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect()->route('dashboard');
 })->name('home');
+
+Route::get('access-denied', [AccessDeniedController::class, 'index'])
+    ->middleware('auth')
+    ->name('auth.access-denied');
 
 Route::middleware('guest')->group(function () {
     Route::get('auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
