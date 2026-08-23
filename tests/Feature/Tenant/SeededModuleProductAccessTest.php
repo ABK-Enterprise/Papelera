@@ -75,10 +75,10 @@ test('seeded productos and stock modules match routes and grant access to tenant
             ->has('stats')
         );
 
-    // If module is removed from tenant, access becomes 403 Forbidden
+    // If module is removed from tenant, access is redirected to access-denied
     $tenant->modules()->detach($productosModule->id);
 
     $this->actingAs($tenantUser)
         ->get('/tenant/products')
-        ->assertForbidden();
+        ->assertRedirect(route('auth.access-denied', ['reason' => 'module_not_assigned']));
 });

@@ -2,18 +2,47 @@
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-    import { router } from '@inertiajs/svelte';
+    import { Link, router } from '@inertiajs/svelte';
     import ShieldAlert from 'lucide-svelte/icons/shield-alert';
     import LogOut from 'lucide-svelte/icons/log-out';
+    import LayoutGrid from 'lucide-svelte/icons/layout-grid';
     import Lock from 'lucide-svelte/icons/lock';
 
     let {
-        reason = 'unauthorized',
+        reason = 'insufficient_permissions',
     }: {
         reason?: string;
     } = $props();
 
-    let isDeactivated = $derived(reason === 'account_deactivated');
+    let subtitle = $derived.by(() => {
+        switch (reason) {
+            case 'account_deactivated':
+                return 'Te desactivaron la cuenta';
+            case 'module_not_assigned':
+                return 'Módulo no contratado';
+            case 'insufficient_permissions':
+            case 'no_permissions':
+                return 'Sin permisos asignados';
+            case 'unauthorized':
+            default:
+                return 'Sin permisos de acceso';
+        }
+    });
+
+    let description = $derived.by(() => {
+        switch (reason) {
+            case 'account_deactivated':
+                return 'El comercio al que pertenece tu usuario ha sido desactivado o suspendido por el superadministrador. Comunícate con el soporte de la plataforma para más información.';
+            case 'module_not_assigned':
+                return 'Tu comercio no tiene habilitado este módulo en la plataforma. Contacta al administrador para gestionar la activación de los módulos.';
+            case 'insufficient_permissions':
+            case 'no_permissions':
+                return 'Tu usuario no cuenta con los permisos necesarios para acceder a esta sección. Contacta al administrador de tu comercio para que te asigne los permisos correspondientes.';
+            case 'unauthorized':
+            default:
+                return 'Tu usuario se encuentra autenticado pero no tiene los permisos requeridos para ingresar al sistema o módulo solicitado.';
+        }
+    });
 
     function logout() {
         router.post('/logout');
@@ -33,11 +62,12 @@
         </div>
 
         <Card class="border-border/60 shadow-lg text-center overflow-hidden">
-            <div class="h-2 bg-gradient-to-r {isDeactivated ? 'from-amber-500 to-rose-500' : 'from-rose-500 to-destructive'}"></div>
+            <!-- Barra superior en degradé anaranjado -->
+            <div class="h-2 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600"></div>
 
             <CardHeader class="pt-8 pb-4">
                 <div class="flex justify-center mb-3">
-                    <div class="flex size-14 items-center justify-center rounded-2xl {isDeactivated ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'}">
+                    <div class="flex size-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                         <ShieldAlert class="size-7" />
                     </div>
                 </div>
@@ -46,20 +76,15 @@
                     No tienes acceso al sistema, contacta con un administrador
                 </CardTitle>
 
-                {#if isDeactivated}
-                    <div class="pt-2">
-                        <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
-                            Te desactivaron la cuenta
-                        </span>
-                    </div>
-                {/if}
+                <!-- Subtítulo anaranjado destacado -->
+                <div class="pt-2.5">
+                    <span class="inline-flex items-center px-3.5 py-1 rounded-md text-xs font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 tracking-wide uppercase">
+                        {subtitle}
+                    </span>
+                </div>
 
                 <CardDescription class="text-xs text-muted-foreground mt-3 leading-relaxed px-4">
-                    {#if isDeactivated}
-                        El comercio al que pertenece tu usuario ha sido desactivado o suspendido por el superadministrador. Comunícate con el soporte de la plataforma para más información.
-                    {:else}
-                        Tu usuario se encuentra autenticado pero no está asignado a ningún comercio activo en la plataforma. Solicita una invitación a tu administrador.
-                    {/if}
+                    {description}
                 </CardDescription>
             </CardHeader>
 
@@ -69,12 +94,24 @@
                 </div>
             </CardContent>
 
-            <CardFooter class="pt-4 pb-6 flex justify-center border-t border-border/40 mt-2">
+            <CardFooter class="pt-4 pb-6 flex flex-wrap justify-center gap-2 border-t border-border/40 mt-2">
+                {#if reason !== 'account_deactivated'}
+                    <Link href="/dashboard">
+                        <Button
+                            variant="default"
+                            size="sm"
+                            class="text-xs font-semibold gap-1.5"
+                        >
+                            <LayoutGrid class="size-3.5" />
+                            Ir al Dashboard
+                        </Button>
+                    </Link>
+                {/if}
                 <Button
                     variant="outline"
                     size="sm"
                     onclick={logout}
-                    class="text-xs font-semibold gap-2"
+                    class="text-xs font-semibold gap-1.5"
                 >
                     <LogOut class="size-3.5" />
                     Cerrar sesión

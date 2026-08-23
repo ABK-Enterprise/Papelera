@@ -60,12 +60,12 @@ test('tenant user can access route when tenant has the module assigned', functio
         ->assertJson(['message' => 'welcome stock module']);
 });
 
-test('tenant user is forbidden from module route when module is not assigned', function () {
+test('tenant user is redirected to access-denied from module route when module is not assigned', function () {
     $tenant = Tenant::factory()->create();
     // Do not attach module
     $user = User::factory()->forTenant($tenant)->create();
 
     $this->actingAs($user)
         ->get('/test-module-stock')
-        ->assertForbidden();
+        ->assertRedirect(route('auth.access-denied', ['reason' => 'module_not_assigned']));
 });

@@ -12,7 +12,7 @@ class EnsureTenantPermission
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next, string ...$permissions): Response
     {
@@ -40,10 +40,14 @@ class EnsureTenantPermission
                     return $next($request);
                 }
             } catch (PermissionDoesNotExist) {
-                // Permission not in DB yet, continue evaluating other permissions
+                // Permission not in DB yet
             }
         }
 
-        abort(403, 'No tienes los permisos necesarios para acceder a esta sección o realizar esta acción.');
+        if ($request->wantsJson()) {
+            abort(403, 'No tienes los permisos necesarios para realizar esta acción.');
+        }
+
+        return redirect()->route('auth.access-denied', ['reason' => 'insufficient_permissions']);
     }
 }

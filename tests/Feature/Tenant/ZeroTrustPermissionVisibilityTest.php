@@ -73,10 +73,10 @@ beforeEach(function () {
     ]);
 });
 
-test('employee without productos.ver permission is forbidden from accessing products index', function () {
+test('employee without productos.ver permission is redirected to access-denied', function () {
     $this->actingAs($this->employeeUser)
         ->get(route('tenant.products.index'))
-        ->assertForbidden();
+        ->assertRedirect(route('auth.access-denied', ['reason' => 'insufficient_permissions']));
 });
 
 test('employee with productos.ver permission can access products index', function () {
@@ -113,14 +113,14 @@ test('employee with stock_minimo.ver receives low stock products on dashboard', 
         );
 });
 
-test('employee without admin role cannot access tenant users or roles management', function () {
+test('employee without admin role cannot access tenant users or roles management and is redirected to access-denied', function () {
     $this->actingAs($this->employeeUser)
         ->get(route('tenant.users.index'))
-        ->assertForbidden();
+        ->assertRedirect(route('auth.access-denied', ['reason' => 'insufficient_permissions']));
 
     $this->actingAs($this->employeeUser)
         ->get(route('tenant.roles.index'))
-        ->assertForbidden();
+        ->assertRedirect(route('auth.access-denied', ['reason' => 'insufficient_permissions']));
 });
 
 test('tenant admin can access dashboard low stock alerts and management routes', function () {

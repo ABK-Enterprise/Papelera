@@ -1,8 +1,10 @@
 <?php
 
+use App\Models\Module;
 use App\Models\Tenant;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
+use Spatie\Permission\Models\Role;
 
 test('authenticated user without tenant is redirected from dashboard to access-denied', function () {
     $user = User::factory()->create([
@@ -39,33 +41,45 @@ test('authenticated user with deactivated tenant is redirected from tenant route
     $response->assertRedirect(route('auth.access-denied', ['reason' => 'account_deactivated']));
 });
 
-test('access denied page renders properly for unauthorized user', function () {
-    $user = User::factory()->create([
-        'tenant_id' => null,
-        'is_superadmin' => false,
-    ]);
+test('authenticated employee without permissions is redirected to access-denied with insufficient_permissions reason', function () {
+    $tenant = Tenant::factory()->create(['is_active' => true]);
+    $module = Module::create(['code' => 'productos', 'name' => 'Productos', 'is_active' => true]);
+    $tenant->modules()->sync([$module->id]);
 
-    $response = $this->actingAs($user)->get(route('auth.access-denied', ['reason' => 'unauthorized']));
+    $user = User::factory()->forTenant($tenant)->create();
+    setPermissionsTeamId($tenant->id);
+    $role = Role::create(['name' => 'empleado_sin_permisos', 'guard_name' => 'web', 'tenant_id' => $tenant->id]);
+    $user->assignRole($role);
 
-    $response->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
-            ->component('auth/AccessDenied')
-            ->where('reason', 'unauthorized')
-        );
+    $response = $this->actingAs($user)->get(route('tenant.products.index'));
+
+    $response->assertRedirect(route('auth.access-denied', ['reason' => 'insufficient_permissions']));
 });
 
-test('access denied page renders properly for deactivated tenant user', function () {
-    $tenant = Tenant::factory()->create(['is_active' => false]);
-    $user = User::factory()->create([
-        'tenant_id' => $tenant->id,
-        'is_superadmin' => false,
-    ]);
+test('authenticated tenant user accessing unassigned module is redirected to access-denied with module_not_assigned reason', function () {
+    $tenant = Tenant::factory()->create(['is_active' => true]);
+    $user = User::factory()->forTenant($tenant)->create();
 
-    $response = $this->actingAs($user)->get(route('auth.access-denied'));
+    $response = $this->actingAs($user)->get('/tenant/products');
 
-    $response->assertOk()
+    $response->assertRedirect(route('auth.access-denied', ['reason' => 'module_not_assigned']));
+});
+
+test('access denied page renders properly for insufficient_permissions and module_not_assigned reasons', function () {
+    $tenant = Tenant::factory()->create(['is_active' => true]);
+    $user = User::factory()->forTenant($tenant)->create();
+
+    $responsePermissions = $this->actingAs($user)->get(route('auth.access-denied', ['reason' => 'insufficient_permissions']));
+    $responsePermissions->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('auth/AccessDenied')
-            ->where('reason', 'account_deactivated')
+            ->where('reason', 'insufficient_permissions')
+        );
+
+    $responseModule = $this->actingAs($user)->get(route('auth.access-denied', ['reason' => 'module_not_assigned']));
+    $responseModule->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('auth/AccessDenied')
+            ->where('reason', 'module_not_assigned')
         );
 });
