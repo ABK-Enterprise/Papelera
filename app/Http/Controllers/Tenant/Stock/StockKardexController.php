@@ -29,10 +29,14 @@ class StockKardexController extends Controller
                 $q->where('type', $type);
             })
             ->when($search, function ($q, $search) {
-                $q->whereHas('product', function ($sub) use ($search) {
-                    $sub->where('name', 'like', "%{$search}%")
-                        ->orWhere('sku', 'like', "%{$search}%")
-                        ->orWhere('barcode', 'like', "%{$search}%");
+                $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
+                $q->where(function ($sub) use ($searchTerm) {
+                    $sub->whereHas('product', function ($pq) use ($searchTerm) {
+                        $pq->whereRaw('LOWER(name) LIKE ?', [$searchTerm])
+                            ->orWhereRaw('LOWER(sku) LIKE ?', [$searchTerm])
+                            ->orWhereRaw('LOWER(barcode) LIKE ?', [$searchTerm]);
+                    })->orWhereRaw('LOWER(notes) LIKE ?', [$searchTerm])
+                      ->orWhereRaw('LOWER(reason) LIKE ?', [$searchTerm]);
                 });
             })
             ->latest();

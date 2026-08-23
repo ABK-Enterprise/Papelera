@@ -21,11 +21,12 @@ class SupplierController extends Controller
 
         $query = Supplier::query()
             ->when($search, function ($q, $search) {
-                $q->where(function ($sub) use ($search) {
-                    $sub->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%")
-                        ->orWhere('contact_number', 'like', "%{$search}%")
-                        ->orWhere('address', 'like', "%{$search}%");
+                $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
+                $q->where(function ($sub) use ($searchTerm) {
+                    $sub->whereRaw('LOWER(name) LIKE ?', [$searchTerm])
+                        ->orWhereRaw('LOWER(email) LIKE ?', [$searchTerm])
+                        ->orWhereRaw('LOWER(contact_number) LIKE ?', [$searchTerm])
+                        ->orWhereRaw('LOWER(address) LIKE ?', [$searchTerm]);
                 });
             })
             ->when($status !== null && $status !== '', function ($q) use ($status) {

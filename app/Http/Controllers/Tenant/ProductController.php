@@ -23,10 +23,11 @@ class ProductController extends Controller
 
         $query = Product::with('category:id,name,slug,icon')
             ->when($search, function ($q, $search) {
-                $q->where(function ($sub) use ($search) {
-                    $sub->where('name', 'like', "%{$search}%")
-                        ->orWhere('sku', 'like', "%{$search}%")
-                        ->orWhere('barcode', 'like', "%{$search}%");
+                $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
+                $q->where(function ($sub) use ($searchTerm) {
+                    $sub->whereRaw('LOWER(name) LIKE ?', [$searchTerm])
+                        ->orWhereRaw('LOWER(sku) LIKE ?', [$searchTerm])
+                        ->orWhereRaw('LOWER(barcode) LIKE ?', [$searchTerm]);
                 });
             })
             ->when($categoryId, function ($q, $categoryId) {
