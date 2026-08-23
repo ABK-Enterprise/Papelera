@@ -1,5 +1,12 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
+    import {
+        Dialog,
+        DialogContent,
+        DialogDescription,
+        DialogFooter,
+        DialogTitle,
+    } from '@/components/ui/dialog';
     import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
     import Calendar from 'lucide-svelte/icons/calendar';
@@ -35,8 +42,8 @@
         open = $bindable(false),
         movement = null,
     }: {
-        open: boolean;
-        movement: StockMovementItem | null;
+        open?: boolean;
+        movement?: StockMovementItem | null;
     } = $props();
 
     function formatFullDate(dateStr: string): string {
@@ -57,35 +64,32 @@
     }
 </script>
 
-{#if open && movement}
-    <div
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in-0"
-        role="dialog"
-        aria-modal="true"
-    >
-        <div
-            class="relative w-full max-w-lg rounded-2xl border border-border/80 bg-card p-6 shadow-2xl transition-all"
-        >
-            <div class="flex items-center justify-between pb-4 border-b border-border/60">
+<Dialog bind:open>
+    <DialogContent class="max-w-lg p-6">
+        {#if movement}
+            <div class="flex items-center justify-between pb-4 border-b border-border">
                 <div class="flex items-center gap-2.5">
                     <div class="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
                         <History class="size-5" />
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold text-foreground">Detalle de Movimiento de Kardex</h2>
-                        <p class="text-xs text-muted-foreground">Registro de auditoría #MOV-{movement.id.toString().padStart(6, '0')}</p>
+                        <DialogTitle class="text-lg font-bold text-foreground">Detalle de Movimiento de Kardex</DialogTitle>
+                        <DialogDescription class="text-xs text-muted-foreground">
+                            Registro de auditoría #MOV-{String(movement.id).padStart(6, '0')}
+                        </DialogDescription>
                     </div>
                 </div>
                 <button
                     type="button"
                     onclick={() => (open = false)}
                     class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                    aria-label="Cerrar"
                 >
                     <X class="size-4" />
                 </button>
             </div>
 
-            <div class="mt-4 space-y-4 text-sm">
+            <div class="space-y-4 pt-3 text-sm">
                 <!-- Información del Producto -->
                 <div class="p-3.5 rounded-xl bg-muted/40 border border-border/60">
                     <span class="text-xs text-muted-foreground font-semibold uppercase tracking-wider block mb-1">
@@ -172,8 +176,7 @@
                     </div>
                 {/if}
 
-                <!-- Botón de Cerrar -->
-                <div class="flex justify-end pt-3 border-t border-border/60">
+                <DialogFooter class="pt-3 border-t border-border">
                     <Button
                         type="button"
                         variant="outline"
@@ -182,8 +185,8 @@
                     >
                         Cerrar Detalle
                     </Button>
-                </div>
+                </DialogFooter>
             </div>
-        </div>
-    </div>
-{/if}
+        {/if}
+    </DialogContent>
+</Dialog>
