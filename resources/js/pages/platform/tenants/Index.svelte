@@ -11,8 +11,6 @@
     import Filter from 'lucide-svelte/icons/filter';
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
-    import ShieldAlert from 'lucide-svelte/icons/shield-alert';
-    import ShieldCheck from 'lucide-svelte/icons/shield-check';
     import Store from 'lucide-svelte/icons/store';
     import Users from 'lucide-svelte/icons/users';
     import X from 'lucide-svelte/icons/x';
@@ -117,12 +115,6 @@
         statusFilter = 'all';
         sortFilter = 'latest';
         router.get('/platform/tenants', {}, { preserveState: true, replace: true });
-    }
-
-    function toggleActive(tenant: TenantItem) {
-        router.patch(`/platform/tenants/${tenant.id}/toggle-active`, {}, {
-            preserveScroll: true,
-        });
     }
 
     function formatDate(dateStr: string): string {
@@ -302,24 +294,10 @@
                                     <!-- Acciones -->
                                     <td class="py-4 px-6 text-right">
                                         <div class="flex items-center justify-end gap-2">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onclick={() => toggleActive(tenant)}
-                                                class="h-8 text-xs {tenant.is_active ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/30' : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30'}"
-                                            >
-                                                {#if tenant.is_active}
-                                                    <ShieldAlert class="size-3.5 mr-1" />
-                                                    Suspender
-                                                {:else}
-                                                    <ShieldCheck class="size-3.5 mr-1" />
-                                                    Activar
-                                                {/if}
-                                            </Button>
                                             <Link href={`/platform/tenants/${tenant.id}/edit`}>
-                                                <Button size="sm" variant="secondary" class="h-8 text-xs">
-                                                    <Edit2 class="size-3 mr-1" />
-                                                    Editar
+                                                <Button size="sm" variant="outline" class="h-8 text-xs font-semibold gap-1.5 hover:bg-muted">
+                                                    <Edit2 class="size-3" />
+                                                    <span>Editar</span>
                                                 </Button>
                                             </Link>
                                         </div>
