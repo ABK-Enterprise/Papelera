@@ -8,8 +8,8 @@ use App\Models\User;
 
 beforeEach(function () {
     $this->stockModule = Module::firstOrCreate(
-        ['code' => 'inventario_stock'],
-        ['name' => 'Inventario y Stock', 'is_active' => true]
+        ['code' => 'productos'],
+        ['name' => 'Catálogo de Productos', 'is_active' => true]
     );
 
     $this->tenant1 = Tenant::factory()->create(['name' => 'Tenant 1', 'is_active' => true]);

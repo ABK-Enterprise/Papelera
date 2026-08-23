@@ -1,19 +1,12 @@
 <script lang="ts">
-    import { Link, page } from '@inertiajs/svelte';
+    import { Link } from '@inertiajs/svelte';
     import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
     import History from 'lucide-svelte/icons/history';
-    import Package from 'lucide-svelte/icons/package';
 
-    let { activeTab = 'products' }: { activeTab?: 'products' | 'incomes' | 'outcomes' | 'kardex' } = $props();
+    let { activeTab = 'incomes' }: { activeTab?: 'incomes' | 'outcomes' | 'kardex' } = $props();
 
     const tabs = [
-        {
-            id: 'products',
-            name: 'Catálogo de Productos',
-            href: '/tenant/products',
-            icon: Package,
-        },
         {
             id: 'incomes',
             name: 'Ingresos de Stock',

@@ -9,8 +9,8 @@ use App\Models\User;
 beforeEach(function () {
     $this->tenant = Tenant::factory()->create(['is_active' => true]);
     $this->stockModule = Module::firstOrCreate(
-        ['code' => 'inventario_stock'],
-        ['name' => 'Inventario y Stock', 'is_active' => true]
+        ['code' => 'productos'],
+        ['name' => 'Catálogo de Productos', 'is_active' => true]
     );
     $this->tenant->modules()->syncWithoutDetaching([$this->stockModule->id]);
 

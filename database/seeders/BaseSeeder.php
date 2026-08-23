@@ -37,29 +37,26 @@ class BaseSeeder extends Seeder
         // 2. Active Functional Modules & Permissions
         $modules = [
             [
-                'name' => SystemModule::InventarioStock->label(),
-                'code' => SystemModule::InventarioStock->value,
-                'description' => 'Gestión de productos, categorías, control de stock, precios y alertas de inventario.',
+                'name' => SystemModule::Productos->label(),
+                'code' => SystemModule::Productos->value,
+                'description' => 'Catálogo general de artículos, categorías, precios y parámetros de catálogo.',
                 'permissions' => [
                     'productos.ver',
                     'productos.crear',
                     'productos.editar',
                     'productos.eliminar',
-                    'stock.ver',
-                    'stock.ingresar',
-                    'stock.egresar',
-                    'stock.ajustar',
                 ],
             ],
             [
-                'name' => SystemModule::FacturacionArca->label(),
-                'code' => SystemModule::FacturacionArca->value,
-                'description' => 'Emisión de comprobantes electrónicos (Facturas A, B, C, ND, NC) y conexión con ARCA.',
+                'name' => SystemModule::Stock->label(),
+                'code' => SystemModule::Stock->value,
+                'description' => 'Control de inventario, registro de ingresos, egresos por devolución y kardex cronológico.',
                 'permissions' => [
-                    'facturas.emitir',
-                    'facturas.consultar',
-                    'facturas.anular',
-                    'facturas.puntos_venta',
+                    'stock_ingreso.ver',
+                    'stock_ingreso.crear',
+                    'stock_egreso.ver',
+                    'stock_egreso.crear',
+                    'stock_historial.ver',
                 ],
             ],
             [
@@ -71,6 +68,17 @@ class BaseSeeder extends Seeder
                     'proveedores.crear',
                     'proveedores.editar',
                     'proveedores.eliminar',
+                ],
+            ],
+            [
+                'name' => SystemModule::FacturacionArca->label(),
+                'code' => SystemModule::FacturacionArca->value,
+                'description' => 'Emisión de comprobantes electrónicos (Facturas A, B, C, ND, NC) y conexión con ARCA.',
+                'permissions' => [
+                    'facturas.emitir',
+                    'facturas.consultar',
+                    'facturas.anular',
+                    'facturas.puntos_venta',
                 ],
             ],
         ];
@@ -100,12 +108,13 @@ class BaseSeeder extends Seeder
 
         // Clean up legacy/dummy modules that are not active
         Module::whereNotIn('code', [
-            SystemModule::InventarioStock->value,
-            SystemModule::FacturacionArca->value,
+            SystemModule::Productos->value,
+            SystemModule::Stock->value,
             SystemModule::Proveedores->value,
+            SystemModule::FacturacionArca->value,
         ])->delete();
 
-        // 3. Default Demo Tenant with active Stock module
+        // 3. Default Demo Tenant with active modules
         $tenant = Tenant::firstOrCreate([
             'id' => 1,
         ], [
@@ -126,9 +135,10 @@ class BaseSeeder extends Seeder
             'tenant_id' => $tenant->id,
         ]);
 
-        // Assign all stock and proveedores module permissions to tenant admin role
+        // Assign all tenant active module permissions to tenant admin role
         $activeModuleIds = Module::whereIn('code', [
-            SystemModule::InventarioStock->value,
+            SystemModule::Productos->value,
+            SystemModule::Stock->value,
             SystemModule::Proveedores->value,
         ])->pluck('id');
         $activePermissions = Permission::whereIn('module_id', $activeModuleIds)->get();

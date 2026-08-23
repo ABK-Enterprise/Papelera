@@ -4,9 +4,11 @@ namespace App\Enums;
 
 enum SystemModule: string
 {
-    case InventarioStock = 'inventario_stock';
-    case FacturacionArca = 'facturacion_arca';
+    case Productos = 'productos';
+    case Stock = 'stock';
     case Proveedores = 'proveedores';
+    case FacturacionArca = 'facturacion_arca';
+    case InventarioStock = 'inventario_stock';
 
     /**
      * Get the human-readable name for the module.
@@ -14,9 +16,11 @@ enum SystemModule: string
     public function label(): string
     {
         return match ($this) {
-            self::InventarioStock => 'Inventario y Stock',
-            self::FacturacionArca => 'Facturación ARCA',
+            self::Productos => 'Catálogo de Productos',
+            self::Stock => 'Control de Stock y Kardex',
             self::Proveedores => 'Proveedores',
+            self::FacturacionArca => 'Facturación ARCA',
+            self::InventarioStock => 'Inventario y Stock (Legacy)',
         };
     }
 }

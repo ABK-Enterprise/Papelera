@@ -13,8 +13,8 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->stockModule = Module::create([
-        'code' => 'inventario_stock',
-        'name' => 'Inventario y Stock',
+        'code' => 'stock',
+        'name' => 'Control de Stock y Kardex',
         'description' => 'Módulo de stock',
         'is_active' => true,
     ]);

@@ -10,7 +10,6 @@
     import CategorySidebarDesktop from './desktop/CategorySidebarDesktop.svelte';
     import ProductListDesktop from './desktop/ProductListDesktop.svelte';
     import ProductListMobile from './mobile/ProductListMobile.svelte';
-    import StockNavigationTabs from '../stock/StockNavigationTabs.svelte';
 
     interface CategoryItem {
         id: number;
@@ -95,9 +94,6 @@
 <AppHead title="Catálogo de Productos - Comercio" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
-        <!-- Sub-Navegación de Pestañas de Stock y Productos -->
-        <StockNavigationTabs activeTab="products" />
-
         <!-- Header de la Página -->
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>

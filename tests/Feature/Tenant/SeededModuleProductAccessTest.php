@@ -7,27 +7,40 @@ use App\Models\User;
 use Database\Seeders\BaseSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
 
-test('seeded inventario_stock module matches routes and grants product access to tenant', function () {
+test('seeded productos and stock modules match routes and grant access to tenant', function () {
     // Run BaseSeeder
     $this->seed(BaseSeeder::class);
 
-    $inventarioModule = Module::where('code', SystemModule::InventarioStock->value)->first();
-    expect($inventarioModule)->not->toBeNull()
-        ->and($inventarioModule->name)->toBe('Inventario y Stock');
+    $productosModule = Module::where('code', SystemModule::Productos->value)->first();
+    expect($productosModule)->not->toBeNull()
+        ->and($productosModule->name)->toBe('Catálogo de Productos');
 
-    // Verify seeded permissions
-    $permissions = $inventarioModule->permissions->pluck('name')->all();
-    expect($permissions)->toContain(
+    $stockModule = Module::where('code', SystemModule::Stock->value)->first();
+    expect($stockModule)->not->toBeNull()
+        ->and($stockModule->name)->toBe('Control de Stock y Kardex');
+
+    // Verify seeded permissions for productos
+    $prodPermissions = $productosModule->permissions->pluck('name')->all();
+    expect($prodPermissions)->toContain(
         'productos.ver',
         'productos.crear',
         'productos.editar',
         'productos.eliminar',
-        'stock.ver'
     );
 
-    // Create a tenant and assign the seeded inventario_stock module
+    // Verify seeded permissions for stock
+    $stockPermissions = $stockModule->permissions->pluck('name')->all();
+    expect($stockPermissions)->toContain(
+        'stock_ingreso.ver',
+        'stock_ingreso.crear',
+        'stock_egreso.ver',
+        'stock_egreso.crear',
+        'stock_historial.ver',
+    );
+
+    // Create a tenant and assign the seeded modules
     $tenant = Tenant::factory()->create(['name' => 'Papelera San Martín', 'is_active' => true]);
-    $tenant->modules()->attach($inventarioModule->id);
+    $tenant->modules()->attach([$productosModule->id, $stockModule->id]);
 
     $tenantUser = User::factory()->forTenant($tenant)->create();
 
@@ -42,8 +55,19 @@ test('seeded inventario_stock module matches routes and grants product access to
             ->has('stats')
         );
 
+    // Tenant user accesses /tenant/stock/ingresos successfully
+    $this->actingAs($tenantUser)
+        ->get('/tenant/stock/ingresos')
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/stock/incomes/Index')
+            ->has('movements')
+            ->has('products')
+            ->has('stats')
+        );
+
     // If module is removed from tenant, access becomes 403 Forbidden
-    $tenant->modules()->detach($inventarioModule->id);
+    $tenant->modules()->detach($productosModule->id);
 
     $this->actingAs($tenantUser)
         ->get('/tenant/products')

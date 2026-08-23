@@ -20,12 +20,14 @@ Route::middleware(['auth', 'verified', 'tenant'])
         // Roles & Permissions Management
         Route::resource('roles', RoleController::class)->except(['show']);
 
-        // Products, Categories & Stock Management (Inventario y Stock)
-        Route::middleware('module:inventario_stock')->group(function () {
+        // Products & Categories Management (Productos module)
+        Route::middleware('module:productos')->group(function () {
             Route::resource('products', ProductController::class)->except(['show']);
             Route::resource('categories', CategoryController::class)->except(['show', 'create', 'edit']);
+        });
 
-            // Stock movements & Kardex
+        // Stock Management & Kardex (Stock module)
+        Route::middleware('module:stock')->group(function () {
             Route::get('stock/ingresos', [StockIncomeController::class, 'index'])->name('stock.incomes.index');
             Route::post('stock/ingresos', [StockIncomeController::class, 'store'])->name('stock.incomes.store');
             Route::get('stock/egresos', [StockOutcomeController::class, 'index'])->name('stock.outcomes.index');

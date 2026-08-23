@@ -57,12 +57,21 @@
         }
 
         if (tenant) {
-            if (modules.includes('inventario_stock') || modules.includes('stock') || user?.is_superadmin || roles.includes('admin')) {
+            if (modules.includes('productos') || modules.includes('inventario_stock') || user?.is_superadmin || roles.includes('admin')) {
                 items.push({
-                    title: 'Productos e Inventario',
+                    title: 'Productos',
                     href: '/tenant/products',
                     icon: Package,
                     active: currentUrl.startsWith('/tenant/products') || currentUrl.startsWith('/tenant/categories'),
+                });
+            }
+
+            if (modules.includes('stock') || modules.includes('inventario_stock') || user?.is_superadmin || roles.includes('admin')) {
+                items.push({
+                    title: 'Stock y Kardex',
+                    href: '/tenant/stock/ingresos',
+                    icon: Boxes,
+                    active: currentUrl.startsWith('/tenant/stock'),
                 });
             }
 

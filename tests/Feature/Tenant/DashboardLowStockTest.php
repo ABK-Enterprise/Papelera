@@ -126,16 +126,12 @@ test('tenant user without inventory module receives empty low stock products on 
         );
 });
 
-test('user without tenant receives empty low stock products on dashboard', function () {
-    $userWithoutTenant = User::factory()->create(['tenant_id' => null]);
+test('user without tenant is redirected to access denied from dashboard', function () {
+    $userWithoutTenant = User::factory()->create(['tenant_id' => null, 'is_superadmin' => false]);
 
     $this->actingAs($userWithoutTenant)
         ->get(route('dashboard'))
-        ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
-            ->component('Dashboard')
-            ->has('lowStockProducts', 0)
-        );
+        ->assertRedirect(route('auth.access-denied', ['reason' => 'unauthorized']));
 });
 
 test('positive empty state when all products have healthy stock', function () {

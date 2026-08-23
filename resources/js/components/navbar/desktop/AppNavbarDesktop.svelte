@@ -58,13 +58,23 @@
 
         // Tenant modular navigation
         if (tenant) {
-            // Products catalog (Stock module)
-            if (modules.includes('inventario_stock') || modules.includes('stock') || user?.is_superadmin || roles.includes('admin')) {
+            // Products catalog (Productos module)
+            if (modules.includes('productos') || modules.includes('inventario_stock') || user?.is_superadmin || roles.includes('admin')) {
                 items.push({
                     title: 'Productos',
                     href: '/tenant/products',
                     icon: Package,
                     active: currentUrl.startsWith('/tenant/products') || currentUrl.startsWith('/tenant/categories'),
+                });
+            }
+
+            // Stock & Kardex (Stock module)
+            if (modules.includes('stock') || modules.includes('inventario_stock') || user?.is_superadmin || roles.includes('admin')) {
+                items.push({
+                    title: 'Stock',
+                    href: '/tenant/stock/ingresos',
+                    icon: Boxes,
+                    active: currentUrl.startsWith('/tenant/stock'),
                 });
             }
 
