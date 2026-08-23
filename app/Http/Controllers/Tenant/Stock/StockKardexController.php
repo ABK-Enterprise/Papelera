@@ -1,0 +1,72 @@
+<?php
+
+namespace App\Http\Controllers\Tenant\Stock;
+
+use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\Models\StockMovement;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class StockKardexController extends Controller
+{
+    public function index(Request $request): Response|JsonResponse
+    {
+        $productId = $request->input('product_id');
+        $type = $request->input('type');
+        $search = $request->input('search');
+
+        $query = StockMovement::with([
+            'product:id,name,sku,barcode',
+            'user:id,name,email',
+        ])
+            ->when($productId, function ($q, $productId) {
+                $q->where('product_id', $productId);
+            })
+            ->when($type, function ($q, $type) {
+                $q->where('type', $type);
+            })
+            ->when($search, function ($q, $search) {
+                $q->whereHas('product', function ($sub) use ($search) {
+                    $sub->where('name', 'like', "%{$search}%")
+                        ->orWhere('sku', 'like', "%{$search}%")
+                        ->orWhere('barcode', 'like', "%{$search}%");
+                });
+            })
+            ->latest();
+
+        $movements = $query->get();
+
+        $products = Product::where('is_active', true)
+            ->select('id', 'name', 'sku')
+            ->orderBy('name')
+            ->get();
+
+        $stats = [
+            'total_movements' => StockMovement::count(),
+            'total_incomes' => StockMovement::incomes()->count(),
+            'total_outcomes' => StockMovement::outcomes()->count(),
+        ];
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'movements' => $movements,
+                'products' => $products,
+                'stats' => $stats,
+            ]);
+        }
+
+        return Inertia::render('tenant/stock/kardex/Index', [
+            'movements' => $movements,
+            'products' => $products,
+            'stats' => $stats,
+            'filters' => [
+                'product_id' => $productId ? (int) $productId : null,
+                'type' => $type,
+                'search' => $search,
+            ],
+        ]);
+    }
+}

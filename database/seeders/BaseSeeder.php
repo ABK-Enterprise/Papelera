@@ -62,6 +62,17 @@ class BaseSeeder extends Seeder
                     'facturas.puntos_venta',
                 ],
             ],
+            [
+                'name' => SystemModule::Proveedores->label(),
+                'code' => SystemModule::Proveedores->value,
+                'description' => 'Gestión integral de proveedores, contactos comerciales y compras.',
+                'permissions' => [
+                    'proveedores.ver',
+                    'proveedores.crear',
+                    'proveedores.editar',
+                    'proveedores.eliminar',
+                ],
+            ],
         ];
 
         $seededModuleIds = [];
@@ -91,6 +102,7 @@ class BaseSeeder extends Seeder
         Module::whereNotIn('code', [
             SystemModule::InventarioStock->value,
             SystemModule::FacturacionArca->value,
+            SystemModule::Proveedores->value,
         ])->delete();
 
         // 3. Default Demo Tenant with active Stock module
@@ -114,11 +126,13 @@ class BaseSeeder extends Seeder
             'tenant_id' => $tenant->id,
         ]);
 
-        // Assign all stock module permissions to tenant admin role
-        $stockModule = Module::where('code', SystemModule::InventarioStock->value)->first();
-        if ($stockModule) {
-            $adminRole->syncPermissions($stockModule->permissions);
-        }
+        // Assign all stock and proveedores module permissions to tenant admin role
+        $activeModuleIds = Module::whereIn('code', [
+            SystemModule::InventarioStock->value,
+            SystemModule::Proveedores->value,
+        ])->pluck('id');
+        $activePermissions = Permission::whereIn('module_id', $activeModuleIds)->get();
+        $adminRole->syncPermissions($activePermissions);
 
         $tenantUser = User::where('tenant_id', $tenant->id)->first();
         if ($tenantUser) {

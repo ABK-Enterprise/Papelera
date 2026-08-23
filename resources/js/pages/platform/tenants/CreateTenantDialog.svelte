@@ -1,6 +1,5 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
-    import { Checkbox } from '@/components/ui/checkbox';
     import {
         Dialog,
         DialogContent,
@@ -12,6 +11,7 @@
     import { Label } from '@/components/ui/label';
     import { useForm } from '@inertiajs/svelte';
     import Building2 from 'lucide-svelte/icons/building-2';
+    import Check from 'lucide-svelte/icons/check';
     import Package from 'lucide-svelte/icons/package';
     import User from 'lucide-svelte/icons/user';
     import X from 'lucide-svelte/icons/x';
@@ -45,13 +45,11 @@
         module_ids: [] as number[],
     });
 
-    function toggleModule(id: number, checked: boolean) {
-        if (checked) {
-            if (!form.module_ids.includes(id)) {
-                form.module_ids = [...form.module_ids, id];
-            }
-        } else {
+    function toggleModule(id: number) {
+        if (form.module_ids.includes(id)) {
             form.module_ids = form.module_ids.filter((mId) => mId !== id);
+        } else {
+            form.module_ids = [...form.module_ids, id];
         }
     }
 
@@ -206,22 +204,39 @@
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-48 overflow-y-auto pr-1">
                     {#each modules as mod (mod.id)}
-                        <label
-                            class="flex items-start gap-2.5 rounded-lg border p-2.5 transition-colors cursor-pointer hover:bg-muted/50 {form.module_ids.includes(mod.id) ? 'border-primary/60 bg-primary/5' : 'border-border/60'}"
+                        {@const isSelected = form.module_ids.includes(mod.id)}
+                        <div
+                            role="button"
+                            tabindex="0"
+                            onclick={() => toggleModule(mod.id)}
+                            onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleModule(mod.id)}
+                            class="flex items-start gap-2.5 rounded-lg border p-2.5 transition-colors cursor-pointer select-none {isSelected
+                                ? 'border-primary/60 bg-primary/5 shadow-2xs'
+                                : 'border-border/60 bg-card hover:bg-muted/50'}"
                         >
-                            <Checkbox
-                                checked={form.module_ids.includes(mod.id)}
-                                onCheckedChange={(checked) => toggleModule(mod.id, !!checked)}
-                                class="mt-0.5"
-                            />
-                            <div class="space-y-0.5 min-w-0">
-                                <span class="text-xs font-semibold text-foreground block truncate">{mod.name}</span>
+                            <div class="mt-0.5 size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 {isSelected ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-background'}">
+                                {#if isSelected}
+                                    <Check class="size-3 stroke-[3]" />
+                                {/if}
+                            </div>
+                            <div class="space-y-0.5 min-w-0 flex-1">
+                                <div class="flex items-center justify-between gap-1">
+                                    <span class="text-xs font-semibold {isSelected ? 'text-foreground' : 'text-muted-foreground'} truncate">
+                                        {mod.name}
+                                    </span>
+                                    {#if isSelected}
+                                        <span class="inline-flex items-center text-[10px] font-bold text-primary shrink-0">
+                                            <Check class="size-2.5 mr-0.5" />
+                                            Activo
+                                        </span>
+                                    {/if}
+                                </div>
                                 <span class="font-mono text-[10px] text-muted-foreground block">({mod.code})</span>
                                 {#if mod.description}
                                     <p class="text-[11px] text-muted-foreground line-clamp-1">{mod.description}</p>
                                 {/if}
                             </div>
-                        </label>
+                        </div>
                     {/each}
 
                     {#if modules.length === 0}

@@ -4,8 +4,12 @@
     import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
-    import { Checkbox } from '@/components/ui/checkbox';
-    import { Link, useForm } from '@inertiajs/svelte';
+    import { Link, router, useForm } from '@inertiajs/svelte';
+    import Building2 from 'lucide-svelte/icons/building-2';
+    import Check from 'lucide-svelte/icons/check';
+    import Package from 'lucide-svelte/icons/package';
+    import ShieldAlert from 'lucide-svelte/icons/shield-alert';
+    import ShieldCheck from 'lucide-svelte/icons/shield-check';
 
     interface ModuleItem {
         id: number;
@@ -28,118 +32,215 @@
         name: tenant.name,
         cuit_tax_id: tenant.cuit_tax_id || '',
         is_active: tenant.is_active,
-        module_ids: tenant.modules.map((m) => m.id),
+        module_ids: tenant.modules ? tenant.modules.map((m) => m.id) : [],
     });
 
-    function toggleModule(id: number, checked: boolean) {
-        if (checked) {
-            if (!form.module_ids.includes(id)) {
-                form.module_ids = [...form.module_ids, id];
-            }
-        } else {
+    function toggleModule(id: number) {
+        if (form.module_ids.includes(id)) {
             form.module_ids = form.module_ids.filter((mId) => mId !== id);
+        } else {
+            form.module_ids = [...form.module_ids, id];
         }
     }
 
     function submit(e: SubmitEvent) {
         e.preventDefault();
-        form.put(`/platform/tenants/${tenant.id}`);
+        form.put(`/platform/tenants/${tenant.id}`, {
+            preserveScroll: true,
+        });
+    }
+
+    function toggleTenantActive() {
+        router.patch(
+            `/platform/tenants/${tenant.id}/toggle-active`,
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    form.is_active = !tenant.is_active;
+                },
+            }
+        );
     }
 </script>
 
 <AppHead title={`Editar ${tenant.name} - Plataforma`} />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-4xl mx-auto w-full">
-        <div class="flex items-center justify-between">
+    <!-- Header -->
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center gap-3">
+            <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+                <Building2 class="size-5" />
+            </div>
             <div>
-                <h1 class="text-2xl font-bold tracking-tight">Configurar Comercio: {tenant.name}</h1>
-                <p class="text-sm text-muted-foreground">
-                    Modifica los datos generales y actualiza los módulos de suscripción contratados.
+                <div class="flex items-center gap-2">
+                    <h1 class="text-2xl font-bold tracking-tight text-foreground">{tenant.name}</h1>
+                    {#if tenant.is_active}
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            <span class="size-1.5 rounded-full bg-emerald-500"></span>
+                            Activo
+                        </span>
+                    {:else}
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                            <span class="size-1.5 rounded-full bg-rose-500"></span>
+                            Inactivo
+                        </span>
+                    {/if}
+                </div>
+                <p class="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                    Modifica los datos fiscales y actualiza los módulos de suscripción del comercio.
                 </p>
             </div>
-            <Link href="/platform/tenants">
-                <Button variant="outline">Volver</Button>
-            </Link>
         </div>
+        <Link href="/platform/tenants">
+            <Button variant="outline" size="sm" class="text-xs">Volver al listado</Button>
+        </Link>
+    </div>
 
-        <form onsubmit={submit} class="space-y-6">
-            <Card>
-                <CardHeader>
-                    <CardTitle class="text-lg">Datos Generales</CardTitle>
-                    <CardDescription>Información fiscal y comercial.</CardDescription>
-                </CardHeader>
-                <CardContent class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div class="space-y-2">
-                        <Label for="name">Razón Social / Nombre Fantasía *</Label>
-                        <Input
-                            id="name"
-                            bind:value={form.name}
-                            required
-                        />
-                        {#if form.errors.name}
-                            <p class="text-xs text-destructive">{form.errors.name}</p>
-                        {/if}
-                    </div>
+    <form onsubmit={submit} class="space-y-6">
+        <!-- 1. Datos Generales -->
+        <Card class="border-border/60 shadow-xs">
+            <CardHeader class="pb-4">
+                <CardTitle class="text-base font-bold text-foreground">Datos Generales</CardTitle>
+                <CardDescription class="text-xs text-muted-foreground">
+                    Información fiscal y razón social del comercio.
+                </CardDescription>
+            </CardHeader>
+            <CardContent class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div class="space-y-1.5">
+                    <Label for="name" class="text-xs font-semibold text-foreground">Razón Social / Nombre Fantasía *</Label>
+                    <Input
+                        id="name"
+                        bind:value={form.name}
+                        placeholder="Ej. Papelera Central S.A."
+                        required
+                        class="text-sm shadow-2xs"
+                    />
+                    {#if form.errors.name}
+                        <p class="text-xs text-rose-500 font-medium">{form.errors.name}</p>
+                    {/if}
+                </div>
 
-                    <div class="space-y-2">
-                        <Label for="cuit">CUIT / Identificación Fiscal</Label>
-                        <Input
-                            id="cuit"
-                            bind:value={form.cuit_tax_id}
-                        />
-                        {#if form.errors.cuit_tax_id}
-                            <p class="text-xs text-destructive">{form.errors.cuit_tax_id}</p>
-                        {/if}
-                    </div>
+                <div class="space-y-1.5">
+                    <Label for="cuit" class="text-xs font-semibold text-foreground">CUIT / Identificación Fiscal</Label>
+                    <Input
+                        id="cuit"
+                        bind:value={form.cuit_tax_id}
+                        placeholder="Ej. 30-71234567-8"
+                        class="text-sm shadow-2xs"
+                    />
+                    {#if form.errors.cuit_tax_id}
+                        <p class="text-xs text-rose-500 font-medium">{form.errors.cuit_tax_id}</p>
+                    {/if}
+                </div>
+            </CardContent>
+        </Card>
 
-                    <div class="col-span-full pt-2">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <Checkbox
-                                checked={form.is_active}
-                                onCheckedChange={(checked) => (form.is_active = !!checked)}
-                            />
-                            <span class="text-sm font-medium">Comercio Activo en el Sistema</span>
-                        </label>
-                    </div>
-                </CardContent>
-            </Card>
+        <!-- 2. Módulos Habilitados -->
+        <Card class="border-border/60 shadow-xs">
+            <CardHeader class="pb-4">
+                <div class="flex items-center gap-2">
+                    <Package class="size-4 text-primary" />
+                    <CardTitle class="text-base font-bold text-foreground">Módulos Habilitados</CardTitle>
+                </div>
+                <CardDescription class="text-xs text-muted-foreground">
+                    Haz clic en cada módulo para activarlo o desactivarlo. Los permisos se actualizarán en cascada.
+                </CardDescription>
+            </CardHeader>
+            <CardContent class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                {#each modules as mod (mod.id)}
+                    {@const isSelected = form.module_ids.includes(mod.id)}
+                    <div
+                        role="button"
+                        tabindex="0"
+                        onclick={() => toggleModule(mod.id)}
+                        onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleModule(mod.id)}
+                        class="relative flex items-start gap-3 rounded-xl border p-4 transition-all cursor-pointer select-none {isSelected
+                            ? 'border-primary bg-primary/5 text-foreground shadow-2xs ring-1 ring-primary/20'
+                            : 'border-border/60 bg-card hover:bg-muted/30 text-muted-foreground'}"
+                    >
+                        <!-- Indicador Checkbox visual -->
+                        <div class="mt-0.5 size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 {isSelected ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-background'}">
+                            {#if isSelected}
+                                <Check class="size-3 stroke-[3]" />
+                            {/if}
+                        </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle class="text-lg">Módulos Habilitados</CardTitle>
-                    <CardDescription>
-                        Selecciona o deselecciona los módulos que este comercio puede utilizar.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent class="grid grid-cols-1 gap-3 md:grid-cols-2">
-                    {#each modules as mod (mod.id)}
-                        <label
-                            class="flex items-start gap-3 rounded-lg border p-3.5 transition-colors cursor-pointer hover:bg-accent/50 {form.module_ids.includes(mod.id) ? 'border-primary bg-primary/5' : ''}"
-                        >
-                            <Checkbox
-                                checked={form.module_ids.includes(mod.id)}
-                                onCheckedChange={(checked) => toggleModule(mod.id, !!checked)}
-                                class="mt-0.5"
-                            />
-                            <div class="space-y-1">
-                                <span class="text-sm font-semibold leading-none">{mod.name}</span>
-                                <span class="font-mono text-xs text-muted-foreground block">({mod.code})</span>
-                                {#if mod.description}
-                                    <p class="text-xs text-muted-foreground">{mod.description}</p>
+                        <div class="space-y-1 min-w-0 flex-1">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-sm font-semibold {isSelected ? 'text-foreground' : 'text-muted-foreground'}">
+                                    {mod.name}
+                                </span>
+                                {#if isSelected}
+                                    <span class="inline-flex items-center gap-1 text-[11px] font-bold text-primary">
+                                        <Check class="size-3" />
+                                        Activo
+                                    </span>
                                 {/if}
                             </div>
-                        </label>
-                    {/each}
-                </CardContent>
-            </Card>
+                            <span class="font-mono text-[11px] {isSelected ? 'text-primary/80' : 'text-muted-foreground/70'} block">
+                                Código: {mod.code}
+                            </span>
+                            {#if mod.description}
+                                <p class="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                                    {mod.description}
+                                </p>
+                            {/if}
+                        </div>
+                    </div>
+                {/each}
 
-            <div class="flex justify-end gap-3 pt-2">
+                {#if modules.length === 0}
+                    <div class="col-span-full py-6 text-center text-xs italic text-muted-foreground">
+                        No hay módulos registrados en la plataforma.
+                    </div>
+                {/if}
+            </CardContent>
+        </Card>
+
+        <!-- Footer / Acciones Principales -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2 border-t border-border/60">
+            <!-- Botón de Estado a la Izquierda (Desactivar / Activar) -->
+            <div>
+                {#if tenant.is_active}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onclick={toggleTenantActive}
+                        class="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 border-rose-200 dark:border-rose-900/40 gap-1.5"
+                    >
+                        <ShieldAlert class="size-3.5" />
+                        <span>Desactivar comercio</span>
+                    </Button>
+                {:else}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onclick={toggleTenantActive}
+                        class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/40 gap-1.5"
+                    >
+                        <ShieldCheck class="size-3.5" />
+                        <span>Activar comercio</span>
+                    </Button>
+                {/if}
+            </div>
+
+            <!-- Botones a la Derecha (Cancelar y Guardar Cambios) -->
+            <div class="flex items-center justify-end gap-3">
                 <Link href="/platform/tenants">
-                    <Button type="button" variant="outline">Cancelar</Button>
+                    <Button type="button" variant="outline" class="text-xs">
+                        Cancelar
+                    </Button>
                 </Link>
-                <Button type="submit" disabled={form.processing} class="min-w-36">
+                <Button
+                    type="submit"
+                    disabled={form.processing}
+                    class="text-xs font-semibold min-w-36"
+                >
                     {form.processing ? 'Guardando...' : 'Guardar Cambios'}
                 </Button>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
+</div>

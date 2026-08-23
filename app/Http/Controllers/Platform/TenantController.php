@@ -8,6 +8,7 @@ use App\Http\Requests\Platform\UpdateTenantRequest;
 use App\Models\Module;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\TenantModuleSynchronizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -79,18 +80,14 @@ class TenantController extends Controller
         ]);
     }
 
-    public function store(StoreTenantRequest $request): RedirectResponse
+    public function store(StoreTenantRequest $request, TenantModuleSynchronizer $moduleSynchronizer): RedirectResponse
     {
-        DB::transaction(function () use ($request) {
+        DB::transaction(function () use ($request, $moduleSynchronizer) {
             $tenant = Tenant::create([
                 'name' => $request->input('tenant.name'),
                 'cuit_tax_id' => $request->input('tenant.cuit_tax_id'),
                 'is_active' => true,
             ]);
-
-            if ($request->filled('module_ids')) {
-                $tenant->modules()->sync($request->input('module_ids'));
-            }
 
             // Create initial admin user inside the tenant
             $admin = User::create([
@@ -109,6 +106,12 @@ class TenantController extends Controller
                 'tenant_id' => $tenant->id,
             ]);
             $admin->assignRole($adminRole);
+
+            // Synchronize assigned modules and grant module permissions to admin role
+            $moduleIds = $request->input('module_ids', []);
+            if (! empty($moduleIds)) {
+                $moduleSynchronizer->sync($tenant, $moduleIds);
+            }
         });
 
         return redirect()->route('platform.tenants.index')
@@ -126,9 +129,9 @@ class TenantController extends Controller
         ]);
     }
 
-    public function update(UpdateTenantRequest $request, Tenant $tenant): RedirectResponse
+    public function update(UpdateTenantRequest $request, Tenant $tenant, TenantModuleSynchronizer $moduleSynchronizer): RedirectResponse
     {
-        DB::transaction(function () use ($request, $tenant) {
+        DB::transaction(function () use ($request, $tenant, $moduleSynchronizer) {
             $tenant->update([
                 'name' => $request->input('name'),
                 'cuit_tax_id' => $request->input('cuit_tax_id'),
@@ -136,7 +139,7 @@ class TenantController extends Controller
             ]);
 
             if ($request->has('module_ids')) {
-                $tenant->modules()->sync($request->input('module_ids', []));
+                $moduleSynchronizer->sync($tenant, $request->input('module_ids', []));
             }
         });
 

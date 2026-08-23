@@ -7,6 +7,7 @@
     import Building2 from 'lucide-svelte/icons/building-2';
     import Boxes from 'lucide-svelte/icons/boxes';
     import FileText from 'lucide-svelte/icons/file-text';
+    import Truck from 'lucide-svelte/icons/truck';
     import X from 'lucide-svelte/icons/x';
     import AppLogoIcon from '@/components/AppLogoIcon.svelte';
     import { Badge } from '@/components/ui/badge';
@@ -62,6 +63,15 @@
                     href: '/tenant/products',
                     icon: Package,
                     active: currentUrl.startsWith('/tenant/products') || currentUrl.startsWith('/tenant/categories'),
+                });
+            }
+
+            if (modules.includes('proveedores') || user?.is_superadmin || roles.includes('admin')) {
+                items.push({
+                    title: 'Proveedores',
+                    href: '/tenant/suppliers',
+                    icon: Truck,
+                    active: currentUrl.startsWith('/tenant/suppliers'),
                 });
             }
 
