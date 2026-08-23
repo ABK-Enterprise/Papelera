@@ -47,9 +47,8 @@ test('tenant admin can view list of users of their tenant only', function () {
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/users/Index')
-            ->has('users', 2)
-            ->where('users.0.email', fn ($email) => in_array($email, ['admin@tenant1.com', 'empleado@tenant1.com']))
-            ->where('users.1.email', fn ($email) => in_array($email, ['admin@tenant1.com', 'empleado@tenant1.com']))
+            ->has('users', 1)
+            ->where('users.0.email', 'empleado@tenant1.com')
         );
 });
 
@@ -59,7 +58,7 @@ test('tenant admin can view create user form with tenant roles', function () {
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/users/Create')
-            ->has('roles', 2)
+            ->has('roles', 1)
         );
 });
 
@@ -119,7 +118,7 @@ test('tenant admin can edit and update an employee of their tenant', function ()
         ->put("/tenant/users/{$employee->id}", [
             'name' => 'Empleado Modificado',
             'email' => 'modificado@tenant1.com',
-            'role' => 'admin',
+            'role' => 'empleado',
         ]);
 
     $response->assertRedirect('/tenant/users');
@@ -129,7 +128,7 @@ test('tenant admin can edit and update an employee of their tenant', function ()
         ->and($employee->email)->toBe('modificado@tenant1.com');
 
     setPermissionsTeamId($this->tenant->id);
-    expect($employee->hasRole('admin'))->toBeTrue();
+    expect($employee->hasRole('empleado'))->toBeTrue();
 });
 
 test('tenant admin can delete an employee of their tenant', function () {

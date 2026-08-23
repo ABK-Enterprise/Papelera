@@ -5,6 +5,7 @@ use App\Models\Module;
 use App\Models\Product;
 use App\Models\Tenant;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
     $this->stockModule = Module::firstOrCreate(
@@ -16,9 +17,25 @@ beforeEach(function () {
     $this->tenant1->modules()->syncWithoutDetaching([$this->stockModule->id]);
     $this->user1 = User::factory()->forTenant($this->tenant1)->create();
 
+    setPermissionsTeamId($this->tenant1->id);
+    $adminRole1 = Role::firstOrCreate([
+        'name' => 'admin',
+        'guard_name' => 'web',
+        'tenant_id' => $this->tenant1->id,
+    ]);
+    $this->user1->assignRole($adminRole1);
+
     $this->tenant2 = Tenant::factory()->create(['name' => 'Tenant 2', 'is_active' => true]);
     $this->tenant2->modules()->syncWithoutDetaching([$this->stockModule->id]);
     $this->user2 = User::factory()->forTenant($this->tenant2)->create();
+
+    setPermissionsTeamId($this->tenant2->id);
+    $adminRole2 = Role::firstOrCreate([
+        'name' => 'admin',
+        'guard_name' => 'web',
+        'tenant_id' => $this->tenant2->id,
+    ]);
+    $this->user2->assignRole($adminRole2);
 });
 
 test('tenant 1 cannot access, edit, update or delete tenant 2 product', function () {

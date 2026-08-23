@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Spatie\Permission\Exceptions\PermissionDoesNotExist;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureTenantPermission
@@ -34,8 +35,12 @@ class EnsureTenantPermission
         }
 
         foreach ($permissions as $permission) {
-            if ($user->hasPermissionTo($permission)) {
-                return $next($request);
+            try {
+                if ($user->hasPermissionTo($permission)) {
+                    return $next($request);
+                }
+            } catch (PermissionDoesNotExist) {
+                // Permission not in DB yet, continue evaluating other permissions
             }
         }
 

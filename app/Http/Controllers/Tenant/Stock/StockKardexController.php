@@ -36,7 +36,7 @@ class StockKardexController extends Controller
                             ->orWhereRaw('LOWER(sku) LIKE ?', [$searchTerm])
                             ->orWhereRaw('LOWER(barcode) LIKE ?', [$searchTerm]);
                     })->orWhereRaw('LOWER(notes) LIKE ?', [$searchTerm])
-                      ->orWhereRaw('LOWER(reason) LIKE ?', [$searchTerm]);
+                        ->orWhereRaw('LOWER(reason) LIKE ?', [$searchTerm]);
                 });
             })
             ->latest();

@@ -6,6 +6,7 @@ use App\Models\Tenant;
 use App\Models\User;
 use Database\Seeders\BaseSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
+use Spatie\Permission\Models\Role;
 
 test('seeded productos and stock modules match routes and grant access to tenant', function () {
     // Run BaseSeeder
@@ -36,6 +37,7 @@ test('seeded productos and stock modules match routes and grant access to tenant
         'stock_egreso.ver',
         'stock_egreso.crear',
         'stock_historial.ver',
+        'stock_minimo.ver',
     );
 
     // Create a tenant and assign the seeded modules
@@ -43,6 +45,13 @@ test('seeded productos and stock modules match routes and grant access to tenant
     $tenant->modules()->attach([$productosModule->id, $stockModule->id]);
 
     $tenantUser = User::factory()->forTenant($tenant)->create();
+    setPermissionsTeamId($tenant->id);
+    $adminRole = Role::firstOrCreate([
+        'name' => 'admin',
+        'guard_name' => 'web',
+        'tenant_id' => $tenant->id,
+    ]);
+    $tenantUser->assignRole($adminRole);
 
     // Tenant user accesses /tenant/products successfully
     $this->actingAs($tenantUser)

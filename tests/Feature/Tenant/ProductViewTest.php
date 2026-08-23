@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Tenant;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
+use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
     $this->tenant = Tenant::factory()->create(['is_active' => true]);
@@ -16,6 +17,14 @@ beforeEach(function () {
     $this->tenant->modules()->syncWithoutDetaching([$this->stockModule->id]);
 
     $this->user = User::factory()->forTenant($this->tenant)->create();
+
+    setPermissionsTeamId($this->tenant->id);
+    $adminRole = Role::firstOrCreate([
+        'name' => 'admin',
+        'guard_name' => 'web',
+        'tenant_id' => $this->tenant->id,
+    ]);
+    $this->user->assignRole($adminRole);
 });
 
 test('tenant user can render products index page with inertia', function () {

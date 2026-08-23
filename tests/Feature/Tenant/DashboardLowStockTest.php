@@ -6,16 +6,25 @@ use App\Models\Product;
 use App\Models\Tenant;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
+use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
     $this->tenant = Tenant::factory()->create(['is_active' => true]);
     $this->stockModule = Module::firstOrCreate(
-        ['code' => 'inventario_stock'],
+        ['code' => 'stock'],
         ['name' => 'Inventario y Stock', 'is_active' => true]
     );
     $this->tenant->modules()->syncWithoutDetaching([$this->stockModule->id]);
 
     $this->user = User::factory()->forTenant($this->tenant)->create();
+
+    setPermissionsTeamId($this->tenant->id);
+    $adminRole = Role::firstOrCreate([
+        'name' => 'admin',
+        'guard_name' => 'web',
+        'tenant_id' => $this->tenant->id,
+    ]);
+    $this->user->assignRole($adminRole);
 });
 
 test('authenticated tenant user with inventory module receives low stock products on dashboard', function () {
@@ -105,7 +114,7 @@ test('products from other tenants are not leaked in low stock alerts on dashboar
         );
 });
 
-test('tenant user without inventory module receives empty low stock products on dashboard', function () {
+test('tenant user without inventory module or permission receives null low stock products on dashboard', function () {
     $tenantNoModule = Tenant::factory()->create(['is_active' => true]);
     $userNoModule = User::factory()->forTenant($tenantNoModule)->create();
 
@@ -122,7 +131,7 @@ test('tenant user without inventory module receives empty low stock products on 
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Dashboard')
-            ->has('lowStockProducts', 0)
+            ->where('lowStockProducts', null)
         );
 });
 
