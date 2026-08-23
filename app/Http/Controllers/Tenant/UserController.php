@@ -21,6 +21,7 @@ class UserController extends Controller
         setPermissionsTeamId($tenant->id);
 
         $users = User::where('tenant_id', $tenant->id)
+            ->where('id', '!=', $request->user()->id)
             ->with(['roles' => function ($query) {
                 $query->select('roles.id', 'roles.name');
             }])
@@ -36,6 +37,7 @@ class UserController extends Controller
     {
         $tenant = $request->user()->tenant;
         $roles = Role::where('tenant_id', $tenant->id)
+            ->where('name', '!=', 'admin')
             ->select('id', 'name')
             ->get();
 
@@ -83,6 +85,7 @@ class UserController extends Controller
         }]);
 
         $roles = Role::where('tenant_id', $tenant->id)
+            ->where('name', '!=', 'admin')
             ->select('id', 'name')
             ->get();
 

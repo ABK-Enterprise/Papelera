@@ -81,6 +81,10 @@ class RoleController extends Controller
             abort(404);
         }
 
+        if ($role->name === 'admin') {
+            abort(403, 'El rol principal de administrador solo puede ser gestionado por la plataforma.');
+        }
+
         setPermissionsTeamId($tenant->id);
         $role->load('permissions:id,name');
 
@@ -108,6 +112,10 @@ class RoleController extends Controller
 
         if ((int) $role->tenant_id !== (int) $tenant->id) {
             abort(404);
+        }
+
+        if ($role->name === 'admin') {
+            abort(403, 'El rol principal de administrador solo puede ser gestionado por la plataforma.');
         }
 
         DB::transaction(function () use ($request, $role, $tenant) {
