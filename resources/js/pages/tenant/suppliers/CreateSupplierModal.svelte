@@ -1,6 +1,5 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
-    import { Checkbox } from '@/components/ui/checkbox';
     import {
         Dialog,
         DialogContent,
@@ -15,6 +14,7 @@
     import Phone from 'lucide-svelte/icons/phone';
     import Mail from 'lucide-svelte/icons/mail';
     import MapPin from 'lucide-svelte/icons/map-pin';
+    import Check from 'lucide-svelte/icons/check';
     import X from 'lucide-svelte/icons/x';
 
     let {
@@ -30,6 +30,10 @@
         address: '',
         is_active: true,
     });
+
+    function toggleActive() {
+        form.is_active = !form.is_active;
+    }
 
     function submit(e: SubmitEvent) {
         e.preventDefault();
@@ -143,18 +147,34 @@
                 {/if}
             </div>
 
-            <!-- Estado Activo -->
+            <!-- Estado Activo Toggle -->
             <div class="pt-1">
-                <label class="flex items-center gap-2.5 rounded-lg border p-3 cursor-pointer transition-colors hover:bg-muted/40 {form.is_active ? 'border-primary/50 bg-primary/5' : 'border-border'}">
-                    <Checkbox
-                        checked={form.is_active}
-                        onCheckedChange={(checked) => (form.is_active = !!checked)}
-                    />
-                    <div class="text-xs space-y-0.5">
-                        <span class="font-semibold text-foreground block">Proveedor Activo</span>
+                <div
+                    role="button"
+                    tabindex="0"
+                    onclick={toggleActive}
+                    onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleActive()}
+                    class="flex items-center gap-3 rounded-xl border p-3.5 cursor-pointer select-none transition-all {form.is_active
+                        ? 'border-primary/60 bg-primary/5 shadow-2xs'
+                        : 'border-border/60 bg-card hover:bg-muted/40'}"
+                >
+                    <div class="size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 {form.is_active ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-background'}">
+                        {#if form.is_active}
+                            <Check class="size-3 stroke-[3]" />
+                        {/if}
+                    </div>
+                    <div class="text-xs space-y-0.5 flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-1">
+                            <span class="font-semibold text-foreground">Proveedor Activo</span>
+                            {#if form.is_active}
+                                <span class="text-[10px] font-bold text-primary">Activo</span>
+                            {:else}
+                                <span class="text-[10px] font-bold text-muted-foreground">Inactivo</span>
+                            {/if}
+                        </div>
                         <span class="text-muted-foreground block text-[11px]">Disponible para selección en compras y pedidos.</span>
                     </div>
-                </label>
+                </div>
             </div>
 
             <DialogFooter class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-4 border-t border-border">

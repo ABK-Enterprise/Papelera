@@ -70,7 +70,7 @@ class SupplierController extends Controller
             'contact_number' => $request->validated('contact_number'),
             'email' => $request->validated('email'),
             'address' => $request->validated('address'),
-            'is_active' => $request->boolean('is_active', true),
+            'is_active' => $request->has('is_active') ? $request->boolean('is_active') : true,
         ]);
 
         if ($request->wantsJson()) {
@@ -92,7 +92,7 @@ class SupplierController extends Controller
             'contact_number' => $request->validated('contact_number'),
             'email' => $request->validated('email'),
             'address' => $request->validated('address'),
-            'is_active' => $request->boolean('is_active', true),
+            'is_active' => $request->has('is_active') ? $request->boolean('is_active') : $supplier->is_active,
         ]);
 
         if ($request->wantsJson()) {

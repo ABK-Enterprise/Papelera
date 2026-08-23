@@ -1,6 +1,5 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
-    import { Checkbox } from '@/components/ui/checkbox';
     import {
         Dialog,
         DialogContent,
@@ -10,12 +9,15 @@
     } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import { router, useForm } from '@inertiajs/svelte';
     import Truck from 'lucide-svelte/icons/truck';
     import Phone from 'lucide-svelte/icons/phone';
     import Mail from 'lucide-svelte/icons/mail';
     import MapPin from 'lucide-svelte/icons/map-pin';
     import Trash2 from 'lucide-svelte/icons/trash-2';
+    import ShieldAlert from 'lucide-svelte/icons/shield-alert';
+    import ShieldCheck from 'lucide-svelte/icons/shield-check';
     import X from 'lucide-svelte/icons/x';
     import Calendar from 'lucide-svelte/icons/calendar';
 
@@ -48,15 +50,24 @@
     });
 
     let isDeleting = $state(false);
+    let lastLoadedSupplierId = $state<number | null>(null);
+
+    // Modales de Confirmación
+    let showDeactivateConfirm = $state(false);
+    let showActivateConfirm = $state(false);
+    let showDeleteConfirm = $state(false);
 
     $effect(() => {
-        if (supplier) {
+        if (supplier && supplier.id !== lastLoadedSupplierId) {
+            lastLoadedSupplierId = supplier.id;
             form.name = supplier.name ?? '';
             form.contact_number = supplier.contact_number ?? '';
             form.email = supplier.email ?? '';
             form.address = supplier.address ?? '';
-            form.is_active = supplier.is_active ?? true;
+            form.is_active = Boolean(supplier.is_active);
             form.clearErrors();
+        } else if (!supplier) {
+            lastLoadedSupplierId = null;
         }
     });
 
@@ -71,18 +82,27 @@
         });
     }
 
-    function handleDelete() {
+    function confirmToggleDeactivate() {
+        form.is_active = false;
+        showDeactivateConfirm = false;
+    }
+
+    function confirmToggleActivate() {
+        form.is_active = true;
+        showActivateConfirm = false;
+    }
+
+    function executeDelete() {
         if (!supplier) return;
 
-        if (confirm(`¿Estás seguro de que deseas eliminar permanentemente al proveedor "${supplier.name}"?`)) {
-            isDeleting = true;
-            router.delete(`/tenant/suppliers/${supplier.id}`, {
-                onFinish: () => {
-                    isDeleting = false;
-                    open = false;
-                },
-            });
-        }
+        isDeleting = true;
+        router.delete(`/tenant/suppliers/${supplier.id}`, {
+            onFinish: () => {
+                isDeleting = false;
+                showDeleteConfirm = false;
+                open = false;
+            },
+        });
     }
 
     function handleClose() {
@@ -111,7 +131,18 @@
                     <Truck class="size-5" />
                 </div>
                 <div>
-                    <DialogTitle class="text-xl font-bold text-foreground">Gestión de Proveedor</DialogTitle>
+                    <div class="flex items-center gap-2">
+                        <DialogTitle class="text-xl font-bold text-foreground">Gestión de Proveedor</DialogTitle>
+                        {#if form.is_active}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                Activo
+                            </span>
+                        {:else}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                                Inactivo
+                            </span>
+                        {/if}
+                    </div>
                     <DialogDescription class="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
                         <span>Editar información comercial y estado del proveedor</span>
                         {#if supplier?.created_at}
@@ -205,40 +236,55 @@
                 {/if}
             </div>
 
-            <!-- Estado Activo Toggle -->
-            <div class="pt-1">
-                <label class="flex items-center gap-2.5 rounded-lg border p-3 cursor-pointer transition-colors hover:bg-muted/40 {form.is_active ? 'border-primary/50 bg-primary/5' : 'border-border'}">
-                    <Checkbox
-                        checked={form.is_active}
-                        onCheckedChange={(checked) => (form.is_active = !!checked)}
-                    />
-                    <div class="text-xs space-y-0.5">
-                        <span class="font-semibold text-foreground block">Proveedor Activo</span>
-                        <span class="text-muted-foreground block text-[11px]">Habilitado para compras y operaciones del comercio.</span>
-                    </div>
-                </label>
-            </div>
-
-            <!-- Footer: Izquierda Eliminar, Derecha Guardar y Cancelar -->
+            <!-- Footer: Izquierda Desactivar/Eliminar, Derecha Guardar y Cancelar -->
             <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-5 border-t border-border mt-6">
-                <!-- Abajo a la izquierda: Botón 'Eliminar proveedor' -->
-                <Button
-                    type="button"
-                    variant="outline"
-                    class="border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground gap-1.5 justify-center"
-                    onclick={handleDelete}
-                    disabled={isDeleting || form.processing}
-                >
-                    <Trash2 class="h-4 w-4" />
-                    {isDeleting ? 'Eliminando...' : 'Eliminar proveedor'}
-                </Button>
+                <!-- Abajo a la izquierda: Botón de Estado Rojo y Eliminar -->
+                <div class="flex items-center gap-2">
+                    {#if form.is_active}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            class="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 border-rose-200 dark:border-rose-900/40 gap-1.5"
+                            onclick={() => (showDeactivateConfirm = true)}
+                            disabled={form.processing || isDeleting}
+                        >
+                            <ShieldAlert class="size-3.5" />
+                            <span>Desactivar proveedor</span>
+                        </Button>
+                    {:else}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/40 gap-1.5"
+                            onclick={() => (showActivateConfirm = true)}
+                            disabled={form.processing || isDeleting}
+                        >
+                            <ShieldCheck class="size-3.5" />
+                            <span>Activar proveedor</span>
+                        </Button>
+                    {/if}
+
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        class="text-xs text-muted-foreground hover:text-destructive gap-1 px-2"
+                        onclick={() => (showDeleteConfirm = true)}
+                        disabled={isDeleting || form.processing}
+                    >
+                        <Trash2 class="size-3.5" />
+                        <span>Eliminar</span>
+                    </Button>
+                </div>
 
                 <!-- Abajo a la derecha: Botón 'Guardar cambios' y botón 'Cancelar' -->
                 <div class="flex items-center justify-end gap-2">
-                    <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing || isDeleting}>
+                    <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing || isDeleting} class="text-xs">
                         Cancelar
                     </Button>
-                    <Button type="submit" disabled={form.processing || isDeleting} class="min-w-36 font-semibold">
+                    <Button type="submit" size="sm" disabled={form.processing || isDeleting} class="min-w-32 text-xs font-semibold">
                         {form.processing ? 'Guardando...' : 'Guardar cambios'}
                     </Button>
                 </div>
@@ -246,3 +292,37 @@
         </form>
     </DialogContent>
 </Dialog>
+
+<!-- Modal Precaución: Desactivar Proveedor -->
+<ConfirmActionModal
+    bind:open={showDeactivateConfirm}
+    title="Desactivar Proveedor"
+    description={`¿Estás seguro de que deseas desactivar al proveedor "${form.name || supplier?.name}"? No estará disponible para nuevas compras ni órdenes hasta que sea reactivado.`}
+    confirmText="Sí, desactivar"
+    cancelText="Cancelar"
+    variant="danger"
+    onconfirm={confirmToggleDeactivate}
+/>
+
+<!-- Modal: Activar Proveedor -->
+<ConfirmActionModal
+    bind:open={showActivateConfirm}
+    title="Activar Proveedor"
+    description={`¿Deseas activar nuevamente al proveedor "${form.name || supplier?.name}" para habilitar compras y operaciones?`}
+    confirmText="Sí, activar"
+    cancelText="Cancelar"
+    variant="primary"
+    onconfirm={confirmToggleActivate}
+/>
+
+<!-- Modal Precaución: Eliminar Proveedor Permanentemente -->
+<ConfirmActionModal
+    bind:open={showDeleteConfirm}
+    title="Eliminar Proveedor Permanentemente"
+    description={`¿Estás seguro de que deseas eliminar permanentemente al proveedor "${form.name || supplier?.name}"? Esta acción borrará el registro de forma definitiva.`}
+    confirmText="Sí, eliminar definitivamente"
+    cancelText="Cancelar"
+    variant="danger"
+    loading={isDeleting}
+    onconfirm={executeDelete}
+/>
