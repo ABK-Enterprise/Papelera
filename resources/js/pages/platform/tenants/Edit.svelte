@@ -4,7 +4,8 @@
     import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
-    import { Link, router, useForm } from '@inertiajs/svelte';
+    import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
+    import { Link, useForm } from '@inertiajs/svelte';
     import Building2 from 'lucide-svelte/icons/building-2';
     import Check from 'lucide-svelte/icons/check';
     import Package from 'lucide-svelte/icons/package';
@@ -31,9 +32,12 @@
     const form = useForm({
         name: tenant.name,
         cuit_tax_id: tenant.cuit_tax_id || '',
-        is_active: tenant.is_active,
+        is_active: Boolean(tenant.is_active),
         module_ids: tenant.modules ? tenant.modules.map((m) => m.id) : [],
     });
+
+    let showDeactivateModal = $state(false);
+    let showActivateModal = $state(false);
 
     function toggleModule(id: number) {
         if (form.module_ids.includes(id)) {
@@ -43,24 +47,21 @@
         }
     }
 
+    function confirmDeactivate() {
+        form.is_active = false;
+        showDeactivateModal = false;
+    }
+
+    function confirmActivate() {
+        form.is_active = true;
+        showActivateModal = false;
+    }
+
     function submit(e: SubmitEvent) {
         e.preventDefault();
         form.put(`/platform/tenants/${tenant.id}`, {
             preserveScroll: true,
         });
-    }
-
-    function toggleTenantActive() {
-        router.patch(
-            `/platform/tenants/${tenant.id}/toggle-active`,
-            {},
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    form.is_active = !tenant.is_active;
-                },
-            }
-        );
     }
 </script>
 
@@ -76,7 +77,7 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 class="text-2xl font-bold tracking-tight text-foreground">{tenant.name}</h1>
-                    {#if tenant.is_active}
+                    {#if form.is_active}
                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                             <span class="size-1.5 rounded-full bg-emerald-500"></span>
                             Activo
@@ -201,13 +202,13 @@
 
         <!-- Footer / Acciones Principales -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2 border-t border-border/60">
-            <!-- Botón de Estado a la Izquierda (Desactivar / Activar) -->
+            <!-- Botón de Estado a la Izquierda (Desactivar / Activar con Modal) -->
             <div>
-                {#if tenant.is_active}
+                {#if form.is_active}
                     <Button
                         type="button"
                         variant="outline"
-                        onclick={toggleTenantActive}
+                        onclick={() => (showDeactivateModal = true)}
                         class="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 border-rose-200 dark:border-rose-900/40 gap-1.5"
                     >
                         <ShieldAlert class="size-3.5" />
@@ -217,7 +218,7 @@
                     <Button
                         type="button"
                         variant="outline"
-                        onclick={toggleTenantActive}
+                        onclick={() => (showActivateModal = true)}
                         class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/40 gap-1.5"
                     >
                         <ShieldCheck class="size-3.5" />
@@ -244,3 +245,25 @@
         </div>
     </form>
 </div>
+
+<!-- Modal de Precaución: Desactivar Comercio -->
+<ConfirmActionModal
+    bind:open={showDeactivateModal}
+    title="Desactivar Comercio"
+    description={`¿Estás seguro de que deseas desactivar al comercio "${form.name}"? Los usuarios y administradores de este comercio no podrán ingresar al sistema.`}
+    confirmText="Sí, desactivar comercio"
+    cancelText="Cancelar"
+    variant="danger"
+    onconfirm={confirmDeactivate}
+/>
+
+<!-- Modal: Activar Comercio -->
+<ConfirmActionModal
+    bind:open={showActivateModal}
+    title="Activar Comercio"
+    description={`¿Deseas activar al comercio "${form.name}"? Los usuarios asociados recuperarán el acceso al sistema.`}
+    confirmText="Sí, activar comercio"
+    cancelText="Cancelar"
+    variant="primary"
+    onconfirm={confirmActivate}
+/>

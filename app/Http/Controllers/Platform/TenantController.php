@@ -135,7 +135,7 @@ class TenantController extends Controller
             $tenant->update([
                 'name' => $request->input('name'),
                 'cuit_tax_id' => $request->input('cuit_tax_id'),
-                'is_active' => $request->boolean('is_active', true),
+                'is_active' => $request->has('is_active') ? $request->boolean('is_active') : $tenant->is_active,
             ]);
 
             if ($request->has('module_ids')) {
