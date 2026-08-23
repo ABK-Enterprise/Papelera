@@ -34,9 +34,13 @@ class DashboardController extends Controller
             return redirect()->route('auth.access-denied', ['reason' => 'account_deactivated']);
         }
 
-        $lowStockProducts = collect();
+        $canViewLowStock = $user->is_superadmin
+            || $user->hasRole('admin')
+            || ($user->tenant->hasModule('stock') && $user->hasPermissionTo('stock_minimo.ver'));
 
-        if ($user->tenant->hasModule(SystemModule::InventarioStock->value) || $user->tenant->hasModule('stock') || $user->tenant->hasModule('productos')) {
+        $lowStockProducts = null;
+
+        if ($canViewLowStock) {
             $lowStockProducts = Product::lowStock()
                 ->with('category:id,name')
                 ->get();

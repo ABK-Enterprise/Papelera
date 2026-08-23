@@ -25,6 +25,7 @@
     let user = $derived(auth?.user);
     let tenant = $derived(auth?.tenant);
     let roles = $derived(auth?.roles ?? []);
+    let permissions = $derived(auth?.permissions ?? []);
     let modules = $derived(auth?.modules ?? []);
     let currentUrl = $derived(page.url);
 
@@ -56,10 +57,10 @@
             );
         }
 
-        // Tenant modular navigation
+        // Tenant modular navigation (Zero-Trust)
         if (tenant) {
             // Products catalog (Productos module)
-            if (modules.includes('productos') || modules.includes('inventario_stock') || user?.is_superadmin || roles.includes('admin')) {
+            if (roles.includes('admin') || user?.is_superadmin || (modules.includes('productos') && permissions.includes('productos.ver'))) {
                 items.push({
                     title: 'Productos',
                     href: '/tenant/products',
@@ -69,7 +70,7 @@
             }
 
             // Stock & Kardex (Stock module)
-            if (modules.includes('stock') || modules.includes('inventario_stock') || user?.is_superadmin || roles.includes('admin')) {
+            if (roles.includes('admin') || user?.is_superadmin || (modules.includes('stock') && permissions.some((p: string) => p.startsWith('stock_')))) {
                 items.push({
                     title: 'Stock',
                     href: '/tenant/stock/ingresos',
@@ -79,7 +80,7 @@
             }
 
             // Suppliers (Proveedores module)
-            if (modules.includes('proveedores') || user?.is_superadmin || roles.includes('admin')) {
+            if (roles.includes('admin') || user?.is_superadmin || (modules.includes('proveedores') && permissions.includes('proveedores.ver'))) {
                 items.push({
                     title: 'Proveedores',
                     href: '/tenant/suppliers',
@@ -107,7 +108,7 @@
             }
 
             // Facturación ARCA
-            if (modules.includes('facturacion_arca')) {
+            if (modules.includes('facturacion_arca') && (roles.includes('admin') || user?.is_superadmin || permissions.some((p: string) => p.startsWith('facturas.')))) {
                 items.push({
                     title: 'Facturación ARCA',
                     href: '/playground/arca',

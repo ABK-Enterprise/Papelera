@@ -34,6 +34,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'superadmin' => EnsureSuperAdmin::class,
             'tenant' => EnsureTenantContext::class,
+            'tenant.admin' => \App\Http\Middleware\EnsureTenantAdmin::class,
+            'tenant.permission' => \App\Http\Middleware\EnsureTenantPermission::class,
             'module' => CheckModuleAccess::class,
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,

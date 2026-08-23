@@ -16,7 +16,6 @@
     import PlaceholderPattern from '@/components/PlaceholderPattern.svelte';
     import LowStockAlertsDesktop from './dashboard/desktop/LowStockAlertsDesktop.svelte';
     import LowStockAlertsMobile from './dashboard/mobile/LowStockAlertsMobile.svelte';
-    import { page } from '@inertiajs/svelte';
 
     interface CategorySummary {
         id: number;
@@ -35,15 +34,12 @@
     }
 
     let {
-        lowStockProducts = [],
+        lowStockProducts = null,
     }: {
-        lowStockProducts?: LowStockProduct[];
+        lowStockProducts?: LowStockProduct[] | null;
     } = $props();
 
-    let auth = $derived(page.props.auth);
-    let hasInventoryModule = $derived(
-        Boolean(auth?.modules?.includes('inventario_stock') || auth?.tenant)
-    );
+    let canShowLowStockAlerts = $derived(lowStockProducts !== null && lowStockProducts !== undefined);
 </script>
 
 <AppHead title="Dashboard" />
@@ -69,7 +65,7 @@
     </div>
 
     <!-- Sección de Alertas de Stock Mínimo (Responsive Desktop & Mobile) -->
-    {#if hasInventoryModule}
+    {#if canShowLowStockAlerts}
         <div class="hidden md:block">
             <LowStockAlertsDesktop products={lowStockProducts} />
         </div>

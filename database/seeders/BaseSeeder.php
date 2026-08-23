@@ -57,6 +57,7 @@ class BaseSeeder extends Seeder
                     'stock_egreso.ver',
                     'stock_egreso.crear',
                     'stock_historial.ver',
+                    'stock_minimo.ver',
                 ],
             ],
             [
