@@ -7,6 +7,7 @@
     import Building2 from 'lucide-svelte/icons/building-2';
     import Boxes from 'lucide-svelte/icons/boxes';
     import FileText from 'lucide-svelte/icons/file-text';
+    import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import Truck from 'lucide-svelte/icons/truck';
     import X from 'lucide-svelte/icons/x';
     import AppLogoIcon from '@/components/AppLogoIcon.svelte';
@@ -73,6 +74,15 @@
                     href: '/tenant/stock/ingresos',
                     icon: Boxes,
                     active: currentUrl.startsWith('/tenant/stock'),
+                });
+            }
+
+            if (roles.includes('admin') || user?.is_superadmin || (modules.includes('pedidos') && permissions.includes('pedidos.ver'))) {
+                items.push({
+                    title: 'Pedidos',
+                    href: '/tenant/orders',
+                    icon: ShoppingBag,
+                    active: currentUrl.startsWith('/tenant/orders'),
                 });
             }
 

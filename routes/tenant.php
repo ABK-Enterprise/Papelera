@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Tenant\CustomerOrderController;
 use App\Http\Controllers\Tenant\CategoryController;
 use App\Http\Controllers\Tenant\ProductController;
 use App\Http\Controllers\Tenant\RoleController;
@@ -49,5 +50,13 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::get('suppliers/{supplier}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit')->middleware('tenant.permission:proveedores.editar');
             Route::put('suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update')->middleware('tenant.permission:proveedores.editar');
             Route::delete('suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy')->middleware('tenant.permission:proveedores.eliminar');
+        });
+
+        // Customer Orders (Pedidos module)
+        Route::middleware('module:pedidos')->group(function () {
+            Route::get('orders', [CustomerOrderController::class, 'index'])->name('orders.index')->middleware('tenant.permission:pedidos.ver');
+            Route::post('orders', [CustomerOrderController::class, 'store'])->name('orders.store')->middleware('tenant.permission:pedidos.crear');
+            Route::patch('orders/{customerOrder}/status', [CustomerOrderController::class, 'updateStatus'])->name('orders.update-status')->middleware('tenant.permission:pedidos.editar_estado');
+            Route::delete('orders/{customerOrder}', [CustomerOrderController::class, 'destroy'])->name('orders.destroy')->middleware('tenant.permission:pedidos.cancelar');
         });
     });

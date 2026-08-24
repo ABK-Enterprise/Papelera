@@ -1,0 +1,238 @@
+<?php
+
+use App\Models\Category;
+use App\Models\CustomerOrder;
+use App\Models\Module;
+use App\Models\Product;
+use App\Models\StockMovement;
+use App\Models\Tenant;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->tenant = Tenant::factory()->create(['is_active' => true]);
+
+    $this->module = Module::create([
+        'code' => 'pedidos',
+        'name' => 'Pedidos y Ventas',
+        'is_active' => true,
+    ]);
+
+    $this->permVer = Permission::create([
+        'name' => 'pedidos.ver',
+        'guard_name' => 'web',
+        'module_id' => $this->module->id,
+    ]);
+    $this->permCrear = Permission::create([
+        'name' => 'pedidos.crear',
+        'guard_name' => 'web',
+        'module_id' => $this->module->id,
+    ]);
+    $this->permEditar = Permission::create([
+        'name' => 'pedidos.editar_estado',
+        'guard_name' => 'web',
+        'module_id' => $this->module->id,
+    ]);
+    $this->permCancelar = Permission::create([
+        'name' => 'pedidos.cancelar',
+        'guard_name' => 'web',
+        'module_id' => $this->module->id,
+    ]);
+
+    $this->tenant->modules()->attach($this->module->id);
+
+    setPermissionsTeamId($this->tenant->id);
+    $this->adminRole = Role::create([
+        'name' => 'admin',
+        'guard_name' => 'web',
+        'tenant_id' => $this->tenant->id,
+    ]);
+
+    $this->user = User::factory()->forTenant($this->tenant)->create();
+    $this->user->assignRole($this->adminRole);
+
+    $this->category = Category::factory()->forTenant($this->tenant)->create();
+});
+
+test('can create customer order with packages and bolsones deducting stock and registering kardex', function () {
+    $product1 = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
+        'name' => 'Bolsas Kraft 20x30',
+        'price' => 1000.00,
+        'stock' => 100,
+        'units_per_package' => 10, // 1 bolsón = 10 paquetes
+    ]);
+
+    $product2 = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
+        'name' => 'Cinta Adhesiva',
+        'price' => 500.00,
+        'stock' => 50,
+        'units_per_package' => 1,
+    ]);
+
+    $response = $this->actingAs($this->user)->post(route('tenant.orders.store'), [
+        'customer_name' => 'Librería Central',
+        'customer_phone' => '11 2345-6789',
+        'delivery_address' => 'Av. San Martín 500',
+        'notes' => 'Entregar por la mañana',
+        'items' => [
+            [
+                'product_id' => $product1->id,
+                'packaging_type' => 'bolson',
+                'quantity' => 2, // 2 bolsones = 20 paquetes
+            ],
+            [
+                'product_id' => $product2->id,
+                'packaging_type' => 'paquete',
+                'quantity' => 5, // 5 paquetes = 5 unidades
+            ],
+        ],
+    ]);
+
+    $response->assertRedirect(route('tenant.orders.index'));
+
+    $order = CustomerOrder::where('customer_name', 'Librería Central')->first();
+    expect($order)->not->toBeNull();
+    expect($order->status)->toBe('en_preparacion');
+    // Total: (20 * 1000) + (5 * 500) = 20000 + 2500 = 22500.00
+    expect((float) $order->total_amount)->toBe(22500.00);
+
+    // Stock deducted
+    $product1->refresh();
+    $product2->refresh();
+    expect($product1->stock)->toBe(80); // 100 - 20
+    expect($product2->stock)->toBe(45); // 50 - 5
+
+    // Kardex movements created
+    $movements = StockMovement::where('tenant_id', $this->tenant->id)->get();
+    expect($movements)->toHaveCount(2);
+    expect($movements[0]->type)->toBe('outcome');
+    expect($movements[0]->reason)->toBe('pedido_cliente');
+    expect($movements[0]->quantity)->toBe(20);
+    expect($movements[1]->quantity)->toBe(5);
+});
+
+test('cannot create customer order with incomplete product', function () {
+    $incompleteProduct = Product::factory()->forTenant($this->tenant)->create([
+        'name' => 'Bobina Sulfito Sin Categoria',
+        'category_id' => null,
+        'price' => 0.00,
+        'stock' => 50,
+    ]);
+
+    $response = $this->actingAs($this->user)->postJson(route('tenant.orders.store'), [
+        'customer_name' => 'Comercio Invalido',
+        'items' => [
+            [
+                'product_id' => $incompleteProduct->id,
+                'packaging_type' => 'paquete',
+                'quantity' => 2,
+            ],
+        ],
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['items']);
+});
+
+test('cannot create customer order exceeding product stock', function () {
+    $product = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
+        'name' => 'Cajas de Carton',
+        'price' => 2000.00,
+        'stock' => 5,
+        'units_per_package' => 10,
+    ]);
+
+    $response = $this->actingAs($this->user)->postJson(route('tenant.orders.store'), [
+        'customer_name' => 'Cliente Mayorista',
+        'items' => [
+            [
+                'product_id' => $product->id,
+                'packaging_type' => 'bolson',
+                'quantity' => 1, // requires 10 units, but only 5 in stock
+            ],
+        ],
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['items']);
+});
+
+test('cancelling order restores stock and creates income movement in kardex', function () {
+    $product = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
+        'name' => 'Bolsas Kraft',
+        'price' => 1000.00,
+        'stock' => 50,
+        'units_per_package' => 5,
+    ]);
+
+    $this->actingAs($this->user)->post(route('tenant.orders.store'), [
+        'customer_name' => 'Cliente Prueba',
+        'items' => [
+            [
+                'product_id' => $product->id,
+                'packaging_type' => 'bolson',
+                'quantity' => 2, // 10 units
+            ],
+        ],
+    ]);
+
+    $product->refresh();
+    expect($product->stock)->toBe(40);
+
+    $order = CustomerOrder::where('customer_name', 'Cliente Prueba')->first();
+
+    // Cancel order
+    $response = $this->actingAs($this->user)->patch(route('tenant.orders.update-status', $order), [
+        'status' => 'cancelado',
+    ]);
+
+    $response->assertRedirect(route('tenant.orders.index'));
+
+    $product->refresh();
+    expect($product->stock)->toBe(50); // restored 10 units
+
+    $kardexCancel = StockMovement::where('reason', 'cancelacion_pedido')->first();
+    expect($kardexCancel)->not->toBeNull();
+    expect($kardexCancel->type)->toBe('income');
+    expect($kardexCancel->quantity)->toBe(10);
+});
+
+test('can list customer orders and search by customer name', function () {
+    CustomerOrder::factory()->forTenant($this->tenant)->create([
+        'order_number' => '#PED-00100',
+        'customer_name' => 'Papelera Central Norte',
+        'status' => 'en_preparacion',
+    ]);
+
+    CustomerOrder::factory()->forTenant($this->tenant)->create([
+        'order_number' => '#PED-00101',
+        'customer_name' => 'Librería Sur',
+        'status' => 'entregado',
+    ]);
+
+    $response = $this->actingAs($this->user)->get(route('tenant.orders.index'));
+
+    $response->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/orders/Index')
+            ->has('orders', 2)
+            ->where('stats.total', 2)
+            ->where('stats.en_preparacion', 1)
+            ->where('stats.entregado', 1)
+        );
+
+    // Search by name case-insensitive
+    $responseSearch = $this->actingAs($this->user)->get(route('tenant.orders.index', ['search' => 'central norte']));
+
+    $responseSearch->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/orders/Index')
+            ->has('orders', 1)
+            ->where('orders.0.customer_name', 'Papelera Central Norte')
+        );
+});

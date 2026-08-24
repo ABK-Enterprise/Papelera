@@ -63,12 +63,27 @@ class BaseSeeder extends Seeder
             [
                 'name' => SystemModule::Proveedores->label(),
                 'code' => SystemModule::Proveedores->value,
-                'description' => 'Gestión integral de proveedores, contactos comerciales y compras.',
+                'description' => 'Gestión integral de proveedores, compras y órdenes de reaprovisionamiento.',
                 'permissions' => [
                     'proveedores.ver',
                     'proveedores.crear',
                     'proveedores.editar',
                     'proveedores.eliminar',
+                    'proveedores.pedidos.ver',
+                    'proveedores.pedidos.crear',
+                    'proveedores.pedidos.recibir',
+                    'proveedores.pedidos.cancelar',
+                ],
+            ],
+            [
+                'name' => SystemModule::Pedidos->label(),
+                'code' => SystemModule::Pedidos->value,
+                'description' => 'Gestión de pedidos de clientes, ventas con bolsones, trazabilidad logística y kardex.',
+                'permissions' => [
+                    'pedidos.ver',
+                    'pedidos.crear',
+                    'pedidos.editar_estado',
+                    'pedidos.cancelar',
                 ],
             ],
             [
@@ -112,6 +127,7 @@ class BaseSeeder extends Seeder
             SystemModule::Productos->value,
             SystemModule::Stock->value,
             SystemModule::Proveedores->value,
+            SystemModule::Pedidos->value,
             SystemModule::FacturacionArca->value,
         ])->delete();
 
@@ -141,6 +157,7 @@ class BaseSeeder extends Seeder
             SystemModule::Productos->value,
             SystemModule::Stock->value,
             SystemModule::Proveedores->value,
+            SystemModule::Pedidos->value,
         ])->pluck('id');
         $activePermissions = Permission::whereIn('module_id', $activeModuleIds)->get();
         $adminRole->syncPermissions($activePermissions);
@@ -188,6 +205,7 @@ class BaseSeeder extends Seeder
                 'iva_rate' => 21.00,
                 'stock' => 45,
                 'min_stock' => 10,
+                'units_per_package' => 5, // 1 bolsón = 5 resmas
                 'is_active' => true,
             ]);
 
@@ -202,6 +220,7 @@ class BaseSeeder extends Seeder
                 'iva_rate' => 21.00,
                 'stock' => 4, // low stock alert
                 'min_stock' => 10,
+                'units_per_package' => 10, // 1 bolsón = 10 paquetes
                 'is_active' => true,
             ]);
         }

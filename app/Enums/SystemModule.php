@@ -7,6 +7,7 @@ enum SystemModule: string
     case Productos = 'productos';
     case Stock = 'stock';
     case Proveedores = 'proveedores';
+    case Pedidos = 'pedidos';
     case FacturacionArca = 'facturacion_arca';
     case InventarioStock = 'inventario_stock';
 
@@ -19,6 +20,7 @@ enum SystemModule: string
             self::Productos => 'Catálogo de Productos',
             self::Stock => 'Control de Stock y Kardex',
             self::Proveedores => 'Proveedores',
+            self::Pedidos => 'Pedidos y Ventas',
             self::FacturacionArca => 'Facturación ARCA',
             self::InventarioStock => 'Inventario y Stock (Legacy)',
         };
