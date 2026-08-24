@@ -20,6 +20,7 @@ class RoleController extends Controller
         setPermissionsTeamId($tenant->id);
 
         $roles = Role::where('tenant_id', $tenant->id)
+            ->where('name', '!=', 'admin')
             ->withCount('permissions')
             ->withCount('users')
             ->latest()
@@ -33,6 +34,13 @@ class RoleController extends Controller
     public function create(Request $request): Response
     {
         $tenant = $request->user()->tenant;
+        $user = $request->user();
+
+        setPermissionsTeamId($tenant->id);
+
+        $userPermissionIds = $user->isSuperAdmin()
+            ? null
+            : $user->getAllPermissions()->pluck('id')->all();
 
         $modules = $tenant->modules()
             ->where('modules.is_active', true)
@@ -40,11 +48,18 @@ class RoleController extends Controller
                 $query->whereNull('tenant_modules.expires_at')
                     ->orWhere('tenant_modules.expires_at', '>', now());
             })
-            ->with(['permissions' => function ($query) {
+            ->with(['permissions' => function ($query) use ($userPermissionIds) {
+                if ($userPermissionIds !== null) {
+                    $query->whereIn('id', $userPermissionIds);
+                }
                 $query->select('id', 'name', 'module_id');
             }])
             ->select('modules.id', 'modules.name', 'modules.code', 'modules.description')
-            ->get();
+            ->get()
+            ->filter(function ($module) {
+                return $module->permissions->isNotEmpty();
+            })
+            ->values();
 
         return Inertia::render('tenant/roles/Create', [
             'modules' => $modules,
@@ -76,6 +91,7 @@ class RoleController extends Controller
     public function edit(Request $request, Role $role): Response
     {
         $tenant = $request->user()->tenant;
+        $user = $request->user();
 
         if ((int) $role->tenant_id !== (int) $tenant->id) {
             abort(404);
@@ -88,17 +104,28 @@ class RoleController extends Controller
         setPermissionsTeamId($tenant->id);
         $role->load('permissions:id,name');
 
+        $userPermissionIds = $user->isSuperAdmin()
+            ? null
+            : $user->getAllPermissions()->pluck('id')->all();
+
         $modules = $tenant->modules()
             ->where('modules.is_active', true)
             ->where(function ($query) {
                 $query->whereNull('tenant_modules.expires_at')
                     ->orWhere('tenant_modules.expires_at', '>', now());
             })
-            ->with(['permissions' => function ($query) {
+            ->with(['permissions' => function ($query) use ($userPermissionIds) {
+                if ($userPermissionIds !== null) {
+                    $query->whereIn('id', $userPermissionIds);
+                }
                 $query->select('id', 'name', 'module_id');
             }])
             ->select('modules.id', 'modules.name', 'modules.code', 'modules.description')
-            ->get();
+            ->get()
+            ->filter(function ($module) {
+                return $module->permissions->isNotEmpty();
+            })
+            ->values();
 
         return Inertia::render('tenant/roles/Edit', [
             'role' => $role,

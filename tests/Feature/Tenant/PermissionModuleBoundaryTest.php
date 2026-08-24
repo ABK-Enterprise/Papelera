@@ -38,6 +38,7 @@ beforeEach(function () {
 
     // Attach only the stock module to tenant
     $this->tenant->modules()->attach($this->contractedModule->id);
+    $this->adminRole->givePermissionTo([$this->permStockView, $this->permStockCreate]);
 });
 
 test('tenant admin can list tenant roles with permission count', function () {
@@ -61,9 +62,8 @@ test('tenant admin can list tenant roles with permission count', function () {
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/roles/Index')
-            ->has('roles', 2) // 'admin' and 'cajero'
-            ->where('roles.0.name', fn ($name) => in_array($name, ['admin', 'cajero']))
-            ->where('roles.1.name', fn ($name) => in_array($name, ['admin', 'cajero']))
+            ->has('roles', 1) // 'cajero' only, 'admin' is hidden
+            ->where('roles.0.name', 'cajero')
         );
 });
 

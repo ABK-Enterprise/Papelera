@@ -40,22 +40,16 @@ class SupplierController extends Controller
 
         $suppliers = $query->get();
 
-        $stats = [
-            'total' => Supplier::count(),
-            'active' => Supplier::where('is_active', true)->count(),
-            'inactive' => Supplier::where('is_active', false)->count(),
-        ];
-
         if ($request->wantsJson()) {
             return response()->json([
                 'suppliers' => $suppliers,
-                'stats' => $stats,
+                'total_count' => $suppliers->count(),
             ]);
         }
 
         return Inertia::render('tenant/suppliers/Index', [
             'suppliers' => $suppliers,
-            'stats' => $stats,
+            'totalCount' => $suppliers->count(),
             'filters' => [
                 'search' => $search,
                 'status' => $status,

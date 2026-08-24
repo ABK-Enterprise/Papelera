@@ -32,6 +32,7 @@ class StoreRoleRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
+                Rule::notIn(['admin', 'superadmin', 'Administrador', 'Superadmin']),
                 Rule::unique('roles', 'name')->where(function ($query) use ($tenantId) {
                     $query->where('tenant_id', $tenantId);
                 }),
@@ -52,13 +53,17 @@ class StoreRoleRequest extends FormRequest
                 return;
             }
 
-            $tenant = $this->user()->tenant;
+            $user = $this->user();
+            $tenant = $user->tenant;
             if (! $tenant) {
                 $validator->errors()->add('permissions', 'Comercio no válido.');
 
                 return;
             }
 
+            setPermissionsTeamId($tenant->id);
+
+            // Validar que los permisos correspondan a módulos activos del tenant
             $activeModuleIds = $tenant->modules()
                 ->where('modules.is_active', true)
                 ->where(function ($query) {
@@ -68,7 +73,7 @@ class StoreRoleRequest extends FormRequest
                 ->pluck('modules.id')
                 ->all();
 
-            $invalidPermissions = Permission::whereIn('name', $permissions)
+            $invalidModulePermissions = Permission::whereIn('name', $permissions)
                 ->where(function ($query) use ($activeModuleIds) {
                     $query->whereNotIn('module_id', $activeModuleIds)
                         ->orWhereNull('module_id');
@@ -76,11 +81,26 @@ class StoreRoleRequest extends FormRequest
                 ->pluck('name')
                 ->all();
 
-            if (! empty($invalidPermissions)) {
+            if (! empty($invalidModulePermissions)) {
                 $validator->errors()->add(
                     'permissions',
                     'Uno o más permisos seleccionados no pertenecen a los módulos activos contratados por su comercio.'
                 );
+
+                return;
+            }
+
+            // Prevención de escalabilidad de privilegios: el usuario no puede delegar permisos que no posee
+            if (! $user->isSuperAdmin()) {
+                $userPermissions = $user->getAllPermissions()->pluck('name')->all();
+                $unheldPermissions = array_diff($permissions, $userPermissions);
+
+                if (! empty($unheldPermissions)) {
+                    $validator->errors()->add(
+                        'permissions',
+                        'No puedes otorgar permisos que tu propio usuario no posee.'
+                    );
+                }
             }
         });
     }

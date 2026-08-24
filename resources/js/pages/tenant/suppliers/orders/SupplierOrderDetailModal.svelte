@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
+    import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import { router } from '@inertiajs/svelte';
     import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
     import PackageCheck from 'lucide-svelte/icons/package-check';
@@ -50,6 +51,8 @@
     } = $props();
 
     let isProcessing = $state(false);
+    let isReceiveModalOpen = $state(false);
+    let isCancelModalOpen = $state(false);
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
@@ -71,36 +74,44 @@
         }
     }
 
-    function handleReceive() {
-        if (!order) return;
-        if (confirm(`¿Confirmar recepción de la orden ${order.order_number}? Las cantidades se ingresarán automáticamente al inventario y se asentará en Kardex.`)) {
-            isProcessing = true;
-            router.patch(`/tenant/suppliers/orders/${order.id}/receive`, {}, {
-                onSuccess: () => {
-                    isProcessing = false;
-                    open = false;
-                },
-                onError: () => {
-                    isProcessing = false;
-                },
-            });
-        }
+    function promptReceive() {
+        isReceiveModalOpen = true;
     }
 
-    function handleCancel() {
+    function executeReceive() {
         if (!order) return;
-        if (confirm(`¿Cancelar la orden de compra ${order.order_number}?`)) {
-            isProcessing = true;
-            router.patch(`/tenant/suppliers/orders/${order.id}/cancel`, {}, {
-                onSuccess: () => {
-                    isProcessing = false;
-                    open = false;
-                },
-                onError: () => {
-                    isProcessing = false;
-                },
-            });
-        }
+        isProcessing = true;
+        router.patch(`/tenant/suppliers/orders/${order.id}/receive`, {}, {
+            onSuccess: () => {
+                isProcessing = false;
+                isReceiveModalOpen = false;
+                open = false;
+            },
+            onError: () => {
+                isProcessing = false;
+                isReceiveModalOpen = false;
+            },
+        });
+    }
+
+    function promptCancel() {
+        isCancelModalOpen = true;
+    }
+
+    function executeCancel() {
+        if (!order) return;
+        isProcessing = true;
+        router.patch(`/tenant/suppliers/orders/${order.id}/cancel`, {}, {
+            onSuccess: () => {
+                isProcessing = false;
+                isCancelModalOpen = false;
+                open = false;
+            },
+            onError: () => {
+                isProcessing = false;
+                isCancelModalOpen = false;
+            },
+        });
     }
 </script>
 
@@ -214,9 +225,9 @@
                         <span class="text-xs font-bold text-foreground block">¿Llegó la mercadería al depósito?</span>
                         <p class="text-[11px] text-muted-foreground">Al marcar como recibido, se sumará el stock de cada artículo en Kardex.</p>
                     </div>
-                    <Button size="sm" class="font-bold gap-1.5 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white" onclick={handleReceive} disabled={isProcessing}>
+                    <Button size="sm" class="font-bold gap-1.5 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white" onclick={promptReceive} disabled={isProcessing}>
                         <PackageCheck class="size-4" />
-                        {isProcessing ? 'Procesando...' : 'Marcar como Recibido'}
+                        Marcar como Recibido
                     </Button>
                 </div>
             {/if}
@@ -229,7 +240,7 @@
                         variant="ghost"
                         size="sm"
                         class="text-xs text-destructive hover:bg-destructive/10 gap-1.5"
-                        onclick={handleCancel}
+                        onclick={promptCancel}
                         disabled={isProcessing}
                     >
                         <XCircle class="size-3.5" />
@@ -251,4 +262,28 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de Confirmación de Recepción en Stock -->
+    <ConfirmActionModal
+        bind:open={isReceiveModalOpen}
+        title="¿Confirmar recepción de mercadería?"
+        description={`¿Deseas registrar el ingreso de los artículos de la orden ${order.order_number}? El inventario de cada producto se incrementará automáticamente y se asentará en Kardex.`}
+        confirmText="Ingresar a Stock"
+        cancelText="Volver"
+        variant="success"
+        loading={isProcessing}
+        onconfirm={executeReceive}
+    />
+
+    <!-- Modal de Confirmación de Cancelación de Orden -->
+    <ConfirmActionModal
+        bind:open={isCancelModalOpen}
+        title="¿Cancelar orden de compra?"
+        description={`¿Estás seguro de cancelar la orden ${order.order_number}? La orden quedará archivada como cancelada y no modificará el inventario.`}
+        confirmText="Cancelar Orden"
+        cancelText="Conservar"
+        variant="warning"
+        loading={isProcessing}
+        onconfirm={executeCancel}
+    />
 {/if}

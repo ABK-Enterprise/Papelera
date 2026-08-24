@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Link, router } from '@inertiajs/svelte';
     import { Button } from '@/components/ui/button';
+    import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Package from 'lucide-svelte/icons/package';
@@ -30,6 +31,10 @@
         products: ProductItem[];
     } = $props();
 
+    let productToDelete = $state<ProductItem | null>(null);
+    let isDeleteModalOpen = $state(false);
+    let isDeleting = $state(false);
+
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
             style: 'currency',
@@ -38,10 +43,21 @@
         }).format(Number(amount));
     }
 
-    function deleteProduct(product: ProductItem) {
-        if (confirm(`¿Eliminar "${product.name}"?`)) {
-            router.delete(`/tenant/products/${product.id}`);
-        }
+    function promptDelete(product: ProductItem) {
+        productToDelete = product;
+        isDeleteModalOpen = true;
+    }
+
+    function executeDelete() {
+        if (!productToDelete) return;
+        isDeleting = true;
+        router.delete(`/tenant/products/${productToDelete.id}`, {
+            onFinish: () => {
+                isDeleting = false;
+                isDeleteModalOpen = false;
+                productToDelete = null;
+            },
+        });
     }
 </script>
 
@@ -116,7 +132,7 @@
                     size="icon"
                     variant="ghost"
                     class="h-8 w-8 text-muted-foreground hover:text-destructive"
-                    onclick={() => deleteProduct(product)}
+                    onclick={() => promptDelete(product)}
                 >
                     <Trash2 class="size-3.5" />
                 </Button>
@@ -134,3 +150,15 @@
         </div>
     {/if}
 </div>
+
+<!-- Modal de Confirmación de Eliminación de Producto Mobile -->
+<ConfirmActionModal
+    bind:open={isDeleteModalOpen}
+    title="¿Eliminar producto?"
+    description={`¿Estás seguro de eliminar "${productToDelete?.name}"? Esta acción no se puede deshacer.`}
+    confirmText="Eliminar"
+    cancelText="Cancelar"
+    variant="danger"
+    loading={isDeleting}
+    onconfirm={executeDelete}
+/>

@@ -88,7 +88,6 @@
         items[index].product_id = null;
         items[index].is_dropdown_open = true;
 
-        // Auto-match exact name
         const match = availableProducts.find(
             (p) => p.name.toLowerCase().trim() === value.toLowerCase().trim()
         );
@@ -97,6 +96,12 @@
             if (match.cost_price && !items[index].unit_cost) {
                 items[index].unit_cost = Number(match.cost_price);
             }
+        }
+    }
+
+    function closeAllDropdowns() {
+        for (const it of items) {
+            it.is_dropdown_open = false;
         }
     }
 
@@ -173,6 +178,8 @@
     }
 </script>
 
+<svelte:window onclick={closeAllDropdowns} />
+
 {#if open}
     <div
         class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
@@ -182,7 +189,7 @@
         tabindex="0"
         aria-label="Cerrar modal"
     >
-        <div class="bg-card text-card-foreground rounded-2xl border border-border shadow-2xl max-w-2xl w-full p-6 space-y-5 my-8">
+        <div class="bg-card text-card-foreground rounded-2xl border border-border shadow-2xl max-w-2xl w-full p-6 space-y-5 my-8 relative overflow-visible">
             <div class="flex items-center justify-between border-b pb-4">
                 <div class="flex items-center gap-2.5">
                     <div class="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -236,12 +243,12 @@
                         </Button>
                     </div>
 
-                    <div class="space-y-3 max-h-72 overflow-y-auto pr-1">
+                    <div class="space-y-3">
                         {#each items as item, index (index)}
                             {@const filtered = getFilteredProducts(item.search_query)}
                             {@const hasExactMatch = Boolean(item.product_id)}
 
-                            <div class="flex flex-col gap-1.5 p-3 rounded-xl border bg-muted/20 relative">
+                            <div class="flex flex-col gap-1.5 p-3 rounded-xl border bg-muted/20 relative" onclick={(e) => e.stopPropagation()}>
                                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                     <!-- Input de Buscador / Creación on-the-fly -->
                                     <div class="relative flex-1 w-full">
@@ -249,24 +256,27 @@
                                             type="text"
                                             value={item.search_query}
                                             oninput={(e) => handleSearchInput(index, (e.target as HTMLInputElement).value)}
-                                            onfocus={() => (item.is_dropdown_open = true)}
+                                            onfocus={() => {
+                                                closeAllDropdowns();
+                                                item.is_dropdown_open = true;
+                                            }}
                                             placeholder="Escribe el nombre del producto..."
                                             class="h-9 text-xs pr-7 font-medium"
                                             required
                                         />
                                         {#if hasExactMatch}
-                                            <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-emerald-600 bg-emerald-500/15 px-1.5 py-0.2 rounded">
+                                            <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-emerald-600 bg-emerald-500/15 px-1.5 py-0.2 rounded pointer-events-none">
                                                 En catálogo
                                             </span>
                                         {/if}
 
-                                        <!-- Menú desplegable de sugerencias -->
+                                        <!-- Menú desplegable de sugerencias flotante con scroll invisible limitado a 5 items (~185px) -->
                                         {#if item.is_dropdown_open && item.search_query.trim() !== ''}
-                                            <div class="absolute left-0 right-0 top-full mt-1 z-50 rounded-lg border bg-popover text-popover-foreground shadow-lg overflow-hidden max-h-44 overflow-y-auto">
+                                            <div class="absolute left-0 right-0 top-full mt-1.5 z-50 rounded-xl border border-border/80 bg-popover text-popover-foreground shadow-2xl overflow-y-auto max-h-[185px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                                                 {#each filtered as prod}
                                                     <button
                                                         type="button"
-                                                        class="w-full px-3 py-2 text-left text-xs hover:bg-muted transition-colors flex items-center justify-between border-b last:border-b-0"
+                                                        class="w-full px-3 py-2.5 text-left text-xs hover:bg-muted transition-colors flex items-center justify-between border-b last:border-b-0"
                                                         onclick={() => selectProduct(index, prod)}
                                                     >
                                                         <span class="font-medium text-foreground">{prod.name}</span>

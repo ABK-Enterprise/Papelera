@@ -65,7 +65,6 @@ test('tenant user can view stock incomes index', function () {
             ->component('tenant/stock/incomes/Index')
             ->has('movements')
             ->has('products')
-            ->has('stats')
         );
 });
 

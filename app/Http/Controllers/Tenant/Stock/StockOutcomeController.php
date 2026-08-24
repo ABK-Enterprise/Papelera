@@ -28,23 +28,16 @@ class StockOutcomeController extends Controller
             ->orderBy('name')
             ->get();
 
-        $stats = [
-            'total_movements' => $movements->count(),
-            'total_units' => (int) $movements->sum('quantity'),
-        ];
-
         if ($request->wantsJson()) {
             return response()->json([
                 'movements' => $movements,
                 'products' => $products,
-                'stats' => $stats,
             ]);
         }
 
         return Inertia::render('tenant/stock/outcomes/Index', [
             'movements' => $movements,
             'products' => $products,
-            'stats' => $stats,
         ]);
     }
 

@@ -30,11 +30,11 @@
 
     let {
         suppliers = [],
-        stats = { total: 0, active: 0, inactive: 0 },
+        totalCount = 0,
         filters = {},
     }: {
         suppliers: SupplierItem[];
-        stats?: Stats;
+        totalCount?: number;
         filters?: FilterProps;
     } = $props();
 
@@ -81,7 +81,7 @@
         <Link href="/tenant/suppliers">
             <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs">
                 <Users class="size-4" />
-                Directorio de Proveedores ({stats.total})
+                Directorio de Proveedores ({totalCount})
             </Button>
         </Link>
         <Link href="/tenant/suppliers/orders">
@@ -104,48 +104,15 @@
             </p>
         </div>
 
-            <div class="flex items-center gap-2.5">
-                <Button class="gap-2 shadow-sm font-semibold" onclick={() => (showCreateModal = true)}>
-                    <Plus class="h-4 w-4" />
-                    + Añadir Proveedor
-                </Button>
-            </div>
+        <div class="flex items-center gap-2.5">
+            <Button class="gap-2 shadow-sm font-semibold" onclick={() => (showCreateModal = true)}>
+                <Plus class="h-4 w-4" />
+                + Añadir Proveedor
+            </Button>
         </div>
+    </div>
 
-        <!-- Bento Grid: Tarjetas de Resumen Estadístico -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Card class="p-4 rounded-xl border border-border/60 shadow-[0px_10px_30px_rgba(0,0,0,0.02)] flex items-center justify-between">
-                <div>
-                    <span class="text-xs font-medium text-muted-foreground">Total Proveedores</span>
-                    <p class="text-2xl font-bold text-foreground mt-1">{stats.total}</p>
-                </div>
-                <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Truck class="size-5" />
-                </div>
-            </Card>
-
-            <Card class="p-4 rounded-xl border border-border/60 shadow-[0px_10px_30px_rgba(0,0,0,0.02)] flex items-center justify-between">
-                <div>
-                    <span class="text-xs font-medium text-muted-foreground">Proveedores Activos</span>
-                    <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{stats.active}</p>
-                </div>
-                <div class="flex size-10 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                    <CheckCircle2 class="size-5" />
-                </div>
-            </Card>
-
-            <Card class="p-4 rounded-xl border border-border/60 shadow-[0px_10px_30px_rgba(0,0,0,0.02)] flex items-center justify-between">
-                <div>
-                    <span class="text-xs font-medium text-muted-foreground">Inactivos / Pausados</span>
-                    <p class="text-2xl font-bold text-muted-foreground mt-1">{stats.inactive}</p>
-                </div>
-                <div class="flex size-10 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                    <XCircle class="size-5" />
-                </div>
-            </Card>
-        </div>
-
-        <!-- Bento Card: Buscador y Filtros -->
+    <!-- Bento Card: Buscador y Filtros -->
         <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-border/60">
             <div class="flex flex-col md:flex-row items-center justify-between gap-3">
                 <!-- Buscador por Nombre, Contacto, Email o Dirección -->

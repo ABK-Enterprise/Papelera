@@ -86,7 +86,6 @@ test('tenant user can view kardex movement history and stats', function () {
         ->assertInertia(fn ($page) => $page
             ->component('tenant/stock/kardex/Index')
             ->has('movements', 2)
-            ->has('stats')
         );
 });
 

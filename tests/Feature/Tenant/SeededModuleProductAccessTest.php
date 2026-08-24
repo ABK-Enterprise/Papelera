@@ -72,7 +72,6 @@ test('seeded productos and stock modules match routes and grant access to tenant
             ->component('tenant/stock/incomes/Index')
             ->has('movements')
             ->has('products')
-            ->has('stats')
         );
 
     // If module is removed from tenant, access is redirected to access-denied

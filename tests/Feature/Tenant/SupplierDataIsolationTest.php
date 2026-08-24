@@ -68,14 +68,12 @@ test('supplier listings and stats are strictly isolated between tenants', functi
         ->assertSuccessful();
 
     expect($resT1->json()['suppliers'])->toHaveCount(2)
-        ->and($resT1->json()['stats']['total'])->toBe(2)
-        ->and($resT1->json()['stats']['active'])->toBe(2);
+        ->and($resT1->json()['total_count'])->toBe(2);
 
     $resT2 = $this->actingAs($this->user2)
         ->getJson('/tenant/suppliers')
         ->assertSuccessful();
 
     expect($resT2->json()['suppliers'])->toHaveCount(4)
-        ->and($resT2->json()['stats']['total'])->toBe(4)
-        ->and($resT2->json()['stats']['active'])->toBe(4);
+        ->and($resT2->json()['total_count'])->toBe(4);
 });

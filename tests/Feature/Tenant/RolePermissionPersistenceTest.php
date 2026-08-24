@@ -44,6 +44,7 @@ beforeEach(function () {
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,
     ]);
+    $this->adminRole->givePermissionTo(['stock_ingreso.ver', 'stock_ingreso.crear', 'stock_egreso.ver']);
     $this->adminUser->assignRole($this->adminRole);
 });
 

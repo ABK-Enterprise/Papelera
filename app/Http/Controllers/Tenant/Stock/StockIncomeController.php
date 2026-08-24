@@ -17,8 +17,6 @@ class StockIncomeController extends Controller
 {
     public function index(Request $request): Response|JsonResponse
     {
-        $tenantId = $request->user()->tenant_id;
-
         $movements = StockMovement::incomes()
             ->with(['product:id,name,sku,barcode', 'user:id,name'])
             ->latest()
@@ -29,23 +27,16 @@ class StockIncomeController extends Controller
             ->orderBy('name')
             ->get();
 
-        $stats = [
-            'total_movements' => $movements->count(),
-            'total_units' => (int) $movements->sum('quantity'),
-        ];
-
         if ($request->wantsJson()) {
             return response()->json([
                 'movements' => $movements,
                 'products' => $products,
-                'stats' => $stats,
             ]);
         }
 
         return Inertia::render('tenant/stock/incomes/Index', [
             'movements' => $movements,
             'products' => $products,
-            'stats' => $stats,
         ]);
     }
 

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
+    import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import { router } from '@inertiajs/svelte';
     import Calendar from 'lucide-svelte/icons/calendar';
     import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
@@ -51,6 +52,9 @@
 
     let selectedStatus = $state(order?.status ?? 'en_preparacion');
     let isUpdatingStatus = $state(false);
+    let isCancelModalOpen = $state(false);
+    let isDeleteModalOpen = $state(false);
+    let pendingStatus = $state<string | null>(null);
 
     $effect(() => {
         if (order) {
@@ -82,39 +86,48 @@
         if (!order || newStatus === order.status) return;
 
         if (newStatus === 'cancelado') {
-            if (!confirm(`¿Estás seguro de cancelar el pedido ${order.order_number}? El stock de los productos se reincorporará automáticamente.`)) {
-                selectedStatus = order.status;
-                return;
-            }
+            pendingStatus = 'cancelado';
+            isCancelModalOpen = true;
+            return;
         }
 
+        executeStatusUpdate(newStatus);
+    }
+
+    function executeStatusUpdate(statusToSet: string) {
+        if (!order) return;
         isUpdatingStatus = true;
         router.patch(
             `/tenant/orders/${order.id}/status`,
-            { status: newStatus },
+            { status: statusToSet },
             {
                 preserveScroll: true,
                 onSuccess: () => {
                     isUpdatingStatus = false;
-                    selectedStatus = newStatus;
+                    selectedStatus = statusToSet;
+                    isCancelModalOpen = false;
                 },
                 onError: () => {
                     isUpdatingStatus = false;
                     selectedStatus = order?.status ?? 'en_preparacion';
+                    isCancelModalOpen = false;
                 },
             }
         );
     }
 
     function handleDelete() {
+        isDeleteModalOpen = true;
+    }
+
+    function executeDelete() {
         if (!order) return;
-        if (confirm(`¿Eliminar el pedido ${order.order_number}?`)) {
-            router.delete(`/tenant/orders/${order.id}`, {
-                onSuccess: () => {
-                    open = false;
-                },
-            });
-        }
+        router.delete(`/tenant/orders/${order.id}`, {
+            onSuccess: () => {
+                isDeleteModalOpen = false;
+                open = false;
+            },
+        });
     }
 </script>
 
@@ -322,4 +335,30 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de Confirmación de Cancelación -->
+    <ConfirmActionModal
+        bind:open={isCancelModalOpen}
+        title="¿Cancelar pedido de venta?"
+        description={`¿Estás seguro de cancelar el pedido ${order.order_number}? El stock de los artículos se reincorporará automáticamente al inventario.`}
+        confirmText="Cancelar Pedido"
+        cancelText="Volver"
+        variant="warning"
+        loading={isUpdatingStatus}
+        onconfirm={() => executeStatusUpdate('cancelado')}
+        oncancel={() => {
+            selectedStatus = order?.status ?? 'en_preparacion';
+        }}
+    />
+
+    <!-- Modal de Confirmación de Eliminación -->
+    <ConfirmActionModal
+        bind:open={isDeleteModalOpen}
+        title="¿Eliminar pedido?"
+        description={`Esta acción eliminará permanentemente el registro del pedido ${order.order_number}.`}
+        confirmText="Eliminar Definitivamente"
+        cancelText="Conservar"
+        variant="danger"
+        onconfirm={executeDelete}
+    />
 {/if}

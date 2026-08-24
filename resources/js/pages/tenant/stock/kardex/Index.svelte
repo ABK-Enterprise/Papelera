@@ -38,12 +38,6 @@
         sku: string | null;
     }
 
-    interface Stats {
-        total_movements: number;
-        total_incomes: number;
-        total_outcomes: number;
-    }
-
     interface Filters {
         product_id?: number | null;
         type?: string | null;
@@ -53,12 +47,10 @@
     let {
         movements = [],
         products = [],
-        stats = { total_movements: 0, total_incomes: 0, total_outcomes: 0 },
         filters = { search: '', type: '', product_id: null },
     }: {
         movements: StockMovementItem[];
         products: ProductItem[];
-        stats?: Stats;
         filters?: Filters;
     } = $props();
 
@@ -116,7 +108,7 @@
     }
 </script>
 
-<AppHead title="Kardex de Movimientos - Luminous" />
+<AppHead title="Kardex de Movimientos - Comercio" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
     <!-- Sub-Navegación de Pestañas de Stock y Productos -->
@@ -129,22 +121,6 @@
             <p class="mt-1.5 text-sm text-muted-foreground sm:text-base max-w-2xl">
                 Auditoría cronológica y trazabilidad de todos los movimientos de inventario de tu comercio.
             </p>
-        </div>
-    </div>
-
-    <!-- Quick Stats Cards -->
-    <div class="grid grid-cols-3 gap-4 sm:grid-cols-3">
-        <div class="rounded-xl border border-border/60 bg-card p-4 shadow-xs">
-            <span class="text-xs text-muted-foreground font-medium">Total de Movimientos</span>
-            <div class="mt-1 text-2xl font-bold text-foreground">{stats.total_movements}</div>
-        </div>
-        <div class="rounded-xl border border-border/60 bg-card p-4 shadow-xs">
-            <span class="text-xs text-muted-foreground font-medium">Ingresos Registrados</span>
-            <div class="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.total_incomes}</div>
-        </div>
-        <div class="rounded-xl border border-border/60 bg-card p-4 shadow-xs">
-            <span class="text-xs text-muted-foreground font-medium">Egresos Registrados</span>
-            <div class="mt-1 text-2xl font-bold text-rose-600 dark:text-rose-400">{stats.total_outcomes}</div>
         </div>
     </div>
 

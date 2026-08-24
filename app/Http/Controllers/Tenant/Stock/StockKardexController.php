@@ -48,24 +48,16 @@ class StockKardexController extends Controller
             ->orderBy('name')
             ->get();
 
-        $stats = [
-            'total_movements' => StockMovement::count(),
-            'total_incomes' => StockMovement::incomes()->count(),
-            'total_outcomes' => StockMovement::outcomes()->count(),
-        ];
-
         if ($request->wantsJson()) {
             return response()->json([
                 'movements' => $movements,
                 'products' => $products,
-                'stats' => $stats,
             ]);
         }
 
         return Inertia::render('tenant/stock/kardex/Index', [
             'movements' => $movements,
             'products' => $products,
-            'stats' => $stats,
             'filters' => [
                 'product_id' => $productId ? (int) $productId : null,
                 'type' => $type,

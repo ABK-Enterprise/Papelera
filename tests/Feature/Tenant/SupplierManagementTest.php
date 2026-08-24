@@ -46,9 +46,7 @@ test('tenant user can list suppliers with stats via JSON API', function () {
 
     $data = $response->json();
     expect($data['suppliers'])->toHaveCount(3)
-        ->and($data['stats']['total'])->toBe(3)
-        ->and($data['stats']['active'])->toBe(2)
-        ->and($data['stats']['inactive'])->toBe(1);
+        ->and($data['total_count'])->toBe(3);
 });
 
 test('tenant user can filter suppliers by search and active status', function () {
@@ -103,7 +101,7 @@ test('tenant user can render Inertia suppliers index page', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/suppliers/Index')
             ->has('suppliers', 2)
-            ->has('stats')
+            ->has('totalCount')
             ->has('filters')
         );
 });
