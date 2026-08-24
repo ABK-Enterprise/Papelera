@@ -107,6 +107,15 @@
         isDetailModalOpen = true;
     }
 
+    $effect(() => {
+        if (selectedOrder && orders.length > 0) {
+            const fresh = orders.find((o) => o.id === selectedOrder?.id);
+            if (fresh) {
+                selectedOrder = fresh;
+            }
+        }
+    });
+
     let hasActiveFilters = $derived(Boolean(searchTerm || (selectedStatus && selectedStatus !== 'all')));
 </script>
 
@@ -199,5 +208,5 @@
 <!-- Modal de Detalle de Pedido -->
 <OrderDetailModal
     bind:open={isDetailModalOpen}
-    order={selectedOrder}
+    bind:order={selectedOrder}
 />

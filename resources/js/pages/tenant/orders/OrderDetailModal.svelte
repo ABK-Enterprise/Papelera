@@ -46,7 +46,7 @@
 
     let {
         open = $bindable(false),
-        order = null,
+        order = $bindable<OrderData | null>(null),
     }: {
         open: boolean;
         order: OrderData | null;
@@ -99,9 +99,16 @@
             { status: statusToSet },
             {
                 preserveScroll: true,
+                preserveState: true,
                 onSuccess: () => {
                     isUpdatingStatus = false;
                     isConfirmModalOpen = false;
+                    if (order) {
+                        order = {
+                            ...order,
+                            status: statusToSet,
+                        };
+                    }
                     pendingStatus = null;
                 },
                 onError: () => {

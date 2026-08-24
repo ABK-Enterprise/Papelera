@@ -44,7 +44,7 @@
 
     let {
         open = $bindable(false),
-        order = null,
+        order = $bindable<SupplierOrderData | null>(null),
     }: {
         open: boolean;
         order: SupplierOrderData | null;
@@ -82,10 +82,17 @@
         if (!order) return;
         isProcessing = true;
         router.patch(`/tenant/suppliers/orders/${order.id}/receive`, {}, {
+            preserveScroll: true,
+            preserveState: true,
             onSuccess: () => {
                 isProcessing = false;
                 isReceiveModalOpen = false;
-                open = false;
+                if (order) {
+                    order = {
+                        ...order,
+                        status: 'recibido',
+                    };
+                }
             },
             onError: () => {
                 isProcessing = false;
@@ -102,10 +109,17 @@
         if (!order) return;
         isProcessing = true;
         router.patch(`/tenant/suppliers/orders/${order.id}/cancel`, {}, {
+            preserveScroll: true,
+            preserveState: true,
             onSuccess: () => {
                 isProcessing = false;
                 isCancelModalOpen = false;
-                open = false;
+                if (order) {
+                    order = {
+                        ...order,
+                        status: 'cancelado',
+                    };
+                }
             },
             onError: () => {
                 isProcessing = false;
@@ -161,6 +175,25 @@
                     <X class="size-5" />
                 </button>
             </div>
+
+            <!-- Cartel de Estado Terminal -->
+            {#if order.status === 'recibido'}
+                <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-xs text-emerald-700 dark:text-emerald-300">
+                    <CheckCircle2 class="size-5 text-emerald-600 shrink-0" />
+                    <div>
+                        <strong class="font-bold block">Orden Recibida en Stock</strong>
+                        <span>Los artículos de esta orden ya fueron incorporados al inventario y registrados en Kardex.</span>
+                    </div>
+                </div>
+            {:else if order.status === 'cancelado'}
+                <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-xs text-rose-700 dark:text-rose-300">
+                    <XCircle class="size-5 text-rose-600 shrink-0" />
+                    <div>
+                        <strong class="font-bold block">Orden Cancelada</strong>
+                        <span>Esta orden de compra fue cancelada y no generó movimientos de stock.</span>
+                    </div>
+                </div>
+            {/if}
 
             <!-- Datos del Proveedor -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-muted/20 border text-xs">
