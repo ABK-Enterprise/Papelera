@@ -26,7 +26,8 @@ class TenantController extends Controller
 
         $applyFilters = function ($query) use ($status, $sort) {
             $query->with(['modules' => function ($q) {
-                $q->select('modules.id', 'modules.name', 'modules.code');
+                $q->where('modules.is_active', true)
+                    ->select('modules.id', 'modules.name', 'modules.code');
             }])->withCount('users');
 
             if ($status === 'activo') {
