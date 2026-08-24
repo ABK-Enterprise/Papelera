@@ -34,6 +34,7 @@ class UpdateProductRequest extends FormRequest
             'iva_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'stock' => ['nullable', 'integer', 'min:0'],
             'min_stock' => ['nullable', 'integer', 'min:0'],
+            'units_per_package' => ['nullable', 'integer', 'min:1'],
             'image_url' => ['nullable', 'string', 'max:1000'],
             'is_active' => ['boolean'],
         ];

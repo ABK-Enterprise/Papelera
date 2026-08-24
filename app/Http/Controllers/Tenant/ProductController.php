@@ -20,6 +20,7 @@ class ProductController extends Controller
         $search = $request->input('search');
         $categoryId = $request->input('category_id');
         $stockStatus = $request->input('stock_status');
+        $infoStatus = $request->input('info_status');
 
         $query = Product::with('category:id,name,slug,icon')
             ->when($search, function ($q, $search) {
@@ -42,6 +43,13 @@ class ProductController extends Controller
                     $q->outOfStock();
                 }
             })
+            ->when($infoStatus, function ($q, $infoStatus) {
+                if ($infoStatus === 'incomplete') {
+                    $q->incomplete();
+                } elseif ($infoStatus === 'complete') {
+                    $q->complete();
+                }
+            })
             ->latest();
 
         $products = $query->get();
@@ -51,11 +59,14 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
+        $incompleteCount = Product::incomplete()->count();
+
         $stats = [
             'total' => Product::count(),
             'in_stock' => Product::inStock()->count(),
             'low_stock' => Product::lowStock()->count(),
             'out_of_stock' => Product::outOfStock()->count(),
+            'incomplete' => $incompleteCount,
         ];
 
         if ($request->wantsJson()) {
@@ -63,6 +74,7 @@ class ProductController extends Controller
                 'products' => $products,
                 'categories' => $categories,
                 'stats' => $stats,
+                'incomplete_count' => $incompleteCount,
             ]);
         }
 
@@ -70,10 +82,12 @@ class ProductController extends Controller
             'products' => $products,
             'categories' => $categories,
             'stats' => $stats,
+            'incompleteCount' => $incompleteCount,
             'filters' => [
                 'search' => $search,
                 'category_id' => $categoryId ? (int) $categoryId : null,
                 'stock_status' => $stockStatus,
+                'info_status' => $infoStatus,
             ],
         ]);
     }
@@ -104,6 +118,7 @@ class ProductController extends Controller
             'iva_rate' => $request->validated('iva_rate', 21.00),
             'stock' => $request->validated('stock', 0),
             'min_stock' => $request->validated('min_stock', 5),
+            'units_per_package' => $request->validated('units_per_package', 1) ?: 1,
             'image_url' => $request->validated('image_url'),
             'is_active' => $request->boolean('is_active', true),
         ]);
@@ -150,6 +165,7 @@ class ProductController extends Controller
             'iva_rate' => $request->validated('iva_rate', 21.00),
             'stock' => $request->validated('stock', 0),
             'min_stock' => $request->validated('min_stock', 5),
+            'units_per_package' => $request->validated('units_per_package', 1) ?: 1,
             'image_url' => $request->validated('image_url'),
             'is_active' => $request->boolean('is_active', true),
         ]);

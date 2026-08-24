@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\DB;
  * @property string $iva_rate
  * @property int $stock
  * @property int $min_stock
+ * @property int $units_per_package
  * @property string|null $image_url
  * @property bool $is_active
  * @property Carbon|null $created_at
@@ -43,6 +44,7 @@ use Illuminate\Support\Facades\DB;
     'iva_rate',
     'stock',
     'min_stock',
+    'units_per_package',
     'image_url',
     'is_active',
 ])]
@@ -59,9 +61,14 @@ class Product extends Model
             'iva_rate' => 'decimal:2',
             'stock' => 'integer',
             'min_stock' => 'integer',
+            'units_per_package' => 'integer',
             'is_active' => 'boolean',
         ];
     }
+
+    protected $appends = [
+        'is_incomplete',
+    ];
 
     public function category(): BelongsTo
     {
@@ -92,6 +99,25 @@ class Product extends Model
     public function scopeOutOfStock(Builder $query): Builder
     {
         return $query->where('stock', '<=', 0);
+    }
+
+    public function scopeIncomplete(Builder $query): Builder
+    {
+        return $query->where(function (Builder $q) {
+            $q->whereNull('category_id')
+                ->orWhere('price', '<=', 0);
+        });
+    }
+
+    public function scopeComplete(Builder $query): Builder
+    {
+        return $query->whereNotNull('category_id')
+            ->where('price', '>', 0);
+    }
+
+    public function getIsIncompleteAttribute(): bool
+    {
+        return is_null($this->category_id) || (float) $this->price <= 0.00;
     }
 
     public function getStockStatusAttribute(): string
