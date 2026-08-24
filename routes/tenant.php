@@ -50,6 +50,12 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::get('suppliers/{supplier}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit')->middleware('tenant.permission:proveedores.editar');
             Route::put('suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update')->middleware('tenant.permission:proveedores.editar');
             Route::delete('suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy')->middleware('tenant.permission:proveedores.eliminar');
+
+            // Supplier Orders (Órdenes de Compra)
+            Route::get('suppliers/orders', [\App\Http\Controllers\Tenant\SupplierOrderController::class, 'index'])->name('suppliers.orders.index')->middleware('tenant.permission:proveedores.pedidos.ver');
+            Route::post('suppliers/orders', [\App\Http\Controllers\Tenant\SupplierOrderController::class, 'store'])->name('suppliers.orders.store')->middleware('tenant.permission:proveedores.pedidos.crear');
+            Route::patch('suppliers/orders/{supplierOrder}/receive', [\App\Http\Controllers\Tenant\SupplierOrderController::class, 'receive'])->name('suppliers.orders.receive')->middleware('tenant.permission:proveedores.pedidos.recibir');
+            Route::patch('suppliers/orders/{supplierOrder}/cancel', [\App\Http\Controllers\Tenant\SupplierOrderController::class, 'cancel'])->name('suppliers.orders.cancel')->middleware('tenant.permission:proveedores.pedidos.cancelar');
         });
 
         // Customer Orders (Pedidos module)

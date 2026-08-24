@@ -3,12 +3,13 @@
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
     import { Badge } from '@/components/ui/badge';
-    import { router } from '@inertiajs/svelte';
+    import { Link, router } from '@inertiajs/svelte';
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import Filter from 'lucide-svelte/icons/filter';
     import X from 'lucide-svelte/icons/x';
     import Truck from 'lucide-svelte/icons/truck';
+    import Users from 'lucide-svelte/icons/users';
     import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
     import XCircle from 'lucide-svelte/icons/x-circle';
     import SupplierListDesktop from './desktop/SupplierListDesktop.svelte';
@@ -75,17 +76,33 @@
 <AppHead title="Gestión de Proveedores - Comercio" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
-        <!-- Header de la Página -->
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-                    <Truck class="h-7 w-7 text-primary" />
-                    Gestión de Proveedores
-                </h1>
-                <p class="text-sm text-muted-foreground mt-0.5">
-                    Administra tu red de proveedores, contactos comerciales y compras integrales.
-                </p>
-            </div>
+    <!-- Pestañas de Navegación del Módulo Proveedores -->
+    <div class="flex items-center gap-2 border-b pb-3">
+        <Link href="/tenant/suppliers">
+            <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs">
+                <Users class="size-4" />
+                Directorio de Proveedores ({stats.total})
+            </Button>
+        </Link>
+        <Link href="/tenant/suppliers/orders">
+            <Button variant="ghost" size="sm" class="gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground">
+                <Truck class="size-4" />
+                Órdenes de Compra
+            </Button>
+        </Link>
+    </div>
+
+    <!-- Header de la Página -->
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+                <Truck class="size-7 text-primary" />
+                Gestión de Proveedores
+            </h1>
+            <p class="text-sm text-muted-foreground mt-0.5">
+                Administra tu red de proveedores, contactos comerciales y compras integrales.
+            </p>
+        </div>
 
             <div class="flex items-center gap-2.5">
                 <Button class="gap-2 shadow-sm font-semibold" onclick={() => (showCreateModal = true)}>
