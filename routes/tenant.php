@@ -1,13 +1,14 @@
 <?php
 
-use App\Http\Controllers\Tenant\CustomerOrderController;
 use App\Http\Controllers\Tenant\CategoryController;
+use App\Http\Controllers\Tenant\CustomerOrderController;
 use App\Http\Controllers\Tenant\ProductController;
 use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\Stock\StockIncomeController;
 use App\Http\Controllers\Tenant\Stock\StockKardexController;
 use App\Http\Controllers\Tenant\Stock\StockOutcomeController;
 use App\Http\Controllers\Tenant\SupplierController;
+use App\Http\Controllers\Tenant\SupplierOrderController;
 use App\Http\Controllers\Tenant\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -52,10 +53,10 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::delete('suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy')->middleware('tenant.permission:proveedores.eliminar');
 
             // Supplier Orders (Órdenes de Compra)
-            Route::get('suppliers/orders', [\App\Http\Controllers\Tenant\SupplierOrderController::class, 'index'])->name('suppliers.orders.index')->middleware('tenant.permission:proveedores.pedidos.ver');
-            Route::post('suppliers/orders', [\App\Http\Controllers\Tenant\SupplierOrderController::class, 'store'])->name('suppliers.orders.store')->middleware('tenant.permission:proveedores.pedidos.crear');
-            Route::patch('suppliers/orders/{supplierOrder}/receive', [\App\Http\Controllers\Tenant\SupplierOrderController::class, 'receive'])->name('suppliers.orders.receive')->middleware('tenant.permission:proveedores.pedidos.recibir');
-            Route::patch('suppliers/orders/{supplierOrder}/cancel', [\App\Http\Controllers\Tenant\SupplierOrderController::class, 'cancel'])->name('suppliers.orders.cancel')->middleware('tenant.permission:proveedores.pedidos.cancelar');
+            Route::get('suppliers/orders', [SupplierOrderController::class, 'index'])->name('suppliers.orders.index')->middleware('tenant.permission:proveedores.pedidos.ver');
+            Route::post('suppliers/orders', [SupplierOrderController::class, 'store'])->name('suppliers.orders.store')->middleware('tenant.permission:proveedores.pedidos.crear');
+            Route::patch('suppliers/orders/{supplierOrder}/receive', [SupplierOrderController::class, 'receive'])->name('suppliers.orders.receive')->middleware('tenant.permission:proveedores.pedidos.recibir');
+            Route::patch('suppliers/orders/{supplierOrder}/cancel', [SupplierOrderController::class, 'cancel'])->name('suppliers.orders.cancel')->middleware('tenant.permission:proveedores.pedidos.cancelar');
         });
 
         // Customer Orders (Pedidos module)
