@@ -59,7 +59,7 @@
         }
 
         if (tenant) {
-            if (roles.includes('admin') || user?.is_superadmin || (modules.includes('productos') && permissions.includes('productos.ver'))) {
+            if (modules.includes('productos') && (user?.is_superadmin || permissions.includes('productos.ver'))) {
                 items.push({
                     title: 'Productos',
                     href: '/tenant/products',
@@ -68,7 +68,7 @@
                 });
             }
 
-            if (roles.includes('admin') || user?.is_superadmin || (modules.includes('stock') && permissions.some((p: string) => p.startsWith('stock_')))) {
+            if (modules.includes('stock') && (user?.is_superadmin || permissions.some((p: string) => p.startsWith('stock_')))) {
                 items.push({
                     title: 'Stock y Kardex',
                     href: '/tenant/stock/ingresos',
@@ -77,7 +77,7 @@
                 });
             }
 
-            if (roles.includes('admin') || user?.is_superadmin || (modules.includes('pedidos') && permissions.includes('pedidos.ver'))) {
+            if (modules.includes('pedidos') && (user?.is_superadmin || permissions.includes('pedidos.ver'))) {
                 items.push({
                     title: 'Pedidos',
                     href: '/tenant/orders',
@@ -86,7 +86,7 @@
                 });
             }
 
-            if (roles.includes('admin') || user?.is_superadmin || (modules.includes('proveedores') && permissions.includes('proveedores.ver'))) {
+            if (modules.includes('proveedores') && (user?.is_superadmin || permissions.includes('proveedores.ver') || permissions.includes('proveedores.pedidos.ver'))) {
                 items.push({
                     title: 'Proveedores',
                     href: '/tenant/suppliers',
@@ -112,7 +112,7 @@
                 );
             }
 
-            if (modules.includes('facturacion_arca') && (roles.includes('admin') || user?.is_superadmin || permissions.some((p: string) => p.startsWith('facturas.')))) {
+            if (modules.includes('facturacion_arca') && (user?.is_superadmin || permissions.some((p: string) => p.startsWith('facturas.')))) {
                 items.push({
                     title: 'Facturación ARCA',
                     href: '/playground/arca',
