@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Models\SupplierOrder;
+use App\Models\SupplierOrderItem;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -174,6 +175,40 @@ test('receiving supplier order increments product stock and logs income movement
     expect($kardex->current_stock)->toBe(25);
 });
 
+test('cannot double receive an already received supplier order', function () {
+    $product = Product::factory()->forTenant($this->tenant)->create([
+        'name' => 'Bobina Film Stretch',
+        'stock' => 5,
+        'cost_price' => 1500.00,
+    ]);
+
+    $order = SupplierOrder::factory()->forTenant($this->tenant)->create([
+        'supplier_id' => $this->supplier->id,
+        'status' => 'solicitado',
+    ]);
+
+    SupplierOrderItem::create([
+        'supplier_order_id' => $order->id,
+        'product_id' => $product->id,
+        'product_name' => $product->name,
+        'quantity' => 20,
+        'unit_cost' => 1500.00,
+        'subtotal' => 30000.00,
+    ]);
+
+    // First receive (Allowed)
+    $this->actingAs($this->user)->patch(route('tenant.suppliers.orders.receive', $order));
+    $product->refresh();
+    expect($product->stock)->toBe(25);
+
+    // Second receive attempt (Must fail)
+    $response = $this->actingAs($this->user)->patchJson(route('tenant.suppliers.orders.receive', $order));
+    $response->assertStatus(422)->assertJsonValidationErrors(['order']);
+
+    $product->refresh();
+    expect($product->stock)->toBe(25); // Not duplicated to 45!
+});
+
 test('can cancel a solicited supplier order', function () {
     $order = SupplierOrder::factory()->forTenant($this->tenant)->create([
         'status' => 'solicitado',
@@ -187,14 +222,15 @@ test('can cancel a solicited supplier order', function () {
     expect($order->status)->toBe('cancelado');
 });
 
-test('cannot cancel an already received supplier order', function () {
+test('cannot cancel an already received or cancelled supplier order', function () {
     $order = SupplierOrder::factory()->forTenant($this->tenant)->create([
         'status' => 'recibido',
     ]);
 
-    $response = $this->actingAs($this->user)->patch(route('tenant.suppliers.orders.cancel', $order));
+    $response = $this->actingAs($this->user)->patchJson(route('tenant.suppliers.orders.cancel', $order));
 
-    $response->assertSessionHas('error');
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['order']);
 
     $order->refresh();
     expect($order->status)->toBe('recibido');

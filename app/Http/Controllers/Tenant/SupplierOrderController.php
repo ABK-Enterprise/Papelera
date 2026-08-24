@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -178,21 +179,29 @@ class SupplierOrderController extends Controller
             abort(404);
         }
 
-        if ($supplierOrder->status !== 'solicitado') {
-            return back()->with('error', 'Solo se pueden recibir órdenes en estado solicitado.');
-        }
+        $order = DB::transaction(function () use ($supplierOrder, $tenantId, $userId) {
+            /** @var SupplierOrder $lockedOrder */
+            $lockedOrder = SupplierOrder::where('id', $supplierOrder->id)
+                ->where('tenant_id', $tenantId)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        DB::transaction(function () use ($supplierOrder, $tenantId, $userId) {
-            $supplierOrder->load(['supplier', 'items.product']);
+            if ($lockedOrder->status !== 'solicitado') {
+                throw ValidationException::withMessages([
+                    'order' => ["La orden de compra {$lockedOrder->order_number} no se puede recibir porque se encuentra en estado '{$lockedOrder->status}'."],
+                ]);
+            }
 
-            foreach ($supplierOrder->items as $item) {
+            $lockedOrder->load(['supplier', 'items.product']);
+
+            foreach ($lockedOrder->items as $item) {
                 $product = Product::where('id', $item->product_id)
                     ->where('tenant_id', $tenantId)
                     ->lockForUpdate()
                     ->first();
 
                 if ($product) {
-                    $previousStock = $product->stock;
+                    $previousStock = (int) $product->stock;
                     $currentStock = $previousStock + $item->quantity;
 
                     $product->update([
@@ -209,19 +218,21 @@ class SupplierOrderController extends Controller
                         'previous_stock' => $previousStock,
                         'current_stock' => $currentStock,
                         'reason' => 'orden_compra_proveedor',
-                        'notes' => "Recepción Orden {$supplierOrder->order_number} ({$supplierOrder->supplier->name})",
+                        'notes' => "Recepción Orden {$lockedOrder->order_number} ({$lockedOrder->supplier->name})",
                     ]);
                 }
             }
 
-            $supplierOrder->update(['status' => 'recibido']);
+            $lockedOrder->update(['status' => 'recibido']);
+
+            return $lockedOrder;
         });
 
         if ($request->wantsJson()) {
-            return response()->json($supplierOrder->refresh());
+            return response()->json($order->refresh());
         }
 
-        return back()->with('success', "Mercadería de la orden {$supplierOrder->order_number} recibida e ingresada al inventario.");
+        return back()->with('success', "Mercadería de la orden {$order->order_number} recibida e ingresada al inventario.");
     }
 
     public function cancel(Request $request, SupplierOrder $supplierOrder): RedirectResponse|JsonResponse
@@ -231,16 +242,28 @@ class SupplierOrderController extends Controller
             abort(404);
         }
 
-        if ($supplierOrder->status === 'recibido') {
-            return back()->with('error', 'No se puede cancelar una orden que ya fue recibida en stock.');
-        }
+        $order = DB::transaction(function () use ($supplierOrder, $tenantId) {
+            /** @var SupplierOrder $lockedOrder */
+            $lockedOrder = SupplierOrder::where('id', $supplierOrder->id)
+                ->where('tenant_id', $tenantId)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        $supplierOrder->update(['status' => 'cancelado']);
+            if ($lockedOrder->status !== 'solicitado') {
+                throw ValidationException::withMessages([
+                    'order' => ["La orden de compra {$lockedOrder->order_number} no se puede cancelar porque se encuentra en estado '{$lockedOrder->status}'."],
+                ]);
+            }
+
+            $lockedOrder->update(['status' => 'cancelado']);
+
+            return $lockedOrder;
+        });
 
         if ($request->wantsJson()) {
-            return response()->json($supplierOrder);
+            return response()->json($order);
         }
 
-        return back()->with('success', "Orden de compra {$supplierOrder->order_number} cancelada.");
+        return back()->with('success', "Orden de compra {$order->order_number} cancelada.");
     }
 }

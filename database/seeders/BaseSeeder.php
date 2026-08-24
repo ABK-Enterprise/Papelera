@@ -133,10 +133,9 @@ class BaseSeeder extends Seeder
 
         // 3. Default Demo Tenant with active modules
         $tenant = Tenant::firstOrCreate([
-            'id' => 1,
+            'cuit_tax_id' => '30000000001',
         ], [
             'name' => 'Papelera del Sol',
-            'cuit_tax_id' => '30000000001',
             'is_active' => true,
         ]);
 
@@ -167,9 +166,9 @@ class BaseSeeder extends Seeder
             $tenantUser->assignRole($adminRole);
         } else {
             $tenantUser = User::firstOrCreate([
-                'email' => 'comercio@papelera.com',
+                'email' => 'axel@axel.com',
             ], [
-                'name' => 'Mariano (Admin Comercio)',
+                'name' => 'Axel',
                 'password' => 'password',
                 'tenant_id' => $tenant->id,
                 'is_superadmin' => false,

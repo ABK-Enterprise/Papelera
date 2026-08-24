@@ -2,9 +2,11 @@
     import { Button } from '@/components/ui/button';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import { router } from '@inertiajs/svelte';
+    import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Calendar from 'lucide-svelte/icons/calendar';
     import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
     import Clock from 'lucide-svelte/icons/clock';
+    import Info from 'lucide-svelte/icons/info';
     import MapPin from 'lucide-svelte/icons/map-pin';
     import Phone from 'lucide-svelte/icons/phone';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
@@ -50,17 +52,10 @@
         order: OrderData | null;
     } = $props();
 
-    let selectedStatus = $state(order?.status ?? 'en_preparacion');
     let isUpdatingStatus = $state(false);
-    let isCancelModalOpen = $state(false);
+    let isConfirmModalOpen = $state(false);
     let isDeleteModalOpen = $state(false);
     let pendingStatus = $state<string | null>(null);
-
-    $effect(() => {
-        if (order) {
-            selectedStatus = order.status;
-        }
-    });
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
@@ -82,21 +77,23 @@
         }
     }
 
-    function handleStatusChange(newStatus: string) {
+    // Modal de confirmación para cualquier cambio de estado
+    function requestStatusChange(newStatus: string) {
         if (!order || newStatus === order.status) return;
 
-        if (newStatus === 'cancelado') {
-            pendingStatus = 'cancelado';
-            isCancelModalOpen = true;
-            return;
-        }
+        // Si ya está cancelado o entregado, no permitir ninguna acción
+        if (order.status === 'cancelado' || order.status === 'entregado') return;
 
-        executeStatusUpdate(newStatus);
+        pendingStatus = newStatus;
+        isConfirmModalOpen = true;
     }
 
-    function executeStatusUpdate(statusToSet: string) {
-        if (!order) return;
+    function executeStatusUpdate() {
+        if (!order || !pendingStatus) return;
+
+        const statusToSet = pendingStatus;
         isUpdatingStatus = true;
+
         router.patch(
             `/tenant/orders/${order.id}/status`,
             { status: statusToSet },
@@ -104,19 +101,20 @@
                 preserveScroll: true,
                 onSuccess: () => {
                     isUpdatingStatus = false;
-                    selectedStatus = statusToSet;
-                    isCancelModalOpen = false;
+                    isConfirmModalOpen = false;
+                    pendingStatus = null;
                 },
                 onError: () => {
                     isUpdatingStatus = false;
-                    selectedStatus = order?.status ?? 'en_preparacion';
-                    isCancelModalOpen = false;
+                    isConfirmModalOpen = false;
+                    pendingStatus = null;
                 },
             }
         );
     }
 
     function handleDelete() {
+        if (!order || order.status === 'entregado' || order.status === 'cancelado') return;
         isDeleteModalOpen = true;
     }
 
@@ -129,6 +127,48 @@
             },
         });
     }
+
+    // Modal Copy Generator según el estado a aplicar
+    let confirmModalConfig = $derived.by(() => {
+        if (pendingStatus === 'cancelado') {
+            return {
+                title: '¿Cancelar pedido de venta?',
+                description: `¿Estás seguro de cancelar el pedido ${order?.order_number}? El stock de los artículos se reincorporará automáticamente al inventario. Esta acción es definitiva y no podrá revertirse.`,
+                confirmText: 'Sí, Cancelar Pedido',
+                variant: 'danger' as const,
+            };
+        }
+        if (pendingStatus === 'entregado') {
+            return {
+                title: '¿Marcar pedido como Entregado?',
+                description: `¿Confirmas que el pedido ${order?.order_number} fue entregado con éxito al cliente? Al marcarlo como entregado se completará la operación de forma definitiva.`,
+                confirmText: 'Confirmar Entrega',
+                variant: 'success' as const,
+            };
+        }
+        if (pendingStatus === 'en_camino') {
+            return {
+                title: '¿Marcar pedido En Camino?',
+                description: `El pedido ${order?.order_number} pasará a estado de despacho / en tránsito hacia la dirección del cliente.`,
+                confirmText: 'Poner En Camino',
+                variant: 'default' as const,
+            };
+        }
+        if (pendingStatus === 'preparado') {
+            return {
+                title: '¿Marcar pedido como Preparado?',
+                description: `El pedido ${order?.order_number} quedará empaquetado y listo para ser entregado o despachado.`,
+                confirmText: 'Marcar Preparado',
+                variant: 'default' as const,
+            };
+        }
+        return {
+            title: '¿Actualizar estado del pedido?',
+            description: `¿Deseas cambiar el estado del pedido ${order?.order_number}?`,
+            confirmText: 'Actualizar',
+            variant: 'default' as const,
+        };
+    });
 </script>
 
 {#if open && order}
@@ -151,23 +191,23 @@
                         <div class="flex items-center gap-2">
                             <h2 class="text-lg font-bold text-foreground font-mono">{order.order_number}</h2>
                             {#if order.status === 'en_preparacion'}
-                                <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-600 border border-amber-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-600 border border-amber-500/30">
                                     En Preparación
                                 </span>
                             {:else if order.status === 'preparado'}
-                                <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-500/15 text-blue-600 border border-blue-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-600 border border-blue-500/30">
                                     Preparado
                                 </span>
                             {:else if order.status === 'en_camino'}
-                                <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-500/15 text-indigo-600 border border-indigo-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/15 text-indigo-600 border border-indigo-500/30">
                                     En Camino
                                 </span>
                             {:else if order.status === 'entregado'}
-                                <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">
                                     Entregado
                                 </span>
                             {:else if order.status === 'cancelado'}
-                                <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/15 text-rose-600 border border-rose-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-600 border border-rose-500/30">
                                     Cancelado
                                 </span>
                             {/if}
@@ -185,6 +225,25 @@
                     <X class="size-5" />
                 </button>
             </div>
+
+            <!-- Cartel Informativo de Estado Terminal -->
+            {#if order.status === 'cancelado'}
+                <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-xs text-rose-700 dark:text-rose-300">
+                    <XCircle class="size-5 text-rose-600 shrink-0" />
+                    <div>
+                        <strong class="font-bold block">Pedido Cancelado Definitivamente</strong>
+                        <span>Este pedido fue cancelado, su stock ya fue reincorporado al catálogo y su registro se encuentra cerrado.</span>
+                    </div>
+                </div>
+            {:else if order.status === 'entregado'}
+                <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-xs text-emerald-700 dark:text-emerald-300">
+                    <CheckCircle2 class="size-5 text-emerald-600 shrink-0" />
+                    <div>
+                        <strong class="font-bold block">Pedido Completado y Entregado</strong>
+                        <span>Este pedido fue entregado con éxito al cliente. La operación logística ha finalizado.</span>
+                    </div>
+                </div>
+            {/if}
 
             <!-- Datos del Cliente -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-muted/20 border text-xs">
@@ -263,65 +322,77 @@
                 </div>
             {/if}
 
-            <!-- Cambiador de Estado Logístico -->
-            <div class="space-y-2 pt-2 border-t">
-                <span class="text-xs font-bold text-foreground block">Actualizar Estado Logístico del Pedido:</span>
-                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                    <button
-                        type="button"
-                        disabled={isUpdatingStatus}
-                        class="px-2 py-1.5 rounded-lg text-xs font-semibold border text-center transition-all {selectedStatus === 'en_preparacion' ? 'bg-amber-500 text-white border-amber-500 shadow-xs' : 'bg-muted/30 hover:bg-muted text-muted-foreground border-border'}"
-                        onclick={() => handleStatusChange('en_preparacion')}
-                    >
-                        En Preparación
-                    </button>
-                    <button
-                        type="button"
-                        disabled={isUpdatingStatus}
-                        class="px-2 py-1.5 rounded-lg text-xs font-semibold border text-center transition-all {selectedStatus === 'preparado' ? 'bg-blue-600 text-white border-blue-600 shadow-xs' : 'bg-muted/30 hover:bg-muted text-muted-foreground border-border'}"
-                        onclick={() => handleStatusChange('preparado')}
-                    >
-                        Preparado
-                    </button>
-                    <button
-                        type="button"
-                        disabled={isUpdatingStatus}
-                        class="px-2 py-1.5 rounded-lg text-xs font-semibold border text-center transition-all {selectedStatus === 'en_camino' ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs' : 'bg-muted/30 hover:bg-muted text-muted-foreground border-border'}"
-                        onclick={() => handleStatusChange('en_camino')}
-                    >
-                        En Camino
-                    </button>
-                    <button
-                        type="button"
-                        disabled={isUpdatingStatus}
-                        class="px-2 py-1.5 rounded-lg text-xs font-semibold border text-center transition-all {selectedStatus === 'entregado' ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs' : 'bg-muted/30 hover:bg-muted text-muted-foreground border-border'}"
-                        onclick={() => handleStatusChange('entregado')}
-                    >
-                        Entregado
-                    </button>
-                    <button
-                        type="button"
-                        disabled={isUpdatingStatus}
-                        class="px-2 py-1.5 rounded-lg text-xs font-semibold border text-center transition-all {selectedStatus === 'cancelado' ? 'bg-rose-600 text-white border-rose-600 shadow-xs' : 'bg-muted/30 hover:bg-muted text-muted-foreground border-border'}"
-                        onclick={() => handleStatusChange('cancelado')}
-                    >
-                        Cancelar
-                    </button>
+            <!-- Cambiador de Estado Logístico (Solo si no está en estado terminal) -->
+            {#if order.status !== 'cancelado' && order.status !== 'entregado'}
+                <div class="space-y-2 pt-2 border-t">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-foreground block">Actualizar Estado del Pedido:</span>
+                        <span class="text-[11px] text-muted-foreground">Selecciona el siguiente paso del flujo</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {#if order.status === 'en_preparacion'}
+                            <button
+                                type="button"
+                                disabled={isUpdatingStatus}
+                                class="px-2.5 py-2 rounded-xl text-xs font-bold border text-center transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
+                                onclick={() => requestStatusChange('preparado')}
+                            >
+                                Pasar a Preparado
+                            </button>
+                        {/if}
+
+                        {#if order.status === 'preparado'}
+                            <button
+                                type="button"
+                                disabled={isUpdatingStatus}
+                                class="px-2.5 py-2 rounded-xl text-xs font-bold border text-center transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
+                                onclick={() => requestStatusChange('en_camino')}
+                            >
+                                Poner En Camino
+                            </button>
+                        {/if}
+
+                        {#if order.status === 'en_camino' || order.status === 'preparado'}
+                            <button
+                                type="button"
+                                disabled={isUpdatingStatus}
+                                class="px-2.5 py-2 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                                onclick={() => requestStatusChange('entregado')}
+                            >
+                                Marcar Entregado
+                            </button>
+                        {/if}
+
+                        <!-- Botón Cancelar disponible para pedidos activos -->
+                        <button
+                            type="button"
+                            disabled={isUpdatingStatus}
+                            class="px-2.5 py-2 rounded-xl text-xs font-bold border text-center transition-all bg-rose-600/10 hover:bg-rose-600 hover:text-white text-rose-600 border-rose-500/30"
+                            onclick={() => requestStatusChange('cancelado')}
+                        >
+                            Cancelado
+                        </button>
+                    </div>
                 </div>
-            </div>
+            {/if}
 
             <!-- Footer con Total y Acciones -->
             <div class="flex items-center justify-between pt-3 border-t">
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    class="text-xs text-destructive hover:bg-destructive/10 gap-1.5"
-                    onclick={handleDelete}
-                >
-                    <Trash2 class="size-3.5" />
-                    Eliminar Pedido
-                </Button>
+                {#if order.status !== 'cancelado' && order.status !== 'entregado'}
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        class="text-xs text-destructive hover:bg-destructive/10 gap-1.5"
+                        onclick={handleDelete}
+                    >
+                        <Trash2 class="size-3.5" />
+                        Eliminar Pedido
+                    </Button>
+                {:else}
+                    <div></div>
+                {/if}
 
                 <div class="flex items-center gap-3">
                     <div class="text-right">
@@ -336,18 +407,18 @@
         </div>
     </div>
 
-    <!-- Modal de Confirmación de Cancelación -->
+    <!-- Modal Unificado de Confirmación de Cambio de Estado -->
     <ConfirmActionModal
-        bind:open={isCancelModalOpen}
-        title="¿Cancelar pedido de venta?"
-        description={`¿Estás seguro de cancelar el pedido ${order.order_number}? El stock de los artículos se reincorporará automáticamente al inventario.`}
-        confirmText="Cancelar Pedido"
+        bind:open={isConfirmModalOpen}
+        title={confirmModalConfig.title}
+        description={confirmModalConfig.description}
+        confirmText={confirmModalConfig.confirmText}
         cancelText="Volver"
-        variant="warning"
+        variant={confirmModalConfig.variant}
         loading={isUpdatingStatus}
-        onconfirm={() => executeStatusUpdate('cancelado')}
+        onconfirm={executeStatusUpdate}
         oncancel={() => {
-            selectedStatus = order?.status ?? 'en_preparacion';
+            pendingStatus = null;
         }}
     />
 
@@ -355,7 +426,7 @@
     <ConfirmActionModal
         bind:open={isDeleteModalOpen}
         title="¿Eliminar pedido?"
-        description={`Esta acción eliminará permanentemente el registro del pedido ${order.order_number}.`}
+        description={`Esta acción eliminará el registro del pedido ${order.order_number}. El stock reservado se reincorporará automáticamente.`}
         confirmText="Eliminar Definitivamente"
         cancelText="Conservar"
         variant="danger"

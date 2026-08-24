@@ -148,7 +148,7 @@ class CustomerOrderController extends Controller
                     'subtotal' => $prep['subtotal'],
                 ]);
 
-                $previousStock = $prep['product']->stock;
+                $previousStock = (int) $prep['product']->stock;
                 $currentStock = $previousStock - $prep['total_units'];
                 $prep['product']->update(['stock' => $currentStock]);
 
@@ -186,17 +186,39 @@ class CustomerOrderController extends Controller
         }
 
         $newStatus = $request->validated('status');
-        $oldStatus = $customerOrder->status;
 
-        DB::transaction(function () use ($customerOrder, $newStatus, $oldStatus, $tenantId, $userId) {
-            if ($newStatus === 'cancelado' && $oldStatus !== 'cancelado') {
-                $customerOrder->load('items.product');
-                foreach ($customerOrder->items as $item) {
-                    $totalUnits = $item->total_units;
-                    if ($item->product) {
-                        $previousStock = $item->product->stock;
+        $order = DB::transaction(function () use ($customerOrder, $newStatus, $tenantId, $userId) {
+            /** @var CustomerOrder $lockedOrder */
+            $lockedOrder = CustomerOrder::where('id', $customerOrder->id)
+                ->where('tenant_id', $tenantId)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($lockedOrder->isTerminal()) {
+                throw ValidationException::withMessages([
+                    'status' => ["El pedido {$lockedOrder->order_number} se encuentra en estado definitivo ({$lockedOrder->status}) y no puede modificarse."],
+                ]);
+            }
+
+            if (! $lockedOrder->canTransitionTo($newStatus)) {
+                throw ValidationException::withMessages([
+                    'status' => ["No se permite cambiar el estado de '{$lockedOrder->status}' a '{$newStatus}'."],
+                ]);
+            }
+
+            if ($newStatus === 'cancelado') {
+                $lockedOrder->load('items.product');
+                foreach ($lockedOrder->items as $item) {
+                    $product = Product::where('id', $item->product_id)
+                        ->where('tenant_id', $tenantId)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($product) {
+                        $totalUnits = $item->total_units;
+                        $previousStock = (int) $product->stock;
                         $currentStock = $previousStock + $totalUnits;
-                        $item->product->update(['stock' => $currentStock]);
+                        $product->update(['stock' => $currentStock]);
 
                         StockMovement::create([
                             'tenant_id' => $tenantId,
@@ -207,21 +229,23 @@ class CustomerOrderController extends Controller
                             'previous_stock' => $previousStock,
                             'current_stock' => $currentStock,
                             'reason' => 'cancelacion_pedido',
-                            'notes' => "Cancelación {$customerOrder->order_number}",
+                            'notes' => "Cancelación {$lockedOrder->order_number}",
                         ]);
                     }
                 }
             }
 
-            $customerOrder->update(['status' => $newStatus]);
+            $lockedOrder->update(['status' => $newStatus]);
+
+            return $lockedOrder;
         });
 
         if ($request->wantsJson()) {
-            return response()->json($customerOrder->refresh());
+            return response()->json($order->refresh());
         }
 
         return redirect()->route('tenant.orders.index')
-            ->with('success', "Estado del pedido {$customerOrder->order_number} actualizado a {$newStatus}.");
+            ->with('success', "Estado del pedido {$order->order_number} actualizado a {$newStatus}.");
     }
 
     public function destroy(Request $request, CustomerOrder $customerOrder): RedirectResponse|JsonResponse
@@ -234,14 +258,26 @@ class CustomerOrderController extends Controller
         }
 
         DB::transaction(function () use ($customerOrder, $tenantId, $userId) {
-            if ($customerOrder->status !== 'cancelado') {
-                $customerOrder->load('items.product');
-                foreach ($customerOrder->items as $item) {
-                    $totalUnits = $item->total_units;
-                    if ($item->product) {
-                        $previousStock = $item->product->stock;
+            /** @var CustomerOrder $lockedOrder */
+            $lockedOrder = CustomerOrder::where('id', $customerOrder->id)
+                ->where('tenant_id', $tenantId)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            // Solo reincorporar stock si el pedido estaba ACTIVO (no entregado ni previamente cancelado)
+            if (! in_array($lockedOrder->status, ['cancelado', 'entregado'], true)) {
+                $lockedOrder->load('items.product');
+                foreach ($lockedOrder->items as $item) {
+                    $product = Product::where('id', $item->product_id)
+                        ->where('tenant_id', $tenantId)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($product) {
+                        $totalUnits = $item->total_units;
+                        $previousStock = (int) $product->stock;
                         $currentStock = $previousStock + $totalUnits;
-                        $item->product->update(['stock' => $currentStock]);
+                        $product->update(['stock' => $currentStock]);
 
                         StockMovement::create([
                             'tenant_id' => $tenantId,
@@ -252,13 +288,13 @@ class CustomerOrderController extends Controller
                             'previous_stock' => $previousStock,
                             'current_stock' => $currentStock,
                             'reason' => 'cancelacion_pedido',
-                            'notes' => "Eliminación {$customerOrder->order_number}",
+                            'notes' => "Eliminación {$lockedOrder->order_number}",
                         ]);
                     }
                 }
             }
 
-            $customerOrder->delete();
+            $lockedOrder->delete();
         });
 
         if ($request->wantsJson()) {

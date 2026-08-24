@@ -39,6 +39,14 @@ class CustomerOrder extends Model
     /** @use HasFactory<CustomerOrderFactory> */
     use BelongsToTenant, HasFactory;
 
+    public const ALLOWED_TRANSITIONS = [
+        'en_preparacion' => ['preparado', 'cancelado'],
+        'preparado' => ['en_camino', 'cancelado'],
+        'en_camino' => ['entregado', 'cancelado'],
+        'entregado' => [], // Estado terminal
+        'cancelado' => [], // Estado terminal
+    ];
+
     protected function casts(): array
     {
         return [
@@ -49,6 +57,22 @@ class CustomerOrder extends Model
     public function items(): HasMany
     {
         return $this->hasMany(CustomerOrderItem::class);
+    }
+
+    public function isTerminal(): bool
+    {
+        return in_array($this->status, ['entregado', 'cancelado'], true);
+    }
+
+    public function canTransitionTo(string $targetStatus): bool
+    {
+        if ($this->status === $targetStatus) {
+            return false;
+        }
+
+        $allowed = self::ALLOWED_TRANSITIONS[$this->status] ?? [];
+
+        return in_array($targetStatus, $allowed, true);
     }
 
     public function scopeStatus(Builder $query, string $status): Builder

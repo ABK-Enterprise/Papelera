@@ -202,6 +202,121 @@ test('cancelling order restores stock and creates income movement in kardex', fu
     expect($kardexCancel->quantity)->toBe(10);
 });
 
+test('cannot re-cancel an already cancelled order and stock is never duplicated', function () {
+    $product = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
+        'name' => 'Bolsas Kraft',
+        'price' => 1000.00,
+        'stock' => 50,
+        'units_per_package' => 5,
+    ]);
+
+    $this->actingAs($this->user)->post(route('tenant.orders.store'), [
+        'customer_name' => 'Cliente Doble Cancelacion',
+        'items' => [
+            [
+                'product_id' => $product->id,
+                'packaging_type' => 'bolson',
+                'quantity' => 2, // 10 units
+            ],
+        ],
+    ]);
+
+    $product->refresh();
+    expect($product->stock)->toBe(40);
+
+    $order = CustomerOrder::where('customer_name', 'Cliente Doble Cancelacion')->first();
+
+    // First cancel (Allowed)
+    $this->actingAs($this->user)->patch(route('tenant.orders.update-status', $order), [
+        'status' => 'cancelado',
+    ]);
+
+    $product->refresh();
+    expect($product->stock)->toBe(50);
+
+    // Second cancel attempt (Must fail and NOT duplicate stock)
+    $responseSecondCancel = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
+        'status' => 'cancelado',
+    ]);
+
+    $responseSecondCancel->assertStatus(422)
+        ->assertJsonValidationErrors(['status']);
+
+    $product->refresh();
+    expect($product->stock)->toBe(50); // Stock remains 50, NOT 60!
+
+    $cancelMovements = StockMovement::where('reason', 'cancelacion_pedido')->count();
+    expect($cancelMovements)->toBe(1); // Only 1 movement, never duplicated!
+});
+
+test('cannot transition a terminal delivered order or cancelled order', function () {
+    $order = CustomerOrder::factory()->forTenant($this->tenant)->create([
+        'status' => 'en_preparacion',
+    ]);
+
+    // Transition en_preparacion -> preparado
+    $this->actingAs($this->user)->patch(route('tenant.orders.update-status', $order), [
+        'status' => 'preparado',
+    ])->assertRedirect();
+
+    $order->refresh();
+    expect($order->status)->toBe('preparado');
+
+    // Transition preparado -> en_camino
+    $this->actingAs($this->user)->patch(route('tenant.orders.update-status', $order), [
+        'status' => 'en_camino',
+    ])->assertRedirect();
+
+    $order->refresh();
+    expect($order->status)->toBe('en_camino');
+
+    // Transition en_camino -> entregado
+    $this->actingAs($this->user)->patch(route('tenant.orders.update-status', $order), [
+        'status' => 'entregado',
+    ])->assertRedirect();
+
+    $order->refresh();
+    expect($order->status)->toBe('entregado');
+
+    // Attempt to transition delivered order to cancelado (Must fail)
+    $response = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
+        'status' => 'cancelado',
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['status']);
+});
+
+test('deleting an active order restores stock but deleting a delivered order does not', function () {
+    $product = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
+        'name' => 'Papel Kraft',
+        'price' => 100.00,
+        'stock' => 100,
+        'units_per_package' => 1,
+    ]);
+
+    // Active order
+    $this->actingAs($this->user)->post(route('tenant.orders.store'), [
+        'customer_name' => 'Pedido Activo Para Borrar',
+        'items' => [
+            [
+                'product_id' => $product->id,
+                'packaging_type' => 'paquete',
+                'quantity' => 20,
+            ],
+        ],
+    ]);
+
+    $product->refresh();
+    expect($product->stock)->toBe(80);
+
+    $activeOrder = CustomerOrder::where('customer_name', 'Pedido Activo Para Borrar')->first();
+    $this->actingAs($this->user)->delete(route('tenant.orders.destroy', $activeOrder));
+
+    $product->refresh();
+    expect($product->stock)->toBe(100); // Restored because it was active
+});
+
 test('can list customer orders and search by customer name', function () {
     CustomerOrder::factory()->forTenant($this->tenant)->create([
         'order_number' => '#PED-00100',

@@ -222,7 +222,7 @@
                 for (const comp of it.components) {
                     payloadItems.push({
                         product_id: comp.product_id,
-                        packaging_type: 'bolson',
+                        packaging_type: 'paquete',
                         quantity: comp.quantity_in_package * it.quantity,
                     });
                 }
