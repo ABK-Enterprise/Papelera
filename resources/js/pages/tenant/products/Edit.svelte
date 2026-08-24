@@ -1,13 +1,14 @@
 <script lang="ts">
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
-    import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import { Link, useForm } from '@inertiajs/svelte';
-    import DollarSign from 'lucide-svelte/icons/dollar-sign';
-    import Layers from 'lucide-svelte/icons/layers';
+    import ArrowLeft from 'lucide-svelte/icons/arrow-left';
+    import Check from 'lucide-svelte/icons/check';
     import Package from 'lucide-svelte/icons/package';
+    import Sparkles from 'lucide-svelte/icons/sparkles';
+    import UploadCloud from 'lucide-svelte/icons/upload-cloud';
 
     interface CategoryOption {
         id: number;
@@ -55,6 +56,20 @@
         is_active: product.is_active,
     });
 
+    function formatPrice(amount: number) {
+        return new Intl.NumberFormat('es-AR', {
+            style: 'currency',
+            currency: 'ARS',
+            minimumFractionDigits: 2,
+        }).format(amount);
+    }
+
+    let calculatedPackagePrice = $derived.by(() => {
+        const unitPrice = Number(form.price) || 0;
+        const ratio = Number(form.units_per_package) || 1;
+        return unitPrice * ratio;
+    });
+
     function submit(e: SubmitEvent) {
         e.preventDefault();
         form.put(`/tenant/products/${product.id}`);
@@ -63,222 +78,331 @@
 
 <AppHead title="Editar Producto - Comercio" />
 
-<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-4xl mx-auto w-full">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-6xl mx-auto w-full">
+    <!-- Header -->
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-2xl font-bold tracking-tight text-foreground">Editar Producto</h1>
-            <p class="text-sm text-muted-foreground">
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+                Editar Producto
+            </h1>
+            <p class="text-sm text-muted-foreground mt-0.5">
                 Modifica los datos del artículo, precios, parámetros de stock y factor de empaque en bolsones.
             </p>
         </div>
         <Link href="/tenant/products">
-            <Button variant="outline">Volver</Button>
+            <Button variant="outline" size="sm" class="gap-1.5 text-xs rounded-full">
+                <ArrowLeft class="size-3.5" />
+                Volver al catálogo
+            </Button>
         </Link>
     </div>
 
-    <form onsubmit={submit} class="space-y-6">
-        <!-- Sección 1: Información Principal -->
-        <Card>
-            <CardHeader>
-                <CardTitle class="text-base flex items-center gap-2">
-                    <Package class="size-4 text-primary" />
-                    1. Información General
-                </CardTitle>
-                <CardDescription>Datos identificatorios del producto en el catálogo.</CardDescription>
-            </CardHeader>
-            <CardContent class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div class="space-y-2 md:col-span-2">
-                    <Label for="prod-name">Nombre del Producto *</Label>
-                    <Input
-                        id="prod-name"
-                        bind:value={form.name}
-                        required
+    <!-- Contenedor 2 Columnas Stitch Layout -->
+    <div class="bg-card text-card-foreground rounded-3xl border border-border/80 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] overflow-hidden flex flex-col md:flex-row">
+        <!-- Columna Izquierda: Imagen y Empaque (40%) -->
+        <div class="w-full md:w-5/12 bg-muted/25 p-6 sm:p-8 flex flex-col border-b md:border-b-0 md:border-r border-border/70 shrink-0">
+            <div class="mb-4">
+                <h2 class="text-lg font-bold text-foreground flex items-center gap-2">
+                    <Package class="size-5 text-primary" />
+                    Imagen & Empaque
+                </h2>
+                <p class="text-xs text-muted-foreground mt-0.5">
+                    Previsualización visual y cálculo del precio por bolsón.
+                </p>
+            </div>
+
+            <!-- Preview Card -->
+            <div class="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-border rounded-2xl bg-card hover:bg-muted/40 transition-colors p-6 min-h-[220px] relative overflow-hidden group">
+                {#if form.image_url}
+                    <img
+                        src={form.image_url}
+                        alt={form.name || 'Producto'}
+                        class="w-full h-48 object-contain rounded-xl"
+                        onerror={() => (form.image_url = '')}
                     />
-                    {#if form.errors.name}
-                        <p class="text-xs text-destructive">{form.errors.name}</p>
+                {:else}
+                    <div class="size-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3 group-hover:scale-105 transition-transform border border-primary/20">
+                        <UploadCloud class="size-8" />
+                    </div>
+                    <p class="text-xs font-semibold text-foreground text-center">URL de imagen o foto</p>
+                    <p class="text-[11px] text-muted-foreground text-center mt-0.5">JPG, PNG, WebP o enlace web</p>
+                {/if}
+            </div>
+
+            <!-- Input URL -->
+            <div class="mt-4 space-y-1">
+                <Label for="edit-prod-image-url" class="text-xs font-semibold text-muted-foreground">Enlace de Imagen</Label>
+                <Input
+                    id="edit-prod-image-url"
+                    bind:value={form.image_url}
+                    placeholder="https://ejemplo.com/foto.jpg"
+                    class="h-9 text-xs rounded-xl bg-background"
+                />
+            </div>
+
+            <!-- Resumen de Bolsón -->
+            <div class="mt-5 p-4 rounded-2xl bg-primary/5 border border-primary/20 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                        <Sparkles class="size-3.5" />
+                        Cálculo de Bolsón
+                    </span>
+                    {#if form.is_active}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            Activo
+                        </span>
+                    {:else}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                            Inactivo
+                        </span>
                     {/if}
                 </div>
 
-                <div class="space-y-2">
-                    <Label for="prod-category">Categoría</Label>
-                    <select
-                        id="prod-category"
-                        bind:value={form.category_id}
-                        class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    >
-                        <option value="">Sin categoría asignada</option>
-                        {#each categories as cat}
-                            <option value={cat.id}>{cat.name}</option>
-                        {/each}
-                    </select>
-                    {#if form.errors.category_id}
-                        <p class="text-xs text-destructive">{form.errors.category_id}</p>
-                    {/if}
+                <div class="grid grid-cols-2 gap-3 pt-1 text-xs">
+                    <div>
+                        <span class="text-[10px] text-muted-foreground block">Unidades / Bolsón</span>
+                        <span class="font-bold text-foreground">
+                            {form.units_per_package || 1} {Number(form.units_per_package) === 1 ? 'unidad' : 'unidades'}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-muted-foreground block">Precio del Bolsón</span>
+                        <span class="font-bold font-mono text-primary">
+                            {formatPrice(calculatedPackagePrice)}
+                        </span>
+                    </div>
                 </div>
-
-                <div class="space-y-2">
-                    <Label for="prod-sku">Código SKU / Interno</Label>
-                    <Input
-                        id="prod-sku"
-                        bind:value={form.sku}
-                    />
-                    {#if form.errors.sku}
-                        <p class="text-xs text-destructive">{form.errors.sku}</p>
-                    {/if}
-                </div>
-
-                <div class="space-y-2">
-                    <Label for="prod-barcode">Código de Barras (EAN / UPC)</Label>
-                    <Input
-                        id="prod-barcode"
-                        bind:value={form.barcode}
-                    />
-                    {#if form.errors.barcode}
-                        <p class="text-xs text-destructive">{form.errors.barcode}</p>
-                    {/if}
-                </div>
-
-                <div class="space-y-2">
-                    <Label for="prod-image">URL de Imagen (Opcional)</Label>
-                    <Input
-                        id="prod-image"
-                        bind:value={form.image_url}
-                    />
-                    {#if form.errors.image_url}
-                        <p class="text-xs text-destructive">{form.errors.image_url}</p>
-                    {/if}
-                </div>
-
-                <div class="space-y-2 md:col-span-2">
-                    <Label for="prod-description">Descripción Detallada</Label>
-                    <textarea
-                        id="prod-description"
-                        bind:value={form.description}
-                        rows="3"
-                        class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    ></textarea>
-                </div>
-            </CardContent>
-        </Card>
-
-        <!-- Sección 2: Precios e Impuestos -->
-        <Card>
-            <CardHeader>
-                <CardTitle class="text-base flex items-center gap-2">
-                    <DollarSign class="size-4 text-primary" />
-                    2. Precios e Impuestos (ARCA)
-                </CardTitle>
-                <CardDescription>Valores de venta, costo y porcentaje de IVA aplicable.</CardDescription>
-            </CardHeader>
-            <CardContent class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div class="space-y-2">
-                    <Label for="prod-price">Precio de Venta ($) *</Label>
-                    <Input
-                        id="prod-price"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        bind:value={form.price}
-                        required
-                    />
-                    {#if form.errors.price}
-                        <p class="text-xs text-destructive">{form.errors.price}</p>
-                    {/if}
-                </div>
-
-                <div class="space-y-2">
-                    <Label for="prod-cost">Precio de Costo ($)</Label>
-                    <Input
-                        id="prod-cost"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        bind:value={form.cost_price}
-                    />
-                    {#if form.errors.cost_price}
-                        <p class="text-xs text-destructive">{form.errors.cost_price}</p>
-                    {/if}
-                </div>
-
-                <div class="space-y-2">
-                    <Label for="prod-iva">Alícuota IVA (%)</Label>
-                    <select
-                        id="prod-iva"
-                        bind:value={form.iva_rate}
-                        class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    >
-                        <option value={21.00}>21.0% (General)</option>
-                        <option value={10.50}>10.5% (Reducido)</option>
-                        <option value={27.00}>27.0% (Servicios / Especial)</option>
-                        <option value={0.00}>0.0% (Exento)</option>
-                    </select>
-                    {#if form.errors.iva_rate}
-                        <p class="text-xs text-destructive">{form.errors.iva_rate}</p>
-                    {/if}
-                </div>
-            </CardContent>
-        </Card>
-
-        <!-- Sección 3: Control de Stock y Empaque -->
-        <Card>
-            <CardHeader>
-                <CardTitle class="text-base flex items-center gap-2">
-                    <Layers class="size-4 text-primary" />
-                    3. Control de Inventario y Empaque (Bolsones)
-                </CardTitle>
-                <CardDescription>Stock disponible, umbral de reposición y unidades por bulto/bolsón.</CardDescription>
-            </CardHeader>
-            <CardContent class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div class="space-y-2">
-                    <Label for="prod-stock">Stock Actual (Unidades)</Label>
-                    <Input
-                        id="prod-stock"
-                        type="number"
-                        min="0"
-                        bind:value={form.stock}
-                    />
-                    {#if form.errors.stock}
-                        <p class="text-xs text-destructive">{form.errors.stock}</p>
-                    {/if}
-                </div>
-
-                <div class="space-y-2">
-                    <Label for="prod-min-stock">Stock Mínimo (Alerta)</Label>
-                    <Input
-                        id="prod-min-stock"
-                        type="number"
-                        min="0"
-                        bind:value={form.min_stock}
-                    />
-                    {#if form.errors.min_stock}
-                        <p class="text-xs text-destructive">{form.errors.min_stock}</p>
-                    {/if}
-                </div>
-
-                <div class="space-y-2">
-                    <Label for="prod-units-package">Unidades por Bolsón</Label>
-                    <Input
-                        id="prod-units-package"
-                        type="number"
-                        min="1"
-                        bind:value={form.units_per_package}
-                        placeholder="1"
-                    />
-                    <p class="text-[11px] text-muted-foreground">Cant. de paquetes en 1 bolsón.</p>
-                    {#if form.errors.units_per_package}
-                        <p class="text-xs text-destructive">{form.errors.units_per_package}</p>
-                    {/if}
-                </div>
-            </CardContent>
-        </Card>
-
-        <div class="flex justify-end gap-3 pt-2">
-            <Link href="/tenant/products">
-                <Button type="button" variant="outline">Cancelar</Button>
-            </Link>
-            <Button type="submit" disabled={form.processing} class="min-w-36 font-semibold">
-                {form.processing ? 'Guardando...' : 'Guardar Cambios'}
-            </Button>
+            </div>
         </div>
-    </form>
+
+        <!-- Columna Derecha: Formulario (60%) -->
+        <div class="w-full md:w-7/12 bg-card p-6 sm:p-8 flex flex-col">
+            <form onsubmit={submit} class="space-y-5">
+                <!-- 1. Información Básica -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold text-primary uppercase tracking-wider">1. Información Básica</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div class="sm:col-span-2 space-y-1">
+                            <Label for="edit-prod-name" class="text-xs font-semibold">
+                                Nombre del Producto <span class="text-destructive">*</span>
+                            </Label>
+                            <Input
+                                id="edit-prod-name"
+                                bind:value={form.name}
+                                placeholder="ej. Resma Chambril A4 75g"
+                                class="h-9 text-xs rounded-xl"
+                                required
+                            />
+                            {#if form.errors.name}
+                                <p class="text-xs text-destructive">{form.errors.name}</p>
+                            {/if}
+                        </div>
+
+                        <div class="space-y-1">
+                            <Label for="edit-prod-sku" class="text-xs font-semibold">SKU / Código</Label>
+                            <Input
+                                id="edit-prod-sku"
+                                bind:value={form.sku}
+                                placeholder="ej. RES-A4-75"
+                                class="h-9 text-xs rounded-xl"
+                            />
+                            {#if form.errors.sku}
+                                <p class="text-xs text-destructive">{form.errors.sku}</p>
+                            {/if}
+                        </div>
+
+                        <div class="space-y-1">
+                            <Label for="edit-prod-cat" class="text-xs font-semibold">Categoría</Label>
+                            <select
+                                id="edit-prod-cat"
+                                bind:value={form.category_id}
+                                class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                            >
+                                <option value="">Sin categoría asignada</option>
+                                {#each categories as cat}
+                                    <option value={cat.id}>{cat.name}</option>
+                                {/each}
+                            </select>
+                            {#if form.errors.category_id}
+                                <p class="text-xs text-destructive">{form.errors.category_id}</p>
+                            {/if}
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-border/60" />
+
+                <!-- 2. Precios & Fiscal (ARCA) -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold text-primary uppercase tracking-wider">2. Precios & Facturación (ARCA)</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="space-y-1">
+                            <Label for="edit-prod-price" class="text-xs font-semibold">
+                                Precio Venta ($) <span class="text-destructive">*</span>
+                            </Label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+                                <Input
+                                    id="edit-prod-price"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    bind:value={form.price}
+                                    placeholder="0.00"
+                                    class="h-9 pl-7 text-xs rounded-xl font-mono"
+                                    required
+                                />
+                            </div>
+                            {#if form.errors.price}
+                                <p class="text-xs text-destructive">{form.errors.price}</p>
+                            {/if}
+                        </div>
+
+                        <div class="space-y-1">
+                            <Label for="edit-prod-cost" class="text-xs font-semibold">Costo ($)</Label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+                                <Input
+                                    id="edit-prod-cost"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    bind:value={form.cost_price}
+                                    placeholder="0.00"
+                                    class="h-9 pl-7 text-xs rounded-xl font-mono"
+                                />
+                            </div>
+                            {#if form.errors.cost_price}
+                                <p class="text-xs text-destructive">{form.errors.cost_price}</p>
+                            {/if}
+                        </div>
+
+                        <div class="space-y-1">
+                            <Label for="edit-prod-iva" class="text-xs font-semibold">IVA (%)</Label>
+                            <select
+                                id="edit-prod-iva"
+                                bind:value={form.iva_rate}
+                                class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                            >
+                                <option value={21.00}>21.0% (General)</option>
+                                <option value={10.50}>10.5% (Reducido)</option>
+                                <option value={27.00}>27.0% (Especial)</option>
+                                <option value={0.00}>0.0% (Exento)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-border/60" />
+
+                <!-- 3. Inventario y Empaque -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold text-primary uppercase tracking-wider">3. Inventario & Empaque</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="space-y-1">
+                            <Label for="edit-prod-stock" class="text-xs font-semibold">Stock Actual</Label>
+                            <Input
+                                id="edit-prod-stock"
+                                type="number"
+                                min="0"
+                                bind:value={form.stock}
+                                class="h-9 text-xs rounded-xl text-center font-bold"
+                            />
+                            {#if form.errors.stock}
+                                <p class="text-xs text-destructive">{form.errors.stock}</p>
+                            {/if}
+                        </div>
+
+                        <div class="space-y-1">
+                            <Label for="edit-prod-min-stock" class="text-xs font-semibold">Stock Mínimo</Label>
+                            <Input
+                                id="edit-prod-min-stock"
+                                type="number"
+                                min="0"
+                                bind:value={form.min_stock}
+                                class="h-9 text-xs rounded-xl text-center"
+                            />
+                            {#if form.errors.min_stock}
+                                <p class="text-xs text-destructive">{form.errors.min_stock}</p>
+                            {/if}
+                        </div>
+
+                        <div class="space-y-1">
+                            <Label for="edit-prod-units-pack" class="text-xs font-semibold">Unidades / Bolsón</Label>
+                            <Input
+                                id="edit-prod-units-pack"
+                                type="number"
+                                min="1"
+                                bind:value={form.units_per_package}
+                                class="h-9 text-xs rounded-xl text-center font-bold"
+                            />
+                            {#if form.errors.units_per_package}
+                                <p class="text-xs text-destructive">{form.errors.units_per_package}</p>
+                            {/if}
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-border/60" />
+
+                <!-- 4. Código de Barras, Descripción & Estado -->
+                <div class="space-y-3">
+                    <div class="space-y-1">
+                        <Label for="edit-prod-barcode" class="text-xs font-semibold">Código de Barras (EAN / UPC)</Label>
+                        <Input
+                            id="edit-prod-barcode"
+                            bind:value={form.barcode}
+                            placeholder="ej. 7791234567890"
+                            class="h-9 text-xs rounded-xl"
+                        />
+                    </div>
+
+                    <div class="space-y-1">
+                        <Label for="edit-prod-desc" class="text-xs font-semibold">Descripción</Label>
+                        <textarea
+                            id="edit-prod-desc"
+                            bind:value={form.description}
+                            rows="2"
+                            placeholder="Especificaciones de tamaño, gramaje, características..."
+                            class="w-full bg-background rounded-xl p-2.5 text-xs border border-input focus:ring-1 focus:ring-primary outline-none resize-none"
+                        ></textarea>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-muted/20 border border-border/70">
+                        <div>
+                            <span class="text-xs font-bold text-foreground block">Producto Activo</span>
+                            <span class="text-[11px] text-muted-foreground">Disponible para ventas y pedidos inmediatamente.</span>
+                        </div>
+                        <input
+                            type="checkbox"
+                            bind:checked={form.is_active}
+                            class="size-5 rounded border-input text-primary focus:ring-primary"
+                        />
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-border/80">
+                    <Link href="/tenant/products">
+                        <Button type="button" variant="outline" size="sm" class="rounded-full px-5 text-xs">
+                            Cancelar
+                        </Button>
+                    </Link>
+                    <Button
+                        type="submit"
+                        size="sm"
+                        disabled={form.processing}
+                        class="rounded-full px-6 text-xs font-semibold gap-1.5 min-w-36"
+                    >
+                        {#if form.processing}
+                            <span>Guardando...</span>
+                        {:else}
+                            <Check class="size-3.5" />
+                            <span>Guardar Cambios</span>
+                        {/if}
+                    </Button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
