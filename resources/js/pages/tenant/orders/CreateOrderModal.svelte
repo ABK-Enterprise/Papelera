@@ -67,12 +67,37 @@
 
     let items = $state<OrderItemLine[]>([]);
 
+    let usedStockMap = $derived.by(() => {
+        const map: Record<number, number> = {};
+        for (const it of items) {
+            if (it.is_package && it.components) {
+                for (const comp of it.components) {
+                    map[comp.product_id] = (map[comp.product_id] || 0) + (comp.quantity_in_package * it.quantity);
+                }
+            } else if (it.product_id) {
+                const ratio = it.packaging_type === 'bolson' ? it.units_per_package : 1;
+                map[it.product_id] = (map[it.product_id] || 0) + (it.quantity * ratio);
+            }
+        }
+        return map;
+    });
+
+    let availableProductsWithRemainingStock = $derived.by(() => {
+        return availableProducts.map((p) => {
+            const used = usedStockMap[p.id] || 0;
+            return {
+                ...p,
+                stock: Math.max(0, p.stock - used),
+            };
+        });
+    });
+
     let searchResults = $derived.by(() => {
         const q = searchQuery.toLowerCase().trim();
         if (!q) {
-            return availableProducts.slice(0, 5);
+            return availableProductsWithRemainingStock.slice(0, 5);
         }
-        return availableProducts
+        return availableProductsWithRemainingStock
             .filter((p) => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)))
             .slice(0, 5);
     });
@@ -713,7 +738,7 @@
     <!-- Modal de Creación de Bolsón Combo -->
     <CreatePackageModal
         bind:open={isPackageModalOpen}
-        {availableProducts}
+        availableProducts={availableProductsWithRemainingStock}
         onAddPackage={handleAddPackage}
     />
 {/if}
