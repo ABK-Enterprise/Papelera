@@ -351,3 +351,35 @@ test('can list customer orders and search by customer name', function () {
             ->where('orders.0.customer_name', 'Papelera Central Norte')
         );
 });
+
+test('cannot skip FSM steps directly from en_preparacion to entregado', function () {
+    $order = CustomerOrder::factory()->forTenant($this->tenant)->create([
+        'status' => 'en_preparacion',
+    ]);
+
+    $response = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
+        'status' => 'entregado',
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['status']);
+
+    $order->refresh();
+    expect($order->status)->toBe('en_preparacion');
+});
+
+test('cannot skip FSM steps directly from preparado to entregado without passing through en_camino', function () {
+    $order = CustomerOrder::factory()->forTenant($this->tenant)->create([
+        'status' => 'preparado',
+    ]);
+
+    $response = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
+        'status' => 'entregado',
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['status']);
+
+    $order->refresh();
+    expect($order->status)->toBe('preparado');
+});

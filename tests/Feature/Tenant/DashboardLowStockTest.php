@@ -159,3 +159,24 @@ test('positive empty state when all products have healthy stock', function () {
             ->has('lowStockProducts', 0)
         );
 });
+
+test('exhausted products with stock zero are included in dashboard low stock alerts', function () {
+    $category = Category::factory()->forTenant($this->tenant)->create();
+
+    // Product with stock 0 and min_stock 5 (exhausted)
+    Product::factory()->forCategory($category)->create([
+        'name' => 'Cinta de Embalar Agotada',
+        'stock' => 0,
+        'min_stock' => 5,
+    ]);
+
+    $this->actingAs($this->user)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Dashboard')
+            ->has('lowStockProducts', 1)
+            ->where('lowStockProducts.0.name', 'Cinta de Embalar Agotada')
+            ->where('lowStockProducts.0.stock', 0)
+        );
+});

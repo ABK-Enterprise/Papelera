@@ -91,6 +91,11 @@ class Product extends Model
             ->where('stock', '>', 0);
     }
 
+    public function scopeNeedsRestock(Builder $query): Builder
+    {
+        return $query->where('stock', '<=', DB::raw('min_stock'));
+    }
+
     public function scopeInStock(Builder $query): Builder
     {
         return $query->where('stock', '>', DB::raw('min_stock'));

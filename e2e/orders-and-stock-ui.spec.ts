@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('1. Pedidos: Modal Bento & Flujo Crear Bolsón Secundario', async ({ page }) => {
     await page.goto('/login');
     await page.fill('#email', 'axel@axel.com');
-    await page.fill('#password', 'password123');
+    await page.fill('#password', 'password');
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/.*(dashboard|tenant).*/);
 
@@ -34,7 +34,7 @@ test('1. Pedidos: Modal Bento & Flujo Crear Bolsón Secundario', async ({ page }
 test('2. Catálogo de Productos: Layout 2 Columnas Stitch & Cálculo de Bolsón', async ({ page }) => {
     await page.goto('/login');
     await page.fill('#email', 'axel@axel.com');
-    await page.fill('#password', 'password123');
+    await page.fill('#password', 'password');
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/.*(dashboard|tenant).*/);
 
@@ -61,7 +61,7 @@ test('2. Catálogo de Productos: Layout 2 Columnas Stitch & Cálculo de Bolsón'
 test('3. Ingresos de Stock: Tabla Minimalista & Pills de Filtros', async ({ page }) => {
     await page.goto('/login');
     await page.fill('#email', 'axel@axel.com');
-    await page.fill('#password', 'password123');
+    await page.fill('#password', 'password');
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/.*(dashboard|tenant).*/);
 
@@ -80,7 +80,7 @@ test('3. Ingresos de Stock: Tabla Minimalista & Pills de Filtros', async ({ page
 test('4. Kardex: Bento Grid de Métricas & Auditoría Cronológica', async ({ page }) => {
     await page.goto('/login');
     await page.fill('#email', 'axel@axel.com');
-    await page.fill('#password', 'password123');
+    await page.fill('#password', 'password');
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/.*(dashboard|tenant).*/);
 

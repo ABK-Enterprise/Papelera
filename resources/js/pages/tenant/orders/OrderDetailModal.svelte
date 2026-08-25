@@ -337,34 +337,30 @@
                         <span class="text-[11px] text-muted-foreground">Selecciona el siguiente paso del flujo</span>
                     </div>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {#if order.status === 'en_preparacion'}
                             <button
                                 type="button"
                                 disabled={isUpdatingStatus}
-                                class="px-2.5 py-2 rounded-xl text-xs font-bold border text-center transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
+                                class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
                                 onclick={() => requestStatusChange('preparado')}
                             >
                                 Pasar a Preparado
                             </button>
-                        {/if}
-
-                        {#if order.status === 'preparado'}
+                        {:else if order.status === 'preparado'}
                             <button
                                 type="button"
                                 disabled={isUpdatingStatus}
-                                class="px-2.5 py-2 rounded-xl text-xs font-bold border text-center transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
+                                class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
                                 onclick={() => requestStatusChange('en_camino')}
                             >
                                 Poner En Camino
                             </button>
-                        {/if}
-
-                        {#if order.status === 'en_camino' || order.status === 'preparado'}
+                        {:else if order.status === 'en_camino'}
                             <button
                                 type="button"
                                 disabled={isUpdatingStatus}
-                                class="px-2.5 py-2 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                                class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
                                 onclick={() => requestStatusChange('entregado')}
                             >
                                 Marcar Entregado
@@ -375,10 +371,10 @@
                         <button
                             type="button"
                             disabled={isUpdatingStatus}
-                            class="px-2.5 py-2 rounded-xl text-xs font-bold border text-center transition-all bg-rose-600/10 hover:bg-rose-600 hover:text-white text-rose-600 border-rose-500/30"
+                            class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-rose-600/10 hover:bg-rose-600 hover:text-white text-rose-600 border-rose-500/30"
                             onclick={() => requestStatusChange('cancelado')}
                         >
-                            Cancelado
+                            Cancelar Pedido
                         </button>
                     </div>
                 </div>
