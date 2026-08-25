@@ -22,7 +22,7 @@ class DashboardController extends Controller
         }
 
         if ($user->is_superadmin) {
-            return redirect()->route('platform.tenants.index');
+            return redirect()->route('platform.dashboard');
         }
 
         if (! $user->tenant_id || ! $user->tenant) {

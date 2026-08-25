@@ -3,16 +3,20 @@
 use App\Models\Tenant;
 use App\Models\User;
 
-test('superadmin without tenant context cannot access tenant routes', function () {
+test('superadmin without tenant context cannot access tenant routes and is redirected to platform dashboard', function () {
     $superadmin = User::factory()->superadmin()->create();
 
     $this->actingAs($superadmin)
         ->get('/tenant/users')
+        ->assertRedirect(route('platform.dashboard'));
+
+    $this->actingAs($superadmin)
+        ->getJson('/tenant/users')
         ->assertForbidden();
 
     $this->actingAs($superadmin)
         ->get('/tenant/roles')
-        ->assertForbidden();
+        ->assertRedirect(route('platform.dashboard'));
 });
 
 test('user from inactive tenant cannot access tenant routes and is redirected to access-denied', function () {

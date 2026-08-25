@@ -31,12 +31,17 @@
     let currentUrl = $derived(page.url);
 
     let navItems = $derived.by(() => {
+        const dashboardHref = user?.is_superadmin ? '/platform/dashboard' : toUrl(dashboard());
+        const isDashboardActive = user?.is_superadmin
+            ? currentUrl.startsWith('/platform/dashboard') || currentUrl === '/dashboard' || currentUrl === '/'
+            : currentUrl === '/dashboard' || currentUrl === '/';
+
         const items: NavLinkItem[] = [
             {
                 title: 'Dashboard',
-                href: toUrl(dashboard()),
+                href: dashboardHref,
                 icon: LayoutGrid,
-                active: currentUrl === '/dashboard' || currentUrl === '/',
+                active: isDashboardActive,
             },
         ];
 

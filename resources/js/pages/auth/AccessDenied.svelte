@@ -16,6 +16,10 @@
 
     let subtitle = $derived.by(() => {
         switch (reason) {
+            case 'google_account_not_found':
+                return 'Cuenta de Google no registrada';
+            case 'google_email_unverified':
+                return 'Correo no verificado en Google';
             case 'account_deactivated':
                 return 'Te desactivaron la cuenta';
             case 'module_not_assigned':
@@ -31,6 +35,10 @@
 
     let description = $derived.by(() => {
         switch (reason) {
+            case 'google_account_not_found':
+                return 'No existe ningún usuario registrado en el sistema con la dirección de correo de Google utilizada. Para acceder, solicita al administrador de tu comercio o de la plataforma que cree tu cuenta con este correo.';
+            case 'google_email_unverified':
+                return 'La cuenta de Google utilizada no posee su dirección de correo verificada. Por razones de seguridad del sistema, se requiere que verifiques tu correo en Google antes de continuar.';
             case 'account_deactivated':
                 return 'El comercio al que pertenece tu usuario ha sido desactivado o suspendido por el superadministrador. Comunícate con el soporte de la plataforma para más información.';
             case 'module_not_assigned':
@@ -95,27 +103,26 @@
             </CardContent>
 
             <CardFooter class="pt-4 pb-6 flex flex-wrap justify-center gap-2 border-t border-border/40 mt-2">
-                {#if reason !== 'account_deactivated'}
-                    <Link href="/dashboard">
-                        <Button
-                            variant="default"
-                            size="sm"
-                            class="text-xs font-semibold gap-1.5"
-                        >
-                            <LayoutGrid class="size-3.5" />
-                            Ir al Dashboard
-                        </Button>
-                    </Link>
+                <Link href="/login">
+                    <Button
+                        variant="default"
+                        size="sm"
+                        class="text-xs font-semibold gap-1.5"
+                    >
+                        Volver al inicio de sesión
+                    </Button>
+                </Link>
+                {#if reason !== 'account_deactivated' && reason !== 'google_account_not_found' && reason !== 'google_email_unverified'}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onclick={logout}
+                        class="text-xs font-semibold gap-1.5"
+                    >
+                        <LogOut class="size-3.5" />
+                        Cerrar sesión
+                    </Button>
                 {/if}
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onclick={logout}
-                    class="text-xs font-semibold gap-1.5"
-                >
-                    <LogOut class="size-3.5" />
-                    Cerrar sesión
-                </Button>
             </CardFooter>
         </Card>
     </div>

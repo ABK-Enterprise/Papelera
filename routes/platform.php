@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Platform\DashboardController;
 use App\Http\Controllers\Platform\ModuleController;
 use App\Http\Controllers\Platform\TenantController;
 use Illuminate\Support\Facades\Route;
@@ -8,6 +9,9 @@ Route::middleware(['auth', 'verified', 'superadmin'])
     ->prefix('platform')
     ->name('platform.')
     ->group(function () {
+        // Platform Dashboard
+        Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
         // Tenants Management
         Route::get('tenants', [TenantController::class, 'index'])->name('tenants.index');
         Route::get('tenants/create', [TenantController::class, 'create'])->name('tenants.create');

@@ -131,7 +131,7 @@
 
 <AppHead title="Órdenes de Compra a Proveedores - Comercio" />
 
-<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1360px] mx-auto w-full">
     <!-- Pestañas de Navegación del Módulo Proveedores -->
     <div class="flex items-center gap-2 border-b pb-3">
         <Link href="/tenant/suppliers">

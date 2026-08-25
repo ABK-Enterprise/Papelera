@@ -20,7 +20,11 @@ class EnsureTenantContext
         }
 
         if ($user->is_superadmin && ! $user->tenant_id) {
-            abort(403, 'El superadministrador no posee un contexto de comercio asignado.');
+            if ($request->wantsJson()) {
+                abort(403, 'El superadministrador no posee un contexto de comercio asignado.');
+            }
+
+            return redirect()->route('platform.dashboard')->with('warning', 'El superadministrador debe operar desde el panel de gestión de plataforma.');
         }
 
         if (! $user->tenant_id || ! $user->tenant) {

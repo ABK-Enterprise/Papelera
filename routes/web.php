@@ -11,7 +11,6 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('access-denied', [AccessDeniedController::class, 'index'])
-    ->middleware('auth')
     ->name('auth.access-denied');
 
 Route::middleware('guest')->group(function () {

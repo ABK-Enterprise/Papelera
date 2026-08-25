@@ -143,7 +143,7 @@
     function getFilteredProducts(query: string): ProductOption[] {
         const q = query.trim().toLowerCase();
         if (!q) return availableProducts.slice(0, 5);
-        return availableProducts.filter((p) => p.name.toLowerCase().includes(q));
+        return availableProducts.filter((p) => p.name.toLowerCase().includes(q)).slice(0, 5);
     }
 
     function selectProduct(index: number, product: ProductOption) {
@@ -391,7 +391,7 @@
                     </div>
 
                     <!-- Lista de Productos -->
-                    <div class="space-y-2.5 max-h-64 overflow-y-auto pr-1">
+                    <div class="space-y-2.5">
                         {#each items as item, index (item.id || index)}
                             {#if item.is_package}
                                 <!-- Card de Bolsón / Combo -->

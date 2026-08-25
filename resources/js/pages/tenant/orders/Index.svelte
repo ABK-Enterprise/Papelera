@@ -121,7 +121,7 @@
 
 <AppHead title="Gestión de Pedidos - Comercio" />
 
-<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1360px] mx-auto w-full">
     <!-- Header de la Página -->
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>

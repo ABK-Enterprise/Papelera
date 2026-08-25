@@ -53,6 +53,21 @@ class Tenant extends Model
         return $this->hasMany(User::class);
     }
 
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    public function suppliers(): HasMany
+    {
+        return $this->hasMany(Supplier::class);
+    }
+
+    public function customerOrders(): HasMany
+    {
+        return $this->hasMany(CustomerOrder::class);
+    }
+
     public function modules(): BelongsToMany
     {
         return $this->belongsToMany(Module::class, 'tenant_modules')

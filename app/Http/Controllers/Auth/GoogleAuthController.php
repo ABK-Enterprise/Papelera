@@ -32,7 +32,7 @@ class GoogleAuthController extends Controller
             Log::warning('Google OAuth callback failed', ['error' => $e->getMessage()]);
 
             return redirect()->route('login')->withErrors([
-                'email' => __('Unable to authenticate with Google. Please try again.'),
+                'email' => __('No fue posible autenticar con Google. Por favor, intenta nuevamente.'),
             ]);
         }
 
@@ -40,32 +40,40 @@ class GoogleAuthController extends Controller
 
         if (! $email) {
             return redirect()->route('login')->withErrors([
-                'email' => __('No email was provided by Google.'),
+                'email' => __('Google no proporcionó una dirección de correo válida.'),
             ]);
         }
 
-        $user = User::where('google_id', $googleUser->getId())
-            ->orWhere('email', $email)
-            ->first();
+        // 1. Buscar si el usuario existe estrictamente por su correo electrónico en el sistema
+        $user = User::whereRaw('LOWER(email) = ?', [mb_strtolower(trim($email), 'UTF-8')])->first();
 
-        if ($user) {
-            $user->update([
-                'google_id' => $googleUser->getId(),
-                'avatar' => $googleUser->getAvatar() ?? $user->avatar,
-                'email_verified_at' => $user->email_verified_at ?? now(),
-            ]);
-        } else {
-            $user = User::create([
-                'name' => $googleUser->getName() ?? explode('@', $email)[0],
-                'email' => $email,
-                'google_id' => $googleUser->getId(),
-                'avatar' => $googleUser->getAvatar(),
-                'email_verified_at' => now(),
-                'password' => null,
+        if (! $user) {
+            // El usuario NO existe: denegar acceso y mostrar pantalla explicativa (sin auto-provisioning)
+            return redirect()->route('auth.access-denied', [
+                'reason' => 'google_account_not_found',
             ]);
         }
 
+        // 2. Si el usuario pertenece a un tenant, verificar que el comercio esté activo
+        if ($user->tenant_id && $user->tenant && ! $user->tenant->is_active) {
+            return redirect()->route('auth.access-denied', [
+                'reason' => 'account_deactivated',
+            ]);
+        }
+
+        // 3. Vincular google_id y avatar en la cuenta existente
+        $user->update([
+            'google_id' => $googleUser->getId(),
+            'avatar' => $googleUser->getAvatar() ?? $user->avatar,
+            'email_verified_at' => $user->email_verified_at ?? now(),
+        ]);
+
+        // 4. Iniciar sesión y redirigir
         Auth::login($user, remember: true);
+
+        if ($user->is_superadmin) {
+            return redirect()->route('platform.dashboard');
+        }
 
         return redirect()->intended(route('dashboard'));
     }

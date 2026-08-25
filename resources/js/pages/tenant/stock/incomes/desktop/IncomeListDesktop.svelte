@@ -1,9 +1,12 @@
 <script lang="ts">
     import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
+    import ArrowRight from 'lucide-svelte/icons/arrow-right';
     import Calendar from 'lucide-svelte/icons/calendar';
+    import FileText from 'lucide-svelte/icons/file-text';
     import Filter from 'lucide-svelte/icons/filter';
     import Package from 'lucide-svelte/icons/package';
     import Search from 'lucide-svelte/icons/search';
+    import Tag from 'lucide-svelte/icons/tag';
     import User from 'lucide-svelte/icons/user';
     import X from 'lucide-svelte/icons/x';
 
@@ -58,6 +61,22 @@
         }
     }
 
+    function formatReason(reason: string): string {
+        switch (reason) {
+            case 'compra_proveedor':
+            case 'orden_compra_proveedor':
+                return 'Orden de Compra / Proveedor';
+            case 'ajuste_positivo':
+                return 'Ajuste de Inventario (+)';
+            case 'cancelacion_pedido':
+                return 'Cancelación de Pedido';
+            case 'devolucion_cliente':
+                return 'Devolución de Cliente';
+            default:
+                return reason ? reason.replace(/_/g, ' ') : 'Ingreso Manual';
+        }
+    }
+
     let filteredMovements = $derived.by(() => {
         let list = movements;
 
@@ -86,9 +105,9 @@
     });
 </script>
 
-<div class="bg-card text-card-foreground rounded-2xl shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/70 overflow-hidden">
-    <!-- Toolbar de Filtros y Búsqueda Stitch Layout -->
-    <div class="p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-border/60 bg-muted/20">
+<div class="space-y-4">
+    <!-- Toolbar de Filtros y Búsqueda -->
+    <div class="p-4 rounded-2xl border border-border/70 bg-card shadow-[0px_10px_30px_rgba(0,0,0,0.02)] flex items-center justify-between gap-3">
         <!-- Pills de Filtro Rápido -->
         <div class="flex items-center gap-1.5">
             <button
@@ -115,7 +134,7 @@
         </div>
 
         <!-- Buscador integrado -->
-        <div class="relative w-full sm:w-72">
+        <div class="relative w-72">
             <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
             <input
                 type="text"
@@ -135,99 +154,95 @@
         </div>
     </div>
 
-    <!-- Tabla Minimalista -->
-    <div class="w-full overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="border-b border-border/60 bg-muted/10 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                    <th class="py-3.5 px-6">Fecha / Hora</th>
-                    <th class="py-3.5 px-6">Producto</th>
-                    <th class="py-3.5 px-6 text-center">Cantidad</th>
-                    <th class="py-3.5 px-6 text-center">Stock Resultante</th>
-                    <th class="py-3.5 px-6">Motivo</th>
-                    <th class="py-3.5 px-6">Responsable</th>
-                    <th class="py-3.5 px-6">Notas</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-border/40 text-xs text-foreground">
-                {#if filteredMovements.length === 0}
-                    <tr>
-                        <td colspan="7" class="py-12 text-center text-muted-foreground">
-                            <div class="flex flex-col items-center justify-center gap-2">
-                                <div class="size-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
-                                    <ArrowDownLeft class="size-5" />
-                                </div>
-                                <span class="font-medium text-xs">No se encontraron movimientos de ingreso.</span>
-                            </div>
-                        </td>
-                    </tr>
-                {:else}
-                    {#each filteredMovements as mov (mov.id)}
-                        <tr class="hover:bg-muted/30 transition-colors group">
-                            <!-- Fecha -->
-                            <td class="py-4 px-6 text-muted-foreground whitespace-nowrap">
-                                <div class="flex items-center gap-1.5 font-mono text-[11px]">
-                                    <Calendar class="size-3.5 text-muted-foreground/60" />
-                                    <span>{formatDate(mov.created_at)}</span>
-                                </div>
-                            </td>
+    <!-- Lista de Wide Cards (Jerarquía Visual de Elementos) -->
+    <div class="flex flex-col gap-3">
+        {#each filteredMovements as mov (mov.id)}
+            <div class="bento-card group flex items-center justify-between gap-6 rounded-2xl border border-border/70 bg-card p-4.5 shadow-[0px_10px_30px_rgba(0,0,0,0.02)] transition-all duration-200 hover:border-primary/40 hover:shadow-md hover:bg-muted/5">
+                <!-- Lado Izquierdo: Icon Avatar + Datos Principales -->
+                <div class="flex items-center gap-4.5 min-w-0 flex-1">
+                    <!-- Icon Avatar Badge -->
+                    <div class="size-13 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-sm font-mono shrink-0 shadow-2xs transition-transform group-hover:scale-105">
+                        {getInitials(mov.product?.name)}
+                    </div>
 
-                            <!-- Producto con Avatar de Iniciales -->
-                            <td class="py-4 px-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="size-8 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-700 dark:text-emerald-300 font-bold text-[11px] shrink-0">
-                                        {getInitials(mov.product?.name)}
-                                    </div>
-                                    <div class="min-w-0">
-                                        <div class="font-semibold text-foreground truncate max-w-xs">{mov.product?.name ?? 'Producto eliminado'}</div>
-                                        {#if mov.product?.sku}
-                                            <div class="text-[10px] text-muted-foreground font-mono">SKU: {mov.product.sku}</div>
-                                        {/if}
-                                    </div>
-                                </div>
-                            </td>
+                    <!-- Jerarquía de Información -->
+                    <div class="flex flex-col gap-1.5 min-w-0 flex-1">
+                        <!-- Fila 1: Nombre Destacado + SKU + Motivo -->
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <h3 class="font-bold text-base text-foreground group-hover:text-primary transition-colors truncate max-w-md">
+                                {mov.product?.name ?? 'Producto eliminado'}
+                            </h3>
 
-                            <!-- Cantidad con Badge Verde -->
-                            <td class="py-4 px-6 text-center whitespace-nowrap">
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono">
-                                    <span class="size-1.5 rounded-full bg-emerald-500"></span>
-                                    +{mov.quantity} u.
+                            {#if mov.product?.sku}
+                                <span class="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-[11px] font-mono text-muted-foreground border border-border/50">
+                                    SKU: {mov.product.sku}
                                 </span>
-                            </td>
+                            {/if}
 
-                            <!-- Stock Resultante -->
-                            <td class="py-4 px-6 text-center whitespace-nowrap font-mono">
-                                <span class="font-bold text-foreground">{mov.current_stock}</span>
-                                <span class="text-[10px] text-muted-foreground block font-sans">antes: {mov.previous_stock}</span>
-                            </td>
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/50 capitalize">
+                                <Tag class="size-3" />
+                                {formatReason(mov.reason)}
+                            </span>
+                        </div>
 
-                            <!-- Motivo -->
-                            <td class="py-4 px-6 font-medium capitalize">
-                                {mov.reason ? mov.reason.replace(/_/g, ' ') : 'Ingreso manual'}
-                            </td>
+                        <!-- Fila 2: Notas y Detalles -->
+                        {#if mov.notes}
+                            <p class="text-xs text-muted-foreground line-clamp-1 flex items-center gap-1.5">
+                                <FileText class="size-3 text-muted-foreground/60 shrink-0" />
+                                <span>{mov.notes}</span>
+                            </p>
+                        {/if}
 
-                            <!-- Responsable -->
-                            <td class="py-4 px-6 text-muted-foreground whitespace-nowrap">
-                                <div class="flex items-center gap-1.5">
-                                    <User class="size-3 text-muted-foreground/60" />
-                                    <span>{mov.user?.name ?? 'Sistema'}</span>
-                                </div>
-                            </td>
+                        <!-- Fila 3: Metadatos (Responsable y Fecha) -->
+                        <div class="flex items-center gap-4 text-xs text-muted-foreground mt-0.5">
+                            <div class="flex items-center gap-1.5">
+                                <User class="size-3.5 text-muted-foreground/70" />
+                                <span>Registrado por: <strong class="text-foreground font-normal">{mov.user?.name ?? 'Sistema'}</strong></span>
+                            </div>
+                            <span class="text-border">•</span>
+                            <div class="flex items-center gap-1.5 font-mono text-[11px]">
+                                <Calendar class="size-3.5 text-muted-foreground/70" />
+                                <span>{formatDate(mov.created_at)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                            <!-- Notas -->
-                            <td class="py-4 px-6 text-muted-foreground max-w-xs truncate">
-                                {mov.notes ?? '-'}
-                            </td>
-                        </tr>
-                    {/each}
-                {/if}
-            </tbody>
-        </table>
+                <!-- Lado Derecho: Variación de Unidades + Progresión de Stock -->
+                <div class="flex items-center gap-4 shrink-0 pl-4 border-l border-border/60">
+                    <div class="text-right flex flex-col items-end gap-1">
+                        <!-- Badge de Cantidad Ingresada -->
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono shadow-2xs">
+                            <ArrowDownLeft class="size-3.5" />
+                            +{mov.quantity} u.
+                        </span>
+
+                        <!-- Progresión de Stock (Antes -> Después) -->
+                        <div class="flex items-center gap-1 text-xs font-mono text-muted-foreground">
+                            <span>Stock:</span>
+                            <span class="text-muted-foreground font-semibold">{mov.previous_stock}</span>
+                            <ArrowRight class="size-3 text-muted-foreground/60" />
+                            <span class="font-bold text-foreground text-sm">{mov.current_stock}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {/each}
+
+        {#if filteredMovements.length === 0}
+            <div class="rounded-2xl border border-dashed p-12 text-center bg-card/40 space-y-2">
+                <ArrowDownLeft class="mx-auto size-10 text-muted-foreground/40" />
+                <h3 class="font-semibold text-base text-foreground">No se encontraron ingresos de stock</h3>
+                <p class="text-xs text-muted-foreground max-w-sm mx-auto">
+                    No hay registros de ingreso que coincidan con los filtros aplicados.
+                </p>
+            </div>
+        {/if}
     </div>
 
-    <!-- Footer de Paginación / Conteo -->
-    <div class="p-4 border-t border-border/60 bg-muted/10 flex items-center justify-between text-xs text-muted-foreground">
-        <div>Mostrando {filteredMovements.length} de {movements.length} ingresos</div>
-        <div class="text-[11px] font-mono">Control de Stock</div>
+    <!-- Footer Informativo -->
+    <div class="flex items-center justify-between text-xs text-muted-foreground px-2">
+        <span>Mostrando <strong>{filteredMovements.length}</strong> de <strong>{movements.length}</strong> movimientos de ingreso</span>
+        <span class="font-mono text-[11px]">Kardex Incomes</span>
     </div>
 </div>
