@@ -46,9 +46,9 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --no-scripts --no-autoloader --prefer-dist
 
-# 6. Copiar package.json y pnpm-lock para cachear dependencias Frontend
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+# 6. Copiar package.json, pnpm-lock y configuración de pnpm para cachear dependencias Frontend
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml* .npmrc* ./
+RUN pnpm install --frozen-lockfile --dangerously-allow-all-builds || pnpm install --frozen-lockfile
 
 # 7. Copiar el resto del código de la aplicación
 COPY . .
