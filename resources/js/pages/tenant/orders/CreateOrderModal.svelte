@@ -177,33 +177,69 @@
         items = items.filter((_, i) => i !== index);
     }
 
-    function getMaxStockForItem(item: OrderItemLine): number {
-        if (item.is_package) return 999;
-        if (item.packaging_type === 'bolson') {
-            const ratio = item.units_per_package || 1;
-            return Math.floor(item.stock / ratio);
+    function getMaxAllowedQuantityForItem(index: number): number {
+        const targetItem = items[index];
+        if (!targetItem) return 1;
+
+        // Calculate stock consumed by all OTHER items in the order
+        const consumedByOthers: Record<number, number> = {};
+        items.forEach((it, idx) => {
+            if (idx === index) return;
+            if (it.is_package && it.components) {
+                for (const comp of it.components) {
+                    consumedByOthers[comp.product_id] = (consumedByOthers[comp.product_id] || 0) + (comp.quantity_in_package * it.quantity);
+                }
+            } else if (it.product_id) {
+                const ratio = it.packaging_type === 'bolson' ? (it.units_per_package || 1) : 1;
+                consumedByOthers[it.product_id] = (consumedByOthers[it.product_id] || 0) + (it.quantity * ratio);
+            }
+        });
+
+        if (targetItem.is_package && targetItem.components && targetItem.components.length > 0) {
+            let maxPackages = 9999;
+            for (const comp of targetItem.components) {
+                const prod = availableProducts.find((p) => p.id === comp.product_id);
+                const totalStock = prod ? prod.stock : 0;
+                const freeStock = Math.max(0, totalStock - (consumedByOthers[comp.product_id] || 0));
+                const possibleForThisComp = Math.floor(freeStock / Math.max(1, comp.quantity_in_package));
+                if (possibleForThisComp < maxPackages) {
+                    maxPackages = possibleForThisComp;
+                }
+            }
+            return Math.max(1, maxPackages);
+        } else if (targetItem.product_id) {
+            const prod = availableProducts.find((p) => p.id === targetItem.product_id);
+            const totalStock = prod ? prod.stock : targetItem.stock;
+            const freeStock = Math.max(0, totalStock - (consumedByOthers[targetItem.product_id] || 0));
+            const ratio = targetItem.packaging_type === 'bolson' ? (targetItem.units_per_package || 1) : 1;
+            return Math.max(1, Math.floor(freeStock / ratio));
         }
-        return item.stock;
+
+        return 1;
     }
 
     function incrementQuantity(index: number) {
         const item = items[index];
-        const max = getMaxStockForItem(item);
+        const max = getMaxAllowedQuantityForItem(index);
         if (item.quantity < max) {
             item.quantity += 1;
+            errorMessage = null;
+        } else {
+            errorMessage = `Se alcanzó el límite de stock disponible para "${item.is_package ? item.description || item.product_name : item.product_name}".`;
         }
     }
 
     function decrementQuantity(index: number) {
         if (items[index].quantity > 1) {
             items[index].quantity -= 1;
+            errorMessage = null;
         }
     }
 
     function handlePackagingChange(index: number, newType: 'paquete' | 'bolson') {
         const item = items[index];
         item.packaging_type = newType;
-        const max = getMaxStockForItem(item);
+        const max = getMaxAllowedQuantityForItem(index);
         if (item.quantity > max) {
             item.quantity = Math.max(1, max);
         }
@@ -527,6 +563,9 @@
                     <div class="space-y-2.5 pt-1">
                         {#each items as item, index (item.id || index)}
                             {#if item.is_package}
+                                {@const maxAllowedPkg = getMaxAllowedQuantityForItem(index)}
+                                {@const isAtPkgLimit = item.quantity >= maxAllowedPkg}
+
                                 <!-- Card de Bolsón / Combo -->
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
                                     <div class="flex items-center gap-3 min-w-0">
@@ -538,6 +577,11 @@
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-secondary/15 text-secondary border border-secondary/30">
                                                     BOLSÓN COMBO
                                                 </span>
+                                                {#if isAtPkgLimit}
+                                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/20">
+                                                        Tope de stock
+                                                    </span>
+                                                {/if}
                                                 <p class="text-xs font-bold text-foreground truncate max-w-xs sm:max-w-md">
                                                     {item.description || 'Bolsón de productos'}
                                                 </p>
@@ -553,7 +597,7 @@
                                         <div class="flex items-center border rounded-lg bg-background shadow-2xs">
                                             <button
                                                 type="button"
-                                                class="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors"
+                                                class="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                                 onclick={() => decrementQuantity(index)}
                                                 disabled={item.quantity <= 1}
                                                 aria-label="Disminuir cantidad"
@@ -565,8 +609,10 @@
                                             </span>
                                             <button
                                                 type="button"
-                                                class="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors"
+                                                class="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                                 onclick={() => incrementQuantity(index)}
+                                                disabled={isAtPkgLimit}
+                                                title={isAtPkgLimit ? 'Se alcanzó el stock límite de los componentes del bolsón' : 'Aumentar cantidad'}
                                                 aria-label="Aumentar cantidad"
                                             >
                                                 <Plus class="size-3" />
@@ -589,7 +635,7 @@
                                 </div>
                             {:else}
                                 <!-- Card de Producto Individual del Pedido -->
-                                {@const maxAllowed = getMaxStockForItem(item)}
+                                {@const maxAllowed = getMaxAllowedQuantityForItem(index)}
                                 {@const isAtStockLimit = item.quantity >= maxAllowed}
                                 {@const ratio = item.packaging_type === 'bolson' ? item.units_per_package : 1}
                                 {@const lineSubtotal = item.quantity * ratio * item.unit_price}
