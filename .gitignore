@@ -28,6 +28,7 @@ errores.md
 # Environment & Secrets
 .env
 .env.*
+.env-render*
 .env.example
 .env.backup
 .env.production

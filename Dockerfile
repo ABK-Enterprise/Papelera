@@ -1,0 +1,71 @@
+FROM php:8.4-cli-bookworm
+
+# Variables de entorno para Node y Composer
+ENV DEBIAN_FRONTEND=noninteractive \
+    COMPOSER_ALLOW_SUPERUSER=1 \
+    NODE_VERSION=22
+
+# 1. Instalar dependencias del sistema y extensiones de PHP necesarias (PostgreSQL, SOAP, ZIP, etc.)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    unzip \
+    libpq-dev \
+    libzip-dev \
+    libpng-dev \
+    libicu-dev \
+    libxml2-dev \
+    openssl \
+    ca-certificates \
+    && docker-php-ext-install -j$(nproc) \
+    pdo \
+    pdo_pgsql \
+    pgsql \
+    zip \
+    bcmath \
+    intl \
+    soap \
+    pcntl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# 2. Instalar Composer oficial
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# 3. Instalar Node.js y pnpm
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && npm install -g pnpm \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# 4. Configurar directorio de trabajo
+WORKDIR /var/www/html
+
+# 5. Copiar composer.json y lock para cachear dependencias PHP
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --no-scripts --no-autoloader --prefer-dist
+
+# 6. Copiar package.json y pnpm-lock para cachear dependencias Frontend
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+# 7. Copiar el resto del código de la aplicación
+COPY . .
+
+# 8. Generar autoloader optimizado de Composer
+RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
+
+# 9. Compilar los assets con Vite + Svelte
+RUN pnpm run build
+
+# 10. Permisos para storage y bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod +x /var/www/html/docker/entrypoint.sh
+
+# 11. Puerto por defecto expuesto
+EXPOSE 8080
+
+# 12. Script de inicio
+ENTRYPOINT ["/var/www/html/docker/entrypoint.sh"]
