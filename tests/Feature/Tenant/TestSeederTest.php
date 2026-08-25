@@ -71,13 +71,13 @@ test('test seeder populates 4 tenants with specialized roles, products, clients 
     // 8. Verificar Movimientos de Kardex
     $this->assertTrue(StockMovement::where('tenant_id', $tenantSol->id)->count() >= 2);
 
-    // 9. Verificar que los Roles aparezcan en el Panel de Roles del Tenant
+    // 9. Verificar que solo los Roles operativos aparezcan en el Panel de Roles del Tenant (admin excluido)
     $axelUser = User::where('email', 'axel@axel.com')->first();
     $rolesResponse = $this->actingAs($axelUser)->get(route('tenant.roles.index'));
     $rolesResponse->assertOk();
     $rolesResponse->assertInertia(fn (AssertableInertia $page) => $page
         ->component('tenant/roles/Index')
-        ->has('roles', 3)
-        ->where('roles.0.name', fn ($name) => in_array($name, ['Administrador de Sucursal', 'Gestor de Stock', 'Vendedor / Cajero']))
+        ->has('roles', 2)
+        ->where('roles.0.name', fn ($name) => in_array($name, ['Gestor de Stock', 'Vendedor / Cajero']))
     );
 });

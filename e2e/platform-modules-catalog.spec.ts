@@ -63,8 +63,9 @@ test('3. Visualización de Roles Seeded en el Panel de Roles del Tenant', async 
     await page.goto('/tenant/roles');
     await expect(page.locator('h1:has-text("Roles y Permisos")')).toBeVisible();
 
-    // Validar que los roles creados por TestSeeder aparezcan en la vista del tenant
-    await expect(page.locator('h3:has-text("Administrador de Sucursal")')).toBeVisible();
+    // Validar que los roles operativos creados por TestSeeder aparezcan en la vista del tenant y admin esté excluido
     await expect(page.locator('h3:has-text("Gestor de Stock")')).toBeVisible();
     await expect(page.locator('h3:has-text("Vendedor / Cajero")')).toBeVisible();
+    await expect(page.locator('h3:has-text("Administrador")')).not.toBeVisible();
+    await expect(page.locator('h3:has-text("admin")')).not.toBeVisible();
 });

@@ -31,6 +31,7 @@ class TestSeeder extends Seeder
         $this->call(BaseSeeder::class);
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
         Role::whereNull('tenant_id')->where('name', '!=', 'superadmin')->delete();
+        Role::whereIn('name', ['Administrador de Sucursal', 'Administrador'])->delete();
 
         // 2. Definición de los 4 Comercios (Tenants) con Variación Modular
         $tenantsData = [
@@ -49,7 +50,7 @@ class TestSeeder extends Seeder
                     [
                         'name' => 'Axel Administrador',
                         'email' => 'axel@axel.com',
-                        'role' => 'Administrador de Sucursal',
+                        'role' => 'admin',
                     ],
                     [
                         'name' => 'Marcos Stock',
@@ -76,7 +77,7 @@ class TestSeeder extends Seeder
                     [
                         'name' => 'Martín García',
                         'email' => 'admin.sanmartin@papelera.test',
-                        'role' => 'Administrador de Sucursal',
+                        'role' => 'admin',
                     ],
                     [
                         'name' => 'Esteban Depósito',
@@ -105,7 +106,7 @@ class TestSeeder extends Seeder
                     [
                         'name' => 'Roberto Mayorista',
                         'email' => 'admin.sur@papelera.test',
-                        'role' => 'Administrador de Sucursal',
+                        'role' => 'admin',
                     ],
                     [
                         'name' => 'Lucas Logística',
@@ -136,7 +137,7 @@ class TestSeeder extends Seeder
                     [
                         'name' => 'Carla Belgrano',
                         'email' => 'admin.belgrano@papelera.test',
-                        'role' => 'Administrador de Sucursal',
+                        'role' => 'admin',
                     ],
                     [
                         'name' => 'Nicolás Operaciones',
@@ -359,13 +360,6 @@ class TestSeeder extends Seeder
             ]);
             $adminRole->syncPermissions($activePermissions);
 
-            $adminSucursalRole = Role::firstOrCreate([
-                'name' => 'Administrador de Sucursal',
-                'guard_name' => 'web',
-                'tenant_id' => $tenant->id,
-            ]);
-            $adminSucursalRole->syncPermissions($activePermissions);
-
             $stockPermissions = $activePermissions->filter(function ($p) {
                 return str_starts_with($p->name, 'productos.') || str_starts_with($p->name, 'stock_');
             });
@@ -408,8 +402,8 @@ class TestSeeder extends Seeder
 
                 setPermissionsTeamId($tenant->id);
 
-                if ($uData['role'] === 'Administrador de Sucursal') {
-                    $user->syncRoles([$adminRole, $adminSucursalRole]);
+                if ($uData['role'] === 'admin') {
+                    $user->syncRoles([$adminRole]);
                 } elseif ($uData['role'] === 'Gestor de Stock') {
                     $user->syncRoles([$stockRole]);
                 } elseif ($uData['role'] === 'Vendedor / Cajero') {
