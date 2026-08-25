@@ -24,7 +24,7 @@ class BaseSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // 1. Single Superadmin User
-        User::firstOrCreate([
+        $superadmin = User::firstOrCreate([
             'email' => 'admin@admin.com',
         ], [
             'name' => 'admin',
@@ -32,6 +32,11 @@ class BaseSeeder extends Seeder
             'tenant_id' => null,
             'is_superadmin' => true,
             'email_verified_at' => now(),
+        ]);
+        $superadmin->update([
+            'password' => 'admin',
+            'is_superadmin' => true,
+            'email_verified_at' => $superadmin->email_verified_at ?? now(),
         ]);
 
         // 2. Active Functional Modules & Permissions
@@ -163,6 +168,10 @@ class BaseSeeder extends Seeder
 
         $tenantUser = User::where('tenant_id', $tenant->id)->first();
         if ($tenantUser) {
+            $tenantUser->update([
+                'password' => 'password',
+                'email_verified_at' => $tenantUser->email_verified_at ?? now(),
+            ]);
             $tenantUser->assignRole($adminRole);
         } else {
             $tenantUser = User::firstOrCreate([

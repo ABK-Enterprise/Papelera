@@ -7,7 +7,7 @@ test.describe('E2E: Refactors de Arquitectura, UX, Wide Cards y Límite Estricto
 
         await page.goto('/login');
         await page.fill('#email', 'admin@admin.com');
-        await page.fill('#password', 'password123');
+        await page.fill('#password', 'admin');
         await page.click('button[type="submit"]');
 
         await expect(page).toHaveURL(/.*platform\/dashboard.*/);
@@ -27,7 +27,7 @@ test.describe('E2E: Refactors de Arquitectura, UX, Wide Cards y Límite Estricto
         // 1. Iniciar sesión como tenant admin
         await page.goto('/login');
         await page.fill('#email', 'axel@axel.com');
-        await page.fill('#password', 'password123');
+        await page.fill('#password', 'password');
         await page.click('button[type="submit"]');
         await expect(page).toHaveURL(/.*(dashboard|tenant).*/);
 
