@@ -77,15 +77,6 @@
             );
         }
 
-        // Active contracted modules
-        if (modules.includes('facturacion_arca')) {
-            items.push({
-                title: 'Facturación ARCA',
-                href: '/playground/arca',
-                icon: ReceiptText,
-            });
-        }
-
         if (modules.includes('inventario_stock') || modules.includes('stock')) {
             items.push({
                 title: 'Stock e Inventario',

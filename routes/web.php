@@ -3,7 +3,6 @@
 use App\Http\Controllers\Auth\AccessDeniedController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Playground\ArcaPlaygroundController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,14 +19,6 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-});
-
-Route::middleware(['auth', 'superadmin'])->prefix('playground')->name('playground.')->group(function () {
-    Route::get('arca', [ArcaPlaygroundController::class, 'index'])->name('arca');
-    Route::post('arca/ticket', [ArcaPlaygroundController::class, 'solicitarTicket'])->name('arca.ticket');
-    Route::post('arca/ultimo-comprobante', [ArcaPlaygroundController::class, 'consultarUltimoComprobante'])->name('arca.ultimo-comprobante');
-    Route::post('arca/puntos-venta', [ArcaPlaygroundController::class, 'consultarPuntosVenta'])->name('arca.puntos-venta');
-    Route::post('arca/emitir', [ArcaPlaygroundController::class, 'emitirFactura'])->name('arca.emitir');
 });
 
 require __DIR__.'/settings.php';

@@ -133,16 +133,6 @@
                     },
                 );
             }
-
-            // Facturación ARCA
-            if (modules.includes('facturacion_arca') && (roles.includes('admin') || user?.is_superadmin || permissions.some((p: string) => p.startsWith('facturas.')))) {
-                items.push({
-                    title: 'Facturación ARCA',
-                    href: '/playground/arca',
-                    icon: FileText,
-                    active: currentUrl.startsWith('/playground/arca'),
-                });
-            }
         }
 
         return items;
