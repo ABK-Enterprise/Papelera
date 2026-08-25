@@ -22,7 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
-Route::prefix('playground')->name('playground.')->group(function () {
+Route::middleware(['auth', 'superadmin'])->prefix('playground')->name('playground.')->group(function () {
     Route::get('arca', [ArcaPlaygroundController::class, 'index'])->name('arca');
     Route::post('arca/ticket', [ArcaPlaygroundController::class, 'solicitarTicket'])->name('arca.ticket');
     Route::post('arca/ultimo-comprobante', [ArcaPlaygroundController::class, 'consultarUltimoComprobante'])->name('arca.ultimo-comprobante');

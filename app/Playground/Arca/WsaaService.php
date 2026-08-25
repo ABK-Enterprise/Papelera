@@ -79,10 +79,16 @@ class WsaaService
         // 3. Enviar solicitud SOAP al WSAA
         $soapEnvelope = $this->construirSobreSoapLoginCms($cmsBase64);
 
-        $response = Http::withoutVerifying()->withHeaders([
+        $httpRequest = Http::withHeaders([
             'Content-Type' => 'text/xml; charset=utf-8',
             'SOAPAction' => '',
-        ])->timeout(30)->send('POST', self::TESTING_WSAA_URL, [
+        ])->timeout(30);
+
+        if (app()->environment('local')) {
+            $httpRequest = $httpRequest->withoutVerifying();
+        }
+
+        $response = $httpRequest->send('POST', self::TESTING_WSAA_URL, [
             'body' => $soapEnvelope,
         ]);
 
@@ -341,7 +347,7 @@ class WsaaService
         $intentos = [
             base_path("ARCA-certificados/{$filename}"),
             base_path("storage/app/arca/{$filename}"),
-            "D:/TauriProjects/Papelera/ARCA-certificados/{$filename}",
+            storage_path("arca/{$filename}"),
         ];
 
         foreach ($intentos as $path) {

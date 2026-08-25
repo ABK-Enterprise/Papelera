@@ -9,6 +9,10 @@ php artisan view:cache || true
 echo "Ejecutando migraciones de base de datos..."
 php artisan migrate --force || true
 
+echo "Ejecutando seeders de base de datos..."
+php artisan db:seed --class=BaseSeeder --force || true
+php artisan db:seed --class=TestSeeder --force || true
+
 echo "Creando symlink de storage..."
 php artisan storage:link || true
 

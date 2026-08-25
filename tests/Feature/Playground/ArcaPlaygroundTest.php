@@ -1,11 +1,22 @@
 <?php
 
+use App\Models\User;
 use App\Playground\Arca\WsaaService;
 use App\Playground\Arca\WsfeService;
 use Inertia\Testing\AssertableInertia as Assert;
 
-test('playground arca page can be rendered', function () {
-    $response = $this->get(route('playground.arca'));
+test('unauthenticated guests cannot access arca playground', function () {
+    $this->get(route('playground.arca'))
+        ->assertRedirect(route('login'));
+
+    $this->postJson(route('playground.arca.ultimo-comprobante'), [])
+        ->assertUnauthorized();
+});
+
+test('playground arca page can be rendered by superadmin', function () {
+    $superadmin = User::factory()->create(['is_superadmin' => true]);
+
+    $response = $this->actingAs($superadmin)->get(route('playground.arca'));
 
     $response->assertOk()
         ->assertInertia(fn (Assert $page) => $page
@@ -61,14 +72,18 @@ test('wsfe service accepts valid equation', function () {
 });
 
 test('consultar ultimo comprobante endpoint validates input', function () {
-    $response = $this->postJson(route('playground.arca.ultimo-comprobante'), []);
+    $superadmin = User::factory()->create(['is_superadmin' => true]);
+
+    $response = $this->actingAs($superadmin)->postJson(route('playground.arca.ultimo-comprobante'), []);
 
     $response->assertStatus(422)
         ->assertJsonValidationErrors(['pto_vta', 'cbte_tipo']);
 });
 
 test('emitir factura endpoint validates required fields', function () {
-    $response = $this->postJson(route('playground.arca.emitir'), []);
+    $superadmin = User::factory()->create(['is_superadmin' => true]);
+
+    $response = $this->actingAs($superadmin)->postJson(route('playground.arca.emitir'), []);
 
     $response->assertStatus(422)
         ->assertJsonValidationErrors(['pto_vta', 'cbte_tipo', 'concepto', 'doc_tipo', 'doc_nro', 'imp_total']);
