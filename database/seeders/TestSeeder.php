@@ -30,6 +30,7 @@ class TestSeeder extends Seeder
         // 1. Ensure BaseSeeder runs first for base system configuration
         $this->call(BaseSeeder::class);
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        Role::whereNull('tenant_id')->where('name', '!=', 'superadmin')->delete();
 
         // 2. Definición de los 4 Comercios (Tenants) con Variación Modular
         $tenantsData = [
@@ -344,24 +345,45 @@ class TestSeeder extends Seeder
             $moduleIds = Module::whereIn('code', $tData['modules'])->pluck('id');
             $tenant->modules()->sync($moduleIds);
 
+            // Set team context for Spatie permissions
+            setPermissionsTeamId($tenant->id);
+
             // Permisos disponibles según módulos activos
             $activePermissions = Permission::whereIn('module_id', $moduleIds)->get();
 
             // Crear Roles específicos para este tenant
-            $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-            $adminSucursalRole = Role::firstOrCreate(['name' => 'Administrador de Sucursal', 'guard_name' => 'web']);
+            $adminRole = Role::firstOrCreate([
+                'name' => 'admin',
+                'guard_name' => 'web',
+                'tenant_id' => $tenant->id,
+            ]);
+            $adminRole->syncPermissions($activePermissions);
+
+            $adminSucursalRole = Role::firstOrCreate([
+                'name' => 'Administrador de Sucursal',
+                'guard_name' => 'web',
+                'tenant_id' => $tenant->id,
+            ]);
             $adminSucursalRole->syncPermissions($activePermissions);
 
             $stockPermissions = $activePermissions->filter(function ($p) {
                 return str_starts_with($p->name, 'productos.') || str_starts_with($p->name, 'stock_');
             });
-            $stockRole = Role::firstOrCreate(['name' => 'Gestor de Stock', 'guard_name' => 'web']);
+            $stockRole = Role::firstOrCreate([
+                'name' => 'Gestor de Stock',
+                'guard_name' => 'web',
+                'tenant_id' => $tenant->id,
+            ]);
             $stockRole->syncPermissions($stockPermissions);
 
             $ventasPermissions = $activePermissions->filter(function ($p) {
                 return str_starts_with($p->name, 'pedidos.') || str_starts_with($p->name, 'clientes.') || $p->name === 'productos.ver' || $p->name === 'stock_minimo.ver';
             });
-            $ventasRole = Role::firstOrCreate(['name' => 'Vendedor / Cajero', 'guard_name' => 'web']);
+            $ventasRole = Role::firstOrCreate([
+                'name' => 'Vendedor / Cajero',
+                'guard_name' => 'web',
+                'tenant_id' => $tenant->id,
+            ]);
             $ventasRole->syncPermissions($ventasPermissions);
 
             // Crear / Actualizar Usuarios del Tenant
@@ -383,6 +405,8 @@ class TestSeeder extends Seeder
                     'tenant_id' => $tenant->id,
                     'email_verified_at' => $user->email_verified_at ?? now(),
                 ]);
+
+                setPermissionsTeamId($tenant->id);
 
                 if ($uData['role'] === 'Administrador de Sucursal') {
                     $user->syncRoles([$adminRole, $adminSucursalRole]);

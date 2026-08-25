@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Module;
 use App\Models\User;
 use Database\Seeders\BaseSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -19,6 +20,17 @@ test('superadmin can view system modules and permissions catalog', function () {
         ->has('modules')
         ->where('modules', fn ($modules) => count($modules) >= 6)
     );
+});
+
+test('superadmin can toggle module active status globally', function () {
+    $module = Module::first();
+    $initialStatus = $module->is_active;
+
+    $response = $this->actingAs($this->superadmin)
+        ->patch(route('platform.modules.toggle-active', $module));
+
+    $response->assertRedirect();
+    expect($module->fresh()->is_active)->toBe(! $initialStatus);
 });
 
 test('regular tenant user cannot access platform modules catalog', function () {
