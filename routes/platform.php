@@ -20,9 +20,6 @@ Route::middleware(['auth', 'verified', 'superadmin'])
         Route::put('tenants/{tenant}', [TenantController::class, 'update'])->name('tenants.update');
         Route::patch('tenants/{tenant}/toggle-active', [TenantController::class, 'toggleActive'])->name('tenants.toggle-active');
 
-        // Modules & Permissions Management
+        // Modules & Permissions (Visualización de Arquitectura Modular del Sistema)
         Route::get('modules', [ModuleController::class, 'index'])->name('modules.index');
-        Route::post('modules', [ModuleController::class, 'store'])->name('modules.store');
-        Route::put('modules/{module}', [ModuleController::class, 'update'])->name('modules.update');
-        Route::patch('modules/{module}/toggle-active', [ModuleController::class, 'toggleActive'])->name('modules.toggle-active');
     });
