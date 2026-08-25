@@ -68,11 +68,13 @@
         orders = [],
         stats = { total: 0, en_preparacion: 0, preparado: 0, en_camino: 0, entregado: 0, cancelado: 0 },
         availableProducts = [],
+        availableCustomers = [],
         filters = {},
     }: {
         orders: OrderData[];
         stats?: Stats;
         availableProducts?: ProductOption[];
+        availableCustomers?: any[];
         filters?: FilterProps;
     } = $props();
 
@@ -203,6 +205,7 @@
 <CreateOrderModal
     bind:open={isCreateModalOpen}
     {availableProducts}
+    {availableCustomers}
 />
 
 <!-- Modal de Detalle de Pedido -->

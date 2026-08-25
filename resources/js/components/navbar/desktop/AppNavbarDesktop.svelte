@@ -9,6 +9,7 @@
     import FileText from 'lucide-svelte/icons/file-text';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import Truck from 'lucide-svelte/icons/truck';
+    import UserCheck from 'lucide-svelte/icons/user-check';
     import Search from 'lucide-svelte/icons/search';
     import AppLogoIcon from '@/components/AppLogoIcon.svelte';
     import UserAvatarDropdown from '@/components/navbar/UserAvatarDropdown.svelte';
@@ -102,6 +103,16 @@
                     href: '/tenant/suppliers',
                     icon: Truck,
                     active: currentUrl.startsWith('/tenant/suppliers'),
+                });
+            }
+
+            // Customers (Clientes module)
+            if (modules.includes('clientes') && (user?.is_superadmin || permissions.includes('clientes.ver'))) {
+                items.push({
+                    title: 'Clientes',
+                    href: '/tenant/customers',
+                    icon: UserCheck,
+                    active: currentUrl.startsWith('/tenant/customers'),
                 });
             }
 

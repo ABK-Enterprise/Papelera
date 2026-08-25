@@ -21,6 +21,10 @@ class StoreCustomerOrderRequest extends FormRequest
         $tenantId = $this->user()->tenant_id;
 
         return [
+            'customer_id' => [
+                'nullable',
+                Rule::exists('customers', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)),
+            ],
             'customer_name' => ['required', 'string', 'max:255'],
             'customer_phone' => ['nullable', 'string', 'max:100'],
             'delivery_address' => ['nullable', 'string', 'max:500'],

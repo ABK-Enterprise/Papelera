@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreCustomerOrderRequest;
 use App\Http\Requests\Tenant\UpdateCustomerOrderStatusRequest;
+use App\Models\Customer;
 use App\Models\CustomerOrder;
 use App\Models\CustomerOrderItem;
 use App\Models\Product;
@@ -24,7 +25,7 @@ class CustomerOrderController extends Controller
         $search = $request->input('search');
         $status = $request->input('status');
 
-        $query = CustomerOrder::with(['items.product:id,name,sku,units_per_package,price'])
+        $query = CustomerOrder::with(['items.product:id,name,sku,units_per_package,price', 'customer:id,name,tax_id,tax_condition,phone,address,is_defaulter'])
             ->when($search, function ($q, $search) {
                 $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
                 $q->where(function ($sub) use ($searchTerm) {
@@ -56,11 +57,18 @@ class CustomerOrderController extends Controller
             ->orderBy('name')
             ->get();
 
+        $availableCustomers = Customer::query()
+            ->where('is_active', true)
+            ->select('id', 'name', 'tax_id', 'tax_condition', 'phone', 'address', 'is_defaulter')
+            ->orderBy('name')
+            ->get();
+
         if ($request->wantsJson()) {
             return response()->json([
                 'orders' => $orders,
                 'stats' => $stats,
                 'available_products' => $availableProducts,
+                'available_customers' => $availableCustomers,
             ]);
         }
 
@@ -68,6 +76,7 @@ class CustomerOrderController extends Controller
             'orders' => $orders,
             'stats' => $stats,
             'availableProducts' => $availableProducts,
+            'availableCustomers' => $availableCustomers,
             'filters' => [
                 'search' => $search,
                 'status' => $status ?: 'all',
@@ -128,6 +137,7 @@ class CustomerOrderController extends Controller
 
             $order = CustomerOrder::create([
                 'tenant_id' => $tenantId,
+                'customer_id' => $request->validated('customer_id'),
                 'order_number' => $orderNumber,
                 'customer_name' => $request->validated('customer_name'),
                 'customer_phone' => $request->validated('customer_phone'),

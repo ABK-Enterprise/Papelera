@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Tenant\CategoryController;
+use App\Http\Controllers\Tenant\CustomerController;
 use App\Http\Controllers\Tenant\CustomerOrderController;
 use App\Http\Controllers\Tenant\ProductController;
 use App\Http\Controllers\Tenant\RoleController;
@@ -57,6 +58,14 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('suppliers/orders', [SupplierOrderController::class, 'store'])->name('suppliers.orders.store')->middleware('tenant.permission:proveedores.pedidos.crear');
             Route::patch('suppliers/orders/{supplierOrder}/receive', [SupplierOrderController::class, 'receive'])->name('suppliers.orders.receive')->middleware('tenant.permission:proveedores.pedidos.recibir');
             Route::patch('suppliers/orders/{supplierOrder}/cancel', [SupplierOrderController::class, 'cancel'])->name('suppliers.orders.cancel')->middleware('tenant.permission:proveedores.pedidos.cancelar');
+        });
+
+        // Customers (Clientes module)
+        Route::middleware('module:clientes')->group(function () {
+            Route::get('customers', [CustomerController::class, 'index'])->name('customers.index')->middleware('tenant.permission:clientes.ver');
+            Route::post('customers', [CustomerController::class, 'store'])->name('customers.store')->middleware('tenant.permission:clientes.crear');
+            Route::put('customers/{customer}', [CustomerController::class, 'update'])->name('customers.update')->middleware('tenant.permission:clientes.editar');
+            Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy')->middleware('tenant.permission:clientes.eliminar');
         });
 
         // Customer Orders (Pedidos module)

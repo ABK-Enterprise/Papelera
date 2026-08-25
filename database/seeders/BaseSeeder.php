@@ -81,6 +81,17 @@ class BaseSeeder extends Seeder
                 ],
             ],
             [
+                'name' => SystemModule::Clientes->label(),
+                'code' => SystemModule::Clientes->value,
+                'description' => 'Gestión de cartera de clientes, condiciones fiscales, límites de crédito y morosidad.',
+                'permissions' => [
+                    'clientes.ver',
+                    'clientes.crear',
+                    'clientes.editar',
+                    'clientes.eliminar',
+                ],
+            ],
+            [
                 'name' => SystemModule::Pedidos->label(),
                 'code' => SystemModule::Pedidos->value,
                 'description' => 'Gestión de pedidos de clientes, ventas con bolsones, trazabilidad logística y kardex.',
@@ -128,13 +139,7 @@ class BaseSeeder extends Seeder
         }
 
         // Clean up legacy/dummy modules that are not active
-        Module::whereNotIn('code', [
-            SystemModule::Productos->value,
-            SystemModule::Stock->value,
-            SystemModule::Proveedores->value,
-            SystemModule::Pedidos->value,
-            SystemModule::FacturacionArca->value,
-        ])->delete();
+        Module::whereNotIn('code', array_column($modules, 'code'))->delete();
 
         // 3. Default Demo Tenant with active modules
         $tenant = Tenant::firstOrCreate([

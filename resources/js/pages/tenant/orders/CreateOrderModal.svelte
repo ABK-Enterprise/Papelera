@@ -12,6 +12,8 @@
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import User from 'lucide-svelte/icons/user';
+    import UserCheck from 'lucide-svelte/icons/user-check';
+    import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import X from 'lucide-svelte/icons/x';
     import AlertCircle from 'lucide-svelte/icons/alert-circle';
     import CreatePackageModal, {
@@ -26,6 +28,16 @@
         price: string | number;
         stock: number;
         units_per_package: number;
+    }
+
+    export interface CustomerOption {
+        id: number;
+        name: string;
+        tax_id: string | null;
+        tax_condition: string;
+        phone: string | null;
+        address: string | null;
+        is_defaulter: boolean;
     }
 
     export interface OrderItemLine {
@@ -46,10 +58,17 @@
     let {
         open = $bindable(false),
         availableProducts = [],
+        availableCustomers = [],
     }: {
         open: boolean;
         availableProducts: ProductOption[];
+        availableCustomers?: CustomerOption[];
     } = $props();
+
+    let selectedCustomerId = $state<number | null>(null);
+    let selectedCustomer = $state<CustomerOption | null>(null);
+    let customerSearchQuery = $state('');
+    let isCustomerSearchOpen = $state(false);
 
     let customerName = $state('');
     let customerPhone = $state('');
@@ -101,6 +120,48 @@
             .filter((p) => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)))
             .slice(0, 5);
     });
+
+    let customerSearchResults = $derived.by(() => {
+        const q = customerSearchQuery.toLowerCase().trim();
+        if (!q) {
+            return availableCustomers.slice(0, 5);
+        }
+        return availableCustomers
+            .filter((c) =>
+                c.name.toLowerCase().includes(q) ||
+                (c.tax_id && c.tax_id.toLowerCase().includes(q)) ||
+                (c.phone && c.phone.toLowerCase().includes(q))
+            )
+            .slice(0, 5);
+    });
+
+    function selectCustomerFromSearch(cust: CustomerOption) {
+        selectedCustomerId = cust.id;
+        selectedCustomer = cust;
+        customerName = cust.name;
+        customerSearchQuery = cust.name;
+        customerPhone = cust.phone ?? '';
+        deliveryAddress = cust.address ?? '';
+        isCustomerSearchOpen = false;
+    }
+
+    function selectUnregisteredCustomer(typedName: string) {
+        selectedCustomerId = null;
+        selectedCustomer = null;
+        customerName = typedName;
+        customerSearchQuery = typedName;
+        isCustomerSearchOpen = false;
+    }
+
+    function clearCustomerSelection() {
+        selectedCustomerId = null;
+        selectedCustomer = null;
+        customerName = '';
+        customerSearchQuery = '';
+        customerPhone = '';
+        deliveryAddress = '';
+        isCustomerSearchOpen = false;
+    }
 
     function selectProductFromSearch(prod: ProductOption) {
         selectedProductToAdd = prod;
@@ -267,9 +328,13 @@
     });
 
     function resetForm() {
+        selectedCustomerId = null;
+        selectedCustomer = null;
         customerName = '';
+        customerSearchQuery = '';
         customerPhone = '';
         deliveryAddress = '';
+        isCustomerSearchOpen = false;
         notes = '';
         errorMessage = null;
         searchQuery = '';
@@ -350,6 +415,7 @@
         router.post(
             '/tenant/orders',
             {
+                customer_id: selectedCustomerId,
                 customer_name: customerName.trim(),
                 customer_phone: customerPhone.trim() || null,
                 delivery_address: deliveryAddress.trim() || null,
@@ -410,14 +476,119 @@
             {/if}
 
             <form onsubmit={handleSubmit} class="space-y-4 overflow-y-auto pr-1 flex-1">
-                <!-- Bento Card 1: Datos del Cliente -->
-                <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                        <User class="size-3.5 text-primary" />
-                        Datos del Cliente
-                    </h3>
+                <!-- Bento Card 1: Datos del Cliente con Autocomplete Flotante (máx 5 items) -->
+                <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3 relative">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                            <User class="size-3.5 text-primary" />
+                            Datos del Cliente
+                        </h3>
+                        {#if selectedCustomer}
+                            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                                <UserCheck class="size-3" />
+                                Cliente Registrado #{selectedCustomer.id}
+                            </span>
+                        {/if}
+                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <!-- Buscador Autocomplete de Clientes (Máx 5 Sugerencias) -->
+                    <div class="relative">
+                        <Label for="cust-search" class="text-xs font-semibold text-foreground mb-1 block">
+                            Buscar en Directorio de Clientes o Escribir Nombre
+                        </Label>
+                        <div class="relative">
+                            <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                            <Input
+                                id="cust-search"
+                                bind:value={customerSearchQuery}
+                                onfocus={() => (isCustomerSearchOpen = true)}
+                                oninput={() => {
+                                    isCustomerSearchOpen = true;
+                                    customerName = customerSearchQuery;
+                                    if (selectedCustomer && selectedCustomer.name !== customerSearchQuery) {
+                                        selectedCustomerId = null;
+                                        selectedCustomer = null;
+                                    }
+                                }}
+                                placeholder="Escribe el nombre, CUIT o teléfono del cliente para buscar..."
+                                class="h-9 text-xs pl-9 pr-8"
+                            />
+                            {#if customerSearchQuery}
+                                <button
+                                    type="button"
+                                    onclick={clearCustomerSelection}
+                                    class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5"
+                                    aria-label="Limpiar cliente"
+                                >
+                                    <X class="size-3.5" />
+                                </button>
+                            {/if}
+                        </div>
+
+                        <!-- Dropdown flotante z-50 -->
+                        {#if isCustomerSearchOpen && (customerSearchResults.length > 0 || customerSearchQuery.trim())}
+                            <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-xl border border-border/80 shadow-2xl z-50 overflow-hidden divide-y divide-border/40 max-h-60 overflow-y-auto">
+                                {#each customerSearchResults as cust (cust.id)}
+                                    <button
+                                        type="button"
+                                        onclick={() => selectCustomerFromSearch(cust)}
+                                        class="w-full text-left px-3.5 py-2.5 hover:bg-muted/60 transition-colors flex items-center justify-between gap-3 text-xs"
+                                    >
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <span class="font-bold text-foreground truncate">{cust.name}</span>
+                                                {#if cust.is_defaulter}
+                                                    <span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[10px] font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">
+                                                        <AlertTriangle class="size-2.5" />
+                                                        Moroso
+                                                    </span>
+                                                {/if}
+                                                {#if cust.tax_id}
+                                                    <span class="font-mono text-[10px] bg-muted px-1.5 py-0.2 rounded text-muted-foreground">
+                                                        CUIT: {cust.tax_id}
+                                                    </span>
+                                                {/if}
+                                            </div>
+                                            {#if cust.phone || cust.address}
+                                                <div class="text-[11px] text-muted-foreground mt-0.5 truncate flex items-center gap-2">
+                                                    {#if cust.phone}
+                                                        <span>Tel: {cust.phone}</span>
+                                                    {/if}
+                                                    {#if cust.address}
+                                                        <span>• {cust.address}</span>
+                                                    {/if}
+                                                </div>
+                                            {/if}
+                                        </div>
+                                        <div class="shrink-0 text-[11px] font-semibold text-primary">
+                                            Seleccionar
+                                        </div>
+                                    </button>
+                                {/each}
+
+                                {#if customerSearchQuery.trim() && !customerSearchResults.some((c) => c.name.toLowerCase() === customerSearchQuery.toLowerCase().trim())}
+                                    <button
+                                        type="button"
+                                        onclick={() => selectUnregisteredCustomer(customerSearchQuery.trim())}
+                                        class="w-full text-left px-3.5 py-2 hover:bg-primary/10 transition-colors flex items-center gap-2 text-xs font-semibold text-primary"
+                                    >
+                                        <Plus class="size-3.5" />
+                                        <span>Usar como cliente no registrado: "{customerSearchQuery.trim()}"</span>
+                                    </button>
+                                {/if}
+                            </div>
+                        {/if}
+                    </div>
+
+                    <!-- Alerta de Morosidad si el cliente seleccionado tiene deuda -->
+                    {#if selectedCustomer?.is_defaulter}
+                        <div class="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-400 text-xs flex items-center gap-2">
+                            <AlertTriangle class="size-4 shrink-0 text-rose-600" />
+                            <span><strong>Atención:</strong> El cliente seleccionado ({selectedCustomer.name}) está registrado con saldo pendiente o mora. Puedes continuar con el pedido si cuenta con autorización comercial.</span>
+                        </div>
+                    {/if}
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                         <div class="space-y-1">
                             <Label for="cust-name" class="text-xs font-semibold text-foreground">
                                 Nombre / Razón Social <span class="text-destructive">*</span>
@@ -426,7 +597,7 @@
                                 id="cust-name"
                                 bind:value={customerName}
                                 placeholder="ej. Ana García / Librería Central"
-                                class="h-9 text-xs"
+                                class="h-9 text-xs font-medium"
                                 required
                             />
                         </div>
