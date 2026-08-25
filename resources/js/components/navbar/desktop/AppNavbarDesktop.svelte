@@ -67,7 +67,7 @@
         // Tenant modular navigation (Zero-Trust)
         if (tenant) {
             // Products catalog (Productos module)
-            if (modules.includes('productos') && (user?.is_superadmin || permissions.includes('productos.ver'))) {
+            if (modules.includes('productos') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('productos.ver'))) {
                 items.push({
                     title: 'Productos',
                     href: '/tenant/products',
@@ -77,7 +77,7 @@
             }
 
             // Stock & Kardex (Stock module)
-            if (modules.includes('stock') && (user?.is_superadmin || permissions.some((p: string) => p.startsWith('stock_')))) {
+            if (modules.includes('stock') && (roles.includes('admin') || user?.is_superadmin || permissions.some((p: string) => p.startsWith('stock_')))) {
                 items.push({
                     title: 'Stock',
                     href: '/tenant/stock/ingresos',
@@ -87,7 +87,7 @@
             }
 
             // Customer Orders (Pedidos module)
-            if (modules.includes('pedidos') && (user?.is_superadmin || permissions.includes('pedidos.ver'))) {
+            if (modules.includes('pedidos') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('pedidos.ver'))) {
                 items.push({
                     title: 'Pedidos',
                     href: '/tenant/orders',
@@ -97,7 +97,7 @@
             }
 
             // Suppliers (Proveedores module)
-            if (modules.includes('proveedores') && (user?.is_superadmin || permissions.includes('proveedores.ver') || permissions.includes('proveedores.pedidos.ver'))) {
+            if (modules.includes('proveedores') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('proveedores.ver') || permissions.includes('proveedores.pedidos.ver'))) {
                 items.push({
                     title: 'Proveedores',
                     href: '/tenant/suppliers',
@@ -107,7 +107,7 @@
             }
 
             // Customers (Clientes module)
-            if (modules.includes('clientes') && (user?.is_superadmin || permissions.includes('clientes.ver'))) {
+            if (modules.includes('clientes') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('clientes.ver'))) {
                 items.push({
                     title: 'Clientes',
                     href: '/tenant/customers',
@@ -135,7 +135,7 @@
             }
 
             // Facturación ARCA
-            if (modules.includes('facturacion_arca') && (user?.is_superadmin || permissions.some((p: string) => p.startsWith('facturas.')))) {
+            if (modules.includes('facturacion_arca') && (roles.includes('admin') || user?.is_superadmin || permissions.some((p: string) => p.startsWith('facturas.')))) {
                 items.push({
                     title: 'Facturación ARCA',
                     href: '/playground/arca',
@@ -150,7 +150,7 @@
 </script>
 
 <header class="w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-[0px_4px_20px_rgba(0,0,0,0.02)]">
-    <div class="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+    <div class="w-full flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <!-- Extremo Izquierdo: Solo Isotipo de la Aplicación -->
         <div class="flex items-center">
             <Link

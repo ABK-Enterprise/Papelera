@@ -166,7 +166,9 @@ class BaseSeeder extends Seeder
             SystemModule::Productos->value,
             SystemModule::Stock->value,
             SystemModule::Proveedores->value,
+            SystemModule::Clientes->value,
             SystemModule::Pedidos->value,
+            SystemModule::FacturacionArca->value,
         ])->pluck('id');
         $activePermissions = Permission::whereIn('module_id', $activeModuleIds)->get();
         $adminRole->syncPermissions($activePermissions);
