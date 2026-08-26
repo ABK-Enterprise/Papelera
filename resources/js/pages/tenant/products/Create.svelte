@@ -121,12 +121,12 @@
                 />
             </div>
 
-            <!-- Resumen de Bolsón -->
+            <!-- Resumen de Bulto -->
             <div class="mt-5 p-4 rounded-2xl bg-primary/5 border border-primary/20 space-y-2.5">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
                         <Sparkles class="size-3.5" />
-                        Cálculo de Bolsón
+                        Cálculo de Bulto
                     </span>
                     {#if form.is_active}
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
@@ -141,13 +141,15 @@
 
                 <div class="grid grid-cols-2 gap-3 pt-1 text-xs">
                     <div>
-                        <span class="text-[10px] text-muted-foreground block">Unidades / Bolsón</span>
+                        <span class="text-[10px] text-muted-foreground block">
+                            {form.sale_type === 'weight' ? 'Kg por Bulto' : 'Unidades por Bulto'}
+                        </span>
                         <span class="font-bold text-foreground">
-                            {form.units_per_package || 1} {Number(form.units_per_package) === 1 ? 'unidad' : 'unidades'}
+                            {form.package_quantity || form.units_per_package || 1} {form.sale_type === 'weight' ? 'Kg' : (Number(form.units_per_package) === 1 ? 'unidad' : 'unidades')}
                         </span>
                     </div>
                     <div>
-                        <span class="text-[10px] text-muted-foreground block">Precio del Bolsón</span>
+                        <span class="text-[10px] text-muted-foreground block">Precio del Bulto</span>
                         <span class="font-bold font-mono text-primary">
                             {formatPrice(calculatedPackagePrice)}
                         </span>
