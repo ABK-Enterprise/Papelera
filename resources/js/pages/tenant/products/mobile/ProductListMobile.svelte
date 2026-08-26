@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Link, router } from '@inertiajs/svelte';
     import { Button } from '@/components/ui/button';
+    import AppPagination from '@/components/common/AppPagination.svelte';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Edit2 from 'lucide-svelte/icons/edit-2';
@@ -30,6 +31,10 @@
     }: {
         products: ProductItem[];
     } = $props();
+
+    let page = $state(1);
+    const perPage = 6;
+    let paginatedProducts = $derived(products.slice((page - 1) * perPage, page * perPage));
 
     let productToDelete = $state<ProductItem | null>(null);
     let isDeleteModalOpen = $state(false);
@@ -62,7 +67,7 @@
 </script>
 
 <div class="flex flex-col gap-3">
-    {#each products as product (product.id)}
+    {#each paginatedProducts as product (product.id)}
         {@const isIncomplete = product.is_incomplete ?? (!product.category || Number(product.price) <= 0)}
         <div class="flex items-center gap-3.5 rounded-xl border {isIncomplete ? 'border-amber-500/40 bg-amber-500/5' : 'border-border/70 bg-card'} p-3 shadow-sm">
             <div class="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted/60 border border-border/40 flex items-center justify-center">
@@ -148,6 +153,10 @@
                 <Button size="sm">+ Nuevo Producto</Button>
             </Link>
         </div>
+    {/if}
+
+    {#if products.length > perPage}
+        <AppPagination count={products.length} {perPage} bind:page />
     {/if}
 </div>
 

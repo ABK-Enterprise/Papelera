@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
+    import AppPagination from '@/components/common/AppPagination.svelte';
     import UserCheck from 'lucide-svelte/icons/user-check';
     import Phone from 'lucide-svelte/icons/phone';
     import Mail from 'lucide-svelte/icons/mail';
@@ -37,6 +38,10 @@
         onOpenCreate: () => void;
     } = $props();
 
+    let page = $state(1);
+    const perPage = 10;
+    let paginatedCustomers = $derived(customers.slice((page - 1) * perPage, page * perPage));
+
     function formatCurrency(val: number | string) {
         const num = Number(val) || 0;
         return new Intl.NumberFormat('es-AR', {
@@ -73,7 +78,7 @@
 </script>
 
 <div class="flex flex-col gap-3.5">
-    {#each customers as customer (customer.id)}
+    {#each paginatedCustomers as customer (customer.id)}
         <div
             class="bento-card group flex items-center justify-between gap-6 rounded-xl border border-border/60 bg-card p-5 shadow-[0px_10px_30px_rgba(0,0,0,0.02)] transition-all duration-200 hover:border-primary/40 hover:shadow-md hover:bg-muted/10 cursor-pointer"
             onclick={() => onSelectCustomer(customer)}
@@ -210,5 +215,9 @@
                 Añadir Primer Cliente
             </Button>
         </div>
+    {/if}
+
+    {#if customers.length > perPage}
+        <AppPagination count={customers.length} {perPage} bind:page />
     {/if}
 </div>

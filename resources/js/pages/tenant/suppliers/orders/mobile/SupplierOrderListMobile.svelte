@@ -1,4 +1,5 @@
 <script lang="ts">
+    import AppPagination from '@/components/common/AppPagination.svelte';
     import Calendar from 'lucide-svelte/icons/calendar';
     import Package from 'lucide-svelte/icons/package';
     import Truck from 'lucide-svelte/icons/truck';
@@ -36,6 +37,10 @@
         onSelectOrder: (order: SupplierOrderData) => void;
     } = $props();
 
+    let page = $state(1);
+    const perPage = 6;
+    let paginatedOrders = $derived(orders.slice((page - 1) * perPage, page * perPage));
+
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
             style: 'currency',
@@ -58,7 +63,7 @@
 </script>
 
 <div class="flex flex-col gap-3">
-    {#each orders as order (order.id)}
+    {#each paginatedOrders as order (order.id)}
         <div
             class="flex flex-col gap-2.5 rounded-xl border border-border/70 bg-card p-3.5 shadow-sm cursor-pointer hover:border-primary/40 transition-colors"
             onclick={() => onSelectOrder(order)}
@@ -111,5 +116,9 @@
             <Package class="mx-auto size-10 text-muted-foreground/50 mb-2" />
             <p class="text-xs text-muted-foreground">No se encontraron órdenes de compra.</p>
         </div>
+    {/if}
+
+    {#if orders.length > perPage}
+        <AppPagination count={orders.length} {perPage} bind:page />
     {/if}
 </div>

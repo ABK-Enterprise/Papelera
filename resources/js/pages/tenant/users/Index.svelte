@@ -3,8 +3,9 @@
     import { Button } from '@/components/ui/button';
     import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
     import { Badge } from '@/components/ui/badge';
+    import AppPagination from '@/components/common/AppPagination.svelte';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
-    import { Link, router, page } from '@inertiajs/svelte';
+    import { Link, router, page as inertiaPage } from '@inertiajs/svelte';
     import UserPlus from 'lucide-svelte/icons/user-plus';
     import Shield from 'lucide-svelte/icons/shield';
     import Trash2 from 'lucide-svelte/icons/trash-2';
@@ -25,7 +26,11 @@
 
     let { users = [] }: { users: UserItem[] } = $props();
 
-    let currentUser = $derived(page.props.auth?.user);
+    let page = $state(1);
+    const perPage = 9;
+    let paginatedUsers = $derived(users.slice((page - 1) * perPage, page * perPage));
+
+    let currentUser = $derived(inertiaPage.props.auth?.user);
     let userToDelete = $state<UserItem | null>(null);
     let isDeleteModalOpen = $state(false);
     let isDeleting = $state(false);
@@ -75,7 +80,7 @@
     </div>
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {#each users as user (user.id)}
+        {#each paginatedUsers as user (user.id)}
             <Card class="flex flex-col justify-between transition-all hover:shadow-md">
                 <CardHeader class="pb-3">
                     <div class="flex items-start justify-between gap-2">
@@ -140,6 +145,10 @@
             </div>
         {/if}
     </div>
+
+    {#if users.length > perPage}
+        <AppPagination count={users.length} {perPage} bind:page />
+    {/if}
 </div>
 
 <!-- Modal de Confirmación de Eliminación de Empleado -->
