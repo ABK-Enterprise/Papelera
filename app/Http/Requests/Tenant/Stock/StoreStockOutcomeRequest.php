@@ -28,7 +28,7 @@ class StoreStockOutcomeRequest extends FormRequest
                     $query->where('tenant_id', $tenantId);
                 }),
             ],
-            'quantity' => ['required', 'integer', 'min:1'],
+            'quantity' => ['required', 'numeric', 'min:0.001'],
             'reason' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];

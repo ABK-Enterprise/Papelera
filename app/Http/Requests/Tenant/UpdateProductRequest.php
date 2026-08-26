@@ -22,6 +22,7 @@ class UpdateProductRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255'],
+            'sale_type' => ['nullable', 'string', 'in:unit,weight'],
             'category_id' => [
                 'nullable',
                 Rule::exists('categories', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)),
@@ -32,9 +33,10 @@ class UpdateProductRequest extends FormRequest
             'price' => ['required', 'numeric', 'min:0'],
             'cost_price' => ['nullable', 'numeric', 'min:0'],
             'iva_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'stock' => ['nullable', 'integer', 'min:0'],
-            'min_stock' => ['nullable', 'integer', 'min:0'],
-            'units_per_package' => ['nullable', 'integer', 'min:1'],
+            'stock' => ['nullable', 'numeric', 'min:0'],
+            'min_stock' => ['nullable', 'numeric', 'min:0'],
+            'units_per_package' => ['nullable', 'numeric', 'min:0.001'],
+            'package_quantity' => ['nullable', 'numeric', 'min:0.001'],
             'image_url' => ['nullable', 'string', 'max:1000'],
             'is_active' => ['boolean'],
         ];

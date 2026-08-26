@@ -31,11 +31,23 @@ class ProductFactory extends Factory
             'price' => fake()->randomFloat(2, 50, 5000),
             'cost_price' => fake()->randomFloat(2, 20, 2500),
             'iva_rate' => 21.00,
+            'sale_type' => 'unit',
             'stock' => fake()->numberBetween(10, 100),
             'min_stock' => 5,
+            'units_per_package' => 1,
+            'package_quantity' => 1,
             'image_url' => null,
             'is_active' => true,
         ];
+    }
+
+    public function weighable(float $packageWeightKg = 10.0): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'sale_type' => 'weight',
+            'package_quantity' => $packageWeightKg,
+            'units_per_package' => $packageWeightKg,
+        ]);
     }
 
     public function forTenant(Tenant $tenant): static

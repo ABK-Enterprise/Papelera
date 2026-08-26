@@ -8,6 +8,7 @@
     import Minus from 'lucide-svelte/icons/minus';
     import Package from 'lucide-svelte/icons/package';
     import Plus from 'lucide-svelte/icons/plus';
+    import Scale from 'lucide-svelte/icons/scale';
     import Search from 'lucide-svelte/icons/search';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import Trash2 from 'lucide-svelte/icons/trash-2';
@@ -21,9 +22,11 @@
         id: number;
         name: string;
         sku: string | null;
+        sale_type?: 'unit' | 'weight';
         price: string | number;
         stock: number;
         units_per_package: number;
+        package_quantity?: number;
     }
 
     export interface CustomerOption {
@@ -41,11 +44,13 @@
         product_id: number;
         product_name: string;
         sku?: string | null;
+        sale_type: 'unit' | 'weight';
         stock: number;
-        packaging_type: 'unidad' | 'bulto';
+        packaging_type: 'unidad' | 'bulto' | 'gram' | 'kg';
         quantity: number;
         unit_price: number;
         units_per_package: number;
+        package_quantity: number;
     }
 
     let {
@@ -77,12 +82,29 @@
 
     let items = $state<OrderItemLine[]>([]);
 
+    function getItemQuantityBase(it: OrderItemLine): number {
+        if (it.sale_type === 'weight') {
+            if (it.packaging_type === 'gram') {
+                return it.quantity / 1000;
+            }
+            if (it.packaging_type === 'bulto') {
+                return it.quantity * (it.package_quantity || it.units_per_package || 1);
+            }
+            return it.quantity;
+        } else {
+            if (it.packaging_type === 'bulto') {
+                return it.quantity * (it.units_per_package || 1);
+            }
+            return it.quantity;
+        }
+    }
+
     let usedStockMap = $derived.by(() => {
         const map: Record<number, number> = {};
         for (const it of items) {
             if (it.product_id) {
-                const ratio = it.packaging_type === 'bulto' ? (it.units_per_package || 1) : 1;
-                map[it.product_id] = (map[it.product_id] || 0) + (it.quantity * ratio);
+                const baseQty = getItemQuantityBase(it);
+                map[it.product_id] = (map[it.product_id] || 0) + baseQty;
             }
         }
         return map;
@@ -168,7 +190,14 @@
 
         errorMessage = null;
 
-        const existingIndex = items.findIndex((it) => it.product_id === prod.id && it.packaging_type === 'unidad');
+        const isWeighable = prod.sale_type === 'weight';
+        const defaultPackaging = isWeighable ? 'kg' : 'unidad';
+        const defaultQuantity = isWeighable ? (remainingStock >= 1 ? 1 : Math.round(remainingStock * 1000) / 1000) : 1;
+
+        const existingIndex = items.findIndex(
+            (it) => it.product_id === prod.id && it.packaging_type === defaultPackaging
+        );
+
         if (existingIndex !== -1) {
             incrementQuantity(existingIndex);
         } else {
@@ -179,11 +208,13 @@
                     product_id: prod.id,
                     product_name: prod.name,
                     sku: prod.sku,
+                    sale_type: prod.sale_type ?? 'unit',
                     stock: prod.stock,
-                    packaging_type: 'unidad',
-                    quantity: 1,
+                    packaging_type: defaultPackaging,
+                    quantity: defaultQuantity,
                     unit_price: Number(prod.price),
                     units_per_package: prod.units_per_package || 1,
+                    package_quantity: prod.package_quantity || prod.units_per_package || 1,
                 },
             ];
         }
@@ -200,46 +231,116 @@
         const targetItem = items[index];
         if (!targetItem) return 1;
 
-        const consumedByOthers: Record<number, number> = {};
+        let consumedByOthers = 0;
         items.forEach((it, idx) => {
             if (idx === index) return;
-            if (it.product_id) {
-                const ratio = it.packaging_type === 'bulto' ? (it.units_per_package || 1) : 1;
-                consumedByOthers[it.product_id] = (consumedByOthers[it.product_id] || 0) + (it.quantity * ratio);
+            if (it.product_id === targetItem.product_id) {
+                consumedByOthers += getItemQuantityBase(it);
             }
         });
 
         const prod = availableProducts.find((p) => p.id === targetItem.product_id);
         const totalStock = prod ? prod.stock : targetItem.stock;
-        const freeStock = Math.max(0, totalStock - (consumedByOthers[targetItem.product_id] || 0));
-        const ratio = targetItem.packaging_type === 'bulto' ? (targetItem.units_per_package || 1) : 1;
-        return Math.max(1, Math.floor(freeStock / ratio));
+        const freeStock = Math.max(0, totalStock - consumedByOthers);
+
+        if (targetItem.sale_type === 'weight') {
+            if (targetItem.packaging_type === 'gram') {
+                return Math.floor(freeStock * 1000);
+            }
+            if (targetItem.packaging_type === 'bulto') {
+                const pkgSize = targetItem.package_quantity || targetItem.units_per_package || 1;
+                return Math.max(1, Math.floor(freeStock / pkgSize));
+            }
+            return freeStock;
+        } else {
+            const ratio = targetItem.packaging_type === 'bulto' ? (targetItem.units_per_package || 1) : 1;
+            return Math.max(1, Math.floor(freeStock / ratio));
+        }
     }
 
     function incrementQuantity(index: number) {
         const item = items[index];
         const max = getMaxAllowedQuantityForItem(index);
-        if (item.quantity < max) {
-            item.quantity += 1;
-            errorMessage = null;
+
+        if (item.sale_type === 'weight') {
+            if (item.packaging_type === 'gram') {
+                const step = 50;
+                if (item.quantity + step <= max) {
+                    item.quantity += step;
+                    errorMessage = null;
+                } else {
+                    item.quantity = max;
+                    errorMessage = `Se alcanzó el límite de stock para "${item.product_name}".`;
+                }
+            } else if (item.packaging_type === 'kg') {
+                const step = 0.5;
+                if (item.quantity + step <= max) {
+                    item.quantity = Math.round((item.quantity + step) * 1000) / 1000;
+                    errorMessage = null;
+                } else {
+                    item.quantity = max;
+                    errorMessage = `Se alcanzó el límite de stock para "${item.product_name}".`;
+                }
+            } else {
+                if (item.quantity < max) {
+                    item.quantity += 1;
+                    errorMessage = null;
+                } else {
+                    errorMessage = `Se alcanzó el límite de bultos disponibles para "${item.product_name}".`;
+                }
+            }
         } else {
-            errorMessage = `Se alcanzó el límite de stock disponible para "${item.product_name}".`;
+            if (item.quantity < max) {
+                item.quantity += 1;
+                errorMessage = null;
+            } else {
+                errorMessage = `Se alcanzó el límite de stock disponible para "${item.product_name}".`;
+            }
         }
     }
 
     function decrementQuantity(index: number) {
-        if (items[index].quantity > 1) {
-            items[index].quantity -= 1;
-            errorMessage = null;
+        const item = items[index];
+        if (item.sale_type === 'weight') {
+            if (item.packaging_type === 'gram') {
+                if (item.quantity > 50) {
+                    item.quantity -= 50;
+                    errorMessage = null;
+                }
+            } else if (item.packaging_type === 'kg') {
+                if (item.quantity > 0.5) {
+                    item.quantity = Math.round((item.quantity - 0.5) * 1000) / 1000;
+                    errorMessage = null;
+                }
+            } else {
+                if (item.quantity > 1) {
+                    item.quantity -= 1;
+                    errorMessage = null;
+                }
+            }
+        } else {
+            if (item.quantity > 1) {
+                item.quantity -= 1;
+                errorMessage = null;
+            }
         }
     }
 
-    function handlePackagingChange(index: number, newType: 'unidad' | 'bulto') {
+    function handlePackagingChange(index: number, newType: 'unidad' | 'bulto' | 'gram' | 'kg') {
         const item = items[index];
         item.packaging_type = newType;
+
+        if (newType === 'gram') {
+            item.quantity = 500;
+        } else if (newType === 'kg') {
+            item.quantity = 1;
+        } else {
+            item.quantity = 1;
+        }
+
         const max = getMaxAllowedQuantityForItem(index);
         if (item.quantity > max) {
-            item.quantity = Math.max(1, max);
+            item.quantity = Math.max(newType === 'gram' ? 50 : 1, max);
         }
     }
 
@@ -254,8 +355,8 @@
     let computedTotal = $derived.by(() => {
         let total = 0;
         for (const it of items) {
-            const ratio = it.packaging_type === 'bulto' ? (it.units_per_package || 1) : 1;
-            total += it.quantity * ratio * it.unit_price;
+            const baseQty = getItemQuantityBase(it);
+            total += baseQty * it.unit_price;
         }
         return total;
     });
@@ -299,7 +400,7 @@
 
         const payloadItems: {
             product_id: number;
-            packaging_type: 'unidad' | 'bulto';
+            packaging_type: 'unidad' | 'bulto' | 'gram' | 'kg';
             quantity: number;
         }[] = [];
 
@@ -315,12 +416,30 @@
         const totalDemands: Record<number, number> = {};
         for (const pItem of payloadItems) {
             const prod = availableProducts.find((p) => p.id === pItem.product_id);
-            const ratio = pItem.packaging_type === 'bulto' ? (prod?.units_per_package || 1) : 1;
-            const requiredUnits = pItem.quantity * ratio;
-            totalDemands[pItem.product_id] = (totalDemands[pItem.product_id] || 0) + requiredUnits;
+            const isWeighable = prod?.sale_type === 'weight';
+            let requiredBase = 0;
+
+            if (isWeighable) {
+                if (pItem.packaging_type === 'gram') {
+                    requiredBase = pItem.quantity / 1000;
+                } else if (pItem.packaging_type === 'bulto') {
+                    requiredBase = pItem.quantity * (prod?.package_quantity || prod?.units_per_package || 1);
+                } else {
+                    requiredBase = pItem.quantity;
+                }
+            } else {
+                if (pItem.packaging_type === 'bulto') {
+                    requiredBase = pItem.quantity * (prod?.units_per_package || 1);
+                } else {
+                    requiredBase = pItem.quantity;
+                }
+            }
+
+            totalDemands[pItem.product_id] = (totalDemands[pItem.product_id] || 0) + requiredBase;
 
             if (prod && totalDemands[pItem.product_id] > prod.stock) {
-                errorMessage = `Stock insuficiente para "${prod.name}". Requerido en total: ${totalDemands[pItem.product_id]}, Disponible: ${prod.stock}.`;
+                const unitLabel = isWeighable ? 'kg' : 'unidades';
+                errorMessage = `Stock insuficiente para "${prod.name}". Requerido en total: ${totalDemands[pItem.product_id]} ${unitLabel}, Disponible: ${prod.stock} ${unitLabel}.`;
                 isSubmitting = false;
                 return;
             }
@@ -379,7 +498,7 @@
                             Nuevo Pedido de Cliente
                         </h2>
                         <p class="text-xs text-muted-foreground">
-                            Selecciona cliente, añade productos por unidades o bultos y confirma el pedido.
+                            Selecciona cliente, añade productos por unidades, pesaje (g/Kg) o bultos y confirma el pedido.
                         </p>
                     </div>
                 </div>
@@ -621,9 +740,19 @@
                                                             {prod.sku}
                                                         </span>
                                                     {/if}
+                                                    {#if prod.sale_type === 'weight'}
+                                                        <span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-sky-600 bg-sky-500/10 px-1 py-0.2 rounded border border-sky-500/20">
+                                                            <Scale class="size-2.5" />
+                                                            Pesaje
+                                                        </span>
+                                                    {/if}
                                                 </div>
                                                 <p class="text-[11px] text-muted-foreground mt-0.5">
-                                                    Stock: <span class="font-bold {prod.stock > 0 ? 'text-foreground' : 'text-destructive'}">{prod.stock}u</span> • Bulto: x{prod.units_per_package}u
+                                                    {#if prod.sale_type === 'weight'}
+                                                        Stock: <span class="font-bold {prod.stock > 0 ? 'text-foreground' : 'text-destructive'}">{prod.stock} Kg</span> • Bulto: {prod.package_quantity || prod.units_per_package || 1} Kg
+                                                    {:else}
+                                                        Stock: <span class="font-bold {prod.stock > 0 ? 'text-foreground' : 'text-destructive'}">{prod.stock} u</span> • Bulto: x{prod.units_per_package} u
+                                                    {/if}
                                                 </p>
                                             </div>
 
@@ -631,7 +760,9 @@
                                                 <span class="font-bold font-mono text-primary text-xs block">
                                                     {formatPrice(Number(prod.price))}
                                                 </span>
-                                                <span class="text-[10px] text-muted-foreground">por unidad</span>
+                                                <span class="text-[10px] text-muted-foreground">
+                                                    {prod.sale_type === 'weight' ? 'por Kg' : 'por unidad'}
+                                                </span>
                                             </div>
                                         </button>
                                     {/each}
@@ -651,13 +782,17 @@
                         {#each items as item, index (item.id || index)}
                             {@const maxAllowed = getMaxAllowedQuantityForItem(index)}
                             {@const isAtStockLimit = item.quantity >= maxAllowed}
-                            {@const ratio = item.packaging_type === 'bulto' ? (item.units_per_package || 1) : 1}
-                            {@const lineSubtotal = item.quantity * ratio * item.unit_price}
+                            {@const baseQty = getItemQuantityBase(item)}
+                            {@const lineSubtotal = baseQty * item.unit_price}
 
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
                                 <div class="flex items-center gap-3 min-w-0 flex-1">
-                                    <div class="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20">
-                                        <ShoppingBag class="size-5" />
+                                    <div class="size-10 rounded-xl {item.sale_type === 'weight' ? 'bg-sky-500/10 text-sky-600 border-sky-500/20' : 'bg-primary/10 text-primary border-primary/20'} flex items-center justify-center shrink-0 border">
+                                        {#if item.sale_type === 'weight'}
+                                            <Scale class="size-5" />
+                                        {:else}
+                                            <ShoppingBag class="size-5" />
+                                        {/if}
                                     </div>
 
                                     <div class="min-w-0 flex-1">
@@ -671,12 +806,12 @@
                                         </div>
 
                                         <div class="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
-                                            <span>Precio unit.: <strong class="font-mono text-foreground">{formatPrice(item.unit_price)}</strong></span>
+                                            <span>Precio base: <strong class="font-mono text-foreground">{formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}</strong></span>
                                             <span>•</span>
-                                            <span>Stock actual: <strong class="font-mono text-foreground">{item.stock}u</strong></span>
+                                            <span>Stock: <strong class="font-mono text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
                                             {#if isAtStockLimit}
                                                 <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
-                                                    Tope de stock
+                                                    Tope
                                                 </span>
                                             {/if}
                                         </div>
@@ -684,32 +819,47 @@
                                 </div>
 
                                 <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 shrink-0">
-                                    <!-- Selector de Presentación (Unidad o Bulto) -->
+                                    <!-- Selector de Presentación (Gramos / Kg / Bulto o Unidad / Bulto) -->
                                     <select
                                         value={item.packaging_type}
                                         onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
                                         class="h-8 rounded-lg border border-input bg-background px-2 text-xs font-semibold text-foreground focus:ring-1 focus:ring-primary outline-none"
                                     >
-                                        <option value="unidad">Unidad</option>
-                                        <option value="bulto" disabled={item.stock < item.units_per_package}>
-                                            Bulto (x{item.units_per_package}u)
-                                        </option>
+                                        {#if item.sale_type === 'weight'}
+                                            <option value="gram">Gramos (g)</option>
+                                            <option value="kg">Kilogramos (Kg)</option>
+                                            <option value="bulto" disabled={item.stock < (item.package_quantity || item.units_per_package || 1)}>
+                                                Bulto ({item.package_quantity || item.units_per_package || 1} Kg)
+                                            </option>
+                                        {:else}
+                                            <option value="unidad">Unidad</option>
+                                            <option value="bulto" disabled={item.stock < item.units_per_package}>
+                                                Bulto (x{item.units_per_package}u)
+                                            </option>
+                                        {/if}
                                     </select>
 
-                                    <!-- Stepper con Límite de Stock -->
+                                    <!-- Stepper / Input Cantidad -->
                                     <div class="flex items-center border rounded-lg bg-background shadow-2xs">
                                         <button
                                             type="button"
                                             class="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                             onclick={() => decrementQuantity(index)}
-                                            disabled={item.quantity <= 1}
+                                            disabled={item.packaging_type === 'gram' ? item.quantity <= 50 : item.packaging_type === 'kg' ? item.quantity <= 0.1 : item.quantity <= 1}
                                             aria-label="Disminuir cantidad"
                                         >
                                             <Minus class="size-3" />
                                         </button>
-                                        <span class="px-2.5 text-xs font-bold font-mono min-w-7 text-center">
-                                            {item.quantity}
-                                        </span>
+
+                                        <input
+                                            type="number"
+                                            step={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.1' : '1'}
+                                            min={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.01' : '1'}
+                                            max={maxAllowed}
+                                            bind:value={item.quantity}
+                                            class="w-14 text-xs font-bold font-mono text-center bg-transparent border-0 outline-none p-0"
+                                        />
+
                                         <button
                                             type="button"
                                             class="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"

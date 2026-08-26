@@ -8,6 +8,7 @@
     import ImageIcon from 'lucide-svelte/icons/image';
     import Layers from 'lucide-svelte/icons/layers';
     import Package from 'lucide-svelte/icons/package';
+    import Scale from 'lucide-svelte/icons/scale';
     import Sparkles from 'lucide-svelte/icons/sparkles';
     import UploadCloud from 'lucide-svelte/icons/upload-cloud';
     import X from 'lucide-svelte/icons/x';
@@ -20,6 +21,7 @@
     export interface ProductData {
         id?: number;
         name?: string;
+        sale_type?: 'unit' | 'weight';
         category_id?: number | string | null;
         sku?: string | null;
         barcode?: string | null;
@@ -30,6 +32,7 @@
         stock?: number;
         min_stock?: number;
         units_per_package?: number;
+        package_quantity?: number;
         image_url?: string | null;
         is_active?: boolean;
     }
@@ -50,6 +53,7 @@
 
     const form = useForm({
         name: '',
+        sale_type: 'unit' as 'unit' | 'weight',
         category_id: '' as string | number,
         sku: '',
         barcode: '',
@@ -60,6 +64,7 @@
         stock: 0,
         min_stock: 5,
         units_per_package: 1,
+        package_quantity: 1,
         image_url: '',
         is_active: true,
     });
@@ -70,6 +75,7 @@
         if (product && product.id !== lastLoadedProductId) {
             lastLoadedProductId = product.id ?? null;
             form.name = product.name ?? '';
+            form.sale_type = product.sale_type ?? 'unit';
             form.category_id = product.category_id ?? '';
             form.sku = product.sku ?? '';
             form.barcode = product.barcode ?? '';
@@ -79,7 +85,8 @@
             form.iva_rate = product.iva_rate ?? 21.00;
             form.stock = product.stock ?? 0;
             form.min_stock = product.min_stock ?? 5;
-            form.units_per_package = product.units_per_package ?? 1;
+            form.units_per_package = product.units_per_package ?? product.package_quantity ?? 1;
+            form.package_quantity = product.package_quantity ?? product.units_per_package ?? 1;
             form.image_url = product.image_url ?? '';
             form.is_active = product.is_active !== undefined ? Boolean(product.is_active) : true;
             form.clearErrors();
@@ -100,12 +107,21 @@
 
     let calculatedPackagePrice = $derived.by(() => {
         const unitPrice = Number(form.price) || 0;
-        const ratio = Number(form.units_per_package) || 1;
+        const ratio = form.sale_type === 'weight'
+            ? (Number(form.package_quantity) || 1)
+            : (Number(form.units_per_package) || 1);
         return unitPrice * ratio;
     });
 
     function submit(e: SubmitEvent) {
         e.preventDefault();
+
+        // Sincronizar units_per_package y package_quantity
+        if (form.sale_type === 'weight') {
+            form.units_per_package = form.package_quantity;
+        } else {
+            form.package_quantity = form.units_per_package;
+        }
 
         if (mode === 'edit' && product?.id) {
             form.put(`/tenant/products/${product.id}`, {
@@ -150,7 +166,7 @@
                         Empaque & Multimedia
                     </h3>
                     <p class="text-xs text-muted-foreground mt-0.5">
-                        Configura la vista previa del artículo y su presentación por bolsón.
+                        Configura la vista previa del artículo y su presentación por bulto.
                     </p>
                 </div>
 
@@ -183,12 +199,12 @@
                     />
                 </div>
 
-                <!-- Tarjeta Bento de Resumen de Bolsón / Presentación -->
+                <!-- Tarjeta Bento de Resumen de Bulto / Presentación -->
                 <div class="mt-4 p-3.5 rounded-2xl bg-primary/5 border border-primary/20 space-y-2">
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
                             <Sparkles class="size-3.5" />
-                            Cálculo de Bolsón
+                            Cálculo de Bulto
                         </span>
                         {#if form.is_active}
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
@@ -203,13 +219,19 @@
 
                     <div class="grid grid-cols-2 gap-2 pt-1 text-xs">
                         <div>
-                            <span class="text-[10px] text-muted-foreground block">Ratio por Bolsón</span>
+                            <span class="text-[10px] text-muted-foreground block">
+                                {form.sale_type === 'weight' ? 'Peso por Bulto' : 'Unidades / Bulto'}
+                            </span>
                             <span class="font-bold text-foreground">
-                                {form.units_per_package || 1} {Number(form.units_per_package) === 1 ? 'unidad' : 'unidades'}
+                                {#if form.sale_type === 'weight'}
+                                    {form.package_quantity || 1} Kg
+                                {:else}
+                                    {form.units_per_package || 1} {Number(form.units_per_package) === 1 ? 'unidad' : 'unidades'}
+                                {/if}
                             </span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-muted-foreground block">Precio del Bolsón</span>
+                            <span class="text-[10px] text-muted-foreground block">Precio del Bulto</span>
                             <span class="font-bold font-mono text-primary">
                                 {formatPrice(calculatedPackagePrice)}
                             </span>
@@ -242,9 +264,31 @@
 
                 <!-- Form Scrollable Content -->
                 <form onsubmit={submit} class="flex-1 overflow-y-auto pr-1 space-y-4">
-                    <!-- 1. Información Básica -->
+                    <!-- 1. Información Básica & Modalidad de Venta -->
                     <div class="space-y-3">
-                        <h3 class="text-xs font-bold text-primary uppercase tracking-wider">1. Información Básica</h3>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-bold text-primary uppercase tracking-wider">1. Información Básica</h3>
+
+                            <!-- Toggle Tipo de Venta -->
+                            <div class="flex items-center gap-1 bg-muted p-0.5 rounded-lg border">
+                                <button
+                                    type="button"
+                                    class="px-2 py-1 text-[11px] font-semibold rounded-md transition-all {form.sale_type === 'unit' ? 'bg-background text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
+                                    onclick={() => (form.sale_type = 'unit')}
+                                >
+                                    Por Unidad
+                                </button>
+                                <button
+                                    type="button"
+                                    class="px-2 py-1 text-[11px] font-semibold rounded-md transition-all flex items-center gap-1 {form.sale_type === 'weight' ? 'bg-background text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
+                                    onclick={() => (form.sale_type = 'weight')}
+                                >
+                                    <Scale class="size-3" />
+                                    Por Pesaje (Kg)
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div class="sm:col-span-2 space-y-1">
                                 <Label for="modal-prod-name" class="text-xs font-semibold">
@@ -253,7 +297,7 @@
                                 <Input
                                     id="modal-prod-name"
                                     bind:value={form.name}
-                                    placeholder="ej. Resma Chambril A4 75g"
+                                    placeholder={form.sale_type === 'weight' ? 'ej. Bolsas de Polietileno a Granel' : 'ej. Resma Chambril A4 75g'}
                                     class="h-9 text-xs rounded-xl"
                                     required
                                 />
@@ -302,7 +346,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="space-y-1">
                                 <Label for="modal-prod-price" class="text-xs font-semibold">
-                                    Precio Venta ($) <span class="text-destructive">*</span>
+                                    {form.sale_type === 'weight' ? 'Precio Venta ($ / Kg)' : 'Precio Venta ($ / Unidad)'} <span class="text-destructive">*</span>
                                 </Label>
                                 <div class="relative">
                                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
@@ -323,7 +367,9 @@
                             </div>
 
                             <div class="space-y-1">
-                                <Label for="modal-prod-cost" class="text-xs font-semibold">Costo ($)</Label>
+                                <Label for="modal-prod-cost" class="text-xs font-semibold">
+                                    {form.sale_type === 'weight' ? 'Costo ($ / Kg)' : 'Costo ($ / Unidad)'}
+                                </Label>
                                 <div class="relative">
                                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
                                     <Input
@@ -364,10 +410,13 @@
                         <h3 class="text-xs font-bold text-primary uppercase tracking-wider">3. Inventario & Empaque</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="space-y-1">
-                                <Label for="modal-prod-stock" class="text-xs font-semibold">Stock Actual</Label>
+                                <Label for="modal-prod-stock" class="text-xs font-semibold">
+                                    {form.sale_type === 'weight' ? 'Stock Actual (Kg)' : 'Stock Actual (Unid)'}
+                                </Label>
                                 <Input
                                     id="modal-prod-stock"
                                     type="number"
+                                    step={form.sale_type === 'weight' ? '0.001' : '1'}
                                     min="0"
                                     bind:value={form.stock}
                                     class="h-9 text-xs rounded-xl text-center font-bold"
@@ -378,10 +427,13 @@
                             </div>
 
                             <div class="space-y-1">
-                                <Label for="modal-prod-min-stock" class="text-xs font-semibold">Stock Mínimo</Label>
+                                <Label for="modal-prod-min-stock" class="text-xs font-semibold">
+                                    {form.sale_type === 'weight' ? 'Stock Mín. (Kg)' : 'Stock Mín. (Unid)'}
+                                </Label>
                                 <Input
                                     id="modal-prod-min-stock"
                                     type="number"
+                                    step={form.sale_type === 'weight' ? '0.001' : '1'}
                                     min="0"
                                     bind:value={form.min_stock}
                                     class="h-9 text-xs rounded-xl text-center"
@@ -392,16 +444,30 @@
                             </div>
 
                             <div class="space-y-1">
-                                <Label for="modal-prod-units-pack" class="text-xs font-semibold">Unidades / Bolsón</Label>
-                                <Input
-                                    id="modal-prod-units-pack"
-                                    type="number"
-                                    min="1"
-                                    bind:value={form.units_per_package}
-                                    class="h-9 text-xs rounded-xl text-center font-bold"
-                                />
-                                {#if form.errors.units_per_package}
-                                    <p class="text-xs text-destructive">{form.errors.units_per_package}</p>
+                                <Label for="modal-prod-units-pack" class="text-xs font-semibold">
+                                    {form.sale_type === 'weight' ? 'Peso Bulto (Kg)' : 'Unidades / Bulto'}
+                                </Label>
+                                {#if form.sale_type === 'weight'}
+                                    <Input
+                                        id="modal-prod-units-pack"
+                                        type="number"
+                                        step="0.001"
+                                        min="0.001"
+                                        bind:value={form.package_quantity}
+                                        class="h-9 text-xs rounded-xl text-center font-bold"
+                                    />
+                                {:else}
+                                    <Input
+                                        id="modal-prod-units-pack"
+                                        type="number"
+                                        step="1"
+                                        min="1"
+                                        bind:value={form.units_per_package}
+                                        class="h-9 text-xs rounded-xl text-center font-bold"
+                                    />
+                                {/if}
+                                {#if form.errors.units_per_package || form.errors.package_quantity}
+                                    <p class="text-xs text-destructive">{form.errors.units_per_package || form.errors.package_quantity}</p>
                                 {/if}
                             </div>
                         </div>

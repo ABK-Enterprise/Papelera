@@ -106,10 +106,13 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request): RedirectResponse|JsonResponse
     {
+        $packageQuantity = $request->validated('package_quantity') ?? $request->validated('units_per_package', 1) ?: 1;
+
         $product = Product::create([
             'tenant_id' => $request->user()->tenant_id,
             'category_id' => $request->validated('category_id'),
             'name' => $request->validated('name'),
+            'sale_type' => $request->validated('sale_type', 'unit'),
             'sku' => $request->validated('sku'),
             'barcode' => $request->validated('barcode'),
             'description' => $request->validated('description'),
@@ -118,7 +121,8 @@ class ProductController extends Controller
             'iva_rate' => $request->validated('iva_rate', 21.00),
             'stock' => $request->validated('stock', 0),
             'min_stock' => $request->validated('min_stock', 5),
-            'units_per_package' => $request->validated('units_per_package', 1) ?: 1,
+            'units_per_package' => $packageQuantity,
+            'package_quantity' => $packageQuantity,
             'image_url' => $request->validated('image_url'),
             'is_active' => $request->boolean('is_active', true),
         ]);
@@ -154,9 +158,12 @@ class ProductController extends Controller
             abort(404);
         }
 
+        $packageQuantity = $request->validated('package_quantity') ?? $request->validated('units_per_package', $product->package_quantity) ?: 1;
+
         $product->update([
             'category_id' => $request->validated('category_id'),
             'name' => $request->validated('name'),
+            'sale_type' => $request->validated('sale_type', $product->sale_type ?? 'unit'),
             'sku' => $request->validated('sku'),
             'barcode' => $request->validated('barcode'),
             'description' => $request->validated('description'),
@@ -165,7 +172,8 @@ class ProductController extends Controller
             'iva_rate' => $request->validated('iva_rate', 21.00),
             'stock' => $request->validated('stock', 0),
             'min_stock' => $request->validated('min_stock', 5),
-            'units_per_package' => $request->validated('units_per_package', 1) ?: 1,
+            'units_per_package' => $packageQuantity,
+            'package_quantity' => $packageQuantity,
             'image_url' => $request->validated('image_url'),
             'is_active' => $request->boolean('is_active', true),
         ]);

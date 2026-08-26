@@ -97,39 +97,72 @@ class CustomerOrderController extends Controller
             $totalAmount = 0.00;
             $preparedItems = [];
 
+            $runningStock = [];
             foreach ($itemsData as $item) {
-                $product = Product::where('id', $item['product_id'])
-                    ->where('tenant_id', $tenantId)
-                    ->lockForUpdate()
-                    ->firstOrFail();
+                $productId = $item['product_id'];
+                if (! isset($runningStock[$productId])) {
+                    $product = Product::where('id', $productId)
+                        ->where('tenant_id', $tenantId)
+                        ->lockForUpdate()
+                        ->firstOrFail();
 
-                if ($product->is_incomplete) {
-                    throw ValidationException::withMessages([
-                        'items' => ["El producto '{$product->name}' tiene datos incompletos y no puede venderse."],
-                    ]);
+                    if ($product->is_incomplete) {
+                        throw ValidationException::withMessages([
+                            'items' => ["El producto '{$product->name}' tiene datos incompletos y no puede venderse."],
+                        ]);
+                    }
+
+                    $runningStock[$productId] = [
+                        'model' => $product,
+                        'current_stock' => (float) $product->stock,
+                    ];
                 }
+
+                $product = $runningStock[$productId]['model'];
+                $availableStock = $runningStock[$productId]['current_stock'];
 
                 $packagingType = $item['packaging_type'];
-                $unitsRatio = in_array($packagingType, ['bolson', 'bulto'], true) ? ($product->units_per_package ?: 1) : 1;
-                $totalUnitsNeeded = $item['quantity'] * $unitsRatio;
+                $quantity = (float) $item['quantity'];
+                $packageSize = (float) $product->package_size;
 
-                if ($product->stock < $totalUnitsNeeded) {
+                if ($product->isWeighable()) {
+                    // Producto por pesaje (Stock almacenado en Kg)
+                    if ($packagingType === 'gram') {
+                        $quantityBase = $quantity / 1000.0;
+                    } elseif ($packagingType === 'bulto' || $packagingType === 'bolson') {
+                        $quantityBase = $quantity * $packageSize;
+                    } else {
+                        // kg o unidad por defecto
+                        $quantityBase = $quantity;
+                    }
+                } else {
+                    // Producto por unidad
+                    if ($packagingType === 'bulto' || $packagingType === 'bolson') {
+                        $quantityBase = $quantity * $packageSize;
+                    } else {
+                        $quantityBase = $quantity;
+                    }
+                }
+
+                if ($availableStock < $quantityBase) {
+                    $unitLabel = $product->isWeighable() ? 'kg' : 'unidades';
                     throw ValidationException::withMessages([
-                        'items' => ["Stock insuficiente para '{$product->name}'. Requerido: {$totalUnitsNeeded} unidades, disponible: {$product->stock}."],
+                        'items' => ["Stock insuficiente para '{$product->name}'. Requerido: {$quantityBase} {$unitLabel}, disponible: {$availableStock} {$unitLabel}."],
                     ]);
                 }
 
+                $runningStock[$productId]['current_stock'] -= $quantityBase;
+
                 $unitPrice = (float) $product->price;
-                $itemSubtotal = round($totalUnitsNeeded * $unitPrice, 2);
+                $itemSubtotal = round($quantityBase * $unitPrice, 2);
                 $totalAmount += $itemSubtotal;
 
                 $preparedItems[] = [
-                    'product' => $product,
                     'product_id' => $product->id,
                     'packaging_type' => $packagingType,
-                    'units_per_package' => $product->units_per_package ?: 1,
-                    'quantity' => $item['quantity'],
-                    'total_units' => $totalUnitsNeeded,
+                    'units_per_package' => $packageSize,
+                    'quantity' => $quantity,
+                    'quantity_base' => $quantityBase,
                     'unit_price' => $unitPrice,
                     'subtotal' => $itemSubtotal,
                 ];
@@ -154,20 +187,26 @@ class CustomerOrderController extends Controller
                     'packaging_type' => $prep['packaging_type'],
                     'units_per_package' => $prep['units_per_package'],
                     'quantity' => $prep['quantity'],
+                    'quantity_base' => $prep['quantity_base'],
                     'unit_price' => $prep['unit_price'],
                     'subtotal' => $prep['subtotal'],
                 ]);
 
-                $previousStock = (int) $prep['product']->stock;
-                $currentStock = $previousStock - $prep['total_units'];
-                $prep['product']->update(['stock' => $currentStock]);
+                $prod = Product::where('id', $prep['product_id'])
+                    ->where('tenant_id', $tenantId)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                $previousStock = (float) $prod->stock;
+                $currentStock = $previousStock - $prep['quantity_base'];
+                $prod->update(['stock' => $currentStock]);
 
                 StockMovement::create([
                     'tenant_id' => $tenantId,
                     'product_id' => $prep['product_id'],
                     'user_id' => $userId,
                     'type' => 'outcome',
-                    'quantity' => $prep['total_units'],
+                    'quantity' => $prep['quantity_base'],
                     'previous_stock' => $previousStock,
                     'current_stock' => $currentStock,
                     'reason' => 'pedido_cliente',
@@ -225,8 +264,8 @@ class CustomerOrderController extends Controller
                         ->first();
 
                     if ($product) {
-                        $totalUnits = $item->total_units;
-                        $previousStock = (int) $product->stock;
+                        $totalUnits = (float) $item->total_units;
+                        $previousStock = (float) $product->stock;
                         $currentStock = $previousStock + $totalUnits;
                         $product->update(['stock' => $currentStock]);
 
@@ -284,8 +323,8 @@ class CustomerOrderController extends Controller
                         ->first();
 
                     if ($product) {
-                        $totalUnits = $item->total_units;
-                        $previousStock = (int) $product->stock;
+                        $totalUnits = (float) $item->total_units;
+                        $previousStock = (float) $product->stock;
                         $currentStock = $previousStock + $totalUnits;
                         $product->update(['stock' => $currentStock]);
 

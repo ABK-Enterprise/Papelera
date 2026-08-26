@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\FlexibleDecimal;
 use App\Models\Concerns\BelongsToTenant;
 use Database\Factories\StockMovementFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -44,9 +45,9 @@ class StockMovement extends Model
     protected function casts(): array
     {
         return [
-            'quantity' => 'integer',
-            'previous_stock' => 'integer',
-            'current_stock' => 'integer',
+            'quantity' => FlexibleDecimal::class,
+            'previous_stock' => FlexibleDecimal::class,
+            'current_stock' => FlexibleDecimal::class,
         ];
     }
 

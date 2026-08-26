@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\FlexibleDecimal;
 use App\Models\Concerns\BelongsToTenant;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -36,6 +37,7 @@ use Illuminate\Support\Facades\DB;
     'tenant_id',
     'category_id',
     'name',
+    'sale_type',
     'sku',
     'barcode',
     'description',
@@ -45,6 +47,7 @@ use Illuminate\Support\Facades\DB;
     'stock',
     'min_stock',
     'units_per_package',
+    'package_quantity',
     'image_url',
     'is_active',
 ])]
@@ -59,16 +62,50 @@ class Product extends Model
             'price' => 'decimal:2',
             'cost_price' => 'decimal:2',
             'iva_rate' => 'decimal:2',
-            'stock' => 'integer',
-            'min_stock' => 'integer',
-            'units_per_package' => 'integer',
+            'stock' => FlexibleDecimal::class,
+            'min_stock' => FlexibleDecimal::class,
+            'units_per_package' => FlexibleDecimal::class,
+            'package_quantity' => FlexibleDecimal::class,
             'is_active' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (Product $product) {
+            if ($product->units_per_package !== null && $product->package_quantity === null) {
+                $product->package_quantity = $product->units_per_package;
+            } elseif ($product->package_quantity !== null && $product->units_per_package === null) {
+                $product->units_per_package = $product->package_quantity;
+            } elseif ($product->isDirty('units_per_package') && ! $product->isDirty('package_quantity')) {
+                $product->package_quantity = $product->units_per_package;
+            } elseif ($product->isDirty('package_quantity') && ! $product->isDirty('units_per_package')) {
+                $product->units_per_package = $product->package_quantity;
+            }
+        });
     }
 
     protected $appends = [
         'is_incomplete',
     ];
+
+    public function isWeighable(): bool
+    {
+        return $this->sale_type === 'weight';
+    }
+
+    public function getPackageSizeAttribute(): float
+    {
+        if ($this->package_quantity !== null && (float) $this->package_quantity > 1) {
+            return (float) $this->package_quantity;
+        }
+
+        if ($this->units_per_package !== null && (float) $this->units_per_package > 1) {
+            return (float) $this->units_per_package;
+        }
+
+        return (float) ($this->package_quantity ?? $this->units_per_package ?? 1);
+    }
 
     public function category(): BelongsTo
     {

@@ -44,6 +44,7 @@ class DashboardController extends Controller
         if ($canViewLowStock) {
             $lowStockProducts = Product::needsRestock()
                 ->with('category:id,name')
+                ->orderBy('id')
                 ->get();
         }
 
