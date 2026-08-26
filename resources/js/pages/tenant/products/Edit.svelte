@@ -7,6 +7,7 @@
     import ArrowLeft from 'lucide-svelte/icons/arrow-left';
     import Check from 'lucide-svelte/icons/check';
     import Package from 'lucide-svelte/icons/package';
+    import Scale from 'lucide-svelte/icons/scale';
     import Sparkles from 'lucide-svelte/icons/sparkles';
     import UploadCloud from 'lucide-svelte/icons/upload-cloud';
 
@@ -18,6 +19,7 @@
     interface ProductData {
         id: number;
         name: string;
+        sale_type?: 'unit' | 'weight';
         category_id: number | null;
         sku: string | null;
         barcode: string | null;
@@ -28,6 +30,7 @@
         stock: number;
         min_stock: number;
         units_per_package?: number;
+        package_quantity?: number;
         image_url: string | null;
         is_active: boolean;
     }
@@ -42,6 +45,7 @@
 
     const form = useForm({
         name: product.name,
+        sale_type: (product.sale_type ?? 'unit') as 'unit' | 'weight',
         category_id: product.category_id ?? ('' as string | number),
         sku: product.sku ?? '',
         barcode: product.barcode ?? '',
@@ -51,7 +55,8 @@
         iva_rate: Number(product.iva_rate ?? 21.00),
         stock: product.stock,
         min_stock: product.min_stock,
-        units_per_package: product.units_per_package ?? 1,
+        units_per_package: product.units_per_package ?? product.package_quantity ?? 1,
+        package_quantity: product.package_quantity ?? product.units_per_package ?? 1,
         image_url: product.image_url ?? '',
         is_active: product.is_active,
     });
@@ -66,17 +71,22 @@
 
     let calculatedPackagePrice = $derived.by(() => {
         const unitPrice = Number(form.price) || 0;
-        const ratio = Number(form.units_per_package) || 1;
+        const ratio = Number(form.sale_type === 'weight' ? (form.package_quantity || form.units_per_package) : form.units_per_package) || 1;
         return unitPrice * ratio;
     });
 
     function submit(e: SubmitEvent) {
         e.preventDefault();
+        if (form.sale_type === 'weight') {
+            form.units_per_package = form.package_quantity || form.units_per_package || 1;
+        } else {
+            form.package_quantity = form.units_per_package || 1;
+        }
         form.put(`/tenant/products/${product.id}`);
     }
 </script>
 
-<AppHead title="Editar Producto - Comercio" />
+<AppHead title={`Editar ${product.name} - Comercio`} />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-6xl mx-auto w-full">
     <!-- Header -->
@@ -86,7 +96,7 @@
                 Editar Producto
             </h1>
             <p class="text-sm text-muted-foreground mt-0.5">
-                Modifica los datos del artículo, precios, parámetros de stock y factor de empaque en bolsones.
+                Modifica los datos generales, modalidad de venta, precios e inventario de este producto.
             </p>
         </div>
         <Link href="/tenant/products">
@@ -107,7 +117,7 @@
                     Imagen & Empaque
                 </h2>
                 <p class="text-xs text-muted-foreground mt-0.5">
-                    Previsualización visual y cálculo del precio por bolsón.
+                    Previsualización visual y cálculo del precio por bulto cerrado.
                 </p>
             </div>
 
@@ -164,7 +174,7 @@
                             {form.sale_type === 'weight' ? 'Kg por Bulto' : 'Unidades por Bulto'}
                         </span>
                         <span class="font-bold text-foreground">
-                            {form.package_quantity || form.units_per_package || 1} {form.sale_type === 'weight' ? 'Kg' : (Number(form.units_per_package) === 1 ? 'unidad' : 'unidades')}
+                            {form.sale_type === 'weight' ? (form.package_quantity || form.units_per_package || 1) : (form.units_per_package || 1)} {form.sale_type === 'weight' ? 'Kg' : (Number(form.units_per_package) === 1 ? 'unidad' : 'unidades')}
                         </span>
                     </div>
                     <div>
@@ -180,6 +190,40 @@
         <!-- Columna Derecha: Formulario (60%) -->
         <div class="w-full md:w-7/12 bg-card p-6 sm:p-8 flex flex-col">
             <form onsubmit={submit} class="space-y-5">
+                <!-- Modalidad de Venta (Unidad vs Pesaje) -->
+                <div class="space-y-2 bg-muted/30 p-3.5 rounded-2xl border border-border/80">
+                    <Label class="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                        <Scale class="size-4 text-primary" />
+                        Modalidad de Venta del Producto
+                    </Label>
+                    <div class="grid grid-cols-2 gap-2.5 pt-1">
+                        <button
+                            type="button"
+                            onclick={() => form.sale_type = 'unit'}
+                            class="flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition-all {form.sale_type === 'unit' ? 'bg-primary text-primary-foreground border-primary shadow-xs' : 'bg-background hover:bg-muted text-muted-foreground'}"
+                        >
+                            <Package class="size-4" />
+                            <span>Por Unidad</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick={() => form.sale_type = 'weight'}
+                            class="flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition-all {form.sale_type === 'weight' ? 'bg-primary text-primary-foreground border-primary shadow-xs' : 'bg-background hover:bg-muted text-muted-foreground'}"
+                        >
+                            <Scale class="size-4" />
+                            <span>Por Pesaje (Kg)</span>
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-muted-foreground">
+                        {form.sale_type === 'weight'
+                            ? 'Este producto se gestiona en base a Kilogramos (Kg). En los pedidos se podrá vender por gramos (g), kilos (Kg) o bultos cerrados.'
+                            : 'Este producto se gestiona por unidades individuales o bultos cerrados (ej. cajas, paquetes de bolsas).'}
+                    </p>
+                </div>
+
+                <hr class="border-border/60" />
+
                 <!-- 1. Información Básica -->
                 <div class="space-y-3">
                     <h3 class="text-xs font-bold text-primary uppercase tracking-wider">1. Información Básica</h3>
@@ -234,13 +278,13 @@
 
                 <hr class="border-border/60" />
 
-                <!-- 2. Precios & Fiscal (ARCA) -->
+                <!-- 2. Precios & Fiscal -->
                 <div class="space-y-3">
-                    <h3 class="text-xs font-bold text-primary uppercase tracking-wider">2. Precios & Facturación (ARCA)</h3>
+                    <h3 class="text-xs font-bold text-primary uppercase tracking-wider">2. Precios & Facturación</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div class="space-y-1">
                             <Label for="edit-prod-price" class="text-xs font-semibold">
-                                Precio Venta ($) <span class="text-destructive">*</span>
+                                Precio Venta ({form.sale_type === 'weight' ? '$ / Kg' : '$ / unid.'}) <span class="text-destructive">*</span>
                             </Label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
@@ -261,7 +305,9 @@
                         </div>
 
                         <div class="space-y-1">
-                            <Label for="edit-prod-cost" class="text-xs font-semibold">Costo ($)</Label>
+                            <Label for="edit-prod-cost" class="text-xs font-semibold">
+                                Costo ({form.sale_type === 'weight' ? '$ / Kg' : '$ / unid.'})
+                            </Label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
                                 <Input
@@ -302,10 +348,13 @@
                     <h3 class="text-xs font-bold text-primary uppercase tracking-wider">3. Inventario & Empaque</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div class="space-y-1">
-                            <Label for="edit-prod-stock" class="text-xs font-semibold">Stock Actual</Label>
+                            <Label for="edit-prod-stock" class="text-xs font-semibold">
+                                Stock Actual ({form.sale_type === 'weight' ? 'Kg' : 'unid.'})
+                            </Label>
                             <Input
                                 id="edit-prod-stock"
                                 type="number"
+                                step={form.sale_type === 'weight' ? '0.001' : '1'}
                                 min="0"
                                 bind:value={form.stock}
                                 class="h-9 text-xs rounded-xl text-center font-bold"
@@ -316,10 +365,13 @@
                         </div>
 
                         <div class="space-y-1">
-                            <Label for="edit-prod-min-stock" class="text-xs font-semibold">Stock Mínimo</Label>
+                            <Label for="edit-prod-min-stock" class="text-xs font-semibold">
+                                Stock Mínimo ({form.sale_type === 'weight' ? 'Kg' : 'unid.'})
+                            </Label>
                             <Input
                                 id="edit-prod-min-stock"
                                 type="number"
+                                step={form.sale_type === 'weight' ? '0.001' : '1'}
                                 min="0"
                                 bind:value={form.min_stock}
                                 class="h-9 text-xs rounded-xl text-center"
@@ -330,16 +382,28 @@
                         </div>
 
                         <div class="space-y-1">
-                            <Label for="edit-prod-units-pack" class="text-xs font-semibold">Unidades / Bolsón</Label>
-                            <Input
-                                id="edit-prod-units-pack"
-                                type="number"
-                                min="1"
-                                bind:value={form.units_per_package}
-                                class="h-9 text-xs rounded-xl text-center font-bold"
-                            />
-                            {#if form.errors.units_per_package}
-                                <p class="text-xs text-destructive">{form.errors.units_per_package}</p>
+                            {#if form.sale_type === 'weight'}
+                                <Label for="edit-prod-units-pack" class="text-xs font-semibold">Kg por Bulto Cerrado</Label>
+                                <Input
+                                    id="edit-prod-units-pack"
+                                    type="number"
+                                    step="0.01"
+                                    min="0.1"
+                                    bind:value={form.package_quantity}
+                                    class="h-9 text-xs rounded-xl text-center font-bold"
+                                />
+                            {:else}
+                                <Label for="edit-prod-units-pack" class="text-xs font-semibold">Unidades por Bulto</Label>
+                                <Input
+                                    id="edit-prod-units-pack"
+                                    type="number"
+                                    min="1"
+                                    bind:value={form.units_per_package}
+                                    class="h-9 text-xs rounded-xl text-center font-bold"
+                                />
+                            {/if}
+                            {#if form.errors.units_per_package || form.errors.package_quantity}
+                                <p class="text-xs text-destructive">{form.errors.units_per_package || form.errors.package_quantity}</p>
                             {/if}
                         </div>
                     </div>
@@ -370,38 +434,34 @@
                         ></textarea>
                     </div>
 
-                    <div class="flex items-center justify-between p-3 rounded-xl bg-muted/20 border border-border/70">
-                        <div>
-                            <span class="text-xs font-bold text-foreground block">Producto Activo</span>
-                            <span class="text-[11px] text-muted-foreground">Disponible para ventas y pedidos inmediatamente.</span>
-                        </div>
+                    <div class="flex items-center gap-2 pt-1">
                         <input
                             type="checkbox"
+                            id="edit-prod-active"
                             bind:checked={form.is_active}
-                            class="size-5 rounded border-input text-primary focus:ring-primary"
+                            class="size-4 rounded border-input text-primary focus:ring-primary"
                         />
+                        <Label for="edit-prod-active" class="text-xs font-medium cursor-pointer">
+                            Producto activo para ventas y pedidos
+                        </Label>
                     </div>
                 </div>
 
-                <!-- Footer Actions -->
-                <div class="flex items-center justify-end gap-3 pt-3 border-t border-border/80">
+                <!-- Footer Acciones -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t">
                     <Link href="/tenant/products">
-                        <Button type="button" variant="outline" size="sm" class="rounded-full px-5 text-xs">
+                        <Button type="button" variant="outline" size="sm" class="rounded-xl">
                             Cancelar
                         </Button>
                     </Link>
                     <Button
                         type="submit"
                         size="sm"
+                        class="gap-1.5 rounded-xl font-semibold"
                         disabled={form.processing}
-                        class="rounded-full px-6 text-xs font-semibold gap-1.5 min-w-36"
                     >
-                        {#if form.processing}
-                            <span>Guardando...</span>
-                        {:else}
-                            <Check class="size-3.5" />
-                            <span>Guardar Cambios</span>
-                        {/if}
+                        <Check class="size-4" />
+                        <span>Guardar Cambios</span>
                     </Button>
                 </div>
             </form>

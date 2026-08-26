@@ -6,6 +6,7 @@
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Package from 'lucide-svelte/icons/package';
+    import Scale from 'lucide-svelte/icons/scale';
     import Trash2 from 'lucide-svelte/icons/trash-2';
 
     interface CategorySummary {
@@ -16,11 +17,13 @@
     interface ProductItem {
         id: number;
         name: string;
+        sale_type?: 'unit' | 'weight';
         sku: string | null;
         price: string | number;
         stock: number;
         min_stock: number;
         units_per_package?: number;
+        package_quantity?: number;
         image_url: string | null;
         is_incomplete?: boolean;
         category?: CategorySummary | null;
@@ -69,18 +72,29 @@
 <div class="flex flex-col gap-3">
     {#each paginatedProducts as product (product.id)}
         {@const isIncomplete = product.is_incomplete ?? (!product.category || Number(product.price) <= 0)}
+        {@const isWeighable = product.sale_type === 'weight'}
         <div class="flex items-center gap-3.5 rounded-xl border {isIncomplete ? 'border-amber-500/40 bg-amber-500/5' : 'border-border/70 bg-card'} p-3 shadow-sm">
             <div class="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted/60 border border-border/40 flex items-center justify-center">
                 {#if product.image_url}
                     <img src={product.image_url} alt={product.name} class="h-full w-full object-cover" />
                 {:else}
-                    <Package class="size-6 text-muted-foreground/60" />
+                    {#if isWeighable}
+                        <Scale class="size-6 text-muted-foreground/60" />
+                    {:else}
+                        <Package class="size-6 text-muted-foreground/60" />
+                    {/if}
                 {/if}
             </div>
 
             <div class="flex flex-1 flex-col min-w-0 justify-center">
                 <div class="flex items-center gap-1.5 truncate">
                     <h4 class="font-bold text-sm text-foreground truncate">{product.name}</h4>
+                    {#if isWeighable}
+                        <span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[10px] font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 shrink-0">
+                            <Scale class="size-2.5" />
+                            Kg
+                        </span>
+                    {/if}
                     {#if isIncomplete}
                         <span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 shrink-0">
                             <AlertTriangle class="size-2.5" />
@@ -89,7 +103,7 @@
                     {/if}
                 </div>
                 <span class="font-bold text-base font-mono mt-0.5 {Number(product.price) <= 0 ? 'text-amber-600 dark:text-amber-400' : 'text-foreground'}">
-                    {formatPrice(product.price)}
+                    {formatPrice(product.price)} {isWeighable ? '<span class="text-xs font-normal text-muted-foreground">/Kg</span>' : ''}
                 </span>
 
                 <div class="flex items-center gap-2 mt-1.5 flex-wrap">
@@ -99,11 +113,11 @@
                         </span>
                     {:else if product.stock <= product.min_stock}
                         <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
-                            Bajo Stock ({product.stock})
+                            Bajo Stock ({product.stock} {isWeighable ? 'Kg' : 'u'})
                         </span>
                     {:else}
                         <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
-                            Stock: {product.stock}
+                            Stock: {product.stock} {isWeighable ? 'Kg' : 'u'}
                         </span>
                     {/if}
                     {#if product.sku}
@@ -111,7 +125,11 @@
                             {product.sku}
                         </span>
                     {/if}
-                    {#if product.units_per_package && product.units_per_package > 1}
+                    {#if isWeighable}
+                        <span class="font-mono text-[10px] bg-muted/60 px-1 py-0.2 rounded text-muted-foreground">
+                            1 B = {product.package_quantity || product.units_per_package || 1}Kg
+                        </span>
+                    {:else if product.units_per_package && product.units_per_package > 1}
                         <span class="font-mono text-[10px] bg-muted/60 px-1 py-0.2 rounded text-muted-foreground">
                             1 B = {product.units_per_package}u
                         </span>
