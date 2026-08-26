@@ -2,6 +2,7 @@
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import SaleTypeChangeAlertDialog from '@/components/common/SaleTypeChangeAlertDialog.svelte';
     import { router, useForm } from '@inertiajs/svelte';
     import Check from 'lucide-svelte/icons/check';
     import DollarSign from 'lucide-svelte/icons/dollar-sign';
@@ -70,12 +71,15 @@
     });
 
     let lastLoadedProductId = $state<number | null>(null);
+    let initialSaleType = $state<'unit' | 'weight'>('unit');
+    let isConfirmAlertOpen = $state(false);
 
     $effect(() => {
         if (product && product.id !== lastLoadedProductId) {
             lastLoadedProductId = product.id ?? null;
+            initialSaleType = (product.sale_type ?? 'unit') as 'unit' | 'weight';
             form.name = product.name ?? '';
-            form.sale_type = product.sale_type ?? 'unit';
+            form.sale_type = initialSaleType;
             form.category_id = product.category_id ?? '';
             form.sku = product.sku ?? '';
             form.barcode = product.barcode ?? '';
@@ -92,6 +96,7 @@
             form.clearErrors();
         } else if (!product && lastLoadedProductId !== null) {
             lastLoadedProductId = null;
+            initialSaleType = 'unit';
             form.reset();
             form.clearErrors();
         }
@@ -113,9 +118,7 @@
         return unitPrice * ratio;
     });
 
-    function submit(e: SubmitEvent) {
-        e.preventDefault();
-
+    function doSubmit() {
         // Sincronizar units_per_package y package_quantity
         if (form.sale_type === 'weight') {
             form.units_per_package = form.package_quantity;
@@ -126,6 +129,7 @@
         if (mode === 'edit' && product?.id) {
             form.put(`/tenant/products/${product.id}`, {
                 onSuccess: () => {
+                    isConfirmAlertOpen = false;
                     open = false;
                     onsuccess?.();
                 },
@@ -139,6 +143,17 @@
                 },
             });
         }
+    }
+
+    function submit(e: SubmitEvent) {
+        e.preventDefault();
+
+        if (mode === 'edit' && product?.id && form.sale_type !== initialSaleType) {
+            isConfirmAlertOpen = true;
+            return;
+        }
+
+        doSubmit();
     }
 
     function handleClose() {
@@ -266,25 +281,26 @@
                 <form onsubmit={submit} class="flex-1 overflow-y-auto pr-1 space-y-4">
                     <!-- 1. Información Básica & Modalidad de Venta -->
                     <div class="space-y-3">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between gap-2 flex-wrap pb-1">
                             <h3 class="text-xs font-bold text-primary uppercase tracking-wider">1. Información Básica</h3>
 
-                            <!-- Toggle Tipo de Venta -->
-                            <div class="flex items-center gap-1 bg-muted p-0.5 rounded-lg border">
+                            <!-- Segmented Pill Switcher Minimalista -->
+                            <div class="inline-flex items-center p-0.5 rounded-xl bg-muted/80 border border-border/80 text-xs">
                                 <button
                                     type="button"
-                                    class="px-2 py-1 text-[11px] font-semibold rounded-md transition-all {form.sale_type === 'unit' ? 'bg-background text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs transition-all {form.sale_type === 'unit' ? 'bg-background text-foreground font-bold shadow-2xs' : 'text-muted-foreground hover:text-foreground font-medium'}"
                                     onclick={() => (form.sale_type = 'unit')}
                                 >
-                                    Por Unidad
+                                    <Package class="size-3.5 text-primary" />
+                                    <span>Por Unidad</span>
                                 </button>
                                 <button
                                     type="button"
-                                    class="px-2 py-1 text-[11px] font-semibold rounded-md transition-all flex items-center gap-1 {form.sale_type === 'weight' ? 'bg-background text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs transition-all {form.sale_type === 'weight' ? 'bg-background text-foreground font-bold shadow-2xs' : 'text-muted-foreground hover:text-foreground font-medium'}"
                                     onclick={() => (form.sale_type = 'weight')}
                                 >
-                                    <Scale class="size-3" />
-                                    Por Pesaje (Kg)
+                                    <Scale class="size-3.5 text-sky-600 dark:text-sky-400" />
+                                    <span>Por Pesaje (Kg)</span>
                                 </button>
                             </div>
                         </div>
@@ -340,13 +356,13 @@
 
                     <hr class="border-border/60" />
 
-                    <!-- 2. Precios e Impuestos -->
+                    <!-- 2. Precios & Fiscal (ARCA) -->
                     <div class="space-y-3">
                         <h3 class="text-xs font-bold text-primary uppercase tracking-wider">2. Precios & Facturación (ARCA)</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="space-y-1">
                                 <Label for="modal-prod-price" class="text-xs font-semibold">
-                                    {form.sale_type === 'weight' ? 'Precio Venta ($ / Kg)' : 'Precio Venta ($ / Unidad)'} <span class="text-destructive">*</span>
+                                    Precio Venta ({form.sale_type === 'weight' ? '$ / Kg' : '$ / unid.'}) <span class="text-destructive">*</span>
                                 </Label>
                                 <div class="relative">
                                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
@@ -368,7 +384,7 @@
 
                             <div class="space-y-1">
                                 <Label for="modal-prod-cost" class="text-xs font-semibold">
-                                    {form.sale_type === 'weight' ? 'Costo ($ / Kg)' : 'Costo ($ / Unidad)'}
+                                    Costo ({form.sale_type === 'weight' ? '$ / Kg' : '$ / unid.'})
                                 </Label>
                                 <div class="relative">
                                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
@@ -525,4 +541,15 @@
             </div>
         </div>
     </div>
+
+    <!-- Alert Dialog de Bits UI para Confirmar Cambio de Modalidad de Venta -->
+    <SaleTypeChangeAlertDialog
+        bind:open={isConfirmAlertOpen}
+        productName={product?.name ?? 'este producto'}
+        fromType={initialSaleType}
+        toType={form.sale_type}
+        currentStock={product?.stock ?? 0}
+        loading={form.processing}
+        onconfirm={doSubmit}
+    />
 {/if}

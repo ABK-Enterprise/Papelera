@@ -3,6 +3,7 @@
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import SaleTypeChangeAlertDialog from '@/components/common/SaleTypeChangeAlertDialog.svelte';
     import { Link, useForm } from '@inertiajs/svelte';
     import ArrowLeft from 'lucide-svelte/icons/arrow-left';
     import Check from 'lucide-svelte/icons/check';
@@ -43,9 +44,12 @@
         categories: CategoryOption[];
     } = $props();
 
+    const initialSaleType = (product.sale_type ?? 'unit') as 'unit' | 'weight';
+    let isConfirmAlertOpen = $state(false);
+
     const form = useForm({
         name: product.name,
-        sale_type: (product.sale_type ?? 'unit') as 'unit' | 'weight',
+        sale_type: initialSaleType,
         category_id: product.category_id ?? ('' as string | number),
         sku: product.sku ?? '',
         barcode: product.barcode ?? '',
@@ -75,14 +79,27 @@
         return unitPrice * ratio;
     });
 
-    function submit(e: SubmitEvent) {
-        e.preventDefault();
+    function doSubmit() {
         if (form.sale_type === 'weight') {
             form.units_per_package = form.package_quantity || form.units_per_package || 1;
         } else {
             form.package_quantity = form.units_per_package || 1;
         }
-        form.put(`/tenant/products/${product.id}`);
+        form.put(`/tenant/products/${product.id}`, {
+            onSuccess: () => {
+                isConfirmAlertOpen = false;
+            },
+        });
+    }
+
+    function handleSubmit(e: SubmitEvent) {
+        e.preventDefault();
+        // Si cambió la modalidad de venta respecto al valor inicial, alertar al usuario
+        if (form.sale_type !== initialSaleType) {
+            isConfirmAlertOpen = true;
+            return;
+        }
+        doSubmit();
     }
 </script>
 
@@ -189,44 +206,33 @@
 
         <!-- Columna Derecha: Formulario (60%) -->
         <div class="w-full md:w-7/12 bg-card p-6 sm:p-8 flex flex-col">
-            <form onsubmit={submit} class="space-y-5">
-                <!-- Modalidad de Venta (Unidad vs Pesaje) -->
-                <div class="space-y-2 bg-muted/30 p-3.5 rounded-2xl border border-border/80">
-                    <Label class="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
-                        <Scale class="size-4 text-primary" />
-                        Modalidad de Venta del Producto
-                    </Label>
-                    <div class="grid grid-cols-2 gap-2.5 pt-1">
-                        <button
-                            type="button"
-                            onclick={() => form.sale_type = 'unit'}
-                            class="flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition-all {form.sale_type === 'unit' ? 'bg-primary text-primary-foreground border-primary shadow-xs' : 'bg-background hover:bg-muted text-muted-foreground'}"
-                        >
-                            <Package class="size-4" />
-                            <span>Por Unidad</span>
-                        </button>
-
-                        <button
-                            type="button"
-                            onclick={() => form.sale_type = 'weight'}
-                            class="flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition-all {form.sale_type === 'weight' ? 'bg-primary text-primary-foreground border-primary shadow-xs' : 'bg-background hover:bg-muted text-muted-foreground'}"
-                        >
-                            <Scale class="size-4" />
-                            <span>Por Pesaje (Kg)</span>
-                        </button>
-                    </div>
-                    <p class="text-[11px] text-muted-foreground">
-                        {form.sale_type === 'weight'
-                            ? 'Este producto se gestiona en base a Kilogramos (Kg). En los pedidos se podrá vender por gramos (g), kilos (Kg) o bultos cerrados.'
-                            : 'Este producto se gestiona por unidades individuales o bultos cerrados (ej. cajas, paquetes de bolsas).'}
-                    </p>
-                </div>
-
-                <hr class="border-border/60" />
-
-                <!-- 1. Información Básica -->
+            <form onsubmit={handleSubmit} class="space-y-5">
+                <!-- 1. Información Básica con Segmented Pill Switcher -->
                 <div class="space-y-3">
-                    <h3 class="text-xs font-bold text-primary uppercase tracking-wider">1. Información Básica</h3>
+                    <div class="flex items-center justify-between gap-2 flex-wrap pb-1">
+                        <h3 class="text-xs font-bold text-primary uppercase tracking-wider">1. Información Básica</h3>
+                        
+                        <!-- Segmented Pill Switcher Minimalista -->
+                        <div class="inline-flex items-center p-0.5 rounded-xl bg-muted/80 border border-border/80 text-xs">
+                            <button
+                                type="button"
+                                onclick={() => form.sale_type = 'unit'}
+                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs transition-all {form.sale_type === 'unit' ? 'bg-background text-foreground font-bold shadow-2xs' : 'text-muted-foreground hover:text-foreground font-medium'}"
+                            >
+                                <Package class="size-3.5 text-primary" />
+                                <span>Por Unidad</span>
+                            </button>
+                            <button
+                                type="button"
+                                onclick={() => form.sale_type = 'weight'}
+                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs transition-all {form.sale_type === 'weight' ? 'bg-background text-foreground font-bold shadow-2xs' : 'text-muted-foreground hover:text-foreground font-medium'}"
+                            >
+                                <Scale class="size-3.5 text-sky-600 dark:text-sky-400" />
+                                <span>Por Pesaje (Kg)</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                         <div class="sm:col-span-2 space-y-1">
                             <Label for="edit-prod-name" class="text-xs font-semibold">
@@ -468,3 +474,14 @@
         </div>
     </div>
 </div>
+
+<!-- Alert Dialog de Bits UI para Confirmar Cambio de Modalidad de Venta -->
+<SaleTypeChangeAlertDialog
+    bind:open={isConfirmAlertOpen}
+    productName={product.name}
+    fromType={initialSaleType}
+    toType={form.sale_type}
+    currentStock={product.stock}
+    loading={form.processing}
+    onconfirm={doSubmit}
+/>
