@@ -337,7 +337,7 @@
                         <span class="text-[11px] text-muted-foreground">Selecciona el siguiente paso del flujo</span>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div class="grid grid-cols-1 {order.status === 'preparado' ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-2">
                         {#if order.status === 'en_preparacion'}
                             <button
                                 type="button"
@@ -354,7 +354,15 @@
                                 class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
                                 onclick={() => requestStatusChange('en_camino')}
                             >
-                                Poner En Camino
+                                Despachar (En camino)
+                            </button>
+                            <button
+                                type="button"
+                                disabled={isUpdatingStatus}
+                                class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                                onclick={() => requestStatusChange('entregado')}
+                            >
+                                Entregar (Retiro en local)
                             </button>
                         {:else if order.status === 'en_camino'}
                             <button
