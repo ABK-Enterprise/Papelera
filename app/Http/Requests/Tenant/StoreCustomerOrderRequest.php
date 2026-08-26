@@ -34,8 +34,8 @@ class StoreCustomerOrderRequest extends FormRequest
                 'required',
                 Rule::exists('products', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)),
             ],
-            'items.*.packaging_type' => ['required', 'string', 'in:paquete,bolson'],
-            'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'items.*.packaging_type' => ['required', 'string', 'in:paquete,unidad,bolson,bulto,gram,kg'],
+            'items.*.quantity' => ['required', 'numeric', 'min:0.001'],
         ];
     }
 }

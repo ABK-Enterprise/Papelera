@@ -110,7 +110,7 @@ class CustomerOrderController extends Controller
                 }
 
                 $packagingType = $item['packaging_type'];
-                $unitsRatio = $packagingType === 'bolson' ? ($product->units_per_package ?: 1) : 1;
+                $unitsRatio = in_array($packagingType, ['bolson', 'bulto'], true) ? ($product->units_per_package ?: 1) : 1;
                 $totalUnitsNeeded = $item['quantity'] * $unitsRatio;
 
                 if ($product->stock < $totalUnitsNeeded) {

@@ -54,8 +54,8 @@ class CustomerOrderItem extends Model
 
     public function getTotalUnitsAttribute(): int
     {
-        return $this->packaging_type === 'bolson'
-            ? $this->quantity * ($this->units_per_package ?: 1)
-            : $this->quantity;
+        return in_array($this->packaging_type, ['bolson', 'bulto'], true)
+            ? (int) ($this->quantity * ($this->units_per_package ?: 1))
+            : (int) $this->quantity;
     }
 }

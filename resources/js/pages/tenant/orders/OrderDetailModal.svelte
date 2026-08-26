@@ -298,17 +298,17 @@
                                         {/if}
                                     </td>
                                     <td class="p-2.5 text-muted-foreground">
-                                        {#if item.packaging_type === 'bolson'}
+                                        {#if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
                                             <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
-                                                Bolsón (x{item.units_per_package}u)
+                                                Bulto (x{item.units_per_package}u)
                                             </span>
                                         {:else}
-                                            <span>Paquete (Unidad)</span>
+                                            <span>Unidad</span>
                                         {/if}
                                     </td>
                                     <td class="p-2.5 text-center font-bold font-mono">
-                                        {item.quantity} {item.packaging_type === 'bolson' ? 'bols.' : 'paq.'}
-                                        {#if item.packaging_type === 'bolson'}
+                                        {item.quantity} {item.packaging_type === 'bolson' || item.packaging_type === 'bulto' ? 'bultos' : 'unid.'}
+                                        {#if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
                                             <span class="text-[10px] text-muted-foreground block font-normal">
                                                 ({item.quantity * item.units_per_package} unid.)
                                             </span>

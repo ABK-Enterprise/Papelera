@@ -13,10 +13,6 @@
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import Truck from 'lucide-svelte/icons/truck';
     import X from 'lucide-svelte/icons/x';
-    import CreatePackageModal, {
-        type CreatedPackage,
-        type PackageComponent,
-    } from '@/pages/tenant/orders/CreatePackageModal.svelte';
 
     interface SupplierOption {
         id: number;
@@ -36,15 +32,12 @@
 
     interface SupplierOrderItemLine {
         id: string;
-        is_package: boolean;
         product_id: number | null;
         product_name: string;
         quantity: number;
         unit_cost: number | '';
         search_query: string;
         is_dropdown_open: boolean;
-        description?: string;
-        components?: PackageComponent[];
     }
 
     let {
@@ -62,12 +55,9 @@
     let isSubmitting = $state(false);
     let errorMessage = $state<string | null>(null);
 
-    let isPackageModalOpen = $state(false);
-
     let items = $state<SupplierOrderItemLine[]>([
         {
             id: 'item_' + Date.now(),
-            is_package: false,
             product_id: null,
             product_name: '',
             quantity: 1,
@@ -82,31 +72,12 @@
             ...items,
             {
                 id: 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-                is_package: false,
                 product_id: null,
                 product_name: '',
                 quantity: 1,
                 unit_cost: '',
                 search_query: '',
                 is_dropdown_open: false,
-            },
-        ];
-    }
-
-    function handleAddPackage(pkg: CreatedPackage) {
-        items = [
-            ...items.filter((it) => it.product_name.trim() !== ''),
-            {
-                id: pkg.id,
-                is_package: true,
-                product_id: null,
-                product_name: pkg.name,
-                quantity: pkg.package_quantity,
-                unit_cost: pkg.unit_price,
-                search_query: pkg.name,
-                is_dropdown_open: false,
-                description: pkg.short_description,
-                components: pkg.components,
             },
         ];
     }
@@ -118,7 +89,6 @@
             items = [
                 {
                     id: 'item_' + Date.now(),
-                    is_package: false,
                     product_id: null,
                     product_name: '',
                     quantity: 1,
@@ -190,16 +160,8 @@
     let computedTotal = $derived.by(() => {
         let total = 0;
         for (const it of items) {
-            if (it.is_package && it.components) {
-                const pkgCost = it.components.reduce(
-                    (sum, c) => sum + c.quantity_in_package * c.unit_price,
-                    0
-                );
-                total += it.quantity * pkgCost;
-            } else if (it.product_name) {
-                const cost = Number(it.unit_cost) || 0;
-                total += it.quantity * cost;
-            }
+            const cost = Number(it.unit_cost) || 0;
+            total += it.quantity * cost;
         }
         return total;
     });
@@ -211,7 +173,6 @@
         items = [
             {
                 id: 'item_' + Date.now(),
-                is_package: false,
                 product_id: null,
                 product_name: '',
                 quantity: 1,
@@ -227,65 +188,65 @@
         resetForm();
     }
 
-    function handleSubmit(e: SubmitEvent) {
+    function submitOrder(e: Event) {
         e.preventDefault();
-        errorMessage = null;
 
         if (!selectedSupplierId) {
-            errorMessage = 'Debes seleccionar un proveedor.';
+            errorMessage = 'Por favor selecciona un proveedor.';
             return;
         }
 
-        const payloadItems: Array<{
+        const validItems = items.filter((it) => it.product_name.trim() !== '');
+
+        if (validItems.length === 0) {
+            errorMessage = 'Debes incluir al menos un producto con nombre válido.';
+            return;
+        }
+
+        for (const it of validItems) {
+            if (it.unit_cost === '' || Number(it.unit_cost) <= 0) {
+                errorMessage = `El producto "${it.product_name}" debe tener un costo unitario válido mayor a 0.`;
+                return;
+            }
+        }
+
+        isSubmitting = true;
+        errorMessage = null;
+
+        const payloadItems: {
             product_id: number | null;
             product_name: string;
             quantity: number;
             unit_cost: number;
-        }> = [];
+        }[] = [];
 
-        // Flatten packages if any
-        for (const it of items) {
-            if (it.is_package && it.components) {
-                for (const comp of it.components) {
-                    payloadItems.push({
-                        product_id: comp.product_id,
-                        product_name: comp.product_name,
-                        quantity: comp.quantity_in_package * it.quantity,
-                        unit_cost: comp.unit_price,
-                    });
-                }
-            } else if (it.product_name.trim() !== '') {
-                payloadItems.push({
-                    product_id: it.product_id,
-                    product_name: it.product_name.trim(),
-                    quantity: it.quantity,
-                    unit_cost: it.unit_cost ? Number(it.unit_cost) : 0.0,
-                });
-            }
+        for (const it of validItems) {
+            payloadItems.push({
+                product_id: it.product_id,
+                product_name: it.product_name,
+                quantity: it.quantity,
+                unit_cost: Number(it.unit_cost),
+            });
         }
-
-        if (payloadItems.length === 0) {
-            errorMessage = 'Debes ingresar al menos un producto para la orden de compra.';
-            return;
-        }
-
-        isSubmitting = true;
 
         router.post(
             '/tenant/suppliers/orders',
             {
-                supplier_id: selectedSupplierId,
-                notes: notes || null,
+                supplier_id: Number(selectedSupplierId),
+                notes: notes,
                 items: payloadItems,
             },
             {
+                preserveScroll: true,
                 onSuccess: () => {
-                    isSubmitting = false;
                     closeModal();
                 },
                 onError: (errors) => {
+                    const firstError = Object.values(errors)[0];
+                    errorMessage = typeof firstError === 'string' ? firstError : 'Ocurrió un error al crear la orden de compra.';
+                },
+                onFinish: () => {
                     isSubmitting = false;
-                    errorMessage = Object.values(errors).flat().join(' ') || 'Ocurrió un error al registrar la orden.';
                 },
             }
         );
@@ -295,56 +256,69 @@
 <svelte:window onclick={closeAllDropdowns} />
 
 {#if open}
+    <!-- Backdrop oscuro accesible -->
     <div
-        class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
-        onclick={(e) => e.target === e.currentTarget && closeModal()}
-        onkeydown={(e) => e.key === 'Escape' && closeModal()}
-        role="button"
-        tabindex="0"
-        aria-label="Cerrar modal"
-    >
-        <div class="bg-card text-card-foreground rounded-2xl border border-border shadow-2xl max-w-4xl w-full p-4 sm:p-6 space-y-4 my-6 overflow-hidden flex flex-col max-h-[92vh] relative">
+        class="fixed inset-0 bg-background/80 backdrop-blur-xs z-50 transition-opacity"
+        onclick={closeModal}
+        aria-hidden="true"
+    ></div>
+
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div
+            class="relative w-full max-w-3xl rounded-2xl bg-card border border-border shadow-2xl p-4 sm:p-6 space-y-4 max-h-[92vh] flex flex-col"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="supplier-order-modal-title"
+        >
             <!-- Header Bento -->
             <div class="flex items-center justify-between border-b pb-3.5 shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+                <div class="flex items-center gap-2.5">
+                    <div class="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
                         <Truck class="size-5" />
                     </div>
                     <div>
-                        <h2 class="text-xl font-bold text-foreground tracking-tight">Hacer Pedido a Proveedor</h2>
-                        <p class="text-xs text-muted-foreground">Genera una orden de compra con productos existentes o nuevos.</p>
+                        <h2 id="supplier-order-modal-title" class="text-base font-bold text-foreground">
+                            Nueva Orden de Compra a Proveedor
+                        </h2>
+                        <p class="text-xs text-muted-foreground">
+                            Registra el pedido de reposición de mercadería para actualizar costos e inventario al recibirlo.
+                        </p>
                     </div>
                 </div>
+
                 <button
                     type="button"
                     onclick={closeModal}
-                    class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                    aria-label="Cerrar"
+                    class="rounded-lg p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    aria-label="Cerrar modal"
                 >
-                    <X class="size-5" />
+                    <X class="size-4" />
                 </button>
             </div>
 
+            <!-- Error Banner -->
             {#if errorMessage}
-                <div class="p-3 rounded-xl bg-destructive/10 text-destructive text-xs font-medium border border-destructive/20 shrink-0">
-                    {errorMessage}
+                <div class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs flex items-center gap-2 shrink-0">
+                    <AlertCircle class="size-4 shrink-0" />
+                    <span class="font-medium">{errorMessage}</span>
                 </div>
             {/if}
 
-            <form onsubmit={handleSubmit} class="space-y-4 overflow-y-auto pr-1 flex-1">
-                <!-- Bento Card 1: Proveedor Destinatario -->
+            <!-- Form Content (Scrollable) -->
+            <form onsubmit={submitOrder} class="space-y-4 overflow-y-auto pr-1 flex-1">
+                <!-- Bento Card 1: Proveedor -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                         <Truck class="size-3.5 text-primary" />
-                        Proveedor Destinatario
+                        Proveedor Destino
                     </h3>
 
                     <div class="space-y-1">
-                        <Label for="order-supplier" class="text-xs font-semibold text-foreground">
+                        <Label for="supplier-select" class="text-xs font-semibold text-foreground">
                             Seleccionar Proveedor <span class="text-destructive">*</span>
                         </Label>
                         <select
-                            id="order-supplier"
+                            id="supplier-select"
                             bind:value={selectedSupplierId}
                             class="h-9 w-full rounded-lg border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
                             required
@@ -357,81 +331,115 @@
                     </div>
                 </div>
 
-                <!-- Bento Card 2: Productos & Bolsones -->
+                <!-- Bento Card 2: Productos -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3.5">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div class="flex items-center justify-between">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                             <Layers class="size-3.5 text-primary" />
                             Productos a Solicitar
                         </h3>
 
-                        <div class="flex items-center gap-2">
-                            <Button
-                                type="button"
-                                size="sm"
-                                variant="secondary"
-                                class="h-8 text-xs gap-1 font-semibold"
-                                onclick={addItem}
-                            >
-                                <Plus class="size-3.5" />
-                                Añadir producto
-                            </Button>
-
-                            <Button
-                                type="button"
-                                size="sm"
-                                variant="outline"
-                                class="h-8 text-xs gap-1.5 font-semibold text-primary border-primary/30 bg-primary/5 hover:bg-primary/10"
-                                onclick={() => (isPackageModalOpen = true)}
-                            >
-                                <Package class="size-3.5" />
-                                Crear Bolsón
-                            </Button>
-                        </div>
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            class="h-8 text-xs gap-1 font-semibold"
+                            onclick={addItem}
+                        >
+                            <Plus class="size-3.5" />
+                            Añadir producto
+                        </Button>
                     </div>
 
                     <!-- Lista de Productos -->
                     <div class="space-y-2.5">
                         {#each items as item, index (item.id || index)}
-                            {#if item.is_package}
-                                <!-- Card de Bolsón / Combo -->
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
-                                    <div class="flex items-center gap-3 min-w-0">
-                                        <div class="size-9 rounded-lg bg-secondary/15 text-secondary flex items-center justify-center shrink-0 border border-secondary/20">
-                                            <Package class="size-4.5" />
-                                        </div>
-                                        <div class="min-w-0">
-                                            <div class="flex items-center gap-2">
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-secondary/15 text-secondary border border-secondary/30">
-                                                    BOLSÓN COMBO
-                                                </span>
-                                                <p class="text-xs font-bold text-foreground truncate max-w-xs sm:max-w-md">
-                                                    {item.description || item.product_name}
-                                                </p>
+                            <div
+                                class="flex flex-col gap-2 p-3 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs relative"
+                                onclick={(e) => e.stopPropagation()}
+                            >
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
+                                    <!-- Input / Dropdown Buscador -->
+                                    <div class="sm:col-span-6 relative">
+                                        <Label for={`prod-name-${index}`} class="text-[11px] font-semibold text-muted-foreground sm:hidden mb-1 block">
+                                            Producto
+                                        </Label>
+                                        <Input
+                                            id={`prod-name-${index}`}
+                                            type="text"
+                                            value={item.search_query}
+                                            oninput={(e) => handleSearchInput(index, (e.target as HTMLInputElement).value)}
+                                            onfocus={() => {
+                                                closeAllDropdowns();
+                                                item.is_dropdown_open = true;
+                                            }}
+                                            placeholder="Buscar producto o escribir nuevo..."
+                                            class="h-8 text-xs font-medium"
+                                        />
+
+                                        <!-- Autocomplete flotante -->
+                                        {#if item.is_dropdown_open}
+                                            <div
+                                                class="absolute left-0 right-0 top-full mt-1 bg-popover text-popover-foreground rounded-lg border shadow-lg z-50 max-h-48 overflow-y-auto"
+                                            >
+                                                {#each getFilteredProducts(item.search_query) as prod}
+                                                    <button
+                                                        type="button"
+                                                        class="w-full px-3 py-1.5 text-left text-xs hover:bg-muted transition-colors flex items-center justify-between gap-2 border-b last:border-0"
+                                                        onclick={() => selectProduct(index, prod)}
+                                                    >
+                                                        <span class="font-medium truncate">{prod.name}</span>
+                                                        <div class="text-[11px] text-muted-foreground font-mono shrink-0">
+                                                            {#if prod.cost_price}
+                                                                <span>Costo: {formatPrice(Number(prod.cost_price))}</span>
+                                                            {:else}
+                                                                <span>Stock: {prod.stock ?? 0}</span>
+                                                            {/if}
+                                                        </div>
+                                                    </button>
+                                                {/each}
                                             </div>
-                                            <p class="text-[11px] text-muted-foreground mt-0.5 font-mono">
-                                                {formatPrice(Number(item.unit_cost) || 0)} costo unitario
-                                            </p>
+                                        {/if}
+                                    </div>
+
+                                    <!-- Costo Unitario -->
+                                    <div class="sm:col-span-3">
+                                        <Label for={`prod-cost-${index}`} class="text-[11px] font-semibold text-muted-foreground sm:hidden mb-1 block">
+                                            Costo Unit.
+                                        </Label>
+                                        <div class="relative">
+                                            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-mono">$</span>
+                                            <Input
+                                                id={`prod-cost-${index}`}
+                                                type="number"
+                                                step="0.01"
+                                                min="0.01"
+                                                bind:value={item.unit_cost}
+                                                placeholder="0.00"
+                                                class="h-8 text-xs pl-6 font-mono text-right"
+                                                required
+                                            />
                                         </div>
                                     </div>
 
-                                    <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0">
-                                        <!-- Stepper -->
+                                    <!-- Stepper Cantidad & Botón Eliminar -->
+                                    <div class="sm:col-span-3 flex items-center justify-between sm:justify-end gap-2">
                                         <div class="flex items-center border rounded-lg bg-background shadow-2xs">
                                             <button
                                                 type="button"
-                                                class="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors"
+                                                class="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors"
                                                 onclick={() => decrementQuantity(index)}
+                                                disabled={item.quantity <= 1}
                                                 aria-label="Disminuir cantidad"
                                             >
                                                 <Minus class="size-3" />
                                             </button>
-                                            <span class="px-3 text-xs font-bold font-mono min-w-8 text-center">
+                                            <span class="px-2 text-xs font-bold font-mono min-w-6 text-center">
                                                 {item.quantity}
                                             </span>
                                             <button
                                                 type="button"
-                                                class="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors"
+                                                class="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors"
                                                 onclick={() => incrementQuantity(index)}
                                                 aria-label="Aumentar cantidad"
                                             >
@@ -439,166 +447,64 @@
                                             </button>
                                         </div>
 
-                                        <span class="font-mono text-xs font-bold text-foreground w-24 text-right">
-                                            {formatPrice(item.quantity * (Number(item.unit_cost) || 0))}
-                                        </span>
-
                                         <button
                                             type="button"
                                             class="p-1.5 text-muted-foreground hover:text-destructive rounded transition-colors"
                                             onclick={() => removeItem(index)}
-                                            aria-label="Eliminar bolsón"
+                                            aria-label="Eliminar producto"
                                         >
                                             <Trash2 class="size-3.5" />
                                         </button>
                                     </div>
                                 </div>
-                            {:else}
-                                <!-- Card de Producto Individual con Autocomplete inteligente -->
-                                {@const filtered = getFilteredProducts(item.search_query)}
-                                {@const hasExactMatch = Boolean(item.product_id)}
-
-                                <div
-                                    class="flex flex-col gap-2 p-3 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs relative"
-                                    onclick={(e) => e.stopPropagation()}
-                                >
-                                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                                        <!-- Input Buscador on-the-fly -->
-                                        <div class="relative flex-1 w-full">
-                                            <Input
-                                                type="text"
-                                                value={item.search_query}
-                                                oninput={(e) => handleSearchInput(index, (e.target as HTMLInputElement).value)}
-                                                onfocus={() => {
-                                                    closeAllDropdowns();
-                                                    item.is_dropdown_open = true;
-                                                }}
-                                                placeholder="Escribe el nombre del producto..."
-                                                class="h-9 text-xs pr-20 font-medium"
-                                                required
-                                            />
-                                            {#if hasExactMatch}
-                                                <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-emerald-600 bg-emerald-500/15 px-1.5 py-0.2 rounded pointer-events-none">
-                                                    En catálogo
-                                                </span>
-                                            {/if}
-
-                                            <!-- Dropdown flotante z-50 -->
-                                            {#if item.is_dropdown_open && item.search_query.trim() !== ''}
-                                                <div class="absolute left-0 right-0 top-full mt-1.5 z-50 rounded-xl border border-border/80 bg-popover text-popover-foreground shadow-2xl overflow-y-auto max-h-[185px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                                                    {#each filtered as prod}
-                                                        <button
-                                                            type="button"
-                                                            class="w-full px-3 py-2 text-left text-xs hover:bg-muted transition-colors flex items-center justify-between border-b last:border-b-0"
-                                                            onclick={() => selectProduct(index, prod)}
-                                                        >
-                                                            <span class="font-medium text-foreground">{prod.name}</span>
-                                                            <span class="text-[10px] text-muted-foreground font-mono">
-                                                                {prod.cost_price ? `Costo: ${formatPrice(Number(prod.cost_price))}` : 'Sin costo'}
-                                                            </span>
-                                                        </button>
-                                                    {/each}
-
-                                                    {#if filtered.length === 0}
-                                                        <div class="p-2.5 text-xs text-amber-600 dark:text-amber-400 bg-amber-500/10 flex items-center gap-2">
-                                                            <AlertCircle class="size-3.5 shrink-0" />
-                                                            <span>No hay coincidencias, se creará al confirmar la orden.</span>
-                                                        </div>
-                                                    {/if}
-                                                </div>
-                                            {/if}
-                                        </div>
-
-                                        <!-- Cantidad y Costo -->
-                                        <div class="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
-                                            <div class="flex items-center gap-1">
-                                                <span class="text-[11px] text-muted-foreground sm:hidden">Cant:</span>
-                                                <Input
-                                                    type="number"
-                                                    min="1"
-                                                    bind:value={item.quantity}
-                                                    placeholder="Cant"
-                                                    class="h-9 w-18 text-xs text-center font-bold"
-                                                    required
-                                                />
-                                            </div>
-
-                                            <div class="flex items-center gap-1">
-                                                <span class="text-[11px] text-muted-foreground sm:hidden">Costo:</span>
-                                                <Input
-                                                    type="number"
-                                                    step="0.01"
-                                                    min="0"
-                                                    bind:value={item.unit_cost}
-                                                    placeholder="Costo ($)"
-                                                    class="h-9 w-24 text-xs text-right font-mono"
-                                                />
-                                            </div>
-
-                                            <span class="font-mono text-xs font-bold text-foreground w-20 text-right">
-                                                {formatPrice(item.quantity * (Number(item.unit_cost) || 0))}
-                                            </span>
-
-                                            <button
-                                                type="button"
-                                                class="p-1.5 text-muted-foreground hover:text-destructive rounded transition-colors"
-                                                onclick={() => removeItem(index)}
-                                                aria-label="Eliminar producto"
-                                            >
-                                                <Trash2 class="size-3.5" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            {/if}
+                            </div>
                         {/each}
                     </div>
-
-                    <!-- Total Card Footer -->
-                    <div class="flex justify-end items-center gap-2 pt-2 border-t border-border/50">
-                        <span class="text-xs text-muted-foreground font-medium">Costo Total:</span>
-                        <span class="text-lg font-bold font-mono text-primary">{formatPrice(computedTotal)}</span>
-                    </div>
                 </div>
 
-                <!-- Bento Card 3: Notas u Observaciones -->
-                <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-2">
-                    <Label for="order-notes" class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                        <Edit3 class="size-3.5 text-primary" />
-                        Notas u Observaciones para el Proveedor
-                    </Label>
+                <!-- Bento Card 3: Observaciones -->
+                <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-1.5">
+                    <Label for="supplier-order-notes" class="text-xs font-semibold text-foreground">Notas Adicionales</Label>
                     <textarea
-                        id="order-notes"
+                        id="supplier-order-notes"
                         bind:value={notes}
                         rows="2"
-                        placeholder="ej. Solicitar factura tipo A, entrega en depósito..."
-                        class="w-full bg-background text-foreground text-xs rounded-lg px-3 py-2 outline-none border border-input focus:ring-1 focus:ring-primary transition-colors resize-none"
+                        placeholder="ej. Entrega pactada para el viernes por la tarde..."
+                        class="w-full rounded-lg border border-input bg-background p-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none resize-none"
                     ></textarea>
                 </div>
+            </form>
 
-                <!-- Footer Actions -->
-                <div class="flex items-center justify-end gap-2 pt-2 border-t shrink-0">
-                    <Button type="button" variant="outline" size="sm" onclick={closeModal} disabled={isSubmitting}>
+            <!-- Footer Bento: Total Estimado & Botones -->
+            <div class="flex items-center justify-between border-t pt-3.5 shrink-0">
+                <div class="flex items-baseline gap-2">
+                    <span class="text-xs text-muted-foreground">Total Estimado:</span>
+                    <span class="text-xl font-bold font-mono text-primary">{formatPrice(computedTotal)}</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <Button type="button" variant="outline" size="sm" onclick={closeModal}>
                         Cancelar
                     </Button>
-                    <Button type="submit" size="sm" disabled={isSubmitting} class="font-semibold gap-1.5 min-w-36">
+                    <Button
+                        type="button"
+                        size="sm"
+                        class="gap-1.5 font-semibold"
+                        disabled={isSubmitting}
+                        onclick={(e) => {
+                            const form = document.querySelector('form');
+                            if (form) form.requestSubmit();
+                        }}
+                    >
                         {#if isSubmitting}
                             <span>Guardando...</span>
                         {:else}
-                            <span>Hacer Pedido</span>
-                            <Check class="size-3.5" />
+                            <Check class="size-4" />
+                            <span>Crear Orden</span>
                         {/if}
                     </Button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 {/if}
-
-<!-- Modal Secundario Crear Bolsón -->
-<CreatePackageModal
-    bind:open={isPackageModalOpen}
-    {availableProducts}
-    mode="supplier"
-    onaddpackage={handleAddPackage}
-/>
