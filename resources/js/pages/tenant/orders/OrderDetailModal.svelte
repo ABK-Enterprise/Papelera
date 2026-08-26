@@ -298,20 +298,37 @@
                                         {/if}
                                     </td>
                                     <td class="p-2.5 text-muted-foreground">
-                                        {#if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
+                                        {#if item.packaging_type === 'gram'}
+                                            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-600 dark:text-sky-400">
+                                                Gramos (g)
+                                            </span>
+                                        {:else if item.packaging_type === 'kg'}
+                                            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-600 dark:text-sky-400">
+                                                Kilogramos (Kg)
+                                            </span>
+                                        {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
                                             <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
-                                                Bulto (x{item.units_per_package}u)
+                                                Bulto (x{item.units_per_package || 1})
                                             </span>
                                         {:else}
                                             <span>Unidad</span>
                                         {/if}
                                     </td>
                                     <td class="p-2.5 text-center font-bold font-mono">
-                                        {item.quantity} {item.packaging_type === 'bolson' || item.packaging_type === 'bulto' ? 'bultos' : 'unid.'}
-                                        {#if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
+                                        {#if item.packaging_type === 'gram'}
+                                            {item.quantity} g
                                             <span class="text-[10px] text-muted-foreground block font-normal">
-                                                ({item.quantity * item.units_per_package} unid.)
+                                                ({item.quantity / 1000} Kg)
                                             </span>
+                                        {:else if item.packaging_type === 'kg'}
+                                            {item.quantity} Kg
+                                        {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
+                                            {item.quantity} {item.quantity === 1 ? 'bulto' : 'bultos'}
+                                            <span class="text-[10px] text-muted-foreground block font-normal">
+                                                ({item.quantity * (item.units_per_package || 1)})
+                                            </span>
+                                        {:else}
+                                            {item.quantity} unid.
                                         {/if}
                                     </td>
                                     <td class="p-2.5 text-right font-mono">{formatPrice(item.unit_price)}</td>
