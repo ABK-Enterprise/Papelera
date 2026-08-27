@@ -10,6 +10,7 @@ The Laravel Boost guidelines are specifically curated by Laravel maintainers for
 This application is a Laravel application running on PHP 8.5. You are an expert with the Laravel ecosystem. Always use the APIs that match the installed major version of each package — do not assume a version.
 
 Before relying on a package's API, confirm its installed version:
+
 - PHP packages: run `composer show --direct` to list direct dependencies with versions, or `composer show <vendor/package>` for a single package.
 - JS packages: check `package.json` for the installed versions.
 
@@ -23,6 +24,88 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - **Máquinas de Estados Finitos (FSM) e Idempotencia en Flujos de Negocio**: Modelar siempre los flujos con ciclo de vida o cambios de estado (pedidos de clientes, órdenes de compra, facturación, etc.) como Máquinas de Estados Finitos (FSM) explícitas. Definir `ALLOWED_TRANSITIONS`, `canTransitionTo()` e `isTerminal()` en los modelos, envolver las mutaciones dentro de `DB::transaction()` con bloqueo pesimista (`lockForUpdate()`), garantizar que los estados terminales (`cancelado`, `entregado`, `recibido`) sean inmutables y no reincorporar/descontar stock repetidamente, y sincronizar reactivamente los modales de la UI (`bind:order` y `$effect`) con confirmaciones explícitas (`ConfirmActionModal`).
 - **Uso Exclusivo de PNPM para Frontend y Dependencias**: Utilizar SIEMPRE y de manera obligatoria `pnpm` (ej. `pnpm run build`, `pnpm run dev`, `pnpm add`, `pnpm install`, `pnpm exec`) para instalar paquetes, compilar assets con Vite o correr scripts de frontend. NUNCA utilizar `npm` ni `yarn`.
 - **Integridad y Prohibición de Eliminación en AGENTS.md**: Queda estrictamente prohibido eliminar, truncar o modificar líneas o reglas existentes en este archivo `AGENTS.md` a no ser que el usuario dé la orden explícita e inequívoca de hacerlo. Toda nueva directiva debe anexarse preservando íntegramente las reglas anteriores.
+
+
+
+# Directrices de Diseño UI/UX y Sistema de Interfaces
+
+## 1. Principios de Apple (Human Interface Guidelines)
+
+### A. Deferencia y Claridad
+
+- **El contenido es el rey:** La interfaz gráfica no debe competir con los datos del usuario. Evita decoraciones superfluas (bordes gruesos, gradientes estridentes o patrones de fondo complejos).
+- **Tipografía escalonada:** Usa una única familia tipográfica variando peso y tamaño para establecer niveles:
+  - Título principal: `font-bold` / `text-2xl` o `text-xl`
+  - Subtítulos/Secciones: `font-semibold` / `text-base`
+  - Cuerpo regular: `font-normal` / `text-sm`
+  - Metadatos/Captions: `font-normal` / `text-xs` con contraste reducido (`text-muted-foreground`).
+
+### B. Profundidad y Superficies
+
+- **Capas semánticas en lugar de líneas duras:** Separa niveles de profundidad con variaciones tonales de fondo (`bg-background` -> `bg-card` -> `bg-popover`) y desenfoque sutil (`backdrop-blur-md` en headers/navbars).
+- **Sombras suaves y direccionales:** Usa sombras difusas y de baja opacidad (`shadow-sm`, `shadow-md`), nunca sombras negras y opacas de radio corto.
+
+---
+
+## 2. Principios de Google (Material Design 3)
+
+### A. Roles de Color y Contenedores Tonales
+
+- **Separación de roles cromáticos:**
+  - `Primary`: Acción principal de la pantalla o estado activo crítico.
+  - `Secondary / Muted`: Filtros, chips secundarios, fondos auxiliares.
+  - `Surface / Container`: Bloques de contenido (`Card`, `Dialog`, `Sidebar`). Usa niveles tonales (`surface-1`, `surface-2`) para indicar elevación sin depender únicamente de sombras.
+  - `Destructive / Error`: Reservado exclusivamente para acciones irreversibles o fallos críticos.
+
+### B. Ergonomía y Touch Targets
+
+- **Áreas mínimas de interacción:** Todo elemento interactivo (botones, iconos, checkboxes, filas clickeables) debe tener un área táctil mínima de **44×44 px** (o `min-h-[40px]` con padding clickeable), incluso si el icono visual mide 16px.
+- **Estados interactivos completos:** Todo componente interactivo DEBE incluir estilos explícitos para: `hover`, `focus-visible` (anillo de foco accesible sin outline nativo roto), `active` y `disabled`.
+
+---
+
+## 3. Principios Enterprise (Shopify Polaris, IBM Carbon)
+
+### A. Gestión de Densidad y Carga Cognitiva
+
+- **Divulgación Progresiva (*Progressive Disclosure*):**
+  - Muestra en primera instancia solo los 3 a 5 datos clave para la toma de decisiones.
+  - Oculta detalles secundarios o acciones infrecuentes bajo menús desplegables (`...`), acordeones o vistas de detalle dedicadas.
+- **Tablas vs. Cards:**
+  - Usa **Tablas** cuando el usuario deba comparar, ordenar o escanear horizontalmente múltiples registros estructurados.
+  - Usa **Cards** cuando cada elemento represente una entidad autónoma con métricas o estados diferenciados.
+
+### B. Microcopy y Prevención de Errores
+
+- **Textos de acción explícitos:** Los botones deben describir la acción exacta mediante verbos en infinitivo ("Guardar cambios", "Exportar CSV", "Eliminar producto"), NUNCA etiquetas ambiguas como "Aceptar", "OK" o "Continuar".
+- **Diálogos de Confirmación:**
+  - *Título:* Pregunta directa sobre la acción (ej. "¿Eliminar este registro?").
+  - *Cuerpo:* Explica la consecuencia exacta en 1 o 2 oraciones (ej. "Esta acción no se puede deshacer y se perderán todos los datos vinculados").
+  - *Botones:* Botón destructivo a la derecha/final con etiqueta roja sólida ("Eliminar") + Botón de cancelación neutral ("Cancelar").
+
+---
+
+## 4. Leyes Psicológicas y Heurísticas de UX
+
+- **Ley de Proximidad (Gestalt):** El espacio entre elementos de un mismo grupo (`gap-1.5` o `gap-2`) debe ser significativamente menor que el espacio que separa un grupo del siguiente (`mb-6` o `gap-6`).
+- **Ley de Hick:** Reduce la cantidad de opciones concurrentes. Si un formulario tiene más de 6-8 campos, evalúa agruparlo en pasos secuenciales (*steppers*) o secciones colapsables lógicas.
+- **Ley de Fitts:** Los botones primarios deben posicionarse en los extremos naturales del flujo de lectura (abajo a la derecha en modales, arriba a la derecha en cabeceras de página).
+- **Feedback Inmediato:** Toda mutación o acción asíncrona debe reflejar:
+  - Estado de carga (`isPending` / `disabled` + spinner sutil).
+  - Estado vacío (*Empty State*) con ilustración o icono sutil, explicación de ausencia de datos y botón de acción para crearlo.
+  - Notificación de éxito o error (*Toast* o banner discreto).
+
+---
+
+## 5. Reglas de Validación Rápida (DO / DON'T)
+
+| Aspecto               | DO (Hacer)                                                                                     | DON'T (Evitar)                                                               |
+| :-------------------- | :--------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------- |
+| **Bordes**      | Usar separaciones con fondos sutiles (`bg-muted/50`) o bordes tenues (`border-border/60`). | Enmarcar cada elemento con bordes negros o contrastados.                     |
+| **Colores**     | Mantener una paleta neutra con un único color de acento para acciones clave.                  | Usar múltiples colores primarios (azul, verde, púrpura) en la misma vista. |
+| **Botones**     | Máximo 1 botón con estilo sólido primario por bloque o modal.                               | Poner 3 botones primarios sólidos juntos compitiendo por atención.         |
+| **Cards**       | Padding generoso y consistente (`p-5` o `p-6`), títulos claros y métricas destacadas.    | Llenar la tarjeta con 10 campos de texto plano y etiquetas en negrita.       |
+| **Alineación** | Alinear números a la derecha en tablas y textos a la izquierda.                               | Centrar textos largos o números en columnas comparativas.                   |
 
 ## Conventions
 
