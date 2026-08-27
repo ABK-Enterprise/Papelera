@@ -50,9 +50,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
         // Suppliers (Proveedores module)
         Route::middleware('module:proveedores')->group(function () {
             Route::get('suppliers', [SupplierController::class, 'index'])->name('suppliers.index')->middleware('tenant.permission:proveedores.ver');
-            Route::get('suppliers/create', [SupplierController::class, 'create'])->name('suppliers.create')->middleware('tenant.permission:proveedores.crear');
             Route::post('suppliers', [SupplierController::class, 'store'])->name('suppliers.store')->middleware('tenant.permission:proveedores.crear');
-            Route::get('suppliers/{supplier}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit')->middleware('tenant.permission:proveedores.editar');
             Route::put('suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update')->middleware('tenant.permission:proveedores.editar');
             Route::delete('suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy')->middleware('tenant.permission:proveedores.eliminar');
 
