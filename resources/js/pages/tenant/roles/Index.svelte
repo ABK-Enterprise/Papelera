@@ -1,14 +1,13 @@
 <script lang="ts">
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
-    import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-    import { Badge } from '@/components/ui/badge';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
+    import EmptyState from '@/components/common/EmptyState.svelte';
+    import RoleListDesktop from './desktop/RoleListDesktop.svelte';
+    import RoleListMobile from './mobile/RoleListMobile.svelte';
     import { Link, router } from '@inertiajs/svelte';
     import Shield from 'lucide-svelte/icons/shield';
     import Users from 'lucide-svelte/icons/users';
-    import Trash2 from 'lucide-svelte/icons/trash-2';
-    import Edit2 from 'lucide-svelte/icons/edit-2';
 
     interface RoleItem {
         id: number;
@@ -45,92 +44,59 @@
 <AppHead title="Roles y Permisos - Comercio" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <!-- Encabezado y Acciones -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl font-bold tracking-tight">Roles y Permisos</h1>
-            <p class="text-sm text-muted-foreground">
+            <div class="flex items-center gap-2.5">
+                <h1 class="text-2xl font-bold tracking-tight text-foreground">Roles y Permisos</h1>
+                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                    {roles.length} {roles.length === 1 ? 'perfil' : 'perfiles'}
+                </span>
+            </div>
+            <p class="mt-1 text-sm text-muted-foreground">
                 Define perfiles de acceso para los empleados basados en los módulos contratados.
             </p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap items-center gap-2.5">
             <Link href="/tenant/users">
-                <Button variant="outline" class="gap-2">
+                <Button variant="outline" class="min-h-[44px] gap-2 rounded-xl border-border/70 text-sm font-medium">
                     <Users class="h-4 w-4" />
-                    Ver Empleados
+                    <span>Ver Empleados</span>
                 </Button>
             </Link>
             <Link href="/tenant/roles/create">
-                <Button class="gap-2">
+                <Button class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-xs">
                     <Shield class="h-4 w-4" />
-                    + Nuevo Rol
+                    <span>Crear Nuevo Rol</span>
                 </Button>
             </Link>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {#each roles as role (role.id)}
-            <Card class="flex flex-col justify-between transition-all hover:shadow-md">
-                <CardHeader class="pb-3">
-                    <div class="flex items-start justify-between gap-2">
-                        <div>
-                            <CardTitle class="text-lg flex items-center gap-2">
-                                {role.name}
-                            </CardTitle>
-                            <CardDescription class="text-xs">
-                                {role.users_count} {role.users_count === 1 ? 'usuario con este rol' : 'usuarios con este rol'}
-                            </CardDescription>
-                        </div>
-                    </div>
-                </CardHeader>
-
-                <CardContent class="space-y-4 pt-0">
-                    <div class="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span class="font-medium">Permisos asignados:</span>
-                        <Badge variant="outline">{role.permissions_count} permisos</Badge>
-                    </div>
-
-                    <div class="flex items-center justify-between border-t pt-3 text-xs">
-                        <Link href={`/tenant/roles/${role.id}/edit`}>
-                            <Button size="sm" variant="outline" class="gap-1.5">
-                                <Edit2 class="h-3.5 w-3.5" />
-                                Editar Permisos
-                            </Button>
-                        </Link>
-
-                        <Button
-                            size="sm"
-                            variant="destructive"
-                            class="gap-1.5"
-                            onclick={() => promptDelete(role)}
-                        >
-                            <Trash2 class="h-3.5 w-3.5" />
-                            Eliminar
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-        {/each}
-
-        {#if roles.length === 0}
-            <div class="col-span-full rounded-xl border border-dashed p-12 text-center">
-                <h3 class="text-lg font-medium">No hay roles personalizados configurados</h3>
-                <p class="mt-1 text-sm text-muted-foreground">
-                    Crea perfiles como "Cajero", "Ventas" o "Depósito" para asignar permisos selectivos a tu personal.
-                </p>
-                <Link href="/tenant/roles/create" class="mt-4 inline-block">
-                    <Button>+ Crear Primer Rol</Button>
-                </Link>
-            </div>
-        {/if}
-    </div>
+    <!-- Contenido Modular: Desktop vs Mobile -->
+    {#if roles.length > 0}
+        <div class="hidden md:block">
+            <RoleListDesktop {roles} ondelete={promptDelete} />
+        </div>
+        <div class="block md:hidden">
+            <RoleListMobile {roles} ondelete={promptDelete} />
+        </div>
+    {:else}
+        <EmptyState
+            icon={Shield}
+            title="No hay roles personalizados"
+            description="Crea perfiles de trabajo como 'Cajero', 'Ventas' o 'Depósito' para asignar permisos selectivos a tu personal."
+            actionLabel="Crear Primer Rol"
+            actionHref="/tenant/roles/create"
+        />
+    {/if}
 </div>
 
-<!-- Modal de Confirmación de Eliminación de Rol -->
+<!-- Modal de Confirmación de Eliminación -->
 <ConfirmActionModal
     bind:open={isDeleteModalOpen}
     title="¿Eliminar rol de permisos?"
-    description={`¿Estás seguro de eliminar el rol "${roleToDelete?.name}"? Los empleados que lo tengan asignado perderán los permisos correspondientes.`}
+    description={`¿Estás seguro de eliminar el rol "${roleToDelete?.name}"? Los empleados que lo tengan asignado perderán de inmediato los permisos correspondientes.`}
     confirmText="Eliminar Rol"
     cancelText="Cancelar"
     variant="danger"

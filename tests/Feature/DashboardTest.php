@@ -1,7 +1,10 @@
 <?php
 
+uses(TestCase::class, RefreshDatabase::class);
 use App\Models\Tenant;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 test('guests are redirected to the login page', function () {
     $response = $this->get(route('dashboard'));

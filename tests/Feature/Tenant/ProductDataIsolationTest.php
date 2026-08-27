@@ -1,11 +1,14 @@
 <?php
 
+uses(TestCase::class, RefreshDatabase::class);
 use App\Models\Category;
 use App\Models\Module;
 use App\Models\Product;
 use App\Models\Tenant;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 
 beforeEach(function () {
     $this->stockModule = Module::firstOrCreate(

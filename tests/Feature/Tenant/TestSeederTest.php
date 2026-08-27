@@ -9,7 +9,11 @@ use App\Models\SupplierOrder;
 use App\Models\Tenant;
 use App\Models\User;
 use Database\Seeders\TestSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
+use Tests\TestCase;
+
+uses(TestCase::class, RefreshDatabase::class);
 
 test('test seeder populates 4 tenants with specialized roles, products, clients and orders', function () {
     $this->seed(TestSeeder::class);

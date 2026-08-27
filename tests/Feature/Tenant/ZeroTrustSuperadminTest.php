@@ -1,7 +1,10 @@
 <?php
 
+uses(TestCase::class, RefreshDatabase::class);
 use App\Models\Tenant;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 test('superadmin without tenant context cannot access tenant routes and is redirected to platform dashboard', function () {
     $superadmin = User::factory()->superadmin()->create();

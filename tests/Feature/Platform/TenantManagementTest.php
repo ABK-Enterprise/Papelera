@@ -1,10 +1,13 @@
 <?php
 
+uses(TestCase::class, RefreshDatabase::class);
 use App\Models\Module;
 use App\Models\Tenant;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 
 test('superadmin can view tenants list with filters and search', function () {
     $superadmin = User::factory()->superadmin()->create();

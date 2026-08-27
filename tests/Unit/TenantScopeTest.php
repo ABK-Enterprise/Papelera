@@ -5,8 +5,10 @@ use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Tests\TestCase;
 
 class TestProduct extends Model
 {
@@ -16,6 +18,8 @@ class TestProduct extends Model
 
     protected $guarded = [];
 }
+
+uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
     Schema::create('test_products', function (Blueprint $table) {

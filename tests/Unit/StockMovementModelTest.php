@@ -6,8 +6,9 @@ use App\Models\StockMovement;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-uses(RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 test('stock movement belongs to tenant, product and user', function () {
     $tenant = Tenant::factory()->create();

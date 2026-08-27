@@ -1,12 +1,15 @@
 <?php
 
+uses(TestCase::class, RefreshDatabase::class);
 use App\Enums\SystemModule;
 use App\Models\Module;
 use App\Models\Tenant;
 use App\Models\User;
 use Database\Seeders\BaseSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 
 test('seeded productos and stock modules match routes and grant access to tenant', function () {
     // Run BaseSeeder

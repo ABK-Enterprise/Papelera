@@ -1,6 +1,9 @@
 <?php
 
+uses(TestCase::class, RefreshDatabase::class);
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 test('profile page is displayed', function () {
     $user = User::factory()->create();

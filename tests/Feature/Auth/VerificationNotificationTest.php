@@ -1,9 +1,12 @@
 <?php
 
+uses(TestCase::class, RefreshDatabase::class);
 use App\Models\User;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Laravel\Fortify\Features;
+use Tests\TestCase;
 
 beforeEach(function () {
     $this->skipUnlessFortifyHas(Features::emailVerification());

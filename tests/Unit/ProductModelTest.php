@@ -4,7 +4,11 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Tenant;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Tests\TestCase;
+
+uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
     $this->tenant = Tenant::factory()->create(['is_active' => true]);

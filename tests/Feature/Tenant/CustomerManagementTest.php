@@ -1,9 +1,12 @@
 <?php
 
+uses(TestCase::class, RefreshDatabase::class);
 use App\Models\Customer;
 use App\Models\Tenant;
 use App\Models\User;
 use Database\Seeders\BaseSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 beforeEach(function () {
     $this->seed(BaseSeeder::class);
