@@ -10,6 +10,7 @@ use App\Models\CustomerOrder;
 use App\Models\CustomerOrderItem;
 use App\Models\Product;
 use App\Models\StockMovement;
+use App\Services\TenantSequenceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -90,7 +91,7 @@ class CustomerOrderController extends Controller
         $userId = $request->user()->id;
 
         $order = DB::transaction(function () use ($request, $tenantId, $userId) {
-            $orderNumber = app(\App\Services\TenantSequenceService::class)->nextCustomerOrderNumber($tenantId);
+            $orderNumber = app(TenantSequenceService::class)->nextCustomerOrderNumber($tenantId);
 
             $itemsData = $request->validated('items');
             $totalAmount = 0.00;

@@ -383,22 +383,26 @@ class TestSeeder extends Seeder
             // Crear / Actualizar Usuarios del Tenant
             $createdUsers = [];
             foreach ($tData['users'] as $uData) {
-                $user = User::firstOrCreate([
-                    'email' => $uData['email'],
-                ], [
-                    'name' => $uData['name'],
-                    'password' => 'password',
-                    'tenant_id' => $tenant->id,
-                    'is_superadmin' => false,
-                    'email_verified_at' => now(),
-                ]);
-
-                $user->update([
-                    'password' => 'password',
-                    'name' => $uData['name'],
-                    'tenant_id' => $tenant->id,
-                    'email_verified_at' => $user->email_verified_at ?? now(),
-                ]);
+                $user = User::where('email', $uData['email'])->first();
+                if (! $user) {
+                    $user = new User([
+                        'name' => $uData['name'],
+                        'email' => $uData['email'],
+                        'password' => 'password',
+                    ]);
+                    $user->forceFill([
+                        'tenant_id' => $tenant->id,
+                        'is_superadmin' => false,
+                        'email_verified_at' => now(),
+                    ])->save();
+                } else {
+                    $user->forceFill([
+                        'name' => $uData['name'],
+                        'password' => 'password',
+                        'tenant_id' => $tenant->id,
+                        'email_verified_at' => $user->email_verified_at ?? now(),
+                    ])->save();
+                }
 
                 setPermissionsTeamId($tenant->id);
 

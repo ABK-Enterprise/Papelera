@@ -1,15 +1,16 @@
 <?php
 
 use App\Models\Category;
+use App\Models\Module;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Models\SupplierOrder;
-use App\Models\SupplierOrderItem;
 use App\Models\Tenant;
 use App\Models\User;
 use Database\Seeders\BaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
@@ -21,11 +22,11 @@ beforeEach(function () {
         'cuit_tax_id' => '30-99887766-4',
         'is_active' => true,
     ]);
-    $this->tenant->modules()->syncWithoutDetaching(\App\Models\Module::pluck('id'));
+    $this->tenant->modules()->syncWithoutDetaching(Module::pluck('id'));
 
     setPermissionsTeamId($this->tenant->id);
 
-    $this->adminRole = \Spatie\Permission\Models\Role::firstOrCreate([
+    $this->adminRole = Role::firstOrCreate([
         'name' => 'admin',
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\FlexibleDecimal;
 use Database\Factories\SupplierOrderItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -33,7 +34,7 @@ class SupplierOrderItem extends Model
     protected function casts(): array
     {
         return [
-            'quantity' => \App\Casts\FlexibleDecimal::class,
+            'quantity' => FlexibleDecimal::class,
             'unit_cost' => 'decimal:2',
             'subtotal' => 'decimal:2',
         ];

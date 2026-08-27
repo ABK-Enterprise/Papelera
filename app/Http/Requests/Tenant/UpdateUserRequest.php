@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Tenant;
 
+use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -20,7 +21,7 @@ class UpdateUserRequest extends FormRequest
         }
 
         $targetUser = $this->route('user');
-        if ($targetUser instanceof \App\Models\User && $targetUser->tenant_id !== $user->tenant_id) {
+        if ($targetUser instanceof User && $targetUser->tenant_id !== $user->tenant_id) {
             abort(404);
         }
 

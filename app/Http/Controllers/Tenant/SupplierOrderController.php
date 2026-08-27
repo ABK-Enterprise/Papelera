@@ -9,6 +9,7 @@ use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Models\SupplierOrder;
 use App\Models\SupplierOrderItem;
+use App\Services\TenantSequenceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -87,7 +88,7 @@ class SupplierOrderController extends Controller
         $tenantId = $request->user()->tenant_id;
 
         $order = DB::transaction(function () use ($request, $tenantId) {
-            $orderNumber = app(\App\Services\TenantSequenceService::class)->nextSupplierOrderNumber($tenantId);
+            $orderNumber = app(TenantSequenceService::class)->nextSupplierOrderNumber($tenantId);
 
             $itemsData = $request->validated('items');
             $totalCost = 0.00;

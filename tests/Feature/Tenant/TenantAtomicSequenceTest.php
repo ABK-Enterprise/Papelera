@@ -5,8 +5,6 @@ use App\Models\Customer;
 use App\Models\CustomerOrder;
 use App\Models\Module;
 use App\Models\Product;
-use App\Models\Supplier;
-use App\Models\SupplierOrder;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\TenantSequenceService;
