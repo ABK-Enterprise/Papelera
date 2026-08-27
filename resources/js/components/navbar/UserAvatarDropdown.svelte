@@ -81,17 +81,17 @@
                     </div>
 
                     {#if tenant}
-                        <div class="mt-1 flex items-center justify-between rounded-md bg-muted/50 px-2 py-1 text-xs text-muted-foreground">
-                            <span class="flex items-center gap-1 truncate font-medium">
+                        <div class="mt-1 flex items-center justify-between rounded-md bg-muted/50 px-2.5 py-1 text-xs text-muted-foreground">
+                            <span class="flex items-center gap-1.5 truncate font-medium">
                                 <Building2 class="h-3.5 w-3.5 shrink-0" />
                                 {tenant.name}
                             </span>
-                            <Badge variant="outline" class="text-[10px] px-1 py-0">Comercio</Badge>
+                            <Badge variant="outline" class="text-xs font-medium tracking-wide px-2 py-0.5">Comercio</Badge>
                         </div>
                     {:else if user.is_superadmin}
-                        <div class="mt-1 flex items-center justify-between rounded-md bg-primary/10 px-2 py-1 text-xs text-primary font-medium">
+                        <div class="mt-1 flex items-center justify-between rounded-md bg-primary/10 px-2.5 py-1 text-xs text-primary font-medium">
                             <span>Superadministrador</span>
-                            <Badge variant="default" class="text-[10px] px-1 py-0">Plataforma</Badge>
+                            <Badge variant="default" class="text-xs font-medium tracking-wide px-2 py-0.5">Plataforma</Badge>
                         </div>
                     {/if}
                 </div>
@@ -104,12 +104,12 @@
                 <DropdownMenuItem asChild>
                     {#snippet children(props)}
                         <Link
-                            class="{props.class} flex items-center gap-2 cursor-pointer py-2"
+                            class="{props.class} flex items-center gap-2 cursor-pointer py-2 text-sm font-normal"
                             href={toUrl(editProfile())}
                             prefetch
                         >
                             <Settings class="h-4 w-4 text-muted-foreground" />
-                            <span>Configuración de Perfil</span>
+                            <span>Configuración de perfil</span>
                         </Link>
                     {/snippet}
                 </DropdownMenuItem>
@@ -117,12 +117,12 @@
                 <DropdownMenuItem asChild>
                     {#snippet children(props)}
                         <Link
-                            class="{props.class} flex items-center gap-2 cursor-pointer py-2"
+                            class="{props.class} flex items-center gap-2 cursor-pointer py-2 text-sm font-normal"
                             href={toUrl(editSecurity())}
                             prefetch
                         >
                             <Shield class="h-4 w-4 text-muted-foreground" />
-                            <span>Seguridad y Contraseña</span>
+                            <span>Seguridad y contraseña</span>
                         </Link>
                     {/snippet}
                 </DropdownMenuItem>
@@ -130,12 +130,12 @@
                 <DropdownMenuItem asChild>
                     {#snippet children(props)}
                         <Link
-                            class="{props.class} flex items-center gap-2 cursor-pointer py-2"
+                            class="{props.class} flex items-center gap-2 cursor-pointer py-2 text-sm font-normal"
                             href={toUrl(editAppearance())}
                             prefetch
                         >
                             <Palette class="h-4 w-4 text-muted-foreground" />
-                            <span>Tema y Apariencia</span>
+                            <span>Tema y apariencia</span>
                         </Link>
                     {/snippet}
                 </DropdownMenuItem>

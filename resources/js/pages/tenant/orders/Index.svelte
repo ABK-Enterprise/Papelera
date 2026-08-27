@@ -127,21 +127,22 @@
     <!-- Header de la Página -->
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-                Pedidos de Clientes
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+                <ShoppingBag class="size-7 text-primary" />
+                Gestión de Pedidos de Clientes
             </h1>
             <p class="text-sm text-muted-foreground mt-0.5">
-                Control de ventas, empaques en bolsones y trazabilidad logística en Kardex.
+                Control de estados de preparación, envíos y seguimiento logístico con validación de stock.
             </p>
         </div>
 
         <div class="flex items-center gap-2.5">
             <Button
                 onclick={() => (isCreateModalOpen = true)}
-                class="gap-2 shadow-sm font-semibold"
+                class="gap-2 shadow-sm font-medium"
             >
                 <Plus class="size-4" />
-                Nuevo Pedido
+                <span>Registrar pedido</span>
             </Button>
         </div>
     </div>

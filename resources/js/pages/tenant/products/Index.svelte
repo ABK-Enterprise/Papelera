@@ -114,10 +114,10 @@
     <!-- Header de la Página -->
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
                 Catálogo de Productos
             </h1>
-            <p class="text-sm text-muted-foreground mt-0.5">
+            <p class="text-sm text-muted-foreground mt-0.5 max-w-prose">
                 Gestiona y organiza el catálogo de tu comercio y parámetros de empaque.
             </p>
         </div>
@@ -126,7 +126,7 @@
             <Link href="/tenant/products/create">
                 <Button class="gap-2 shadow-sm font-semibold">
                     <Plus class="size-4" />
-                    Añadir Producto
+                    Crear producto
                 </Button>
             </Link>
         </div>
@@ -140,8 +140,8 @@
                     <AlertTriangle class="size-5" />
                 </div>
                 <div>
-                    <h3 class="text-sm font-bold text-foreground">
-                        Hay {incompleteCount} {incompleteCount === 1 ? 'producto con datos faltantes' : 'productos con datos faltantes'}
+                    <h3 class="text-sm font-semibold text-foreground">
+                        Hay <span class="tabular-nums font-bold">{incompleteCount}</span> {incompleteCount === 1 ? 'producto con datos faltantes' : 'productos con datos faltantes'}
                     </h3>
                     <p class="text-xs text-muted-foreground">
                         Se recomienda completar su categoría y precio de venta para habilitar su venta a clientes.
@@ -250,7 +250,7 @@
                 class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border {selectedCategoryId === null ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-border text-muted-foreground'}"
                 onclick={() => handleSelectCategory(null)}
             >
-                Todas ({stats.total})
+                Todas (<span class="tabular-nums font-semibold">{stats.total}</span>)
             </button>
             {#each categories as cat}
                 <button
@@ -258,7 +258,7 @@
                     class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border {selectedCategoryId === cat.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-border text-muted-foreground'}"
                     onclick={() => handleSelectCategory(cat.id)}
                 >
-                    {cat.name} ({cat.products_count ?? 0})
+                    {cat.name} (<span class="tabular-nums font-semibold">{cat.products_count ?? 0}</span>)
                 </button>
             {/each}
         </div>

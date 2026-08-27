@@ -69,17 +69,17 @@
                 <div class="flex flex-col gap-1.5 min-w-0 flex-1">
                     <!-- Fila 1: Nombre Destacado + Badge de Estado -->
                     <div class="flex items-center gap-2.5 flex-wrap">
-                        <h3 class="font-bold text-base text-foreground group-hover:text-primary transition-colors truncate">
+                        <h3 class="font-semibold text-base text-foreground group-hover:text-primary transition-colors truncate">
                             {supplier.name}
                         </h3>
 
                         {#if supplier.is_active}
-                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                                 Activo
                             </span>
                         {:else}
-                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-muted text-muted-foreground border border-border">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide bg-muted text-muted-foreground border border-border">
                                 <span class="h-1.5 w-1.5 rounded-full bg-muted-foreground"></span>
                                 Inactivo
                             </span>
@@ -144,7 +144,7 @@
             icon={Truck}
             title="No se encontraron proveedores"
             description="No hay proveedores que coincidan con la búsqueda o todavía no has añadido ninguno a tu comercio."
-            actionLabel="Añadir Primer Proveedor"
+            actionLabel="Añadir primer proveedor"
             onaction={onOpenCreate}
         />
     {/if}

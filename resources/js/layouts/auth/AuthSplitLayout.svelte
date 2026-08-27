@@ -38,10 +38,10 @@
         >
             <div class="flex flex-col space-y-2 text-center">
                 {#if title}
-                    <h1 class="text-xl font-medium tracking-tight">{title}</h1>
+                    <h1 class="text-xl font-bold tracking-tight leading-tight text-foreground">{title}</h1>
                 {/if}
                 {#if description}
-                    <p class="text-sm text-muted-foreground">{description}</p>
+                    <p class="text-sm text-muted-foreground leading-relaxed">{description}</p>
                 {/if}
             </div>
             {@render children?.()}

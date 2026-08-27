@@ -86,8 +86,8 @@
                         <ShoppingBag class="h-5 w-5 stroke-[1.75]" />
                     </div>
                     <div>
-                        <span class="font-bold text-sm font-mono text-foreground tabular-nums">{order.order_number}</span>
-                        <span class="text-[11px] text-muted-foreground flex items-center gap-1 tabular-nums">
+                        <span class="font-semibold text-sm font-mono text-foreground tabular-nums">{order.order_number}</span>
+                        <span class="text-xs text-muted-foreground flex items-center gap-1 tabular-nums">
                             <Calendar class="h-3 w-3" />
                             {formatDate(order.created_at)}
                         </span>
@@ -97,27 +97,27 @@
                 <!-- Estado -->
                 <div>
                     {#if order.status === 'en_preparacion'}
-                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                             <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
                             En Prep.
                         </span>
                     {:else if order.status === 'preparado'}
-                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/30">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/30">
                             <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
                             Preparado
                         </span>
                     {:else if order.status === 'en_camino'}
-                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30">
                             <span class="h-1.5 w-1.5 rounded-full bg-indigo-500"></span>
                             En Camino
                         </span>
                     {:else if order.status === 'entregado'}
-                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                             <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                             Entregado
                         </span>
                     {:else if order.status === 'cancelado'}
-                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                             <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
                             Cancelado
                         </span>
@@ -131,7 +131,7 @@
                     <User class="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     {order.customer_name}
                 </span>
-                <span class="text-muted-foreground tabular-nums">
+                <span class="text-muted-foreground tabular-nums text-xs">
                     {order.items?.length ?? 0} {order.items?.length === 1 ? 'ítem' : 'ítems'}
                 </span>
             </div>
@@ -143,7 +143,7 @@
                 </span>
                 <Button size="sm" variant="outline" class="min-h-[44px] px-3.5 text-xs gap-1.5 font-medium rounded-xl border-border/70">
                     <Eye class="h-3.5 w-3.5" />
-                    <span>Ver</span>
+                    <span>Ver detalle</span>
                 </Button>
             </div>
         </div>

@@ -48,8 +48,8 @@
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <div class="flex items-center gap-2.5">
-                <h1 class="text-2xl font-bold tracking-tight text-foreground">Roles y Permisos</h1>
-                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Roles y Permisos</h1>
+                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums">
                     {roles.length} {roles.length === 1 ? 'perfil' : 'perfiles'}
                 </span>
             </div>
@@ -61,13 +61,13 @@
             <Link href="/tenant/users">
                 <Button variant="outline" class="min-h-[44px] gap-2 rounded-xl border-border/70 text-sm font-medium">
                     <Users class="h-4 w-4" />
-                    <span>Ver Empleados</span>
+                    <span>Ver empleados</span>
                 </Button>
             </Link>
             <Link href="/tenant/roles/create">
                 <Button class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-xs">
                     <Shield class="h-4 w-4" />
-                    <span>Crear Nuevo Rol</span>
+                    <span>Crear rol</span>
                 </Button>
             </Link>
         </div>
@@ -86,7 +86,7 @@
             icon={Shield}
             title="No hay roles personalizados"
             description="Crea perfiles de trabajo como 'Cajero', 'Ventas' o 'Depósito' para asignar permisos selectivos a tu personal."
-            actionLabel="Crear Primer Rol"
+            actionLabel="Crear primer rol"
             actionHref="/tenant/roles/create"
         />
     {/if}
@@ -97,7 +97,7 @@
     bind:open={isDeleteModalOpen}
     title="¿Eliminar rol de permisos?"
     description={`¿Estás seguro de eliminar el rol "${roleToDelete?.name}"? Los empleados que lo tengan asignado perderán de inmediato los permisos correspondientes.`}
-    confirmText="Eliminar Rol"
+    confirmText="Eliminar rol"
     cancelText="Cancelar"
     variant="danger"
     loading={isDeleting}

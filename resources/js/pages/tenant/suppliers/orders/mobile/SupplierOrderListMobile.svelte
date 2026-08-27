@@ -74,30 +74,30 @@
         >
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <span class="font-bold text-sm font-mono text-foreground tabular-nums">{order.order_number}</span>
-                    <span class="text-[11px] text-muted-foreground tabular-nums flex items-center gap-1">
+                    <span class="font-semibold text-sm font-mono text-foreground tabular-nums">{order.order_number}</span>
+                    <span class="text-xs text-muted-foreground tabular-nums flex items-center gap-1">
                         <Calendar class="h-3 w-3" />
                         {formatDate(order.created_at)}
                     </span>
                 </div>
 
                 {#if order.status === 'solicitado'}
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                         Solicitado
                     </span>
                 {:else if order.status === 'recibido'}
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                         Recibido
                     </span>
                 {:else if order.status === 'cancelado'}
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                         Cancelado
                     </span>
                 {/if}
             </div>
 
             <div class="flex items-center justify-between text-xs pt-1.5 border-t border-border/40">
-                <span class="font-semibold text-foreground truncate flex items-center gap-1">
+                <span class="font-medium text-foreground truncate flex items-center gap-1">
                     <Truck class="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     {order.supplier?.name || 'Proveedor'}
                 </span>
@@ -106,7 +106,7 @@
                 </span>
             </div>
 
-            <div class="flex items-center justify-between text-[11px] text-muted-foreground">
+            <div class="flex items-center justify-between text-xs text-muted-foreground">
                 <span class="tabular-nums">{order.items?.length ?? 0} {order.items?.length === 1 ? 'producto' : 'productos'}</span>
                 <span class="text-primary font-medium flex items-center gap-0.5">
                     Ver detalle &rarr;

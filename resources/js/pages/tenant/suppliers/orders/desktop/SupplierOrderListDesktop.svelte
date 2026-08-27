@@ -85,7 +85,7 @@
 
                 <div class="flex flex-col">
                     <div class="flex items-center gap-2">
-                        <span class="font-bold text-base font-mono text-foreground tabular-nums">{order.order_number}</span>
+                        <span class="font-semibold text-base font-mono text-foreground tabular-nums">{order.order_number}</span>
                     </div>
                     <div class="flex items-center gap-1 text-xs text-muted-foreground mt-0.5 tabular-nums">
                         <Calendar class="h-3 w-3" />
@@ -118,17 +118,17 @@
             <!-- Estado -->
             <div class="min-w-[130px]">
                 {#if order.status === 'solicitado'}
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium tracking-wide bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                         <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
                         Solicitado
                     </span>
                 {:else if order.status === 'recibido'}
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium tracking-wide bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                         <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                         Recibido en Stock
                     </span>
                 {:else if order.status === 'cancelado'}
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium tracking-wide bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                         <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
                         Cancelado
                     </span>
@@ -146,7 +146,7 @@
 
                 <Button size="sm" variant="outline" class="min-h-[40px] px-3.5 text-xs gap-1.5 font-medium rounded-xl border-border/70 hover:bg-muted/60">
                     <Eye class="h-3.5 w-3.5" />
-                    <span>Ver Detalle</span>
+                    <span>Ver detalle</span>
                 </Button>
             </div>
         </div>

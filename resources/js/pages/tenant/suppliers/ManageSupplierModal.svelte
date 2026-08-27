@@ -132,13 +132,13 @@
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <DialogTitle class="text-xl font-bold text-foreground">Gestión de Proveedor</DialogTitle>
+                        <DialogTitle class="text-xl font-bold tracking-tight text-foreground">Gestionar proveedor</DialogTitle>
                         {#if form.is_active}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                 Activo
                             </span>
                         {:else}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
                                 Inactivo
                             </span>
                         {/if}
@@ -147,7 +147,7 @@
                         <span>Editar información comercial y estado del proveedor</span>
                         {#if supplier?.created_at}
                             <span>•</span>
-                            <span class="inline-flex items-center gap-1">
+                            <span class="inline-flex items-center gap-1 tabular-nums">
                                 <Calendar class="size-3" />
                                 Registrado el {formatDate(supplier.created_at)}
                             </span>
@@ -168,7 +168,7 @@
         <form onsubmit={submit} class="space-y-4 pt-4">
             <!-- Nombre o Razón Social -->
             <div class="space-y-1.5">
-                <Label for="manage-supplier-name" class="text-xs font-semibold">
+                <Label for="manage-supplier-name" class="text-sm font-medium text-foreground">
                     Nombre o Razón Social <span class="text-destructive">*</span>
                 </Label>
                 <Input
@@ -176,7 +176,7 @@
                     bind:value={form.name}
                     placeholder="Nombre del proveedor"
                     required
-                    class="h-9 text-sm font-medium"
+                    class="h-9 text-sm font-normal"
                 />
                 {#if form.errors.name}
                     <p class="text-xs text-destructive">{form.errors.name}</p>
@@ -186,7 +186,7 @@
             <!-- Teléfono y Email -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div class="space-y-1.5">
-                    <Label for="manage-supplier-phone" class="text-xs font-semibold flex items-center gap-1.5">
+                    <Label for="manage-supplier-phone" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <Phone class="h-3.5 w-3.5 text-muted-foreground" />
                         Teléfono / Contacto
                     </Label>
@@ -194,7 +194,7 @@
                         id="manage-supplier-phone"
                         bind:value={form.contact_number}
                         placeholder="ej. +54 11 4321-8765"
-                        class="h-9 text-sm"
+                        class="h-9 text-sm font-mono tabular-nums"
                     />
                     {#if form.errors.contact_number}
                         <p class="text-xs text-destructive">{form.errors.contact_number}</p>
@@ -202,7 +202,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="manage-supplier-email" class="text-xs font-semibold flex items-center gap-1.5">
+                    <Label for="manage-supplier-email" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <Mail class="h-3.5 w-3.5 text-muted-foreground" />
                         Correo Electrónico
                     </Label>
@@ -221,7 +221,7 @@
 
             <!-- Dirección -->
             <div class="space-y-1.5">
-                <Label for="manage-supplier-address" class="text-xs font-semibold flex items-center gap-1.5">
+                <Label for="manage-supplier-address" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                     <MapPin class="h-3.5 w-3.5 text-muted-foreground" />
                     Dirección Comercial
                 </Label>
@@ -238,14 +238,14 @@
 
             <!-- Footer: Izquierda Desactivar/Eliminar, Derecha Guardar y Cancelar -->
             <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-5 border-t border-border mt-6">
-                <!-- Abajo a la izquierda: Botón de Estado Rojo y Eliminar -->
+                <!-- Abajo a la izquierda: Botón de Estado y Eliminar -->
                 <div class="flex items-center gap-2">
                     {#if form.is_active}
                         <Button
                             type="button"
                             variant="outline"
                             size="sm"
-                            class="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 border-rose-200 dark:border-rose-900/40 gap-1.5"
+                            class="text-xs font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 border-rose-200 dark:border-rose-900/40 gap-1.5"
                             onclick={() => (showDeactivateConfirm = true)}
                             disabled={form.processing || isDeleting}
                         >
@@ -257,7 +257,7 @@
                             type="button"
                             variant="outline"
                             size="sm"
-                            class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/40 gap-1.5"
+                            class="text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/40 gap-1.5"
                             onclick={() => (showActivateConfirm = true)}
                             disabled={form.processing || isDeleting}
                         >
@@ -270,7 +270,7 @@
                         type="button"
                         variant="ghost"
                         size="sm"
-                        class="text-xs text-muted-foreground hover:text-destructive gap-1 px-2"
+                        class="text-xs font-medium text-muted-foreground hover:text-destructive gap-1 px-2"
                         onclick={() => (showDeleteConfirm = true)}
                         disabled={isDeleting || form.processing}
                     >
@@ -281,10 +281,10 @@
 
                 <!-- Abajo a la derecha: Botón 'Guardar cambios' y botón 'Cancelar' -->
                 <div class="flex items-center justify-end gap-2">
-                    <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing || isDeleting} class="text-xs">
+                    <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing || isDeleting} class="text-xs font-medium">
                         Cancelar
                     </Button>
-                    <Button type="submit" size="sm" disabled={form.processing || isDeleting} class="min-w-32 text-xs font-semibold">
+                    <Button type="submit" size="sm" disabled={form.processing || isDeleting} class="min-w-32 text-xs font-medium">
                         {form.processing ? 'Guardando...' : 'Guardar cambios'}
                     </Button>
                 </div>
@@ -293,12 +293,12 @@
     </DialogContent>
 </Dialog>
 
-<!-- Modal Precaución: Desactivar Proveedor -->
+<!-- Modal: Desactivar Proveedor -->
 <ConfirmActionModal
     bind:open={showDeactivateConfirm}
-    title="Desactivar Proveedor"
+    title="¿Desactivar proveedor?"
     description={`¿Estás seguro de que deseas desactivar al proveedor "${form.name || supplier?.name}"? No estará disponible para nuevas compras ni órdenes hasta que sea reactivado.`}
-    confirmText="Sí, desactivar"
+    confirmText="Desactivar proveedor"
     cancelText="Cancelar"
     variant="danger"
     onconfirm={confirmToggleDeactivate}
@@ -307,20 +307,20 @@
 <!-- Modal: Activar Proveedor -->
 <ConfirmActionModal
     bind:open={showActivateConfirm}
-    title="Activar Proveedor"
+    title="¿Activar proveedor?"
     description={`¿Deseas activar nuevamente al proveedor "${form.name || supplier?.name}" para habilitar compras y operaciones?`}
-    confirmText="Sí, activar"
+    confirmText="Activar proveedor"
     cancelText="Cancelar"
     variant="primary"
     onconfirm={confirmToggleActivate}
 />
 
-<!-- Modal Precaución: Eliminar Proveedor Permanentemente -->
+<!-- Modal: Eliminar Proveedor Permanentemente -->
 <ConfirmActionModal
     bind:open={showDeleteConfirm}
-    title="Eliminar Proveedor Permanentemente"
-    description={`¿Estás seguro de que deseas eliminar permanentemente al proveedor "${form.name || supplier?.name}"? Esta acción borrará el registro de forma definitiva.`}
-    confirmText="Sí, eliminar definitivamente"
+    title="¿Eliminar proveedor?"
+    description={`¿Estás seguro de que deseas eliminar permanentemente al proveedor "${form.name || supplier?.name}"? Esta acción no se puede deshacer.`}
+    confirmText="Eliminar proveedor"
     cancelText="Cancelar"
     variant="danger"
     loading={isDeleting}

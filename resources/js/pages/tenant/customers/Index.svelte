@@ -89,9 +89,9 @@
         </div>
 
         <div class="flex items-center gap-2.5">
-            <Button class="gap-2 shadow-sm font-semibold" onclick={() => (showCreateModal = true)}>
+            <Button class="gap-2 shadow-sm font-medium" onclick={() => (showCreateModal = true)}>
                 <Plus class="h-4 w-4" />
-                + Añadir Cliente
+                <span>Añadir cliente</span>
             </Button>
         </div>
     </div>

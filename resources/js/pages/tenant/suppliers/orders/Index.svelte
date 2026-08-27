@@ -135,15 +135,16 @@
     <!-- Pestañas de Navegación del Módulo Proveedores -->
     <div class="flex items-center gap-2 border-b pb-3">
         <Link href="/tenant/suppliers">
-            <Button variant="ghost" size="sm" class="gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground">
+            <Button variant="ghost" size="sm" class="gap-2 text-xs font-medium text-muted-foreground hover:text-foreground">
                 <Users class="size-4" />
-                Directorio de Proveedores
+                <span>Directorio de Proveedores</span>
             </Button>
         </Link>
         <Link href="/tenant/suppliers/orders">
-            <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs">
+            <Button variant="secondary" size="sm" class="gap-2 text-xs font-semibold text-primary bg-primary/10 shadow-2xs">
                 <Truck class="size-4" />
-                Órdenes de Compra ({stats.total})
+                <span>Órdenes de Compra</span>
+                <span class="tabular-nums">({stats.total})</span>
             </Button>
         </Link>
     </div>
@@ -162,10 +163,10 @@
         <div class="flex items-center gap-2.5">
             <Button
                 onclick={() => (isCreateModalOpen = true)}
-                class="gap-2 shadow-sm font-semibold"
+                class="gap-2 shadow-sm font-medium"
             >
                 <Plus class="size-4" />
-                Hacer Pedido a Proveedor
+                <span>Emitir orden de compra</span>
             </Button>
         </div>
     </div>

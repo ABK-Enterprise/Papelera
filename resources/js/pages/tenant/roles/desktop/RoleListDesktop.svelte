@@ -35,8 +35,8 @@
                             <Shield class="h-5 w-5 stroke-[1.75]" />
                         </div>
                         <div>
-                            <CardTitle class="text-base font-bold text-foreground">{role.name}</CardTitle>
-                            <CardDescription class="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                            <CardTitle class="text-base font-semibold text-foreground">{role.name}</CardTitle>
+                            <CardDescription class="text-xs text-muted-foreground flex items-center gap-1 mt-0.5 tabular-nums">
                                 <Users class="h-3 w-3" />
                                 <span>{role.users_count} {role.users_count === 1 ? 'usuario asignado' : 'usuarios asignados'}</span>
                             </CardDescription>
@@ -48,7 +48,7 @@
             <CardContent class="space-y-4 pt-0">
                 <div class="flex items-center justify-between rounded-xl bg-muted/40 p-2.5 text-xs text-muted-foreground">
                     <span class="font-medium">Permisos habilitados:</span>
-                    <Badge variant="secondary" class="font-semibold text-foreground px-2 py-0.5">
+                    <Badge variant="secondary" class="font-medium text-xs tracking-wide text-foreground px-2 py-0.5 tabular-nums">
                         {role.permissions_count} permisos
                     </Badge>
                 </div>
@@ -61,7 +61,7 @@
                             class="min-h-[40px] w-full gap-1.5 rounded-xl border-border/70 text-xs font-medium justify-center"
                         >
                             <Edit2 class="h-3.5 w-3.5" />
-                            <span>Editar Permisos</span>
+                            <span>Editar rol</span>
                         </Button>
                     </Link>
 

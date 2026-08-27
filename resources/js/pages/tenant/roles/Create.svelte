@@ -65,7 +65,7 @@
                 <Shield class="h-6 w-6 stroke-[1.75]" />
             </div>
             <div>
-                <h1 class="text-2xl font-bold tracking-tight text-foreground">Crear Nuevo Rol</h1>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Crear rol</h1>
                 <p class="text-sm text-muted-foreground mt-0.5">
                     Define un perfil operativo y selecciona los permisos según tus módulos contratados.
                 </p>
@@ -82,18 +82,18 @@
     <form onsubmit={submit} class="space-y-6">
         <Card class="rounded-2xl border-border/70 bg-card shadow-xs">
             <CardHeader class="pb-4">
-                <CardTitle class="text-base font-bold text-foreground">Información del Rol</CardTitle>
+                <CardTitle class="text-base font-semibold text-foreground">Información del Rol</CardTitle>
                 <CardDescription class="text-xs text-muted-foreground">Nombre identificador del puesto o nivel de acceso.</CardDescription>
             </CardHeader>
             <CardContent class="space-y-4 pt-0">
                 <div class="space-y-2">
-                    <Label for="role-name" class="text-sm font-medium">Nombre del Rol *</Label>
+                    <Label for="role-name" class="text-sm font-medium text-foreground">Nombre del Rol <span class="text-destructive">*</span></Label>
                     <Input
                         id="role-name"
                         bind:value={$form.name}
                         placeholder="ej. Cajero, Repositor, Encargado de Ventas"
                         required
-                        class="h-11 rounded-xl border-border/70 bg-muted/20 px-3.5 transition-colors focus:bg-background"
+                        class="h-11 rounded-xl border-border/70 bg-muted/20 px-3.5 text-sm font-normal transition-colors focus:bg-background"
                     />
                     {#if $form.errors.name}
                         <p class="text-xs font-medium text-destructive">{$form.errors.name}</p>
@@ -106,12 +106,12 @@
             <CardHeader class="pb-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <CardTitle class="text-base font-bold text-foreground">Permisos por Módulo</CardTitle>
+                        <CardTitle class="text-base font-semibold text-foreground">Permisos por Módulo</CardTitle>
                         <CardDescription class="text-xs text-muted-foreground mt-0.5">
                             Selecciona qué acciones específicas podrán ejecutar los empleados asignados a este rol.
                         </CardDescription>
                     </div>
-                    <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                    <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums">
                         {$form.permissions.length} seleccionados
                     </span>
                 </div>
@@ -123,8 +123,8 @@
                     <div class="rounded-2xl border border-border/60 p-4 space-y-3.5 bg-card shadow-2xs">
                         <div class="flex items-center justify-between border-b border-border/40 pb-3">
                             <div class="flex items-center gap-2">
-                                <h4 class="font-bold text-sm text-foreground">{mod.name}</h4>
-                                <Badge variant="outline" class="font-mono text-[11px] bg-muted/40 px-2">{mod.code}</Badge>
+                                <h4 class="font-semibold text-sm text-foreground">{mod.name}</h4>
+                                <Badge variant="outline" class="font-mono text-xs bg-muted/40 px-2">{mod.code}</Badge>
                             </div>
                             {#if mod.permissions.length > 0}
                                 <Button
@@ -180,21 +180,21 @@
 
         <div class="flex items-center justify-end gap-3">
             <Link href="/tenant/roles">
-                <Button type="button" variant="outline" class="min-h-[44px] px-5 rounded-xl font-medium border-border/70">
+                <Button type="button" variant="outline" class="min-h-[44px] px-5 rounded-xl font-medium border-border/70 text-xs">
                     Cancelar
                 </Button>
             </Link>
             <Button
                 type="submit"
                 disabled={$form.processing}
-                class="min-h-[44px] min-w-36 gap-2 rounded-xl font-medium shadow-sm"
+                class="min-h-[44px] min-w-36 gap-2 rounded-xl font-medium text-xs shadow-sm"
             >
                 {#if $form.processing}
                     <Spinner class="mr-2" />
                     <span>Guardando...</span>
                 {:else}
                     <Shield class="h-4 w-4" />
-                    <span>Crear Rol</span>
+                    <span>Crear rol</span>
                 {/if}
             </Button>
         </div>

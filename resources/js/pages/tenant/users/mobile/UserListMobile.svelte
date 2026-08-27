@@ -43,7 +43,7 @@
                             <div class="flex items-center gap-1.5">
                                 <span class="font-semibold text-foreground text-sm">{user.name}</span>
                                 {#if currentUserId === user.id}
-                                    <Badge variant="secondary" class="h-4.5 text-[10px] px-1.5 font-medium">Tú</Badge>
+                                    <Badge variant="secondary" class="h-4.5 text-xs px-1.5 font-medium tracking-wide">Tú</Badge>
                                 {/if}
                             </div>
                             <span class="text-xs text-muted-foreground truncate max-w-[200px]">{user.email}</span>
@@ -52,12 +52,12 @@
                 </div>
 
                 <div class="space-y-1.5 pt-1">
-                    <span class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Rol Asignado</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Rol Asignado</span>
                     <div class="flex flex-wrap gap-1.5">
                         {#each user.roles as role}
                             <Badge
                                 variant={role.name === 'admin' ? 'default' : 'outline'}
-                                class="h-6 text-xs font-medium rounded-md px-2"
+                                class="h-6 text-xs font-medium tracking-wide rounded-md px-2"
                             >
                                 {role.name}
                             </Badge>

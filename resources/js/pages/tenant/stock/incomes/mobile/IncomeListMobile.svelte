@@ -56,18 +56,18 @@
                             <Package class="size-4" />
                         </div>
                         <div class="min-w-0">
-                            <div class="font-bold text-foreground truncate text-sm">
+                            <div class="font-semibold text-foreground truncate text-sm leading-snug">
                                 {mov.product?.name ?? 'Producto eliminado'}
                             </div>
                             {#if mov.product?.sku}
-                                <div class="text-[11px] text-muted-foreground font-mono">
+                                <div class="text-xs text-muted-foreground font-mono tracking-wide">
                                     SKU: {mov.product.sku}
                                 </div>
                             {/if}
                         </div>
                     </div>
 
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0 font-mono tabular-nums">
                         <ArrowDownLeft class="size-3" />
                         +{mov.quantity}
                     </span>
@@ -77,8 +77,8 @@
                 <div class="grid grid-cols-2 gap-2 pt-3 text-xs">
                     <div>
                         <span class="text-muted-foreground block text-[11px]">Stock resultante</span>
-                        <span class="font-semibold text-foreground font-mono">{mov.current_stock}</span>
-                        <span class="text-muted-foreground text-[10px]"> (previo: {mov.previous_stock})</span>
+                        <span class="font-semibold text-foreground font-mono tabular-nums">{mov.current_stock}</span>
+                        <span class="text-muted-foreground text-[10px] tabular-nums"> (previo: {mov.previous_stock})</span>
                     </div>
                     <div>
                         <span class="text-muted-foreground block text-[11px]">Motivo</span>
@@ -94,7 +94,7 @@
                         <User class="size-3 text-muted-foreground/70" />
                         <span>{mov.user?.name ?? 'Sistema'}</span>
                     </div>
-                    <div class="flex items-center gap-1.5 shrink-0">
+                    <div class="flex items-center gap-1.5 shrink-0 font-mono tabular-nums">
                         <Calendar class="size-3 text-muted-foreground/70" />
                         <span>{formatDate(mov.created_at)}</span>
                     </div>

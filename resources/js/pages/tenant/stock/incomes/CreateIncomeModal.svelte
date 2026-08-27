@@ -68,7 +68,7 @@
                     <ArrowDownLeft class="size-5" />
                 </div>
                 <div>
-                    <DialogTitle class="text-lg font-bold text-foreground">Registrar Ingreso de Stock</DialogTitle>
+                    <DialogTitle class="text-lg font-semibold text-foreground leading-snug">Registrar ingreso de stock</DialogTitle>
                     <DialogDescription class="text-xs text-muted-foreground">
                         Añade unidades al inventario de un producto de tu comercio.
                     </DialogDescription>
@@ -111,7 +111,7 @@
             {#if selectedProduct}
                 <div class="p-3 rounded-lg bg-muted/40 border border-border/60 flex items-center justify-between text-xs">
                     <span class="text-muted-foreground">Stock actual registrado:</span>
-                    <span class="font-bold text-foreground">{selectedProduct.stock} unidades</span>
+                    <span class="font-semibold text-foreground tabular-nums">{selectedProduct.stock} unidades</span>
                 </div>
             {/if}
 
@@ -127,7 +127,7 @@
                     bind:value={form.quantity}
                     placeholder="Ej. 10"
                     required
-                    class="text-sm shadow-2xs"
+                    class="text-sm shadow-2xs tabular-nums"
                 />
                 {#if form.errors.quantity}
                     <p class="text-xs text-rose-500 font-medium">{form.errors.quantity}</p>
@@ -174,7 +174,7 @@
                     variant="outline"
                     onclick={closeModal}
                     disabled={form.processing}
-                    class="text-xs"
+                    class="text-xs font-medium"
                 >
                     Cancelar
                 </Button>
@@ -188,7 +188,7 @@
                         <span>Registrando...</span>
                     {:else}
                         <ArrowDownLeft class="size-3.5 mr-1.5" />
-                        <span>Registrar Ingreso</span>
+                        <span>Registrar ingreso</span>
                     {/if}
                 </Button>
             </DialogFooter>

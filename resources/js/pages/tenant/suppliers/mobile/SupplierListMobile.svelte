@@ -65,11 +65,11 @@
                         <Truck class="h-5 w-5 stroke-[1.75]" />
                     </div>
                     <div class="min-w-0">
-                        <h4 class="font-bold text-sm text-foreground truncate">
+                        <h4 class="font-semibold text-sm text-foreground truncate">
                             {supplier.name}
                         </h4>
                         {#if supplier.created_at}
-                            <span class="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5 tabular-nums">
+                            <span class="text-xs text-muted-foreground flex items-center gap-1 mt-0.5 tabular-nums">
                                 <Calendar class="h-3 w-3" />
                                 {formatDate(supplier.created_at)}
                             </span>
@@ -79,11 +79,11 @@
 
                 <div class="flex items-center gap-1.5 shrink-0">
                     {#if supplier.is_active}
-                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
                             Activo
                         </span>
                     {:else}
-                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-muted text-muted-foreground">
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium tracking-wide bg-muted text-muted-foreground">
                             Inactivo
                         </span>
                     {/if}
@@ -95,13 +95,13 @@
             {#if supplier.contact_number || supplier.email}
                 <div class="flex items-center gap-2 flex-wrap pt-2 border-t border-border/40 text-xs">
                     {#if supplier.contact_number}
-                        <span class="inline-flex items-center gap-1 font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground tabular-nums text-[11px]">
+                        <span class="inline-flex items-center gap-1 font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground tabular-nums text-xs">
                             <Phone class="h-3 w-3 text-muted-foreground" />
                             {supplier.contact_number}
                         </span>
                     {/if}
                     {#if supplier.email}
-                        <span class="inline-flex items-center gap-1 font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[200px] text-[11px]">
+                        <span class="inline-flex items-center gap-1 font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[200px] text-xs">
                             <Mail class="h-3 w-3 text-muted-foreground" />
                             {supplier.email}
                         </span>
@@ -124,7 +124,7 @@
             icon={Truck}
             title="No se encontraron proveedores"
             description="No hay proveedores que coincidan con la búsqueda o filtros."
-            actionLabel="Añadir Proveedor"
+            actionLabel="Añadir proveedor"
             onaction={onOpenCreate}
         />
     {/if}

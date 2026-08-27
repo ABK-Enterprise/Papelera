@@ -39,11 +39,13 @@
 
         <div class="flex flex-col gap-6">
             <Card class="rounded-xl">
-                <CardHeader class="px-10 pt-8 pb-0 text-center">
-                    <CardTitle class="text-xl">{title}</CardTitle>
-                    <CardDescription>
-                        {description}
-                    </CardDescription>
+                <CardHeader class="px-10 pt-8 pb-0 text-center space-y-1">
+                    <CardTitle class="text-xl font-bold tracking-tight leading-tight">{title}</CardTitle>
+                    {#if description}
+                        <CardDescription class="text-sm text-muted-foreground leading-relaxed">
+                            {description}
+                        </CardDescription>
+                    {/if}
                 </CardHeader>
                 <CardContent class="px-10 py-8">
                     {@render children?.()}

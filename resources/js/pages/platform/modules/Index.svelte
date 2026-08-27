@@ -65,14 +65,14 @@
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <div class="flex items-center gap-2.5">
-                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                    Gestión de Módulos
+                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-foreground">
+                    Gestión de módulos
                 </h1>
-                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide tabular-nums text-primary">
                     {modules.length} {modules.length === 1 ? 'módulo' : 'módulos'}
                 </span>
             </div>
-            <p class="mt-1 text-sm text-muted-foreground">
+            <p class="mt-1 text-sm text-muted-foreground leading-relaxed">
                 Configura la disponibilidad global y visualiza los permisos asignados a cada componente del sistema.
             </p>
         </div>
@@ -120,7 +120,7 @@
             icon={Boxes}
             title="No se encontraron módulos"
             description={searchQuery ? `No hay módulos que coincidan con el término "${searchQuery}".` : 'No hay módulos disponibles en la plataforma.'}
-            actionLabel={searchQuery ? 'Limpiar Búsqueda' : undefined}
+            actionLabel={searchQuery ? 'Limpiar búsqueda' : undefined}
             onaction={() => (searchQuery = '')}
         />
     {/if}

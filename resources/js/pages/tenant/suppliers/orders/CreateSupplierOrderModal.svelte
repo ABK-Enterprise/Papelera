@@ -277,10 +277,10 @@
                         <Truck class="size-5" />
                     </div>
                     <div>
-                        <h2 id="supplier-order-modal-title" class="text-base font-bold text-foreground">
-                            Nueva Orden de Compra a Proveedor
+                        <h2 id="supplier-order-modal-title" class="text-lg font-bold tracking-tight text-foreground">
+                            Emitir orden de compra
                         </h2>
-                        <p class="text-xs text-muted-foreground">
+                        <p class="text-xs text-muted-foreground mt-0.5">
                             Registra el pedido de reposición de mercadería para actualizar costos e inventario al recibirlo.
                         </p>
                     </div>
@@ -308,19 +308,19 @@
             <form onsubmit={submitOrder} class="space-y-4 overflow-y-auto pr-1 flex-1">
                 <!-- Bento Card 1: Proveedor -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                         <Truck class="size-3.5 text-primary" />
                         Proveedor Destino
                     </h3>
 
                     <div class="space-y-1">
-                        <Label for="supplier-select" class="text-xs font-semibold text-foreground">
+                        <Label for="supplier-select" class="text-sm font-medium text-foreground">
                             Seleccionar Proveedor <span class="text-destructive">*</span>
                         </Label>
                         <select
                             id="supplier-select"
                             bind:value={selectedSupplierId}
-                            class="h-9 w-full rounded-lg border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                            class="h-9 w-full rounded-lg border border-input bg-background px-3 text-xs font-normal text-foreground focus:ring-1 focus:ring-primary outline-none"
                             required
                         >
                             <option value="">Seleccionar proveedor de la lista...</option>
@@ -334,7 +334,7 @@
                 <!-- Bento Card 2: Productos -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3.5">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                        <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                             <Layers class="size-3.5 text-primary" />
                             Productos a Solicitar
                         </h3>
@@ -343,11 +343,11 @@
                             type="button"
                             size="sm"
                             variant="secondary"
-                            class="h-8 text-xs gap-1 font-semibold"
+                            class="h-8 text-xs gap-1 font-medium"
                             onclick={addItem}
                         >
                             <Plus class="size-3.5" />
-                            Añadir producto
+                            <span>Añadir producto</span>
                         </Button>
                     </div>
 
@@ -361,7 +361,7 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
                                     <!-- Input / Dropdown Buscador -->
                                     <div class="sm:col-span-6 relative">
-                                        <Label for={`prod-name-${index}`} class="text-[11px] font-semibold text-muted-foreground sm:hidden mb-1 block">
+                                        <Label for={`prod-name-${index}`} class="text-xs font-medium text-muted-foreground sm:hidden mb-1 block">
                                             Producto
                                         </Label>
                                         <Input
@@ -374,7 +374,7 @@
                                                 item.is_dropdown_open = true;
                                             }}
                                             placeholder="Buscar producto o escribir nuevo..."
-                                            class="h-8 text-xs font-medium"
+                                            class="h-8 text-xs font-normal"
                                         />
 
                                         <!-- Autocomplete flotante -->
@@ -389,7 +389,7 @@
                                                         onclick={() => selectProduct(index, prod)}
                                                     >
                                                         <span class="font-medium truncate">{prod.name}</span>
-                                                        <div class="text-[11px] text-muted-foreground font-mono shrink-0">
+                                                        <div class="text-xs text-muted-foreground font-mono shrink-0 tabular-nums">
                                                             {#if prod.cost_price}
                                                                 <span>Costo: {formatPrice(Number(prod.cost_price))}</span>
                                                             {:else}
@@ -404,7 +404,7 @@
 
                                     <!-- Costo Unitario -->
                                     <div class="sm:col-span-3">
-                                        <Label for={`prod-cost-${index}`} class="text-[11px] font-semibold text-muted-foreground sm:hidden mb-1 block">
+                                        <Label for={`prod-cost-${index}`} class="text-xs font-medium text-muted-foreground sm:hidden mb-1 block">
                                             Costo Unit.
                                         </Label>
                                         <div class="relative">
@@ -416,7 +416,7 @@
                                                 min="0.01"
                                                 bind:value={item.unit_cost}
                                                 placeholder="0.00"
-                                                class="h-8 text-xs pl-6 font-mono text-right"
+                                                class="h-8 text-xs pl-6 font-mono tabular-nums text-right"
                                                 required
                                             />
                                         </div>
@@ -434,7 +434,7 @@
                                             >
                                                 <Minus class="size-3" />
                                             </button>
-                                            <span class="px-2 text-xs font-bold font-mono min-w-6 text-center">
+                                            <span class="px-2 text-xs font-semibold font-mono tabular-nums min-w-6 text-center">
                                                 {item.quantity}
                                             </span>
                                             <button
@@ -464,7 +464,7 @@
 
                 <!-- Bento Card 3: Observaciones -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-1.5">
-                    <Label for="supplier-order-notes" class="text-xs font-semibold text-foreground">Notas Adicionales</Label>
+                    <Label for="supplier-order-notes" class="text-sm font-medium text-foreground">Notas Adicionales</Label>
                     <textarea
                         id="supplier-order-notes"
                         bind:value={notes}
@@ -479,17 +479,17 @@
             <div class="flex items-center justify-between border-t pt-3.5 shrink-0">
                 <div class="flex items-baseline gap-2">
                     <span class="text-xs text-muted-foreground">Total Estimado:</span>
-                    <span class="text-xl font-bold font-mono text-primary">{formatPrice(computedTotal)}</span>
+                    <span class="text-xl font-bold font-mono tabular-nums text-primary">{formatPrice(computedTotal)}</span>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <Button type="button" variant="outline" size="sm" onclick={closeModal}>
+                    <Button type="button" variant="outline" size="sm" onclick={closeModal} class="text-xs font-medium">
                         Cancelar
                     </Button>
                     <Button
                         type="button"
                         size="sm"
-                        class="gap-1.5 font-semibold"
+                        class="gap-1.5 font-medium text-xs"
                         disabled={isSubmitting}
                         onclick={(e) => {
                             const form = document.querySelector('form');
@@ -500,7 +500,7 @@
                             <span>Guardando...</span>
                         {:else}
                             <Check class="size-4" />
-                            <span>Crear Orden</span>
+                            <span>Emitir orden</span>
                         {/if}
                     </Button>
                 </div>

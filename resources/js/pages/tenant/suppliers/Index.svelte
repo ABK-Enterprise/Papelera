@@ -73,15 +73,16 @@
     <!-- Pestañas de Navegación del Módulo Proveedores -->
     <div class="flex items-center gap-2 border-b pb-3">
         <Link href="/tenant/suppliers">
-            <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs">
+            <Button variant="secondary" size="sm" class="gap-2 text-xs font-semibold text-primary bg-primary/10 shadow-2xs">
                 <Users class="size-4" />
-                Directorio de Proveedores ({totalCount})
+                <span>Directorio de Proveedores</span>
+                <span class="tabular-nums">({totalCount})</span>
             </Button>
         </Link>
         <Link href="/tenant/suppliers/orders">
-            <Button variant="ghost" size="sm" class="gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground">
+            <Button variant="ghost" size="sm" class="gap-2 text-xs font-medium text-muted-foreground hover:text-foreground">
                 <Truck class="size-4" />
-                Órdenes de Compra
+                <span>Órdenes de Compra</span>
             </Button>
         </Link>
     </div>
@@ -99,9 +100,9 @@
         </div>
 
         <div class="flex items-center gap-2.5">
-            <Button class="gap-2 shadow-sm font-semibold" onclick={() => (showCreateModal = true)}>
+            <Button class="gap-2 shadow-sm font-medium" onclick={() => (showCreateModal = true)}>
                 <Plus class="h-4 w-4" />
-                + Añadir Proveedor
+                <span>Añadir proveedor</span>
             </Button>
         </div>
     </div>

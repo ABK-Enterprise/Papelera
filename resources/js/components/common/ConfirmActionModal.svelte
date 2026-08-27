@@ -78,7 +78,7 @@
             </div>
 
             <div class="space-y-1.5 flex-1 min-w-0">
-                <DialogTitle class="text-lg font-bold text-foreground leading-snug">
+                <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug">
                     {title}
                 </DialogTitle>
                 <DialogDescription class="text-xs text-muted-foreground leading-relaxed">
@@ -109,7 +109,7 @@
                 size="sm"
                 onclick={handleCancel}
                 disabled={loading}
-                class="text-xs"
+                class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
             >
                 {cancelText}
             </Button>
@@ -118,7 +118,7 @@
                 size="sm"
                 onclick={handleConfirm}
                 disabled={loading}
-                class="text-xs font-semibold min-w-28 {variant === 'danger'
+                class="min-h-[40px] px-4 rounded-xl text-xs font-medium min-w-28 shadow-xs {variant === 'danger'
                     ? 'bg-rose-600 hover:bg-rose-700 text-white dark:bg-rose-600 dark:hover:bg-rose-700'
                     : variant === 'warning'
                       ? 'bg-amber-600 hover:bg-amber-700 text-white'

@@ -92,15 +92,15 @@
                         {/if}
                     </div>
                     <div class="min-w-0">
-                        <h4 class="font-bold text-sm text-foreground truncate">
+                        <h4 class="font-semibold text-sm text-foreground truncate">
                             {customer.name}
                         </h4>
                         <div class="flex items-center gap-2 mt-0.5">
-                            <span class="text-[10px] font-semibold bg-muted/60 px-1.5 py-0.5 rounded text-muted-foreground">
+                            <span class="text-xs font-medium bg-muted/60 px-1.5 py-0.5 rounded text-muted-foreground">
                                 {formatTaxCondition(customer.tax_condition)}
                             </span>
                             {#if customer.created_at}
-                                <span class="text-[11px] text-muted-foreground flex items-center gap-1 tabular-nums">
+                                <span class="text-xs text-muted-foreground flex items-center gap-1 tabular-nums">
                                     <Calendar class="h-3 w-3" />
                                     {formatDate(customer.created_at)}
                                 </span>
@@ -111,17 +111,17 @@
 
                 <div class="flex items-center gap-1.5 shrink-0">
                     {#if customer.is_defaulter}
-                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold bg-rose-500/10 text-rose-700 dark:text-rose-400">
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium tracking-wide bg-rose-500/10 text-rose-700 dark:text-rose-400">
                             Moroso
                         </span>
                     {/if}
 
                     {#if customer.is_active}
-                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
                             Activo
                         </span>
                     {:else}
-                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-muted text-muted-foreground">
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium tracking-wide bg-muted text-muted-foreground">
                             Inactivo
                         </span>
                     {/if}
@@ -132,18 +132,18 @@
             <!-- CUIT, Teléfono y Email -->
             <div class="flex items-center gap-2 flex-wrap pt-2 border-t border-border/40 text-xs">
                 {#if customer.tax_id}
-                    <span class="inline-flex items-center gap-1 font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground font-semibold tabular-nums text-[11px]">
+                    <span class="inline-flex items-center gap-1 font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground font-medium tabular-nums text-xs">
                         CUIT: {customer.tax_id}
                     </span>
                 {/if}
                 {#if customer.phone}
-                    <span class="inline-flex items-center gap-1 font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground tabular-nums text-[11px]">
+                    <span class="inline-flex items-center gap-1 font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground tabular-nums text-xs">
                         <Phone class="h-3 w-3 text-muted-foreground" />
                         {customer.phone}
                     </span>
                 {/if}
                 {#if customer.email}
-                    <span class="inline-flex items-center gap-1 font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[180px] text-[11px]">
+                    <span class="inline-flex items-center gap-1 font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[180px] text-xs">
                         <Mail class="h-3 w-3 text-muted-foreground" />
                         {customer.email}
                     </span>
@@ -165,7 +165,7 @@
             icon={UserCheck}
             title="No se encontraron clientes"
             description="No hay clientes que coincidan con la búsqueda o filtros."
-            actionLabel="Añadir Cliente"
+            actionLabel="Añadir cliente"
             onaction={onOpenCreate}
         />
     {/if}

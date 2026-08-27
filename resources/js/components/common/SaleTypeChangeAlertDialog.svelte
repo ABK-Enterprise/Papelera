@@ -48,7 +48,7 @@
                 </div>
 
                 <div class="space-y-2 flex-1 min-w-0">
-                    <AlertDialog.Title class="text-lg font-bold text-foreground leading-snug">
+                    <AlertDialog.Title class="text-base sm:text-lg font-semibold text-foreground leading-snug">
                         {fromType === 'unit'
                             ? 'Cambio de modalidad: Unidad a Pesaje (Kg)'
                             : 'Cambio de modalidad: Pesaje (Kg) a Unidad'}
@@ -56,30 +56,30 @@
                     
                     <AlertDialog.Description class="text-xs text-muted-foreground leading-relaxed space-y-2.5">
                         <p>
-                            Estás modificando la modalidad de venta de <strong class="text-foreground">{productName}</strong>.
+                            Estás modificando la modalidad de venta de <strong class="text-foreground font-medium">{productName}</strong>.
                         </p>
 
                         <!-- Comparativa Visual X -> Y -->
                         <div class="flex items-center justify-between p-3 rounded-xl bg-muted/50 border border-border/80 text-xs">
-                            <div class="flex items-center gap-1.5 font-semibold text-foreground">
+                            <div class="flex items-center gap-1.5 font-medium text-foreground">
                                 {#if fromType === 'unit'}
                                     <Package class="size-4 text-primary" />
-                                    <span>Por Unidad (u)</span>
+                                    <span>Por unidad (u)</span>
                                 {:else}
                                     <Scale class="size-4 text-sky-600 dark:text-sky-400" />
-                                    <span>Por Pesaje (Kg)</span>
+                                    <span>Por pesaje (Kg)</span>
                                 {/if}
                             </div>
 
                             <ArrowRight class="size-4 text-muted-foreground" />
 
-                            <div class="flex items-center gap-1.5 font-bold text-primary">
+                            <div class="flex items-center gap-1.5 font-semibold text-primary">
                                 {#if toType === 'unit'}
                                     <Package class="size-4 text-primary" />
-                                    <span>Por Unidad (u)</span>
+                                    <span>Por unidad (u)</span>
                                 {:else}
                                     <Scale class="size-4 text-sky-600 dark:text-sky-400" />
-                                    <span>Por Pesaje (Kg)</span>
+                                    <span>Por pesaje (Kg)</span>
                                 {/if}
                             </div>
                         </div>
@@ -87,23 +87,23 @@
                         {#if fromType === 'unit' && toType === 'weight'}
                             <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs space-y-1">
                                 <p class="font-semibold">⚠️ Impacto en inventario y pedidos:</p>
-                                <ul class="list-disc list-inside space-y-0.5 text-[11px] text-amber-800 dark:text-amber-300">
-                                    <li>El stock actual (<strong>{currentStock}</strong>) pasará a interpretarse como <strong>{currentStock} Kg</strong>.</li>
-                                    <li>Los precios se considerarán por Kilogramo (<strong>$ / Kg</strong>).</li>
+                                <ul class="list-disc list-inside space-y-0.5 text-xs text-amber-800 dark:text-amber-300">
+                                    <li>El stock actual (<strong class="tabular-nums font-semibold">{currentStock}</strong>) pasará a interpretarse como <strong class="tabular-nums font-semibold">{currentStock} Kg</strong>.</li>
+                                    <li>Los precios se considerarán por kilogramo (<strong>$ / Kg</strong>).</li>
                                     <li>En los pedidos se habilitará la venta fraccionada en gramos (g) y kilos (Kg).</li>
                                 </ul>
                             </div>
                         {:else}
                             <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs space-y-1">
                                 <p class="font-semibold">⚠️ Impacto en inventario y pedidos:</p>
-                                <ul class="list-disc list-inside space-y-0.5 text-[11px] text-amber-800 dark:text-amber-300">
-                                    <li>El stock actual (<strong>{currentStock} Kg</strong>) pasará a interpretarse como <strong>{currentStock} unidades enteras</strong>.</li>
+                                <ul class="list-disc list-inside space-y-0.5 text-xs text-amber-800 dark:text-amber-300">
+                                    <li>El stock actual (<strong class="tabular-nums font-semibold">{currentStock} Kg</strong>) pasará a interpretarse como <strong class="tabular-nums font-semibold">{currentStock} unidades enteras</strong>.</li>
                                     <li>Los precios se considerarán por unidad individual.</li>
                                 </ul>
                             </div>
                         {/if}
 
-                        <p class="text-[11px] text-muted-foreground/80 pt-1">
+                        <p class="text-xs text-muted-foreground pt-1">
                             ℹ️ Los pedidos registrados previamente mantendrán sus valores y registros históricos sin alteraciones.
                         </p>
                     </AlertDialog.Description>
@@ -114,17 +114,17 @@
                 <AlertDialog.Cancel
                     onclick={handleCancel}
                     disabled={loading}
-                    class="inline-flex items-center justify-center rounded-xl border border-input bg-background px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors disabled:opacity-50"
+                    class="inline-flex min-h-[40px] items-center justify-center rounded-xl border border-input bg-background px-4 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-50"
                 >
-                    Cancelar y Mantener Anterior
+                    Cancelar
                 </AlertDialog.Cancel>
 
                 <AlertDialog.Action
                     onclick={handleConfirm}
                     disabled={loading}
-                    class="inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 text-xs font-bold shadow-xs transition-colors disabled:opacity-50"
+                    class="inline-flex min-h-[40px] items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 text-xs font-medium shadow-xs transition-colors disabled:opacity-50"
                 >
-                    {loading ? 'Guardando...' : 'Confirmar Cambio de Modalidad'}
+                    {loading ? 'Guardando...' : 'Confirmar cambio'}
                 </AlertDialog.Action>
             </div>
         </AlertDialog.Content>

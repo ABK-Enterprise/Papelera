@@ -70,13 +70,13 @@
                             <ModuleIcon class="h-6 w-6 stroke-[1.75]" />
                         </div>
                         <div class="flex flex-col">
-                            <span class="font-bold text-foreground text-sm">{mod.name}</span>
-                            <span class="font-mono text-xs text-muted-foreground">{mod.code}</span>
+                            <span class="font-semibold text-foreground text-sm leading-snug">{mod.name}</span>
+                            <span class="font-mono text-xs tabular-nums text-muted-foreground">{mod.code}</span>
                         </div>
                     </div>
 
                     <span
-                        class="px-2.5 py-0.5 rounded-full text-xs font-semibold border {mod.is_active
+                        class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide border {mod.is_active
                             ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/25'
                             : 'bg-muted text-muted-foreground border-border/60'}"
                     >
@@ -92,12 +92,12 @@
 
                 <div class="space-y-1.5 pt-1">
                     <div class="flex items-center justify-between text-xs text-muted-foreground">
-                        <span class="text-[11px] font-semibold uppercase tracking-wider">Permisos</span>
-                        <span class="font-mono font-medium">{mod.permissions.length} disponibles</span>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Permisos</span>
+                        <span class="font-mono text-xs font-medium tabular-nums">{mod.permissions.length} disponibles</span>
                     </div>
                     <div class="flex flex-wrap gap-1 max-h-20 overflow-y-auto pr-1">
                         {#each mod.permissions as perm (perm.id)}
-                            <span class="inline-flex items-center font-mono text-[10px] bg-muted/50 border border-border/50 text-foreground/80 px-1.5 py-0.5 rounded">
+                            <span class="inline-flex items-center font-mono text-xs bg-muted/50 border border-border/50 text-foreground/80 px-2 py-0.5 rounded">
                                 {perm.name}
                             </span>
                         {/each}
@@ -105,7 +105,7 @@
                 </div>
 
                 <div class="flex items-center justify-between border-t border-border/40 pt-3 gap-2">
-                    <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <div class="flex items-center gap-1.5 text-xs text-muted-foreground font-medium tabular-nums">
                         <Shield class="h-3.5 w-3.5 text-muted-foreground/80" />
                         <span>{mod.tenants_count ?? 0} {mod.tenants_count === 1 ? 'comercio' : 'comercios'}</span>
                     </div>
@@ -113,7 +113,7 @@
                     <Button
                         type="button"
                         variant={mod.is_active ? 'outline' : 'default'}
-                        class="min-h-[44px] gap-2 rounded-xl text-xs font-semibold justify-center"
+                        class="min-h-[44px] gap-2 rounded-xl text-xs font-medium justify-center"
                         onclick={() => ontoggle(mod)}
                         disabled={togglingId === mod.id}
                     >

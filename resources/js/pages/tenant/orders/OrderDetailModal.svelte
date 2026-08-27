@@ -141,31 +141,31 @@
             return {
                 title: '¿Cancelar pedido de venta?',
                 description: `¿Estás seguro de cancelar el pedido ${order?.order_number}? El stock de los artículos se reincorporará automáticamente al inventario. Esta acción es definitiva y no podrá revertirse.`,
-                confirmText: 'Sí, Cancelar Pedido',
+                confirmText: 'Cancelar pedido',
                 variant: 'danger' as const,
             };
         }
         if (pendingStatus === 'entregado') {
             return {
-                title: '¿Marcar pedido como Entregado?',
+                title: '¿Marcar pedido como entregado?',
                 description: `¿Confirmas que el pedido ${order?.order_number} fue entregado con éxito al cliente? Al marcarlo como entregado se completará la operación de forma definitiva.`,
-                confirmText: 'Confirmar Entrega',
+                confirmText: 'Confirmar entrega',
                 variant: 'success' as const,
             };
         }
         if (pendingStatus === 'en_camino') {
             return {
-                title: '¿Marcar pedido En Camino?',
+                title: '¿Marcar pedido en camino?',
                 description: `El pedido ${order?.order_number} pasará a estado de despacho / en tránsito hacia la dirección del cliente.`,
-                confirmText: 'Poner En Camino',
+                confirmText: 'Despachar pedido',
                 variant: 'default' as const,
             };
         }
         if (pendingStatus === 'preparado') {
             return {
-                title: '¿Marcar pedido como Preparado?',
+                title: '¿Marcar pedido como preparado?',
                 description: `El pedido ${order?.order_number} quedará empaquetado y listo para ser entregado o despachado.`,
-                confirmText: 'Marcar Preparado',
+                confirmText: 'Marcar preparado',
                 variant: 'default' as const,
             };
         }
@@ -196,30 +196,30 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h2 class="text-lg font-bold text-foreground font-mono">{order.order_number}</h2>
+                            <h2 class="text-lg font-bold text-foreground font-mono tabular-nums">{order.order_number}</h2>
                             {#if order.status === 'en_preparacion'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-600 border border-amber-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-amber-500/15 text-amber-600 border border-amber-500/30">
                                     En Preparación
                                 </span>
                             {:else if order.status === 'preparado'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-600 border border-blue-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-blue-500/15 text-blue-600 border border-blue-500/30">
                                     Preparado
                                 </span>
                             {:else if order.status === 'en_camino'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/15 text-indigo-600 border border-indigo-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-indigo-500/15 text-indigo-600 border border-indigo-500/30">
                                     En Camino
                                 </span>
                             {:else if order.status === 'entregado'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">
                                     Entregado
                                 </span>
                             {:else if order.status === 'cancelado'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-600 border border-rose-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/15 text-rose-600 border border-rose-500/30">
                                     Cancelado
                                 </span>
                             {/if}
                         </div>
-                        <p class="text-xs text-muted-foreground">Fecha: {formatDate(order.created_at)}</p>
+                        <p class="text-xs text-muted-foreground mt-0.5 tabular-nums">Fecha: {formatDate(order.created_at)}</p>
                     </div>
                 </div>
 
@@ -264,7 +264,7 @@
                     <span class="text-muted-foreground flex items-center gap-1">
                         <Phone class="size-3.5" /> Teléfono:
                     </span>
-                    <p class="font-semibold text-foreground">{order.customer_phone || 'No especificado'}</p>
+                    <p class="font-medium text-foreground font-mono tabular-nums">{order.customer_phone || 'No especificado'}</p>
                 </div>
                 <div class="space-y-1">
                     <span class="text-muted-foreground flex items-center gap-1">
@@ -276,14 +276,14 @@
 
             <!-- Tabla de Items -->
             <div class="space-y-2">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Productos y Cantidades</h4>
+                <h4 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Productos y Cantidades</h4>
                 <div class="rounded-xl border overflow-hidden">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-muted/40 text-muted-foreground border-b">
                             <tr>
-                                <th class="p-2.5">Producto</th>
-                                <th class="p-2.5">Presentación</th>
-                                <th class="p-2.5 text-center">Cant.</th>
+                                <th class="p-2.5 text-left">Producto</th>
+                                <th class="p-2.5 text-left">Presentación</th>
+                                <th class="p-2.5 text-right">Cant.</th>
                                 <th class="p-2.5 text-right">Precio Unit.</th>
                                 <th class="p-2.5 text-right">Subtotal</th>
                             </tr>
@@ -294,45 +294,45 @@
                                     <td class="p-2.5 font-medium text-foreground">
                                         {item.product?.name || `Producto #${item.product_id}`}
                                         {#if item.product?.sku}
-                                            <span class="text-[10px] text-muted-foreground block font-mono">SKU: {item.product.sku}</span>
+                                            <span class="text-xs text-muted-foreground block font-mono tabular-nums">SKU: {item.product.sku}</span>
                                         {/if}
                                     </td>
                                     <td class="p-2.5 text-muted-foreground">
                                         {#if item.packaging_type === 'gram'}
-                                            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-600 dark:text-sky-400">
+                                            <span class="inline-flex items-center gap-1 text-xs font-medium text-sky-600 dark:text-sky-400">
                                                 Gramos (g)
                                             </span>
                                         {:else if item.packaging_type === 'kg'}
-                                            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-600 dark:text-sky-400">
+                                            <span class="inline-flex items-center gap-1 text-xs font-medium text-sky-600 dark:text-sky-400">
                                                 Kilogramos (Kg)
                                             </span>
                                         {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
-                                            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
+                                            <span class="inline-flex items-center gap-1 text-xs font-medium text-primary">
                                                 Bulto (x{item.units_per_package || 1})
                                             </span>
                                         {:else}
                                             <span>Unidad</span>
                                         {/if}
                                     </td>
-                                    <td class="p-2.5 text-center font-bold font-mono">
+                                    <td class="p-2.5 text-right font-semibold font-mono tabular-nums">
                                         {#if item.packaging_type === 'gram'}
                                             {item.quantity} g
-                                            <span class="text-[10px] text-muted-foreground block font-normal">
+                                            <span class="text-xs text-muted-foreground block font-normal tabular-nums">
                                                 ({item.quantity / 1000} Kg)
                                             </span>
                                         {:else if item.packaging_type === 'kg'}
                                             {item.quantity} Kg
                                         {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
                                             {item.quantity} {item.quantity === 1 ? 'bulto' : 'bultos'}
-                                            <span class="text-[10px] text-muted-foreground block font-normal">
+                                            <span class="text-xs text-muted-foreground block font-normal tabular-nums">
                                                 ({item.quantity * (item.units_per_package || 1)})
                                             </span>
                                         {:else}
                                             {item.quantity} unid.
                                         {/if}
                                     </td>
-                                    <td class="p-2.5 text-right font-mono">{formatPrice(item.unit_price)}</td>
-                                    <td class="p-2.5 text-right font-mono font-bold text-foreground">{formatPrice(item.subtotal)}</td>
+                                    <td class="p-2.5 text-right font-mono tabular-nums">{formatPrice(item.unit_price)}</td>
+                                    <td class="p-2.5 text-right font-mono font-bold tabular-nums text-foreground">{formatPrice(item.subtotal)}</td>
                                 </tr>
                             {/each}
                         </tbody>
@@ -342,7 +342,7 @@
 
             {#if order.notes}
                 <div class="p-2.5 rounded-lg bg-muted/20 border text-xs text-muted-foreground">
-                    <strong class="text-foreground">Notas:</strong> {order.notes}
+                    <strong class="text-foreground font-medium">Notas:</strong> {order.notes}
                 </div>
             {/if}
 
@@ -351,7 +351,7 @@
                 <div class="space-y-2 pt-2 border-t">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-foreground block">Actualizar Estado del Pedido:</span>
-                        <span class="text-[11px] text-muted-foreground">Selecciona el siguiente paso del flujo</span>
+                        <span class="text-xs text-muted-foreground">Selecciona el siguiente paso del flujo</span>
                     </div>
 
                     <div class="grid grid-cols-1 {order.status === 'preparado' ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-2">
@@ -359,36 +359,36 @@
                             <button
                                 type="button"
                                 disabled={isUpdatingStatus}
-                                class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
+                                class="px-3 py-2.5 rounded-xl text-xs font-medium border text-center transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
                                 onclick={() => requestStatusChange('preparado')}
                             >
-                                Pasar a Preparado
+                                Preparar pedido
                             </button>
                         {:else if order.status === 'preparado'}
                             <button
                                 type="button"
                                 disabled={isUpdatingStatus}
-                                class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
+                                class="px-3 py-2.5 rounded-xl text-xs font-medium border text-center transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
                                 onclick={() => requestStatusChange('en_camino')}
                             >
-                                Despachar (En camino)
+                                Despachar pedido
                             </button>
                             <button
                                 type="button"
                                 disabled={isUpdatingStatus}
-                                class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                                class="px-3 py-2.5 rounded-xl text-xs font-medium border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
                                 onclick={() => requestStatusChange('entregado')}
                             >
-                                Entregar (Retiro en local)
+                                Entregar pedido
                             </button>
                         {:else if order.status === 'en_camino'}
                             <button
                                 type="button"
                                 disabled={isUpdatingStatus}
-                                class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                                class="px-3 py-2.5 rounded-xl text-xs font-medium border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
                                 onclick={() => requestStatusChange('entregado')}
                             >
-                                Marcar Entregado
+                                Entregar pedido
                             </button>
                         {/if}
 
@@ -396,10 +396,10 @@
                         <button
                             type="button"
                             disabled={isUpdatingStatus}
-                            class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-rose-600/10 hover:bg-rose-600 hover:text-white text-rose-600 border-rose-500/30"
+                            class="px-3 py-2.5 rounded-xl text-xs font-medium border text-center transition-all bg-rose-600/10 hover:bg-rose-600 hover:text-white text-rose-600 border-rose-500/30"
                             onclick={() => requestStatusChange('cancelado')}
                         >
-                            Cancelar Pedido
+                            Cancelar pedido
                         </button>
                     </div>
                 </div>
@@ -412,11 +412,11 @@
                         type="button"
                         variant="ghost"
                         size="sm"
-                        class="text-xs text-destructive hover:bg-destructive/10 gap-1.5"
+                        class="text-xs font-medium text-destructive hover:bg-destructive/10 gap-1.5"
                         onclick={handleDelete}
                     >
                         <Trash2 class="size-3.5" />
-                        Eliminar Pedido
+                        <span>Eliminar pedido</span>
                     </Button>
                 {:else}
                     <div></div>
@@ -425,9 +425,9 @@
                 <div class="flex items-center gap-3">
                     <div class="text-right">
                         <span class="text-xs text-muted-foreground block">Total:</span>
-                        <span class="text-lg font-bold font-mono text-primary">{formatPrice(order.total_amount)}</span>
+                        <span class="text-lg font-bold font-mono tabular-nums text-primary">{formatPrice(order.total_amount)}</span>
                     </div>
-                    <Button type="button" size="sm" variant="outline" onclick={() => (open = false)}>
+                    <Button type="button" size="sm" variant="outline" onclick={() => (open = false)} class="text-xs font-medium">
                         Cerrar
                     </Button>
                 </div>
@@ -455,8 +455,8 @@
         bind:open={isDeleteModalOpen}
         title="¿Eliminar pedido?"
         description={`Esta acción eliminará el registro del pedido ${order.order_number}. El stock reservado se reincorporará automáticamente.`}
-        confirmText="Eliminar Definitivamente"
-        cancelText="Conservar"
+        confirmText="Eliminar pedido"
+        cancelText="Cancelar"
         variant="danger"
         onconfirm={executeDelete}
     />

@@ -31,11 +31,11 @@
                 style="box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);"
             >
                 <div class="mb-6 flex flex-col space-y-2 text-center">
-                    <h1 class="text-2xl font-semibold tracking-tight text-[#1a1c1c] sm:text-3xl">
+                    <h1 class="text-2xl font-bold tracking-tight leading-tight text-[#1a1c1c] sm:text-3xl">
                         {title}
                     </h1>
                     {#if description}
-                        <p class="text-sm text-[#5f5f55]">
+                        <p class="text-sm text-[#5f5f55] leading-relaxed">
                             {description}
                         </p>
                     {/if}
@@ -48,6 +48,6 @@
 
     <!-- Footer -->
     <footer class="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-center px-6 py-6 text-xs text-[#78776f] dark:text-muted-foreground">
-        <span>&copy; {new Date().getFullYear()} Todos los derechos reservados.</span>
+        <span class="tabular-nums">&copy; {new Date().getFullYear()} Todos los derechos reservados.</span>
     </footer>
 </div>

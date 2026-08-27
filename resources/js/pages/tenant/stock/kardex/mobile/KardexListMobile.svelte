@@ -59,66 +59,73 @@
 {#if movements.length > 0}
     <div class="flex flex-col gap-3">
         {#each movements as mov (mov.id)}
-            <div class="rounded-2xl border border-border/70 bg-card p-4 shadow-2xs">
-                <!-- Header Card: Producto y Tipo/Cantidad -->
+            <div class="rounded-xl border border-border/70 bg-card p-4 shadow-xs">
+                <!-- Header Card Mobile: Producto y Badge de Operación -->
                 <div class="flex items-start justify-between gap-3 pb-3 border-b border-border/40">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="h-11 w-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
-                            <Package class="h-5 w-5 stroke-[1.75]" />
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="size-9 rounded-lg {mov.type === 'income' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400'} border flex items-center justify-center shrink-0">
+                            {#if mov.type === 'income'}
+                                <ArrowDownLeft class="size-4" />
+                            {:else}
+                                <ArrowUpRight class="size-4" />
+                            {/if}
                         </div>
                         <div class="min-w-0">
-                            <div class="font-bold text-foreground truncate text-sm">
+                            <div class="font-semibold text-foreground truncate text-sm leading-snug">
                                 {mov.product?.name ?? 'Producto eliminado'}
                             </div>
                             {#if mov.product?.sku}
-                                <div class="text-[11px] text-muted-foreground font-mono">
+                                <div class="text-xs text-muted-foreground font-mono tracking-wide">
                                     SKU: {mov.product.sku}
                                 </div>
                             {/if}
                         </div>
                     </div>
 
-                    {#if mov.type === 'income'}
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0 font-mono tabular-nums">
-                            <ArrowDownLeft class="h-3 w-3" />
-                            +{mov.quantity}
-                        </span>
-                    {:else}
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0 font-mono tabular-nums">
-                            <ArrowUpRight class="h-3 w-3" />
-                            -{mov.quantity}
-                        </span>
-                    {/if}
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold font-mono tabular-nums shrink-0 {mov.type === 'income' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'}">
+                        {mov.type === 'income' ? `+${mov.quantity}` : `-${mov.quantity}`}
+                    </span>
                 </div>
 
-                <!-- Detalles de Stock y Motivo -->
+                <!-- Detalle de Balance y Motivo -->
                 <div class="grid grid-cols-2 gap-2 pt-3 text-xs">
                     <div>
-                        <span class="text-muted-foreground block text-[11px]">Balance de Stock</span>
-                        <span class="font-semibold text-foreground font-mono tabular-nums">{mov.previous_stock} ➔ {mov.current_stock}</span>
+                        <span class="text-muted-foreground block text-[11px]">Balance stock</span>
+                        <div class="font-mono text-xs tabular-nums">
+                            <span class="text-muted-foreground">{mov.previous_stock}</span>
+                            <span class="text-muted-foreground mx-0.5">➔</span>
+                            <span class="font-bold text-foreground">{mov.current_stock}</span>
+                        </div>
                     </div>
                     <div>
-                        <span class="text-muted-foreground block text-[11px]">Tipo / Motivo</span>
-                        <span class="font-medium text-foreground capitalize">
-                            {mov.type === 'income' ? 'Ingreso' : 'Egreso'}
+                        <span class="text-muted-foreground block text-[11px]">Motivo</span>
+                        <span class="font-medium text-foreground capitalize truncate block">
+                            {mov.reason ? mov.reason.replace(/_/g, ' ') : 'Operación'}
                         </span>
                     </div>
                 </div>
 
-                <!-- Footer: Responsable y Botón Ver Detalle -->
+                <!-- Footer: Responsable, Fecha y Botón Ver Detalle -->
                 <div class="flex items-center justify-between pt-3 mt-3 border-t border-border/40 text-[11px] text-muted-foreground">
-                    <div class="flex items-center gap-1.5 truncate">
-                        <User class="h-3 w-3 text-muted-foreground/70" />
-                        <span>{mov.user?.name ?? 'Sistema'}</span>
+                    <div class="flex flex-col gap-0.5 min-w-0">
+                        <div class="flex items-center gap-1 text-foreground font-medium truncate">
+                            <User class="size-3 text-muted-foreground/70" />
+                            <span>{mov.user?.name ?? 'Sistema'}</span>
+                        </div>
+                        <div class="flex items-center gap-1 font-mono text-[10px] text-muted-foreground tabular-nums">
+                            <Calendar class="size-3 text-muted-foreground/70" />
+                            <span>{formatDate(mov.created_at)}</span>
+                        </div>
                     </div>
+
                     <Button
-                        variant="secondary"
+                        variant="outline"
                         size="sm"
                         onclick={() => onSelectMovement(mov)}
-                        class="min-h-[44px] px-3.5 text-xs gap-1.5 rounded-xl font-medium"
+                        class="h-7 text-xs px-2.5 rounded-lg shrink-0 font-medium"
                     >
-                        <Eye class="h-3.5 w-3.5" />
-                        <span>Ver Detalle</span>
+                        <Eye class="size-3 mr-1" />
+                        <span>Ver detalle</span>
                     </Button>
                 </div>
             </div>

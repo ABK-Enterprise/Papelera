@@ -147,22 +147,22 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h2 class="text-lg font-bold text-foreground font-mono">{order.order_number}</h2>
+                            <h2 class="text-lg font-bold text-foreground font-mono tabular-nums">{order.order_number}</h2>
                             {#if order.status === 'solicitado'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-600 border border-amber-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-amber-500/15 text-amber-600 border border-amber-500/30">
                                     Solicitado (Pendiente)
                                 </span>
                             {:else if order.status === 'recibido'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">
                                     Recibido en Stock
                                 </span>
                             {:else if order.status === 'cancelado'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-600 border border-rose-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/15 text-rose-600 border border-rose-500/30">
                                     Cancelado
                                 </span>
                             {/if}
                         </div>
-                        <p class="text-xs text-muted-foreground">Fecha: {formatDate(order.created_at)}</p>
+                        <p class="text-xs text-muted-foreground mt-0.5 tabular-nums">Fecha: {formatDate(order.created_at)}</p>
                     </div>
                 </div>
 
@@ -199,23 +199,23 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-muted/20 border text-xs">
                 <div class="space-y-1">
                     <span class="text-muted-foreground">Proveedor:</span>
-                    <p class="font-bold text-foreground">{order.supplier?.name || 'Proveedor'}</p>
+                    <p class="font-semibold text-foreground">{order.supplier?.name || 'Proveedor'}</p>
                 </div>
                 <div class="space-y-1">
                     <span class="text-muted-foreground">Contacto:</span>
-                    <p class="font-semibold text-foreground">{order.supplier?.contact_number || order.supplier?.email || 'Sin contacto directo'}</p>
+                    <p class="font-medium text-foreground font-mono tabular-nums">{order.supplier?.contact_number || order.supplier?.email || 'Sin contacto directo'}</p>
                 </div>
             </div>
 
             <!-- Tabla de Items de Compra -->
             <div class="space-y-2">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Artículos Solicitados</h4>
+                <h4 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Artículos Solicitados</h4>
                 <div class="rounded-xl border overflow-hidden">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-muted/40 text-muted-foreground border-b">
                             <tr>
-                                <th class="p-2.5">Producto</th>
-                                <th class="p-2.5 text-center">Cant. Solicitada</th>
+                                <th class="p-2.5 text-left">Producto</th>
+                                <th class="p-2.5 text-right">Cant. Solicitada</th>
                                 <th class="p-2.5 text-right">Costo Unit.</th>
                                 <th class="p-2.5 text-right">Subtotal</th>
                             </tr>
@@ -226,16 +226,16 @@
                                     <td class="p-2.5 font-medium text-foreground">
                                         {item.product_name}
                                         {#if item.product?.sku}
-                                            <span class="text-[10px] text-muted-foreground block font-mono">SKU: {item.product.sku}</span>
+                                            <span class="text-xs text-muted-foreground block font-mono tabular-nums">SKU: {item.product.sku}</span>
                                         {/if}
                                     </td>
-                                    <td class="p-2.5 text-center font-bold font-mono">
+                                    <td class="p-2.5 text-right font-medium font-mono tabular-nums">
                                         {item.quantity} unid.
                                     </td>
-                                    <td class="p-2.5 text-right font-mono">
+                                    <td class="p-2.5 text-right font-mono tabular-nums">
                                         {Number(item.unit_cost) > 0 ? formatPrice(item.unit_cost) : '-'}
                                     </td>
-                                    <td class="p-2.5 text-right font-mono font-bold text-foreground">
+                                    <td class="p-2.5 text-right font-mono font-bold text-foreground tabular-nums">
                                         {Number(item.subtotal) > 0 ? formatPrice(item.subtotal) : '-'}
                                     </td>
                                 </tr>
@@ -247,7 +247,7 @@
 
             {#if order.notes}
                 <div class="p-2.5 rounded-lg bg-muted/20 border text-xs text-muted-foreground">
-                    <strong class="text-foreground">Notas:</strong> {order.notes}
+                    <strong class="text-foreground font-medium">Notas:</strong> {order.notes}
                 </div>
             {/if}
 
@@ -256,11 +256,11 @@
                 <div class="p-3 rounded-xl bg-primary/5 border border-primary/20 flex flex-col sm:flex-row items-center justify-between gap-3">
                     <div>
                         <span class="text-xs font-bold text-foreground block">¿Llegó la mercadería al depósito?</span>
-                        <p class="text-[11px] text-muted-foreground">Al marcar como recibido, se sumará el stock de cada artículo en Kardex.</p>
+                        <p class="text-xs text-muted-foreground mt-0.5">Al confirmar la recepción, se sumará el stock de cada artículo en Kardex.</p>
                     </div>
-                    <Button size="sm" class="font-bold gap-1.5 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white" onclick={promptReceive} disabled={isProcessing}>
+                    <Button size="sm" class="font-medium gap-1.5 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white" onclick={promptReceive} disabled={isProcessing}>
                         <PackageCheck class="size-4" />
-                        Marcar como Recibido
+                        <span>Confirmar recepción</span>
                     </Button>
                 </div>
             {/if}
@@ -277,7 +277,7 @@
                         disabled={isProcessing}
                     >
                         <XCircle class="size-3.5" />
-                        Cancelar Orden
+                        <span>Cancelar orden</span>
                     </Button>
                 {:else}
                     <div></div>
@@ -286,9 +286,9 @@
                 <div class="flex items-center gap-3">
                     <div class="text-right">
                         <span class="text-xs text-muted-foreground block">Costo Total:</span>
-                        <span class="text-lg font-bold font-mono text-primary">{formatPrice(order.total_cost)}</span>
+                        <span class="text-lg font-bold font-mono tabular-nums text-primary">{formatPrice(order.total_cost)}</span>
                     </div>
-                    <Button type="button" size="sm" variant="outline" onclick={() => (open = false)}>
+                    <Button type="button" size="sm" variant="outline" onclick={() => (open = false)} class="text-xs font-medium">
                         Cerrar
                     </Button>
                 </div>
@@ -301,8 +301,8 @@
         bind:open={isReceiveModalOpen}
         title="¿Confirmar recepción de mercadería?"
         description={`¿Deseas registrar el ingreso de los artículos de la orden ${order.order_number}? El inventario de cada producto se incrementará automáticamente y se asentará en Kardex.`}
-        confirmText="Ingresar a Stock"
-        cancelText="Volver"
+        confirmText="Ingresar a stock"
+        cancelText="Cancelar"
         variant="success"
         loading={isProcessing}
         onconfirm={executeReceive}
@@ -313,8 +313,8 @@
         bind:open={isCancelModalOpen}
         title="¿Cancelar orden de compra?"
         description={`¿Estás seguro de cancelar la orden ${order.order_number}? La orden quedará archivada como cancelada y no modificará el inventario.`}
-        confirmText="Cancelar Orden"
-        cancelText="Conservar"
+        confirmText="Cancelar orden"
+        cancelText="Volver"
         variant="warning"
         loading={isProcessing}
         onconfirm={executeCancel}

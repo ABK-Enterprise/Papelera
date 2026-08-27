@@ -60,8 +60,8 @@
                     <Truck class="size-5" />
                 </div>
                 <div>
-                    <DialogTitle class="text-xl font-bold text-foreground">Añadir Proveedor</DialogTitle>
-                    <DialogDescription class="text-xs text-muted-foreground">
+                    <DialogTitle class="text-xl font-bold tracking-tight text-foreground">Añadir proveedor</DialogTitle>
+                    <DialogDescription class="text-xs text-muted-foreground mt-0.5">
                         Registra un nuevo proveedor o contacto comercial para tu comercio.
                     </DialogDescription>
                 </div>
@@ -79,7 +79,7 @@
         <form onsubmit={submit} class="space-y-4 pt-4">
             <!-- Nombre del proveedor -->
             <div class="space-y-1.5">
-                <Label for="create-supplier-name" class="text-xs font-semibold">
+                <Label for="create-supplier-name" class="text-sm font-medium text-foreground">
                     Nombre o Razón Social <span class="text-destructive">*</span>
                 </Label>
                 <Input
@@ -87,7 +87,7 @@
                     bind:value={form.name}
                     placeholder="ej. Distribuidora Papelera Mayorista S.A."
                     required
-                    class="h-9 text-sm"
+                    class="h-9 text-sm font-normal"
                 />
                 {#if form.errors.name}
                     <p class="text-xs text-destructive">{form.errors.name}</p>
@@ -97,7 +97,7 @@
             <!-- Teléfono / Contacto y Correo -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div class="space-y-1.5">
-                    <Label for="create-supplier-phone" class="text-xs font-semibold flex items-center gap-1.5">
+                    <Label for="create-supplier-phone" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <Phone class="h-3.5 w-3.5 text-muted-foreground" />
                         Teléfono / Contacto
                     </Label>
@@ -105,7 +105,7 @@
                         id="create-supplier-phone"
                         bind:value={form.contact_number}
                         placeholder="ej. +54 11 4321-8765"
-                        class="h-9 text-sm"
+                        class="h-9 text-sm font-mono tabular-nums"
                     />
                     {#if form.errors.contact_number}
                         <p class="text-xs text-destructive">{form.errors.contact_number}</p>
@@ -113,7 +113,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="create-supplier-email" class="text-xs font-semibold flex items-center gap-1.5">
+                    <Label for="create-supplier-email" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <Mail class="h-3.5 w-3.5 text-muted-foreground" />
                         Correo Electrónico
                     </Label>
@@ -132,7 +132,7 @@
 
             <!-- Dirección comercial -->
             <div class="space-y-1.5">
-                <Label for="create-supplier-address" class="text-xs font-semibold flex items-center gap-1.5">
+                <Label for="create-supplier-address" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                     <MapPin class="h-3.5 w-3.5 text-muted-foreground" />
                     Dirección Comercial
                 </Label>
@@ -165,24 +165,24 @@
                     </div>
                     <div class="text-xs space-y-0.5 flex-1 min-w-0">
                         <div class="flex items-center justify-between gap-1">
-                            <span class="font-semibold text-foreground">Proveedor Activo</span>
+                            <span class="font-medium text-foreground">Proveedor activo</span>
                             {#if form.is_active}
-                                <span class="text-[10px] font-bold text-primary">Activo</span>
+                                <span class="text-xs font-medium text-primary">Activo</span>
                             {:else}
-                                <span class="text-[10px] font-bold text-muted-foreground">Inactivo</span>
+                                <span class="text-xs font-medium text-muted-foreground">Inactivo</span>
                             {/if}
                         </div>
-                        <span class="text-muted-foreground block text-[11px]">Disponible para selección en compras y pedidos.</span>
+                        <span class="text-muted-foreground block text-xs">Disponible para selección en compras y órdenes de abastecimiento.</span>
                     </div>
                 </div>
             </div>
 
             <DialogFooter class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-4 border-t border-border">
-                <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing}>
+                <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing} class="text-xs font-medium">
                     Cancelar
                 </Button>
-                <Button type="submit" disabled={form.processing} class="min-w-32">
-                    {form.processing ? 'Guardando...' : 'Añadir Proveedor'}
+                <Button type="submit" size="sm" disabled={form.processing} class="min-w-32 text-xs font-medium">
+                    {form.processing ? 'Guardando...' : 'Guardar proveedor'}
                 </Button>
             </DialogFooter>
         </form>

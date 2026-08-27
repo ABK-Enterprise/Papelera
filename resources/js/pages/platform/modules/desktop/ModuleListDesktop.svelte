@@ -73,7 +73,7 @@
 
                     <div class="flex items-center gap-2">
                         <span
-                            class="px-2.5 py-1 rounded-full text-xs font-semibold border {mod.is_active
+                            class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide border {mod.is_active
                                 ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/25'
                                 : 'bg-muted text-muted-foreground border-border/60'}"
                         >
@@ -85,10 +85,10 @@
                 <!-- Título y Descripción -->
                 <div class="mt-2">
                     <div class="flex items-center justify-between gap-2">
-                        <h3 class="text-base font-bold text-foreground">
+                        <h3 class="text-base font-semibold leading-snug text-foreground">
                             {mod.name}
                         </h3>
-                        <Badge variant="outline" class="font-mono text-[11px] bg-muted/50 px-2">
+                        <Badge variant="outline" class="font-mono text-xs tracking-wide tabular-nums bg-muted/50 px-2 py-0.5">
                             {mod.code}
                         </Badge>
                     </div>
@@ -102,13 +102,13 @@
 
                 <!-- Permisos Granulares Asociados -->
                 <div class="mt-4 pt-3 border-t border-border/40">
-                    <span class="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block mb-2">
-                        Permisos Granulares ({mod.permissions.length})
+                    <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-2">
+                        Permisos granulares <span class="tabular-nums">({mod.permissions.length})</span>
                     </span>
 
                     <div class="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pr-1">
                         {#each mod.permissions as perm (perm.id)}
-                            <span class="inline-flex items-center font-mono text-[11px] bg-muted/40 border border-border/50 text-foreground/85 px-2 py-0.5 rounded-md">
+                            <span class="inline-flex items-center font-mono text-xs bg-muted/40 border border-border/50 text-foreground/85 px-2 py-0.5 rounded-md">
                                 {perm.name}
                             </span>
                         {/each}
@@ -124,7 +124,7 @@
 
             <!-- Footer de la Card con Control de Activación/Desactivación -->
             <div class="mt-5 pt-3.5 border-t border-border/40 flex items-center justify-between">
-                <div class="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                <div class="flex items-center gap-1.5 text-xs text-muted-foreground font-medium tabular-nums">
                     <Shield class="h-3.5 w-3.5 text-muted-foreground/80" />
                     <span>{mod.tenants_count ?? 0} {mod.tenants_count === 1 ? 'comercio' : 'comercios'}</span>
                 </div>
@@ -135,7 +135,7 @@
                     size="sm"
                     onclick={() => ontoggle(mod)}
                     disabled={togglingId === mod.id}
-                    class="min-h-[40px] gap-1.5 rounded-xl text-xs font-semibold transition-colors"
+                    class="min-h-[40px] gap-1.5 rounded-xl text-xs font-medium transition-colors"
                 >
                     <Power class="h-3.5 w-3.5" />
                     <span>{mod.is_active ? 'Desactivar' : 'Activar'}</span>

@@ -81,8 +81,8 @@
                     <Building2 class="h-6 w-6 stroke-[1.75]" />
                 </div>
                 <div>
-                    <DialogTitle class="text-xl font-bold text-foreground">Añadir Nuevo Comercio</DialogTitle>
-                    <DialogDescription class="text-xs text-muted-foreground mt-0.5">
+                    <DialogTitle class="text-xl font-bold tracking-tight text-foreground">Añadir nuevo comercio</DialogTitle>
+                    <DialogDescription class="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                         Registra el comercio, su administrador principal y los módulos contratados.
                     </DialogDescription>
                 </div>
@@ -102,11 +102,11 @@
             <div class="space-y-3">
                 <div class="flex items-center gap-2 text-sm font-semibold text-foreground">
                     <Store class="h-4 w-4 text-primary" />
-                    <span>1. Datos del Comercio</span>
+                    <span>1. Datos del comercio</span>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 bg-muted/20 p-4 rounded-xl border border-border/60">
                     <div class="space-y-1.5">
-                        <Label for="modal-tenant-name" class="text-xs font-medium">Razón Social / Nombre *</Label>
+                        <Label for="modal-tenant-name" class="text-sm font-medium text-foreground">Razón social / Nombre *</Label>
                         <Input
                             id="modal-tenant-name"
                             bind:value={$form.tenant.name}
@@ -120,12 +120,12 @@
                     </div>
 
                     <div class="space-y-1.5">
-                        <Label for="modal-tenant-cuit" class="text-xs font-medium">CUIT / Identificación Fiscal</Label>
+                        <Label for="modal-tenant-cuit" class="text-sm font-medium text-foreground">CUIT / Identificación fiscal</Label>
                         <Input
                             id="modal-tenant-cuit"
                             bind:value={$form.tenant.cuit_tax_id}
                             placeholder="ej. 30-71234567-8"
-                            class="h-10 rounded-xl border-border/70 text-sm font-mono"
+                            class="h-10 rounded-xl border-border/70 text-sm font-mono tabular-nums"
                         />
                         {#if $form.errors['tenant.cuit_tax_id']}
                             <p class="text-xs font-medium text-destructive">{$form.errors['tenant.cuit_tax_id']}</p>
@@ -138,11 +138,11 @@
             <div class="space-y-3">
                 <div class="flex items-center gap-2 text-sm font-semibold text-foreground">
                     <User class="h-4 w-4 text-primary" />
-                    <span>2. Administrador Principal</span>
+                    <span>2. Administrador principal</span>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 bg-muted/20 p-4 rounded-xl border border-border/60">
                     <div class="space-y-1.5">
-                        <Label for="modal-admin-name" class="text-xs font-medium">Nombre y Apellido *</Label>
+                        <Label for="modal-admin-name" class="text-sm font-medium text-foreground">Nombre y apellido *</Label>
                         <Input
                             id="modal-admin-name"
                             bind:value={$form.admin.name}
@@ -156,7 +156,7 @@
                     </div>
 
                     <div class="space-y-1.5">
-                        <Label for="modal-admin-email" class="text-xs font-medium">Email de Acceso *</Label>
+                        <Label for="modal-admin-email" class="text-sm font-medium text-foreground">Email de acceso *</Label>
                         <Input
                             id="modal-admin-email"
                             type="email"
@@ -171,7 +171,7 @@
                     </div>
 
                     <div class="space-y-1.5">
-                        <Label for="modal-admin-password" class="text-xs font-medium">Contraseña Inicial *</Label>
+                        <Label for="modal-admin-password" class="text-sm font-medium text-foreground">Contraseña inicial *</Label>
                         <PasswordInput
                             id="modal-admin-password"
                             bind:value={$form.admin.password}
@@ -185,7 +185,7 @@
                     </div>
 
                     <div class="space-y-1.5">
-                        <Label for="modal-admin-password-confirm" class="text-xs font-medium">Confirmar Contraseña *</Label>
+                        <Label for="modal-admin-password-confirm" class="text-sm font-medium text-foreground">Confirmar contraseña *</Label>
                         <PasswordInput
                             id="modal-admin-password-confirm"
                             bind:value={$form.admin.password_confirmation}
@@ -202,9 +202,9 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2 text-sm font-semibold text-foreground">
                         <Package class="h-4 w-4 text-primary" />
-                        <span>3. Módulos Habilitados</span>
+                        <span>3. Módulos habilitados</span>
                     </div>
-                    <span class="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                    <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide tabular-nums text-primary">
                         {$form.module_ids.length} seleccionados
                     </span>
                 </div>
@@ -229,13 +229,13 @@
                                         {mod.name}
                                     </span>
                                     {#if isSelected}
-                                        <span class="inline-flex items-center text-[10px] font-bold text-primary shrink-0">
+                                        <span class="inline-flex items-center text-xs font-semibold tracking-wide text-primary shrink-0">
                                             <Check class="size-2.5 mr-0.5" />
                                             Activo
                                         </span>
                                     {/if}
                                 </div>
-                                <span class="font-mono text-[10px] text-muted-foreground block">({mod.code})</span>
+                                <span class="font-mono text-xs text-muted-foreground block">({mod.code})</span>
                             </div>
                         </button>
                     {/each}
@@ -258,7 +258,7 @@
                         <span>Creando comercio...</span>
                     {:else}
                         <Building2 class="h-4 w-4" />
-                        <span>Crear Comercio</span>
+                        <span>Crear comercio</span>
                     {/if}
                 </Button>
             </DialogFooter>

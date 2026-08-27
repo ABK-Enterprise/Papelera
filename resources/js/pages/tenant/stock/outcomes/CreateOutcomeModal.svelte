@@ -75,7 +75,7 @@
                     <ArrowUpRight class="size-5" />
                 </div>
                 <div>
-                    <DialogTitle class="text-lg font-bold text-foreground">Registrar Egreso de Stock</DialogTitle>
+                    <DialogTitle class="text-lg font-semibold text-foreground leading-snug">Registrar egreso de stock</DialogTitle>
                     <DialogDescription class="text-xs text-muted-foreground">
                         Registra salida o devolución de mercadería de tu inventario.
                     </DialogDescription>
@@ -118,7 +118,7 @@
             {#if selectedProduct}
                 <div class="p-3 rounded-lg bg-muted/40 border border-border/60 flex items-center justify-between text-xs">
                     <span class="text-muted-foreground">Stock disponible:</span>
-                    <span class="font-bold {selectedProduct.stock === 0 ? 'text-rose-500' : 'text-foreground'}">
+                    <span class="font-semibold tabular-nums {selectedProduct.stock === 0 ? 'text-rose-500' : 'text-foreground'}">
                         {selectedProduct.stock} unidades
                     </span>
                 </div>
@@ -137,12 +137,12 @@
                     bind:value={form.quantity}
                     placeholder="Ej. 1"
                     required
-                    class="text-sm shadow-2xs {isQuantityExceeded ? 'border-rose-500 focus-visible:ring-rose-500' : ''}"
+                    class="text-sm shadow-2xs tabular-nums {isQuantityExceeded ? 'border-rose-500 focus-visible:ring-rose-500' : ''}"
                 />
                 {#if isQuantityExceeded}
                     <div class="mt-1.5 flex items-center gap-1 text-xs text-rose-500 font-medium">
                         <ShieldAlert class="size-3.5 shrink-0" />
-                        <span>La cantidad supera el stock disponible ({selectedProduct?.stock} unid.).</span>
+                        <span>La cantidad supera el stock disponible (<span class="tabular-nums font-semibold">{selectedProduct?.stock}</span> unid.).</span>
                     </div>
                 {/if}
                 {#if form.errors.quantity}
@@ -193,7 +193,7 @@
                     variant="outline"
                     onclick={closeModal}
                     disabled={form.processing}
-                    class="text-xs"
+                    class="text-xs font-medium"
                 >
                     Cancelar
                 </Button>
@@ -207,7 +207,7 @@
                         <span>Procesando...</span>
                     {:else}
                         <ArrowUpRight class="size-3.5 mr-1.5" />
-                        <span>Registrar Egreso</span>
+                        <span>Registrar egreso</span>
                     {/if}
                 </Button>
             </DialogFooter>

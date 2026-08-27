@@ -170,17 +170,17 @@
                     <div class="flex flex-col gap-1.5 min-w-0 flex-1">
                         <!-- Fila 1: Nombre Destacado + SKU + Motivo -->
                         <div class="flex items-center gap-3 flex-wrap">
-                            <h3 class="font-bold text-base text-foreground group-hover:text-rose-600 transition-colors truncate max-w-md">
+                            <h3 class="font-semibold text-base text-foreground group-hover:text-rose-600 transition-colors truncate max-w-md leading-snug">
                                 {mov.product?.name ?? 'Producto eliminado'}
                             </h3>
 
                             {#if mov.product?.sku}
-                                <span class="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-[11px] font-mono text-muted-foreground border border-border/50">
+                                <span class="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-xs font-mono tracking-wide text-muted-foreground border border-border/50">
                                     SKU: {mov.product.sku}
                                 </span>
                             {/if}
 
-                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200/50 capitalize">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200/50">
                                 <Tag class="size-3" />
                                 {formatReason(mov.reason)}
                             </span>
@@ -198,10 +198,10 @@
                         <div class="flex items-center gap-4 text-xs text-muted-foreground mt-0.5">
                             <div class="flex items-center gap-1.5">
                                 <User class="size-3.5 text-muted-foreground/70" />
-                                <span>Registrado por: <strong class="text-foreground font-normal">{mov.user?.name ?? 'Sistema'}</strong></span>
+                                <span>Registrado por: <strong class="text-foreground font-medium">{mov.user?.name ?? 'Sistema'}</strong></span>
                             </div>
                             <span class="text-border">•</span>
-                            <div class="flex items-center gap-1.5 font-mono text-[11px]">
+                            <div class="flex items-center gap-1.5 font-mono text-xs tabular-nums">
                                 <Calendar class="size-3.5 text-muted-foreground/70" />
                                 <span>{formatDate(mov.created_at)}</span>
                             </div>
@@ -213,13 +213,13 @@
                 <div class="flex items-center gap-4 shrink-0 pl-4 border-l border-border/60">
                     <div class="text-right flex flex-col items-end gap-1">
                         <!-- Badge de Cantidad Egresada -->
-                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 font-mono shadow-2xs">
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 font-mono tabular-nums shadow-2xs">
                             <ArrowUpRight class="size-3.5" />
                             -{mov.quantity} u.
                         </span>
 
                         <!-- Progresión de Stock (Antes -> Después) -->
-                        <div class="flex items-center gap-1 text-xs font-mono text-muted-foreground">
+                        <div class="flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground">
                             <span>Stock:</span>
                             <span class="text-muted-foreground font-semibold">{mov.previous_stock}</span>
                             <ArrowRight class="size-3 text-muted-foreground/60" />

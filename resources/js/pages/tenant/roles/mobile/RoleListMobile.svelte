@@ -35,14 +35,14 @@
                             <Shield class="h-5 w-5 stroke-[1.75]" />
                         </div>
                         <div>
-                            <span class="font-bold text-foreground text-sm">{role.name}</span>
-                            <div class="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                            <span class="font-semibold text-foreground text-sm">{role.name}</span>
+                            <div class="flex items-center gap-1 text-xs text-muted-foreground mt-0.5 tabular-nums">
                                 <Users class="h-3 w-3" />
                                 <span>{role.users_count} {role.users_count === 1 ? 'usuario' : 'usuarios'}</span>
                             </div>
                         </div>
                     </div>
-                    <Badge variant="secondary" class="h-5 text-[11px] font-semibold px-2">
+                    <Badge variant="secondary" class="h-5 text-xs font-medium tracking-wide px-2 tabular-nums">
                         {role.permissions_count} permisos
                     </Badge>
                 </div>
@@ -54,7 +54,7 @@
                             class="min-h-[44px] w-full gap-2 rounded-xl text-xs font-medium border-border/70 justify-center"
                         >
                             <Edit2 class="h-4 w-4" />
-                            <span>Editar Permisos</span>
+                            <span>Editar rol</span>
                         </Button>
                     </Link>
 
@@ -64,7 +64,7 @@
                         onclick={() => ondelete(role)}
                     >
                         <Trash2 class="h-4 w-4" />
-                        <span class="sr-only">Eliminar Rol</span>
+                        <span class="sr-only">Eliminar rol</span>
                     </Button>
                 </div>
             </CardContent>

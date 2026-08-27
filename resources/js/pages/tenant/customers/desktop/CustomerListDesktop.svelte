@@ -106,28 +106,28 @@
                 <div class="flex flex-col gap-1.5 min-w-0 flex-1">
                     <!-- Fila 1: Nombre Destacado + Badges -->
                     <div class="flex items-center gap-2.5 flex-wrap">
-                        <h3 class="font-bold text-base text-foreground group-hover:text-primary transition-colors truncate">
+                        <h3 class="font-semibold text-base text-foreground group-hover:text-primary transition-colors truncate">
                             {customer.name}
                         </h3>
 
                         {#if customer.is_defaulter}
-                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 shadow-2xs">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 shadow-2xs">
                                 <span class="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-                                Moroso / Saldo Pendiente
+                                Moroso / Saldo pendiente
                             </span>
                         {/if}
 
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-muted/60 text-muted-foreground border border-border/50">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium tracking-wide bg-muted/60 text-muted-foreground border border-border/50">
                             {formatTaxCondition(customer.tax_condition)}
                         </span>
 
                         {#if customer.is_active}
-                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                                 Activo
                             </span>
                         {:else}
-                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-muted text-muted-foreground border border-border">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide bg-muted text-muted-foreground border border-border">
                                 <span class="h-1.5 w-1.5 rounded-full bg-muted-foreground"></span>
                                 Inactivo
                             </span>
@@ -199,7 +199,7 @@
             icon={UserCheck}
             title="No se encontraron clientes"
             description="No hay clientes que coincidan con la búsqueda o todavía no has registrado clientes en tu comercio."
-            actionLabel="Añadir Primer Cliente"
+            actionLabel="Añadir primer cliente"
             onaction={onOpenCreate}
         />
     {/if}

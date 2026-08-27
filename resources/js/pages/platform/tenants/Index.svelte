@@ -122,12 +122,12 @@
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <div class="flex items-center gap-2.5">
-                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Comercios</h1>
-                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-foreground">Comercios</h1>
+                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold tracking-wide tabular-nums text-primary">
                     {tenants.length} {tenants.length === 1 ? 'comercio' : 'comercios'}
                 </span>
             </div>
-            <p class="mt-1 text-sm text-muted-foreground">
+            <p class="mt-1 text-sm text-muted-foreground leading-relaxed">
                 Gestiona y monitorea todas las cuentas de comercios registradas en el ecosistema.
             </p>
         </div>
@@ -136,7 +136,7 @@
             class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-xs"
         >
             <Plus class="h-4 w-4" />
-            <span>Añadir Comercio</span>
+            <span>Crear comercio</span>
         </Button>
     </div>
 
@@ -210,7 +210,7 @@
             description={searchInput || statusFilter !== 'all'
                 ? 'Prueba modificando los términos de búsqueda o limpiando los filtros seleccionados.'
                 : 'Crea el primer comercio para asignarle su administrador principal y módulos de trabajo.'}
-            actionLabel={!searchInput && statusFilter === 'all' ? 'Crear Primer Comercio' : 'Limpiar Filtros'}
+            actionLabel={!searchInput && statusFilter === 'all' ? 'Crear comercio' : 'Limpiar filtros'}
             onaction={!searchInput && statusFilter === 'all' ? () => (isCreateModalOpen = true) : resetAllFilters}
         />
     {/if}

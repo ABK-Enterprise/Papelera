@@ -60,8 +60,8 @@
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <div class="flex items-center gap-2.5">
-                <h1 class="text-2xl font-bold tracking-tight text-foreground">Personal y Empleados</h1>
-                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Personal y Empleados</h1>
+                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums">
                     {users.length} {users.length === 1 ? 'miembro' : 'miembros'}
                 </span>
             </div>
@@ -79,7 +79,7 @@
             <Link href="/tenant/users/create">
                 <Button class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-xs">
                     <UserPlus class="h-4 w-4" />
-                    <span>Añadir Empleado</span>
+                    <span>Añadir empleado</span>
                 </Button>
             </Link>
         </div>
@@ -106,7 +106,7 @@
             icon={Users}
             title="No hay empleados registrados"
             description="Comienza agregando los miembros de tu equipo para otorgarles acceso operativo al sistema."
-            actionLabel="Añadir Primer Empleado"
+            actionLabel="Añadir primer empleado"
             actionHref="/tenant/users/create"
         />
     {/if}
@@ -122,7 +122,7 @@
     bind:open={isDeleteModalOpen}
     title="¿Eliminar empleado del comercio?"
     description={`Esta acción revoca de inmediato el acceso al sistema para "${userToDelete?.name}" (${userToDelete?.email}). Esta operación no se puede deshacer.`}
-    confirmText="Eliminar Empleado"
+    confirmText="Eliminar empleado"
     cancelText="Cancelar"
     variant="danger"
     loading={isDeleting}

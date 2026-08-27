@@ -51,27 +51,27 @@
                             {tenant.name ? tenant.name.charAt(0).toUpperCase() : 'C'}
                         </div>
                         <div class="flex flex-col">
-                            <span class="font-semibold text-foreground text-sm">{tenant.name}</span>
-                            <span class="text-xs text-muted-foreground font-mono">
+                            <span class="font-semibold text-foreground text-sm leading-snug">{tenant.name}</span>
+                            <span class="text-xs text-muted-foreground font-mono tabular-nums">
                                 {tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}
                             </span>
                         </div>
                     </div>
 
                     {#if tenant.is_active}
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                             <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                             Activo
                         </span>
                     {:else}
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
                             <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
                             Suspendido
                         </span>
                     {/if}
                 </div>
 
-                <div class="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                <div class="flex items-center justify-between text-xs text-muted-foreground tabular-nums pt-1">
                     <div class="flex items-center gap-1.5">
                         <Users class="h-3.5 w-3.5" />
                         <span>{tenant.users_count ?? 0} {tenant.users_count === 1 ? 'usuario' : 'usuarios'}</span>
@@ -83,10 +83,10 @@
                 </div>
 
                 <div class="space-y-1.5 pt-1">
-                    <span class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Módulos Contratados</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Módulos contratados</span>
                     <div class="flex flex-wrap gap-1.5">
                         {#each tenant.modules as mod}
-                            <Badge variant="outline" class="text-[11px] font-medium bg-muted/40 px-2 py-0.5">
+                            <Badge variant="outline" class="text-xs font-medium tracking-wide bg-muted/40 px-2 py-0.5">
                                 {mod.name}
                             </Badge>
                         {/each}
@@ -103,7 +103,7 @@
                             class="min-h-[44px] w-full gap-2 rounded-xl text-xs font-medium border-border/70 justify-center"
                         >
                             <Edit2 class="h-4 w-4" />
-                            <span>Editar Comercio</span>
+                            <span>Editar comercio</span>
                         </Button>
                     </Link>
                 </div>

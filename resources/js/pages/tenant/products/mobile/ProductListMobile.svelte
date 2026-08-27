@@ -87,9 +87,9 @@
 
             <div class="flex flex-1 flex-col min-w-0 justify-center">
                 <div class="flex items-center gap-1.5 truncate">
-                    <h4 class="font-bold text-sm text-foreground truncate">{product.name}</h4>
+                    <h4 class="font-semibold text-sm text-foreground truncate leading-snug">{product.name}</h4>
                     {#if isWeighable}
-                        <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 shrink-0">
+                        <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 shrink-0 tabular-nums">
                             <Scale class="h-2.5 w-2.5" />
                             Kg
                         </span>
@@ -101,26 +101,26 @@
                         </span>
                     {/if}
                 </div>
-                <span class="font-bold text-base mt-0.5 tabular-nums {Number(product.price) <= 0 ? 'text-amber-600 dark:text-amber-400' : 'text-foreground'}">
+                <span class="font-semibold text-base mt-0.5 tabular-nums {Number(product.price) <= 0 ? 'text-amber-600 dark:text-amber-400' : 'text-foreground'}">
                     {formatPrice(product.price)} {isWeighable ? '/Kg' : ''}
                 </span>
 
                 <div class="flex items-center gap-2 mt-1.5 flex-wrap">
                     {#if product.stock <= 0}
-                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 tabular-nums">
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 tabular-nums">
                             Agotado
                         </span>
                     {:else if product.stock <= product.min_stock}
-                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 tabular-nums">
-                            Bajo Stock ({product.stock} {isWeighable ? 'Kg' : 'u'})
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 tabular-nums">
+                            Bajo stock ({product.stock} {isWeighable ? 'Kg' : 'u'})
                         </span>
                     {:else}
-                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 tabular-nums">
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 tabular-nums">
                             Stock: {product.stock} {isWeighable ? 'Kg' : 'u'}
                         </span>
                     {/if}
                     {#if product.sku}
-                        <span class="font-mono text-[10px] text-muted-foreground truncate">
+                        <span class="font-mono text-xs text-muted-foreground tracking-wide truncate">
                             {product.sku}
                         </span>
                     {/if}
@@ -130,8 +130,8 @@
             <div class="flex flex-col gap-1.5 shrink-0">
                 {#if isIncomplete}
                     <Link href={`/tenant/products/${product.id}/edit`}>
-                        <Button size="sm" class="min-h-[44px] px-3 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-xl">
-                            Completar
+                        <Button size="sm" class="min-h-[44px] px-3 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-xl">
+                            Completar datos
                         </Button>
                     </Link>
                 {:else}
@@ -159,7 +159,7 @@
             icon={Package}
             title="No se encontraron productos"
             description="No hay productos disponibles en tu catálogo o filtros seleccionados."
-            actionLabel="Añadir Primer Producto"
+            actionLabel="Crear producto"
             actionHref="/tenant/products/create"
         />
     {/if}
@@ -174,7 +174,7 @@
     bind:open={isDeleteModalOpen}
     title="¿Eliminar producto?"
     description={`¿Estás seguro de eliminar "${productToDelete?.name}"? Esta acción no se puede deshacer.`}
-    confirmText="Eliminar Producto"
+    confirmText="Eliminar producto"
     cancelText="Cancelar"
     variant="danger"
     loading={isDeleting}

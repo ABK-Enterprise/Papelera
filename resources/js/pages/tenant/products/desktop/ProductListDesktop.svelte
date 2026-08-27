@@ -96,7 +96,7 @@
                     {/if}
 
                     {#if isWeighable}
-                        <span class="absolute bottom-0 right-0 bg-primary text-primary-foreground text-[9px] font-bold px-1 rounded-tl">
+                        <span class="absolute bottom-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-tl tabular-nums">
                             Kg
                         </span>
                     {/if}
@@ -105,21 +105,21 @@
                 <!-- Info Principal -->
                 <div class="space-y-1 min-w-0 flex-1">
                     <div class="flex items-center gap-2 flex-wrap">
-                        <h4 class="font-bold text-base text-foreground truncate">
+                        <h4 class="font-semibold text-base text-foreground truncate leading-snug">
                             {product.name}
                         </h4>
 
                         {#if isWeighable}
-                            <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
                                 <Scale class="h-3 w-3" />
                                 Pesable
                             </span>
                         {/if}
 
                         {#if isIncomplete}
-                            <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
                                 <AlertTriangle class="h-3 w-3 text-amber-600" />
-                                Requiere Completar Datos
+                                Requiere completar datos
                             </span>
                         {/if}
                     </div>
@@ -127,18 +127,18 @@
                     <!-- Código de Barras / SKU / Categoría / Bulto -->
                     <div class="flex items-center gap-2.5 text-xs text-muted-foreground flex-wrap">
                         {#if product.barcode}
-                            <span class="font-mono bg-muted/60 px-1.5 py-0.5 rounded text-[11px]">
+                            <span class="font-mono bg-muted/60 px-1.5 py-0.5 rounded text-xs tracking-wide">
                                 BAR: {product.barcode}
                             </span>
                         {/if}
                         {#if product.sku}
-                            <span class="font-mono bg-muted/60 px-1.5 py-0.5 rounded text-[11px]">
+                            <span class="font-mono bg-muted/60 px-1.5 py-0.5 rounded text-xs tracking-wide">
                                 SKU: {product.sku}
                             </span>
                         {/if}
                         {#if product.category}
                             <span>
-                                Cat: <strong class="text-foreground">{product.category.name}</strong>
+                                Cat: <strong class="text-foreground font-medium">{product.category.name}</strong>
                             </span>
                         {:else}
                             <span class="text-amber-600 dark:text-amber-400 font-medium">
@@ -146,12 +146,12 @@
                             </span>
                         {/if}
                         {#if isWeighable}
-                            <span class="inline-flex items-center gap-1 font-mono text-[11px] bg-muted/70 px-1.5 py-0.5 rounded text-foreground tabular-nums">
+                            <span class="inline-flex items-center gap-1 font-mono text-xs bg-muted/70 px-1.5 py-0.5 rounded text-foreground tabular-nums tracking-wide">
                                 <Layers class="h-3 w-3 text-primary" />
                                 1 Bulto = {product.package_quantity || product.units_per_package || 1} Kg
                             </span>
                         {:else if product.units_per_package && product.units_per_package > 1}
-                            <span class="inline-flex items-center gap-1 font-mono text-[11px] bg-muted/70 px-1.5 py-0.5 rounded text-foreground tabular-nums">
+                            <span class="inline-flex items-center gap-1 font-mono text-xs bg-muted/70 px-1.5 py-0.5 rounded text-foreground tabular-nums tracking-wide">
                                 <Layers class="h-3 w-3 text-primary" />
                                 1 Bulto = {product.units_per_package} unid.
                             </span>
@@ -163,19 +163,19 @@
             <!-- Centro: Precios y Stock con Tabular Numbers -->
             <div class="flex items-center gap-6 px-2">
                 <div class="flex flex-col items-end">
-                    <span class="text-xs text-muted-foreground">Precio de Venta</span>
-                    <span class="font-bold text-base text-foreground tabular-nums">
+                    <span class="text-xs text-muted-foreground font-medium">Precio de venta</span>
+                    <span class="font-semibold text-base text-foreground tabular-nums">
                         {formatPrice(product.price)} {isWeighable ? '/Kg' : ''}
                     </span>
                     {#if Number(product.cost_price) > 0}
-                        <span class="text-[11px] text-muted-foreground tabular-nums">
+                        <span class="text-xs text-muted-foreground tabular-nums">
                             Costo: {formatPrice(product.cost_price)}
                         </span>
                     {/if}
                 </div>
 
                 <div class="flex flex-col items-end min-w-[100px]">
-                    <span class="text-xs text-muted-foreground">Stock Físico</span>
+                    <span class="text-xs text-muted-foreground font-medium">Stock físico</span>
                     {#if product.stock <= 0}
                         <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 tabular-nums">
                             <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
@@ -201,7 +201,7 @@
                     <Link href={`/tenant/products/${product.id}/edit`}>
                         <Button size="sm" class="min-h-[40px] px-3.5 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white gap-1.5 rounded-xl shadow-xs">
                             <Edit2 class="h-3.5 w-3.5" />
-                            <span>Completar Datos</span>
+                            <span>Completar datos</span>
                         </Button>
                     </Link>
                 {:else}
@@ -234,7 +234,7 @@
             icon={Package}
             title="No se encontraron productos"
             description="No hay productos que coincidan con los filtros seleccionados o el catálogo de tu comercio está vacío."
-            actionLabel="Crear Primer Producto"
+            actionLabel="Crear producto"
             actionHref="/tenant/products/create"
         />
     {/if}
@@ -249,7 +249,7 @@
     bind:open={isDeleteModalOpen}
     title="¿Eliminar producto del catálogo?"
     description={`¿Estás seguro de eliminar "${productToDelete?.name}"? Esta acción no se puede deshacer y removerá el artículo del inventario.`}
-    confirmText="Eliminar Producto"
+    confirmText="Eliminar producto"
     cancelText="Cancelar"
     variant="danger"
     loading={isDeleting}

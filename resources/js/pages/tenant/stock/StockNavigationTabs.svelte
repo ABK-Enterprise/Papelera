@@ -9,19 +9,19 @@
     const tabs = [
         {
             id: 'incomes',
-            name: 'Ingresos de Stock',
+            name: 'Ingresos de stock',
             href: '/tenant/stock/ingresos',
             icon: ArrowDownLeft,
         },
         {
             id: 'outcomes',
-            name: 'Egresos de Stock',
+            name: 'Egresos de stock',
             href: '/tenant/stock/egresos',
             icon: ArrowUpRight,
         },
         {
             id: 'kardex',
-            name: 'Kardex / Historial',
+            name: 'Kardex e historial',
             href: '/tenant/stock/kardex',
             icon: History,
         },

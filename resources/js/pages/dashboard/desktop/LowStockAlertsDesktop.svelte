@@ -36,13 +36,13 @@
                 <AlertTriangle class="size-4" />
             </div>
             <div>
-                <h2 class="text-base font-bold tracking-tight text-foreground sm:text-lg">Alertas de Stock Mínimo</h2>
-                <p class="text-xs text-muted-foreground">Productos que han alcanzado o están por debajo de su umbral de reposición.</p>
+                <h2 class="text-base font-semibold tracking-tight text-foreground sm:text-lg">Alertas de stock mínimo</h2>
+                <p class="text-xs text-muted-foreground leading-relaxed">Productos que han alcanzado o están por debajo de su umbral de reposición.</p>
             </div>
         </div>
 
         {#if products.length > 0}
-            <span class="inline-flex items-center gap-1.5 rounded-full border border-rose-500/20 bg-rose-500/10 px-3 py-1 text-xs font-semibold text-rose-600 dark:text-rose-400">
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-rose-500/20 bg-rose-500/10 px-3 py-1 text-xs font-semibold tracking-wide tabular-nums text-rose-600 dark:text-rose-400">
                 <span class="size-1.5 rounded-full bg-rose-500 animate-pulse"></span>
                 {products.length} {products.length === 1 ? 'producto crítico' : 'productos críticos'}
             </span>
@@ -55,8 +55,8 @@
     >
         {#snippet header()}
             <th class="py-3.5 px-6 font-semibold">Producto</th>
-            <th class="py-3.5 px-6 font-semibold">Stock Actual</th>
-            <th class="py-3.5 px-6 font-semibold text-right">Stock Mínimo</th>
+            <th class="py-3.5 px-6 font-semibold">Stock actual</th>
+            <th class="py-3.5 px-6 font-semibold text-right">Stock mínimo</th>
         {/snippet}
 
         {#snippet row(product)}
@@ -76,19 +76,19 @@
                             <Link
                                 href={`/tenant/products/${product.id}/edit`}
                                 class="text-muted-foreground hover:text-foreground transition-colors"
-                                title="Editar Producto"
+                                title="Editar producto"
                             >
                                 <ExternalLink class="size-3.5" />
                             </Link>
                         </div>
                         <div class="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                             {#if product.category}
-                                <span class="rounded bg-muted/70 px-1.5 py-0.5 text-[11px] font-medium text-foreground">
+                                <span class="rounded bg-muted/70 px-1.5 py-0.5 text-xs font-medium text-foreground">
                                     {product.category.name}
                                 </span>
                             {/if}
                             {#if product.sku}
-                                <span class="font-mono text-[11px]">SKU: {product.sku}</span>
+                                <span class="font-mono text-xs tabular-nums">SKU: {product.sku}</span>
                             {/if}
                         </div>
                     </div>
@@ -97,7 +97,7 @@
 
             <!-- Columna: Stock Actual -->
             <td class="py-3.5 px-6">
-                <span class="inline-flex items-center gap-1 rounded-md border border-rose-500/30 bg-rose-500/20 px-2.5 py-1 font-mono text-xs font-bold text-rose-700 dark:text-rose-300">
+                <span class="inline-flex items-center gap-1 rounded-md border border-rose-500/30 bg-rose-500/20 px-2.5 py-1 font-mono text-xs font-bold tabular-nums text-rose-700 dark:text-rose-300">
                     <span class="size-1.5 rounded-full bg-rose-500"></span>
                     {product.stock} {product.stock === 1 ? 'unidad' : 'unidades'}
                 </span>
@@ -105,7 +105,7 @@
 
             <!-- Columna: Stock Mínimo -->
             <td class="py-3.5 px-6 text-right">
-                <span class="font-mono text-xs font-semibold text-foreground">
+                <span class="font-mono text-xs font-semibold tabular-nums text-foreground">
                     {product.min_stock} {product.min_stock === 1 ? 'unidad' : 'unidades'}
                 </span>
             </td>
@@ -116,9 +116,9 @@
                 <div class="mb-3 flex size-12 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                     <CheckCircle2 class="size-6" />
                 </div>
-                <h3 class="text-base font-bold text-foreground">Todo en orden</h3>
-                <p class="mt-1 text-sm text-muted-foreground max-w-md">
-                    Todo en orden: no hay productos por debajo del stock mínimo.
+                <h3 class="text-base font-semibold text-foreground">Todo en orden</h3>
+                <p class="mt-1 text-sm text-muted-foreground max-w-md leading-relaxed">
+                    No hay productos por debajo del stock mínimo.
                 </p>
             </div>
         {/snippet}
