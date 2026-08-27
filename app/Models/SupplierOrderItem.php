@@ -33,7 +33,7 @@ class SupplierOrderItem extends Model
     protected function casts(): array
     {
         return [
-            'quantity' => 'integer',
+            'quantity' => \App\Casts\FlexibleDecimal::class,
             'unit_cost' => 'decimal:2',
             'subtotal' => 'decimal:2',
         ];

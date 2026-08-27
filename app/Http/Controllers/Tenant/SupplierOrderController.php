@@ -97,7 +97,7 @@ class SupplierOrderController extends Controller
             foreach ($itemsData as $item) {
                 $productName = trim((string) $item['product_name']);
                 $unitCost = isset($item['unit_cost']) ? (float) $item['unit_cost'] : 0.00;
-                $quantity = (int) $item['quantity'];
+                $quantity = round((float) $item['quantity'], 3);
 
                 $product = null;
                 if (! empty($item['product_id'])) {
@@ -201,8 +201,8 @@ class SupplierOrderController extends Controller
                     ->first();
 
                 if ($product) {
-                    $previousStock = (int) $product->stock;
-                    $currentStock = $previousStock + $item->quantity;
+                    $previousStock = round((float) $product->stock, 3);
+                    $currentStock = round($previousStock + (float) $item->quantity, 3);
 
                     $product->update([
                         'stock' => $currentStock,

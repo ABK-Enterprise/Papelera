@@ -44,7 +44,7 @@ class StockIncomeController extends Controller
     {
         $tenantId = $request->user()->tenant_id;
         $productId = (int) $request->validated('product_id');
-        $quantity = (int) $request->validated('quantity');
+        $quantity = round((float) $request->validated('quantity'), 3);
         $reason = $request->validated('reason') ?: 'ingreso_manual';
         $notes = $request->validated('notes');
 
@@ -54,8 +54,8 @@ class StockIncomeController extends Controller
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            $previousStock = (int) $product->stock;
-            $currentStock = $previousStock + $quantity;
+            $previousStock = round((float) $product->stock, 3);
+            $currentStock = round($previousStock + $quantity, 3);
 
             $product->update(['stock' => $currentStock]);
 

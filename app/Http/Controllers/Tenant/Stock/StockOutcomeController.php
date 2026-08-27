@@ -45,7 +45,7 @@ class StockOutcomeController extends Controller
     {
         $tenantId = $request->user()->tenant_id;
         $productId = (int) $request->validated('product_id');
-        $quantity = (int) $request->validated('quantity');
+        $quantity = round((float) $request->validated('quantity'), 3);
         $reason = $request->validated('reason') ?: 'devolucion_cliente';
         $notes = $request->validated('notes');
 
@@ -55,15 +55,15 @@ class StockOutcomeController extends Controller
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            $previousStock = (int) $product->stock;
+            $previousStock = round((float) $product->stock, 3);
 
             if ($previousStock < $quantity) {
                 throw ValidationException::withMessages([
-                    'quantity' => "El stock actual ({$previousStock}) es insuficiente para procesar un egreso de {$quantity} unidades.",
+                    'quantity' => "El stock actual ({$previousStock}) es insuficiente para procesar un egreso de {$quantity}.",
                 ]);
             }
 
-            $currentStock = $previousStock - $quantity;
+            $currentStock = round($previousStock - $quantity, 3);
             $product->update(['stock' => $currentStock]);
 
             return StockMovement::create([

@@ -32,7 +32,7 @@ class StoreSupplierOrderRequest extends FormRequest
                 Rule::exists('products', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)),
             ],
             'items.*.product_name' => ['required', 'string', 'max:255'],
-            'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'items.*.quantity' => ['required', 'numeric', 'min:0.001'],
             'items.*.unit_cost' => ['nullable', 'numeric', 'min:0'],
         ];
     }
