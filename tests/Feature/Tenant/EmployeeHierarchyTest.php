@@ -7,8 +7,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
-
+uses(\Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
 beforeEach(function () {
     $this->tenant = Tenant::factory()->create(['is_active' => true]);
 

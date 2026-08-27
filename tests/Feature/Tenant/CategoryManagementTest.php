@@ -1,6 +1,6 @@
 <?php
 
-uses(TestCase::class, RefreshDatabase::class);
+uses(\Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
 use App\Models\Category;
 use App\Models\Module;
 use App\Models\Tenant;

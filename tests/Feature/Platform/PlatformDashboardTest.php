@@ -8,8 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
-
+uses(\Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
 test('superadmin can access platform dashboard and view global system metrics', function () {
     $superadmin = User::factory()->create([
         'is_superadmin' => true,

@@ -6,8 +6,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
-
+uses(\Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
 test('tenant can be created with factory', function () {
     $tenant = Tenant::factory()->create([
         'name' => 'Papelera San Martín',

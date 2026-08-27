@@ -19,8 +19,7 @@ class TestProduct extends Model
     protected $guarded = [];
 }
 
-uses(TestCase::class, RefreshDatabase::class);
-
+uses(\Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
 beforeEach(function () {
     Schema::create('test_products', function (Blueprint $table) {
         $table->id();

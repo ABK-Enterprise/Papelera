@@ -13,8 +13,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
-
+uses(\Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
 test('test seeder populates 4 tenants with specialized roles, products, clients and orders', function () {
     $this->seed(TestSeeder::class);
 

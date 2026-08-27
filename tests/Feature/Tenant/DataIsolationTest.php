@@ -6,8 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
-
+uses(\Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
 beforeEach(function () {
     $this->tenant1 = Tenant::factory()->create(['name' => 'Tenant 1', 'is_active' => true]);
     $this->tenant2 = Tenant::factory()->create(['name' => 'Tenant 2', 'is_active' => true]);
