@@ -107,6 +107,51 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 | **Cards**       | Padding generoso y consistente (`p-5` o `p-6`), títulos claros y métricas destacadas.    | Llenar la tarjeta con 10 campos de texto plano y etiquetas en negrita.       |
 | **Alineación** | Alinear números a la derecha en tablas y textos a la izquierda.                               | Centrar textos largos o números en columnas comparativas.                   |
 
+
+
+---
+
+## 6. Estándares Tipográficos, Escala Modular y Tratamiento Numérico
+
+El agente debe aplicar una jerarquía tipográfica rigurosa, limpia y matemática, evitando tamaños arbitrarios o desalineaciones en datos densos.
+
+### A. Escala Modular de Tamaños y Pesos
+
+- **Page Titles / Headers de Vista:** `text-2xl` (24px) a `text-3xl` (30px) | `font-bold` o `font-semibold` | `tracking-tight` | `leading-tight`.
+- **Card Titles / Subsecciones:** `text-base` (16px) a `text-lg` (18px) | `font-semibold` | `tracking-normal` | `leading-snug`.
+- **Body / Inputs / Celdas de Tabla:** `text-sm` (14px) | `font-normal` | `leading-normal` (estándar óptimo para densidad en dashboards).
+- **Labels de Formularios:** `text-sm` (14px) | `font-medium` | `text-foreground`.
+- **Metadata / Badges / Captions:** `text-xs` (12px) | `font-medium` | `tracking-wide` | `text-muted-foreground`.
+
+### B. Reglas de Tracking (Letter-Spacing) y Leading (Line-Height)
+
+- **Tracking Inverso:**
+  - En textos pequeños (`text-xs`, badges, etiquetas en mayúsculas): aplicar tracking positivo (`tracking-wide` o `tracking-wider`) para evitar empastes.
+  - En títulos grandes (`text-xl` hacia arriba): aplicar tracking negativo (`tracking-tight`) para un acabado compacto y moderno.
+- **Leading Proporcional:**
+  - Títulos: `leading-none` o `leading-tight` (evita separaciones excesivas entre líneas de encabezado).
+  - Párrafos y descripciones: `leading-relaxed` (1.5x a 1.6x) para legibilidad continua.
+
+### C. Tratamiento de Datos Numéricos y Tabulares
+
+- **Cifras Tabulares Obligatorias (`tabular-nums`):**
+  - Todo dato numérico dentro de **tablas, métricas de dashboards, precios, timestamps, temporizadores y contadores** DEBE incluir la clase `tabular-nums` (`font-variant-numeric: tabular-nums`).
+  - Previene que los números "bailen" horizontalmente cuando cambian los valores o al alinearse en columnas.
+- **Alineación de Columnas:**
+  - Texto descriptivo y nombres: alineación a la izquierda (`text-left`).
+  - Cantidades, montos, porcentajes y fechas: alineación a la derecha (`text-right`).
+  - Estados, badges booleanos y acciones: centrados (`text-center`).
+
+### D. Restricciones Tipográficas (DO / DON'T)
+
+| Aspecto                           | DO (Hacer)                                                                                                                            | DON'T (Evitar)                                                                                          |
+| :-------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------ |
+| **Tamaños Arbitrarios**    | Ceñirse a la escala (`text-xs`, `text-sm`, `text-base`, `text-lg`, `text-xl`, `text-2xl`).                               | Usar valores arbitrarios en CSS (`text-[13px]`, `text-[17px]`).                                     |
+| **Variedad de Fuentes**     | Usar una sola familia sans-serif neutra/neo-grotesca (`Inter`, `Geist`, `system-ui`).                                           | Mezclar 2 o más familias tipográficas distintas en la misma interfaz.                                 |
+| **Contraste de Jerarquía** | Crear jerarquía variando el color (`text-foreground` vs `text-muted-foreground`) y el peso (`font-medium` vs `font-normal`). | Cambiar drásticamente de tamaño de fuente para cada línea de texto secundaria.                       |
+| **Mayúsculas sostenidas**  | Usar`uppercase` solo en badges pequeños, códigos SKU o tags de 1 palabra con `text-xs font-semibold tracking-wider`.            | Usar textos largos o botones completos en MAYÚSCULAS sostenidas.                                       |
+| **Longitud de Línea**      | Limitar el ancho máximo de párrafos a 60-75 caracteres (`max-w-prose` o `max-w-lg`).                                            | Dejar párrafos de texto explicativo estirarse a lo largo de todo el ancho de la pantalla (`w-full`). |
+
 ## Conventions
 
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
