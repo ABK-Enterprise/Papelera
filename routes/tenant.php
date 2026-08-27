@@ -32,7 +32,10 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::put('products/{product}', [ProductController::class, 'update'])->name('products.update')->middleware('tenant.permission:productos.editar');
             Route::delete('products/{product}', [ProductController::class, 'destroy'])->name('products.destroy')->middleware('tenant.permission:productos.eliminar');
 
-            Route::resource('categories', CategoryController::class)->except(['show', 'create', 'edit'])->middleware('tenant.permission:productos.ver,productos.crear');
+            Route::get('categories', [CategoryController::class, 'index'])->name('categories.index')->middleware('tenant.permission:productos.ver');
+            Route::post('categories', [CategoryController::class, 'store'])->name('categories.store')->middleware('tenant.permission:productos.crear');
+            Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update')->middleware('tenant.permission:productos.editar');
+            Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy')->middleware('tenant.permission:productos.eliminar');
         });
 
         // Stock Management & Kardex (Stock module)

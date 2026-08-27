@@ -14,7 +14,17 @@ class UpdateUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() && $this->user()->tenant_id !== null;
+        $user = $this->user();
+        if (! $user || $user->tenant_id === null) {
+            return false;
+        }
+
+        $targetUser = $this->route('user');
+        if ($targetUser instanceof \App\Models\User && $targetUser->tenant_id !== $user->tenant_id) {
+            abort(404);
+        }
+
+        return true;
     }
 
     /**
@@ -35,6 +45,7 @@ class UpdateUserRequest extends FormRequest
             'role' => [
                 'required',
                 'string',
+                Rule::notIn(['admin', 'superadmin', 'Administrador', 'Superadmin']),
                 Rule::exists('roles', 'name')->where(function ($query) use ($tenantId) {
                     $query->where('tenant_id', $tenantId);
                 }),

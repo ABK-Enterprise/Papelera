@@ -66,6 +66,16 @@ class CategoryController extends Controller
             abort(404);
         }
 
+        if ($category->products()->exists()) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'message' => 'No es posible eliminar la categoría porque tiene productos asociados.',
+                ], 422);
+            }
+
+            return back()->with('error', 'No es posible eliminar la categoría porque tiene productos asociados.');
+        }
+
         $category->delete();
 
         if ($request->wantsJson()) {

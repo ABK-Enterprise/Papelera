@@ -33,6 +33,7 @@ class StoreUserRequest extends FormRequest
             'role' => [
                 'required',
                 'string',
+                Rule::notIn(['admin', 'superadmin', 'Administrador', 'Superadmin']),
                 Rule::exists('roles', 'name')->where(function ($query) use ($tenantId) {
                     $query->where('tenant_id', $tenantId);
                 }),
