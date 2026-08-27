@@ -18,7 +18,6 @@
     import { Label } from '@/components/ui/label';
     import { Spinner } from '@/components/ui/spinner';
     import { toUrl } from '@/lib/utils';
-    import { register } from '@/routes';
     import { store } from '@/routes/login';
     import { request } from '@/routes/password';
 
@@ -136,16 +135,6 @@
                     />
                 </svg>
             </a>
-
-            <div class="mt-2 text-center text-sm text-muted-foreground">
-                ¿No tienes una cuenta?
-                <Link
-                    href={toUrl(register())}
-                    class="font-medium text-foreground underline underline-offset-4 hover:text-primary transition-colors"
-                >
-                    Regístrate
-                </Link>
-            </div>
         </div>
     {/snippet}
 </Form>

@@ -354,16 +354,21 @@
                     <h3 class="text-xs font-bold text-primary uppercase tracking-wider">3. Inventario & Empaque</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div class="space-y-1">
-                            <Label for="edit-prod-stock" class="text-xs font-semibold">
-                                Stock Actual ({form.sale_type === 'weight' ? 'Kg' : 'unid.'})
-                            </Label>
+                            <div class="flex items-center justify-between">
+                                <Label for="edit-prod-stock" class="text-xs font-semibold">
+                                    Stock Actual ({form.sale_type === 'weight' ? 'Kg' : 'unid.'})
+                                </Label>
+                                <span class="text-[10px] text-muted-foreground font-medium">Vía Kardex</span>
+                            </div>
                             <Input
                                 id="edit-prod-stock"
                                 type="number"
                                 step={form.sale_type === 'weight' ? '0.001' : '1'}
                                 min="0"
                                 bind:value={form.stock}
-                                class="h-9 text-xs rounded-xl text-center font-bold"
+                                disabled
+                                class="h-9 text-xs rounded-xl text-center font-bold bg-muted/50 cursor-not-allowed opacity-80"
+                                title="El stock físico se ajusta mediante Ingresos/Egresos auditados en Kardex"
                             />
                             {#if form.errors.stock}
                                 <p class="text-xs text-destructive">{form.errors.stock}</p>

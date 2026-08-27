@@ -143,7 +143,7 @@ return [
     */
 
     'features' => [
-        Features::registration(),
+        // Features::registration(), // SaaS privado: altas exclusivas por plataforma e invitaciones
         Features::resetPasswords(),
         Features::emailVerification(),
     ],

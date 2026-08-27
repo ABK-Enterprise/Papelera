@@ -51,13 +51,15 @@ class UserController extends Controller
         $tenant = $request->user()->tenant;
 
         DB::transaction(function () use ($request, $tenant) {
-            $user = User::create([
+            $user = new User([
                 'name' => $request->validated('name'),
                 'email' => $request->validated('email'),
                 'password' => $request->validated('password'),
+            ]);
+            $user->forceFill([
                 'tenant_id' => $tenant->id,
                 'is_superadmin' => false,
-            ]);
+            ])->save();
 
             setPermissionsTeamId($tenant->id);
             $role = Role::where('name', $request->validated('role'))

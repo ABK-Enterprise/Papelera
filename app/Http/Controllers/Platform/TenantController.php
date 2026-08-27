@@ -91,13 +91,15 @@ class TenantController extends Controller
             ]);
 
             // Create initial admin user inside the tenant
-            $admin = User::create([
-                'tenant_id' => $tenant->id,
+            $admin = new User([
                 'name' => $request->input('admin.name'),
                 'email' => $request->input('admin.email'),
                 'password' => $request->input('admin.password'),
-                'is_superadmin' => false,
             ]);
+            $admin->forceFill([
+                'tenant_id' => $tenant->id,
+                'is_superadmin' => false,
+            ])->save();
 
             // Assign 'admin' role for this tenant team
             setPermissionsTeamId($tenant->id);

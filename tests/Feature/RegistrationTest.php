@@ -1,24 +1,19 @@
 <?php
 
-use Inertia\Testing\AssertableInertia as Assert;
+test('public registration screen is disabled in private saas model', function () {
+    $response = $this->get('/register');
 
-test('registration screen can be rendered', function () {
-    $response = $this->get(route('register'));
-
-    $response->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
-            ->component('auth/Register')
-        );
+    $response->assertNotFound();
 });
 
-test('new users can register', function () {
-    $response = $this->post(route('register.store'), [
+test('public user registration endpoint is disabled', function () {
+    $response = $this->post('/register', [
         'name' => 'Test User',
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
     ]);
 
-    $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard'));
+    $response->assertNotFound();
+    $this->assertGuest();
 });

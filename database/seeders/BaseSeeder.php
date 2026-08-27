@@ -24,20 +24,25 @@ class BaseSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // 1. Single Superadmin User
-        $superadmin = User::firstOrCreate([
-            'email' => 'admin@admin.com',
-        ], [
-            'name' => 'admin',
-            'password' => 'admin',
-            'tenant_id' => null,
-            'is_superadmin' => true,
-            'email_verified_at' => now(),
-        ]);
-        $superadmin->update([
-            'password' => 'admin',
-            'is_superadmin' => true,
-            'email_verified_at' => $superadmin->email_verified_at ?? now(),
-        ]);
+        $superadmin = User::where('email', 'admin@admin.com')->first();
+        if (! $superadmin) {
+            $superadmin = new User([
+                'name' => 'admin',
+                'email' => 'admin@admin.com',
+                'password' => 'admin',
+            ]);
+            $superadmin->forceFill([
+                'tenant_id' => null,
+                'is_superadmin' => true,
+                'email_verified_at' => now(),
+            ])->save();
+        } else {
+            $superadmin->forceFill([
+                'password' => 'admin',
+                'is_superadmin' => true,
+                'email_verified_at' => $superadmin->email_verified_at ?? now(),
+            ])->save();
+        }
 
         // 2. Active Functional Modules & Permissions
         $modules = [
@@ -175,21 +180,25 @@ class BaseSeeder extends Seeder
 
         $tenantUser = User::where('tenant_id', $tenant->id)->first();
         if ($tenantUser) {
-            $tenantUser->update([
+            $tenantUser->forceFill([
                 'password' => 'password',
                 'email_verified_at' => $tenantUser->email_verified_at ?? now(),
-            ]);
+            ])->save();
             $tenantUser->assignRole($adminRole);
         } else {
-            $tenantUser = User::firstOrCreate([
-                'email' => 'axel@axel.com',
-            ], [
-                'name' => 'Axel',
-                'password' => 'password',
-                'tenant_id' => $tenant->id,
-                'is_superadmin' => false,
-                'email_verified_at' => now(),
-            ]);
+            $tenantUser = User::where('email', 'axel@axel.com')->first();
+            if (! $tenantUser) {
+                $tenantUser = new User([
+                    'name' => 'Axel',
+                    'email' => 'axel@axel.com',
+                    'password' => 'password',
+                ]);
+                $tenantUser->forceFill([
+                    'tenant_id' => $tenant->id,
+                    'is_superadmin' => false,
+                    'email_verified_at' => now(),
+                ])->save();
+            }
             $tenantUser->assignRole($adminRole);
         }
 

@@ -112,20 +112,23 @@ test('tenant user can update a product', function () {
     $product = Product::factory()->forTenant($this->tenant)->create([
         'name' => 'Producto Antiguo',
         'price' => 100.00,
+        'stock' => 10,
+        'min_stock' => 5,
     ]);
 
     $this->actingAs($this->user)
         ->putJson("/tenant/products/{$product->id}", [
             'name' => 'Producto Modificado',
             'price' => 250.00,
-            'stock' => 40,
+            'min_stock' => 15,
         ])
         ->assertSuccessful();
 
     $product->refresh();
     expect($product->name)->toBe('Producto Modificado')
         ->and($product->price)->toBe('250.00')
-        ->and($product->stock)->toBe(40);
+        ->and((float) $product->min_stock)->toBe(15.0)
+        ->and((float) $product->stock)->toBe(10.0);
 });
 
 test('tenant user can delete a product', function () {
