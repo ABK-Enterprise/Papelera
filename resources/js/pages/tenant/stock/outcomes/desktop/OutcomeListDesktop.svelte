@@ -1,4 +1,5 @@
 <script lang="ts">
+    import EmptyState from '@/components/common/EmptyState.svelte';
     import ArrowRight from 'lucide-svelte/icons/arrow-right';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
     import Calendar from 'lucide-svelte/icons/calendar';
@@ -230,13 +231,11 @@
         {/each}
 
         {#if filteredMovements.length === 0}
-            <div class="rounded-2xl border border-dashed p-12 text-center bg-card/40 space-y-2">
-                <ArrowUpRight class="mx-auto size-10 text-muted-foreground/40" />
-                <h3 class="font-semibold text-base text-foreground">No se encontraron egresos de stock</h3>
-                <p class="text-xs text-muted-foreground max-w-sm mx-auto">
-                    No hay registros de egreso que coincidan con los filtros aplicados.
-                </p>
-            </div>
+            <EmptyState
+                icon={ArrowUpRight}
+                title="No se encontraron egresos de stock"
+                description="No hay registros de egreso que coincidan con los filtros aplicados en este período."
+            />
         {/if}
     </div>
 

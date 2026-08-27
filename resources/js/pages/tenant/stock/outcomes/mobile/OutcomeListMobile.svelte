@@ -1,4 +1,5 @@
 <script lang="ts">
+    import EmptyState from '@/components/common/EmptyState.svelte';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
     import Calendar from 'lucide-svelte/icons/calendar';
     import Package from 'lucide-svelte/icons/package';
@@ -108,13 +109,9 @@
         {/each}
     </div>
 {:else}
-    <div class="rounded-xl border border-dashed border-border/80 p-8 text-center bg-card/40 flex flex-col items-center justify-center shadow-xs">
-        <div class="flex size-12 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 mb-3">
-            <ArrowUpRight class="size-6" />
-        </div>
-        <h3 class="text-base font-bold text-foreground">No hay egresos registrados</h3>
-        <p class="mt-1 text-xs text-muted-foreground">
-            No se han registrado devoluciones ni salidas de stock hasta el momento.
-        </p>
-    </div>
+    <EmptyState
+        icon={ArrowUpRight}
+        title="No hay egresos registrados"
+        description="No se han registrado devoluciones ni salidas de stock en este período."
+    />
 {/if}

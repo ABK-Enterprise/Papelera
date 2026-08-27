@@ -1,14 +1,13 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
-    import { Badge } from '@/components/ui/badge';
     import AppPagination from '@/components/common/AppPagination.svelte';
+    import EmptyState from '@/components/common/EmptyState.svelte';
     import Truck from 'lucide-svelte/icons/truck';
     import Phone from 'lucide-svelte/icons/phone';
     import Mail from 'lucide-svelte/icons/mail';
     import MapPin from 'lucide-svelte/icons/map-pin';
     import Calendar from 'lucide-svelte/icons/calendar';
     import ChevronRight from 'lucide-svelte/icons/chevron-right';
-    import Plus from 'lucide-svelte/icons/plus';
 
     export interface SupplierItem {
         id: number;
@@ -40,47 +39,47 @@
         if (!dateStr) return null;
         try {
             const d = new Date(dateStr);
-            return new Intl.DateTimeFormat('es-AR', {
-                dateStyle: 'medium',
-            }).format(d);
+            return d.toLocaleDateString('es-AR', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+            });
         } catch {
             return dateStr;
         }
     }
 </script>
 
-<div class="flex flex-col gap-3.5">
+<div class="flex flex-col gap-3">
     {#each paginatedSuppliers as supplier (supplier.id)}
         <div
-            class="bento-card group flex items-center justify-between gap-6 rounded-xl border border-border/60 bg-card p-5 shadow-[0px_10px_30px_rgba(0,0,0,0.02)] transition-all duration-200 hover:border-primary/40 hover:shadow-md hover:bg-muted/10 cursor-pointer"
-            onclick={() => onSelectSupplier(supplier)}
-            onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelectSupplier(supplier)}
             role="button"
             tabindex="0"
-            aria-label={`Gestionar proveedor ${supplier.name}`}
+            onclick={() => onSelectSupplier(supplier)}
+            onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelectSupplier(supplier)}
+            class="group flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border border-border/70 bg-card shadow-xs hover:shadow-md hover:border-border transition-all duration-200 gap-4 cursor-pointer select-none"
         >
-            <!-- Lado Izquierdo: Icono + Información Principal (Wide Hierarchy) -->
-            <div class="flex items-center gap-4.5 min-w-0 flex-1">
-                <!-- Icon Avatar Badge -->
-                <div class="flex size-14 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 transition-transform group-hover:scale-105">
-                    <Truck class="size-7 stroke-[1.75]" />
+            <div class="flex items-start sm:items-center gap-4 min-w-0 flex-1">
+                <!-- Avatar / Icono -->
+                <div class="h-12 w-12 rounded-xl flex items-center justify-center shrink-0 border transition-transform group-hover:scale-105 bg-primary/10 text-primary border-primary/20">
+                    <Truck class="h-6 w-6 stroke-[1.75]" />
                 </div>
 
                 <!-- Detalle y Metadatos -->
                 <div class="flex flex-col gap-1.5 min-w-0 flex-1">
                     <!-- Fila 1: Nombre Destacado + Badge de Estado -->
-                    <div class="flex items-center gap-3">
-                        <h3 class="font-bold text-lg text-foreground group-hover:text-primary transition-colors truncate">
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <h3 class="font-bold text-base text-foreground group-hover:text-primary transition-colors truncate">
                             {supplier.name}
                         </h3>
 
                         {#if supplier.is_active}
-                            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/50">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                                 Activo
                             </span>
                         {:else}
-                            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-muted text-muted-foreground border border-border">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-muted text-muted-foreground border border-border">
                                 <span class="h-1.5 w-1.5 rounded-full bg-muted-foreground"></span>
                                 Inactivo
                             </span>
@@ -88,17 +87,17 @@
                     </div>
 
                     <!-- Fila 2: Badges de Contacto y Correo -->
-                    <div class="flex items-center gap-2.5 flex-wrap">
+                    <div class="flex items-center gap-2.5 flex-wrap text-xs text-muted-foreground">
                         {#if supplier.contact_number}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 font-mono">
-                                <Phone class="size-3.5 text-muted-foreground" />
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-0.5 text-xs font-medium text-foreground/90 border border-border/40 font-mono tabular-nums">
+                                <Phone class="h-3 w-3 text-muted-foreground" />
                                 {supplier.contact_number}
                             </span>
                         {/if}
 
                         {#if supplier.email}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 font-mono">
-                                <Mail class="size-3.5 text-muted-foreground" />
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-0.5 text-xs font-medium text-foreground/90 border border-border/40 font-mono">
+                                <Mail class="h-3 w-3 text-muted-foreground" />
                                 {supplier.email}
                             </span>
                         {/if}
@@ -108,20 +107,17 @@
                                 Sin datos de contacto registrados
                             </span>
                         {/if}
-                    </div>
 
-                    <!-- Fila 3: Dirección y Fecha de Alta -->
-                    <div class="flex items-center gap-4 text-xs text-muted-foreground mt-0.5">
                         {#if supplier.address}
                             <div class="flex items-center gap-1 truncate max-w-md">
-                                <MapPin class="size-3.5 shrink-0 text-muted-foreground/70" />
+                                <MapPin class="h-3 w-3 text-muted-foreground/70" />
                                 <span class="truncate">{supplier.address}</span>
                             </div>
                         {/if}
 
                         {#if supplier.created_at}
-                            <div class="flex items-center gap-1 shrink-0">
-                                <Calendar class="size-3.5 text-muted-foreground/70" />
+                            <div class="flex items-center gap-1 shrink-0 ml-auto sm:ml-0 tabular-nums">
+                                <Calendar class="h-3 w-3 text-muted-foreground/70" />
                                 <span>Alta: {formatDate(supplier.created_at)}</span>
                             </div>
                         {/if}
@@ -129,32 +125,28 @@
                 </div>
             </div>
 
-            <!-- Lado Derecho: Acción Rápida / Indicador -->
+            <!-- Lado Derecho: Acción Rápida con Touch Target >= 44px -->
             <div class="flex items-center gap-2 shrink-0">
                 <Button
                     variant="ghost"
                     size="sm"
-                    class="h-9 px-3 text-xs gap-1.5 text-muted-foreground group-hover:text-primary group-hover:bg-primary/10 transition-colors"
+                    class="min-h-[44px] px-3.5 text-xs font-medium gap-1.5 rounded-xl text-muted-foreground group-hover:text-primary group-hover:bg-primary/10 transition-colors"
                 >
                     <span>Gestionar</span>
-                    <ChevronRight class="size-4 transition-transform group-hover:translate-x-0.5" />
+                    <ChevronRight class="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Button>
             </div>
         </div>
     {/each}
 
     {#if suppliers.length === 0}
-        <div class="rounded-xl border border-dashed p-12 text-center bg-card/50">
-            <Truck class="mx-auto h-12 w-12 text-muted-foreground/40 mb-3" />
-            <h3 class="font-semibold text-lg text-foreground">No se encontraron proveedores</h3>
-            <p class="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
-                No hay proveedores que coincidan con la búsqueda o aún no has añadido ninguno a tu comercio.
-            </p>
-            <Button class="mt-4 gap-2 font-semibold" onclick={onOpenCreate}>
-                <Plus class="h-4 w-4" />
-                Añadir Primer Proveedor
-            </Button>
-        </div>
+        <EmptyState
+            icon={Truck}
+            title="No se encontraron proveedores"
+            description="No hay proveedores que coincidan con la búsqueda o todavía no has añadido ninguno a tu comercio."
+            actionLabel="Añadir Primer Proveedor"
+            onaction={onOpenCreate}
+        />
     {/if}
 
     {#if suppliers.length > perPage}

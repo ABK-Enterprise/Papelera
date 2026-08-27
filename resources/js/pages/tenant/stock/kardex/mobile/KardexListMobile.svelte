@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
+    import EmptyState from '@/components/common/EmptyState.svelte';
     import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
     import Calendar from 'lucide-svelte/icons/calendar';
@@ -58,12 +59,12 @@
 {#if movements.length > 0}
     <div class="flex flex-col gap-3">
         {#each movements as mov (mov.id)}
-            <div class="rounded-xl border border-border/70 bg-card p-4 shadow-xs">
+            <div class="rounded-2xl border border-border/70 bg-card p-4 shadow-2xs">
                 <!-- Header Card: Producto y Tipo/Cantidad -->
                 <div class="flex items-start justify-between gap-3 pb-3 border-b border-border/40">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                        <div class="size-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
-                            <Package class="size-4" />
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="h-11 w-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                            <Package class="h-5 w-5 stroke-[1.75]" />
                         </div>
                         <div class="min-w-0">
                             <div class="font-bold text-foreground truncate text-sm">
@@ -78,13 +79,13 @@
                     </div>
 
                     {#if mov.type === 'income'}
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
-                            <ArrowDownLeft class="size-3" />
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0 font-mono tabular-nums">
+                            <ArrowDownLeft class="h-3 w-3" />
                             +{mov.quantity}
                         </span>
                     {:else}
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0">
-                            <ArrowUpRight class="size-3" />
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0 font-mono tabular-nums">
+                            <ArrowUpRight class="h-3 w-3" />
                             -{mov.quantity}
                         </span>
                     {/if}
@@ -94,7 +95,7 @@
                 <div class="grid grid-cols-2 gap-2 pt-3 text-xs">
                     <div>
                         <span class="text-muted-foreground block text-[11px]">Balance de Stock</span>
-                        <span class="font-semibold text-foreground font-mono">{mov.previous_stock} ➔ {mov.current_stock}</span>
+                        <span class="font-semibold text-foreground font-mono tabular-nums">{mov.previous_stock} ➔ {mov.current_stock}</span>
                     </div>
                     <div>
                         <span class="text-muted-foreground block text-[11px]">Tipo / Motivo</span>
@@ -107,16 +108,16 @@
                 <!-- Footer: Responsable y Botón Ver Detalle -->
                 <div class="flex items-center justify-between pt-3 mt-3 border-t border-border/40 text-[11px] text-muted-foreground">
                     <div class="flex items-center gap-1.5 truncate">
-                        <User class="size-3 text-muted-foreground/70" />
+                        <User class="h-3 w-3 text-muted-foreground/70" />
                         <span>{mov.user?.name ?? 'Sistema'}</span>
                     </div>
                     <Button
                         variant="secondary"
                         size="sm"
                         onclick={() => onSelectMovement(mov)}
-                        class="h-7 text-xs px-2.5 gap-1"
+                        class="min-h-[44px] px-3.5 text-xs gap-1.5 rounded-xl font-medium"
                     >
-                        <Eye class="size-3" />
+                        <Eye class="h-3.5 w-3.5" />
                         <span>Ver Detalle</span>
                     </Button>
                 </div>
@@ -124,13 +125,9 @@
         {/each}
     </div>
 {:else}
-    <div class="rounded-xl border border-dashed border-border/80 p-8 text-center bg-card/40 flex flex-col items-center justify-center shadow-xs">
-        <div class="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-3">
-            <History class="size-6" />
-        </div>
-        <h3 class="text-base font-bold text-foreground">El Kardex está vacío</h3>
-        <p class="mt-1 text-xs text-muted-foreground">
-            Los movimientos de ingresos y egresos de stock se registrarán aquí automáticamente para auditoría.
-        </p>
-    </div>
+    <EmptyState
+        icon={History}
+        title="El Kardex está vacío"
+        description="Los movimientos de ingresos y egresos de stock se registrarán aquí automáticamente para auditoría."
+    />
 {/if}

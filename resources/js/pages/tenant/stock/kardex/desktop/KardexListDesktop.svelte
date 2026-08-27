@@ -277,12 +277,12 @@
                                 </td>
 
                                 <!-- Cantidad -->
-                                <td class="py-4 px-6 text-center whitespace-nowrap font-bold text-xs font-mono {mov.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+                                <td class="py-4 px-6 text-center whitespace-nowrap font-bold text-xs font-mono tabular-nums {mov.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
                                     {mov.type === 'income' ? `+${mov.quantity}` : `-${mov.quantity}`} u.
                                 </td>
 
                                 <!-- Stock Resultante -->
-                                <td class="py-4 px-6 text-center whitespace-nowrap font-mono">
+                                <td class="py-4 px-6 text-center whitespace-nowrap font-mono tabular-nums">
                                     <span class="font-bold text-foreground">{mov.current_stock}</span>
                                     <span class="text-[10px] text-muted-foreground block font-sans">antes: {mov.previous_stock}</span>
                                 </td>
