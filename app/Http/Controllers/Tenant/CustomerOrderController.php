@@ -90,34 +90,39 @@ class CustomerOrderController extends Controller
         $userId = $request->user()->id;
 
         $order = DB::transaction(function () use ($request, $tenantId, $userId) {
-            $latestId = (CustomerOrder::max('id') ?? 0) + 1;
-            $orderNumber = '#PED-'.str_pad((string) $latestId, 5, '0', STR_PAD_LEFT);
+            $orderNumber = app(\App\Services\TenantSequenceService::class)->nextCustomerOrderNumber($tenantId);
 
             $itemsData = $request->validated('items');
             $totalAmount = 0.00;
             $preparedItems = [];
 
+            $productIds = collect($itemsData)->pluck('product_id')->unique()->sort()->values();
+            $lockedProducts = Product::whereIn('id', $productIds)
+                ->where('tenant_id', $tenantId)
+                ->orderBy('id', 'asc')
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
             $runningStock = [];
+            foreach ($productIds as $pId) {
+                if (! isset($lockedProducts[$pId])) {
+                    abort(404, 'Producto no encontrado');
+                }
+                $product = $lockedProducts[$pId];
+                if ($product->is_incomplete) {
+                    throw ValidationException::withMessages([
+                        'items' => ["El producto '{$product->name}' tiene datos incompletos y no puede venderse."],
+                    ]);
+                }
+                $runningStock[$pId] = [
+                    'model' => $product,
+                    'current_stock' => (float) $product->stock,
+                ];
+            }
+
             foreach ($itemsData as $item) {
                 $productId = $item['product_id'];
-                if (! isset($runningStock[$productId])) {
-                    $product = Product::where('id', $productId)
-                        ->where('tenant_id', $tenantId)
-                        ->lockForUpdate()
-                        ->firstOrFail();
-
-                    if ($product->is_incomplete) {
-                        throw ValidationException::withMessages([
-                            'items' => ["El producto '{$product->name}' tiene datos incompletos y no puede venderse."],
-                        ]);
-                    }
-
-                    $runningStock[$productId] = [
-                        'model' => $product,
-                        'current_stock' => (float) $product->stock,
-                    ];
-                }
-
                 $product = $runningStock[$productId]['model'];
                 $availableStock = $runningStock[$productId]['current_stock'];
 
@@ -257,7 +262,8 @@ class CustomerOrderController extends Controller
 
             if ($newStatus === 'cancelado') {
                 $lockedOrder->load('items.product');
-                foreach ($lockedOrder->items as $item) {
+                $sortedItems = $lockedOrder->items->sortBy('product_id');
+                foreach ($sortedItems as $item) {
                     $product = Product::where('id', $item->product_id)
                         ->where('tenant_id', $tenantId)
                         ->lockForUpdate()
@@ -316,7 +322,8 @@ class CustomerOrderController extends Controller
             // Solo reincorporar stock si el pedido estaba ACTIVO (no entregado ni previamente cancelado)
             if (! in_array($lockedOrder->status, ['cancelado', 'entregado'], true)) {
                 $lockedOrder->load('items.product');
-                foreach ($lockedOrder->items as $item) {
+                $sortedItems = $lockedOrder->items->sortBy('product_id');
+                foreach ($sortedItems as $item) {
                     $product = Product::where('id', $item->product_id)
                         ->where('tenant_id', $tenantId)
                         ->lockForUpdate()

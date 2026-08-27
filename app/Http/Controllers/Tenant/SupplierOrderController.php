@@ -87,8 +87,7 @@ class SupplierOrderController extends Controller
         $tenantId = $request->user()->tenant_id;
 
         $order = DB::transaction(function () use ($request, $tenantId) {
-            $latestId = (SupplierOrder::max('id') ?? 0) + 1;
-            $orderNumber = '#OC-'.str_pad((string) $latestId, 5, '0', STR_PAD_LEFT);
+            $orderNumber = app(\App\Services\TenantSequenceService::class)->nextSupplierOrderNumber($tenantId);
 
             $itemsData = $request->validated('items');
             $totalCost = 0.00;
@@ -193,8 +192,9 @@ class SupplierOrderController extends Controller
             }
 
             $lockedOrder->load(['supplier', 'items.product']);
+            $sortedItems = $lockedOrder->items->sortBy('product_id');
 
-            foreach ($lockedOrder->items as $item) {
+            foreach ($sortedItems as $item) {
                 $product = Product::where('id', $item->product_id)
                     ->where('tenant_id', $tenantId)
                     ->lockForUpdate()
