@@ -3,7 +3,9 @@
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-uses(\Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
+
+
 test('public registration screen is disabled in private saas model', function () {
     $response = $this->get('/register');
 

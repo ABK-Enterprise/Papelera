@@ -1,12 +1,14 @@
 <?php
 
-use App\Models\Tenant;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
-uses(\Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
+
+use App\Models\Tenant;
+use App\Models\User;
+use Spatie\Permission\Models\Role;
+
 beforeEach(function () {
     $this->tenant1 = Tenant::factory()->create(['name' => 'Tenant 1', 'is_active' => true]);
     $this->tenant2 = Tenant::factory()->create(['name' => 'Tenant 2', 'is_active' => true]);

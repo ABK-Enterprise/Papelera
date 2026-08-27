@@ -1,13 +1,15 @@
 <?php
 
-use App\Models\Tenant;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Inertia\Testing\AssertableInertia as Assert;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
-uses(\Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
+
+use App\Models\Tenant;
+use App\Models\User;
+use Inertia\Testing\AssertableInertia as Assert;
+use Spatie\Permission\Models\Role;
+
 beforeEach(function () {
     $this->tenant = Tenant::factory()->create(['is_active' => true]);
     setPermissionsTeamId($this->tenant->id);

@@ -1,12 +1,14 @@
 <?php
 
-use App\Models\Module;
-use App\Models\Tenant;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-uses(\Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
+
+use App\Models\Module;
+use App\Models\Tenant;
+use App\Models\User;
+
 test('tenant can be created with factory', function () {
     $tenant = Tenant::factory()->create([
         'name' => 'Papelera San Martín',

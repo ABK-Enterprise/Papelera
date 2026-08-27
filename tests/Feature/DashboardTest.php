@@ -1,10 +1,12 @@
 <?php
 
-uses(\Tests\TestCase::class, \Illuminate\Foundation\Testing\RefreshDatabase::class);
-use App\Models\Tenant;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+
+uses(TestCase::class, RefreshDatabase::class);
+
+use App\Models\Tenant;
+use App\Models\User;
 
 test('guests are redirected to the login page', function () {
     $response = $this->get(route('dashboard'));
