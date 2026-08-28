@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
@@ -83,7 +83,7 @@
                     <div
                         class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border {customer.is_defaulter
                             ? 'bg-rose-500/10 text-rose-600 border-rose-500/30'
-                            : 'bg-primary/10 text-primary border-primary/20'}"
+                           : 'bg-primary/10 text-primary border-primary/20'}"
                     >
                         {#if customer.is_defaulter}
                             <AlertTriangle class="h-5 w-5" />
@@ -132,18 +132,18 @@
             <!-- CUIT, Teléfono y Email -->
             <div class="flex items-center gap-2 flex-wrap pt-2 border-t border-border/40 text-xs">
                 {#if customer.tax_id}
-                    <span class="inline-flex items-center gap-1 font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground font-medium tabular-nums text-xs">
+                    <span class="inline-flex items-center gap-1 bg-muted/60 px-2 py-0.5 rounded text-foreground font-medium tabular-nums text-xs">
                         CUIT: {customer.tax_id}
                     </span>
                 {/if}
                 {#if customer.phone}
-                    <span class="inline-flex items-center gap-1 font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground tabular-nums text-xs">
+                    <span class="inline-flex items-center gap-1 bg-muted/60 px-2 py-0.5 rounded text-foreground tabular-nums text-xs">
                         <Phone class="h-3 w-3 text-muted-foreground" />
                         {customer.phone}
                     </span>
                 {/if}
                 {#if customer.email}
-                    <span class="inline-flex items-center gap-1 font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[180px] text-xs">
+                    <span class="inline-flex items-center gap-1 bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[180px] text-xs">
                         <Mail class="h-3 w-3 text-muted-foreground" />
                         {customer.email}
                     </span>

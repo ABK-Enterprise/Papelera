@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
@@ -588,7 +588,7 @@
                                                         {cust.name}
                                                     </span>
                                                     {#if cust.tax_id}
-                                                        <span class="text-xs font-mono tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                                        <span class="text-xs tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                                                             {cust.tax_id}
                                                         </span>
                                                     {/if}
@@ -653,7 +653,7 @@
                                 id="cust-phone"
                                 bind:value={customerPhone}
                                 placeholder="+54 9 11 4455-6677"
-                                class="h-9 text-xs font-mono tabular-nums"
+                                class="h-9 text-xs tabular-nums"
                             />
                         </div>
                         <div class="space-y-1">
@@ -736,7 +736,7 @@
                                                         {prod.name}
                                                     </span>
                                                     {#if prod.sku}
-                                                        <span class="text-xs font-mono tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                                        <span class="text-xs tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                                                             {prod.sku}
                                                         </span>
                                                     {/if}
@@ -757,7 +757,7 @@
                                             </div>
 
                                             <div class="text-right shrink-0">
-                                                <span class="font-bold font-mono tabular-nums text-primary text-xs block">
+                                                <span class="font-bold tabular-nums text-primary text-xs block">
                                                     {formatPrice(Number(prod.price))}
                                                 </span>
                                                 <span class="text-xs text-muted-foreground">
@@ -799,16 +799,16 @@
                                         <div class="flex items-center gap-2">
                                             <h4 class="font-semibold text-xs text-foreground truncate">{item.product_name}</h4>
                                             {#if item.sku}
-                                                <span class="text-xs font-mono tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                                <span class="text-xs tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                                                     {item.sku}
                                                 </span>
                                             {/if}
                                         </div>
 
                                         <div class="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 tabular-nums">
-                                            <span>Precio base: <strong class="font-mono text-foreground">{formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}</strong></span>
+                                            <span>Precio base: <strong class=" text-foreground">{formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}</strong></span>
                                             <span>•</span>
-                                            <span>Stock: <strong class="font-mono text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
+                                            <span>Stock: <strong class=" text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
                                             {#if isAtStockLimit}
                                                 <span class="inline-flex items-center gap-1 text-xs font-medium tracking-wide text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
                                                     Tope
@@ -857,7 +857,7 @@
                                             min={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.01' : '1'}
                                             max={maxAllowed}
                                             bind:value={item.quantity}
-                                            class="w-14 text-xs font-semibold font-mono tabular-nums text-center bg-transparent border-0 outline-none p-0"
+                                            class="w-14 text-xs font-semibold tabular-nums text-center bg-transparent border-0 outline-none p-0"
                                         />
 
                                         <button
@@ -872,7 +872,7 @@
                                         </button>
                                     </div>
 
-                                    <span class="font-mono text-xs font-bold tabular-nums text-foreground w-22 text-right">
+                                    <span class=" text-xs font-bold tabular-nums text-foreground w-22 text-right">
                                         {formatPrice(lineSubtotal)}
                                     </span>
 
@@ -915,7 +915,7 @@
             <div class="flex items-center justify-between border-t pt-3.5 shrink-0">
                 <div class="flex items-baseline gap-2">
                     <span class="text-xs text-muted-foreground">Total del Pedido:</span>
-                    <span class="text-xl font-bold font-mono tabular-nums text-primary">{formatPrice(computedTotal)}</span>
+                    <span class="text-xl font-bold tabular-nums text-primary">{formatPrice(computedTotal)}</span>
                 </div>
 
                 <div class="flex items-center gap-2">

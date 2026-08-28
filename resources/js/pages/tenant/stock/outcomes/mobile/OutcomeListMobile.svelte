@@ -60,14 +60,14 @@
                                 {mov.product?.name ?? 'Producto eliminado'}
                             </div>
                             {#if mov.product?.sku}
-                                <div class="text-xs text-muted-foreground font-mono tracking-wide">
+                                <div class="text-xs text-muted-foreground tracking-wide tabular-nums">
                                     SKU: {mov.product.sku}
                                 </div>
                             {/if}
                         </div>
                     </div>
 
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0 font-mono tabular-nums">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0 tabular-nums">
                         <ArrowUpRight class="size-3" />
                         -{mov.quantity}
                     </span>
@@ -77,7 +77,7 @@
                 <div class="grid grid-cols-2 gap-2 pt-3 text-xs">
                     <div>
                         <span class="text-muted-foreground block text-[11px]">Stock resultante</span>
-                        <span class="font-semibold text-foreground font-mono tabular-nums">{mov.current_stock}</span>
+                        <span class="font-semibold text-foreground tabular-nums">{mov.current_stock}</span>
                         <span class="text-muted-foreground text-[10px] tabular-nums"> (previo: {mov.previous_stock})</span>
                     </div>
                     <div>
@@ -94,7 +94,7 @@
                         <User class="size-3 text-muted-foreground/70" />
                         <span>{mov.user?.name ?? 'Sistema'}</span>
                     </div>
-                    <div class="flex items-center gap-1.5 shrink-0 font-mono tabular-nums">
+                    <div class="flex items-center gap-1.5 shrink-0 tabular-nums">
                         <Calendar class="size-3 text-muted-foreground/70" />
                         <span>{formatDate(mov.created_at)}</span>
                     </div>

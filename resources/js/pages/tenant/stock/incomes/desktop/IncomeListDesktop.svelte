@@ -162,7 +162,7 @@
                 <!-- Lado Izquierdo: Icon Avatar + Datos Principales -->
                 <div class="flex items-center gap-4.5 min-w-0 flex-1">
                     <!-- Icon Avatar Badge -->
-                    <div class="size-13 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-sm font-mono shrink-0 shadow-2xs transition-transform group-hover:scale-105">
+                    <div class="size-13 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs transition-transform group-hover:scale-105">
                         {getInitials(mov.product?.name)}
                     </div>
 
@@ -175,7 +175,7 @@
                             </h3>
 
                             {#if mov.product?.sku}
-                                <span class="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-xs font-mono tracking-wide text-muted-foreground border border-border/50">
+                                <span class="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-xs tracking-wide text-muted-foreground border border-border/50 tabular-nums">
                                     SKU: {mov.product.sku}
                                 </span>
                             {/if}
@@ -201,7 +201,7 @@
                                 <span>Registrado por: <strong class="text-foreground font-medium">{mov.user?.name ?? 'Sistema'}</strong></span>
                             </div>
                             <span class="text-border">•</span>
-                            <div class="flex items-center gap-1.5 font-mono text-xs tabular-nums">
+                            <div class="flex items-center gap-1.5 text-xs tabular-nums">
                                 <Calendar class="size-3.5 text-muted-foreground/70" />
                                 <span>{formatDate(mov.created_at)}</span>
                             </div>
@@ -213,13 +213,13 @@
                 <div class="flex items-center gap-4 shrink-0 pl-4 border-l border-border/60">
                     <div class="text-right flex flex-col items-end gap-1">
                         <!-- Badge de Cantidad Ingresada -->
-                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono tabular-nums shadow-2xs">
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 tabular-nums shadow-2xs">
                             <ArrowDownLeft class="size-3.5" />
                             +{mov.quantity} u.
                         </span>
 
                         <!-- Progresión de Stock (Antes -> Después) -->
-                        <div class="flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground">
+                        <div class="flex items-center gap-1 text-xs tabular-nums text-muted-foreground">
                             <span>Stock:</span>
                             <span class="text-muted-foreground font-semibold">{mov.previous_stock}</span>
                             <ArrowRight class="size-3 text-muted-foreground/60" />
@@ -242,6 +242,6 @@
     <!-- Footer Informativo -->
     <div class="flex items-center justify-between text-xs text-muted-foreground px-2">
         <span>Mostrando <strong>{filteredMovements.length}</strong> de <strong>{movements.length}</strong> movimientos de ingreso</span>
-        <span class="font-mono text-[11px]">Kardex Incomes</span>
+        <span class="text-[11px] tabular-nums">Kardex Incomes</span>
     </div>
 </div>

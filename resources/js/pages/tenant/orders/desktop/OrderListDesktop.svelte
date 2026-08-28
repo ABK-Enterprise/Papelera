@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
@@ -85,7 +85,7 @@
 
                 <div class="flex flex-col">
                     <div class="flex items-center gap-2">
-                        <span class="font-semibold text-base font-mono text-foreground tabular-nums">{order.order_number}</span>
+                        <span class="font-semibold text-base text-foreground tabular-nums">{order.order_number}</span>
                     </div>
                     <div class="flex items-center gap-1 text-xs text-muted-foreground mt-0.5 tabular-nums">
                         <Calendar class="h-3 w-3" />
@@ -101,7 +101,7 @@
                     {order.customer_name}
                 </span>
                 {#if order.customer_phone}
-                    <span class="text-xs text-muted-foreground flex items-center gap-1 mt-0.5 tabular-nums font-mono">
+                    <span class="text-xs text-muted-foreground flex items-center gap-1 mt-0.5 tabular-nums ">
                         <Phone class="h-3 w-3" />
                         {order.customer_phone}
                     </span>
@@ -150,7 +150,7 @@
             <div class="flex items-center gap-4 shrink-0">
                 <div class="text-right min-w-[110px]">
                     <span class="text-xs text-muted-foreground block">Total:</span>
-                    <span class="font-bold text-base font-mono text-foreground tabular-nums">
+                    <span class="font-bold text-base text-foreground tabular-nums">
                         {formatPrice(order.total_amount)}
                     </span>
                 </div>

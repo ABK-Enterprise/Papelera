@@ -214,13 +214,13 @@
                                         </span>
                                     {/if}
                                 </div>
-                                <p class="text-xs text-muted-foreground font-mono tabular-nums">
+                                <p class="text-xs text-muted-foreground tabular-nums">
                                     CUIT: {tenant.cuit_tax_id || 'Sin CUIT'} • Alta: {formatDate(tenant.created_at)}
                                 </p>
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-4 text-xs font-mono shrink-0">
+                        <div class="flex items-center gap-4 text-xs shrink-0">
                             <div class="text-right">
                                 <span class="text-muted-foreground block text-xs uppercase tracking-wider font-medium font-sans">Usuarios</span>
                                 <span class="font-semibold tabular-nums text-foreground">{tenant.users_count}</span>
@@ -265,7 +265,7 @@
                                     <span class="size-1.5 rounded-full bg-muted-foreground" title="Módulo desactivado"></span>
                                 {/if}
                             </div>
-                            <span class="text-xs text-muted-foreground font-mono tabular-nums">Código: {mod.code}</span>
+                            <span class="text-xs text-muted-foreground tabular-nums">Código: {mod.code}</span>
                         </div>
                         <div class="text-right">
                             <span class="text-xs font-medium tracking-wide tabular-nums text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">

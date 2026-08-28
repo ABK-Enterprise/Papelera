@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import { router } from '@inertiajs/svelte';
@@ -191,12 +191,12 @@
             <!-- Header -->
             <div class="flex items-center justify-between border-b pb-4">
                 <div class="flex items-center gap-2.5">
-                    <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary font-mono font-bold">
+                    <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold">
                         <ShoppingBag class="size-5" />
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h2 class="text-lg font-bold text-foreground font-mono tabular-nums">{order.order_number}</h2>
+                            <h2 class="text-lg font-bold text-foreground tabular-nums">{order.order_number}</h2>
                             {#if order.status === 'en_preparacion'}
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-amber-500/15 text-amber-600 border border-amber-500/30">
                                     En Preparación
@@ -264,7 +264,7 @@
                     <span class="text-muted-foreground flex items-center gap-1">
                         <Phone class="size-3.5" /> Teléfono:
                     </span>
-                    <p class="font-medium text-foreground font-mono tabular-nums">{order.customer_phone || 'No especificado'}</p>
+                    <p class="font-medium text-foreground tabular-nums">{order.customer_phone || 'No especificado'}</p>
                 </div>
                 <div class="space-y-1">
                     <span class="text-muted-foreground flex items-center gap-1">
@@ -294,7 +294,7 @@
                                     <td class="p-2.5 font-medium text-foreground">
                                         {item.product?.name || `Producto #${item.product_id}`}
                                         {#if item.product?.sku}
-                                            <span class="text-xs text-muted-foreground block font-mono tabular-nums">SKU: {item.product.sku}</span>
+                                            <span class="text-xs text-muted-foreground block tabular-nums">SKU: {item.product.sku}</span>
                                         {/if}
                                     </td>
                                     <td class="p-2.5 text-muted-foreground">
@@ -314,7 +314,7 @@
                                             <span>Unidad</span>
                                         {/if}
                                     </td>
-                                    <td class="p-2.5 text-right font-semibold font-mono tabular-nums">
+                                    <td class="p-2.5 text-right font-semibold tabular-nums">
                                         {#if item.packaging_type === 'gram'}
                                             {item.quantity} g
                                             <span class="text-xs text-muted-foreground block font-normal tabular-nums">
@@ -331,8 +331,8 @@
                                             {item.quantity} unid.
                                         {/if}
                                     </td>
-                                    <td class="p-2.5 text-right font-mono tabular-nums">{formatPrice(item.unit_price)}</td>
-                                    <td class="p-2.5 text-right font-mono font-bold tabular-nums text-foreground">{formatPrice(item.subtotal)}</td>
+                                    <td class="p-2.5 text-right tabular-nums">{formatPrice(item.unit_price)}</td>
+                                    <td class="p-2.5 text-right font-bold tabular-nums text-foreground">{formatPrice(item.subtotal)}</td>
                                 </tr>
                             {/each}
                         </tbody>
@@ -425,7 +425,7 @@
                 <div class="flex items-center gap-3">
                     <div class="text-right">
                         <span class="text-xs text-muted-foreground block">Total:</span>
-                        <span class="text-lg font-bold font-mono tabular-nums text-primary">{formatPrice(order.total_amount)}</span>
+                        <span class="text-lg font-bold tabular-nums text-primary">{formatPrice(order.total_amount)}</span>
                     </div>
                     <Button type="button" size="sm" variant="outline" onclick={() => (open = false)} class="text-xs font-medium">
                         Cerrar

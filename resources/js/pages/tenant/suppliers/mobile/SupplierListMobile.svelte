@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
@@ -95,13 +95,13 @@
             {#if supplier.contact_number || supplier.email}
                 <div class="flex items-center gap-2 flex-wrap pt-2 border-t border-border/40 text-xs">
                     {#if supplier.contact_number}
-                        <span class="inline-flex items-center gap-1 font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground tabular-nums text-xs">
+                        <span class="inline-flex items-center gap-1 bg-muted/60 px-2 py-0.5 rounded text-foreground tabular-nums text-xs">
                             <Phone class="h-3 w-3 text-muted-foreground" />
                             {supplier.contact_number}
                         </span>
                     {/if}
                     {#if supplier.email}
-                        <span class="inline-flex items-center gap-1 font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[200px] text-xs">
+                        <span class="inline-flex items-center gap-1 bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[200px] text-xs">
                             <Mail class="h-3 w-3 text-muted-foreground" />
                             {supplier.email}
                         </span>

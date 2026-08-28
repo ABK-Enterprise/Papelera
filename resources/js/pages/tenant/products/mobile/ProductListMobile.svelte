@@ -120,7 +120,7 @@
                         </span>
                     {/if}
                     {#if product.sku}
-                        <span class="font-mono text-xs text-muted-foreground tracking-wide truncate">
+                        <span class="text-xs text-muted-foreground tracking-wide truncate tabular-nums">
                             {product.sku}
                         </span>
                     {/if}

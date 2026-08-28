@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
@@ -131,7 +131,7 @@
                 <div
                     class="flex size-10 items-center justify-center rounded-lg border {form.is_defaulter
                         ? 'bg-rose-500/10 text-rose-600 border-rose-500/30'
-                        : 'bg-primary/10 text-primary border-primary/20'}"
+                       : 'bg-primary/10 text-primary border-primary/20'}"
                 >
                     {#if form.is_defaulter}
                         <AlertTriangle class="size-5" />
@@ -208,7 +208,7 @@
                         id="manage-customer-tax-id"
                         bind:value={form.tax_id}
                         placeholder="ej. 20-33445566-9"
-                        class="h-9 text-sm font-mono tabular-nums"
+                        class="h-9 text-sm tabular-nums"
                     />
                     {#if form.errors.tax_id}
                         <p class="text-xs text-destructive">{form.errors.tax_id}</p>
@@ -246,7 +246,7 @@
                         id="manage-customer-phone"
                         bind:value={form.phone}
                         placeholder="ej. +54 9 11 4455-6677"
-                        class="h-9 text-sm font-mono tabular-nums"
+                        class="h-9 text-sm tabular-nums"
                     />
                     {#if form.errors.phone}
                         <p class="text-xs text-destructive">{form.errors.phone}</p>
@@ -302,7 +302,7 @@
                         min="0"
                         bind:value={form.credit_limit}
                         placeholder="0.00"
-                        class="h-9 text-sm font-mono tabular-nums"
+                        class="h-9 text-sm tabular-nums"
                     />
                 </div>
 

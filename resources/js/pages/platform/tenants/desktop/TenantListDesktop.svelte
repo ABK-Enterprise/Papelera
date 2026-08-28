@@ -62,7 +62,7 @@
                             </div>
                             <div class="flex flex-col">
                                 <span class="font-semibold text-foreground">{tenant.name}</span>
-                                <span class="text-xs text-muted-foreground font-mono tabular-nums">
+                                <span class="text-xs text-muted-foreground tabular-nums">
                                     {tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}
                                 </span>
                             </div>

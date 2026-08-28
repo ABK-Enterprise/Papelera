@@ -120,7 +120,7 @@
             </div>
             <div>
                 <span class="text-xs text-muted-foreground font-medium block">Total Ingresos de Stock</span>
-                <span class="text-2xl font-bold font-mono text-foreground tabular-nums">+{totalIncomes} u.</span>
+                <span class="text-2xl font-bold text-foreground tabular-nums">+{totalIncomes} u.</span>
             </div>
         </div>
 
@@ -136,7 +136,7 @@
             </div>
             <div>
                 <span class="text-xs text-muted-foreground font-medium block">Total Salidas / Devoluciones</span>
-                <span class="text-2xl font-bold font-mono text-foreground tabular-nums">-{totalOutcomes} u.</span>
+                <span class="text-2xl font-bold text-foreground tabular-nums">-{totalOutcomes} u.</span>
             </div>
         </div>
 
@@ -152,7 +152,7 @@
             </div>
             <div>
                 <span class="text-xs text-muted-foreground font-medium block">Balance Neto del Período</span>
-                <span class="text-2xl font-bold font-mono text-foreground tabular-nums">
+                <span class="text-2xl font-bold text-foreground tabular-nums">
                     {netBalance >= 0 ? `+${netBalance}` : netBalance} u.
                 </span>
             </div>
@@ -240,7 +240,7 @@
                             <tr class="hover:bg-muted/30 transition-colors group">
                                 <!-- Fecha -->
                                 <td class="py-4 px-6 text-muted-foreground whitespace-nowrap text-left">
-                                    <div class="flex items-center gap-1.5 font-mono text-xs tabular-nums">
+                                    <div class="flex items-center gap-1.5 text-xs tabular-nums">
                                         <Calendar class="size-3.5 text-muted-foreground/60" />
                                         <span>{formatDate(mov.created_at)}</span>
                                     </div>
@@ -253,9 +253,9 @@
                                             {getInitials(mov.product?.name)}
                                         </div>
                                         <div class="min-w-0">
-                                            <div class="font-semibold text-foreground truncate max-w-xs leading-snug">{mov.product?.name ?? 'Producto eliminado'}</div>
+                                             <div class="font-semibold text-foreground truncate max-w-xs leading-snug">{mov.product?.name ?? 'Producto eliminado'}</div>
                                             {#if mov.product?.sku}
-                                                <div class="text-xs text-muted-foreground font-mono tracking-wide">SKU: {mov.product.sku}</div>
+                                                <div class="text-xs text-muted-foreground tabular-nums tracking-wide">SKU: {mov.product.sku}</div>
                                             {/if}
                                         </div>
                                     </div>
@@ -277,12 +277,12 @@
                                 </td>
 
                                 <!-- Cantidad -->
-                                <td class="py-4 px-6 text-right whitespace-nowrap font-semibold text-xs font-mono tabular-nums {mov.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+                                <td class="py-4 px-6 text-right whitespace-nowrap font-semibold text-xs tabular-nums {mov.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
                                     {mov.type === 'income' ? `+${mov.quantity}` : `-${mov.quantity}`} u.
                                 </td>
 
                                 <!-- Stock Resultante -->
-                                <td class="py-4 px-6 text-right whitespace-nowrap font-mono tabular-nums">
+                                <td class="py-4 px-6 text-right whitespace-nowrap tabular-nums">
                                     <span class="font-semibold text-foreground">{mov.current_stock}</span>
                                     <span class="text-[10px] text-muted-foreground block font-sans">antes: {mov.previous_stock}</span>
                                 </td>
@@ -317,7 +317,7 @@
         <!-- Footer -->
         <div class="p-4 border-t border-border/60 bg-muted/10 flex items-center justify-between text-xs text-muted-foreground">
             <div>Mostrando <strong class="text-foreground tabular-nums font-semibold">{filteredMovements.length}</strong> de <strong class="text-foreground tabular-nums font-semibold">{movements.length}</strong> movimientos</div>
-            <div class="text-xs font-mono">Kardex Audit Trail</div>
+            <div class="text-xs tabular-nums">Kardex Audit Trail</div>
         </div>
     </div>
 </div>

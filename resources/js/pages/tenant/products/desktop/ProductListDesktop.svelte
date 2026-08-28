@@ -127,12 +127,12 @@
                     <!-- Código de Barras / SKU / Categoría / Bulto -->
                     <div class="flex items-center gap-2.5 text-xs text-muted-foreground flex-wrap">
                         {#if product.barcode}
-                            <span class="font-mono bg-muted/60 px-1.5 py-0.5 rounded text-xs tracking-wide">
+                            <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs tabular-nums tracking-wide">
                                 BAR: {product.barcode}
                             </span>
                         {/if}
                         {#if product.sku}
-                            <span class="font-mono bg-muted/60 px-1.5 py-0.5 rounded text-xs tracking-wide">
+                            <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs tabular-nums tracking-wide">
                                 SKU: {product.sku}
                             </span>
                         {/if}
@@ -146,12 +146,12 @@
                             </span>
                         {/if}
                         {#if isWeighable}
-                            <span class="inline-flex items-center gap-1 font-mono text-xs bg-muted/70 px-1.5 py-0.5 rounded text-foreground tabular-nums tracking-wide">
+                            <span class="inline-flex items-center gap-1 text-xs bg-muted/70 px-1.5 py-0.5 rounded text-foreground tabular-nums tracking-wide">
                                 <Layers class="h-3 w-3 text-primary" />
                                 1 Bulto = {product.package_quantity || product.units_per_package || 1} Kg
                             </span>
                         {:else if product.units_per_package && product.units_per_package > 1}
-                            <span class="inline-flex items-center gap-1 font-mono text-xs bg-muted/70 px-1.5 py-0.5 rounded text-foreground tabular-nums tracking-wide">
+                            <span class="inline-flex items-center gap-1 text-xs bg-muted/70 px-1.5 py-0.5 rounded text-foreground tabular-nums tracking-wide">
                                 <Layers class="h-3 w-3 text-primary" />
                                 1 Bulto = {product.units_per_package} unid.
                             </span>

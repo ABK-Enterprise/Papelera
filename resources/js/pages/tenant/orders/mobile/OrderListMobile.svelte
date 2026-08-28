@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
@@ -86,7 +86,7 @@
                         <ShoppingBag class="h-5 w-5 stroke-[1.75]" />
                     </div>
                     <div>
-                        <span class="font-semibold text-sm font-mono text-foreground tabular-nums">{order.order_number}</span>
+                        <span class="font-semibold text-sm text-foreground tabular-nums">{order.order_number}</span>
                         <span class="text-xs text-muted-foreground flex items-center gap-1 tabular-nums">
                             <Calendar class="h-3 w-3" />
                             {formatDate(order.created_at)}
@@ -138,7 +138,7 @@
 
             <!-- Footer: Total & Botón con Touch Target >= 44px -->
             <div class="flex items-center justify-between pt-1">
-                <span class="font-bold text-base font-mono text-primary tabular-nums">
+                <span class="font-bold text-base text-primary tabular-nums">
                     {formatPrice(order.total_amount)}
                 </span>
                 <Button size="sm" variant="outline" class="min-h-[44px] px-3.5 text-xs gap-1.5 font-medium rounded-xl border-border/70">

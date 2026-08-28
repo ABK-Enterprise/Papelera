@@ -88,7 +88,7 @@
                         <h3 class="text-base font-semibold leading-snug text-foreground">
                             {mod.name}
                         </h3>
-                        <Badge variant="outline" class="font-mono text-xs tracking-wide tabular-nums bg-muted/50 px-2 py-0.5">
+                        <Badge variant="outline" class="text-xs tracking-wide tabular-nums bg-muted/50 px-2 py-0.5">
                             {mod.code}
                         </Badge>
                     </div>
@@ -108,7 +108,7 @@
 
                     <div class="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pr-1">
                         {#each mod.permissions as perm (perm.id)}
-                            <span class="inline-flex items-center font-mono text-xs bg-muted/40 border border-border/50 text-foreground/85 px-2 py-0.5 rounded-md">
+                            <span class="inline-flex items-center text-xs tabular-nums bg-muted/40 border border-border/50 text-foreground/85 px-2 py-0.5 rounded-md">
                                 {perm.name}
                             </span>
                         {/each}

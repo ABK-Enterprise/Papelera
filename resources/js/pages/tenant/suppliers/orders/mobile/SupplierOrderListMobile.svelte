@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import Calendar from 'lucide-svelte/icons/calendar';
@@ -74,7 +74,7 @@
         >
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <span class="font-semibold text-sm font-mono text-foreground tabular-nums">{order.order_number}</span>
+                    <span class="font-semibold text-sm text-foreground tabular-nums">{order.order_number}</span>
                     <span class="text-xs text-muted-foreground tabular-nums flex items-center gap-1">
                         <Calendar class="h-3 w-3" />
                         {formatDate(order.created_at)}
@@ -101,7 +101,7 @@
                     <Truck class="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     {order.supplier?.name || 'Proveedor'}
                 </span>
-                <span class="font-mono font-bold text-sm text-foreground tabular-nums">
+                <span class=" font-bold text-sm text-foreground tabular-nums">
                     {Number(order.total_cost) > 0 ? formatPrice(order.total_cost) : '-'}
                 </span>
             </div>

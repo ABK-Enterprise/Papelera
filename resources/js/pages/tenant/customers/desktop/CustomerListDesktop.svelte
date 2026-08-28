@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
@@ -88,13 +88,13 @@
             onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelectCustomer(customer)}
             class="group flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border transition-all duration-200 gap-4 cursor-pointer select-none bg-card shadow-xs hover:shadow-md hover:border-border {customer.is_defaulter
                 ? 'border-rose-300 dark:border-rose-800/60 bg-rose-50/15 dark:bg-rose-950/10'
-                : 'border-border/70 hover:bg-muted/10'}"
+               : 'border-border/70 hover:bg-muted/10'}"
         >
             <div class="flex items-start sm:items-center gap-4 min-w-0 flex-1">
                 <!-- Avatar / Icono -->
                 <div class="h-12 w-12 rounded-xl flex items-center justify-center shrink-0 border transition-transform group-hover:scale-105 {customer.is_defaulter
                     ? 'bg-rose-500/10 text-rose-600 border-rose-500/20'
-                    : 'bg-primary/10 text-primary border-primary/20'}">
+                   : 'bg-primary/10 text-primary border-primary/20'}">
                     {#if customer.is_defaulter}
                         <AlertTriangle class="h-6 w-6 stroke-[1.75]" />
                     {:else}
@@ -137,7 +137,7 @@
                     <!-- Fila 2: CUIT/DNI, Teléfono y Email -->
                     <div class="flex items-center gap-2.5 flex-wrap text-xs text-muted-foreground">
                         {#if customer.tax_id}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2 py-0.5 text-xs font-medium text-foreground/90 border border-border/40 font-mono tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2 py-0.5 text-xs font-medium text-foreground/90 border border-border/40 tabular-nums">
                                 CUIT: {customer.tax_id}
                             </span>
                         {/if}
@@ -145,7 +145,7 @@
                         {#if customer.phone}
                             <div class="flex items-center gap-1">
                                 <Phone class="h-3 w-3 text-muted-foreground/70" />
-                                <span class="font-mono tabular-nums">{customer.phone}</span>
+                                <span class=" tabular-nums">{customer.phone}</span>
                             </div>
                         {/if}
 

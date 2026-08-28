@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
@@ -389,7 +389,7 @@
                                                         onclick={() => selectProduct(index, prod)}
                                                     >
                                                         <span class="font-medium truncate">{prod.name}</span>
-                                                        <div class="text-xs text-muted-foreground font-mono shrink-0 tabular-nums">
+                                                        <div class="text-xs text-muted-foreground shrink-0 tabular-nums">
                                                             {#if prod.cost_price}
                                                                 <span>Costo: {formatPrice(Number(prod.cost_price))}</span>
                                                             {:else}
@@ -408,7 +408,7 @@
                                             Costo Unit.
                                         </Label>
                                         <div class="relative">
-                                            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-mono">$</span>
+                                            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground ">$</span>
                                             <Input
                                                 id={`prod-cost-${index}`}
                                                 type="number"
@@ -416,7 +416,7 @@
                                                 min="0.01"
                                                 bind:value={item.unit_cost}
                                                 placeholder="0.00"
-                                                class="h-8 text-xs pl-6 font-mono tabular-nums text-right"
+                                                class="h-8 text-xs pl-6 tabular-nums text-right"
                                                 required
                                             />
                                         </div>
@@ -434,7 +434,7 @@
                                             >
                                                 <Minus class="size-3" />
                                             </button>
-                                            <span class="px-2 text-xs font-semibold font-mono tabular-nums min-w-6 text-center">
+                                            <span class="px-2 text-xs font-semibold tabular-nums min-w-6 text-center">
                                                 {item.quantity}
                                             </span>
                                             <button
@@ -479,7 +479,7 @@
             <div class="flex items-center justify-between border-t pt-3.5 shrink-0">
                 <div class="flex items-baseline gap-2">
                     <span class="text-xs text-muted-foreground">Total Estimado:</span>
-                    <span class="text-xl font-bold font-mono tabular-nums text-primary">{formatPrice(computedTotal)}</span>
+                    <span class="text-xl font-bold tabular-nums text-primary">{formatPrice(computedTotal)}</span>
                 </div>
 
                 <div class="flex items-center gap-2">

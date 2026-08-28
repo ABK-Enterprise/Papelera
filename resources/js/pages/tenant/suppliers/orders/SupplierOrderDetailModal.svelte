@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import { router } from '@inertiajs/svelte';
@@ -142,12 +142,12 @@
             <!-- Header -->
             <div class="flex items-center justify-between border-b pb-4">
                 <div class="flex items-center gap-2.5">
-                    <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary font-mono font-bold">
+                    <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold">
                         <Truck class="size-5" />
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h2 class="text-lg font-bold text-foreground font-mono tabular-nums">{order.order_number}</h2>
+                            <h2 class="text-lg font-bold text-foreground tabular-nums">{order.order_number}</h2>
                             {#if order.status === 'solicitado'}
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-amber-500/15 text-amber-600 border border-amber-500/30">
                                     Solicitado (Pendiente)
@@ -203,7 +203,7 @@
                 </div>
                 <div class="space-y-1">
                     <span class="text-muted-foreground">Contacto:</span>
-                    <p class="font-medium text-foreground font-mono tabular-nums">{order.supplier?.contact_number || order.supplier?.email || 'Sin contacto directo'}</p>
+                    <p class="font-medium text-foreground tabular-nums">{order.supplier?.contact_number || order.supplier?.email || 'Sin contacto directo'}</p>
                 </div>
             </div>
 
@@ -226,16 +226,16 @@
                                     <td class="p-2.5 font-medium text-foreground">
                                         {item.product_name}
                                         {#if item.product?.sku}
-                                            <span class="text-xs text-muted-foreground block font-mono tabular-nums">SKU: {item.product.sku}</span>
+                                            <span class="text-xs text-muted-foreground block tabular-nums">SKU: {item.product.sku}</span>
                                         {/if}
                                     </td>
-                                    <td class="p-2.5 text-right font-medium font-mono tabular-nums">
+                                    <td class="p-2.5 text-right font-medium tabular-nums">
                                         {item.quantity} unid.
                                     </td>
-                                    <td class="p-2.5 text-right font-mono tabular-nums">
+                                    <td class="p-2.5 text-right tabular-nums">
                                         {Number(item.unit_cost) > 0 ? formatPrice(item.unit_cost) : '-'}
                                     </td>
-                                    <td class="p-2.5 text-right font-mono font-bold text-foreground tabular-nums">
+                                    <td class="p-2.5 text-right font-bold text-foreground tabular-nums">
                                         {Number(item.subtotal) > 0 ? formatPrice(item.subtotal) : '-'}
                                     </td>
                                 </tr>
@@ -286,7 +286,7 @@
                 <div class="flex items-center gap-3">
                     <div class="text-right">
                         <span class="text-xs text-muted-foreground block">Costo Total:</span>
-                        <span class="text-lg font-bold font-mono tabular-nums text-primary">{formatPrice(order.total_cost)}</span>
+                        <span class="text-lg font-bold tabular-nums text-primary">{formatPrice(order.total_cost)}</span>
                     </div>
                     <Button type="button" size="sm" variant="outline" onclick={() => (open = false)} class="text-xs font-medium">
                         Cerrar

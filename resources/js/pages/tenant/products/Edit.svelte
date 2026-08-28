@@ -196,7 +196,7 @@
                     </div>
                     <div>
                         <span class="text-[10px] text-muted-foreground block">Precio del bulto</span>
-                        <span class="font-bold font-mono text-primary tabular-nums">
+                        <span class="font-bold text-primary tabular-nums">
                             {formatPrice(calculatedPackagePrice)}
                         </span>
                     </div>
@@ -256,7 +256,7 @@
                                 id="edit-prod-sku"
                                 bind:value={form.sku}
                                 placeholder="ej. RES-A4-75"
-                                class="h-9 text-xs rounded-xl font-mono tracking-wide"
+                                class="h-9 text-xs rounded-xl tracking-wide"
                             />
                             {#if form.errors.sku}
                                 <p class="text-xs text-destructive">{form.errors.sku}</p>
@@ -301,7 +301,7 @@
                                     min="0"
                                     bind:value={form.price}
                                     placeholder="0.00"
-                                    class="h-9 pl-7 text-xs rounded-xl font-mono tabular-nums"
+                                    class="h-9 pl-7 text-xs rounded-xl tabular-nums"
                                     required
                                 />
                             </div>
@@ -323,7 +323,7 @@
                                     min="0"
                                     bind:value={form.cost_price}
                                     placeholder="0.00"
-                                    class="h-9 pl-7 text-xs rounded-xl font-mono tabular-nums"
+                                    class="h-9 pl-7 text-xs rounded-xl tabular-nums"
                                 />
                             </div>
                             {#if form.errors.cost_price}
@@ -431,7 +431,7 @@
                             id="edit-prod-barcode"
                             bind:value={form.barcode}
                             placeholder="ej. 7791234567890"
-                            class="h-9 text-xs rounded-xl font-mono tracking-wide"
+                            class="h-9 text-xs rounded-xl tracking-wide"
                         />
                     </div>
 

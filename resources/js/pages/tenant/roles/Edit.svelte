@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -129,7 +129,7 @@
                         <div class="flex items-center justify-between border-b border-border/40 pb-3">
                             <div class="flex items-center gap-2">
                                 <h4 class="font-semibold text-sm text-foreground">{mod.name}</h4>
-                                <Badge variant="outline" class="font-mono text-xs bg-muted/40 px-2">{mod.code}</Badge>
+                                <Badge variant="outline" class=" text-xs bg-muted/40 px-2">{mod.code}</Badge>
                             </div>
                             {#if mod.permissions.length > 0}
                                 <Button
@@ -152,14 +152,14 @@
                                     onclick={() => togglePermission(perm.name)}
                                     class="flex min-h-[44px] items-center gap-3 rounded-xl border p-2.5 text-left text-xs cursor-pointer select-none transition-all {isChecked
                                         ? 'border-primary bg-primary/5 text-foreground shadow-2xs font-semibold'
-                                        : 'border-border/60 bg-muted/10 hover:bg-muted/30 text-muted-foreground'}"
+                                       : 'border-border/60 bg-muted/10 hover:bg-muted/30 text-muted-foreground'}"
                                 >
                                     <div class="size-4.5 rounded-md border flex items-center justify-center transition-colors shrink-0 {isChecked ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-background'}">
                                         {#if isChecked}
                                             <Check class="size-3 stroke-[3]" />
                                         {/if}
                                     </div>
-                                    <span class="font-mono text-xs truncate flex-1">{perm.name}</span>
+                                    <span class=" text-xs truncate flex-1">{perm.name}</span>
                                 </button>
                             {/each}
                             {#if mod.permissions.length === 0}

@@ -134,7 +134,7 @@
                         id="cuit"
                         bind:value={$form.cuit_tax_id}
                         placeholder="Ej. 30-71234567-8"
-                        class="h-11 rounded-xl border-border/70 bg-muted/20 px-3.5 transition-colors focus:bg-background font-mono tabular-nums text-sm"
+                        class="h-11 rounded-xl border-border/70 bg-muted/20 px-3.5 transition-colors focus:bg-background tabular-nums text-sm"
                     />
                     {#if $form.errors.cuit_tax_id}
                         <p class="text-xs font-medium text-destructive">{$form.errors.cuit_tax_id}</p>
@@ -188,7 +188,7 @@
                                     </span>
                                 {/if}
                             </div>
-                            <span class="font-mono text-xs tabular-nums {isSelected ? 'text-primary/80' : 'text-muted-foreground/70'} block">
+                            <span class="text-xs tabular-nums {isSelected ? 'text-primary/80' : 'text-muted-foreground/70'} block">
                                 Código: {mod.code}
                             </span>
                             {#if mod.description}

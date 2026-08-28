@@ -89,7 +89,7 @@
                         id="tenant-cuit"
                         bind:value={form.tenant.cuit_tax_id}
                         placeholder="ej. 30712345678"
-                        class="h-11 rounded-xl border-border/70 font-mono tabular-nums text-sm"
+                        class="h-11 rounded-xl border-border/70 tabular-nums text-sm"
                     />
                     {#if form.errors['tenant.cuit_tax_id']}
                         <p class="text-xs font-medium text-destructive">{form.errors['tenant.cuit_tax_id']}</p>
@@ -185,7 +185,7 @@
                         />
                         <div class="space-y-1">
                             <span class="text-sm font-semibold leading-none">{mod.name}</span>
-                            <span class="font-mono text-xs text-muted-foreground tabular-nums block">({mod.code})</span>
+                            <span class="text-xs text-muted-foreground tabular-nums block">({mod.code})</span>
                             {#if mod.description}
                                 <p class="text-xs text-muted-foreground leading-relaxed">{mod.description}</p>
                             {/if}

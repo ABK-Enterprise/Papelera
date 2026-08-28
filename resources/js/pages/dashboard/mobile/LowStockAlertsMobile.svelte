@@ -67,7 +67,7 @@
                                         </span>
                                     {/if}
                                     {#if product.sku}
-                                        <span class="font-mono tabular-nums">SKU: {product.sku}</span>
+                                        <span class="tabular-nums">SKU: {product.sku}</span>
                                     {/if}
                                 </div>
                             </div>
@@ -86,13 +86,13 @@
                     <div class="grid grid-cols-2 gap-2 rounded-lg bg-background/50 p-2 border border-rose-500/15 text-xs">
                         <div class="flex flex-col">
                             <span class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Stock actual</span>
-                            <span class="font-mono font-bold tabular-nums text-rose-600 dark:text-rose-400">
+                            <span class="font-bold tabular-nums text-rose-600 dark:text-rose-400">
                                 {product.stock} {product.stock === 1 ? 'ud.' : 'uds.'}
                             </span>
                         </div>
                         <div class="flex flex-col text-right">
                             <span class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Stock mínimo</span>
-                            <span class="font-mono font-semibold tabular-nums text-foreground">
+                            <span class="font-semibold tabular-nums text-foreground">
                                 {product.min_stock} {product.min_stock === 1 ? 'ud.' : 'uds.'}
                             </span>
                         </div>

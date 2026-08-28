@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
@@ -194,7 +194,7 @@
                         id="manage-supplier-phone"
                         bind:value={form.contact_number}
                         placeholder="ej. +54 11 4321-8765"
-                        class="h-9 text-sm font-mono tabular-nums"
+                        class="h-9 text-sm tabular-nums"
                     />
                     {#if form.errors.contact_number}
                         <p class="text-xs text-destructive">{form.errors.contact_number}</p>

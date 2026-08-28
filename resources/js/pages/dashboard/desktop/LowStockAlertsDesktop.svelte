@@ -88,7 +88,7 @@
                                 </span>
                             {/if}
                             {#if product.sku}
-                                <span class="font-mono text-xs tabular-nums">SKU: {product.sku}</span>
+                                <span class="text-xs tabular-nums">SKU: {product.sku}</span>
                             {/if}
                         </div>
                     </div>
@@ -97,7 +97,7 @@
 
             <!-- Columna: Stock Actual -->
             <td class="py-3.5 px-6">
-                <span class="inline-flex items-center gap-1 rounded-md border border-rose-500/30 bg-rose-500/20 px-2.5 py-1 font-mono text-xs font-bold tabular-nums text-rose-700 dark:text-rose-300">
+                <span class="inline-flex items-center gap-1 rounded-md border border-rose-500/30 bg-rose-500/20 px-2.5 py-1 text-xs font-bold tabular-nums text-rose-700 dark:text-rose-300">
                     <span class="size-1.5 rounded-full bg-rose-500"></span>
                     {product.stock} {product.stock === 1 ? 'unidad' : 'unidades'}
                 </span>
@@ -105,7 +105,7 @@
 
             <!-- Columna: Stock Mínimo -->
             <td class="py-3.5 px-6 text-right">
-                <span class="font-mono text-xs font-semibold tabular-nums text-foreground">
+                <span class="text-xs font-semibold tabular-nums text-foreground">
                     {product.min_stock} {product.min_stock === 1 ? 'unidad' : 'unidades'}
                 </span>
             </td>

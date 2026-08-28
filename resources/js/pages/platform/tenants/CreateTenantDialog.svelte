@@ -125,7 +125,7 @@
                             id="modal-tenant-cuit"
                             bind:value={$form.tenant.cuit_tax_id}
                             placeholder="ej. 30-71234567-8"
-                            class="h-10 rounded-xl border-border/70 text-sm font-mono tabular-nums"
+                            class="h-10 rounded-xl border-border/70 text-sm tabular-nums"
                         />
                         {#if $form.errors['tenant.cuit_tax_id']}
                             <p class="text-xs font-medium text-destructive">{$form.errors['tenant.cuit_tax_id']}</p>
@@ -235,7 +235,7 @@
                                         </span>
                                     {/if}
                                 </div>
-                                <span class="font-mono text-xs text-muted-foreground block">({mod.code})</span>
+                                <span class="text-xs text-muted-foreground tabular-nums block">({mod.code})</span>
                             </div>
                         </button>
                     {/each}

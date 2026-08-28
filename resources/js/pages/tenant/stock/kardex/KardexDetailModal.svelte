@@ -75,7 +75,7 @@
                     <div>
                         <DialogTitle class="text-lg font-semibold text-foreground leading-snug">Detalle de movimiento de Kardex</DialogTitle>
                         <DialogDescription class="text-xs text-muted-foreground">
-                            Registro de auditoría #MOV-<span class="tabular-nums font-mono">{String(movement.id).padStart(6, '0')}</span>
+                            Registro de auditoría #MOV-<span class="tabular-nums">{String(movement.id).padStart(6, '0')}</span>
                         </DialogDescription>
                     </div>
                 </div>
@@ -101,7 +101,7 @@
                             <div class="font-semibold text-foreground truncate">
                                 {movement.product?.name ?? 'Producto eliminado'}
                             </div>
-                            <div class="text-xs text-muted-foreground font-mono tabular-nums tracking-wide">
+                            <div class="text-xs text-muted-foreground tabular-nums tracking-wide">
                                 {movement.product?.sku ? `SKU: ${movement.product.sku}` : ''}
                                 {movement.product?.barcode ? ` • Barra: ${movement.product.barcode}` : ''}
                             </div>
@@ -114,12 +114,12 @@
                     <div class="p-3 rounded-xl bg-muted/30 border border-border/60">
                         <span class="text-xs text-muted-foreground block mb-1">Tipo de Operación</span>
                         {#if movement.type === 'income'}
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 tabular-nums">
                                 <ArrowDownLeft class="size-3.5" />
                                 Ingreso (+{movement.quantity})
                             </span>
                         {:else}
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 font-mono tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 tabular-nums">
                                 <ArrowUpRight class="size-3.5" />
                                 Egreso (-{movement.quantity})
                             </span>
@@ -128,7 +128,7 @@
 
                     <div class="p-3 rounded-xl bg-muted/30 border border-border/60">
                         <span class="text-xs text-muted-foreground block mb-1">Balance de Stock</span>
-                        <div class="font-mono font-semibold text-foreground text-sm tabular-nums">
+                        <div class="font-semibold text-foreground text-sm tabular-nums">
                             {movement.previous_stock} ➔ {movement.current_stock}
                         </div>
                         <span class="text-[11px] text-muted-foreground tabular-nums">
@@ -156,13 +156,13 @@
                             <span>{movement.user?.name ?? 'Sistema'}</span>
                         </div>
                         {#if movement.user?.email}
-                            <div class="flex items-center gap-1.5 text-muted-foreground font-mono text-xs">
+                            <div class="flex items-center gap-1.5 text-muted-foreground text-xs">
                                 <Mail class="size-3" />
                                 <span>{movement.user.email}</span>
                             </div>
                         {/if}
                     </div>
-                    <div class="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t border-border/40 font-mono tabular-nums">
+                    <div class="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t border-border/40 tabular-nums">
                         <Calendar class="size-3.5 text-muted-foreground" />
                         <span>Fecha y hora: {formatFullDate(movement.created_at)}</span>
                     </div>

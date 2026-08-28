@@ -71,7 +71,7 @@
                         </div>
                         <div class="flex flex-col">
                             <span class="font-semibold text-foreground text-sm leading-snug">{mod.name}</span>
-                            <span class="font-mono text-xs tabular-nums text-muted-foreground">{mod.code}</span>
+                            <span class="text-xs tabular-nums text-muted-foreground">{mod.code}</span>
                         </div>
                     </div>
 
@@ -93,11 +93,11 @@
                 <div class="space-y-1.5 pt-1">
                     <div class="flex items-center justify-between text-xs text-muted-foreground">
                         <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Permisos</span>
-                        <span class="font-mono text-xs font-medium tabular-nums">{mod.permissions.length} disponibles</span>
+                        <span class="text-xs font-medium tabular-nums">{mod.permissions.length} disponibles</span>
                     </div>
                     <div class="flex flex-wrap gap-1 max-h-20 overflow-y-auto pr-1">
                         {#each mod.permissions as perm (perm.id)}
-                            <span class="inline-flex items-center font-mono text-xs bg-muted/50 border border-border/50 text-foreground/80 px-2 py-0.5 rounded">
+                            <span class="inline-flex items-center text-xs tabular-nums bg-muted/50 border border-border/50 text-foreground/80 px-2 py-0.5 rounded">
                                 {perm.name}
                             </span>
                         {/each}

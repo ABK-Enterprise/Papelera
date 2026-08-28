@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
@@ -105,7 +105,7 @@
                         id="create-supplier-phone"
                         bind:value={form.contact_number}
                         placeholder="ej. +54 11 4321-8765"
-                        class="h-9 text-sm font-mono tabular-nums"
+                        class="h-9 text-sm tabular-nums"
                     />
                     {#if form.errors.contact_number}
                         <p class="text-xs text-destructive">{form.errors.contact_number}</p>
@@ -156,7 +156,7 @@
                     onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleActive()}
                     class="flex items-center gap-3 rounded-xl border p-3.5 cursor-pointer select-none transition-all {form.is_active
                         ? 'border-primary/60 bg-primary/5 shadow-2xs'
-                        : 'border-border/60 bg-card hover:bg-muted/40'}"
+                       : 'border-border/60 bg-card hover:bg-muted/40'}"
                 >
                     <div class="size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 {form.is_active ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-background'}">
                         {#if form.is_active}
