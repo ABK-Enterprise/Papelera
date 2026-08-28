@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
@@ -27,6 +27,10 @@
         stock: number;
         units_per_package: number;
         package_quantity?: number;
+        bulk_discount_type?: string;
+        custom_bulk_discount_percentage?: number | string | null;
+        effective_bulk_discount_percentage?: number;
+        bulk_discount_price?: number;
     }
 
     export interface CustomerOption {
@@ -51,6 +55,8 @@
         unit_price: number;
         units_per_package: number;
         package_quantity: number;
+        effective_bulk_discount_percentage?: number;
+        bulk_discount_price?: number;
     }
 
     let {
@@ -215,6 +221,8 @@
                     unit_price: Number(prod.price),
                     units_per_package: prod.units_per_package || 1,
                     package_quantity: prod.package_quantity || prod.units_per_package || 1,
+                    effective_bulk_discount_percentage: prod.effective_bulk_discount_percentage ?? 0,
+                    bulk_discount_price: prod.bulk_discount_price ? Number(prod.bulk_discount_price) : Number(prod.price),
                 },
             ];
         }
@@ -352,11 +360,18 @@
         }).format(amount);
     }
 
+    function getItemUnitPrice(it: OrderItemLine): number {
+        if (it.packaging_type === 'bulto' && (it.effective_bulk_discount_percentage ?? 0) > 0) {
+            return it.bulk_discount_price ?? it.unit_price;
+        }
+        return it.unit_price;
+    }
+
     let computedTotal = $derived.by(() => {
         let total = 0;
         for (const it of items) {
             const baseQty = getItemQuantityBase(it);
-            total += baseQty * it.unit_price;
+            total += baseQty * getItemUnitPrice(it);
         }
         return total;
     });
@@ -783,7 +798,9 @@
                             {@const maxAllowed = getMaxAllowedQuantityForItem(index)}
                             {@const isAtStockLimit = item.quantity >= maxAllowed}
                             {@const baseQty = getItemQuantityBase(item)}
-                            {@const lineSubtotal = baseQty * item.unit_price}
+                            {@const effectivePrice = getItemUnitPrice(item)}
+                            {@const lineSubtotal = baseQty * effectivePrice}
+                            {@const isBulkWithDiscount = item.packaging_type === 'bulto' && (item.effective_bulk_discount_percentage ?? 0) > 0}
 
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
                                 <div class="flex items-center gap-3 min-w-0 flex-1">
@@ -796,19 +813,29 @@
                                     </div>
 
                                     <div class="min-w-0 flex-1">
-                                        <div class="flex items-center gap-2">
+                                        <div class="flex items-center gap-2 flex-wrap">
                                             <h4 class="font-semibold text-xs text-foreground truncate">{item.product_name}</h4>
                                             {#if item.sku}
                                                 <span class="text-xs tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                                                     {item.sku}
                                                 </span>
                                             {/if}
+                                            {#if isBulkWithDiscount}
+                                                <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-700 bg-emerald-500/15 dark:text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded tabular-nums">
+                                                    -{item.effective_bulk_discount_percentage}% bulto
+                                                </span>
+                                            {/if}
                                         </div>
 
-                                        <div class="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 tabular-nums">
-                                            <span>Precio base: <strong class=" text-foreground">{formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}</strong></span>
+                                        <div class="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 tabular-nums flex-wrap">
+                                            {#if isBulkWithDiscount}
+                                                <span>Precio bulto: <strong class="text-emerald-600 dark:text-emerald-400 font-semibold">{formatPrice(effectivePrice)} {item.sale_type === 'weight' ? '/Kg' : '/u'}</strong></span>
+                                                <span class="line-through opacity-60">({formatPrice(item.unit_price)})</span>
+                                            {:else}
+                                                <span>Precio: <strong class="text-foreground">{formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}</strong></span>
+                                            {/if}
                                             <span>•</span>
-                                            <span>Stock: <strong class=" text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
+                                            <span>Stock: <strong class="text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
                                             {#if isAtStockLimit}
                                                 <span class="inline-flex items-center gap-1 text-xs font-medium tracking-wide text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
                                                     Tope

@@ -36,6 +36,8 @@ class ProductFactory extends Factory
             'min_stock' => 5,
             'units_per_package' => 1,
             'package_quantity' => 1,
+            'bulk_discount_type' => 'inherited',
+            'custom_bulk_discount_percentage' => null,
             'image_url' => null,
             'is_active' => true,
         ];

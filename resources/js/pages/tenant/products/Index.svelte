@@ -5,10 +5,9 @@
     import { Link, router } from '@inertiajs/svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Filter from 'lucide-svelte/icons/filter';
-    import Plus from 'lucide-svelte/icons/plus';
-    import Search from 'lucide-svelte/icons/search';
-    import X from 'lucide-svelte/icons/x';
+    import Percent from 'lucide-svelte/icons/percent';
     import SortSelect from '@/components/common/SortSelect.svelte';
+    import BulkDiscountConfigModal from './BulkDiscountConfigModal.svelte';
     import CategorySidebarDesktop from './desktop/CategorySidebarDesktop.svelte';
     import ProductListDesktop from './desktop/ProductListDesktop.svelte';
     import ProductListMobile from './mobile/ProductListMobile.svelte';
@@ -31,6 +30,11 @@
         stock: number;
         min_stock: number;
         units_per_package?: number;
+        package_quantity?: number;
+        bulk_discount_type?: string;
+        custom_bulk_discount_percentage?: number | string | null;
+        effective_bulk_discount_percentage?: number;
+        bulk_discount_price?: number;
         image_url: string | null;
         is_incomplete?: boolean;
         category?: { id: number; name: string } | null;
@@ -57,12 +61,14 @@
         categories = [],
         stats = { total: 0, in_stock: 0, low_stock: 0, out_of_stock: 0, incomplete: 0 },
         incompleteCount = 0,
+        tenantDefaultBulkDiscount = 0,
         filters = {},
     }: {
         products: ProductItem[];
         categories: CategoryItem[];
         stats?: Stats;
         incompleteCount?: number;
+        tenantDefaultBulkDiscount?: number;
         filters?: FilterProps;
     } = $props();
 
@@ -71,6 +77,7 @@
     let selectedStockStatus = $state(filters.stock_status ?? '');
     let selectedInfoStatus = $state(filters.info_status ?? '');
     let sortBy = $state(filters.sort_by ?? 'latest');
+    let isBulkDiscountModalOpen = $state(false);
 
     const sortOptions = [
         { value: 'latest', label: 'Más recientes primero' },
@@ -138,7 +145,17 @@
             </p>
         </div>
 
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center gap-2.5 flex-wrap">
+            <Button
+                variant="outline"
+                class="gap-1.5 font-medium border-border/80 shadow-2xs"
+                onclick={() => (isBulkDiscountModalOpen = true)}
+            >
+                <Percent class="size-4 text-primary" />
+                <span>Desc. por Bulto</span>
+                <span class="tabular-nums font-bold text-primary">({tenantDefaultBulkDiscount}%)</span>
+            </Button>
+
             <Link href="/tenant/products/create">
                 <Button class="gap-2 shadow-sm font-semibold">
                     <Plus class="size-4" />
@@ -291,4 +308,10 @@
 
         <ProductListMobile {products} />
     </div>
+
+    <!-- Modal de Configuración Rápida de Descuento por Bulto -->
+    <BulkDiscountConfigModal
+        bind:open={isBulkDiscountModalOpen}
+        currentDiscount={tenantDefaultBulkDiscount}
+    />
 </div>

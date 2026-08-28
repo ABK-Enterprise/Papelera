@@ -32,6 +32,8 @@
         min_stock: number;
         units_per_package?: number;
         package_quantity?: number;
+        bulk_discount_type?: string;
+        custom_bulk_discount_percentage?: number | string | null;
         image_url: string | null;
         is_active: boolean;
     }
@@ -39,9 +41,11 @@
     let {
         product,
         categories = [],
+        tenantDefaultBulkDiscount = 0,
     }: {
         product: ProductData;
         categories: CategoryOption[];
+        tenantDefaultBulkDiscount?: number;
     } = $props();
 
     const initialSaleType = (product.sale_type ?? 'unit') as 'unit' | 'weight';
@@ -61,6 +65,8 @@
         min_stock: product.min_stock,
         units_per_package: product.units_per_package ?? product.package_quantity ?? 1,
         package_quantity: product.package_quantity ?? product.units_per_package ?? 1,
+        bulk_discount_type: product.bulk_discount_type ?? 'inherited',
+        custom_bulk_discount_percentage: product.custom_bulk_discount_percentage ?? '',
         image_url: product.image_url ?? '',
         is_active: product.is_active,
     });
@@ -73,10 +79,17 @@
         }).format(amount);
     }
 
+    let effectiveDiscountPercent = $derived.by(() => {
+        if (form.bulk_discount_type === 'none') return 0;
+        if (form.bulk_discount_type === 'custom') return Number(form.custom_bulk_discount_percentage) || 0;
+        return Number(tenantDefaultBulkDiscount) || 0;
+    });
+
     let calculatedPackagePrice = $derived.by(() => {
         const unitPrice = Number(form.price) || 0;
         const ratio = Number(form.sale_type === 'weight' ? (form.package_quantity || form.units_per_package) : form.units_per_package) || 1;
-        return unitPrice * ratio;
+        const discountMultiplier = (1 - (effectiveDiscountPercent / 100));
+        return unitPrice * ratio * discountMultiplier;
     });
 
     function doSubmit() {
@@ -344,6 +357,53 @@
                                 <option value={0.00}>0.0% (Exento)</option>
                             </select>
                         </div>
+                    </div>
+                </div>
+
+                <hr class="border-border/60" />
+
+                <!-- Descuento por Bulto -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">Descuento por Bulto</h3>
+                        {#if effectiveDiscountPercent > 0}
+                            <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                                -{effectiveDiscountPercent}% aplicado
+                            </span>
+                        {/if}
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <Label for="edit-prod-discount-type" class="text-xs font-semibold">Modalidad de Descuento</Label>
+                            <select
+                                id="edit-prod-discount-type"
+                                bind:value={form.bulk_discount_type}
+                                class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                            >
+                                <option value="inherited">Heredar global ({tenantDefaultBulkDiscount}%)</option>
+                                <option value="custom">Personalizado (% específico)</option>
+                                <option value="none">Sin descuento por bulto (0%)</option>
+                            </select>
+                        </div>
+
+                        {#if form.bulk_discount_type === 'custom'}
+                            <div class="space-y-1">
+                                <Label for="edit-prod-custom-discount" class="text-xs font-semibold">
+                                    Porcentaje Personalizado (%) <span class="text-destructive">*</span>
+                                </Label>
+                                <Input
+                                    id="edit-prod-custom-discount"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    max="100"
+                                    bind:value={form.custom_bulk_discount_percentage}
+                                    placeholder="0.00"
+                                    class="h-9 text-xs rounded-xl tabular-nums font-semibold"
+                                    required
+                                />
+                            </div>
+                        {/if}
                     </div>
                 </div>
 

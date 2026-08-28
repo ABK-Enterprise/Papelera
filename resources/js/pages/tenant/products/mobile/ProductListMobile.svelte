@@ -104,6 +104,11 @@
                 <span class="font-semibold text-base mt-0.5 tabular-nums {Number(product.price) <= 0 ? 'text-amber-600 dark:text-amber-400' : 'text-foreground'}">
                     {formatPrice(product.price)} {isWeighable ? '/Kg' : ''}
                 </span>
+                {#if (product.effective_bulk_discount_percentage ?? 0) > 0}
+                    <span class="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 tabular-nums">
+                        Bulto (-{product.effective_bulk_discount_percentage}%): {formatPrice(product.bulk_discount_price ?? product.price)}
+                    </span>
+                {/if}
 
                 <div class="flex items-center gap-2 mt-1.5 flex-wrap">
                     {#if product.stock <= 0}

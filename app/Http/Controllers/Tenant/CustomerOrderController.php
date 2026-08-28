@@ -60,7 +60,7 @@ class CustomerOrderController extends Controller
         $availableProducts = Product::active()
             ->complete()
             ->where('stock', '>', 0)
-            ->select('id', 'name', 'sku', 'price', 'stock', 'units_per_package')
+            ->select('id', 'tenant_id', 'name', 'sku', 'price', 'stock', 'units_per_package', 'package_quantity', 'bulk_discount_type', 'custom_bulk_discount_percentage')
             ->orderBy('name')
             ->get();
 
@@ -166,7 +166,8 @@ class CustomerOrderController extends Controller
 
                 $runningStock[$productId]['current_stock'] -= $quantityBase;
 
-                $unitPrice = (float) $product->price;
+                $isBulk = ($packagingType === 'bulto' || $packagingType === 'bolson');
+                $unitPrice = $isBulk ? (float) $product->bulk_discount_price : (float) $product->price;
                 $itemSubtotal = round($quantityBase * $unitPrice, 2);
                 $totalAmount += $itemSubtotal;
 

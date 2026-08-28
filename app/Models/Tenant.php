@@ -16,10 +16,11 @@ use Laravel\Scout\Searchable;
  * @property string $name
  * @property string|null $cuit_tax_id
  * @property bool $is_active
+ * @property string $default_bulk_discount_percentage
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'cuit_tax_id', 'is_active'])]
+#[Fillable(['name', 'cuit_tax_id', 'is_active', 'default_bulk_discount_percentage'])]
 class Tenant extends Model
 {
     /** @use HasFactory<TenantFactory> */
@@ -45,6 +46,7 @@ class Tenant extends Model
     {
         return [
             'is_active' => 'boolean',
+            'default_bulk_discount_percentage' => 'decimal:2',
         ];
     }
 

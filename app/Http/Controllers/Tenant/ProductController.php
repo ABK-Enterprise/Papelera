@@ -77,12 +77,15 @@ class ProductController extends Controller
             'incomplete' => $incompleteCount,
         ];
 
+        $tenantDefaultBulkDiscount = (float) ($request->user()->tenant?->default_bulk_discount_percentage ?? 0.00);
+
         if ($request->wantsJson()) {
             return response()->json([
                 'products' => $products,
                 'categories' => $categories,
                 'stats' => $stats,
                 'incomplete_count' => $incompleteCount,
+                'tenant_default_bulk_discount' => $tenantDefaultBulkDiscount,
             ]);
         }
 
@@ -91,6 +94,7 @@ class ProductController extends Controller
             'categories' => $categories,
             'stats' => $stats,
             'incompleteCount' => $incompleteCount,
+            'tenantDefaultBulkDiscount' => $tenantDefaultBulkDiscount,
             'filters' => [
                 'search' => $search,
                 'category_id' => $categoryId ? (int) $categoryId : null,
@@ -101,15 +105,43 @@ class ProductController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function updateGlobalBulkDiscount(Request $request): RedirectResponse|JsonResponse
+    {
+        $validated = $request->validate([
+            'default_bulk_discount_percentage' => ['required', 'numeric', 'min:0', 'max:100'],
+        ]);
+
+        $tenant = $request->user()->tenant;
+        if (! $tenant) {
+            abort(404);
+        }
+
+        $tenant->update([
+            'default_bulk_discount_percentage' => $validated['default_bulk_discount_percentage'],
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'message' => 'Descuento global por bulto actualizado exitosamente.',
+                'default_bulk_discount_percentage' => (float) $tenant->default_bulk_discount_percentage,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Descuento global por bulto actualizado exitosamente.');
+    }
+
+    public function create(Request $request): Response
     {
         $categories = Category::where('is_active', true)
             ->select('id', 'name')
             ->orderBy('name')
             ->get();
 
+        $tenantDefaultBulkDiscount = (float) ($request->user()->tenant?->default_bulk_discount_percentage ?? 0.00);
+
         return Inertia::render('tenant/products/Create', [
             'categories' => $categories,
+            'tenantDefaultBulkDiscount' => $tenantDefaultBulkDiscount,
         ]);
     }
 
@@ -132,6 +164,8 @@ class ProductController extends Controller
             'min_stock' => $request->validated('min_stock', 5),
             'units_per_package' => $packageQuantity,
             'package_quantity' => $packageQuantity,
+            'bulk_discount_type' => $request->validated('bulk_discount_type', 'inherited'),
+            'custom_bulk_discount_percentage' => $request->validated('custom_bulk_discount_percentage'),
             'image_url' => $request->validated('image_url'),
             'is_active' => $request->boolean('is_active', true),
         ]);
@@ -155,9 +189,12 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
+        $tenantDefaultBulkDiscount = (float) ($request->user()->tenant?->default_bulk_discount_percentage ?? 0.00);
+
         return Inertia::render('tenant/products/Edit', [
             'product' => $product,
             'categories' => $categories,
+            'tenantDefaultBulkDiscount' => $tenantDefaultBulkDiscount,
         ]);
     }
 
@@ -182,6 +219,8 @@ class ProductController extends Controller
             'min_stock' => $request->validated('min_stock', $product->min_stock ?? 5),
             'units_per_package' => $packageQuantity,
             'package_quantity' => $packageQuantity,
+            'bulk_discount_type' => $request->validated('bulk_discount_type', $product->bulk_discount_type ?? 'inherited'),
+            'custom_bulk_discount_percentage' => $request->validated('custom_bulk_discount_percentage'),
             'image_url' => $request->validated('image_url'),
             'is_active' => $request->boolean('is_active', true),
         ]);

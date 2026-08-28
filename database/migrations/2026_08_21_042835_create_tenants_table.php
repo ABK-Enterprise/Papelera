@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('cuit_tax_id', 50)->nullable();
             $table->boolean('is_active')->default(true);
+            $table->decimal('default_bulk_discount_percentage', 5, 2)->default(0.00);
             $table->timestamps();
         });
     }

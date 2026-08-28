@@ -163,10 +163,15 @@
             <!-- Centro: Precios y Stock con Tabular Numbers -->
             <div class="flex items-center gap-6 px-2">
                 <div class="flex flex-col items-end">
-                    <span class="text-xs text-muted-foreground font-medium">Precio de venta</span>
+                    <span class="text-xs text-muted-foreground font-medium">Precio unitario</span>
                     <span class="font-semibold text-base text-foreground tabular-nums">
                         {formatPrice(product.price)} {isWeighable ? '/Kg' : ''}
                     </span>
+                    {#if (product.effective_bulk_discount_percentage ?? 0) > 0}
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 tabular-nums">
+                            Bulto (-{product.effective_bulk_discount_percentage}%): {formatPrice(product.bulk_discount_price ?? product.price)}
+                        </span>
+                    {/if}
                     {#if Number(product.cost_price) > 0}
                         <span class="text-xs text-muted-foreground tabular-nums">
                             Costo: {formatPrice(product.cost_price)}
