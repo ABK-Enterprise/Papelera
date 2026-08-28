@@ -8,6 +8,7 @@
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import X from 'lucide-svelte/icons/x';
+    import SortSelect from '@/components/common/SortSelect.svelte';
     import CategorySidebarDesktop from './desktop/CategorySidebarDesktop.svelte';
     import ProductListDesktop from './desktop/ProductListDesktop.svelte';
     import ProductListMobile from './mobile/ProductListMobile.svelte';
@@ -48,6 +49,7 @@
         category_id?: number | null;
         stock_status?: string | null;
         info_status?: string | null;
+        sort_by?: string | null;
     }
 
     let {
@@ -68,6 +70,18 @@
     let selectedCategoryId = $state<number | null>(filters.category_id ?? null);
     let selectedStockStatus = $state(filters.stock_status ?? '');
     let selectedInfoStatus = $state(filters.info_status ?? '');
+    let sortBy = $state(filters.sort_by ?? 'latest');
+
+    const sortOptions = [
+        { value: 'latest', label: 'Más recientes primero' },
+        { value: 'oldest', label: 'Más antiguos primero' },
+        { value: 'name_asc', label: 'Nombre (A-Z)' },
+        { value: 'name_desc', label: 'Nombre (Z-A)' },
+        { value: 'price_high', label: 'Mayor precio' },
+        { value: 'price_low', label: 'Menor precio' },
+        { value: 'stock_high', label: 'Mayor stock' },
+        { value: 'stock_low', label: 'Menor stock' },
+    ];
 
     function applyFilters() {
         router.get(
@@ -77,6 +91,7 @@
                 category_id: selectedCategoryId ?? undefined,
                 stock_status: selectedStockStatus || undefined,
                 info_status: selectedInfoStatus || undefined,
+                sort_by: sortBy !== 'latest' ? sortBy : undefined,
             },
             {
                 preserveState: true,
@@ -100,11 +115,12 @@
         selectedCategoryId = null;
         selectedStockStatus = '';
         selectedInfoStatus = '';
-        router.get('/tenant/products');
+        sortBy = 'latest';
+        router.get('/tenant/products', {}, { preserveState: true, preserveScroll: true });
     }
 
     let hasActiveFilters = $derived(
-        Boolean(searchTerm || selectedCategoryId !== null || selectedStockStatus || selectedInfoStatus)
+        Boolean(searchTerm || selectedCategoryId !== null || selectedStockStatus || selectedInfoStatus || (sortBy && sortBy !== 'latest'))
     );
 </script>
 
@@ -176,6 +192,16 @@
 
             <!-- Selectores de Filtro -->
             <div class="flex items-center gap-2.5 w-full md:w-auto flex-wrap">
+                <!-- Selector de Ordenamiento -->
+                <SortSelect
+                    value={sortBy}
+                    options={sortOptions}
+                    onchange={(val) => {
+                        sortBy = val;
+                        applyFilters();
+                    }}
+                />
+
                 <!-- Filtro Categoría -->
                 <select
                     bind:value={selectedCategoryId}

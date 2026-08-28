@@ -20,6 +20,7 @@ class CustomerController extends Controller
         $status = $request->input('status');
         $taxCondition = $request->input('tax_condition');
         $isDefaulter = $request->input('is_defaulter');
+        $sortBy = $request->input('sort_by', 'latest');
 
         $query = Customer::query()
             ->when($search, function ($q, $search) {
@@ -49,7 +50,12 @@ class CustomerController extends Controller
                     $q->where('is_defaulter', false);
                 }
             })
-            ->latest();
+            ->when($sortBy === 'oldest', fn ($q) => $q->oldest())
+            ->when($sortBy === 'name_asc', fn ($q) => $q->orderBy('name', 'asc'))
+            ->when($sortBy === 'name_desc', fn ($q) => $q->orderBy('name', 'desc'))
+            ->when($sortBy === 'credit_high', fn ($q) => $q->orderBy('credit_limit', 'desc'))
+            ->when($sortBy === 'credit_low', fn ($q) => $q->orderBy('credit_limit', 'asc'))
+            ->when(! in_array($sortBy, ['oldest', 'name_asc', 'name_desc', 'credit_high', 'credit_low'], true), fn ($q) => $q->latest());
 
         $customers = $query->get();
 
@@ -68,6 +74,7 @@ class CustomerController extends Controller
                 'status' => $status,
                 'tax_condition' => $taxCondition,
                 'is_defaulter' => $isDefaulter,
+                'sort_by' => $sortBy,
             ],
         ]);
     }

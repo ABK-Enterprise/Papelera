@@ -24,6 +24,7 @@ class SupplierOrderController extends Controller
     {
         $search = $request->input('search');
         $status = $request->input('status');
+        $sortBy = $request->input('sort_by', 'latest');
 
         $query = SupplierOrder::with([
             'supplier:id,name,contact_number,email',
@@ -41,7 +42,12 @@ class SupplierOrderController extends Controller
             ->when($status && $status !== 'all', function ($q) use ($status) {
                 $q->where('status', $status);
             })
-            ->latest();
+            ->when($sortBy === 'oldest', fn ($q) => $q->oldest())
+            ->when($sortBy === 'cost_high', fn ($q) => $q->orderBy('total_cost', 'desc'))
+            ->when($sortBy === 'cost_low', fn ($q) => $q->orderBy('total_cost', 'asc'))
+            ->when($sortBy === 'order_number_asc', fn ($q) => $q->orderBy('order_number', 'asc'))
+            ->when($sortBy === 'order_number_desc', fn ($q) => $q->orderBy('order_number', 'desc'))
+            ->when(! in_array($sortBy, ['oldest', 'cost_high', 'cost_low', 'order_number_asc', 'order_number_desc'], true), fn ($q) => $q->latest());
 
         $orders = $query->get();
 
@@ -79,6 +85,7 @@ class SupplierOrderController extends Controller
             'filters' => [
                 'search' => $search,
                 'status' => $status ?: 'all',
+                'sort_by' => $sortBy,
             ],
         ]);
     }

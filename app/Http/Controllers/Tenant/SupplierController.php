@@ -18,6 +18,7 @@ class SupplierController extends Controller
     {
         $search = $request->input('search');
         $status = $request->input('status');
+        $sortBy = $request->input('sort_by', 'latest');
 
         $query = Supplier::query()
             ->when($search, function ($q, $search) {
@@ -36,7 +37,10 @@ class SupplierController extends Controller
                     $q->where('is_active', false);
                 }
             })
-            ->latest();
+            ->when($sortBy === 'oldest', fn ($q) => $q->oldest())
+            ->when($sortBy === 'name_asc', fn ($q) => $q->orderBy('name', 'asc'))
+            ->when($sortBy === 'name_desc', fn ($q) => $q->orderBy('name', 'desc'))
+            ->when(! in_array($sortBy, ['oldest', 'name_asc', 'name_desc'], true), fn ($q) => $q->latest());
 
         $suppliers = $query->get();
 
@@ -53,6 +57,7 @@ class SupplierController extends Controller
             'filters' => [
                 'search' => $search,
                 'status' => $status,
+                'sort_by' => $sortBy,
             ],
         ]);
     }

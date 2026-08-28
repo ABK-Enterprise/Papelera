@@ -8,6 +8,7 @@
     import Search from 'lucide-svelte/icons/search';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import X from 'lucide-svelte/icons/x';
+    import SortSelect from '@/components/common/SortSelect.svelte';
     import CreateOrderModal from './CreateOrderModal.svelte';
     import OrderDetailModal from './OrderDetailModal.svelte';
     import OrderListDesktop from './desktop/OrderListDesktop.svelte';
@@ -62,6 +63,7 @@
     interface FilterProps {
         search?: string | null;
         status?: string | null;
+        sort_by?: string | null;
     }
 
     let {
@@ -80,9 +82,19 @@
 
     let searchTerm = $state(filters.search ?? '');
     let selectedStatus = $state(filters.status ?? 'all');
+    let sortBy = $state(filters.sort_by ?? 'latest');
     let isCreateModalOpen = $state(false);
     let isDetailModalOpen = $state(false);
     let selectedOrder = $state<OrderData | null>(null);
+
+    const sortOptions = [
+        { value: 'latest', label: 'Más recientes primero' },
+        { value: 'oldest', label: 'Más antiguos primero' },
+        { value: 'amount_high', label: 'Mayor monto total' },
+        { value: 'amount_low', label: 'Menor monto total' },
+        { value: 'order_number_asc', label: 'Nº de pedido (Asc)' },
+        { value: 'order_number_desc', label: 'Nº de pedido (Desc)' },
+    ];
 
     function applyFilters() {
         router.get(
@@ -90,6 +102,7 @@
             {
                 search: searchTerm || undefined,
                 status: selectedStatus !== 'all' ? selectedStatus : undefined,
+                sort_by: sortBy !== 'latest' ? sortBy : undefined,
             },
             {
                 preserveState: true,
@@ -101,7 +114,8 @@
     function resetFilters() {
         searchTerm = '';
         selectedStatus = 'all';
-        router.get('/tenant/orders');
+        sortBy = 'latest';
+        router.get('/tenant/orders', {}, { preserveState: true, preserveScroll: true });
     }
 
     function openOrderDetail(order: OrderData) {
@@ -118,7 +132,7 @@
         }
     });
 
-    let hasActiveFilters = $derived(Boolean(searchTerm || (selectedStatus && selectedStatus !== 'all')));
+    let hasActiveFilters = $derived(Boolean(searchTerm || (selectedStatus && selectedStatus !== 'all') || (sortBy && sortBy !== 'latest')));
 </script>
 
 <AppHead title="Gestión de Pedidos - Comercio" />
@@ -162,6 +176,16 @@
             </div>
 
             <div class="flex items-center gap-2.5 w-full md:w-auto flex-wrap">
+                <!-- Selector de Ordenamiento -->
+                <SortSelect
+                    value={sortBy}
+                    options={sortOptions}
+                    onchange={(val) => {
+                        sortBy = val;
+                        applyFilters();
+                    }}
+                />
+
                 <!-- Filtro por Estado -->
                 <select
                     bind:value={selectedStatus}

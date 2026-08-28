@@ -12,6 +12,7 @@
     import Users from 'lucide-svelte/icons/users';
     import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
     import XCircle from 'lucide-svelte/icons/x-circle';
+    import SortSelect from '@/components/common/SortSelect.svelte';
     import SupplierListDesktop from './desktop/SupplierListDesktop.svelte';
     import SupplierListMobile from './mobile/SupplierListMobile.svelte';
     import CreateSupplierModal from './CreateSupplierModal.svelte';
@@ -20,6 +21,7 @@
     interface FilterProps {
         search?: string | null;
         status?: string | null;
+        sort_by?: string | null;
     }
 
     let {
@@ -34,10 +36,18 @@
 
     let searchTerm = $state(filters.search ?? '');
     let selectedStatus = $state(filters.status ?? '');
+    let sortBy = $state(filters.sort_by ?? 'latest');
 
     let showCreateModal = $state(false);
     let showManageModal = $state(false);
     let selectedSupplier = $state<SupplierItem | null>(null);
+
+    const sortOptions = [
+        { value: 'latest', label: 'Más recientes primero' },
+        { value: 'oldest', label: 'Más antiguos primero' },
+        { value: 'name_asc', label: 'Nombre (A-Z)' },
+        { value: 'name_desc', label: 'Nombre (Z-A)' },
+    ];
 
     function applyFilters() {
         router.get(
@@ -45,6 +55,7 @@
             {
                 search: searchTerm || undefined,
                 status: selectedStatus || undefined,
+                sort_by: sortBy !== 'latest' ? sortBy : undefined,
             },
             {
                 preserveState: true,
@@ -56,7 +67,8 @@
     function resetFilters() {
         searchTerm = '';
         selectedStatus = '';
-        router.get('/tenant/suppliers');
+        sortBy = 'latest';
+        router.get('/tenant/suppliers', {}, { preserveState: true, preserveScroll: true });
     }
 
     function handleSelectSupplier(supplier: SupplierItem) {
@@ -64,7 +76,7 @@
         showManageModal = true;
     }
 
-    let hasActiveFilters = $derived(Boolean(searchTerm || selectedStatus));
+    let hasActiveFilters = $derived(Boolean(searchTerm || selectedStatus || (sortBy && sortBy !== 'latest')));
 </script>
 
 <AppHead title="Gestión de Proveedores - Comercio" />
@@ -123,7 +135,17 @@
                 </div>
 
                 <!-- Selectores de Filtro -->
-                <div class="flex items-center gap-2.5 w-full md:w-auto">
+                <div class="flex items-center gap-2.5 w-full md:w-auto flex-wrap sm:flex-nowrap">
+                    <!-- Selector de Ordenamiento -->
+                    <SortSelect
+                        value={sortBy}
+                        options={sortOptions}
+                        onchange={(val) => {
+                            sortBy = val;
+                            applyFilters();
+                        }}
+                    />
+
                     <select
                         bind:value={selectedStatus}
                         onchange={applyFilters}

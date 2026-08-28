@@ -21,6 +21,7 @@ class ProductController extends Controller
         $categoryId = $request->input('category_id');
         $stockStatus = $request->input('stock_status');
         $infoStatus = $request->input('info_status');
+        $sortBy = $request->input('sort_by', 'latest');
 
         $query = Product::with('category:id,name,slug,icon')
             ->when($search, function ($q, $search) {
@@ -50,7 +51,14 @@ class ProductController extends Controller
                     $q->complete();
                 }
             })
-            ->latest();
+            ->when($sortBy === 'oldest', fn ($q) => $q->oldest())
+            ->when($sortBy === 'name_asc', fn ($q) => $q->orderBy('name', 'asc'))
+            ->when($sortBy === 'name_desc', fn ($q) => $q->orderBy('name', 'desc'))
+            ->when($sortBy === 'price_high', fn ($q) => $q->orderBy('price', 'desc'))
+            ->when($sortBy === 'price_low', fn ($q) => $q->orderBy('price', 'asc'))
+            ->when($sortBy === 'stock_high', fn ($q) => $q->orderBy('stock', 'desc'))
+            ->when($sortBy === 'stock_low', fn ($q) => $q->orderBy('stock', 'asc'))
+            ->when(! in_array($sortBy, ['oldest', 'name_asc', 'name_desc', 'price_high', 'price_low', 'stock_high', 'stock_low'], true), fn ($q) => $q->latest());
 
         $products = $query->get();
 
@@ -88,6 +96,7 @@ class ProductController extends Controller
                 'category_id' => $categoryId ? (int) $categoryId : null,
                 'stock_status' => $stockStatus,
                 'info_status' => $infoStatus,
+                'sort_by' => $sortBy,
             ],
         ]);
     }

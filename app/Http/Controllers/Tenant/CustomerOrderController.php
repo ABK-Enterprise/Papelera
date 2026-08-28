@@ -25,6 +25,7 @@ class CustomerOrderController extends Controller
     {
         $search = $request->input('search');
         $status = $request->input('status');
+        $sortBy = $request->input('sort_by', 'latest');
 
         $query = CustomerOrder::with(['items.product:id,name,sku,units_per_package,price', 'customer:id,name,tax_id,tax_condition,phone,address,is_defaulter'])
             ->when($search, function ($q, $search) {
@@ -38,7 +39,12 @@ class CustomerOrderController extends Controller
             ->when($status && $status !== 'all', function ($q) use ($status) {
                 $q->where('status', $status);
             })
-            ->latest();
+            ->when($sortBy === 'oldest', fn ($q) => $q->oldest())
+            ->when($sortBy === 'amount_high', fn ($q) => $q->orderBy('total_amount', 'desc'))
+            ->when($sortBy === 'amount_low', fn ($q) => $q->orderBy('total_amount', 'asc'))
+            ->when($sortBy === 'order_number_asc', fn ($q) => $q->orderBy('order_number', 'asc'))
+            ->when($sortBy === 'order_number_desc', fn ($q) => $q->orderBy('order_number', 'desc'))
+            ->when(! in_array($sortBy, ['oldest', 'amount_high', 'amount_low', 'order_number_asc', 'order_number_desc'], true), fn ($q) => $q->latest());
 
         $orders = $query->get();
 
@@ -81,6 +87,7 @@ class CustomerOrderController extends Controller
             'filters' => [
                 'search' => $search,
                 'status' => $status ?: 'all',
+                'sort_by' => $sortBy,
             ],
         ]);
     }

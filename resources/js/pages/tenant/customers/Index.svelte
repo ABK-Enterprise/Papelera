@@ -8,6 +8,7 @@
     import Filter from 'lucide-svelte/icons/filter';
     import X from 'lucide-svelte/icons/x';
     import UserCheck from 'lucide-svelte/icons/user-check';
+    import SortSelect from '@/components/common/SortSelect.svelte';
     import CustomerListDesktop, { type CustomerItem } from './desktop/CustomerListDesktop.svelte';
     import CustomerListMobile from './mobile/CustomerListMobile.svelte';
     import CreateCustomerModal from './CreateCustomerModal.svelte';
@@ -18,6 +19,7 @@
         status?: string | null;
         tax_condition?: string | null;
         is_defaulter?: string | null;
+        sort_by?: string | null;
     }
 
     let {
@@ -34,10 +36,20 @@
     let selectedStatus = $state(filters.status ?? '');
     let selectedTaxCondition = $state(filters.tax_condition ?? '');
     let selectedDefaulter = $state(filters.is_defaulter ?? '');
+    let sortBy = $state(filters.sort_by ?? 'latest');
 
     let showCreateModal = $state(false);
     let showManageModal = $state(false);
     let selectedCustomer = $state<CustomerItem | null>(null);
+
+    const sortOptions = [
+        { value: 'latest', label: 'Más recientes primero' },
+        { value: 'oldest', label: 'Más antiguos primero' },
+        { value: 'name_asc', label: 'Nombre (A-Z)' },
+        { value: 'name_desc', label: 'Nombre (Z-A)' },
+        { value: 'credit_high', label: 'Mayor límite de crédito' },
+        { value: 'credit_low', label: 'Menor límite de crédito' },
+    ];
 
     function applyFilters() {
         router.get(
@@ -47,6 +59,7 @@
                 status: selectedStatus || undefined,
                 tax_condition: selectedTaxCondition || undefined,
                 is_defaulter: selectedDefaulter || undefined,
+                sort_by: sortBy !== 'latest' ? sortBy : undefined,
             },
             {
                 preserveState: true,
@@ -60,7 +73,8 @@
         selectedStatus = '';
         selectedTaxCondition = '';
         selectedDefaulter = '';
-        router.get('/tenant/customers');
+        sortBy = 'latest';
+        router.get('/tenant/customers', {}, { preserveState: true, preserveScroll: true });
     }
 
     function handleSelectCustomer(customer: CustomerItem) {
@@ -69,7 +83,7 @@
     }
 
     let hasActiveFilters = $derived(
-        Boolean(searchTerm || selectedStatus || selectedTaxCondition || selectedDefaulter)
+        Boolean(searchTerm || selectedStatus || selectedTaxCondition || selectedDefaulter || (sortBy && sortBy !== 'latest'))
     );
 </script>
 
@@ -113,6 +127,16 @@
 
             <!-- Selectores de Filtro -->
             <div class="flex items-center gap-2.5 w-full md:w-auto flex-wrap sm:flex-nowrap">
+                <!-- Selector de Ordenamiento -->
+                <SortSelect
+                    value={sortBy}
+                    options={sortOptions}
+                    onchange={(val) => {
+                        sortBy = val;
+                        applyFilters();
+                    }}
+                />
+
                 <!-- Condición Fiscal -->
                 <select
                     bind:value={selectedTaxCondition}
