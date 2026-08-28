@@ -43,6 +43,7 @@
     let roles = $derived(auth?.roles ?? []);
     let permissions = $derived(auth?.permissions ?? []);
     let modules = $derived(auth?.modules ?? []);
+    let isAdmin = $derived(auth?.is_admin || roles.includes('admin') || user?.is_superadmin);
     let currentUrl = $derived(page.url);
 
     let navItems = $derived.by(() => {
@@ -185,8 +186,8 @@
                 });
             }
 
-            // Tenant administration
-            if (roles.includes('admin') || user?.is_superadmin) {
+            // Tenant administration (Personal y Roles)
+            if (isAdmin) {
                 items.push(
                     {
                         title: 'Personal',
