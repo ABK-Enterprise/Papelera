@@ -6,13 +6,16 @@
     import Shield from 'lucide-svelte/icons/shield';
     import Building2 from 'lucide-svelte/icons/building-2';
     import Boxes from 'lucide-svelte/icons/boxes';
-    import FileText from 'lucide-svelte/icons/file-text';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import Truck from 'lucide-svelte/icons/truck';
     import UserCheck from 'lucide-svelte/icons/user-check';
+    import CreditCard from 'lucide-svelte/icons/credit-card';
+    import ClipboardList from 'lucide-svelte/icons/clipboard-list';
+    import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
+    import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
+    import History from 'lucide-svelte/icons/history';
     import X from 'lucide-svelte/icons/x';
     import AppLogoIcon from '@/components/AppLogoIcon.svelte';
-    import { Badge } from '@/components/ui/badge';
     import { toUrl } from '@/lib/utils';
     import { dashboard } from '@/routes';
 
@@ -22,7 +25,7 @@
     }: {
         open?: boolean;
         onClose?: () => void;
-    } = $props();
+        } = $props();
 
     let auth = $derived(page.props.auth);
     let user = $derived(auth?.user);
@@ -32,13 +35,28 @@
     let modules = $derived(auth?.modules ?? []);
     let currentUrl = $derived(page.url);
 
+    interface SubItem {
+        title: string;
+        href: string;
+        icon: any;
+        active: boolean;
+    }
+
+    interface NavItem {
+        title: string;
+        href: string;
+        icon: any;
+        active: boolean;
+        subItems?: SubItem[];
+    }
+
     let navItems = $derived.by(() => {
         const dashboardHref = user?.is_superadmin ? '/platform/dashboard' : toUrl(dashboard());
         const isDashboardActive = user?.is_superadmin
             ? currentUrl.startsWith('/platform/dashboard') || currentUrl === '/dashboard' || currentUrl === '/'
             : currentUrl === '/dashboard' || currentUrl === '/';
 
-        const items: { title: string; href: string; icon: any; active: boolean }[] = [
+        const items: NavItem[] = [
             {
                 title: 'Dashboard',
                 href: dashboardHref,
@@ -76,10 +94,30 @@
 
             if (modules.includes('stock') && (roles.includes('admin') || user?.is_superadmin || permissions.some((p: string) => p.startsWith('stock_')))) {
                 items.push({
-                    title: 'Stock y Kardex',
+                    title: 'Stock',
                     href: '/tenant/stock/ingresos',
                     icon: Boxes,
                     active: currentUrl.startsWith('/tenant/stock'),
+                    subItems: [
+                        {
+                            title: 'Ingresos de Stock',
+                            href: '/tenant/stock/ingresos',
+                            icon: ArrowDownLeft,
+                            active: currentUrl.startsWith('/tenant/stock/ingresos'),
+                        },
+                        {
+                            title: 'Egresos de Stock',
+                            href: '/tenant/stock/egresos',
+                            icon: ArrowUpRight,
+                            active: currentUrl.startsWith('/tenant/stock/egresos'),
+                        },
+                        {
+                            title: 'Kardex y Auditoría',
+                            href: '/tenant/stock/kardex',
+                            icon: History,
+                            active: currentUrl.startsWith('/tenant/stock/kardex'),
+                        },
+                    ],
                 });
             }
 
@@ -98,6 +136,20 @@
                     href: '/tenant/suppliers',
                     icon: Truck,
                     active: currentUrl.startsWith('/tenant/suppliers'),
+                    subItems: [
+                        {
+                            title: 'Directorio de Proveedores',
+                            href: '/tenant/suppliers',
+                            icon: Truck,
+                            active: currentUrl === '/tenant/suppliers' || currentUrl.startsWith('/tenant/suppliers?'),
+                        },
+                        {
+                            title: 'Órdenes de Compra',
+                            href: '/tenant/suppliers/orders',
+                            icon: ClipboardList,
+                            active: currentUrl.startsWith('/tenant/suppliers/orders'),
+                        },
+                    ],
                 });
             }
 
@@ -107,6 +159,20 @@
                     href: '/tenant/customers',
                     icon: UserCheck,
                     active: currentUrl.startsWith('/tenant/customers'),
+                    subItems: [
+                        {
+                            title: 'Gestión de Clientes',
+                            href: '/tenant/customers',
+                            icon: UserCheck,
+                            active: currentUrl === '/tenant/customers' || currentUrl.startsWith('/tenant/customers?'),
+                        },
+                        {
+                            title: 'Cuentas Corrientes',
+                            href: '/tenant/customers/accounts',
+                            icon: CreditCard,
+                            active: currentUrl.startsWith('/tenant/customers/accounts'),
+                        },
+                    ],
                 });
             }
 
@@ -152,12 +218,12 @@
         <div class="flex h-16 items-center justify-between border-b px-4">
             <div class="flex items-center gap-2">
                 <AppLogoIcon class="h-7 w-7 text-primary fill-current" />
-                <span class="font-bold text-base tracking-tight">Menú</span>
+                <span class="font-bold text-base tracking-tight">Menú Principal</span>
             </div>
             <button
                 type="button"
                 onclick={onClose}
-                class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+                class="flex size-9 min-h-[36px] items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
                 aria-label="Cerrar menú"
             >
                 <X class="h-5 w-5" />
@@ -167,22 +233,48 @@
         <!-- Info de Tenant o Rol -->
         {#if tenant}
             <div class="border-b bg-muted/30 px-4 py-2.5">
-                <span class="text-xs text-muted-foreground font-medium block">Comercio:</span>
+                <span class="text-xs text-muted-foreground font-medium block">Comercio activo:</span>
                 <span class="text-sm font-semibold text-foreground truncate block">{tenant.name}</span>
             </div>
         {/if}
 
-        <!-- Navegación -->
-        <nav class="flex-1 overflow-y-auto p-3 space-y-1">
+        <!-- Navegación con submenús anidados limpios -->
+        <nav class="flex-1 overflow-y-auto p-3 space-y-1.5">
             {#each navItems as item (item.href)}
-                <Link
-                    href={item.href}
-                    onclick={onClose}
-                    class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {item.active ? 'bg-primary/10 text-primary font-semibold' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
-                >
-                    <item.icon class="h-5 w-5 shrink-0" />
-                    <span>{item.title}</span>
-                </Link>
+                {#if item.subItems && item.subItems.length > 0}
+                    <div class="space-y-1">
+                        <Link
+                            href={item.href}
+                            onclick={onClose}
+                            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors {item.active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+                        >
+                            <item.icon class="size-4.5 shrink-0" />
+                            <span>{item.title}</span>
+                        </Link>
+                        <div class="pl-7 pr-1 space-y-1 border-l-2 border-border/40 ml-4.5 my-1">
+                            {#each item.subItems as sub}
+                                {@const SubIcon = sub.icon}
+                                <Link
+                                    href={sub.href}
+                                    onclick={onClose}
+                                    class="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-xs font-medium transition-colors {sub.active ? 'bg-primary/15 text-primary font-semibold' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}"
+                                >
+                                    <SubIcon class="size-3.5 shrink-0" />
+                                    <span class="truncate">{sub.title}</span>
+                                </Link>
+                            {/each}
+                        </div>
+                    </div>
+                {:else}
+                    <Link
+                        href={item.href}
+                        onclick={onClose}
+                        class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {item.active ? 'bg-primary/10 text-primary font-semibold' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+                    >
+                        <item.icon class="size-4.5 shrink-0" />
+                        <span>{item.title}</span>
+                    </Link>
+                {/if}
             {/each}
         </nav>
     </aside>
