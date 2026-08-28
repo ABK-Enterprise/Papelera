@@ -116,13 +116,28 @@
         if (creditLimitNum <= 0) return 0;
         return Math.min(100, Math.round((currentBalanceNum / creditLimitNum) * 100));
     });
+    let containerRef: HTMLDivElement | undefined = $state();
+
+    function handleWindowPointerDown(e: PointerEvent) {
+        if (isDropdownOpen && containerRef && !containerRef.contains(e.target as Node)) {
+            isDropdownOpen = false;
+        }
+    }
+
+    function handleWindowKeyDown(e: KeyboardEvent) {
+        if (e.key === 'Escape' && isDropdownOpen) {
+            isDropdownOpen = false;
+        }
+    }
 </script>
+
+<svelte:window onpointerdown={handleWindowPointerDown} onkeydown={handleWindowKeyDown} />
 
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
     <!-- Columna Izquierda: Selector & Feed de Movimientos (62%) -->
     <div class="lg:col-span-7 space-y-4">
         <!-- Selector Rápido de Cliente (Combobox Flotante) -->
-        <div class="relative z-20">
+        <div class="relative z-20" bind:this={containerRef}>
             <div class="relative">
                 <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                 <input

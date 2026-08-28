@@ -13,7 +13,15 @@
 
 <script lang="ts">
     import AppHead from '@/components/AppHead.svelte';
-    import PlaceholderPattern from '@/components/PlaceholderPattern.svelte';
+    import { Button } from '@/components/ui/button';
+    import { Link, page } from '@inertiajs/svelte';
+    import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
+    import Boxes from 'lucide-svelte/icons/boxes';
+    import Building2 from 'lucide-svelte/icons/building-2';
+    import Package from 'lucide-svelte/icons/package';
+    import Plus from 'lucide-svelte/icons/plus';
+    import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
+    import UserCheck from 'lucide-svelte/icons/user-check';
     import LowStockAlertsDesktop from './dashboard/desktop/LowStockAlertsDesktop.svelte';
     import LowStockAlertsMobile from './dashboard/mobile/LowStockAlertsMobile.svelte';
 
@@ -39,44 +47,74 @@
         lowStockProducts?: LowStockProduct[] | null;
     } = $props();
 
+    let auth = $derived(page.props.auth);
+    let user = $derived(auth?.user);
+    let tenant = $derived(auth?.tenant);
+    let modules = $derived(auth?.modules ?? []);
     let canShowLowStockAlerts = $derived(lowStockProducts !== null && lowStockProducts !== undefined);
 </script>
 
 <AppHead title="Dashboard" />
 
 <div class="flex h-full flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
-    <!-- Tarjetas Superiores / Métricas -->
-    <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-        <div
-            class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-        >
-            <PlaceholderPattern />
+    <!-- Header Operativo Limpio -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/50">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+                Hola, {user?.name ?? 'Usuario'} 👋
+            </h1>
+            <p class="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                {#if tenant}
+                    Panel de control de <strong class="text-foreground">{tenant.name}</strong>
+                {:else if user?.is_superadmin}
+                    Panel de administración general de la plataforma
+                {:else}
+                    Bienvenido al sistema
+                {/if}
+            </p>
         </div>
-        <div
-            class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-        >
-            <PlaceholderPattern />
-        </div>
-        <div
-            class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-        >
-            <PlaceholderPattern />
-        </div>
+
+        <!-- Accesos Rápidos Operativos -->
+        {#if tenant}
+            <div class="flex items-center gap-2 flex-wrap">
+                {#if modules.includes('pedidos')}
+                    <Link href="/tenant/orders">
+                        <Button size="sm" class="gap-1.5 text-xs font-semibold rounded-xl shadow-xs">
+                            <Plus class="size-3.5" />
+                            <span>Nuevo Pedido</span>
+                        </Button>
+                    </Link>
+                {/if}
+                {#if modules.includes('stock')}
+                    <Link href="/tenant/stock/ingresos">
+                        <Button variant="secondary" size="sm" class="gap-1.5 text-xs font-medium rounded-xl">
+                            <ArrowDownLeft class="size-3.5 text-emerald-600 dark:text-emerald-400" />
+                            <span>Ingreso de Stock</span>
+                        </Button>
+                    </Link>
+                {/if}
+            </div>
+        {:else if user?.is_superadmin}
+            <div class="flex items-center gap-2">
+                <Link href="/platform/tenants">
+                    <Button size="sm" class="gap-1.5 text-xs font-semibold rounded-xl shadow-xs">
+                        <Building2 class="size-3.5" />
+                        <span>Gestionar Comercios</span>
+                    </Button>
+                </Link>
+            </div>
+        {/if}
     </div>
 
     <!-- Sección de Alertas de Stock Mínimo (Responsive Desktop & Mobile) -->
     {#if canShowLowStockAlerts}
-        <div class="hidden md:block">
-            <LowStockAlertsDesktop products={lowStockProducts} />
-        </div>
-        <div class="block md:hidden">
-            <LowStockAlertsMobile products={lowStockProducts} />
-        </div>
-    {:else}
-        <div
-            class="relative min-h-[300px] flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-        >
-            <PlaceholderPattern />
+        <div class="space-y-3">
+            <div class="hidden md:block">
+                <LowStockAlertsDesktop products={lowStockProducts} />
+            </div>
+            <div class="block md:hidden">
+                <LowStockAlertsMobile products={lowStockProducts} />
+            </div>
         </div>
     {/if}
 </div>
