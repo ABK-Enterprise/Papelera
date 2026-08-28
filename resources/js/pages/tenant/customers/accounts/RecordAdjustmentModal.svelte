@@ -2,8 +2,11 @@
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
+        DialogBody,
         DialogContent,
         DialogDescription,
+        DialogFooter,
+        DialogHeader,
         DialogTitle,
     } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
@@ -93,7 +96,7 @@
                 },
                 onError: (errors) => {
                     isSubmitting = false;
-                    errorMessage = Object.values(errors)[0] as string || 'Ocurrió un error al registrar el ajuste.';
+                    errorMessage = (Object.values(errors)[0] as string) || 'Ocurrió un error al registrar el ajuste.';
                 },
             }
         );
@@ -101,56 +104,56 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="sm:max-w-[500px] p-6 sm:p-7">
+    <DialogContent size="default" class="max-w-lg">
         {#if customer}
-            <form onsubmit={handleSubmit}>
-                <div class="flex items-start justify-between gap-4 pb-4 border-b border-border">
-                    <div class="flex items-center gap-3">
-                        <div class="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
-                            <Sliders class="size-5" />
-                        </div>
-                        <div>
-                            <DialogTitle class="text-lg font-bold tracking-tight text-foreground">
-                                Ajuste Manual de Saldo
-                            </DialogTitle>
-                            <DialogDescription class="text-xs text-muted-foreground mt-0.5">
-                                Cliente: <span class="font-semibold text-foreground">{customer.name}</span>
-                            </DialogDescription>
-                        </div>
+            <DialogHeader>
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+                        <Sliders class="size-5" />
                     </div>
-                    <button
-                        type="button"
-                        onclick={handleClose}
-                        class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                        aria-label="Cerrar"
-                    >
-                        <X class="size-4" />
-                    </button>
+                    <div class="min-w-0">
+                        <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug truncate">
+                            Ajuste manual de saldo
+                        </DialogTitle>
+                        <DialogDescription class="text-xs text-muted-foreground truncate">
+                            Cliente: <span class="font-semibold text-foreground">{customer.name}</span>
+                        </DialogDescription>
+                    </div>
                 </div>
+                <button
+                    type="button"
+                    onclick={handleClose}
+                    class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                    aria-label="Cerrar"
+                >
+                    <X class="size-4" />
+                </button>
+            </DialogHeader>
 
+            <DialogBody>
                 {#if errorMessage}
-                    <div class="mt-4 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs font-medium">
+                    <div class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs font-medium">
                         {errorMessage}
                     </div>
                 {/if}
 
                 <!-- Calculador Dinámico de Saldo -->
-                <div class="mt-4 p-4 rounded-2xl bg-muted/40 border border-border/70 grid grid-cols-2 gap-3 text-xs">
+                <div class="p-4 rounded-2xl bg-muted/40 border border-border/70 grid grid-cols-2 gap-3 text-xs">
                     <div>
-                        <span class="text-muted-foreground block">Saldo actual:</span>
+                        <span class="text-muted-foreground block mb-0.5">Saldo actual:</span>
                         <span class="text-sm font-bold text-foreground tabular-nums">
                             {formatPrice(currentBalanceNum)}
                         </span>
                     </div>
                     <div class="text-right">
-                        <span class="text-muted-foreground block">Saldo resultante:</span>
+                        <span class="text-muted-foreground block mb-0.5">Saldo resultante:</span>
                         <span class="text-sm font-bold tabular-nums {type === 'debit' ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">
                             {formatPrice(resultingBalance)}
                         </span>
                     </div>
                 </div>
 
-                <div class="grid gap-4 py-4">
+                <form id="record-adjustment-form" onsubmit={handleSubmit} class="space-y-4 pt-1">
                     <!-- Selector Tipo de Ajuste -->
                     <div class="space-y-1.5">
                         <Label class="text-xs font-semibold text-foreground">
@@ -222,18 +225,30 @@
                             class="h-9 text-xs"
                         />
                     </div>
-                </div>
+                </form>
+            </DialogBody>
 
-                <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-border">
-                    <Button type="button" variant="outline" onclick={handleClose} disabled={isSubmitting}>
-                        Cancelar
-                    </Button>
-                    <Button type="submit" disabled={isSubmitting || amountNum <= 0 || !description.trim()} class="gap-1.5 font-medium">
-                        <Check class="size-4" />
-                        <span>Aplicar ajuste</span>
-                    </Button>
-                </div>
-            </form>
+            <DialogFooter>
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onclick={handleClose}
+                    disabled={isSubmitting}
+                    class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
+                >
+                    Cancelar
+                </Button>
+                <Button
+                    type="submit"
+                    form="record-adjustment-form"
+                    disabled={isSubmitting || amountNum <= 0 || !description.trim()}
+                    class="min-h-[40px] px-4 rounded-xl text-xs font-semibold gap-1.5 min-w-32 shadow-xs"
+                >
+                    <Check class="size-3.5" />
+                    <span>Aplicar ajuste</span>
+                </Button>
+            </DialogFooter>
         {/if}
     </DialogContent>
 </Dialog>

@@ -2,9 +2,11 @@
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
+        DialogBody,
         DialogContent,
         DialogDescription,
         DialogFooter,
+        DialogHeader,
         DialogTitle,
     } from '@/components/ui/dialog';
     import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
@@ -65,15 +67,15 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-lg p-6">
+    <DialogContent size="default" class="max-w-lg">
         {#if movement}
-            <div class="flex items-center justify-between pb-4 border-b border-border">
-                <div class="flex items-center gap-2.5">
-                    <div class="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <DialogHeader>
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
                         <History class="size-5" />
                     </div>
-                    <div>
-                        <DialogTitle class="text-lg font-semibold text-foreground leading-snug">Detalle de movimiento de Kardex</DialogTitle>
+                    <div class="min-w-0">
+                        <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug truncate">Detalle de movimiento de Kardex</DialogTitle>
                         <DialogDescription class="text-xs text-muted-foreground">
                             Registro de auditoría #MOV-<span class="tabular-nums">{String(movement.id).padStart(6, '0')}</span>
                         </DialogDescription>
@@ -82,14 +84,14 @@
                 <button
                     type="button"
                     onclick={() => (open = false)}
-                    class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                    class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
                 </button>
-            </div>
+            </DialogHeader>
 
-            <div class="space-y-4 pt-3 text-sm">
+            <DialogBody class="space-y-4 text-sm">
                 <!-- Información del Producto -->
                 <div class="p-3.5 rounded-xl bg-muted/40 border border-border/60">
                     <span class="text-xs text-muted-foreground font-semibold uppercase tracking-wide block mb-1">
@@ -175,18 +177,19 @@
                         <p class="text-xs text-foreground whitespace-pre-wrap">{movement.notes}</p>
                     </div>
                 {/if}
+            </DialogBody>
 
-                <DialogFooter class="pt-3 border-t border-border">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onclick={() => (open = false)}
-                        class="text-xs font-medium"
-                    >
-                        Cerrar
-                    </Button>
-                </DialogFooter>
-            </div>
+            <DialogFooter>
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onclick={() => (open = false)}
+                    class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
+                >
+                    Cerrar
+                </Button>
+            </DialogFooter>
         {/if}
     </DialogContent>
 </Dialog>

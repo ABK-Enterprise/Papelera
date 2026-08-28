@@ -1,9 +1,12 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
+        DialogBody,
         DialogContent,
         DialogDescription,
+        DialogFooter,
+        DialogHeader,
         DialogTitle,
     } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
@@ -125,11 +128,11 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-8">
-        <div class="flex items-center justify-between pb-4 border-b border-border">
-            <div class="flex items-center gap-3">
+    <DialogContent size="xl" class="max-w-2xl">
+        <DialogHeader>
+            <div class="flex items-center gap-3 min-w-0">
                 <div
-                    class="flex size-10 items-center justify-center rounded-lg border {form.is_defaulter
+                    class="flex size-9 shrink-0 items-center justify-center rounded-xl border {form.is_defaulter
                         ? 'bg-rose-500/10 text-rose-600 border-rose-500/30'
                        : 'bg-primary/10 text-primary border-primary/20'}"
                 >
@@ -139,9 +142,9 @@
                         <UserCheck class="size-5" />
                     {/if}
                 </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <DialogTitle class="text-xl font-bold tracking-tight text-foreground">Gestionar cliente</DialogTitle>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug truncate">Gestionar cliente</DialogTitle>
                         {#if form.is_defaulter}
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">
                                 Moroso
@@ -157,8 +160,8 @@
                             </span>
                         {/if}
                     </div>
-                    <DialogDescription class="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
-                        <span>Actualizar información del cliente, condición de crédito y estado</span>
+                    <DialogDescription class="text-xs text-muted-foreground flex items-center gap-2 mt-0.5 flex-wrap">
+                        <span>Actualizar información, condición de crédito y estado</span>
                         {#if customer?.created_at}
                             <span>•</span>
                             <span class="inline-flex items-center gap-1 tabular-nums">
@@ -172,235 +175,250 @@
             <button
                 type="button"
                 onclick={handleClose}
-                class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
                 aria-label="Cerrar"
             >
                 <X class="size-4" />
             </button>
-        </div>
+        </DialogHeader>
 
-        <form onsubmit={submit} class="space-y-4 pt-4">
-            <!-- Nombre o Razón Social -->
-            <div class="space-y-1.5">
-                <Label for="manage-customer-name" class="text-sm font-medium text-foreground">
-                    Nombre / Razón Social <span class="text-destructive">*</span>
-                </Label>
-                <Input
-                    id="manage-customer-name"
-                    bind:value={form.name}
-                    placeholder="Nombre del cliente"
-                    required
-                    class="h-9 text-sm font-normal"
-                />
-                {#if form.errors.name}
-                    <p class="text-xs text-destructive">{form.errors.name}</p>
-                {/if}
-            </div>
-
-            <!-- CUIT / DNI y Condición Fiscal -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <DialogBody>
+            <form id="manage-customer-form" onsubmit={submit} class="space-y-4">
+                <!-- Nombre o Razón Social -->
                 <div class="space-y-1.5">
-                    <Label for="manage-customer-tax-id" class="text-sm font-medium text-foreground flex items-center gap-1.5">
-                        <FileText class="h-3.5 w-3.5 text-muted-foreground" />
-                        CUIT / CUIL / DNI
+                    <Label for="manage-customer-name" class="text-xs font-semibold text-foreground">
+                        Nombre / Razón Social <span class="text-destructive">*</span>
                     </Label>
                     <Input
-                        id="manage-customer-tax-id"
-                        bind:value={form.tax_id}
-                        placeholder="ej. 20-33445566-9"
-                        class="h-9 text-sm tabular-nums"
+                        id="manage-customer-name"
+                        bind:value={form.name}
+                        placeholder="Nombre del cliente"
+                        required
+                        class="h-9 text-sm font-normal"
                     />
-                    {#if form.errors.tax_id}
-                        <p class="text-xs text-destructive">{form.errors.tax_id}</p>
+                    {#if form.errors.name}
+                        <p class="text-xs text-destructive">{form.errors.name}</p>
                     {/if}
                 </div>
 
-                <div class="space-y-1.5">
-                    <Label for="manage-customer-tax-condition" class="text-sm font-medium text-foreground">
-                        Condición Fiscal (IVA) <span class="text-destructive">*</span>
-                    </Label>
-                    <select
-                        id="manage-customer-tax-condition"
-                        bind:value={form.tax_condition}
-                        class="h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm font-normal text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                    >
-                        <option value="consumidor_final">Consumidor Final</option>
-                        <option value="responsable_inscripto">Responsable Inscripto</option>
-                        <option value="monotributo">Monotributo</option>
-                        <option value="exento">Exento de IVA</option>
-                    </select>
-                    {#if form.errors.tax_condition}
-                        <p class="text-xs text-destructive">{form.errors.tax_condition}</p>
-                    {/if}
-                </div>
-            </div>
+                <!-- CUIT / DNI y Condición Fiscal -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div class="space-y-1.5">
+                        <Label for="manage-customer-tax-id" class="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                            <FileText class="h-3.5 w-3.5 text-muted-foreground" />
+                            CUIT / CUIL / DNI
+                        </Label>
+                        <Input
+                            id="manage-customer-tax-id"
+                            bind:value={form.tax_id}
+                            placeholder="ej. 20-33445566-9"
+                            class="h-9 text-sm tabular-nums"
+                        />
+                        {#if form.errors.tax_id}
+                            <p class="text-xs text-destructive">{form.errors.tax_id}</p>
+                        {/if}
+                    </div>
 
-            <!-- Teléfono y Email -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div class="space-y-1.5">
+                        <Label for="manage-customer-tax-condition" class="text-xs font-semibold text-foreground">
+                            Condición Fiscal (IVA) <span class="text-destructive">*</span>
+                        </Label>
+                        <select
+                            id="manage-customer-tax-condition"
+                            bind:value={form.tax_condition}
+                            class="h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm font-normal text-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+                        >
+                            <option value="consumidor_final">Consumidor Final</option>
+                            <option value="responsable_inscripto">Responsable Inscripto</option>
+                            <option value="monotributo">Monotributo</option>
+                            <option value="exento">Exento de IVA</option>
+                        </select>
+                        {#if form.errors.tax_condition}
+                            <p class="text-xs text-destructive">{form.errors.tax_condition}</p>
+                        {/if}
+                    </div>
+                </div>
+
+                <!-- Teléfono y Email -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div class="space-y-1.5">
+                        <Label for="manage-customer-phone" class="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                            <Phone class="h-3.5 w-3.5 text-muted-foreground" />
+                            Teléfono / WhatsApp
+                        </Label>
+                        <Input
+                            id="manage-customer-phone"
+                            bind:value={form.phone}
+                            placeholder="ej. +54 9 11 4455-6677"
+                            class="h-9 text-sm tabular-nums"
+                        />
+                        {#if form.errors.phone}
+                            <p class="text-xs text-destructive">{form.errors.phone}</p>
+                        {/if}
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <Label for="manage-customer-email" class="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                            <Mail class="h-3.5 w-3.5 text-muted-foreground" />
+                            Correo Electrónico
+                        </Label>
+                        <Input
+                            id="manage-customer-email"
+                            type="email"
+                            bind:value={form.email}
+                            placeholder="contacto@cliente.com"
+                            class="h-9 text-sm"
+                        />
+                        {#if form.errors.email}
+                            <p class="text-xs text-destructive">{form.errors.email}</p>
+                        {/if}
+                    </div>
+                </div>
+
+                <!-- Dirección -->
                 <div class="space-y-1.5">
-                    <Label for="manage-customer-phone" class="text-sm font-medium text-foreground flex items-center gap-1.5">
-                        <Phone class="h-3.5 w-3.5 text-muted-foreground" />
-                        Teléfono / WhatsApp
+                    <Label for="manage-customer-address" class="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                        <MapPin class="h-3.5 w-3.5 text-muted-foreground" />
+                        Dirección Comercial / Entrega
                     </Label>
                     <Input
-                        id="manage-customer-phone"
-                        bind:value={form.phone}
-                        placeholder="ej. +54 9 11 4455-6677"
-                        class="h-9 text-sm tabular-nums"
-                    />
-                    {#if form.errors.phone}
-                        <p class="text-xs text-destructive">{form.errors.phone}</p>
-                    {/if}
-                </div>
-
-                <div class="space-y-1.5">
-                    <Label for="manage-customer-email" class="text-sm font-medium text-foreground flex items-center gap-1.5">
-                        <Mail class="h-3.5 w-3.5 text-muted-foreground" />
-                        Correo Electrónico
-                    </Label>
-                    <Input
-                        id="manage-customer-email"
-                        type="email"
-                        bind:value={form.email}
-                        placeholder="contacto@cliente.com"
+                        id="manage-customer-address"
+                        bind:value={form.address}
+                        placeholder="ej. Av. Rivadavia 4520, CABA"
                         class="h-9 text-sm"
                     />
-                    {#if form.errors.email}
-                        <p class="text-xs text-destructive">{form.errors.email}</p>
+                    {#if form.errors.address}
+                        <p class="text-xs text-destructive">{form.errors.address}</p>
                     {/if}
                 </div>
-            </div>
 
-            <!-- Dirección -->
-            <div class="space-y-1.5">
-                <Label for="manage-customer-address" class="text-sm font-medium text-foreground flex items-center gap-1.5">
-                    <MapPin class="h-3.5 w-3.5 text-muted-foreground" />
-                    Dirección Comercial / Entrega
-                </Label>
-                <Input
-                    id="manage-customer-address"
-                    bind:value={form.address}
-                    placeholder="ej. Av. Rivadavia 4520, CABA"
-                    class="h-9 text-sm"
-                />
-                {#if form.errors.address}
-                    <p class="text-xs text-destructive">{form.errors.address}</p>
-                {/if}
-            </div>
+                <!-- Límite de Crédito & Flags -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 p-3.5 rounded-xl border bg-muted/15">
+                    <div class="space-y-1.5">
+                        <Label for="manage-customer-credit" class="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                            <CreditCard class="h-3.5 w-3.5 text-muted-foreground" />
+                            Límite de Crédito ($ ARS)
+                        </Label>
+                        <Input
+                            id="manage-customer-credit"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            bind:value={form.credit_limit}
+                            placeholder="0.00"
+                            class="h-9 text-sm tabular-nums"
+                        />
+                    </div>
 
-            <!-- Límite de Crédito & Flags -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 p-3.5 rounded-xl border bg-muted/15">
+                    <div class="flex flex-col justify-center gap-2 pt-1">
+                        <label class="flex items-center gap-2 text-xs font-medium text-foreground cursor-pointer">
+                            <input
+                                type="checkbox"
+                                bind:checked={form.is_defaulter}
+                                class="size-4 rounded border-border text-rose-600 focus:ring-rose-500"
+                            />
+                            <span class="flex items-center gap-1 text-rose-600 dark:text-rose-400">
+                                <AlertTriangle class="size-3.5" />
+                                Marcar con saldo deudor / moroso
+                            </span>
+                        </label>
+
+                        <label class="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer">
+                            <input
+                                type="checkbox"
+                                bind:checked={form.is_active}
+                                class="size-4 rounded border-border text-primary focus:ring-primary"
+                            />
+                            <span>Cliente activo</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Notas -->
                 <div class="space-y-1.5">
-                    <Label for="manage-customer-credit" class="text-sm font-medium text-foreground flex items-center gap-1.5">
-                        <CreditCard class="h-3.5 w-3.5 text-muted-foreground" />
-                        Límite de Crédito ($ ARS)
+                    <Label for="manage-customer-notes" class="text-xs font-semibold text-foreground">
+                        Notas Internas / Preferencias de Entrega
                     </Label>
-                    <Input
-                        id="manage-customer-credit"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        bind:value={form.credit_limit}
-                        placeholder="0.00"
-                        class="h-9 text-sm tabular-nums"
-                    />
-                </div>
-
-                <div class="flex flex-col justify-center gap-2 pt-1">
-                    <label class="flex items-center gap-2 text-xs font-medium text-foreground cursor-pointer">
-                        <input
-                            type="checkbox"
-                            bind:checked={form.is_defaulter}
-                            class="size-4 rounded border-border text-rose-600 focus:ring-rose-500"
-                        />
-                        <span class="flex items-center gap-1 text-rose-600 dark:text-rose-400">
-                            <AlertTriangle class="size-3.5" />
-                            Marcar con saldo deudor / moroso
-                        </span>
-                    </label>
-
-                    <label class="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer">
-                        <input
-                            type="checkbox"
-                            bind:checked={form.is_active}
-                            class="size-4 rounded border-border text-primary focus:ring-primary"
-                        />
-                        <span>Cliente activo</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Notas -->
-            <div class="space-y-1.5">
-                <Label for="manage-customer-notes" class="text-sm font-medium text-foreground">
-                    Notas Internas / Preferencias de Entrega
-                </Label>
-                <textarea
-                    id="manage-customer-notes"
-                    bind:value={form.notes}
-                    rows="2"
-                    placeholder="ej. Preferencias de entrega o historial crediticio..."
-                    class="w-full rounded-lg border border-input bg-background p-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                ></textarea>
-                {#if form.errors.notes}
-                    <p class="text-xs text-destructive">{form.errors.notes}</p>
-                {/if}
-            </div>
-
-            <!-- Footer: Izquierda Desactivar/Eliminar, Derecha Guardar y Cancelar -->
-            <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-5 border-t border-border mt-6">
-                <!-- Abajo a la izquierda: Botón de Estado y Eliminar -->
-                <div class="flex items-center gap-2">
-                    {#if form.is_active}
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            class="text-xs font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 border-rose-200 dark:border-rose-900/40 gap-1.5"
-                            onclick={() => (showDeactivateConfirm = true)}
-                            disabled={form.processing || isDeleting}
-                        >
-                            <ShieldAlert class="size-3.5" />
-                            <span>Desactivar cliente</span>
-                        </Button>
-                    {:else}
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            class="text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/40 gap-1.5"
-                            onclick={() => (showActivateConfirm = true)}
-                            disabled={form.processing || isDeleting}
-                        >
-                            <ShieldCheck class="size-3.5" />
-                            <span>Activar cliente</span>
-                        </Button>
+                    <textarea
+                        id="manage-customer-notes"
+                        bind:value={form.notes}
+                        rows="2"
+                        placeholder="ej. Preferencias de entrega o historial crediticio..."
+                        class="w-full rounded-lg border border-input bg-background p-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs resize-none"
+                    ></textarea>
+                    {#if form.errors.notes}
+                        <p class="text-xs text-destructive">{form.errors.notes}</p>
                     {/if}
+                </div>
+            </form>
+        </DialogBody>
 
+        <!-- Footer: Izquierda Desactivar/Eliminar, Derecha Guardar y Cancelar -->
+        <DialogFooter class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
+            <!-- Abajo a la izquierda: Botón de Estado y Eliminar -->
+            <div class="flex items-center gap-2">
+                {#if form.is_active}
                     <Button
                         type="button"
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
-                        class="text-xs font-medium text-muted-foreground hover:text-destructive gap-1 px-2"
-                        onclick={() => (showDeleteConfirm = true)}
-                        disabled={isDeleting || form.processing}
+                        class="min-h-[40px] px-3 rounded-xl text-xs font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 border-rose-200 dark:border-rose-900/40 gap-1.5"
+                        onclick={() => (showDeactivateConfirm = true)}
+                        disabled={form.processing || isDeleting}
                     >
-                        <Trash2 class="size-3.5" />
-                        <span>Eliminar</span>
+                        <ShieldAlert class="size-3.5" />
+                        <span>Desactivar cliente</span>
                     </Button>
-                </div>
+                {:else}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        class="min-h-[40px] px-3 rounded-xl text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/40 gap-1.5"
+                        onclick={() => (showActivateConfirm = true)}
+                        disabled={form.processing || isDeleting}
+                    >
+                        <ShieldCheck class="size-3.5" />
+                        <span>Activar cliente</span>
+                    </Button>
+                {/if}
 
-                <!-- Abajo a la derecha: Guardar cambios y Cancelar -->
-                <div class="flex items-center justify-end gap-2">
-                    <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing || isDeleting} class="text-xs font-medium">
-                        Cancelar
-                    </Button>
-                    <Button type="submit" size="sm" disabled={form.processing || isDeleting} class="min-w-32 text-xs font-medium">
-                        {form.processing ? 'Guardando...' : 'Guardar cambios'}
-                    </Button>
-                </div>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    class="min-h-[40px] px-3 rounded-xl text-xs font-medium text-muted-foreground hover:text-destructive gap-1"
+                    onclick={() => (showDeleteConfirm = true)}
+                    disabled={isDeleting || form.processing}
+                >
+                    <Trash2 class="size-3.5" />
+                    <span>Eliminar</span>
+                </Button>
             </div>
-        </form>
+
+            <!-- Abajo a la derecha: Guardar cambios y Cancelar -->
+            <div class="flex items-center justify-end gap-2.5">
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onclick={handleClose}
+                    disabled={form.processing || isDeleting}
+                    class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
+                >
+                    Cancelar
+                </Button>
+                <Button
+                    type="submit"
+                    form="manage-customer-form"
+                    size="sm"
+                    disabled={form.processing || isDeleting}
+                    class="min-h-[40px] px-4 rounded-xl text-xs font-semibold min-w-32 shadow-xs"
+                >
+                    {form.processing ? 'Guardando...' : 'Guardar cambios'}
+                </Button>
+            </div>
+        </DialogFooter>
     </DialogContent>
 </Dialog>
 

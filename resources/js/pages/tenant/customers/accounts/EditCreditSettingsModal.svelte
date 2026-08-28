@@ -2,8 +2,11 @@
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
+        DialogBody,
         DialogContent,
         DialogDescription,
+        DialogFooter,
+        DialogHeader,
         DialogTitle,
     } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
@@ -72,7 +75,7 @@
                 },
                 onError: (errors) => {
                     isSubmitting = false;
-                    errorMessage = Object.values(errors)[0] as string || 'Ocurrió un error al actualizar la configuración.';
+                    errorMessage = (Object.values(errors)[0] as string) || 'Ocurrió un error al actualizar la configuración.';
                 },
             }
         );
@@ -80,40 +83,40 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="sm:max-w-[480px] p-6 sm:p-7">
+    <DialogContent size="default" class="max-w-md">
         {#if customer}
-            <form onsubmit={handleSubmit}>
-                <div class="flex items-start justify-between gap-4 pb-4 border-b border-border">
-                    <div class="flex items-center gap-3">
-                        <div class="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
-                            <ShieldCheck class="size-5" />
-                        </div>
-                        <div>
-                            <DialogTitle class="text-lg font-bold tracking-tight text-foreground">
-                                Límites y Plazos de Crédito
-                            </DialogTitle>
-                            <DialogDescription class="text-xs text-muted-foreground mt-0.5">
-                                Cliente: <span class="font-semibold text-foreground">{customer.name}</span>
-                            </DialogDescription>
-                        </div>
+            <DialogHeader>
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+                        <ShieldCheck class="size-5" />
                     </div>
-                    <button
-                        type="button"
-                        onclick={handleClose}
-                        class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                        aria-label="Cerrar"
-                    >
-                        <X class="size-4" />
-                    </button>
+                    <div class="min-w-0">
+                        <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug truncate">
+                            Límites y plazos de crédito
+                        </DialogTitle>
+                        <DialogDescription class="text-xs text-muted-foreground truncate">
+                            Cliente: <span class="font-semibold text-foreground">{customer.name}</span>
+                        </DialogDescription>
+                    </div>
                 </div>
+                <button
+                    type="button"
+                    onclick={handleClose}
+                    class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                    aria-label="Cerrar"
+                >
+                    <X class="size-4" />
+                </button>
+            </DialogHeader>
 
+            <DialogBody>
                 {#if errorMessage}
-                    <div class="mt-4 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs font-medium">
+                    <div class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs font-medium">
                         {errorMessage}
                     </div>
                 {/if}
 
-                <div class="grid gap-4 py-5">
+                <form id="edit-credit-settings-form" onsubmit={handleSubmit} class="space-y-4">
                     <!-- Límite de Crédito -->
                     <div class="space-y-1.5">
                         <Label for="credit-limit-input" class="text-xs font-semibold text-foreground">
@@ -157,7 +160,7 @@
                     </div>
 
                     <!-- Toggle Morosidad -->
-                    <div class="pt-2">
+                    <div class="pt-1">
                         <label class="flex items-start gap-3 p-3 rounded-xl border border-border/80 bg-muted/20 hover:bg-muted/40 cursor-pointer transition-colors">
                             <input
                                 type="checkbox"
@@ -175,18 +178,30 @@
                             </div>
                         </label>
                     </div>
-                </div>
+                </form>
+            </DialogBody>
 
-                <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-border">
-                    <Button type="button" variant="outline" onclick={handleClose} disabled={isSubmitting}>
-                        Cancelar
-                    </Button>
-                    <Button type="submit" disabled={isSubmitting} class="gap-1.5 font-medium">
-                        <Check class="size-4" />
-                        <span>Guardar cambios</span>
-                    </Button>
-                </div>
-            </form>
+            <DialogFooter>
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onclick={handleClose}
+                    disabled={isSubmitting}
+                    class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
+                >
+                    Cancelar
+                </Button>
+                <Button
+                    type="submit"
+                    form="edit-credit-settings-form"
+                    disabled={isSubmitting}
+                    class="min-h-[40px] px-4 rounded-xl text-xs font-semibold gap-1.5 min-w-32 shadow-xs"
+                >
+                    <Check class="size-3.5" />
+                    <span>Guardar cambios</span>
+                </Button>
+            </DialogFooter>
         {/if}
     </DialogContent>
 </Dialog>

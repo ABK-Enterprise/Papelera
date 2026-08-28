@@ -2,8 +2,11 @@
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
+        DialogBody,
         DialogContent,
         DialogDescription,
+        DialogFooter,
+        DialogHeader,
         DialogTitle,
     } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
@@ -11,9 +14,6 @@
     import { router } from '@inertiajs/svelte';
     import Banknote from 'lucide-svelte/icons/banknote';
     import Check from 'lucide-svelte/icons/check';
-    import CreditCard from 'lucide-svelte/icons/credit-card';
-    import DollarSign from 'lucide-svelte/icons/dollar-sign';
-    import FileText from 'lucide-svelte/icons/file-text';
     import X from 'lucide-svelte/icons/x';
 
     export interface CustomerAccountData {
@@ -93,7 +93,7 @@
                 },
                 onError: (errors) => {
                     isSubmitting = false;
-                    errorMessage = Object.values(errors)[0] as string || 'Ocurrió un error al registrar el pago.';
+                    errorMessage = (Object.values(errors)[0] as string) || 'Ocurrió un error al registrar el pago.';
                 },
             }
         );
@@ -101,56 +101,56 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="sm:max-w-[500px] p-6 sm:p-7">
+    <DialogContent size="default" class="max-w-lg">
         {#if customer}
-            <form onsubmit={handleSubmit}>
-                <div class="flex items-start justify-between gap-4 pb-4 border-b border-border">
-                    <div class="flex items-center gap-3">
-                        <div class="flex size-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">
-                            <Banknote class="size-5" />
-                        </div>
-                        <div>
-                            <DialogTitle class="text-lg font-bold tracking-tight text-foreground">
-                                Registrar Cobro / Abono
-                            </DialogTitle>
-                            <DialogDescription class="text-xs text-muted-foreground mt-0.5">
-                                Cliente: <span class="font-semibold text-foreground">{customer.name}</span>
-                            </DialogDescription>
-                        </div>
+            <DialogHeader>
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        <Banknote class="size-5" />
                     </div>
-                    <button
-                        type="button"
-                        onclick={handleClose}
-                        class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                        aria-label="Cerrar"
-                    >
-                        <X class="size-4" />
-                    </button>
+                    <div class="min-w-0">
+                        <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug truncate">
+                            Registrar cobro / abono
+                        </DialogTitle>
+                        <DialogDescription class="text-xs text-muted-foreground truncate">
+                            Cliente: <span class="font-semibold text-foreground">{customer.name}</span>
+                        </DialogDescription>
+                    </div>
                 </div>
+                <button
+                    type="button"
+                    onclick={handleClose}
+                    class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                    aria-label="Cerrar"
+                >
+                    <X class="size-4" />
+                </button>
+            </DialogHeader>
 
+            <DialogBody>
                 {#if errorMessage}
-                    <div class="mt-4 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs font-medium">
+                    <div class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs font-medium">
                         {errorMessage}
                     </div>
                 {/if}
 
                 <!-- Calculador Dinámico de Saldo -->
-                <div class="mt-4 p-4 rounded-2xl bg-muted/40 border border-border/70 grid grid-cols-2 gap-3 text-xs">
+                <div class="p-4 rounded-2xl bg-muted/40 border border-border/70 grid grid-cols-2 gap-3 text-xs">
                     <div>
-                        <span class="text-muted-foreground block">Saldo deudor actual:</span>
+                        <span class="text-muted-foreground block mb-0.5">Saldo deudor actual:</span>
                         <span class="text-sm font-bold text-foreground tabular-nums">
                             {formatPrice(currentBalanceNum)}
                         </span>
                     </div>
                     <div class="text-right">
-                        <span class="text-muted-foreground block">Saldo restante:</span>
+                        <span class="text-muted-foreground block mb-0.5">Saldo restante:</span>
                         <span class="text-sm font-bold tabular-nums {resultingBalance === 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-primary'}">
                             {formatPrice(resultingBalance)}
                         </span>
                     </div>
                 </div>
 
-                <div class="grid gap-4 py-4">
+                <form id="record-payment-form" onsubmit={handleSubmit} class="space-y-4 pt-1">
                     <!-- Monto -->
                     <div class="space-y-1.5">
                         <div class="flex items-center justify-between">
@@ -161,7 +161,7 @@
                                 <button
                                     type="button"
                                     onclick={setFullAmount}
-                                    class="text-[11px] text-primary hover:underline font-medium"
+                                    class="text-[11px] text-primary hover:underline font-medium tabular-nums"
                                 >
                                     Cobro total ({formatPrice(currentBalanceNum)})
                                 </button>
@@ -190,7 +190,7 @@
                         <select
                             id="payment-method"
                             bind:value={paymentMethod}
-                            class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                            class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none shadow-2xs"
                         >
                             <option value="efectivo">Efectivo</option>
                             <option value="transferencia">Transferencia Bancaria</option>
@@ -225,18 +225,31 @@
                             class="h-9 text-xs"
                         />
                     </div>
-                </div>
+                </form>
+            </DialogBody>
 
-                <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-border">
-                    <Button type="button" variant="outline" onclick={handleClose} disabled={isSubmitting}>
-                        Cancelar
-                    </Button>
-                    <Button type="submit" disabled={isSubmitting || amountNum <= 0} class="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium">
-                        <Check class="size-4" />
-                        <span>Confirmar cobro</span>
-                    </Button>
-                </div>
-            </form>
+            <DialogFooter>
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onclick={handleClose}
+                    disabled={isSubmitting}
+                    class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
+                >
+                    Cancelar
+                </Button>
+                <Button
+                    type="submit"
+                    form="record-payment-form"
+                    size="sm"
+                    disabled={isSubmitting || amountNum <= 0}
+                    class="min-h-[40px] px-4 rounded-xl text-xs font-semibold gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white min-w-32 shadow-xs"
+                >
+                    <Check class="size-3.5" />
+                    <span>Confirmar cobro</span>
+                </Button>
+            </DialogFooter>
         {/if}
     </DialogContent>
 </Dialog>
