@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Button } from '@/components/ui/button';
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
@@ -170,6 +170,14 @@
                             </div>
                         {/if}
 
+                        {#if Number(customer.current_balance) > 0}
+                            <div class="flex items-center gap-1">
+                                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20 tabular-nums">
+                                    Deuda: {formatCurrency(customer.current_balance)}
+                                </span>
+                            </div>
+                        {/if}
+
                         {#if customer.created_at}
                             <div class="flex items-center gap-1 shrink-0 ml-auto sm:ml-0 tabular-nums">
                                 <Calendar class="h-3 w-3 text-muted-foreground/70" />
@@ -182,6 +190,14 @@
 
             <!-- Lado Derecho: Acción Rápida con Touch Target >= 44px -->
             <div class="flex items-center gap-2 shrink-0">
+                <a
+                    href={`/tenant/customers/accounts?customer_id=${customer.id}`}
+                    onclick={(e) => e.stopPropagation()}
+                    class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-xl text-primary bg-primary/10 hover:bg-primary/20 transition-colors"
+                >
+                    <CreditCard class="size-3.5" />
+                    <span>Cta. Cte.</span>
+                </a>
                 <Button
                     variant="ghost"
                     size="sm"

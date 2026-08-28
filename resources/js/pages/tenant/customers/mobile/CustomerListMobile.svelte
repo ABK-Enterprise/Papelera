@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Button } from '@/components/ui/button';
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
@@ -146,6 +146,16 @@
                     <span class="inline-flex items-center gap-1 bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[180px] text-xs">
                         <Mail class="h-3 w-3 text-muted-foreground" />
                         {customer.email}
+                    </span>
+                {/if}
+                {#if Number(customer.credit_limit) > 0}
+                    <span class="inline-flex items-center gap-1 bg-muted/60 px-2 py-0.5 rounded text-foreground tabular-nums text-xs">
+                        Límite: ${customer.credit_limit}
+                    </span>
+                {/if}
+                {#if Number(customer.current_balance) > 0}
+                    <span class="inline-flex items-center gap-1 bg-rose-500/10 text-rose-700 dark:text-rose-400 font-bold px-2 py-0.5 rounded border border-rose-500/20 tabular-nums text-xs">
+                        Deuda: ${customer.current_balance}
                     </span>
                 {/if}
             </div>

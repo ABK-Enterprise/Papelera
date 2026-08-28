@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreCustomerOrderRequest;
 use App\Http\Requests\Tenant\UpdateCustomerOrderStatusRequest;
 use App\Models\Customer;
+use App\Models\CustomerAccountMovement;
 use App\Models\CustomerOrder;
 use App\Models\CustomerOrderItem;
 use App\Models\Product;
@@ -228,6 +229,38 @@ class CustomerOrderController extends Controller
                 ]);
             }
 
+            $customerId = $request->validated('customer_id');
+            if ($customerId) {
+                /** @var Customer|null $customer */
+                $customer = Customer::where('id', $customerId)
+                    ->where('tenant_id', $tenantId)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($customer) {
+                    $newBalance = round((float) $customer->current_balance + $totalAmount, 2);
+                    $dueDays = $customer->credit_due_days ?: 30;
+                    $dueDate = now()->addDays($dueDays)->toDateString();
+
+                    CustomerAccountMovement::create([
+                        'tenant_id' => $tenantId,
+                        'customer_id' => $customer->id,
+                        'customer_order_id' => $order->id,
+                        'created_by_user_id' => $userId,
+                        'type' => 'charge',
+                        'description' => "Venta a crédito - Pedido {$orderNumber}",
+                        'amount' => $totalAmount,
+                        'balance_after' => $newBalance,
+                        'due_date' => $dueDate,
+                        'payment_method' => 'cuenta_corriente',
+                        'reference_number' => $orderNumber,
+                        'notes' => $order->notes,
+                    ]);
+
+                    $customer->update(['current_balance' => $newBalance]);
+                }
+            }
+
             return $order;
         });
 
@@ -297,6 +330,35 @@ class CustomerOrderController extends Controller
                         ]);
                     }
                 }
+
+                if ($lockedOrder->customer_id) {
+                    /** @var Customer|null $customer */
+                    $customer = Customer::where('id', $lockedOrder->customer_id)
+                        ->where('tenant_id', $tenantId)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($customer) {
+                        $reversalAmount = (float) $lockedOrder->total_amount;
+                        $newBalance = max(0, round((float) $customer->current_balance - $reversalAmount, 2));
+
+                        CustomerAccountMovement::create([
+                            'tenant_id' => $tenantId,
+                            'customer_id' => $customer->id,
+                            'customer_order_id' => $lockedOrder->id,
+                            'created_by_user_id' => $userId,
+                            'type' => 'adjustment',
+                            'description' => "Anulación por cancelación de Pedido {$lockedOrder->order_number}",
+                            'amount' => $reversalAmount,
+                            'balance_after' => $newBalance,
+                            'payment_method' => 'ajuste',
+                            'reference_number' => "CANCEL-{$lockedOrder->order_number}",
+                            'notes' => 'Ajuste de saldo automático por cancelación del pedido.',
+                        ]);
+
+                        $customer->update(['current_balance' => $newBalance]);
+                    }
+                }
             }
 
             $lockedOrder->update(['status' => $newStatus]);
@@ -355,6 +417,35 @@ class CustomerOrderController extends Controller
                             'reason' => 'cancelacion_pedido',
                             'notes' => "Eliminación {$lockedOrder->order_number}",
                         ]);
+                    }
+                }
+
+                if ($lockedOrder->customer_id) {
+                    /** @var Customer|null $customer */
+                    $customer = Customer::where('id', $lockedOrder->customer_id)
+                        ->where('tenant_id', $tenantId)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($customer) {
+                        $reversalAmount = (float) $lockedOrder->total_amount;
+                        $newBalance = max(0, round((float) $customer->current_balance - $reversalAmount, 2));
+
+                        CustomerAccountMovement::create([
+                            'tenant_id' => $tenantId,
+                            'customer_id' => $customer->id,
+                            'customer_order_id' => null,
+                            'created_by_user_id' => $userId,
+                            'type' => 'adjustment',
+                            'description' => "Anulación por eliminación de Pedido {$lockedOrder->order_number}",
+                            'amount' => $reversalAmount,
+                            'balance_after' => $newBalance,
+                            'payment_method' => 'ajuste',
+                            'reference_number' => "DEL-{$lockedOrder->order_number}",
+                            'notes' => 'Ajuste de saldo automático por eliminación del pedido.',
+                        ]);
+
+                        $customer->update(['current_balance' => $newBalance]);
                     }
                 }
             }
