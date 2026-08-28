@@ -80,22 +80,13 @@
 
         // Tenant modular navigation (Zero-Trust con Navigation Menu)
         if (tenant) {
-            // Products catalog (Productos module)
+            // Products catalog (Productos module - Enlace Directo Simple)
             if (modules.includes('productos') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('productos.ver'))) {
                 items.push({
                     title: 'Productos',
                     href: '/tenant/products',
                     icon: Package,
                     active: currentUrl.startsWith('/tenant/products') || currentUrl.startsWith('/tenant/categories'),
-                    subItems: [
-                        {
-                            title: 'Catálogo de Productos',
-                            description: 'Artículos, precios, bultos y stock mínimo',
-                            href: '/tenant/products',
-                            icon: Package,
-                            active: currentUrl.startsWith('/tenant/products') && !currentUrl.includes('category='),
-                        },
-                    ],
                 });
             }
 

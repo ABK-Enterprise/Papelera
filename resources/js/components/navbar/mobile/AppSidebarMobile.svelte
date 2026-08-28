@@ -1,23 +1,25 @@
 <script lang="ts">
-    import { Link, page } from '@inertiajs/svelte';
-    import LayoutGrid from 'lucide-svelte/icons/layout-grid';
-    import Package from 'lucide-svelte/icons/package';
-    import Users from 'lucide-svelte/icons/users';
-    import Shield from 'lucide-svelte/icons/shield';
-    import Building2 from 'lucide-svelte/icons/building-2';
-    import Boxes from 'lucide-svelte/icons/boxes';
-    import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
-    import Truck from 'lucide-svelte/icons/truck';
-    import UserCheck from 'lucide-svelte/icons/user-check';
-    import CreditCard from 'lucide-svelte/icons/credit-card';
-    import ClipboardList from 'lucide-svelte/icons/clipboard-list';
-    import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
-    import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
-    import History from 'lucide-svelte/icons/history';
-    import X from 'lucide-svelte/icons/x';
     import AppLogoIcon from '@/components/AppLogoIcon.svelte';
     import { toUrl } from '@/lib/utils';
     import { dashboard } from '@/routes';
+    import { Link, page } from '@inertiajs/svelte';
+    import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
+    import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
+    import Boxes from 'lucide-svelte/icons/boxes';
+    import Building2 from 'lucide-svelte/icons/building-2';
+    import ChevronDown from 'lucide-svelte/icons/chevron-down';
+    import ChevronRight from 'lucide-svelte/icons/chevron-right';
+    import ClipboardList from 'lucide-svelte/icons/clipboard-list';
+    import CreditCard from 'lucide-svelte/icons/credit-card';
+    import History from 'lucide-svelte/icons/history';
+    import LayoutGrid from 'lucide-svelte/icons/layout-grid';
+    import Package from 'lucide-svelte/icons/package';
+    import Shield from 'lucide-svelte/icons/shield';
+    import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
+    import Truck from 'lucide-svelte/icons/truck';
+    import UserCheck from 'lucide-svelte/icons/user-check';
+    import Users from 'lucide-svelte/icons/users';
+    import X from 'lucide-svelte/icons/x';
 
     let {
         open = false,
@@ -25,7 +27,7 @@
     }: {
         open?: boolean;
         onClose?: () => void;
-        } = $props();
+    } = $props();
 
     let auth = $derived(page.props.auth);
     let user = $derived(auth?.user);
@@ -33,7 +35,30 @@
     let roles = $derived(auth?.roles ?? []);
     let permissions = $derived(auth?.permissions ?? []);
     let modules = $derived(auth?.modules ?? []);
+    let isAdmin = $derived(auth?.is_admin || roles.includes('admin') || user?.is_superadmin);
     let currentUrl = $derived(page.url);
+
+    // Estado del Acordeón con Unicidad
+    let openModule = $state<string | null>(null);
+
+    // Auto-expansión inicial del módulo activo al abrir el Sidebar
+    $effect(() => {
+        if (open) {
+            if (currentUrl.startsWith('/tenant/stock')) {
+                openModule = 'Stock';
+            } else if (currentUrl.startsWith('/tenant/suppliers')) {
+                openModule = 'Proveedores';
+            } else if (currentUrl.startsWith('/tenant/customers')) {
+                openModule = 'Clientes';
+            } else {
+                openModule = null;
+            }
+        }
+    });
+
+    function toggleModule(moduleTitle: string) {
+        openModule = openModule === moduleTitle ? null : moduleTitle;
+    }
 
     interface SubItem {
         title: string;
@@ -83,7 +108,8 @@
         }
 
         if (tenant) {
-            if (modules.includes('productos') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('productos.ver'))) {
+            // Productos: Enlace Directo Simple (Sin submódulos)
+            if (modules.includes('productos') && (isAdmin || permissions.includes('productos.ver'))) {
                 items.push({
                     title: 'Productos',
                     href: '/tenant/products',
@@ -92,7 +118,8 @@
                 });
             }
 
-            if (modules.includes('stock') && (roles.includes('admin') || user?.is_superadmin || permissions.some((p: string) => p.startsWith('stock_')))) {
+            // Stock & Kardex: Acordeón
+            if (modules.includes('stock') && (isAdmin || permissions.some((p: string) => p.startsWith('stock_')))) {
                 items.push({
                     title: 'Stock',
                     href: '/tenant/stock/ingresos',
@@ -121,7 +148,8 @@
                 });
             }
 
-            if (modules.includes('pedidos') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('pedidos.ver'))) {
+            // Pedidos: Enlace Directo Simple
+            if (modules.includes('pedidos') && (isAdmin || permissions.includes('pedidos.ver'))) {
                 items.push({
                     title: 'Pedidos',
                     href: '/tenant/orders',
@@ -130,7 +158,8 @@
                 });
             }
 
-            if (modules.includes('proveedores') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('proveedores.ver') || permissions.includes('proveedores.pedidos.ver'))) {
+            // Proveedores: Acordeón
+            if (modules.includes('proveedores') && (isAdmin || permissions.includes('proveedores.ver') || permissions.includes('proveedores.pedidos.ver'))) {
                 items.push({
                     title: 'Proveedores',
                     href: '/tenant/suppliers',
@@ -153,7 +182,8 @@
                 });
             }
 
-            if (modules.includes('clientes') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('clientes.ver'))) {
+            // Clientes: Acordeón
+            if (modules.includes('clientes') && (isAdmin || permissions.includes('clientes.ver'))) {
                 items.push({
                     title: 'Clientes',
                     href: '/tenant/customers',
@@ -176,7 +206,8 @@
                 });
             }
 
-            if (roles.includes('admin') || user?.is_superadmin) {
+            // Administración de Tenant: Enlaces Directos
+            if (isAdmin) {
                 items.push(
                     {
                         title: 'Personal / Empleados',
@@ -223,14 +254,14 @@
             <button
                 type="button"
                 onclick={onClose}
-                class="flex size-9 min-h-[36px] items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+                class="flex size-9 min-h-[36px] items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                 aria-label="Cerrar menú"
             >
                 <X class="h-5 w-5" />
             </button>
         </div>
 
-        <!-- Info de Tenant o Rol -->
+        <!-- Info de Tenant -->
         {#if tenant}
             <div class="border-b bg-muted/30 px-4 py-2.5">
                 <span class="text-xs text-muted-foreground font-medium block">Comercio activo:</span>
@@ -238,38 +269,50 @@
             </div>
         {/if}
 
-        <!-- Navegación con submenús anidados limpios -->
+        <!-- Navegación con Acordeón de Unicidad -->
         <nav class="flex-1 overflow-y-auto p-3 space-y-1.5">
-            {#each navItems as item (item.href)}
+            {#each navItems as item (item.title)}
                 {#if item.subItems && item.subItems.length > 0}
+                    <!-- Módulo con Submódulos (Acordeón de Unicidad) -->
                     <div class="space-y-1">
-                        <Link
-                            href={item.href}
-                            onclick={onClose}
-                            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors {item.active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+                        <button
+                            type="button"
+                            onclick={() => toggleModule(item.title)}
+                            class="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition-all {item.active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'}"
                         >
-                            <item.icon class="size-4.5 shrink-0" />
-                            <span>{item.title}</span>
-                        </Link>
-                        <div class="pl-7 pr-1 space-y-1 border-l-2 border-border/40 ml-4.5 my-1">
-                            {#each item.subItems as sub}
-                                {@const SubIcon = sub.icon}
-                                <Link
-                                    href={sub.href}
-                                    onclick={onClose}
-                                    class="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-xs font-medium transition-colors {sub.active ? 'bg-primary/15 text-primary font-semibold' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}"
-                                >
-                                    <SubIcon class="size-3.5 shrink-0" />
-                                    <span class="truncate">{sub.title}</span>
-                                </Link>
-                            {/each}
-                        </div>
+                            <div class="flex items-center gap-3">
+                                <item.icon class="size-4.5 shrink-0" />
+                                <span>{item.title}</span>
+                            </div>
+                            {#if openModule === item.title}
+                                <ChevronDown class="size-4 text-muted-foreground transition-transform" />
+                            {:else}
+                                <ChevronRight class="size-4 text-muted-foreground transition-transform" />
+                            {/if}
+                        </button>
+
+                        {#if openModule === item.title}
+                            <div class="pl-7 pr-1 space-y-1 border-l-2 border-primary/30 ml-4.5 my-1 animate-in fade-in slide-in-from-top-1 duration-150">
+                                {#each item.subItems as sub}
+                                    {@const SubIcon = sub.icon}
+                                    <Link
+                                        href={sub.href}
+                                        onclick={onClose}
+                                        class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors {sub.active ? 'bg-primary/15 text-primary font-semibold' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}"
+                                    >
+                                        <SubIcon class="size-3.5 shrink-0" />
+                                        <span class="truncate">{sub.title}</span>
+                                    </Link>
+                                {/each}
+                            </div>
+                        {/if}
                     </div>
                 {:else}
+                    <!-- Módulo de Enlace Directo Simple -->
                     <Link
                         href={item.href}
                         onclick={onClose}
-                        class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {item.active ? 'bg-primary/10 text-primary font-semibold' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+                        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors {item.active ? 'bg-primary/10 text-primary font-semibold' : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'}"
                     >
                         <item.icon class="size-4.5 shrink-0" />
                         <span>{item.title}</span>
