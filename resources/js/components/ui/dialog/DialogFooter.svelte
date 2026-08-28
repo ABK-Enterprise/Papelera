@@ -5,12 +5,14 @@
     let {
         class: className = '',
         children,
+        ...restProps
     }: {
         class?: string;
         children?: Snippet;
+        [key: string]: any;
     } = $props();
 </script>
 
-<div class={cn('flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 px-5 sm:px-6 py-3.5 border-t border-border/70 bg-muted/20 shrink-0', className)}>
+<div class={cn('flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 p-4 sm:p-6 border-t border-border shrink-0 bg-background', className)} {...restProps}>
     {@render children?.()}
 </div>

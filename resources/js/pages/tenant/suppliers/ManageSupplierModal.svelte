@@ -1,10 +1,12 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
+        DialogBody,
         DialogContent,
         DialogDescription,
         DialogFooter,
+        DialogHeader,
         DialogTitle,
     } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
@@ -124,21 +126,21 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-8">
-        <div class="flex items-center justify-between pb-4 border-b border-border">
-            <div class="flex items-center gap-3">
-                <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+    <DialogContent class="max-w-2xl max-h-[85vh]">
+        <DialogHeader>
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <Truck class="size-5" />
                 </div>
-                <div>
+                <div class="min-w-0">
                     <div class="flex items-center gap-2">
-                        <DialogTitle class="text-xl font-bold tracking-tight text-foreground">Gestionar proveedor</DialogTitle>
+                        <DialogTitle class="text-xl font-bold text-foreground">Gestión de Proveedor</DialogTitle>
                         {#if form.is_active}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                 Activo
                             </span>
                         {:else}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
                                 Inactivo
                             </span>
                         {/if}
@@ -147,7 +149,7 @@
                         <span>Editar información comercial y estado del proveedor</span>
                         {#if supplier?.created_at}
                             <span>•</span>
-                            <span class="inline-flex items-center gap-1 tabular-nums">
+                            <span class="inline-flex items-center gap-1">
                                 <Calendar class="size-3" />
                                 Registrado el {formatDate(supplier.created_at)}
                             </span>
@@ -158,147 +160,148 @@
             <button
                 type="button"
                 onclick={handleClose}
-                class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
                 aria-label="Cerrar"
             >
                 <X class="size-4" />
             </button>
-        </div>
+        </DialogHeader>
 
-        <form onsubmit={submit} class="space-y-4 pt-4">
-            <!-- Nombre o Razón Social -->
-            <div class="space-y-1.5">
-                <Label for="manage-supplier-name" class="text-sm font-medium text-foreground">
-                    Nombre o Razón Social <span class="text-destructive">*</span>
-                </Label>
-                <Input
-                    id="manage-supplier-name"
-                    bind:value={form.name}
-                    placeholder="Nombre del proveedor"
-                    required
-                    class="h-9 text-sm font-normal"
-                />
-                {#if form.errors.name}
-                    <p class="text-xs text-destructive">{form.errors.name}</p>
-                {/if}
-            </div>
-
-            <!-- Teléfono y Email -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <DialogBody>
+            <form id="manage-supplier-form" onsubmit={submit} class="space-y-4">
+                <!-- Nombre o Razón Social -->
                 <div class="space-y-1.5">
-                    <Label for="manage-supplier-phone" class="text-sm font-medium text-foreground flex items-center gap-1.5">
-                        <Phone class="h-3.5 w-3.5 text-muted-foreground" />
-                        Teléfono / Contacto
+                    <Label for="manage-supplier-name" class="text-xs font-semibold">
+                        Nombre o Razón Social <span class="text-destructive">*</span>
                     </Label>
                     <Input
-                        id="manage-supplier-phone"
-                        bind:value={form.contact_number}
-                        placeholder="ej. +54 11 4321-8765"
-                        class="h-9 text-sm tabular-nums"
+                        id="manage-supplier-name"
+                        bind:value={form.name}
+                        placeholder="Nombre del proveedor"
+                        required
+                        class="h-9 text-sm font-medium"
                     />
-                    {#if form.errors.contact_number}
-                        <p class="text-xs text-destructive">{form.errors.contact_number}</p>
+                    {#if form.errors.name}
+                        <p class="text-xs text-destructive">{form.errors.name}</p>
                     {/if}
                 </div>
 
+                <!-- Teléfono y Email -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div class="space-y-1.5">
+                        <Label for="manage-supplier-phone" class="text-xs font-semibold flex items-center gap-1.5">
+                            <Phone class="h-3.5 w-3.5 text-muted-foreground" />
+                            Teléfono / Contacto
+                        </Label>
+                        <Input
+                            id="manage-supplier-phone"
+                            bind:value={form.contact_number}
+                            placeholder="ej. +54 11 4321-8765"
+                            class="h-9 text-sm font-sans tabular-nums"
+                        />
+                        {#if form.errors.contact_number}
+                            <p class="text-xs text-destructive">{form.errors.contact_number}</p>
+                        {/if}
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <Label for="manage-supplier-email" class="text-xs font-semibold flex items-center gap-1.5">
+                            <Mail class="h-3.5 w-3.5 text-muted-foreground" />
+                            Correo Electrónico
+                        </Label>
+                        <Input
+                            id="manage-supplier-email"
+                            type="email"
+                            bind:value={form.email}
+                            placeholder="ventas@proveedor.com"
+                            class="h-9 text-sm"
+                        />
+                        {#if form.errors.email}
+                            <p class="text-xs text-destructive">{form.errors.email}</p>
+                        {/if}
+                    </div>
+                </div>
+
+                <!-- Dirección -->
                 <div class="space-y-1.5">
-                    <Label for="manage-supplier-email" class="text-sm font-medium text-foreground flex items-center gap-1.5">
-                        <Mail class="h-3.5 w-3.5 text-muted-foreground" />
-                        Correo Electrónico
+                    <Label for="manage-supplier-address" class="text-xs font-semibold flex items-center gap-1.5">
+                        <MapPin class="h-3.5 w-3.5 text-muted-foreground" />
+                        Dirección Comercial
                     </Label>
                     <Input
-                        id="manage-supplier-email"
-                        type="email"
-                        bind:value={form.email}
-                        placeholder="ventas@proveedor.com"
+                        id="manage-supplier-address"
+                        bind:value={form.address}
+                        placeholder="ej. Av. Corrientes 1234, CABA"
                         class="h-9 text-sm"
                     />
-                    {#if form.errors.email}
-                        <p class="text-xs text-destructive">{form.errors.email}</p>
+                    {#if form.errors.address}
+                        <p class="text-xs text-destructive">{form.errors.address}</p>
                     {/if}
                 </div>
-            </div>
+            </form>
+        </DialogBody>
 
-            <!-- Dirección -->
-            <div class="space-y-1.5">
-                <Label for="manage-supplier-address" class="text-sm font-medium text-foreground flex items-center gap-1.5">
-                    <MapPin class="h-3.5 w-3.5 text-muted-foreground" />
-                    Dirección Comercial
-                </Label>
-                <Input
-                    id="manage-supplier-address"
-                    bind:value={form.address}
-                    placeholder="ej. Av. Corrientes 1234, CABA"
-                    class="h-9 text-sm"
-                />
-                {#if form.errors.address}
-                    <p class="text-xs text-destructive">{form.errors.address}</p>
-                {/if}
-            </div>
-
-            <!-- Footer: Izquierda Desactivar/Eliminar, Derecha Guardar y Cancelar -->
-            <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-5 border-t border-border mt-6">
-                <!-- Abajo a la izquierda: Botón de Estado y Eliminar -->
-                <div class="flex items-center gap-2">
-                    {#if form.is_active}
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            class="text-xs font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 border-rose-200 dark:border-rose-900/40 gap-1.5"
-                            onclick={() => (showDeactivateConfirm = true)}
-                            disabled={form.processing || isDeleting}
-                        >
-                            <ShieldAlert class="size-3.5" />
-                            <span>Desactivar proveedor</span>
-                        </Button>
-                    {:else}
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            class="text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/40 gap-1.5"
-                            onclick={() => (showActivateConfirm = true)}
-                            disabled={form.processing || isDeleting}
-                        >
-                            <ShieldCheck class="size-3.5" />
-                            <span>Activar proveedor</span>
-                        </Button>
-                    {/if}
-
+        <DialogFooter class="sm:justify-between">
+            <!-- Izquierda: Estado y Eliminar -->
+            <div class="flex items-center gap-2">
+                {#if form.is_active}
                     <Button
                         type="button"
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
-                        class="text-xs font-medium text-muted-foreground hover:text-destructive gap-1 px-2"
-                        onclick={() => (showDeleteConfirm = true)}
-                        disabled={isDeleting || form.processing}
+                        class="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 border-rose-200 dark:border-rose-900/40 gap-1.5"
+                        onclick={() => (showDeactivateConfirm = true)}
+                        disabled={form.processing || isDeleting}
                     >
-                        <Trash2 class="size-3.5" />
-                        <span>Eliminar</span>
+                        <ShieldAlert class="size-3.5" />
+                        <span>Desactivar proveedor</span>
                     </Button>
-                </div>
+                {:else}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/40 gap-1.5"
+                        onclick={() => (showActivateConfirm = true)}
+                        disabled={form.processing || isDeleting}
+                    >
+                        <ShieldCheck class="size-3.5" />
+                        <span>Activar proveedor</span>
+                    </Button>
+                {/if}
 
-                <!-- Abajo a la derecha: Botón 'Guardar cambios' y botón 'Cancelar' -->
-                <div class="flex items-center justify-end gap-2">
-                    <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing || isDeleting} class="text-xs font-medium">
-                        Cancelar
-                    </Button>
-                    <Button type="submit" size="sm" disabled={form.processing || isDeleting} class="min-w-32 text-xs font-medium">
-                        {form.processing ? 'Guardando...' : 'Guardar cambios'}
-                    </Button>
-                </div>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    class="text-xs text-muted-foreground hover:text-destructive gap-1 px-2"
+                    onclick={() => (showDeleteConfirm = true)}
+                    disabled={isDeleting || form.processing}
+                >
+                    <Trash2 class="size-3.5" />
+                    <span>Eliminar</span>
+                </Button>
             </div>
-        </form>
+
+            <!-- Derecha: Guardar cambios y Cancelar -->
+            <div class="flex items-center justify-end gap-2">
+                <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing || isDeleting} class="text-xs">
+                    Cancelar
+                </Button>
+                <Button type="submit" form="manage-supplier-form" size="sm" disabled={form.processing || isDeleting} class="min-w-32 text-xs font-semibold">
+                    {form.processing ? 'Guardando...' : 'Guardar cambios'}
+                </Button>
+            </div>
+        </DialogFooter>
     </DialogContent>
 </Dialog>
 
-<!-- Modal: Desactivar Proveedor -->
+<!-- Modal Precaución: Desactivar Proveedor -->
 <ConfirmActionModal
     bind:open={showDeactivateConfirm}
-    title="¿Desactivar proveedor?"
+    title="Desactivar Proveedor"
     description={`¿Estás seguro de que deseas desactivar al proveedor "${form.name || supplier?.name}"? No estará disponible para nuevas compras ni órdenes hasta que sea reactivado.`}
-    confirmText="Desactivar proveedor"
+    confirmText="Sí, desactivar"
     cancelText="Cancelar"
     variant="danger"
     onconfirm={confirmToggleDeactivate}
@@ -307,20 +310,20 @@
 <!-- Modal: Activar Proveedor -->
 <ConfirmActionModal
     bind:open={showActivateConfirm}
-    title="¿Activar proveedor?"
+    title="Activar Proveedor"
     description={`¿Deseas activar nuevamente al proveedor "${form.name || supplier?.name}" para habilitar compras y operaciones?`}
-    confirmText="Activar proveedor"
+    confirmText="Sí, activar"
     cancelText="Cancelar"
     variant="primary"
     onconfirm={confirmToggleActivate}
 />
 
-<!-- Modal: Eliminar Proveedor Permanentemente -->
+<!-- Modal Precaución: Eliminar Proveedor Permanentemente -->
 <ConfirmActionModal
     bind:open={showDeleteConfirm}
-    title="¿Eliminar proveedor?"
-    description={`¿Estás seguro de que deseas eliminar permanentemente al proveedor "${form.name || supplier?.name}"? Esta acción no se puede deshacer.`}
-    confirmText="Eliminar proveedor"
+    title="Eliminar Proveedor Permanentemente"
+    description={`¿Estás seguro de que deseas eliminar permanentemente al proveedor "${form.name || supplier?.name}"? Esta acción borrará el registro de forma definitiva.`}
+    confirmText="Sí, eliminar definitivamente"
     cancelText="Cancelar"
     variant="danger"
     loading={isDeleting}

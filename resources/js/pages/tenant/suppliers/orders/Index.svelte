@@ -9,7 +9,6 @@
     import Truck from 'lucide-svelte/icons/truck';
     import Users from 'lucide-svelte/icons/users';
     import X from 'lucide-svelte/icons/x';
-    import SortSelect from '@/components/common/SortSelect.svelte';
     import CreateSupplierOrderModal from './CreateSupplierOrderModal.svelte';
     import SupplierOrderDetailModal from './SupplierOrderDetailModal.svelte';
     import SupplierOrderListDesktop from './desktop/SupplierOrderListDesktop.svelte';
@@ -71,7 +70,6 @@
     interface FilterProps {
         search?: string | null;
         status?: string | null;
-        sort_by?: string | null;
     }
 
     let {
@@ -90,19 +88,9 @@
 
     let searchTerm = $state(filters.search ?? '');
     let selectedStatus = $state(filters.status ?? 'all');
-    let sortBy = $state(filters.sort_by ?? 'latest');
     let isCreateModalOpen = $state(false);
     let isDetailModalOpen = $state(false);
     let selectedOrder = $state<SupplierOrderData | null>(null);
-
-    const sortOptions = [
-        { value: 'latest', label: 'Más recientes primero' },
-        { value: 'oldest', label: 'Más antiguos primero' },
-        { value: 'cost_high', label: 'Mayor costo total' },
-        { value: 'cost_low', label: 'Menor costo total' },
-        { value: 'order_number_asc', label: 'Nº de orden (Asc)' },
-        { value: 'order_number_desc', label: 'Nº de orden (Desc)' },
-    ];
 
     function applyFilters() {
         router.get(
@@ -110,7 +98,6 @@
             {
                 search: searchTerm || undefined,
                 status: selectedStatus !== 'all' ? selectedStatus : undefined,
-                sort_by: sortBy !== 'latest' ? sortBy : undefined,
             },
             {
                 preserveState: true,
@@ -122,8 +109,7 @@
     function resetFilters() {
         searchTerm = '';
         selectedStatus = 'all';
-        sortBy = 'latest';
-        router.get('/tenant/suppliers/orders', {}, { preserveState: true, preserveScroll: true });
+        router.get('/tenant/suppliers/orders');
     }
 
     function openOrderDetail(order: SupplierOrderData) {
@@ -140,7 +126,7 @@
         }
     });
 
-    let hasActiveFilters = $derived(Boolean(searchTerm || (selectedStatus && selectedStatus !== 'all') || (sortBy && sortBy !== 'latest')));
+    let hasActiveFilters = $derived(Boolean(searchTerm || (selectedStatus && selectedStatus !== 'all')));
 </script>
 
 <AppHead title="Órdenes de Compra a Proveedores - Comercio" />
@@ -149,16 +135,15 @@
     <!-- Pestañas de Navegación del Módulo Proveedores -->
     <div class="flex items-center gap-2 border-b pb-3">
         <Link href="/tenant/suppliers">
-            <Button variant="ghost" size="sm" class="gap-2 text-xs font-medium text-muted-foreground hover:text-foreground">
+            <Button variant="ghost" size="sm" class="gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground">
                 <Users class="size-4" />
-                <span>Directorio de Proveedores</span>
+                Directorio de Proveedores
             </Button>
         </Link>
         <Link href="/tenant/suppliers/orders">
-            <Button variant="secondary" size="sm" class="gap-2 text-xs font-semibold text-primary bg-primary/10 shadow-2xs">
+            <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs">
                 <Truck class="size-4" />
-                <span>Órdenes de Compra</span>
-                <span class="tabular-nums">({stats.total})</span>
+                Órdenes de Compra ({stats.total})
             </Button>
         </Link>
     </div>
@@ -177,10 +162,10 @@
         <div class="flex items-center gap-2.5">
             <Button
                 onclick={() => (isCreateModalOpen = true)}
-                class="gap-2 shadow-sm font-medium"
+                class="gap-2 shadow-sm font-semibold"
             >
                 <Plus class="size-4" />
-                <span>Emitir orden de compra</span>
+                Hacer Pedido a Proveedor
             </Button>
         </div>
     </div>
@@ -200,16 +185,6 @@
             </div>
 
             <div class="flex items-center gap-2.5 w-full md:w-auto flex-wrap">
-                <!-- Selector de Ordenamiento -->
-                <SortSelect
-                    value={sortBy}
-                    options={sortOptions}
-                    onchange={(val) => {
-                        sortBy = val;
-                        applyFilters();
-                    }}
-                />
-
                 <select
                     bind:value={selectedStatus}
                     onchange={applyFilters}

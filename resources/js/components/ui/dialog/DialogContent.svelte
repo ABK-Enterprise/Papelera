@@ -6,48 +6,35 @@
 
     let {
         class: className = '',
-        size = 'default',
         children,
+        ...restProps
     }: {
         class?: string;
-        size?: 'sm' | 'default' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl';
         children?: Snippet;
+        [key: string]: any;
     } = $props();
 
     const { open, setOpen } = getContext<DialogContext>(DIALOG_CONTEXT);
-    const close = () => setOpen(false);
 
-    const sizeClasses: Record<string, string> = {
-        sm: 'max-w-sm',
-        default: 'max-w-lg',
-        lg: 'max-w-xl',
-        xl: 'max-w-2xl',
-        '2xl': 'max-w-3xl',
-        '3xl': 'max-w-4xl',
-        '4xl': 'max-w-5xl',
-        '5xl': 'max-w-6xl',
-    };
+    const close = () => setOpen(false);
 </script>
 
 {#if open()}
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-hidden">
-        <!-- Backdrop oscuro con blur suave -->
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
         <button
             type="button"
-            class="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            class="fixed inset-0 bg-black/60 backdrop-blur-xs"
             aria-label="Cerrar modal"
             onclick={close}
         ></button>
-
-        <!-- Modal Card Flotante con Margen Seguro de 16px, Max Height 85vh y Scroll Interno -->
         <div
             class={cn(
-                'relative z-10 w-full rounded-2xl sm:rounded-3xl border border-border bg-card text-card-foreground shadow-2xl flex flex-col max-h-[85vh] sm:max-h-[88vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150',
-                sizeClasses[size] || sizeClasses.default,
+                'relative z-10 w-full max-w-lg rounded-2xl border bg-background text-foreground shadow-2xl flex flex-col max-h-[85vh] overflow-hidden',
                 className,
             )}
             role="dialog"
             aria-modal="true"
+            {...restProps}
         >
             {@render children?.()}
         </div>

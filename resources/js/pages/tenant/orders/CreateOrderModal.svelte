@@ -27,10 +27,6 @@
         stock: number;
         units_per_package: number;
         package_quantity?: number;
-        bulk_discount_type?: string;
-        custom_bulk_discount_percentage?: number | string | null;
-        effective_bulk_discount_percentage?: number;
-        bulk_discount_price?: number;
     }
 
     export interface CustomerOption {
@@ -55,8 +51,6 @@
         unit_price: number;
         units_per_package: number;
         package_quantity: number;
-        effective_bulk_discount_percentage?: number;
-        bulk_discount_price?: number;
     }
 
     let {
@@ -221,8 +215,6 @@
                     unit_price: Number(prod.price),
                     units_per_package: prod.units_per_package || 1,
                     package_quantity: prod.package_quantity || prod.units_per_package || 1,
-                    effective_bulk_discount_percentage: prod.effective_bulk_discount_percentage ?? 0,
-                    bulk_discount_price: prod.bulk_discount_price ? Number(prod.bulk_discount_price) : Number(prod.price),
                 },
             ];
         }
@@ -360,18 +352,11 @@
         }).format(amount);
     }
 
-    function getItemUnitPrice(it: OrderItemLine): number {
-        if (it.packaging_type === 'bulto' && (it.effective_bulk_discount_percentage ?? 0) > 0) {
-            return it.bulk_discount_price ?? it.unit_price;
-        }
-        return it.unit_price;
-    }
-
     let computedTotal = $derived.by(() => {
         let total = 0;
         for (const it of items) {
             const baseQty = getItemQuantityBase(it);
-            total += baseQty * getItemUnitPrice(it);
+            total += baseQty * it.unit_price;
         }
         return total;
     });
@@ -495,24 +480,24 @@
         aria-hidden="true"
     ></div>
 
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
         <div
-            class="relative w-full max-w-3xl rounded-2xl bg-card border border-border shadow-2xl p-4 sm:p-6 space-y-4 max-h-[92vh] flex flex-col"
+            class="relative w-full max-w-3xl rounded-2xl sm:rounded-3xl bg-card border border-border shadow-2xl p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
         >
             <!-- Header Bento -->
-            <div class="flex items-center justify-between border-b pb-3.5 shrink-0">
+            <div class="flex items-center justify-between border-b pb-3.5 sm:pb-4 shrink-0">
                 <div class="flex items-center gap-2.5">
                     <div class="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
                         <ShoppingBag class="size-5" />
                     </div>
                     <div>
-                        <h2 id="modal-title" class="text-lg font-bold tracking-tight text-foreground">
-                            Registrar pedido de cliente
+                        <h2 id="modal-title" class="text-base font-bold text-foreground">
+                            Nuevo Pedido de Cliente
                         </h2>
-                        <p class="text-xs text-muted-foreground mt-0.5">
+                        <p class="text-xs text-muted-foreground">
                             Selecciona cliente, añade productos por unidades, pesaje (g/Kg) o bultos y confirma el pedido.
                         </p>
                     </div>
@@ -537,17 +522,17 @@
             {/if}
 
             <!-- Form Content (Scrollable) -->
-            <form onsubmit={submitOrder} class="space-y-4 overflow-y-auto pr-1 flex-1">
+            <form id="create-order-form" onsubmit={submitOrder} class="space-y-4 overflow-y-auto flex-1 min-h-0 pr-1">
                 <!-- Bento Card 1: Cliente & Destino con Autocomplete -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                             <User class="size-3.5 text-primary" />
                             Datos del Cliente
                         </h3>
 
                         {#if selectedCustomer}
-                            <span class="inline-flex items-center gap-1 text-xs font-medium tracking-wide text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                                 <UserCheck class="size-3" />
                                 Cliente Registrado
                             </span>
@@ -556,7 +541,7 @@
 
                     <!-- Buscador Autocomplete de Clientes -->
                     <div class="relative z-40">
-                        <Label for="cust-search" class="text-sm font-medium text-foreground mb-1 block">
+                        <Label for="cust-search" class="text-xs font-semibold text-foreground mb-1 block">
                             Buscar Cliente Registrado o Escribir Nuevo
                         </Label>
                         <div class="relative">
@@ -571,7 +556,7 @@
                                     customerName = customerSearchQuery;
                                 }}
                                 placeholder="Escribe el nombre, CUIT/DNI o teléfono para autocompletar..."
-                                class="h-9 w-full rounded-lg border border-input bg-background pl-9 pr-8 text-xs font-normal text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none"
+                                class="h-9 w-full rounded-lg border border-input bg-background pl-9 pr-8 text-xs font-medium text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none"
                             />
                             {#if customerSearchQuery}
                                 <button
@@ -599,27 +584,27 @@
                                         >
                                             <div class="min-w-0 flex-1">
                                                 <div class="flex items-center gap-2">
-                                                    <span class="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                                                    <span class="font-bold text-foreground group-hover:text-primary transition-colors truncate">
                                                         {cust.name}
                                                     </span>
                                                     {#if cust.tax_id}
-                                                        <span class="text-xs tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                                        <span class="text-[10px] font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                                                             {cust.tax_id}
                                                         </span>
                                                     {/if}
                                                     {#if cust.is_defaulter}
-                                                        <span class="inline-flex items-center gap-0.5 text-xs font-medium tracking-wide text-rose-600 bg-rose-500/10 px-1 py-0.2 rounded border border-rose-500/20">
+                                                        <span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-rose-600 bg-rose-500/10 px-1 py-0.2 rounded border border-rose-500/20">
                                                             Moroso
                                                         </span>
                                                     {/if}
                                                 </div>
-                                                <p class="text-xs text-muted-foreground mt-0.5 truncate tabular-nums">
+                                                <p class="text-[11px] text-muted-foreground mt-0.5 truncate">
                                                     {cust.phone || 'Sin teléfono'} • {cust.address || 'Sin dirección'}
                                                 </p>
                                             </div>
 
                                             <div class="text-right shrink-0">
-                                                <span class="text-xs font-medium text-muted-foreground uppercase">
+                                                <span class="text-[10px] font-semibold text-muted-foreground uppercase">
                                                     {cust.tax_condition.replace('_', ' ')}
                                                 </span>
                                             </div>
@@ -629,7 +614,7 @@
                                     {#if customerSearchQuery.trim().length > 0}
                                         <button
                                             type="button"
-                                            class="w-full px-3.5 py-2.5 text-left text-xs hover:bg-muted/60 transition-colors flex items-center gap-2 text-primary font-medium bg-primary/5"
+                                            class="w-full px-3.5 py-2.5 text-left text-xs hover:bg-muted/60 transition-colors flex items-center gap-2 text-primary font-semibold bg-primary/5"
                                             onclick={() => selectUnregisteredCustomer(customerSearchQuery.trim())}
                                         >
                                             <Plus class="size-3.5" />
@@ -651,33 +636,33 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                         <div class="space-y-1">
-                            <Label for="cust-name" class="text-sm font-medium text-foreground">
+                            <Label for="cust-name" class="text-xs font-semibold text-foreground">
                                 Nombre / Razón Social <span class="text-destructive">*</span>
                             </Label>
                             <Input
                                 id="cust-name"
                                 bind:value={customerName}
                                 placeholder="ej. Ana García / Librería Central"
-                                class="h-9 text-xs font-normal"
+                                class="h-9 text-xs font-medium"
                                 required
                             />
                         </div>
                         <div class="space-y-1">
-                            <Label for="cust-phone" class="text-sm font-medium text-foreground">Teléfono / Contacto</Label>
+                            <Label for="cust-phone" class="text-xs font-semibold text-foreground">Teléfono / Contacto</Label>
                             <Input
                                 id="cust-phone"
                                 bind:value={customerPhone}
                                 placeholder="+54 9 11 4455-6677"
-                                class="h-9 text-xs tabular-nums"
+                                class="h-9 text-xs"
                             />
                         </div>
                         <div class="space-y-1">
-                            <Label for="cust-address" class="text-sm font-medium text-foreground">Dirección de Entrega</Label>
+                            <Label for="cust-address" class="text-xs font-semibold text-foreground">Dirección de Entrega</Label>
                             <Input
                                 id="cust-address"
                                 bind:value={deliveryAddress}
                                 placeholder="Av. San Martín 1234 (o Retiro en local)"
-                                class="h-9 text-xs font-normal"
+                                class="h-9 text-xs"
                             />
                         </div>
                     </div>
@@ -686,7 +671,7 @@
                 <!-- Bento Card 2: Productos del Pedido -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3.5">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                             <Layers class="size-3.5 text-primary" />
                             Productos del Pedido
                         </h3>
@@ -703,7 +688,7 @@
                                     onfocus={() => (isSearchOpen = true)}
                                     oninput={() => (isSearchOpen = true)}
                                     placeholder="Escribe el nombre o SKU del producto para buscar..."
-                                    class="h-9 w-full rounded-lg border border-input bg-background pl-9 pr-8 text-xs font-normal text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none"
+                                    class="h-9 w-full rounded-lg border border-input bg-background pl-9 pr-8 text-xs font-medium text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none"
                                 />
                                 {#if searchQuery}
                                     <button
@@ -724,12 +709,12 @@
                                 type="button"
                                 size="sm"
                                 variant="secondary"
-                                class="h-9 text-xs gap-1.5 font-medium shrink-0"
+                                class="h-9 text-xs gap-1.5 font-semibold shrink-0"
                                 onclick={addSelectedProduct}
                                 disabled={!selectedProductToAdd}
                             >
                                 <Plus class="size-3.5" />
-                                <span>Añadir al pedido</span>
+                                Agregar al Pedido
                             </Button>
                         </div>
 
@@ -747,35 +732,35 @@
                                         >
                                             <div class="min-w-0 flex-1">
                                                 <div class="flex items-center gap-2">
-                                                    <span class="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                                                    <span class="font-bold text-foreground group-hover:text-primary transition-colors truncate">
                                                         {prod.name}
                                                     </span>
                                                     {#if prod.sku}
-                                                        <span class="text-xs tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                                        <span class="text-[10px] font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                                                             {prod.sku}
                                                         </span>
                                                     {/if}
                                                     {#if prod.sale_type === 'weight'}
-                                                        <span class="inline-flex items-center gap-0.5 text-xs font-medium tracking-wide text-sky-600 bg-sky-500/10 px-1 py-0.2 rounded border border-sky-500/20">
+                                                        <span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-sky-600 bg-sky-500/10 px-1 py-0.2 rounded border border-sky-500/20">
                                                             <Scale class="size-2.5" />
                                                             Pesaje
                                                         </span>
                                                     {/if}
                                                 </div>
-                                                <p class="text-xs text-muted-foreground mt-0.5 tabular-nums">
+                                                <p class="text-[11px] text-muted-foreground mt-0.5">
                                                     {#if prod.sale_type === 'weight'}
-                                                        Stock: <span class="font-semibold {prod.stock > 0 ? 'text-foreground' : 'text-destructive'}">{prod.stock} Kg</span> • Bulto: {prod.package_quantity || prod.units_per_package || 1} Kg
+                                                        Stock: <span class="font-bold {prod.stock > 0 ? 'text-foreground' : 'text-destructive'}">{prod.stock} Kg</span> • Bulto: {prod.package_quantity || prod.units_per_package || 1} Kg
                                                     {:else}
-                                                        Stock: <span class="font-semibold {prod.stock > 0 ? 'text-foreground' : 'text-destructive'}">{prod.stock} u</span> • Bulto: x{prod.units_per_package} u
+                                                        Stock: <span class="font-bold {prod.stock > 0 ? 'text-foreground' : 'text-destructive'}">{prod.stock} u</span> • Bulto: x{prod.units_per_package} u
                                                     {/if}
                                                 </p>
                                             </div>
 
                                             <div class="text-right shrink-0">
-                                                <span class="font-bold tabular-nums text-primary text-xs block">
+                                                <span class="font-bold font-sans tabular-nums text-primary text-xs block">
                                                     {formatPrice(Number(prod.price))}
                                                 </span>
-                                                <span class="text-xs text-muted-foreground">
+                                                <span class="text-[10px] text-muted-foreground">
                                                     {prod.sale_type === 'weight' ? 'por Kg' : 'por unidad'}
                                                 </span>
                                             </div>
@@ -798,9 +783,7 @@
                             {@const maxAllowed = getMaxAllowedQuantityForItem(index)}
                             {@const isAtStockLimit = item.quantity >= maxAllowed}
                             {@const baseQty = getItemQuantityBase(item)}
-                            {@const effectivePrice = getItemUnitPrice(item)}
-                            {@const lineSubtotal = baseQty * effectivePrice}
-                            {@const isBulkWithDiscount = item.packaging_type === 'bulto' && (item.effective_bulk_discount_percentage ?? 0) > 0}
+                            {@const lineSubtotal = baseQty * item.unit_price}
 
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
                                 <div class="flex items-center gap-3 min-w-0 flex-1">
@@ -813,31 +796,21 @@
                                     </div>
 
                                     <div class="min-w-0 flex-1">
-                                        <div class="flex items-center gap-2 flex-wrap">
-                                            <h4 class="font-semibold text-xs text-foreground truncate">{item.product_name}</h4>
+                                        <div class="flex items-center gap-2">
+                                            <h4 class="font-bold text-xs text-foreground truncate">{item.product_name}</h4>
                                             {#if item.sku}
-                                                <span class="text-xs tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                                <span class="text-[10px] font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                                                     {item.sku}
-                                                </span>
-                                            {/if}
-                                            {#if isBulkWithDiscount}
-                                                <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-700 bg-emerald-500/15 dark:text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded tabular-nums">
-                                                    -{item.effective_bulk_discount_percentage}% bulto
                                                 </span>
                                             {/if}
                                         </div>
 
-                                        <div class="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 tabular-nums flex-wrap">
-                                            {#if isBulkWithDiscount}
-                                                <span>Precio bulto: <strong class="text-emerald-600 dark:text-emerald-400 font-semibold">{formatPrice(effectivePrice)} {item.sale_type === 'weight' ? '/Kg' : '/u'}</strong></span>
-                                                <span class="line-through opacity-60">({formatPrice(item.unit_price)})</span>
-                                            {:else}
-                                                <span>Precio: <strong class="text-foreground">{formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}</strong></span>
-                                            {/if}
+                                        <div class="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
+                                            <span>Precio base: <strong class="font-sans tabular-nums text-foreground">{formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}</strong></span>
                                             <span>•</span>
-                                            <span>Stock: <strong class="text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
+                                            <span>Stock: <strong class="font-sans tabular-nums text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
                                             {#if isAtStockLimit}
-                                                <span class="inline-flex items-center gap-1 text-xs font-medium tracking-wide text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
                                                     Tope
                                                 </span>
                                             {/if}
@@ -845,12 +818,12 @@
                                     </div>
                                 </div>
 
-                                <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 shrink-0">
+                                <div class="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 shrink-0">
                                     <!-- Selector de Presentación (Gramos / Kg / Bulto o Unidad / Bulto) -->
                                     <select
                                         value={item.packaging_type}
                                         onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                        class="h-8 rounded-lg border border-input bg-background px-2 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                        class="h-9 sm:h-10 rounded-lg border border-input bg-background px-2.5 text-xs font-semibold text-foreground focus:ring-1 focus:ring-primary outline-none"
                                     >
                                         {#if item.sale_type === 'weight'}
                                             <option value="gram">Gramos (g)</option>
@@ -866,16 +839,16 @@
                                         {/if}
                                     </select>
 
-                                    <!-- Stepper / Input Cantidad -->
+                                    <!-- Stepper Táctil / Input Cantidad (36x36px a 40x40px touch targets) -->
                                     <div class="flex items-center border rounded-lg bg-background shadow-2xs">
                                         <button
                                             type="button"
-                                            class="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                            class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                             onclick={() => decrementQuantity(index)}
                                             disabled={item.packaging_type === 'gram' ? item.quantity <= 50 : item.packaging_type === 'kg' ? item.quantity <= 0.1 : item.quantity <= 1}
                                             aria-label="Disminuir cantidad"
                                         >
-                                            <Minus class="size-3" />
+                                            <Minus class="size-4" />
                                         </button>
 
                                         <input
@@ -884,32 +857,32 @@
                                             min={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.01' : '1'}
                                             max={maxAllowed}
                                             bind:value={item.quantity}
-                                            class="w-14 text-xs font-semibold tabular-nums text-center bg-transparent border-0 outline-none p-0"
+                                            class="w-12 sm:w-14 h-9 sm:h-10 text-xs sm:text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0"
                                         />
 
                                         <button
                                             type="button"
-                                            class="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                            class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                             onclick={() => incrementQuantity(index)}
                                             disabled={isAtStockLimit}
                                             title={isAtStockLimit ? 'Se alcanzó el stock máximo disponible' : 'Aumentar'}
                                             aria-label="Aumentar cantidad"
                                         >
-                                            <Plus class="size-3" />
+                                            <Plus class="size-4" />
                                         </button>
                                     </div>
 
-                                    <span class=" text-xs font-bold tabular-nums text-foreground w-22 text-right">
+                                    <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground w-20 sm:w-24 text-right">
                                         {formatPrice(lineSubtotal)}
                                     </span>
 
                                     <button
                                         type="button"
-                                        class="p-1.5 text-muted-foreground hover:text-destructive rounded transition-colors"
+                                        class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                                         onclick={() => removeItem(index)}
                                         aria-label="Eliminar producto"
                                     >
-                                        <Trash2 class="size-3.5" />
+                                        <Trash2 class="size-4" />
                                     </button>
                                 </div>
                             </div>
@@ -919,7 +892,7 @@
                             <div class="rounded-xl border border-dashed p-8 text-center bg-card/40 text-muted-foreground text-xs space-y-1">
                                 <ShoppingBag class="mx-auto size-7 text-muted-foreground/40 mb-1" />
                                 <p class="font-semibold text-foreground">El pedido está vacío</p>
-                                <p class="text-xs">Escribe en el buscador superior para seleccionar y agregar productos al pedido.</p>
+                                <p class="text-[11px]">Escribe en el buscador superior para seleccionar y agregar productos al pedido.</p>
                             </div>
                         {/if}
                     </div>
@@ -927,7 +900,7 @@
 
                 <!-- Bento Card 3: Notas Adicionales -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-1.5">
-                    <Label for="order-notes" class="text-sm font-medium text-foreground">Notas / Instrucciones de Entrega</Label>
+                    <Label for="order-notes" class="text-xs font-semibold text-foreground">Notas / Instrucciones de Entrega</Label>
                     <textarea
                         id="order-notes"
                         bind:value={notes}
@@ -938,32 +911,29 @@
                 </div>
             </form>
 
-            <!-- Footer Bento: Total & Botones -->
+            <!-- Footer Bento: Total & Botones (shrink-0) -->
             <div class="flex items-center justify-between border-t pt-3.5 shrink-0">
                 <div class="flex items-baseline gap-2">
                     <span class="text-xs text-muted-foreground">Total del Pedido:</span>
-                    <span class="text-xl font-bold tabular-nums text-primary">{formatPrice(computedTotal)}</span>
+                    <span class="text-lg sm:text-xl font-bold font-sans tabular-nums text-primary">{formatPrice(computedTotal)}</span>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <Button type="button" variant="outline" size="sm" onclick={closeModal} class="text-xs font-medium">
+                    <Button type="button" variant="outline" size="sm" onclick={closeModal}>
                         Cancelar
                     </Button>
                     <Button
-                        type="button"
+                        type="submit"
+                        form="create-order-form"
                         size="sm"
-                        class="gap-1.5 font-medium text-xs"
+                        class="gap-1.5 font-semibold"
                         disabled={isSubmitting || items.length === 0}
-                        onclick={(e) => {
-                            const form = document.querySelector('form');
-                            if (form) form.requestSubmit();
-                        }}
                     >
                         {#if isSubmitting}
                             <span>Guardando...</span>
                         {:else}
                             <Check class="size-4" />
-                            <span>Registrar pedido</span>
+                            <span>Crear Pedido</span>
                         {/if}
                     </Button>
                 </div>
