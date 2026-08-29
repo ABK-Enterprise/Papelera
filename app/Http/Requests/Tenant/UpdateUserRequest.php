@@ -21,8 +21,15 @@ class UpdateUserRequest extends FormRequest
         }
 
         $targetUser = $this->route('user');
-        if ($targetUser instanceof User && $targetUser->tenant_id !== $user->tenant_id) {
+        if ($targetUser instanceof User && (int) $targetUser->tenant_id !== (int) $user->tenant_id) {
             abort(404);
+        }
+
+        if ($targetUser instanceof User) {
+            setPermissionsTeamId($user->tenant_id);
+            if ($targetUser->hasRole('admin') || $targetUser->is_superadmin || (int) $targetUser->id === (int) $user->id) {
+                abort(403, 'No se puede modificar una cuenta de administrador desde la gestión de empleados.');
+            }
         }
 
         return true;

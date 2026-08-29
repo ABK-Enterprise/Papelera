@@ -171,3 +171,40 @@ test('user axel@axel.com can update role details via PUT', function () {
         'name' => 'Encargado de Deposito',
     ]);
 });
+
+test('administrator accounts cannot be edited, updated or deleted via employee management endpoints', function () {
+    $this->actingAs($this->axelUser);
+
+    // Attempting to edit own admin user via employee management URL
+    $this->get("/tenant/users/{$this->axelUser->id}/edit")
+        ->assertForbidden();
+
+    // Attempting to update admin user via PUT
+    $this->put("/tenant/users/{$this->axelUser->id}", [
+        'name' => 'Hacked Admin',
+        'email' => 'hacked@comercio.com',
+        'role' => 'Gestor de Stock',
+    ])->assertForbidden();
+
+    // Attempting to delete admin user via DELETE
+    $this->delete("/tenant/users/{$this->axelUser->id}")
+        ->assertForbidden();
+});
+
+test('primary admin role cannot be edited, updated or deleted via role management endpoints', function () {
+    $this->actingAs($this->axelUser);
+
+    // Attempting to edit admin role via URL
+    $this->get("/tenant/roles/{$this->adminRole->id}/edit")
+        ->assertForbidden();
+
+    // Attempting to update admin role via PUT
+    $this->put("/tenant/roles/{$this->adminRole->id}", [
+        'name' => 'Hacked Admin Role',
+        'permissions' => [],
+    ])->assertForbidden();
+
+    // Attempting to delete admin role via DELETE
+    $this->delete("/tenant/roles/{$this->adminRole->id}")
+        ->assertForbidden();
+});

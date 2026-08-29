@@ -77,11 +77,16 @@ class UserController extends Controller
     {
         $tenant = $request->user()->tenant;
 
-        if ($user->tenant_id !== $tenant->id) {
+        if ((int) $user->tenant_id !== (int) $tenant->id) {
             abort(404);
         }
 
         setPermissionsTeamId($tenant->id);
+
+        if ($user->hasRole('admin') || $user->is_superadmin || $user->id === $request->user()->id) {
+            abort(403, 'Las cuentas de administrador no pueden ser editadas desde la gestión de empleados.');
+        }
+
         $user->load(['roles' => function ($query) {
             $query->select('roles.id', 'roles.name');
         }]);
@@ -101,8 +106,14 @@ class UserController extends Controller
     {
         $tenant = $request->user()->tenant;
 
-        if ($user->tenant_id !== $tenant->id) {
+        if ((int) $user->tenant_id !== (int) $tenant->id) {
             abort(404);
+        }
+
+        setPermissionsTeamId($tenant->id);
+
+        if ($user->hasRole('admin') || $user->is_superadmin || $user->id === $request->user()->id) {
+            abort(403, 'Las cuentas de administrador no pueden ser modificadas desde la gestión de empleados.');
         }
 
         DB::transaction(function () use ($request, $user, $tenant) {
@@ -117,7 +128,6 @@ class UserController extends Controller
 
             $user->update($data);
 
-            setPermissionsTeamId($tenant->id);
             $role = Role::where('name', $request->validated('role'))
                 ->where('tenant_id', $tenant->id)
                 ->firstOrFail();
@@ -133,12 +143,14 @@ class UserController extends Controller
     {
         $tenant = $request->user()->tenant;
 
-        if ($user->tenant_id !== $tenant->id) {
+        if ((int) $user->tenant_id !== (int) $tenant->id) {
             abort(404);
         }
 
-        if ($user->id === $request->user()->id) {
-            abort(403, 'No puede eliminar su propia cuenta de usuario.');
+        setPermissionsTeamId($tenant->id);
+
+        if ($user->hasRole('admin') || $user->is_superadmin || $user->id === $request->user()->id) {
+            abort(403, 'No se puede eliminar una cuenta de administrador.');
         }
 
         $user->delete();
