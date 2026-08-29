@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreCustomerOrderRequest;
 use App\Http\Requests\Tenant\UpdateCustomerOrderStatusRequest;
 use App\Models\Customer;
+use App\Models\CustomerAccountMovement;
 use App\Models\CustomerOrder;
 use App\Models\CustomerOrderItem;
 use App\Models\Product;
@@ -25,6 +26,7 @@ class CustomerOrderController extends Controller
     {
         $search = $request->input('search');
         $status = $request->input('status');
+        $sortBy = $request->input('sort_by', 'latest');
 
         $query = CustomerOrder::with(['items.product:id,name,sku,units_per_package,price', 'customer:id,name,tax_id,tax_condition,phone,address,is_defaulter'])
             ->when($search, function ($q, $search) {
@@ -38,7 +40,12 @@ class CustomerOrderController extends Controller
             ->when($status && $status !== 'all', function ($q) use ($status) {
                 $q->where('status', $status);
             })
-            ->latest();
+            ->when($sortBy === 'oldest', fn ($q) => $q->oldest())
+            ->when($sortBy === 'amount_high', fn ($q) => $q->orderBy('total_amount', 'desc'))
+            ->when($sortBy === 'amount_low', fn ($q) => $q->orderBy('total_amount', 'asc'))
+            ->when($sortBy === 'order_number_asc', fn ($q) => $q->orderBy('order_number', 'asc'))
+            ->when($sortBy === 'order_number_desc', fn ($q) => $q->orderBy('order_number', 'desc'))
+            ->when(! in_array($sortBy, ['oldest', 'amount_high', 'amount_low', 'order_number_asc', 'order_number_desc'], true), fn ($q) => $q->latest());
 
         $orders = $query->get();
 
@@ -54,7 +61,7 @@ class CustomerOrderController extends Controller
         $availableProducts = Product::active()
             ->complete()
             ->where('stock', '>', 0)
-            ->select('id', 'name', 'sku', 'price', 'stock', 'units_per_package')
+            ->select('id', 'tenant_id', 'name', 'sku', 'price', 'stock', 'units_per_package', 'package_quantity', 'bulk_discount_type', 'custom_bulk_discount_percentage')
             ->orderBy('name')
             ->get();
 
@@ -81,6 +88,7 @@ class CustomerOrderController extends Controller
             'filters' => [
                 'search' => $search,
                 'status' => $status ?: 'all',
+                'sort_by' => $sortBy,
             ],
         ]);
     }
@@ -159,7 +167,8 @@ class CustomerOrderController extends Controller
 
                 $runningStock[$productId]['current_stock'] -= $quantityBase;
 
-                $unitPrice = (float) $product->price;
+                $isBulk = ($packagingType === 'bulto' || $packagingType === 'bolson');
+                $unitPrice = $isBulk ? (float) $product->bulk_discount_price : (float) $product->price;
                 $itemSubtotal = round($quantityBase * $unitPrice, 2);
                 $totalAmount += $itemSubtotal;
 
@@ -218,6 +227,38 @@ class CustomerOrderController extends Controller
                     'reason' => 'pedido_cliente',
                     'notes' => "Pedido {$orderNumber} ({$prep['quantity']} {$prep['packaging_type']})",
                 ]);
+            }
+
+            $customerId = $request->validated('customer_id');
+            if ($customerId) {
+                /** @var Customer|null $customer */
+                $customer = Customer::where('id', $customerId)
+                    ->where('tenant_id', $tenantId)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($customer) {
+                    $newBalance = round((float) $customer->current_balance + $totalAmount, 2);
+                    $dueDays = $customer->credit_due_days ?: 30;
+                    $dueDate = now()->addDays($dueDays)->toDateString();
+
+                    CustomerAccountMovement::create([
+                        'tenant_id' => $tenantId,
+                        'customer_id' => $customer->id,
+                        'customer_order_id' => $order->id,
+                        'created_by_user_id' => $userId,
+                        'type' => 'charge',
+                        'description' => "Venta a crédito - Pedido {$orderNumber}",
+                        'amount' => $totalAmount,
+                        'balance_after' => $newBalance,
+                        'due_date' => $dueDate,
+                        'payment_method' => 'cuenta_corriente',
+                        'reference_number' => $orderNumber,
+                        'notes' => $order->notes,
+                    ]);
+
+                    $customer->update(['current_balance' => $newBalance]);
+                }
             }
 
             return $order;
@@ -289,6 +330,35 @@ class CustomerOrderController extends Controller
                         ]);
                     }
                 }
+
+                if ($lockedOrder->customer_id) {
+                    /** @var Customer|null $customer */
+                    $customer = Customer::where('id', $lockedOrder->customer_id)
+                        ->where('tenant_id', $tenantId)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($customer) {
+                        $reversalAmount = (float) $lockedOrder->total_amount;
+                        $newBalance = max(0, round((float) $customer->current_balance - $reversalAmount, 2));
+
+                        CustomerAccountMovement::create([
+                            'tenant_id' => $tenantId,
+                            'customer_id' => $customer->id,
+                            'customer_order_id' => $lockedOrder->id,
+                            'created_by_user_id' => $userId,
+                            'type' => 'adjustment',
+                            'description' => "Anulación por cancelación de Pedido {$lockedOrder->order_number}",
+                            'amount' => $reversalAmount,
+                            'balance_after' => $newBalance,
+                            'payment_method' => 'ajuste',
+                            'reference_number' => "CANCEL-{$lockedOrder->order_number}",
+                            'notes' => 'Ajuste de saldo automático por cancelación del pedido.',
+                        ]);
+
+                        $customer->update(['current_balance' => $newBalance]);
+                    }
+                }
             }
 
             $lockedOrder->update(['status' => $newStatus]);
@@ -347,6 +417,35 @@ class CustomerOrderController extends Controller
                             'reason' => 'cancelacion_pedido',
                             'notes' => "Eliminación {$lockedOrder->order_number}",
                         ]);
+                    }
+                }
+
+                if ($lockedOrder->customer_id) {
+                    /** @var Customer|null $customer */
+                    $customer = Customer::where('id', $lockedOrder->customer_id)
+                        ->where('tenant_id', $tenantId)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($customer) {
+                        $reversalAmount = (float) $lockedOrder->total_amount;
+                        $newBalance = max(0, round((float) $customer->current_balance - $reversalAmount, 2));
+
+                        CustomerAccountMovement::create([
+                            'tenant_id' => $tenantId,
+                            'customer_id' => $customer->id,
+                            'customer_order_id' => null,
+                            'created_by_user_id' => $userId,
+                            'type' => 'adjustment',
+                            'description' => "Anulación por eliminación de Pedido {$lockedOrder->order_number}",
+                            'amount' => $reversalAmount,
+                            'balance_after' => $newBalance,
+                            'payment_method' => 'ajuste',
+                            'reference_number' => "DEL-{$lockedOrder->order_number}",
+                            'notes' => 'Ajuste de saldo automático por eliminación del pedido.',
+                        ]);
+
+                        $customer->update(['current_balance' => $newBalance]);
                     }
                 }
             }

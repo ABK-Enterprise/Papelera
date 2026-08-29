@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('address')->nullable();
             $table->decimal('credit_limit', 12, 2)->default(0);
+            $table->decimal('current_balance', 12, 2)->default(0.00);
+            $table->integer('credit_due_days')->default(30);
             $table->boolean('is_defaulter')->default(false); // Indicador de morosidad
             $table->boolean('is_active')->default(true);
             $table->text('notes')->nullable();

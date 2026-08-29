@@ -1,4 +1,5 @@
 <script lang="ts">
+    import EmptyState from '@/components/common/EmptyState.svelte';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
     import Calendar from 'lucide-svelte/icons/calendar';
     import Package from 'lucide-svelte/icons/package';
@@ -55,18 +56,18 @@
                             <Package class="size-4" />
                         </div>
                         <div class="min-w-0">
-                            <div class="font-bold text-foreground truncate text-sm">
+                            <div class="font-semibold text-foreground truncate text-sm leading-snug">
                                 {mov.product?.name ?? 'Producto eliminado'}
                             </div>
                             {#if mov.product?.sku}
-                                <div class="text-[11px] text-muted-foreground font-mono">
+                                <div class="text-xs text-muted-foreground tracking-wide tabular-nums">
                                     SKU: {mov.product.sku}
                                 </div>
                             {/if}
                         </div>
                     </div>
 
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0 tabular-nums">
                         <ArrowUpRight class="size-3" />
                         -{mov.quantity}
                     </span>
@@ -76,12 +77,12 @@
                 <div class="grid grid-cols-2 gap-2 pt-3 text-xs">
                     <div>
                         <span class="text-muted-foreground block text-[11px]">Stock resultante</span>
-                        <span class="font-semibold text-foreground font-mono">{mov.current_stock}</span>
-                        <span class="text-muted-foreground text-[10px]"> (previo: {mov.previous_stock})</span>
+                        <span class="font-semibold text-foreground tabular-nums">{mov.current_stock}</span>
+                        <span class="text-muted-foreground text-[10px] tabular-nums"> (previo: {mov.previous_stock})</span>
                     </div>
                     <div>
                         <span class="text-muted-foreground block text-[11px]">Motivo</span>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400">
                             {mov.reason === 'devolucion_cliente' ? 'Devolución' : mov.reason.replace(/_/g, ' ')}
                         </span>
                     </div>
@@ -93,7 +94,7 @@
                         <User class="size-3 text-muted-foreground/70" />
                         <span>{mov.user?.name ?? 'Sistema'}</span>
                     </div>
-                    <div class="flex items-center gap-1.5 shrink-0">
+                    <div class="flex items-center gap-1.5 shrink-0 tabular-nums">
                         <Calendar class="size-3 text-muted-foreground/70" />
                         <span>{formatDate(mov.created_at)}</span>
                     </div>
@@ -108,13 +109,9 @@
         {/each}
     </div>
 {:else}
-    <div class="rounded-xl border border-dashed border-border/80 p-8 text-center bg-card/40 flex flex-col items-center justify-center shadow-xs">
-        <div class="flex size-12 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 mb-3">
-            <ArrowUpRight class="size-6" />
-        </div>
-        <h3 class="text-base font-bold text-foreground">No hay egresos registrados</h3>
-        <p class="mt-1 text-xs text-muted-foreground">
-            No se han registrado devoluciones ni salidas de stock hasta el momento.
-        </p>
-    </div>
+    <EmptyState
+        icon={ArrowUpRight}
+        title="No hay egresos registrados"
+        description="No se han registrado devoluciones ni salidas de stock en este período."
+    />
 {/if}

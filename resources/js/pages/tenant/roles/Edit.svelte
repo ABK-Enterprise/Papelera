@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +8,8 @@
     import { Link, useForm } from '@inertiajs/svelte';
     import Check from 'lucide-svelte/icons/check';
     import Shield from 'lucide-svelte/icons/shield';
+    import ArrowLeft from 'lucide-svelte/icons/arrow-left';
+    import { Spinner } from '@/components/ui/spinner';
 
     interface PermissionItem {
         id: number;
@@ -33,30 +35,30 @@
 
     const form = useForm({
         name: role.name,
-        permissions: role.permissions ? role.permissions.map((p) => p.name) : [] as string[],
+        permissions: role.permissions ? role.permissions.map((p) => p.name) : ([] as string[]),
     });
 
     function togglePermission(name: string) {
-        if (form.permissions.includes(name)) {
-            form.permissions = form.permissions.filter((p) => p !== name);
+        if ($form.permissions.includes(name)) {
+            $form.permissions = $form.permissions.filter((p) => p !== name);
         } else {
-            form.permissions = [...form.permissions, name];
+            $form.permissions = [...$form.permissions, name];
         }
     }
 
     function toggleAllModulePermissions(mod: ModuleItem, selectAll: boolean) {
         const modPermNames = mod.permissions.map((p) => p.name);
         if (selectAll) {
-            const newPerms = new Set([...form.permissions, ...modPermNames]);
-            form.permissions = Array.from(newPerms);
+            const newPerms = new Set([...$form.permissions, ...modPermNames]);
+            $form.permissions = Array.from(newPerms);
         } else {
-            form.permissions = form.permissions.filter((p) => !modPermNames.includes(p));
+            $form.permissions = $form.permissions.filter((p) => !modPermNames.includes(p));
         }
     }
 
     function submit(e: SubmitEvent) {
         e.preventDefault();
-        form.put(`/tenant/roles/${role.id}`);
+        $form.put(`/tenant/roles/${role.id}`);
     }
 </script>
 
@@ -65,66 +67,76 @@
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-4xl mx-auto w-full">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Shield class="size-5" />
+            <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Shield class="h-6 w-6 stroke-[1.75]" />
             </div>
             <div>
-                <h1 class="text-2xl font-bold tracking-tight text-foreground">Editar Rol y Permisos</h1>
-                <p class="text-xs sm:text-sm text-muted-foreground">
-                    Modifica el nombre y permisos asociados al perfil seleccionado.
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Editar rol</h1>
+                <p class="text-sm text-muted-foreground mt-0.5">
+                    Modifica el nombre y permisos asociados al perfil "{role.name}".
                 </p>
             </div>
         </div>
         <Link href="/tenant/roles">
-            <Button variant="outline" size="sm" class="text-xs">Volver</Button>
+            <Button variant="outline" class="min-h-[44px] gap-2 rounded-xl border-border/70 font-medium">
+                <ArrowLeft class="h-4 w-4" />
+                <span>Volver</span>
+            </Button>
         </Link>
     </div>
 
     <form onsubmit={submit} class="space-y-6">
-        <Card class="border-border/60 shadow-xs">
+        <Card class="rounded-2xl border-border/70 bg-card shadow-xs">
             <CardHeader class="pb-4">
-                <CardTitle class="text-base font-bold text-foreground">Información del Rol</CardTitle>
+                <CardTitle class="text-base font-semibold text-foreground">Información del Rol</CardTitle>
                 <CardDescription class="text-xs text-muted-foreground">Nombre identificador del rol.</CardDescription>
             </CardHeader>
-            <CardContent class="space-y-4">
-                <div class="space-y-1.5">
-                    <Label for="role-name" class="text-xs font-semibold text-foreground">Nombre del Rol *</Label>
+            <CardContent class="space-y-4 pt-0">
+                <div class="space-y-2">
+                    <Label for="role-name" class="text-sm font-medium text-foreground">Nombre del Rol <span class="text-destructive">*</span></Label>
                     <Input
                         id="role-name"
-                        bind:value={form.name}
+                        bind:value={$form.name}
                         required
-                        class="text-sm shadow-2xs"
+                        class="h-11 rounded-xl border-border/70 bg-muted/20 px-3.5 text-sm font-normal transition-colors focus:bg-background"
                     />
-                    {#if form.errors.name}
-                        <p class="text-xs text-rose-500 font-medium">{form.errors.name}</p>
+                    {#if $form.errors.name}
+                        <p class="text-xs font-medium text-destructive">{$form.errors.name}</p>
                     {/if}
                 </div>
             </CardContent>
         </Card>
 
-        <Card class="border-border/60 shadow-xs">
+        <Card class="rounded-2xl border-border/70 bg-card shadow-xs">
             <CardHeader class="pb-4">
-                <CardTitle class="text-base font-bold text-foreground">Permisos por Módulo Contratado</CardTitle>
-                <CardDescription class="text-xs text-muted-foreground">
-                    Selecciona qué acciones específicas podrán ejecutar los usuarios con este rol.
-                </CardDescription>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <CardTitle class="text-base font-semibold text-foreground">Permisos por Módulo</CardTitle>
+                        <CardDescription class="text-xs text-muted-foreground mt-0.5">
+                            Selecciona qué acciones específicas podrán ejecutar los usuarios con este rol.
+                        </CardDescription>
+                    </div>
+                    <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums">
+                        {$form.permissions.length} seleccionados
+                    </span>
+                </div>
             </CardHeader>
-            <CardContent class="space-y-6">
+            <CardContent class="space-y-6 pt-0">
                 {#each modules as mod (mod.id)}
                     {@const modPermNames = mod.permissions.map((p) => p.name)}
-                    {@const allSelected = mod.permissions.length > 0 && mod.permissions.every((p) => form.permissions.includes(p.name))}
-                    <div class="rounded-xl border border-border/60 p-4 space-y-3 bg-card/60 shadow-2xs">
-                        <div class="flex items-center justify-between border-b border-border/60 pb-3">
+                    {@const allSelected = mod.permissions.length > 0 && mod.permissions.every((p) => $form.permissions.includes(p.name))}
+                    <div class="rounded-2xl border border-border/60 p-4 space-y-3.5 bg-card shadow-2xs">
+                        <div class="flex items-center justify-between border-b border-border/40 pb-3">
                             <div class="flex items-center gap-2">
-                                <h4 class="font-bold text-sm text-foreground">{mod.name}</h4>
-                                <Badge variant="outline" class="font-mono text-[11px] bg-muted/50">{mod.code}</Badge>
+                                <h4 class="font-semibold text-sm text-foreground">{mod.name}</h4>
+                                <Badge variant="outline" class=" text-xs bg-muted/40 px-2">{mod.code}</Badge>
                             </div>
                             {#if mod.permissions.length > 0}
                                 <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
-                                    class="h-7 text-xs font-medium"
+                                    class="min-h-[36px] text-xs font-medium rounded-lg"
                                     onclick={() => toggleAllModulePermissions(mod, !allSelected)}
                                 >
                                     {allSelected ? 'Deseleccionar todos' : 'Seleccionar todos'}
@@ -134,23 +146,21 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-1">
                             {#each mod.permissions as perm (perm.id)}
-                                {@const isChecked = form.permissions.includes(perm.name)}
-                                <div
-                                    role="button"
-                                    tabindex="0"
+                                {@const isChecked = $form.permissions.includes(perm.name)}
+                                <button
+                                    type="button"
                                     onclick={() => togglePermission(perm.name)}
-                                    onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && togglePermission(perm.name)}
-                                    class="flex items-center gap-2.5 rounded-lg border p-2.5 text-xs cursor-pointer select-none transition-all {isChecked
-                                        ? 'border-primary/60 bg-primary/5 text-foreground shadow-2xs font-semibold'
-                                        : 'border-border/60 bg-background hover:bg-muted/40 text-muted-foreground'}"
+                                    class="flex min-h-[44px] items-center gap-3 rounded-xl border p-2.5 text-left text-xs cursor-pointer select-none transition-all {isChecked
+                                        ? 'border-primary bg-primary/5 text-foreground shadow-2xs font-semibold'
+                                       : 'border-border/60 bg-muted/10 hover:bg-muted/30 text-muted-foreground'}"
                                 >
-                                    <div class="size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 {isChecked ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-background'}">
+                                    <div class="size-4.5 rounded-md border flex items-center justify-center transition-colors shrink-0 {isChecked ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-background'}">
                                         {#if isChecked}
                                             <Check class="size-3 stroke-[3]" />
                                         {/if}
                                     </div>
-                                    <span class="font-mono text-xs truncate">{perm.name}</span>
-                                </div>
+                                    <span class=" text-xs truncate flex-1">{perm.name}</span>
+                                </button>
                             {/each}
                             {#if mod.permissions.length === 0}
                                 <p class="text-xs italic text-muted-foreground col-span-full">
@@ -162,23 +172,35 @@
                 {/each}
 
                 {#if modules.length === 0}
-                    <div class="py-6 text-center text-xs italic text-muted-foreground">
+                    <div class="py-8 text-center text-xs italic text-muted-foreground">
                         Tu comercio no tiene módulos activos contratados en este momento.
                     </div>
                 {/if}
 
-                {#if form.errors.permissions}
-                    <p class="text-xs text-rose-500 font-medium">{form.errors.permissions}</p>
+                {#if $form.errors.permissions}
+                    <p class="text-xs font-medium text-destructive">{$form.errors.permissions}</p>
                 {/if}
             </CardContent>
         </Card>
 
-        <div class="flex justify-end gap-3 pt-2">
+        <div class="flex items-center justify-end gap-3">
             <Link href="/tenant/roles">
-                <Button type="button" variant="outline" size="sm" class="text-xs">Cancelar</Button>
+                <Button type="button" variant="outline" class="min-h-[44px] px-5 rounded-xl font-medium border-border/70 text-xs">
+                    Cancelar
+                </Button>
             </Link>
-            <Button type="submit" disabled={form.processing} size="sm" class="min-w-36 text-xs font-semibold">
-                {form.processing ? 'Guardando...' : 'Guardar Cambios'}
+            <Button
+                type="submit"
+                disabled={$form.processing}
+                class="min-h-[44px] min-w-36 gap-2 rounded-xl font-medium text-xs shadow-sm"
+            >
+                {#if $form.processing}
+                    <Spinner class="mr-2" />
+                    <span>Guardando cambios...</span>
+                {:else}
+                    <Check class="h-4 w-4" />
+                    <span>Guardar cambios</span>
+                {/if}
             </Button>
         </div>
     </form>

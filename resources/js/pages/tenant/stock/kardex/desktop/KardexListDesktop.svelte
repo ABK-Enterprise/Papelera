@@ -114,13 +114,13 @@
                 <div class="size-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
                     <ArrowDownLeft class="size-5" />
                 </div>
-                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                <span class="text-xs font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                     Entradas
                 </span>
             </div>
             <div>
                 <span class="text-xs text-muted-foreground font-medium block">Total Ingresos de Stock</span>
-                <span class="text-2xl font-bold font-mono text-foreground">+{totalIncomes} u.</span>
+                <span class="text-2xl font-bold text-foreground tabular-nums">+{totalIncomes} u.</span>
             </div>
         </div>
 
@@ -130,13 +130,13 @@
                 <div class="size-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-500/20">
                     <ArrowUpRight class="size-5" />
                 </div>
-                <span class="text-[11px] font-bold text-rose-600 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
+                <span class="text-xs font-semibold text-rose-600 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
                     Salidas
                 </span>
             </div>
             <div>
                 <span class="text-xs text-muted-foreground font-medium block">Total Salidas / Devoluciones</span>
-                <span class="text-2xl font-bold font-mono text-foreground">-{totalOutcomes} u.</span>
+                <span class="text-2xl font-bold text-foreground tabular-nums">-{totalOutcomes} u.</span>
             </div>
         </div>
 
@@ -146,13 +146,13 @@
                 <div class="size-9 rounded-xl bg-secondary/20 text-secondary flex items-center justify-center border border-secondary/30">
                     <RefreshCw class="size-5" />
                 </div>
-                <span class="text-[11px] font-bold text-secondary bg-secondary/20 px-2.5 py-0.5 rounded-full border border-secondary/30">
+                <span class="text-xs font-semibold text-secondary bg-secondary/20 px-2.5 py-0.5 rounded-full border border-secondary/30">
                     Flujo de Stock
                 </span>
             </div>
             <div>
                 <span class="text-xs text-muted-foreground font-medium block">Balance Neto del Período</span>
-                <span class="text-2xl font-bold font-mono text-foreground">
+                <span class="text-2xl font-bold text-foreground tabular-nums">
                     {netBalance >= 0 ? `+${netBalance}` : netBalance} u.
                 </span>
             </div>
@@ -170,7 +170,7 @@
                     class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all {selectedType === 'all' ? 'bg-primary text-primary-foreground shadow-2xs' : 'text-muted-foreground hover:bg-muted/80'}"
                     onclick={() => (selectedType = 'all')}
                 >
-                    Todos ({movements.length})
+                    Todos (<span class="tabular-nums font-semibold">{movements.length}</span>)
                 </button>
                 <button
                     type="button"
@@ -213,13 +213,13 @@
         <div class="w-full overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="border-b border-border/60 bg-muted/10 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                        <th class="py-3.5 px-6">Fecha / Hora</th>
-                        <th class="py-3.5 px-6">Producto</th>
+                    <tr class="border-b border-border/60 bg-muted/10 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        <th class="py-3.5 px-6 text-left">Fecha y hora</th>
+                        <th class="py-3.5 px-6 text-left">Producto</th>
                         <th class="py-3.5 px-6 text-center">Tipo</th>
-                        <th class="py-3.5 px-6 text-center">Cantidad</th>
-                        <th class="py-3.5 px-6 text-center">Stock Resultante</th>
-                        <th class="py-3.5 px-6">Responsable</th>
+                        <th class="py-3.5 px-6 text-right">Cantidad</th>
+                        <th class="py-3.5 px-6 text-right">Stock resultante</th>
+                        <th class="py-3.5 px-6 text-left">Responsable</th>
                         <th class="py-3.5 px-6 text-right">Acciones</th>
                     </tr>
                 </thead>
@@ -239,23 +239,23 @@
                         {#each filteredMovements as mov (mov.id)}
                             <tr class="hover:bg-muted/30 transition-colors group">
                                 <!-- Fecha -->
-                                <td class="py-4 px-6 text-muted-foreground whitespace-nowrap">
-                                    <div class="flex items-center gap-1.5 font-mono text-[11px]">
+                                <td class="py-4 px-6 text-muted-foreground whitespace-nowrap text-left">
+                                    <div class="flex items-center gap-1.5 text-xs tabular-nums">
                                         <Calendar class="size-3.5 text-muted-foreground/60" />
                                         <span>{formatDate(mov.created_at)}</span>
                                     </div>
                                 </td>
 
                                 <!-- Producto con Avatar de Iniciales -->
-                                <td class="py-4 px-6">
+                                <td class="py-4 px-6 text-left">
                                     <div class="flex items-center gap-3">
-                                        <div class="size-8 rounded-full {mov.type === 'income' ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-300' : 'bg-rose-500/15 border-rose-500/30 text-rose-700 dark:text-rose-300'} border flex items-center justify-center font-bold text-[11px] shrink-0">
+                                        <div class="size-8 rounded-full {mov.type === 'income' ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-300' : 'bg-rose-500/15 border-rose-500/30 text-rose-700 dark:text-rose-300'} border flex items-center justify-center font-bold text-xs shrink-0">
                                             {getInitials(mov.product?.name)}
                                         </div>
                                         <div class="min-w-0">
-                                            <div class="font-semibold text-foreground truncate max-w-xs">{mov.product?.name ?? 'Producto eliminado'}</div>
+                                             <div class="font-semibold text-foreground truncate max-w-xs leading-snug">{mov.product?.name ?? 'Producto eliminado'}</div>
                                             {#if mov.product?.sku}
-                                                <div class="text-[10px] text-muted-foreground font-mono">SKU: {mov.product.sku}</div>
+                                                <div class="text-xs text-muted-foreground tabular-nums tracking-wide">SKU: {mov.product.sku}</div>
                                             {/if}
                                         </div>
                                     </div>
@@ -264,12 +264,12 @@
                                 <!-- Tipo Badge -->
                                 <td class="py-4 px-6 text-center whitespace-nowrap">
                                     {#if mov.type === 'income'}
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                             <ArrowDownLeft class="size-3" />
                                             Ingreso
                                         </span>
                                     {:else}
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
                                             <ArrowUpRight class="size-3" />
                                             Egreso
                                         </span>
@@ -277,18 +277,18 @@
                                 </td>
 
                                 <!-- Cantidad -->
-                                <td class="py-4 px-6 text-center whitespace-nowrap font-bold text-xs font-mono {mov.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+                                <td class="py-4 px-6 text-right whitespace-nowrap font-semibold text-xs tabular-nums {mov.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
                                     {mov.type === 'income' ? `+${mov.quantity}` : `-${mov.quantity}`} u.
                                 </td>
 
                                 <!-- Stock Resultante -->
-                                <td class="py-4 px-6 text-center whitespace-nowrap font-mono">
-                                    <span class="font-bold text-foreground">{mov.current_stock}</span>
+                                <td class="py-4 px-6 text-right whitespace-nowrap tabular-nums">
+                                    <span class="font-semibold text-foreground">{mov.current_stock}</span>
                                     <span class="text-[10px] text-muted-foreground block font-sans">antes: {mov.previous_stock}</span>
                                 </td>
 
                                 <!-- Responsable -->
-                                <td class="py-4 px-6 text-muted-foreground whitespace-nowrap">
+                                <td class="py-4 px-6 text-muted-foreground whitespace-nowrap text-left">
                                     <div class="flex items-center gap-1.5">
                                         <User class="size-3 text-muted-foreground/60" />
                                         <span>{mov.user?.name ?? 'Sistema'}</span>
@@ -301,10 +301,10 @@
                                         variant="outline"
                                         size="sm"
                                         onclick={() => onSelectMovement(mov)}
-                                        class="h-8 text-xs gap-1.5 rounded-lg"
+                                        class="h-8 text-xs gap-1.5 rounded-lg font-medium"
                                     >
                                         <Eye class="size-3.5" />
-                                        <span>Ver Detalle</span>
+                                        <span>Ver detalle</span>
                                     </Button>
                                 </td>
                             </tr>
@@ -316,8 +316,8 @@
 
         <!-- Footer -->
         <div class="p-4 border-t border-border/60 bg-muted/10 flex items-center justify-between text-xs text-muted-foreground">
-            <div>Mostrando {filteredMovements.length} de {movements.length} movimientos</div>
-            <div class="text-[11px] font-mono">Kardex Audit Trail</div>
+            <div>Mostrando <strong class="text-foreground tabular-nums font-semibold">{filteredMovements.length}</strong> de <strong class="text-foreground tabular-nums font-semibold">{movements.length}</strong> movimientos</div>
+            <div class="text-xs tabular-nums">Kardex Audit Trail</div>
         </div>
     </div>
 </div>

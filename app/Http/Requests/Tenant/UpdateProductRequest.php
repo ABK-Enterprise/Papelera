@@ -37,6 +37,8 @@ class UpdateProductRequest extends FormRequest
             'min_stock' => ['nullable', 'numeric', 'min:0'],
             'units_per_package' => ['nullable', 'numeric', 'min:0.001'],
             'package_quantity' => ['nullable', 'numeric', 'min:0.001'],
+            'bulk_discount_type' => ['nullable', 'string', 'in:inherited,custom,none'],
+            'custom_bulk_discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'image_url' => ['nullable', 'string', 'max:1000'],
             'is_active' => ['boolean'],
         ];

@@ -77,31 +77,31 @@
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <div class="flex items-center gap-2">
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
                     <ShieldCheck class="size-3.5" />
-                    Plataforma Global
+                    Plataforma global
                 </span>
                 <span class="text-xs text-muted-foreground">Sistema Multi-Tenant</span>
             </div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground mt-1">
-                Panel de Control de Plataforma
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground mt-1">
+                Panel de control de plataforma
             </h1>
-            <p class="text-sm text-muted-foreground mt-0.5">
+            <p class="text-sm text-muted-foreground mt-0.5 leading-relaxed">
                 Métricas globales del ecosistema, estado de comercios y cobertura de módulos.
             </p>
         </div>
 
         <div class="flex items-center gap-2.5">
             <Link href="/platform/tenants/create">
-                <Button class="gap-2 shadow-sm font-semibold">
+                <Button class="min-h-[40px] gap-2 shadow-sm font-medium rounded-xl">
                     <Plus class="size-4" />
-                    Nuevo Comercio
+                    <span>Crear comercio</span>
                 </Button>
             </Link>
             <Link href="/platform/modules">
-                <Button variant="outline" class="gap-2 font-semibold">
+                <Button variant="outline" class="min-h-[40px] gap-2 font-medium rounded-xl border-border/70">
                     <Boxes class="size-4" />
-                    Gestionar Módulos
+                    <span>Gestionar módulos</span>
                 </Button>
             </Link>
         </div>
@@ -112,20 +112,20 @@
         <!-- Card 1: Comercios -->
         <Card class="p-5 rounded-2xl border border-border/70 shadow-sm relative overflow-hidden bg-card">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Comercios</span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Comercios</span>
                 <div class="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
                     <Building2 class="size-5" />
                 </div>
             </div>
             <div class="mt-4">
-                <div class="text-3xl font-bold font-mono text-foreground">{stats.total_tenants}</div>
+                <div class="text-3xl font-bold tracking-tight tabular-nums text-foreground">{stats.total_tenants}</div>
                 <div class="flex items-center gap-2 mt-2 text-xs">
-                    <span class="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span class="inline-flex items-center gap-1 font-medium tracking-wide tabular-nums text-emerald-600 dark:text-emerald-400">
                         <span class="size-1.5 rounded-full bg-emerald-500"></span>
                         {stats.active_tenants} activos
                     </span>
                     {#if stats.inactive_tenants > 0}
-                        <span class="inline-flex items-center gap-1 font-semibold text-rose-600 dark:text-rose-400">
+                        <span class="inline-flex items-center gap-1 font-medium tracking-wide tabular-nums text-rose-600 dark:text-rose-400">
                             <span class="size-1.5 rounded-full bg-rose-500"></span>
                             {stats.inactive_tenants} pausados
                         </span>
@@ -137,13 +137,13 @@
         <!-- Card 2: Usuarios Globales -->
         <Card class="p-5 rounded-2xl border border-border/70 shadow-sm relative overflow-hidden bg-card">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Usuarios Totales</span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Usuarios totales</span>
                 <div class="size-10 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center border border-blue-500/20">
                     <Users class="size-5" />
                 </div>
             </div>
             <div class="mt-4">
-                <div class="text-3xl font-bold font-mono text-foreground">{stats.total_users}</div>
+                <div class="text-3xl font-bold tracking-tight tabular-nums text-foreground">{stats.total_users}</div>
                 <p class="text-xs text-muted-foreground mt-2">Operadores y administradores registrados</p>
             </div>
         </Card>
@@ -151,13 +151,13 @@
         <!-- Card 3: Catálogo Global -->
         <Card class="p-5 rounded-2xl border border-border/70 shadow-sm relative overflow-hidden bg-card">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Catálogo Global</span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Catálogo global</span>
                 <div class="size-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center border border-amber-500/20">
                     <Package class="size-5" />
                 </div>
             </div>
             <div class="mt-4">
-                <div class="text-3xl font-bold font-mono text-foreground">{stats.total_products}</div>
+                <div class="text-3xl font-bold tracking-tight tabular-nums text-foreground">{stats.total_products}</div>
                 <p class="text-xs text-muted-foreground mt-2">Productos cargados en el sistema</p>
             </div>
         </Card>
@@ -165,13 +165,13 @@
         <!-- Card 4: Módulos del Sistema -->
         <Card class="p-5 rounded-2xl border border-border/70 shadow-sm relative overflow-hidden bg-card">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Módulos SaaS</span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Módulos SaaS</span>
                 <div class="size-10 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center border border-indigo-500/20">
                     <Boxes class="size-5" />
                 </div>
             </div>
             <div class="mt-4">
-                <div class="text-3xl font-bold font-mono text-foreground">{stats.total_modules}</div>
+                <div class="text-3xl font-bold tracking-tight tabular-nums text-foreground">{stats.total_modules}</div>
                 <p class="text-xs text-muted-foreground mt-2">Servicios modulares configurables</p>
             </div>
         </Card>
@@ -183,11 +183,11 @@
         <div class="lg:col-span-2 space-y-3">
             <div class="flex items-center justify-between">
                 <div>
-                    <h2 class="text-lg font-bold text-foreground">Comercios Recientes</h2>
-                    <p class="text-xs text-muted-foreground">Últimos tenants incorporados a la plataforma</p>
+                    <h2 class="text-base sm:text-lg font-semibold tracking-tight text-foreground">Comercios recientes</h2>
+                    <p class="text-xs text-muted-foreground leading-relaxed">Últimos comercios incorporados a la plataforma</p>
                 </div>
-                <Link href="/platform/tenants" class="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
-                    Ver todos los comercios
+                <Link href="/platform/tenants" class="text-xs font-medium text-primary hover:underline flex items-center gap-1">
+                    <span>Ver todos los comercios</span>
                     <ArrowUpRight class="size-3.5" />
                 </Link>
             </div>
@@ -201,36 +201,36 @@
                             </div>
                             <div class="min-w-0">
                                 <div class="flex items-center gap-2">
-                                    <h3 class="font-bold text-sm text-foreground truncate">{tenant.name}</h3>
+                                    <h3 class="font-semibold text-sm text-foreground truncate">{tenant.name}</h3>
                                     {#if tenant.is_active}
-                                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/50">
+                                        <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/50">
                                             <span class="size-1 rounded-full bg-emerald-500"></span>
                                             Activo
                                         </span>
                                     {:else}
-                                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-muted text-muted-foreground border border-border">
+                                        <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide bg-muted text-muted-foreground border border-border">
                                             <span class="size-1 rounded-full bg-muted-foreground"></span>
                                             Pausado
                                         </span>
                                     {/if}
                                 </div>
-                                <p class="text-xs text-muted-foreground font-mono">
+                                <p class="text-xs text-muted-foreground tabular-nums">
                                     CUIT: {tenant.cuit_tax_id || 'Sin CUIT'} • Alta: {formatDate(tenant.created_at)}
                                 </p>
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-4 text-xs font-mono shrink-0">
+                        <div class="flex items-center gap-4 text-xs shrink-0">
                             <div class="text-right">
-                                <span class="text-muted-foreground block text-[10px] uppercase font-sans">Usuarios</span>
-                                <span class="font-bold text-foreground">{tenant.users_count}</span>
+                                <span class="text-muted-foreground block text-xs uppercase tracking-wider font-medium font-sans">Usuarios</span>
+                                <span class="font-semibold tabular-nums text-foreground">{tenant.users_count}</span>
                             </div>
                             <div class="text-right">
-                                <span class="text-muted-foreground block text-[10px] uppercase font-sans">Productos</span>
-                                <span class="font-bold text-foreground">{tenant.products_count}</span>
+                                <span class="text-muted-foreground block text-xs uppercase tracking-wider font-medium font-sans">Productos</span>
+                                <span class="font-semibold tabular-nums text-foreground">{tenant.products_count}</span>
                             </div>
                             <Link href={`/platform/tenants/${tenant.id}/edit`}>
-                                <Button size="sm" variant="ghost" class="h-8 text-xs text-primary gap-1">
+                                <Button size="sm" variant="ghost" class="h-8 text-xs text-primary gap-1 font-medium">
                                     Editar
                                 </Button>
                             </Link>
@@ -249,8 +249,8 @@
         <!-- Cobertura de Módulos (1 Col) -->
         <div class="space-y-3">
             <div>
-                <h2 class="text-lg font-bold text-foreground">Adopción de Módulos</h2>
-                <p class="text-xs text-muted-foreground">Tenants con módulos habilitados</p>
+                <h2 class="text-base sm:text-lg font-semibold tracking-tight text-foreground">Adopción de módulos</h2>
+                <p class="text-xs text-muted-foreground leading-relaxed">Comercios con módulos habilitados</p>
             </div>
 
             <Card class="p-4 rounded-xl border border-border/70 shadow-2xs divide-y divide-border/50 bg-card">
@@ -258,17 +258,17 @@
                     <div class="py-3 first:pt-0 last:pb-0 flex items-center justify-between">
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="font-bold text-sm text-foreground">{mod.name}</span>
+                                <span class="font-semibold text-sm text-foreground">{mod.name}</span>
                                 {#if mod.is_active}
                                     <span class="size-1.5 rounded-full bg-emerald-500" title="Módulo activo globalmente"></span>
                                 {:else}
                                     <span class="size-1.5 rounded-full bg-muted-foreground" title="Módulo desactivado"></span>
                                 {/if}
                             </div>
-                            <span class="text-xs text-muted-foreground font-mono">Código: {mod.code}</span>
+                            <span class="text-xs text-muted-foreground tabular-nums">Código: {mod.code}</span>
                         </div>
                         <div class="text-right">
-                            <span class="text-xs font-bold font-mono text-primary bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">
+                            <span class="text-xs font-medium tracking-wide tabular-nums text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
                                 {mod.tenants_count} {mod.tenants_count === 1 ? 'comercio' : 'comercios'}
                             </span>
                         </div>

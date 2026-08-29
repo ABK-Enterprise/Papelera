@@ -3,9 +3,11 @@
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
+        DialogBody,
         DialogContent,
         DialogDescription,
         DialogFooter,
+        DialogHeader,
         DialogTitle,
     } from '@/components/ui/dialog';
     import TriangleAlert from 'lucide-svelte/icons/triangle-alert';
@@ -54,62 +56,62 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-md p-6">
-        <div class="flex items-start gap-4">
-            <!-- Icono dinámico según variante -->
-            <div
-                class="flex size-11 shrink-0 items-center justify-center rounded-xl {variant === 'danger'
-                    ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
-                    : variant === 'warning'
-                      ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
-                      : variant === 'success'
-                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                        : 'bg-primary/10 text-primary border border-primary/20'}"
-            >
-                {#if variant === 'danger'}
-                    <TriangleAlert class="size-5.5" />
-                {:else if variant === 'warning'}
-                    <ShieldAlert class="size-5.5" />
-                {:else if variant === 'success'}
-                    <CheckCircle2 class="size-5.5" />
-                {:else}
-                    <HelpCircle class="size-5.5" />
-                {/if}
-            </div>
-
-            <div class="space-y-1.5 flex-1 min-w-0">
-                <DialogTitle class="text-lg font-bold text-foreground leading-snug">
+    <DialogContent size="sm" class="max-w-md">
+        <DialogHeader>
+            <div class="flex items-center gap-3 min-w-0">
+                <!-- Icono dinámico según variante -->
+                <div
+                    class="flex size-9 shrink-0 items-center justify-center rounded-xl {variant === 'danger'
+                        ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+                        : variant === 'warning'
+                          ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+                          : variant === 'success'
+                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                            : 'bg-primary/10 text-primary border border-primary/20'}"
+                >
+                    {#if variant === 'danger'}
+                        <TriangleAlert class="size-4.5" />
+                    {:else if variant === 'warning'}
+                        <ShieldAlert class="size-4.5" />
+                    {:else if variant === 'success'}
+                        <CheckCircle2 class="size-4.5" />
+                    {:else}
+                        <HelpCircle class="size-4.5" />
+                    {/if}
+                </div>
+                <DialogTitle class="text-base font-semibold leading-snug truncate">
                     {title}
                 </DialogTitle>
-                <DialogDescription class="text-xs text-muted-foreground leading-relaxed">
-                    {description}
-                </DialogDescription>
             </div>
-
             <button
                 type="button"
                 onclick={handleCancel}
-                class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1 -mt-1"
+                class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
                 aria-label="Cerrar"
             >
                 <X class="size-4" />
             </button>
-        </div>
+        </DialogHeader>
 
-        {#if children}
-            <div class="pt-3">
-                {@render children()}
-            </div>
-        {/if}
+        <DialogBody>
+            <DialogDescription class="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                {description}
+            </DialogDescription>
+            {#if children}
+                <div class="pt-2">
+                    {@render children()}
+                </div>
+            {/if}
+        </DialogBody>
 
-        <DialogFooter class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 pt-4 mt-2 border-t border-border/50">
+        <DialogFooter>
             <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onclick={handleCancel}
                 disabled={loading}
-                class="text-xs"
+                class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
             >
                 {cancelText}
             </Button>
@@ -118,7 +120,7 @@
                 size="sm"
                 onclick={handleConfirm}
                 disabled={loading}
-                class="text-xs font-semibold min-w-28 {variant === 'danger'
+                class="min-h-[40px] px-4 rounded-xl text-xs font-medium min-w-28 shadow-xs {variant === 'danger'
                     ? 'bg-rose-600 hover:bg-rose-700 text-white dark:bg-rose-600 dark:hover:bg-rose-700'
                     : variant === 'warning'
                       ? 'bg-amber-600 hover:bg-amber-700 text-white'

@@ -21,6 +21,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $phone
  * @property string|null $address
  * @property string $credit_limit
+ * @property string $current_balance
+ * @property int $credit_due_days
  * @property bool $is_defaulter
  * @property bool $is_active
  * @property string|null $notes
@@ -36,6 +38,8 @@ use Illuminate\Support\Carbon;
     'phone',
     'address',
     'credit_limit',
+    'current_balance',
+    'credit_due_days',
     'is_defaulter',
     'is_active',
     'notes',
@@ -45,13 +49,27 @@ class Customer extends Model
     /** @use HasFactory<CustomerFactory> */
     use BelongsToTenant, HasFactory;
 
+    protected $appends = [
+        'available_credit',
+    ];
+
     protected function casts(): array
     {
         return [
             'credit_limit' => 'decimal:2',
+            'current_balance' => 'decimal:2',
+            'credit_due_days' => 'integer',
             'is_defaulter' => 'boolean',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function getAvailableCreditAttribute(): float
+    {
+        $limit = (float) $this->credit_limit;
+        $balance = (float) $this->current_balance;
+
+        return max(0, round($limit - $balance, 2));
     }
 
     public function tenant(): BelongsTo
@@ -62,5 +80,10 @@ class Customer extends Model
     public function orders(): HasMany
     {
         return $this->hasMany(CustomerOrder::class);
+    }
+
+    public function movements(): HasMany
+    {
+        return $this->hasMany(CustomerAccountMovement::class)->latest();
     }
 }

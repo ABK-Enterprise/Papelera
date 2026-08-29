@@ -95,13 +95,13 @@
             {#if supplier.contact_number || supplier.email}
                 <div class="flex items-center gap-2 flex-wrap pt-1 border-t border-border/40">
                     {#if supplier.contact_number}
-                        <span class="inline-flex items-center gap-1 text-[11px] font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-sans tabular-nums bg-muted/60 px-2 py-0.5 rounded text-foreground">
                             <Phone class="size-3 text-muted-foreground" />
                             {supplier.contact_number}
                         </span>
                     {/if}
                     {#if supplier.email}
-                        <span class="inline-flex items-center gap-1 text-[11px] font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[200px]">
+                        <span class="inline-flex items-center gap-1 text-[11px] bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[200px]">
                             <Mail class="size-3 text-muted-foreground" />
                             {supplier.email}
                         </span>

@@ -48,6 +48,8 @@ use Illuminate\Support\Facades\DB;
     'min_stock',
     'units_per_package',
     'package_quantity',
+    'bulk_discount_type',
+    'custom_bulk_discount_percentage',
     'image_url',
     'is_active',
 ])]
@@ -66,6 +68,7 @@ class Product extends Model
             'min_stock' => FlexibleDecimal::class,
             'units_per_package' => FlexibleDecimal::class,
             'package_quantity' => FlexibleDecimal::class,
+            'custom_bulk_discount_percentage' => 'decimal:2',
             'is_active' => 'boolean',
         ];
     }
@@ -87,6 +90,8 @@ class Product extends Model
 
     protected $appends = [
         'is_incomplete',
+        'effective_bulk_discount_percentage',
+        'bulk_discount_price',
     ];
 
     public function isWeighable(): bool
@@ -105,6 +110,41 @@ class Product extends Model
         }
 
         return (float) ($this->package_quantity ?? $this->units_per_package ?? 1);
+    }
+
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class);
+    }
+
+    public function getEffectiveBulkDiscountPercentageAttribute(): float
+    {
+        if ($this->bulk_discount_type === 'none') {
+            return 0.00;
+        }
+
+        if ($this->bulk_discount_type === 'custom') {
+            return (float) ($this->custom_bulk_discount_percentage ?? 0.00);
+        }
+
+        if ($this->relationLoaded('tenant') && $this->tenant) {
+            return (float) ($this->tenant->default_bulk_discount_percentage ?? 0.00);
+        }
+
+        $tenantDiscount = Tenant::where('id', $this->tenant_id)->value('default_bulk_discount_percentage');
+
+        return (float) ($tenantDiscount ?? 0.00);
+    }
+
+    public function getBulkDiscountPriceAttribute(): float
+    {
+        $price = (float) $this->price;
+        $discount = $this->effective_bulk_discount_percentage;
+        if ($discount <= 0) {
+            return $price;
+        }
+
+        return round($price * (1 - ($discount / 100)), 2);
     }
 
     public function category(): BelongsTo

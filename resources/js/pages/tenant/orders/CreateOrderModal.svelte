@@ -480,15 +480,15 @@
         aria-hidden="true"
     ></div>
 
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
         <div
-            class="relative w-full max-w-3xl rounded-2xl bg-card border border-border shadow-2xl p-4 sm:p-6 space-y-4 max-h-[92vh] flex flex-col"
+            class="relative w-full max-w-3xl rounded-2xl sm:rounded-3xl bg-card border border-border shadow-2xl p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
         >
             <!-- Header Bento -->
-            <div class="flex items-center justify-between border-b pb-3.5 shrink-0">
+            <div class="flex items-center justify-between border-b pb-3.5 sm:pb-4 shrink-0">
                 <div class="flex items-center gap-2.5">
                     <div class="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
                         <ShoppingBag class="size-5" />
@@ -522,7 +522,7 @@
             {/if}
 
             <!-- Form Content (Scrollable) -->
-            <form onsubmit={submitOrder} class="space-y-4 overflow-y-auto pr-1 flex-1">
+            <form id="create-order-form" onsubmit={submitOrder} class="space-y-4 overflow-y-auto flex-1 min-h-0 pr-1">
                 <!-- Bento Card 1: Cliente & Destino con Autocomplete -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
                     <div class="flex items-center justify-between">
@@ -588,7 +588,7 @@
                                                         {cust.name}
                                                     </span>
                                                     {#if cust.tax_id}
-                                                        <span class="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                                        <span class="text-[10px] font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                                                             {cust.tax_id}
                                                         </span>
                                                     {/if}
@@ -736,7 +736,7 @@
                                                         {prod.name}
                                                     </span>
                                                     {#if prod.sku}
-                                                        <span class="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                                        <span class="text-[10px] font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                                                             {prod.sku}
                                                         </span>
                                                     {/if}
@@ -757,7 +757,7 @@
                                             </div>
 
                                             <div class="text-right shrink-0">
-                                                <span class="font-bold font-mono text-primary text-xs block">
+                                                <span class="font-bold font-sans tabular-nums text-primary text-xs block">
                                                     {formatPrice(Number(prod.price))}
                                                 </span>
                                                 <span class="text-[10px] text-muted-foreground">
@@ -799,16 +799,16 @@
                                         <div class="flex items-center gap-2">
                                             <h4 class="font-bold text-xs text-foreground truncate">{item.product_name}</h4>
                                             {#if item.sku}
-                                                <span class="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                                <span class="text-[10px] font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                                                     {item.sku}
                                                 </span>
                                             {/if}
                                         </div>
 
                                         <div class="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
-                                            <span>Precio base: <strong class="font-mono text-foreground">{formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}</strong></span>
+                                            <span>Precio base: <strong class="font-sans tabular-nums text-foreground">{formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}</strong></span>
                                             <span>•</span>
-                                            <span>Stock: <strong class="font-mono text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
+                                            <span>Stock: <strong class="font-sans tabular-nums text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
                                             {#if isAtStockLimit}
                                                 <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
                                                     Tope
@@ -818,12 +818,12 @@
                                     </div>
                                 </div>
 
-                                <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 shrink-0">
+                                <div class="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 shrink-0">
                                     <!-- Selector de Presentación (Gramos / Kg / Bulto o Unidad / Bulto) -->
                                     <select
                                         value={item.packaging_type}
                                         onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                        class="h-8 rounded-lg border border-input bg-background px-2 text-xs font-semibold text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                        class="h-9 sm:h-10 rounded-lg border border-input bg-background px-2.5 text-xs font-semibold text-foreground focus:ring-1 focus:ring-primary outline-none"
                                     >
                                         {#if item.sale_type === 'weight'}
                                             <option value="gram">Gramos (g)</option>
@@ -839,16 +839,16 @@
                                         {/if}
                                     </select>
 
-                                    <!-- Stepper / Input Cantidad -->
+                                    <!-- Stepper Táctil / Input Cantidad (36x36px a 40x40px touch targets) -->
                                     <div class="flex items-center border rounded-lg bg-background shadow-2xs">
                                         <button
                                             type="button"
-                                            class="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                            class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                             onclick={() => decrementQuantity(index)}
                                             disabled={item.packaging_type === 'gram' ? item.quantity <= 50 : item.packaging_type === 'kg' ? item.quantity <= 0.1 : item.quantity <= 1}
                                             aria-label="Disminuir cantidad"
                                         >
-                                            <Minus class="size-3" />
+                                            <Minus class="size-4" />
                                         </button>
 
                                         <input
@@ -857,32 +857,32 @@
                                             min={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.01' : '1'}
                                             max={maxAllowed}
                                             bind:value={item.quantity}
-                                            class="w-14 text-xs font-bold font-mono text-center bg-transparent border-0 outline-none p-0"
+                                            class="w-12 sm:w-14 h-9 sm:h-10 text-xs sm:text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0"
                                         />
 
                                         <button
                                             type="button"
-                                            class="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                            class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                             onclick={() => incrementQuantity(index)}
                                             disabled={isAtStockLimit}
                                             title={isAtStockLimit ? 'Se alcanzó el stock máximo disponible' : 'Aumentar'}
                                             aria-label="Aumentar cantidad"
                                         >
-                                            <Plus class="size-3" />
+                                            <Plus class="size-4" />
                                         </button>
                                     </div>
 
-                                    <span class="font-mono text-xs font-bold text-foreground w-22 text-right">
+                                    <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground w-20 sm:w-24 text-right">
                                         {formatPrice(lineSubtotal)}
                                     </span>
 
                                     <button
                                         type="button"
-                                        class="p-1.5 text-muted-foreground hover:text-destructive rounded transition-colors"
+                                        class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                                         onclick={() => removeItem(index)}
                                         aria-label="Eliminar producto"
                                     >
-                                        <Trash2 class="size-3.5" />
+                                        <Trash2 class="size-4" />
                                     </button>
                                 </div>
                             </div>
@@ -911,11 +911,11 @@
                 </div>
             </form>
 
-            <!-- Footer Bento: Total & Botones -->
+            <!-- Footer Bento: Total & Botones (shrink-0) -->
             <div class="flex items-center justify-between border-t pt-3.5 shrink-0">
                 <div class="flex items-baseline gap-2">
                     <span class="text-xs text-muted-foreground">Total del Pedido:</span>
-                    <span class="text-xl font-bold font-mono text-primary">{formatPrice(computedTotal)}</span>
+                    <span class="text-lg sm:text-xl font-bold font-sans tabular-nums text-primary">{formatPrice(computedTotal)}</span>
                 </div>
 
                 <div class="flex items-center gap-2">
@@ -923,14 +923,11 @@
                         Cancelar
                     </Button>
                     <Button
-                        type="button"
+                        type="submit"
+                        form="create-order-form"
                         size="sm"
                         class="gap-1.5 font-semibold"
                         disabled={isSubmitting || items.length === 0}
-                        onclick={(e) => {
-                            const form = document.querySelector('form');
-                            if (form) form.requestSubmit();
-                        }}
                     >
                         {#if isSubmitting}
                             <span>Guardando...</span>

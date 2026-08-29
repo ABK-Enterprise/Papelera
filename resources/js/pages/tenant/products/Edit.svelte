@@ -32,6 +32,8 @@
         min_stock: number;
         units_per_package?: number;
         package_quantity?: number;
+        bulk_discount_type?: string;
+        custom_bulk_discount_percentage?: number | string | null;
         image_url: string | null;
         is_active: boolean;
     }
@@ -39,9 +41,11 @@
     let {
         product,
         categories = [],
+        tenantDefaultBulkDiscount = 0,
     }: {
         product: ProductData;
         categories: CategoryOption[];
+        tenantDefaultBulkDiscount?: number;
     } = $props();
 
     const initialSaleType = (product.sale_type ?? 'unit') as 'unit' | 'weight';
@@ -61,6 +65,8 @@
         min_stock: product.min_stock,
         units_per_package: product.units_per_package ?? product.package_quantity ?? 1,
         package_quantity: product.package_quantity ?? product.units_per_package ?? 1,
+        bulk_discount_type: product.bulk_discount_type ?? 'inherited',
+        custom_bulk_discount_percentage: product.custom_bulk_discount_percentage ?? '',
         image_url: product.image_url ?? '',
         is_active: product.is_active,
     });
@@ -73,10 +79,17 @@
         }).format(amount);
     }
 
+    let effectiveDiscountPercent = $derived.by(() => {
+        if (form.bulk_discount_type === 'none') return 0;
+        if (form.bulk_discount_type === 'custom') return Number(form.custom_bulk_discount_percentage) || 0;
+        return Number(tenantDefaultBulkDiscount) || 0;
+    });
+
     let calculatedPackagePrice = $derived.by(() => {
         const unitPrice = Number(form.price) || 0;
         const ratio = Number(form.sale_type === 'weight' ? (form.package_quantity || form.units_per_package) : form.units_per_package) || 1;
-        return unitPrice * ratio;
+        const discountMultiplier = (1 - (effectiveDiscountPercent / 100));
+        return unitPrice * ratio * discountMultiplier;
     });
 
     function doSubmit() {
@@ -109,15 +122,15 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
                 Editar Producto
             </h1>
-            <p class="text-sm text-muted-foreground mt-0.5">
+            <p class="text-sm text-muted-foreground mt-0.5 max-w-prose">
                 Modifica los datos generales, modalidad de venta, precios e inventario de este producto.
             </p>
         </div>
         <Link href="/tenant/products">
-            <Button variant="outline" size="sm" class="gap-1.5 text-xs rounded-full">
+            <Button variant="outline" size="sm" class="gap-1.5 text-xs rounded-full font-medium">
                 <ArrowLeft class="size-3.5" />
                 Volver al catálogo
             </Button>
@@ -129,9 +142,9 @@
         <!-- Columna Izquierda: Imagen y Empaque (40%) -->
         <div class="w-full md:w-5/12 bg-muted/25 p-6 sm:p-8 flex flex-col border-b md:border-b-0 md:border-r border-border/70 shrink-0">
             <div class="mb-4">
-                <h2 class="text-lg font-bold text-foreground flex items-center gap-2">
+                <h2 class="text-base sm:text-lg font-semibold text-foreground flex items-center gap-2 leading-snug">
                     <Package class="size-5 text-primary" />
-                    Imagen & Empaque
+                    Imagen y empaque
                 </h2>
                 <p class="text-xs text-muted-foreground mt-0.5">
                     Previsualización visual y cálculo del precio por bulto cerrado.
@@ -170,9 +183,9 @@
             <!-- Resumen de Bulto -->
             <div class="mt-5 p-4 rounded-2xl bg-primary/5 border border-primary/20 space-y-2.5">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                    <span class="text-xs font-semibold text-primary uppercase tracking-wide flex items-center gap-1.5">
                         <Sparkles class="size-3.5" />
-                        Cálculo de Bulto
+                        Cálculo de bulto
                     </span>
                     {#if form.is_active}
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
@@ -188,15 +201,15 @@
                 <div class="grid grid-cols-2 gap-3 pt-1 text-xs">
                     <div>
                         <span class="text-[10px] text-muted-foreground block">
-                            {form.sale_type === 'weight' ? 'Kg por Bulto' : 'Unidades por Bulto'}
+                            {form.sale_type === 'weight' ? 'Kg por bulto' : 'Unidades por bulto'}
                         </span>
-                        <span class="font-bold text-foreground">
+                        <span class="font-semibold text-foreground tabular-nums">
                             {form.sale_type === 'weight' ? (form.package_quantity || form.units_per_package || 1) : (form.units_per_package || 1)} {form.sale_type === 'weight' ? 'Kg' : (Number(form.units_per_package) === 1 ? 'unidad' : 'unidades')}
                         </span>
                     </div>
                     <div>
-                        <span class="text-[10px] text-muted-foreground block">Precio del Bulto</span>
-                        <span class="font-bold font-mono text-primary">
+                        <span class="text-[10px] text-muted-foreground block">Precio del bulto</span>
+                        <span class="font-bold text-primary tabular-nums">
                             {formatPrice(calculatedPackagePrice)}
                         </span>
                     </div>
@@ -210,7 +223,7 @@
                 <!-- 1. Información Básica con Segmented Pill Switcher -->
                 <div class="space-y-3">
                     <div class="flex items-center justify-between gap-2 flex-wrap pb-1">
-                        <h3 class="text-xs font-bold text-primary uppercase tracking-wider">1. Información Básica</h3>
+                        <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">1. Información básica</h3>
                         
                         <!-- Segmented Pill Switcher Minimalista -->
                         <div class="inline-flex items-center p-0.5 rounded-xl bg-muted/80 border border-border/80 text-xs">
@@ -220,7 +233,7 @@
                                 class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs transition-all {form.sale_type === 'unit' ? 'bg-background text-foreground font-bold shadow-2xs' : 'text-muted-foreground hover:text-foreground font-medium'}"
                             >
                                 <Package class="size-3.5 text-primary" />
-                                <span>Por Unidad</span>
+                                <span>Por unidad</span>
                             </button>
                             <button
                                 type="button"
@@ -228,7 +241,7 @@
                                 class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs transition-all {form.sale_type === 'weight' ? 'bg-background text-foreground font-bold shadow-2xs' : 'text-muted-foreground hover:text-foreground font-medium'}"
                             >
                                 <Scale class="size-3.5 text-sky-600 dark:text-sky-400" />
-                                <span>Por Pesaje (Kg)</span>
+                                <span>Por pesaje (Kg)</span>
                             </button>
                         </div>
                     </div>
@@ -256,7 +269,7 @@
                                 id="edit-prod-sku"
                                 bind:value={form.sku}
                                 placeholder="ej. RES-A4-75"
-                                class="h-9 text-xs rounded-xl"
+                                class="h-9 text-xs rounded-xl tracking-wide"
                             />
                             {#if form.errors.sku}
                                 <p class="text-xs text-destructive">{form.errors.sku}</p>
@@ -286,7 +299,7 @@
 
                 <!-- 2. Precios & Fiscal -->
                 <div class="space-y-3">
-                    <h3 class="text-xs font-bold text-primary uppercase tracking-wider">2. Precios & Facturación</h3>
+                    <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">2. Precios y facturación</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div class="space-y-1">
                             <Label for="edit-prod-price" class="text-xs font-semibold">
@@ -301,7 +314,7 @@
                                     min="0"
                                     bind:value={form.price}
                                     placeholder="0.00"
-                                    class="h-9 pl-7 text-xs rounded-xl font-mono"
+                                    class="h-9 pl-7 text-xs rounded-xl tabular-nums"
                                     required
                                 />
                             </div>
@@ -323,7 +336,7 @@
                                     min="0"
                                     bind:value={form.cost_price}
                                     placeholder="0.00"
-                                    class="h-9 pl-7 text-xs rounded-xl font-mono"
+                                    class="h-9 pl-7 text-xs rounded-xl tabular-nums"
                                 />
                             </div>
                             {#if form.errors.cost_price}
@@ -336,7 +349,7 @@
                             <select
                                 id="edit-prod-iva"
                                 bind:value={form.iva_rate}
-                                class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none tabular-nums"
                             >
                                 <option value={21.00}>21.0% (General)</option>
                                 <option value={10.50}>10.5% (Reducido)</option>
@@ -349,9 +362,56 @@
 
                 <hr class="border-border/60" />
 
+                <!-- Descuento por Bulto -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">Descuento por Bulto</h3>
+                        {#if effectiveDiscountPercent > 0}
+                            <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                                -{effectiveDiscountPercent}% aplicado
+                            </span>
+                        {/if}
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <Label for="edit-prod-discount-type" class="text-xs font-semibold">Modalidad de Descuento</Label>
+                            <select
+                                id="edit-prod-discount-type"
+                                bind:value={form.bulk_discount_type}
+                                class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                            >
+                                <option value="inherited">Heredar global ({tenantDefaultBulkDiscount}%)</option>
+                                <option value="custom">Personalizado (% específico)</option>
+                                <option value="none">Sin descuento por bulto (0%)</option>
+                            </select>
+                        </div>
+
+                        {#if form.bulk_discount_type === 'custom'}
+                            <div class="space-y-1">
+                                <Label for="edit-prod-custom-discount" class="text-xs font-semibold">
+                                    Porcentaje Personalizado (%) <span class="text-destructive">*</span>
+                                </Label>
+                                <Input
+                                    id="edit-prod-custom-discount"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    max="100"
+                                    bind:value={form.custom_bulk_discount_percentage}
+                                    placeholder="0.00"
+                                    class="h-9 text-xs rounded-xl tabular-nums font-semibold"
+                                    required
+                                />
+                            </div>
+                        {/if}
+                    </div>
+                </div>
+
+                <hr class="border-border/60" />
+
                 <!-- 3. Inventario y Empaque -->
                 <div class="space-y-3">
-                    <h3 class="text-xs font-bold text-primary uppercase tracking-wider">3. Inventario & Empaque</h3>
+                    <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">3. Inventario y empaque</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div class="space-y-1">
                             <div class="flex items-center justify-between">
@@ -367,7 +427,7 @@
                                 min="0"
                                 bind:value={form.stock}
                                 disabled
-                                class="h-9 text-xs rounded-xl text-center font-bold bg-muted/50 cursor-not-allowed opacity-80"
+                                class="h-9 text-xs rounded-xl text-center font-bold bg-muted/50 cursor-not-allowed opacity-80 tabular-nums"
                                 title="El stock físico se ajusta mediante Ingresos/Egresos auditados en Kardex"
                             />
                             {#if form.errors.stock}
@@ -385,7 +445,7 @@
                                 step={form.sale_type === 'weight' ? '0.001' : '1'}
                                 min="0"
                                 bind:value={form.min_stock}
-                                class="h-9 text-xs rounded-xl text-center"
+                                class="h-9 text-xs rounded-xl text-center tabular-nums"
                             />
                             {#if form.errors.min_stock}
                                 <p class="text-xs text-destructive">{form.errors.min_stock}</p>
@@ -401,7 +461,7 @@
                                     step="0.01"
                                     min="0.1"
                                     bind:value={form.package_quantity}
-                                    class="h-9 text-xs rounded-xl text-center font-bold"
+                                    class="h-9 text-xs rounded-xl text-center font-bold tabular-nums"
                                 />
                             {:else}
                                 <Label for="edit-prod-units-pack" class="text-xs font-semibold">Unidades por Bulto</Label>
@@ -410,7 +470,7 @@
                                     type="number"
                                     min="1"
                                     bind:value={form.units_per_package}
-                                    class="h-9 text-xs rounded-xl text-center font-bold"
+                                    class="h-9 text-xs rounded-xl text-center font-bold tabular-nums"
                                 />
                             {/if}
                             {#if form.errors.units_per_package || form.errors.package_quantity}
@@ -424,13 +484,14 @@
 
                 <!-- 4. Código de Barras, Descripción & Estado -->
                 <div class="space-y-3">
+                    <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">4. Código de barras, descripción y estado</h3>
                     <div class="space-y-1">
                         <Label for="edit-prod-barcode" class="text-xs font-semibold">Código de Barras (EAN / UPC)</Label>
                         <Input
                             id="edit-prod-barcode"
                             bind:value={form.barcode}
                             placeholder="ej. 7791234567890"
-                            class="h-9 text-xs rounded-xl"
+                            class="h-9 text-xs rounded-xl tracking-wide"
                         />
                     </div>
 
@@ -472,7 +533,7 @@
                         disabled={form.processing}
                     >
                         <Check class="size-4" />
-                        <span>Guardar Cambios</span>
+                        <span>Guardar cambios</span>
                     </Button>
                 </div>
             </form>

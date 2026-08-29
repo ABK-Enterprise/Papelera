@@ -1,5 +1,10 @@
 <?php
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+uses(TestCase::class, RefreshDatabase::class);
+
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Product;

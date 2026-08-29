@@ -31,6 +31,8 @@ class CustomerFactory extends Factory
             'phone' => fake()->phoneNumber(),
             'address' => fake()->address(),
             'credit_limit' => fake()->randomFloat(2, 10000, 200000),
+            'current_balance' => 0.00,
+            'credit_due_days' => 30,
             'is_defaulter' => false,
             'is_active' => true,
             'notes' => fake()->optional()->sentence(),

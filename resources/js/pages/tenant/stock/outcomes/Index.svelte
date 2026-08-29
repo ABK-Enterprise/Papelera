@@ -55,8 +55,8 @@
     <!-- Page Header -->
     <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <h1 class="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Egresos de Stock</h1>
-            <p class="mt-1.5 text-sm text-muted-foreground sm:text-base max-w-2xl">
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">Egresos de Stock</h1>
+            <p class="mt-1 text-sm text-muted-foreground max-w-prose">
                 Registro de salidas y devoluciones de mercadería con trazabilidad garantizada.
             </p>
         </div>
@@ -66,7 +66,7 @@
                 class="flex items-center gap-2 font-semibold shadow-sm bg-rose-600 hover:bg-rose-700 text-white"
             >
                 <Minus class="size-4" />
-                <span>Registrar Egreso</span>
+                <span>Registrar egreso</span>
             </Button>
         </div>
     </div>

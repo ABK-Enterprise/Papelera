@@ -24,6 +24,8 @@ return new class extends Migration
             $table->decimal('iva_rate', 5, 2)->default(21.00);
             $table->integer('stock')->default(0);
             $table->integer('min_stock')->default(5);
+            $table->string('bulk_discount_type', 20)->default('inherited');
+            $table->decimal('custom_bulk_discount_percentage', 5, 2)->nullable();
             $table->string('image_url')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();

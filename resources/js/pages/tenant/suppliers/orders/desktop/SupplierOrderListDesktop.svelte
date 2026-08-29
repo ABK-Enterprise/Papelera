@@ -77,11 +77,11 @@
         >
             <!-- Número de Orden & Proveedor -->
             <div class="flex items-center gap-3.5 min-w-[220px]">
-                <div class="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary font-mono font-bold shrink-0 group-hover:scale-105 transition-transform">
+                <div class="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold shrink-0 group-hover:scale-105 transition-transform">
                     <Truck class="size-5" />
                 </div>
                 <div>
-                    <span class="font-bold text-base font-mono text-foreground">{order.order_number}</span>
+                    <span class="font-bold text-base font-sans tabular-nums text-foreground">{order.order_number}</span>
                     <div class="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                         <Calendar class="size-3" />
                         <span>{formatDate(order.created_at)}</span>
@@ -129,7 +129,7 @@
             <div class="flex items-center gap-4 shrink-0">
                 <div class="text-right min-w-[100px]">
                     <span class="text-xs text-muted-foreground block">Costo Total:</span>
-                    <span class="font-bold text-base font-mono text-foreground">
+                    <span class="font-bold text-base font-sans tabular-nums text-foreground">
                         {Number(order.total_cost) > 0 ? formatPrice(order.total_cost) : '-'}
                     </span>
                 </div>

@@ -1,0 +1,207 @@
+<script lang="ts">
+    import { Button } from '@/components/ui/button';
+    import {
+        Dialog,
+        DialogBody,
+        DialogContent,
+        DialogDescription,
+        DialogFooter,
+        DialogHeader,
+        DialogTitle,
+    } from '@/components/ui/dialog';
+    import { Input } from '@/components/ui/input';
+    import { Label } from '@/components/ui/label';
+    import { router } from '@inertiajs/svelte';
+    import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
+    import Check from 'lucide-svelte/icons/check';
+    import ShieldCheck from 'lucide-svelte/icons/shield-check';
+    import X from 'lucide-svelte/icons/x';
+
+    export interface CustomerAccountData {
+        id: number;
+        name: string;
+        tax_id: string | null;
+        credit_limit: string | number;
+        credit_due_days?: number;
+        is_defaulter: boolean;
+    }
+
+    let {
+        open = $bindable(false),
+        customer = null,
+    }: {
+        open?: boolean;
+        customer: CustomerAccountData | null;
+    } = $props();
+
+    let creditLimit = $state('');
+    let creditDueDays = $state(30);
+    let isDefaulter = $state(false);
+    let isSubmitting = $state(false);
+    let errorMessage = $state<string | null>(null);
+
+    $effect(() => {
+        if (customer) {
+            creditLimit = customer.credit_limit ? customer.credit_limit.toString() : '0';
+            creditDueDays = customer.credit_due_days ?? 30;
+            isDefaulter = !!customer.is_defaulter;
+        }
+    });
+
+    function handleClose() {
+        open = false;
+        errorMessage = null;
+        isSubmitting = false;
+    }
+
+    function handleSubmit(e: Event) {
+        e.preventDefault();
+        if (!customer) return;
+
+        isSubmitting = true;
+        errorMessage = null;
+
+        router.patch(
+            `/tenant/customers/${customer.id}/account/credit-settings`,
+            {
+                credit_limit: Number(creditLimit) || 0,
+                credit_due_days: Number(creditDueDays) || 30,
+                is_defaulter: isDefaulter,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    handleClose();
+                },
+                onError: (errors) => {
+                    isSubmitting = false;
+                    errorMessage = (Object.values(errors)[0] as string) || 'Ocurrió un error al actualizar la configuración.';
+                },
+            }
+        );
+    }
+</script>
+
+<Dialog bind:open>
+    <DialogContent size="default" class="max-w-md">
+        {#if customer}
+            <DialogHeader>
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+                        <ShieldCheck class="size-5" />
+                    </div>
+                    <div class="min-w-0">
+                        <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug truncate">
+                            Límites y plazos de crédito
+                        </DialogTitle>
+                        <DialogDescription class="text-xs text-muted-foreground truncate">
+                            Cliente: <span class="font-semibold text-foreground">{customer.name}</span>
+                        </DialogDescription>
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    onclick={handleClose}
+                    class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                    aria-label="Cerrar"
+                >
+                    <X class="size-4" />
+                </button>
+            </DialogHeader>
+
+            <DialogBody>
+                {#if errorMessage}
+                    <div class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs font-medium">
+                        {errorMessage}
+                    </div>
+                {/if}
+
+                <form id="edit-credit-settings-form" onsubmit={handleSubmit} class="space-y-4">
+                    <!-- Límite de Crédito -->
+                    <div class="space-y-1.5">
+                        <Label for="credit-limit-input" class="text-xs font-semibold text-foreground">
+                            Límite Máximo de Crédito ($)
+                        </Label>
+                        <div class="relative">
+                            <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">$</span>
+                            <Input
+                                id="credit-limit-input"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                bind:value={creditLimit}
+                                class="pl-7 text-base tabular-nums font-bold"
+                                placeholder="0.00"
+                                required
+                            />
+                        </div>
+                        <p class="text-[11px] text-muted-foreground">
+                            Tope máximo de deuda permitida antes de emitir alertas en pedidos.
+                        </p>
+                    </div>
+
+                    <!-- Días de Vencimiento -->
+                    <div class="space-y-1.5">
+                        <Label for="credit-due-days" class="text-xs font-semibold text-foreground">
+                            Plazo de Vencimiento Predeterminado (Días)
+                        </Label>
+                        <Input
+                            id="credit-due-days"
+                            type="number"
+                            min="1"
+                            max="365"
+                            bind:value={creditDueDays}
+                            class="h-9 text-xs tabular-nums font-semibold"
+                            required
+                        />
+                        <p class="text-[11px] text-muted-foreground">
+                            Cantidad de días desde la compra a crédito para la fecha límite de cobro.
+                        </p>
+                    </div>
+
+                    <!-- Toggle Morosidad -->
+                    <div class="pt-1">
+                        <label class="flex items-start gap-3 p-3 rounded-xl border border-border/80 bg-muted/20 hover:bg-muted/40 cursor-pointer transition-colors">
+                            <input
+                                type="checkbox"
+                                bind:checked={isDefaulter}
+                                class="size-4 mt-0.5 rounded border-input text-amber-600 focus:ring-amber-500"
+                            />
+                            <div class="space-y-0.5 text-xs">
+                                <span class="font-semibold text-foreground flex items-center gap-1.5">
+                                    <AlertTriangle class="size-3.5 text-amber-600" />
+                                    Marcar como cliente moroso
+                                </span>
+                                <p class="text-muted-foreground text-[11px]">
+                                    Muestra alertas destacadas y advertencias de riesgo en la creación de pedidos.
+                                </p>
+                            </div>
+                        </label>
+                    </div>
+                </form>
+            </DialogBody>
+
+            <DialogFooter>
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onclick={handleClose}
+                    disabled={isSubmitting}
+                    class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
+                >
+                    Cancelar
+                </Button>
+                <Button
+                    type="submit"
+                    form="edit-credit-settings-form"
+                    disabled={isSubmitting}
+                    class="min-h-[40px] px-4 rounded-xl text-xs font-semibold gap-1.5 min-w-32 shadow-xs"
+                >
+                    <Check class="size-3.5" />
+                    <span>Guardar cambios</span>
+                </Button>
+            </DialogFooter>
+        {/if}
+    </DialogContent>
+</Dialog>

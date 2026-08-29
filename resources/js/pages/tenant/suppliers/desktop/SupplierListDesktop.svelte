@@ -90,14 +90,14 @@
                     <!-- Fila 2: Badges de Contacto y Correo -->
                     <div class="flex items-center gap-2.5 flex-wrap">
                         {#if supplier.contact_number}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 font-mono">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 font-sans tabular-nums">
                                 <Phone class="size-3.5 text-muted-foreground" />
                                 {supplier.contact_number}
                             </span>
                         {/if}
 
                         {#if supplier.email}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 font-mono">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40">
                                 <Mail class="size-3.5 text-muted-foreground" />
                                 {supplier.email}
                             </span>

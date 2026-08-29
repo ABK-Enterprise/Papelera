@@ -1,16 +1,18 @@
 <?php
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+uses(TestCase::class, RefreshDatabase::class);
+
 use App\Models\Category;
 use App\Models\Module;
 use App\Models\Product;
 use App\Models\Tenant;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->tenant = Tenant::factory()->create(['is_active' => true]);

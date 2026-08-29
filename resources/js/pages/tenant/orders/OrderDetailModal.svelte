@@ -180,23 +180,23 @@
 
 {#if open && order}
     <div
-        class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+        class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
         onclick={(e) => e.target === e.currentTarget && (open = false)}
         onkeydown={(e) => e.key === 'Escape' && (open = false)}
         role="button"
         tabindex="0"
         aria-label="Cerrar detalle"
     >
-        <div class="bg-card text-card-foreground rounded-2xl border border-border shadow-2xl max-w-2xl w-full p-6 space-y-5 my-8">
-            <!-- Header -->
-            <div class="flex items-center justify-between border-b pb-4">
+        <div class="bg-card text-card-foreground rounded-2xl sm:rounded-3xl border border-border shadow-2xl max-w-2xl w-full p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto">
+            <!-- Header (shrink-0) -->
+            <div class="flex items-center justify-between border-b pb-3.5 sm:pb-4 shrink-0">
                 <div class="flex items-center gap-2.5">
-                    <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary font-mono font-bold">
+                    <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold">
                         <ShoppingBag class="size-5" />
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h2 class="text-lg font-bold text-foreground font-mono">{order.order_number}</h2>
+                            <h2 class="text-base sm:text-lg font-bold text-foreground font-sans tabular-nums">{order.order_number}</h2>
                             {#if order.status === 'en_preparacion'}
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-600 border border-amber-500/30">
                                     En Preparación
@@ -226,187 +226,249 @@
                 <button
                     type="button"
                     onclick={() => (open = false)}
-                    class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                    class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                     aria-label="Cerrar"
                 >
                     <X class="size-5" />
                 </button>
             </div>
 
-            <!-- Cartel Informativo de Estado Terminal -->
-            {#if order.status === 'cancelado'}
-                <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-xs text-rose-700 dark:text-rose-300">
-                    <XCircle class="size-5 text-rose-600 shrink-0" />
-                    <div>
-                        <strong class="font-bold block">Pedido Cancelado Definitivamente</strong>
-                        <span>Este pedido fue cancelado, su stock ya fue reincorporado al catálogo y su registro se encuentra cerrado.</span>
+            <!-- Scrollable Content Body -->
+            <div class="flex-1 min-h-0 overflow-y-auto space-y-4 sm:space-y-5 py-2 pr-1">
+                <!-- Cartel Informativo de Estado Terminal -->
+                {#if order.status === 'cancelado'}
+                    <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-xs text-rose-700 dark:text-rose-300">
+                        <XCircle class="size-5 text-rose-600 shrink-0" />
+                        <div>
+                            <strong class="font-bold block">Pedido Cancelado Definitivamente</strong>
+                            <span>Este pedido fue cancelado, su stock ya fue reincorporado al catálogo y su registro se encuentra cerrado.</span>
+                        </div>
+                    </div>
+                {:else if order.status === 'entregado'}
+                    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-xs text-emerald-700 dark:text-emerald-300">
+                        <CheckCircle2 class="size-5 text-emerald-600 shrink-0" />
+                        <div>
+                            <strong class="font-bold block">Pedido Completado y Entregado</strong>
+                            <span>Este pedido fue entregado con éxito al cliente. La operación logística ha finalizado.</span>
+                        </div>
+                    </div>
+                {/if}
+
+                <!-- Datos del Cliente -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-muted/20 border text-xs">
+                    <div class="space-y-1">
+                        <span class="text-muted-foreground flex items-center gap-1">
+                            <User class="size-3.5" /> Cliente:
+                        </span>
+                        <p class="font-semibold text-foreground">{order.customer_name}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-muted-foreground flex items-center gap-1">
+                            <Phone class="size-3.5" /> Teléfono:
+                        </span>
+                        <p class="font-semibold text-foreground">{order.customer_phone || 'No especificado'}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-muted-foreground flex items-center gap-1">
+                            <MapPin class="size-3.5" /> Entrega:
+                        </span>
+                        <p class="font-semibold text-foreground">{order.delivery_address || 'Retiro en local'}</p>
                     </div>
                 </div>
-            {:else if order.status === 'entregado'}
-                <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-xs text-emerald-700 dark:text-emerald-300">
-                    <CheckCircle2 class="size-5 text-emerald-600 shrink-0" />
-                    <div>
-                        <strong class="font-bold block">Pedido Completado y Entregado</strong>
-                        <span>Este pedido fue entregado con éxito al cliente. La operación logística ha finalizado.</span>
-                    </div>
-                </div>
-            {/if}
 
-            <!-- Datos del Cliente -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-muted/20 border text-xs">
-                <div class="space-y-1">
-                    <span class="text-muted-foreground flex items-center gap-1">
-                        <User class="size-3.5" /> Cliente:
-                    </span>
-                    <p class="font-semibold text-foreground">{order.customer_name}</p>
-                </div>
-                <div class="space-y-1">
-                    <span class="text-muted-foreground flex items-center gap-1">
-                        <Phone class="size-3.5" /> Teléfono:
-                    </span>
-                    <p class="font-semibold text-foreground">{order.customer_phone || 'No especificado'}</p>
-                </div>
-                <div class="space-y-1">
-                    <span class="text-muted-foreground flex items-center gap-1">
-                        <MapPin class="size-3.5" /> Entrega:
-                    </span>
-                    <p class="font-semibold text-foreground">{order.delivery_address || 'Retiro en local'}</p>
-                </div>
-            </div>
-
-            <!-- Tabla de Items -->
-            <div class="space-y-2">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Productos y Cantidades</h4>
-                <div class="rounded-xl border overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-muted/40 text-muted-foreground border-b">
-                            <tr>
-                                <th class="p-2.5">Producto</th>
-                                <th class="p-2.5">Presentación</th>
-                                <th class="p-2.5 text-center">Cant.</th>
-                                <th class="p-2.5 text-right">Precio Unit.</th>
-                                <th class="p-2.5 text-right">Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y">
-                            {#each order.items ?? [] as item}
-                                <tr>
-                                    <td class="p-2.5 font-medium text-foreground">
-                                        {item.product?.name || `Producto #${item.product_id}`}
+                <!-- Detalle de Productos -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Productos y Cantidades</h4>
+                    
+                    <!-- Stacked Cards en Mobile (block sm:hidden) -->
+                    <div class="block sm:hidden space-y-2.5">
+                        {#each order.items ?? [] as item}
+                            <div class="p-3.5 rounded-xl border bg-muted/20 space-y-2.5">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="min-w-0 flex-1">
+                                        <h5 class="text-sm font-semibold text-foreground leading-tight">
+                                            {item.product?.name || `Producto #${item.product_id}`}
+                                        </h5>
                                         {#if item.product?.sku}
-                                            <span class="text-[10px] text-muted-foreground block font-mono">SKU: {item.product.sku}</span>
+                                            <span class="text-xs text-muted-foreground font-sans tabular-nums block mt-0.5">
+                                                SKU: {item.product.sku}
+                                            </span>
                                         {/if}
-                                    </td>
-                                    <td class="p-2.5 text-muted-foreground">
+                                    </div>
+                                    <div class="shrink-0">
                                         {#if item.packaging_type === 'gram'}
-                                            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-600 dark:text-sky-400">
-                                                Gramos (g)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+                                                Gramos
                                             </span>
                                         {:else if item.packaging_type === 'kg'}
-                                            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-600 dark:text-sky-400">
-                                                Kilogramos (Kg)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+                                                Kg
                                             </span>
                                         {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
-                                            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
-                                                Bulto (x{item.units_per_package || 1})
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+                                                Bulto x{item.units_per_package || 1}
                                             </span>
                                         {:else}
-                                            <span>Unidad</span>
-                                        {/if}
-                                    </td>
-                                    <td class="p-2.5 text-center font-bold font-mono">
-                                        {#if item.packaging_type === 'gram'}
-                                            {item.quantity} g
-                                            <span class="text-[10px] text-muted-foreground block font-normal">
-                                                ({item.quantity / 1000} Kg)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border">
+                                                Unidad
                                             </span>
+                                        {/if}
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between pt-2 border-t border-border/50">
+                                    <div class="text-xs text-muted-foreground font-sans tabular-nums">
+                                        {formatPrice(item.unit_price)} × 
+                                        {#if item.packaging_type === 'gram'}
+                                            {item.quantity} g ({item.quantity / 1000} Kg)
                                         {:else if item.packaging_type === 'kg'}
                                             {item.quantity} Kg
                                         {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
-                                            {item.quantity} {item.quantity === 1 ? 'bulto' : 'bultos'}
-                                            <span class="text-[10px] text-muted-foreground block font-normal">
-                                                ({item.quantity * (item.units_per_package || 1)})
-                                            </span>
+                                            {item.quantity} {item.quantity === 1 ? 'bulto' : 'bultos'} ({item.quantity * (item.units_per_package || 1)} u)
                                         {:else}
                                             {item.quantity} unid.
                                         {/if}
-                                    </td>
-                                    <td class="p-2.5 text-right font-mono">{formatPrice(item.unit_price)}</td>
-                                    <td class="p-2.5 text-right font-mono font-bold text-foreground">{formatPrice(item.subtotal)}</td>
+                                    </div>
+                                    <div class="text-sm font-bold font-sans tabular-nums text-foreground">
+                                        {formatPrice(item.subtotal)}
+                                    </div>
+                                </div>
+                            </div>
+                        {/each}
+                    </div>
+
+                    <!-- Tabla en Desktop (hidden sm:block) -->
+                    <div class="hidden sm:block rounded-xl border overflow-hidden">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-muted/40 text-muted-foreground border-b">
+                                <tr>
+                                    <th class="p-2.5">Producto</th>
+                                    <th class="p-2.5">Presentación</th>
+                                    <th class="p-2.5 text-center">Cant.</th>
+                                    <th class="p-2.5 text-right">Precio Unit.</th>
+                                    <th class="p-2.5 text-right">Subtotal</th>
                                 </tr>
-                            {/each}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="divide-y">
+                                {#each order.items ?? [] as item}
+                                    <tr>
+                                        <td class="p-2.5 font-medium text-foreground">
+                                            {item.product?.name || `Producto #${item.product_id}`}
+                                            {#if item.product?.sku}
+                                                <span class="text-[10px] text-muted-foreground block font-sans tabular-nums">SKU: {item.product.sku}</span>
+                                            {/if}
+                                        </td>
+                                        <td class="p-2.5 text-muted-foreground">
+                                            {#if item.packaging_type === 'gram'}
+                                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-600 dark:text-sky-400">
+                                                    Gramos (g)
+                                                </span>
+                                            {:else if item.packaging_type === 'kg'}
+                                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-600 dark:text-sky-400">
+                                                    Kilogramos (Kg)
+                                                </span>
+                                            {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
+                                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
+                                                    Bulto (x{item.units_per_package || 1})
+                                                </span>
+                                            {:else}
+                                                <span>Unidad</span>
+                                            {/if}
+                                        </td>
+                                        <td class="p-2.5 text-center font-bold font-sans tabular-nums">
+                                            {#if item.packaging_type === 'gram'}
+                                                {item.quantity} g
+                                                <span class="text-[10px] text-muted-foreground block font-normal">
+                                                    ({item.quantity / 1000} Kg)
+                                                </span>
+                                            {:else if item.packaging_type === 'kg'}
+                                                {item.quantity} Kg
+                                            {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
+                                                {item.quantity} {item.quantity === 1 ? 'bulto' : 'bultos'}
+                                                <span class="text-[10px] text-muted-foreground block font-normal">
+                                                    ({item.quantity * (item.units_per_package || 1)})
+                                                </span>
+                                            {:else}
+                                                {item.quantity} unid.
+                                            {/if}
+                                        </td>
+                                        <td class="p-2.5 text-right font-sans tabular-nums">{formatPrice(item.unit_price)}</td>
+                                        <td class="p-2.5 text-right font-sans tabular-nums font-bold text-foreground">{formatPrice(item.subtotal)}</td>
+                                    </tr>
+                                {/each}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
+                {#if order.notes}
+                    <div class="p-2.5 rounded-lg bg-muted/20 border text-xs text-muted-foreground">
+                        <strong class="text-foreground">Notas:</strong> {order.notes}
+                    </div>
+                {/if}
+
+                <!-- Cambiador de Estado Logístico (Solo si no está en estado terminal) -->
+                {#if order.status !== 'cancelado' && order.status !== 'entregado'}
+                    <div class="space-y-2 pt-2 border-t">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-foreground block">Actualizar Estado del Pedido:</span>
+                            <span class="text-[11px] text-muted-foreground">Selecciona el siguiente paso del flujo</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 {order.status === 'preparado' ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-2">
+                            {#if order.status === 'en_preparacion'}
+                                <button
+                                    type="button"
+                                    disabled={isUpdatingStatus}
+                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
+                                    onclick={() => requestStatusChange('preparado')}
+                                >
+                                    Pasar a Preparado
+                                </button>
+                            {:else if order.status === 'preparado'}
+                                <button
+                                    type="button"
+                                    disabled={isUpdatingStatus}
+                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
+                                    onclick={() => requestStatusChange('en_camino')}
+                                >
+                                    Despachar (En camino)
+                                </button>
+                                <button
+                                    type="button"
+                                    disabled={isUpdatingStatus}
+                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                                    onclick={() => requestStatusChange('entregado')}
+                                >
+                                    Entregar (Retiro en local)
+                                </button>
+                            {:else if order.status === 'en_camino'}
+                                <button
+                                    type="button"
+                                    disabled={isUpdatingStatus}
+                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                                    onclick={() => requestStatusChange('entregado')}
+                                >
+                                    Marcar Entregado
+                                </button>
+                            {/if}
+
+                            <!-- Botón Cancelar disponible para pedidos activos -->
+                            <button
+                                type="button"
+                                disabled={isUpdatingStatus}
+                                class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-rose-600/10 hover:bg-rose-600 hover:text-white text-rose-600 border-rose-500/30"
+                                onclick={() => requestStatusChange('cancelado')}
+                            >
+                                Cancelar Pedido
+                            </button>
+                        </div>
+                    </div>
+                {/if}
             </div>
 
-            {#if order.notes}
-                <div class="p-2.5 rounded-lg bg-muted/20 border text-xs text-muted-foreground">
-                    <strong class="text-foreground">Notas:</strong> {order.notes}
-                </div>
-            {/if}
-
-            <!-- Cambiador de Estado Logístico (Solo si no está en estado terminal) -->
-            {#if order.status !== 'cancelado' && order.status !== 'entregado'}
-                <div class="space-y-2 pt-2 border-t">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-foreground block">Actualizar Estado del Pedido:</span>
-                        <span class="text-[11px] text-muted-foreground">Selecciona el siguiente paso del flujo</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 {order.status === 'preparado' ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-2">
-                        {#if order.status === 'en_preparacion'}
-                            <button
-                                type="button"
-                                disabled={isUpdatingStatus}
-                                class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
-                                onclick={() => requestStatusChange('preparado')}
-                            >
-                                Pasar a Preparado
-                            </button>
-                        {:else if order.status === 'preparado'}
-                            <button
-                                type="button"
-                                disabled={isUpdatingStatus}
-                                class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
-                                onclick={() => requestStatusChange('en_camino')}
-                            >
-                                Despachar (En camino)
-                            </button>
-                            <button
-                                type="button"
-                                disabled={isUpdatingStatus}
-                                class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
-                                onclick={() => requestStatusChange('entregado')}
-                            >
-                                Entregar (Retiro en local)
-                            </button>
-                        {:else if order.status === 'en_camino'}
-                            <button
-                                type="button"
-                                disabled={isUpdatingStatus}
-                                class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
-                                onclick={() => requestStatusChange('entregado')}
-                            >
-                                Marcar Entregado
-                            </button>
-                        {/if}
-
-                        <!-- Botón Cancelar disponible para pedidos activos -->
-                        <button
-                            type="button"
-                            disabled={isUpdatingStatus}
-                            class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-rose-600/10 hover:bg-rose-600 hover:text-white text-rose-600 border-rose-500/30"
-                            onclick={() => requestStatusChange('cancelado')}
-                        >
-                            Cancelar Pedido
-                        </button>
-                    </div>
-                </div>
-            {/if}
-
-            <!-- Footer con Total y Acciones -->
-            <div class="flex items-center justify-between pt-3 border-t">
+            <!-- Footer con Total y Acciones (shrink-0) -->
+            <div class="flex items-center justify-between pt-3.5 border-t shrink-0">
                 {#if order.status !== 'cancelado' && order.status !== 'entregado'}
                     <Button
                         type="button"
@@ -425,7 +487,7 @@
                 <div class="flex items-center gap-3">
                     <div class="text-right">
                         <span class="text-xs text-muted-foreground block">Total:</span>
-                        <span class="text-lg font-bold font-mono text-primary">{formatPrice(order.total_amount)}</span>
+                        <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary">{formatPrice(order.total_amount)}</span>
                     </div>
                     <Button type="button" size="sm" variant="outline" onclick={() => (open = false)}>
                         Cerrar

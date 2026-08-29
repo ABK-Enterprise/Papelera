@@ -61,7 +61,7 @@
 
 <Card class="rounded-xl p-5 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
     <div class="flex items-center justify-between mb-4">
-        <h3 class="font-bold text-lg text-foreground flex items-center gap-2">
+        <h3 class="font-semibold text-base text-foreground flex items-center gap-2 leading-snug">
             <Tag class="h-5 w-5 text-primary" />
             Categorías
         </h3>
@@ -72,14 +72,14 @@
             onclick={() => (showNewCategory = !showNewCategory)}
         >
             <Plus class="h-3.5 w-3.5" />
-            Nueva
+            Nueva categoría
         </Button>
     </div>
 
     {#if showNewCategory}
         <form onsubmit={submitCategory} class="mb-4 p-3 rounded-lg border bg-muted/40 space-y-2.5">
             <div class="space-y-1">
-                <Label for="new-cat-name" class="text-xs">Nombre de Categoría</Label>
+                <Label for="new-cat-name" class="text-xs font-medium">Nombre de Categoría</Label>
                 <Input
                     id="new-cat-name"
                     bind:value={categoryForm.name}
@@ -93,7 +93,7 @@
                     Cancelar
                 </Button>
                 <Button type="submit" size="sm" class="h-7 text-xs" disabled={categoryForm.processing}>
-                    Guardar
+                    Guardar categoría
                 </Button>
             </div>
         </form>
@@ -125,7 +125,7 @@
                         <IconComponent class="h-4 w-4 shrink-0 {selectedCategoryId === cat.id ? 'text-primary' : 'text-muted-foreground'}" />
                         <span class="truncate">{cat.name}</span>
                     </div>
-                    <Badge variant={selectedCategoryId === cat.id ? 'default' : 'secondary'} class="text-xs px-2 py-0.5 rounded-full">
+                    <Badge variant={selectedCategoryId === cat.id ? 'default' : 'secondary'} class="text-xs px-2 py-0.5 rounded-full tabular-nums font-medium">
                         {cat.products_count ?? 0}
                     </Badge>
                 </button>
@@ -134,8 +134,8 @@
     </ul>
 
     {#if categories.length === 0}
-        <p class="py-4 text-center text-xs italic text-muted-foreground">
-            No hay categorías creadas aún.
+        <p class="py-4 text-center text-xs text-muted-foreground">
+            No hay categorías registradas.
         </p>
     {/if}
 </Card>

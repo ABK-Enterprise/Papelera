@@ -67,8 +67,8 @@
         >
             {#snippet children({ pages, range })}
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
-                    <span class="text-xs text-muted-foreground text-center sm:text-left">
-                        Mostrando <strong class="font-bold text-foreground">{range.start + 1}</strong> a <strong class="font-bold text-foreground">{range.end}</strong> de <strong class="font-bold text-foreground">{effectiveCount}</strong> resultados
+                    <span class="text-xs text-muted-foreground tabular-nums text-center sm:text-left">
+                        Mostrando <strong class="font-semibold text-foreground">{range.start + 1}</strong> a <strong class="font-semibold text-foreground">{range.end}</strong> de <strong class="font-semibold text-foreground">{effectiveCount}</strong> resultados
                     </span>
 
                     <div class="flex items-center justify-center gap-1.5">
@@ -87,7 +87,7 @@
                             {:else}
                                 <Pagination.Page
                                     page={pageItem}
-                                    class="inline-flex size-8 items-center justify-center rounded-xl border text-xs font-bold transition-all shadow-2xs {pageItem.value === effectivePage ? 'bg-primary text-primary-foreground border-primary shadow-xs scale-105' : 'border-input bg-background text-foreground hover:bg-muted'}"
+                                    class="inline-flex size-8 items-center justify-center rounded-xl border text-xs font-semibold tabular-nums transition-all shadow-2xs {pageItem.value === effectivePage ? 'bg-primary text-primary-foreground border-primary shadow-xs scale-105' : 'border-input bg-background text-foreground hover:bg-muted'}"
                                     aria-label={`Página ${pageItem.value}`}
                                 >
                                     {pageItem.value}

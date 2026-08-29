@@ -134,18 +134,18 @@
             <!-- CUIT, Teléfono y Email -->
             <div class="flex items-center gap-2 flex-wrap pt-1 border-t border-border/40">
                 {#if customer.tax_id}
-                    <span class="inline-flex items-center gap-1 text-[11px] font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground font-semibold">
+                    <span class="inline-flex items-center gap-1 text-[11px] font-sans tabular-nums bg-muted/60 px-2 py-0.5 rounded text-foreground font-semibold">
                         CUIT: {customer.tax_id}
                     </span>
                 {/if}
                 {#if customer.phone}
-                    <span class="inline-flex items-center gap-1 text-[11px] font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground">
+                    <span class="inline-flex items-center gap-1 text-[11px] font-sans tabular-nums bg-muted/60 px-2 py-0.5 rounded text-foreground">
                         <Phone class="size-3 text-muted-foreground" />
                         {customer.phone}
                     </span>
                 {/if}
                 {#if customer.email}
-                    <span class="inline-flex items-center gap-1 text-[11px] font-mono bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[180px]">
+                    <span class="inline-flex items-center gap-1 text-[11px] bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[180px]">
                         <Mail class="size-3 text-muted-foreground" />
                         {customer.email}
                     </span>

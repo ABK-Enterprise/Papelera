@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
+    import EmptyState from '@/components/common/EmptyState.svelte';
     import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
     import Calendar from 'lucide-svelte/icons/calendar';
@@ -59,78 +60,81 @@
     <div class="flex flex-col gap-3">
         {#each movements as mov (mov.id)}
             <div class="rounded-xl border border-border/70 bg-card p-4 shadow-xs">
-                <!-- Header Card: Producto y Tipo/Cantidad -->
+                <!-- Header Card Mobile: Producto y Badge de Operación -->
                 <div class="flex items-start justify-between gap-3 pb-3 border-b border-border/40">
                     <div class="flex items-center gap-2.5 min-w-0">
-                        <div class="size-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
-                            <Package class="size-4" />
+                        <div class="size-9 rounded-lg {mov.type === 'income' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400'} border flex items-center justify-center shrink-0">
+                            {#if mov.type === 'income'}
+                                <ArrowDownLeft class="size-4" />
+                            {:else}
+                                <ArrowUpRight class="size-4" />
+                            {/if}
                         </div>
                         <div class="min-w-0">
-                            <div class="font-bold text-foreground truncate text-sm">
+                            <div class="font-semibold text-foreground truncate text-sm leading-snug">
                                 {mov.product?.name ?? 'Producto eliminado'}
                             </div>
                             {#if mov.product?.sku}
-                                <div class="text-[11px] text-muted-foreground font-mono">
+                                <div class="text-xs text-muted-foreground tabular-nums tracking-wide">
                                     SKU: {mov.product.sku}
                                 </div>
                             {/if}
                         </div>
                     </div>
 
-                    {#if mov.type === 'income'}
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
-                            <ArrowDownLeft class="size-3" />
-                            +{mov.quantity}
-                        </span>
-                    {:else}
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0">
-                            <ArrowUpRight class="size-3" />
-                            -{mov.quantity}
-                        </span>
-                    {/if}
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold tabular-nums shrink-0 {mov.type === 'income' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'}">
+                        {mov.type === 'income' ? `+${mov.quantity}` : `-${mov.quantity}`}
+                    </span>
                 </div>
 
-                <!-- Detalles de Stock y Motivo -->
+                <!-- Detalle de Balance y Motivo -->
                 <div class="grid grid-cols-2 gap-2 pt-3 text-xs">
                     <div>
-                        <span class="text-muted-foreground block text-[11px]">Balance de Stock</span>
-                        <span class="font-semibold text-foreground font-mono">{mov.previous_stock} ➔ {mov.current_stock}</span>
+                        <span class="text-muted-foreground block text-[11px]">Balance stock</span>
+                        <div class="text-xs tabular-nums">
+                            <span class="text-muted-foreground">{mov.previous_stock}</span>
+                            <span class="text-muted-foreground mx-0.5">➔</span>
+                            <span class="font-bold text-foreground">{mov.current_stock}</span>
+                        </div>
                     </div>
                     <div>
-                        <span class="text-muted-foreground block text-[11px]">Tipo / Motivo</span>
-                        <span class="font-medium text-foreground capitalize">
-                            {mov.type === 'income' ? 'Ingreso' : 'Egreso'}
+                        <span class="text-muted-foreground block text-[11px]">Motivo</span>
+                        <span class="font-medium text-foreground capitalize truncate block">
+                            {mov.reason ? mov.reason.replace(/_/g, ' ') : 'Operación'}
                         </span>
                     </div>
                 </div>
 
-                <!-- Footer: Responsable y Botón Ver Detalle -->
+                <!-- Footer: Responsable, Fecha y Botón Ver Detalle -->
                 <div class="flex items-center justify-between pt-3 mt-3 border-t border-border/40 text-[11px] text-muted-foreground">
-                    <div class="flex items-center gap-1.5 truncate">
-                        <User class="size-3 text-muted-foreground/70" />
-                        <span>{mov.user?.name ?? 'Sistema'}</span>
+                    <div class="flex flex-col gap-0.5 min-w-0">
+                        <div class="flex items-center gap-1 text-foreground font-medium truncate">
+                            <User class="size-3 text-muted-foreground/70" />
+                            <span>{mov.user?.name ?? 'Sistema'}</span>
+                        </div>
+                        <div class="flex items-center gap-1 text-[10px] text-muted-foreground tabular-nums">
+                            <Calendar class="size-3 text-muted-foreground/70" />
+                            <span>{formatDate(mov.created_at)}</span>
+                        </div>
                     </div>
+
                     <Button
-                        variant="secondary"
+                        variant="outline"
                         size="sm"
                         onclick={() => onSelectMovement(mov)}
-                        class="h-7 text-xs px-2.5 gap-1"
+                        class="h-7 text-xs px-2.5 rounded-lg shrink-0 font-medium"
                     >
-                        <Eye class="size-3" />
-                        <span>Ver Detalle</span>
+                        <Eye class="size-3 mr-1" />
+                        <span>Ver detalle</span>
                     </Button>
                 </div>
             </div>
         {/each}
     </div>
 {:else}
-    <div class="rounded-xl border border-dashed border-border/80 p-8 text-center bg-card/40 flex flex-col items-center justify-center shadow-xs">
-        <div class="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-3">
-            <History class="size-6" />
-        </div>
-        <h3 class="text-base font-bold text-foreground">El Kardex está vacío</h3>
-        <p class="mt-1 text-xs text-muted-foreground">
-            Los movimientos de ingresos y egresos de stock se registrarán aquí automáticamente para auditoría.
-        </p>
-    </div>
+    <EmptyState
+        icon={History}
+        title="El Kardex está vacío"
+        description="Los movimientos de ingresos y egresos de stock se registrarán aquí automáticamente para auditoría."
+    />
 {/if}

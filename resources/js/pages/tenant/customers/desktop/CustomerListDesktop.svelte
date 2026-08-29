@@ -137,27 +137,27 @@
                     <!-- Fila 2: CUIT/DNI, Teléfono y Email -->
                     <div class="flex items-center gap-2.5 flex-wrap">
                         {#if customer.tax_id}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 font-mono">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 font-sans tabular-nums">
                                 <strong>CUIT/DNI:</strong> {customer.tax_id}
                             </span>
                         {/if}
 
                         {#if customer.phone}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 font-mono">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 font-sans tabular-nums">
                                 <Phone class="size-3.5 text-muted-foreground" />
                                 {customer.phone}
                             </span>
                         {/if}
 
                         {#if customer.email}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 font-mono">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40">
                                 <Mail class="size-3.5 text-muted-foreground" />
                                 {customer.email}
                             </span>
                         {/if}
 
                         {#if Number(customer.credit_limit) > 0}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 border border-blue-500/20 font-mono">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 border border-blue-500/20 font-sans tabular-nums">
                                 <CreditCard class="size-3.5" />
                                 Límite: {formatCurrency(customer.credit_limit)}
                             </span>

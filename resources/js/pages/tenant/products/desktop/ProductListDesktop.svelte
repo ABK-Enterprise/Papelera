@@ -3,6 +3,7 @@
     import { Button } from '@/components/ui/button';
     import AppPagination from '@/components/common/AppPagination.svelte';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
+    import EmptyState from '@/components/common/EmptyState.svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Layers from 'lucide-svelte/icons/layers';
@@ -72,156 +73,175 @@
     }
 </script>
 
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-3">
     {#each paginatedProducts as product (product.id)}
-        {@const isIncomplete = product.is_incomplete ?? (!product.category || Number(product.price) <= 0)}
         {@const isWeighable = product.sale_type === 'weight'}
-        <div class="bento-card group flex flex-col md:flex-row items-center gap-5 rounded-xl border {isIncomplete ? 'border-amber-500/40 bg-amber-500/5' : 'border-border/60 bg-card'} p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] transition-all hover:border-primary/30 hover:shadow-md">
-            <!-- Imagen del Producto -->
-            <div class="h-28 w-28 shrink-0 overflow-hidden rounded-lg bg-muted/50 border border-border/40 flex items-center justify-center">
-                {#if product.image_url}
-                    <img
-                        src={product.image_url}
-                        alt={product.name}
-                        class="h-full w-full object-cover transition-transform group-hover:scale-105"
-                    />
-                {:else}
-                    <div class="flex flex-col items-center justify-center text-muted-foreground/60 gap-1">
-                        {#if isWeighable}
-                            <Scale class="size-8 stroke-[1.5]" />
-                        {:else}
-                            <Package class="size-8 stroke-[1.5]" />
-                        {/if}
-                        <span class="text-[10px]">Sin foto</span>
-                    </div>
-                {/if}
-            </div>
+        {@const isIncomplete = Boolean(product.is_incomplete)}
+        <div
+            class="flex flex-col md:flex-row items-start md:items-center justify-between p-4 rounded-2xl border transition-all duration-200 gap-4 bg-card shadow-xs hover:shadow-md hover:border-border {isIncomplete ? 'border-amber-300 dark:border-amber-700/60 bg-amber-50/20 dark:bg-amber-950/10' : 'border-border/70'}"
+        >
+            <!-- Lado Izquierdo: Imagen / Avatar Placeholder -->
+            <div class="flex items-center gap-4 min-w-0 flex-1">
+                <div class="relative size-16 rounded-xl bg-muted/60 border border-border/60 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
+                    {#if product.image_url}
+                        <img
+                            src={product.image_url}
+                            alt={product.name}
+                            class="h-full w-full object-cover"
+                        />
+                    {:else if isWeighable}
+                        <Scale class="h-7 w-7 text-primary/70 stroke-[1.75]" />
+                    {:else}
+                        <Package class="h-7 w-7 text-muted-foreground/60 stroke-[1.75]" />
+                    {/if}
 
-            <!-- Detalles del Producto -->
-            <div class="flex flex-1 flex-col justify-center min-w-0">
-                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 mb-1.5">
-                    <div class="flex items-center gap-2 truncate pr-2">
-                        <h4 class="font-bold text-base text-foreground truncate">
+                    {#if isWeighable}
+                        <span class="absolute bottom-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-tl tabular-nums">
+                            Kg
+                        </span>
+                    {/if}
+                </div>
+
+                <!-- Info Principal -->
+                <div class="space-y-1 min-w-0 flex-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h4 class="font-semibold text-base text-foreground truncate leading-snug">
                             {product.name}
                         </h4>
+
                         {#if isWeighable}
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 shrink-0">
-                                <Scale class="size-3" />
-                                Por Pesaje (Kg)
+                            <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+                                <Scale class="h-3 w-3" />
+                                Pesable
                             </span>
                         {/if}
+
                         {#if isIncomplete}
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 shrink-0">
-                                <AlertTriangle class="size-3" />
-                                Datos incompletos
+                            <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                                <AlertTriangle class="h-3 w-3 text-amber-600" />
+                                Requiere completar datos
                             </span>
                         {/if}
                     </div>
-                    <div class="text-right">
-                        <span class="font-bold text-lg font-mono {Number(product.price) <= 0 ? 'text-amber-600 dark:text-amber-400' : 'text-foreground'}">
-                            {formatPrice(product.price)}
-                        </span>
+
+                    <!-- Código de Barras / SKU / Categoría / Bulto -->
+                    <div class="flex items-center gap-2.5 text-xs text-muted-foreground flex-wrap">
+                        {#if product.barcode}
+                            <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs tabular-nums tracking-wide">
+                                BAR: {product.barcode}
+                            </span>
+                        {/if}
+                        {#if product.sku}
+                            <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs tabular-nums tracking-wide">
+                                SKU: {product.sku}
+                            </span>
+                        {/if}
+                        {#if product.category}
+                            <span>
+                                Cat: <strong class="text-foreground font-medium">{product.category.name}</strong>
+                            </span>
+                        {:else}
+                            <span class="text-amber-600 dark:text-amber-400 font-medium">
+                                Sin categoría
+                            </span>
+                        {/if}
                         {#if isWeighable}
-                            <span class="text-xs text-muted-foreground block -mt-1 font-mono">/ Kg</span>
+                            <span class="inline-flex items-center gap-1 text-xs bg-muted/70 px-1.5 py-0.5 rounded text-foreground tabular-nums tracking-wide">
+                                <Layers class="h-3 w-3 text-primary" />
+                                1 Bulto = {product.package_quantity || product.units_per_package || 1} Kg
+                            </span>
+                        {:else if product.units_per_package && product.units_per_package > 1}
+                            <span class="inline-flex items-center gap-1 text-xs bg-muted/70 px-1.5 py-0.5 rounded text-foreground tabular-nums tracking-wide">
+                                <Layers class="h-3 w-3 text-primary" />
+                                1 Bulto = {product.units_per_package} unid.
+                            </span>
                         {/if}
                     </div>
                 </div>
+            </div>
 
-                <div class="flex items-center gap-3 text-xs text-muted-foreground mb-3 flex-wrap">
-                    {#if product.sku}
-                        <span class="font-mono bg-muted/60 px-1.5 py-0.5 rounded text-[11px]">
-                            SKU: {product.sku}
+            <!-- Centro: Precios y Stock con Tabular Numbers -->
+            <div class="flex items-center gap-6 px-2">
+                <div class="flex flex-col items-end">
+                    <span class="text-xs text-muted-foreground font-medium">Precio unitario</span>
+                    <span class="font-semibold text-base text-foreground tabular-nums">
+                        {formatPrice(product.price)} {isWeighable ? '/Kg' : ''}
+                    </span>
+                    {#if (product.effective_bulk_discount_percentage ?? 0) > 0}
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 tabular-nums">
+                            Bulto (-{product.effective_bulk_discount_percentage}%): {formatPrice(product.bulk_discount_price ?? product.price)}
                         </span>
                     {/if}
-                    {#if product.category}
-                        <span class="truncate">
-                            Cat: <strong class="text-foreground">{product.category.name}</strong>
-                        </span>
-                    {:else}
-                        <span class="text-amber-600 dark:text-amber-400 font-medium">
-                            Sin categoría
-                        </span>
-                    {/if}
-                    {#if isWeighable}
-                        <span class="inline-flex items-center gap-1 font-mono text-[11px] bg-muted/70 px-1.5 py-0.5 rounded text-foreground">
-                            <Layers class="size-3 text-primary" />
-                            1 Bulto = {product.package_quantity || product.units_per_package || 1} Kg
-                        </span>
-                    {:else if product.units_per_package && product.units_per_package > 1}
-                        <span class="inline-flex items-center gap-1 font-mono text-[11px] bg-muted/70 px-1.5 py-0.5 rounded text-foreground">
-                            <Layers class="size-3 text-primary" />
-                            1 Bulto = {product.units_per_package} unid.
+                    {#if Number(product.cost_price) > 0}
+                        <span class="text-xs text-muted-foreground tabular-nums">
+                            Costo: {formatPrice(product.cost_price)}
                         </span>
                     {/if}
                 </div>
 
-                <!-- Badges de Stock -->
-                <div class="flex items-center gap-2">
+                <div class="flex flex-col items-end min-w-[100px]">
+                    <span class="text-xs text-muted-foreground font-medium">Stock físico</span>
                     {#if product.stock <= 0}
-                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200/50">
-                            <span class="size-1.5 rounded-full bg-rose-500"></span>
+                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 tabular-nums">
+                            <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
                             Agotado
                         </span>
                     {:else if product.stock <= product.min_stock}
-                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200/50">
-                            <span class="size-1.5 rounded-full bg-amber-500"></span>
-                            Bajo Stock ({product.stock} {isWeighable ? 'Kg' : 'unid.'})
+                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 tabular-nums">
+                            <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                            {product.stock} {isWeighable ? 'Kg' : 'unid.'}
                         </span>
                     {:else}
-                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/50">
-                            <span class="size-1.5 rounded-full bg-emerald-500"></span>
-                            Stock: {product.stock} {isWeighable ? 'Kg' : 'unidades'}
-                        </span>
-                    {/if}
-
-                    {#if Number(product.cost_price) > 0}
-                        <span class="text-xs text-muted-foreground">
-                            Costo: <strong class="font-mono text-foreground">{formatPrice(product.cost_price)} {isWeighable ? '/Kg' : ''}</strong>
+                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 tabular-nums">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                            {product.stock} {isWeighable ? 'Kg' : 'unid.'}
                         </span>
                     {/if}
                 </div>
             </div>
 
-            <!-- Botones de Acción -->
-            <div class="flex md:flex-col items-center justify-end gap-2 shrink-0 w-full md:w-auto border-t md:border-t-0 pt-2 md:pt-0">
+            <!-- Botones de Acción con Touch Target >= 40px -->
+            <div class="flex items-center justify-end gap-2 shrink-0">
                 {#if isIncomplete}
                     <Link href={`/tenant/products/${product.id}/edit`}>
-                        <Button size="sm" variant="default" class="h-8 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white gap-1 shadow-2xs">
-                            <Edit2 class="size-3" />
-                            <span>Completar</span>
+                        <Button size="sm" class="min-h-[40px] px-3.5 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white gap-1.5 rounded-xl shadow-xs">
+                            <Edit2 class="h-3.5 w-3.5" />
+                            <span>Completar datos</span>
                         </Button>
                     </Link>
                 {:else}
                     <Link href={`/tenant/products/${product.id}/edit`}>
-                        <Button size="icon" variant="ghost" class="size-9 text-muted-foreground hover:text-foreground" title="Editar Producto">
-                            <Edit2 class="size-4" />
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            class="min-h-[40px] min-w-[40px] px-3 gap-1.5 rounded-xl border-border/70 text-xs font-medium hover:bg-muted/60"
+                        >
+                            <Edit2 class="h-3.5 w-3.5" />
+                            <span>Editar</span>
                         </Button>
                     </Link>
                 {/if}
                 <Button
-                    size="icon"
                     variant="ghost"
-                    class="size-9 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                    title="Eliminar Producto"
+                    size="sm"
+                    class="min-h-[40px] min-w-[40px] px-3 gap-1.5 rounded-xl text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive"
                     onclick={() => promptDelete(product)}
                 >
-                    <Trash2 class="size-4" />
+                    <Trash2 class="h-3.5 w-3.5" />
+                    <span>Eliminar</span>
                 </Button>
             </div>
         </div>
     {/each}
 
     {#if products.length === 0}
-        <div class="rounded-xl border border-dashed p-12 text-center bg-card/50">
-            <Package class="mx-auto size-12 text-muted-foreground/50 mb-3" />
-            <h3 class="font-semibold text-lg text-foreground">No se encontraron productos</h3>
-            <p class="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
-                No hay productos que coincidan con los filtros seleccionados o el catálogo está vacío.
-            </p>
-            <Link href="/tenant/products/create" class="mt-4 inline-block">
-                <Button class="gap-2">+ Crear Primer Producto</Button>
-            </Link>
-        </div>
+        <EmptyState
+            icon={Package}
+            title="No se encontraron productos"
+            description="No hay productos que coincidan con los filtros seleccionados o el catálogo de tu comercio está vacío."
+            actionLabel="Crear producto"
+            actionHref="/tenant/products/create"
+        />
     {/if}
 
     {#if products.length > perPage}
@@ -234,7 +254,7 @@
     bind:open={isDeleteModalOpen}
     title="¿Eliminar producto del catálogo?"
     description={`¿Estás seguro de eliminar "${productToDelete?.name}"? Esta acción no se puede deshacer y removerá el artículo del inventario.`}
-    confirmText="Eliminar Producto"
+    confirmText="Eliminar producto"
     cancelText="Cancelar"
     variant="danger"
     loading={isDeleting}

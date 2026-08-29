@@ -21,6 +21,7 @@ class TenantFactory extends Factory
             'name' => fake()->company(),
             'cuit_tax_id' => '30'.fake()->numerify('########').'9',
             'is_active' => true,
+            'default_bulk_discount_percentage' => 0.00,
         ];
     }
 

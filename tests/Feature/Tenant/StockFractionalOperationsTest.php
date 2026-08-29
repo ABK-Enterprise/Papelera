@@ -1,5 +1,10 @@
 <?php
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+uses(TestCase::class, RefreshDatabase::class);
+
 use App\Models\Category;
 use App\Models\Module;
 use App\Models\Product;
@@ -9,10 +14,7 @@ use App\Models\SupplierOrder;
 use App\Models\Tenant;
 use App\Models\User;
 use Database\Seeders\BaseSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->seed(BaseSeeder::class);

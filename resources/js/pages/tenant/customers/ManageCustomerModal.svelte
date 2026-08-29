@@ -208,7 +208,7 @@
                         id="manage-customer-tax-id"
                         bind:value={form.tax_id}
                         placeholder="ej. 20-33445566-9"
-                        class="h-9 text-sm font-mono"
+                        class="h-9 text-sm font-sans tabular-nums"
                     />
                     {#if form.errors.tax_id}
                         <p class="text-xs text-destructive">{form.errors.tax_id}</p>
@@ -302,7 +302,7 @@
                         min="0"
                         bind:value={form.credit_limit}
                         placeholder="0.00"
-                        class="h-9 text-sm font-mono"
+                        class="h-9 text-sm font-sans tabular-nums"
                     />
                 </div>
 

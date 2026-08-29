@@ -5,9 +5,9 @@
     import { Link, router } from '@inertiajs/svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Filter from 'lucide-svelte/icons/filter';
-    import Plus from 'lucide-svelte/icons/plus';
-    import Search from 'lucide-svelte/icons/search';
-    import X from 'lucide-svelte/icons/x';
+    import Percent from 'lucide-svelte/icons/percent';
+    import SortSelect from '@/components/common/SortSelect.svelte';
+    import BulkDiscountConfigModal from './BulkDiscountConfigModal.svelte';
     import CategorySidebarDesktop from './desktop/CategorySidebarDesktop.svelte';
     import ProductListDesktop from './desktop/ProductListDesktop.svelte';
     import ProductListMobile from './mobile/ProductListMobile.svelte';
@@ -30,6 +30,11 @@
         stock: number;
         min_stock: number;
         units_per_package?: number;
+        package_quantity?: number;
+        bulk_discount_type?: string;
+        custom_bulk_discount_percentage?: number | string | null;
+        effective_bulk_discount_percentage?: number;
+        bulk_discount_price?: number;
         image_url: string | null;
         is_incomplete?: boolean;
         category?: { id: number; name: string } | null;
@@ -48,6 +53,7 @@
         category_id?: number | null;
         stock_status?: string | null;
         info_status?: string | null;
+        sort_by?: string | null;
     }
 
     let {
@@ -55,12 +61,14 @@
         categories = [],
         stats = { total: 0, in_stock: 0, low_stock: 0, out_of_stock: 0, incomplete: 0 },
         incompleteCount = 0,
+        tenantDefaultBulkDiscount = 0,
         filters = {},
     }: {
         products: ProductItem[];
         categories: CategoryItem[];
         stats?: Stats;
         incompleteCount?: number;
+        tenantDefaultBulkDiscount?: number;
         filters?: FilterProps;
     } = $props();
 
@@ -68,6 +76,19 @@
     let selectedCategoryId = $state<number | null>(filters.category_id ?? null);
     let selectedStockStatus = $state(filters.stock_status ?? '');
     let selectedInfoStatus = $state(filters.info_status ?? '');
+    let sortBy = $state(filters.sort_by ?? 'latest');
+    let isBulkDiscountModalOpen = $state(false);
+
+    const sortOptions = [
+        { value: 'latest', label: 'Más recientes primero' },
+        { value: 'oldest', label: 'Más antiguos primero' },
+        { value: 'name_asc', label: 'Nombre (A-Z)' },
+        { value: 'name_desc', label: 'Nombre (Z-A)' },
+        { value: 'price_high', label: 'Mayor precio' },
+        { value: 'price_low', label: 'Menor precio' },
+        { value: 'stock_high', label: 'Mayor stock' },
+        { value: 'stock_low', label: 'Menor stock' },
+    ];
 
     function applyFilters() {
         router.get(
@@ -77,6 +98,7 @@
                 category_id: selectedCategoryId ?? undefined,
                 stock_status: selectedStockStatus || undefined,
                 info_status: selectedInfoStatus || undefined,
+                sort_by: sortBy !== 'latest' ? sortBy : undefined,
             },
             {
                 preserveState: true,
@@ -100,11 +122,12 @@
         selectedCategoryId = null;
         selectedStockStatus = '';
         selectedInfoStatus = '';
-        router.get('/tenant/products');
+        sortBy = 'latest';
+        router.get('/tenant/products', {}, { preserveState: true, preserveScroll: true });
     }
 
     let hasActiveFilters = $derived(
-        Boolean(searchTerm || selectedCategoryId !== null || selectedStockStatus || selectedInfoStatus)
+        Boolean(searchTerm || selectedCategoryId !== null || selectedStockStatus || selectedInfoStatus || (sortBy && sortBy !== 'latest'))
     );
 </script>
 
@@ -114,19 +137,29 @@
     <!-- Header de la Página -->
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
                 Catálogo de Productos
             </h1>
-            <p class="text-sm text-muted-foreground mt-0.5">
+            <p class="text-sm text-muted-foreground mt-0.5 max-w-prose">
                 Gestiona y organiza el catálogo de tu comercio y parámetros de empaque.
             </p>
         </div>
 
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center gap-2.5 flex-wrap">
+            <Button
+                variant="outline"
+                class="gap-1.5 font-medium border-border/80 shadow-2xs"
+                onclick={() => (isBulkDiscountModalOpen = true)}
+            >
+                <Percent class="size-4 text-primary" />
+                <span>Desc. por Bulto</span>
+                <span class="tabular-nums font-bold text-primary">({tenantDefaultBulkDiscount}%)</span>
+            </Button>
+
             <Link href="/tenant/products/create">
                 <Button class="gap-2 shadow-sm font-semibold">
                     <Plus class="size-4" />
-                    Añadir Producto
+                    Crear producto
                 </Button>
             </Link>
         </div>
@@ -140,8 +173,8 @@
                     <AlertTriangle class="size-5" />
                 </div>
                 <div>
-                    <h3 class="text-sm font-bold text-foreground">
-                        Hay {incompleteCount} {incompleteCount === 1 ? 'producto con datos faltantes' : 'productos con datos faltantes'}
+                    <h3 class="text-sm font-semibold text-foreground">
+                        Hay <span class="tabular-nums font-bold">{incompleteCount}</span> {incompleteCount === 1 ? 'producto con datos faltantes' : 'productos con datos faltantes'}
                     </h3>
                     <p class="text-xs text-muted-foreground">
                         Se recomienda completar su categoría y precio de venta para habilitar su venta a clientes.
@@ -176,6 +209,16 @@
 
             <!-- Selectores de Filtro -->
             <div class="flex items-center gap-2.5 w-full md:w-auto flex-wrap">
+                <!-- Selector de Ordenamiento -->
+                <SortSelect
+                    value={sortBy}
+                    options={sortOptions}
+                    onchange={(val) => {
+                        sortBy = val;
+                        applyFilters();
+                    }}
+                />
+
                 <!-- Filtro Categoría -->
                 <select
                     bind:value={selectedCategoryId}
@@ -250,7 +293,7 @@
                 class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border {selectedCategoryId === null ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-border text-muted-foreground'}"
                 onclick={() => handleSelectCategory(null)}
             >
-                Todas ({stats.total})
+                Todas (<span class="tabular-nums font-semibold">{stats.total}</span>)
             </button>
             {#each categories as cat}
                 <button
@@ -258,11 +301,17 @@
                     class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border {selectedCategoryId === cat.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-border text-muted-foreground'}"
                     onclick={() => handleSelectCategory(cat.id)}
                 >
-                    {cat.name} ({cat.products_count ?? 0})
+                    {cat.name} (<span class="tabular-nums font-semibold">{cat.products_count ?? 0}</span>)
                 </button>
             {/each}
         </div>
 
         <ProductListMobile {products} />
     </div>
+
+    <!-- Modal de Configuración Rápida de Descuento por Bulto -->
+    <BulkDiscountConfigModal
+        bind:open={isBulkDiscountModalOpen}
+        currentDiscount={tenantDefaultBulkDiscount}
+    />
 </div>

@@ -263,15 +263,15 @@
         aria-hidden="true"
     ></div>
 
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
         <div
-            class="relative w-full max-w-3xl rounded-2xl bg-card border border-border shadow-2xl p-4 sm:p-6 space-y-4 max-h-[92vh] flex flex-col"
+            class="relative w-full max-w-3xl rounded-2xl sm:rounded-3xl bg-card border border-border shadow-2xl p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="supplier-order-modal-title"
         >
-            <!-- Header Bento -->
-            <div class="flex items-center justify-between border-b pb-3.5 shrink-0">
+            <!-- Header Bento (shrink-0) -->
+            <div class="flex items-center justify-between border-b pb-3.5 sm:pb-4 shrink-0">
                 <div class="flex items-center gap-2.5">
                     <div class="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
                         <Truck class="size-5" />
@@ -296,7 +296,7 @@
                 </button>
             </div>
 
-            <!-- Error Banner -->
+            <!-- Error Banner (shrink-0) -->
             {#if errorMessage}
                 <div class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs flex items-center gap-2 shrink-0">
                     <AlertCircle class="size-4 shrink-0" />
@@ -305,7 +305,7 @@
             {/if}
 
             <!-- Form Content (Scrollable) -->
-            <form onsubmit={submitOrder} class="space-y-4 overflow-y-auto pr-1 flex-1">
+            <form id="create-supplier-order-form" onsubmit={submitOrder} class="space-y-4 overflow-y-auto flex-1 min-h-0 pr-1">
                 <!-- Bento Card 1: Proveedor -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
@@ -354,13 +354,14 @@
                     <!-- Lista de Productos -->
                     <div class="space-y-2.5">
                         {#each items as item, index (item.id || index)}
+                            {@const lineSubtotal = item.quantity * (Number(item.unit_cost) || 0)}
                             <div
                                 class="flex flex-col gap-2 p-3 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs relative"
                                 onclick={(e) => e.stopPropagation()}
                             >
                                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
                                     <!-- Input / Dropdown Buscador -->
-                                    <div class="sm:col-span-6 relative">
+                                    <div class="sm:col-span-5 relative">
                                         <Label for={`prod-name-${index}`} class="text-[11px] font-semibold text-muted-foreground sm:hidden mb-1 block">
                                             Producto
                                         </Label>
@@ -374,7 +375,7 @@
                                                 item.is_dropdown_open = true;
                                             }}
                                             placeholder="Buscar producto o escribir nuevo..."
-                                            class="h-8 text-xs font-medium"
+                                            class="h-9 sm:h-10 text-xs font-medium"
                                         />
 
                                         <!-- Autocomplete flotante -->
@@ -385,11 +386,11 @@
                                                 {#each getFilteredProducts(item.search_query) as prod}
                                                     <button
                                                         type="button"
-                                                        class="w-full px-3 py-1.5 text-left text-xs hover:bg-muted transition-colors flex items-center justify-between gap-2 border-b last:border-0"
+                                                        class="w-full px-3 py-2 text-left text-xs hover:bg-muted transition-colors flex items-center justify-between gap-2 border-b last:border-0"
                                                         onclick={() => selectProduct(index, prod)}
                                                     >
                                                         <span class="font-medium truncate">{prod.name}</span>
-                                                        <div class="text-[11px] text-muted-foreground font-mono shrink-0">
+                                                        <div class="text-[11px] text-muted-foreground font-sans tabular-nums shrink-0">
                                                             {#if prod.cost_price}
                                                                 <span>Costo: {formatPrice(Number(prod.cost_price))}</span>
                                                             {:else}
@@ -408,7 +409,7 @@
                                             Costo Unit.
                                         </Label>
                                         <div class="relative">
-                                            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-mono">$</span>
+                                            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-sans tabular-nums">$</span>
                                             <Input
                                                 id={`prod-cost-${index}`}
                                                 type="number"
@@ -416,44 +417,49 @@
                                                 min="0.01"
                                                 bind:value={item.unit_cost}
                                                 placeholder="0.00"
-                                                class="h-8 text-xs pl-6 font-mono text-right"
+                                                class="h-9 sm:h-10 text-xs pl-6 font-sans tabular-nums text-right"
                                                 required
                                             />
                                         </div>
                                     </div>
 
-                                    <!-- Stepper Cantidad & Botón Eliminar -->
-                                    <div class="sm:col-span-3 flex items-center justify-between sm:justify-end gap-2">
+                                    <!-- Stepper Cantidad, Subtotal en tiempo real & Botón Eliminar -->
+                                    <div class="sm:col-span-4 flex items-center justify-between sm:justify-end gap-2">
+                                        <!-- Stepper Táctil (36x36px a 40x40px touch targets) -->
                                         <div class="flex items-center border rounded-lg bg-background shadow-2xs">
                                             <button
                                                 type="button"
-                                                class="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors"
+                                                class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                                 onclick={() => decrementQuantity(index)}
                                                 disabled={item.quantity <= 1}
                                                 aria-label="Disminuir cantidad"
                                             >
-                                                <Minus class="size-3" />
+                                                <Minus class="size-4" />
                                             </button>
-                                            <span class="px-2 text-xs font-bold font-mono min-w-6 text-center">
+                                            <span class="w-10 sm:w-12 text-xs sm:text-sm font-bold font-sans tabular-nums text-center">
                                                 {item.quantity}
                                             </span>
                                             <button
                                                 type="button"
-                                                class="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors"
+                                                class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors"
                                                 onclick={() => incrementQuantity(index)}
                                                 aria-label="Aumentar cantidad"
                                             >
-                                                <Plus class="size-3" />
+                                                <Plus class="size-4" />
                                             </button>
                                         </div>
 
+                                        <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground w-18 sm:w-20 text-right">
+                                            {formatPrice(lineSubtotal)}
+                                        </span>
+
                                         <button
                                             type="button"
-                                            class="p-1.5 text-muted-foreground hover:text-destructive rounded transition-colors"
+                                            class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors shrink-0"
                                             onclick={() => removeItem(index)}
                                             aria-label="Eliminar producto"
                                         >
-                                            <Trash2 class="size-3.5" />
+                                            <Trash2 class="size-4" />
                                         </button>
                                     </div>
                                 </div>
@@ -475,11 +481,11 @@
                 </div>
             </form>
 
-            <!-- Footer Bento: Total Estimado & Botones -->
+            <!-- Footer Bento: Total Estimado & Botones (shrink-0) -->
             <div class="flex items-center justify-between border-t pt-3.5 shrink-0">
                 <div class="flex items-baseline gap-2">
                     <span class="text-xs text-muted-foreground">Total Estimado:</span>
-                    <span class="text-xl font-bold font-mono text-primary">{formatPrice(computedTotal)}</span>
+                    <span class="text-lg sm:text-xl font-bold font-sans tabular-nums text-primary">{formatPrice(computedTotal)}</span>
                 </div>
 
                 <div class="flex items-center gap-2">
@@ -487,14 +493,11 @@
                         Cancelar
                     </Button>
                     <Button
-                        type="button"
+                        type="submit"
+                        form="create-supplier-order-form"
                         size="sm"
                         class="gap-1.5 font-semibold"
                         disabled={isSubmitting}
-                        onclick={(e) => {
-                            const form = document.querySelector('form');
-                            if (form) form.requestSubmit();
-                        }}
                     >
                         {#if isSubmitting}
                             <span>Guardando...</span>

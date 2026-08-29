@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Tenant\CategoryController;
+use App\Http\Controllers\Tenant\CustomerAccountController;
 use App\Http\Controllers\Tenant\CustomerController;
 use App\Http\Controllers\Tenant\CustomerOrderController;
 use App\Http\Controllers\Tenant\ProductController;
@@ -26,6 +27,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
         // Products & Categories Management (Productos module)
         Route::middleware('module:productos')->group(function () {
             Route::get('products', [ProductController::class, 'index'])->name('products.index')->middleware('tenant.permission:productos.ver');
+            Route::patch('products/bulk-discount/global', [ProductController::class, 'updateGlobalBulkDiscount'])->name('products.bulk-discount.global')->middleware('tenant.permission:productos.editar');
             Route::get('products/create', [ProductController::class, 'create'])->name('products.create')->middleware('tenant.permission:productos.crear');
             Route::post('products', [ProductController::class, 'store'])->name('products.store')->middleware('tenant.permission:productos.crear');
             Route::get('products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit')->middleware('tenant.permission:productos.editar');
@@ -67,6 +69,13 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('customers', [CustomerController::class, 'store'])->name('customers.store')->middleware('tenant.permission:clientes.crear');
             Route::put('customers/{customer}', [CustomerController::class, 'update'])->name('customers.update')->middleware('tenant.permission:clientes.editar');
             Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy')->middleware('tenant.permission:clientes.eliminar');
+
+            // Cuentas Corrientes (Customer Accounts Ledger)
+            Route::get('customers/accounts', [CustomerAccountController::class, 'index'])->name('customers.accounts.index')->middleware('tenant.permission:clientes.ver');
+            Route::get('customers/{customer}/account', [CustomerAccountController::class, 'show'])->name('customers.accounts.show')->middleware('tenant.permission:clientes.ver');
+            Route::post('customers/{customer}/account/payment', [CustomerAccountController::class, 'recordPayment'])->name('customers.accounts.payment')->middleware('tenant.permission:clientes.editar');
+            Route::post('customers/{customer}/account/adjustment', [CustomerAccountController::class, 'recordAdjustment'])->name('customers.accounts.adjustment')->middleware('tenant.permission:clientes.editar');
+            Route::patch('customers/{customer}/account/credit-settings', [CustomerAccountController::class, 'updateCreditSettings'])->name('customers.accounts.credit-settings')->middleware('tenant.permission:clientes.editar');
         });
 
         // Customer Orders (Pedidos module)

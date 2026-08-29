@@ -73,7 +73,7 @@
         >
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <span class="font-bold text-sm font-mono text-foreground">{order.order_number}</span>
+                    <span class="font-bold text-sm font-sans tabular-nums text-foreground">{order.order_number}</span>
                     <span class="text-[11px] text-muted-foreground">{formatDate(order.created_at)}</span>
                 </div>
 
@@ -97,7 +97,7 @@
                     <Truck class="size-3 text-muted-foreground" />
                     {order.supplier?.name || 'Proveedor'}
                 </span>
-                <span class="font-mono font-bold text-sm text-foreground">
+                <span class="font-sans tabular-nums font-bold text-sm text-foreground">
                     {Number(order.total_cost) > 0 ? formatPrice(order.total_cost) : '-'}
                 </span>
             </div>

@@ -2,9 +2,11 @@
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
+        DialogBody,
         DialogContent,
         DialogDescription,
         DialogFooter,
+        DialogHeader,
         DialogTitle,
     } from '@/components/ui/dialog';
     import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
@@ -65,43 +67,43 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-lg p-6">
+    <DialogContent size="default" class="max-w-lg">
         {#if movement}
-            <div class="flex items-center justify-between pb-4 border-b border-border">
-                <div class="flex items-center gap-2.5">
-                    <div class="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <DialogHeader>
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
                         <History class="size-5" />
                     </div>
-                    <div>
-                        <DialogTitle class="text-lg font-bold text-foreground">Detalle de Movimiento de Kardex</DialogTitle>
+                    <div class="min-w-0">
+                        <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug truncate">Detalle de movimiento de Kardex</DialogTitle>
                         <DialogDescription class="text-xs text-muted-foreground">
-                            Registro de auditoría #MOV-{String(movement.id).padStart(6, '0')}
+                            Registro de auditoría #MOV-<span class="tabular-nums">{String(movement.id).padStart(6, '0')}</span>
                         </DialogDescription>
                     </div>
                 </div>
                 <button
                     type="button"
                     onclick={() => (open = false)}
-                    class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                    class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
                 </button>
-            </div>
+            </DialogHeader>
 
-            <div class="space-y-4 pt-3 text-sm">
+            <DialogBody class="space-y-4 text-sm">
                 <!-- Información del Producto -->
                 <div class="p-3.5 rounded-xl bg-muted/40 border border-border/60">
-                    <span class="text-xs text-muted-foreground font-semibold uppercase tracking-wider block mb-1">
+                    <span class="text-xs text-muted-foreground font-semibold uppercase tracking-wide block mb-1">
                         Producto Afectado
                     </span>
                     <div class="flex items-center gap-2.5">
                         <Package class="size-4 text-primary shrink-0" />
                         <div class="min-w-0">
-                            <div class="font-bold text-foreground truncate">
+                            <div class="font-semibold text-foreground truncate">
                                 {movement.product?.name ?? 'Producto eliminado'}
                             </div>
-                            <div class="text-xs text-muted-foreground font-mono">
+                            <div class="text-xs text-muted-foreground tabular-nums tracking-wide">
                                 {movement.product?.sku ? `SKU: ${movement.product.sku}` : ''}
                                 {movement.product?.barcode ? ` • Barra: ${movement.product.barcode}` : ''}
                             </div>
@@ -114,12 +116,12 @@
                     <div class="p-3 rounded-xl bg-muted/30 border border-border/60">
                         <span class="text-xs text-muted-foreground block mb-1">Tipo de Operación</span>
                         {#if movement.type === 'income'}
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 tabular-nums">
                                 <ArrowDownLeft class="size-3.5" />
                                 Ingreso (+{movement.quantity})
                             </span>
                         {:else}
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 tabular-nums">
                                 <ArrowUpRight class="size-3.5" />
                                 Egreso (-{movement.quantity})
                             </span>
@@ -128,10 +130,10 @@
 
                     <div class="p-3 rounded-xl bg-muted/30 border border-border/60">
                         <span class="text-xs text-muted-foreground block mb-1">Balance de Stock</span>
-                        <div class="font-mono font-bold text-foreground text-sm">
+                        <div class="font-semibold text-foreground text-sm tabular-nums">
                             {movement.previous_stock} ➔ {movement.current_stock}
                         </div>
-                        <span class="text-[11px] text-muted-foreground">
+                        <span class="text-[11px] text-muted-foreground tabular-nums">
                             {movement.type === 'income' ? `(+${movement.quantity} unidades)` : `(-${movement.quantity} unidades)`}
                         </span>
                     </div>
@@ -147,7 +149,7 @@
 
                 <!-- Usuario Responsable y Fecha -->
                 <div class="p-3.5 rounded-xl bg-muted/40 border border-border/60 space-y-2">
-                    <span class="text-xs text-muted-foreground font-semibold uppercase tracking-wider block">
+                    <span class="text-xs text-muted-foreground font-semibold uppercase tracking-wide block">
                         Auditoría y Ejecución
                     </span>
                     <div class="flex items-center justify-between text-xs">
@@ -156,13 +158,13 @@
                             <span>{movement.user?.name ?? 'Sistema'}</span>
                         </div>
                         {#if movement.user?.email}
-                            <div class="flex items-center gap-1.5 text-muted-foreground font-mono text-[11px]">
+                            <div class="flex items-center gap-1.5 text-muted-foreground text-xs">
                                 <Mail class="size-3" />
                                 <span>{movement.user.email}</span>
                             </div>
                         {/if}
                     </div>
-                    <div class="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t border-border/40">
+                    <div class="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t border-border/40 tabular-nums">
                         <Calendar class="size-3.5 text-muted-foreground" />
                         <span>Fecha y hora: {formatFullDate(movement.created_at)}</span>
                     </div>
@@ -175,18 +177,19 @@
                         <p class="text-xs text-foreground whitespace-pre-wrap">{movement.notes}</p>
                     </div>
                 {/if}
+            </DialogBody>
 
-                <DialogFooter class="pt-3 border-t border-border">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onclick={() => (open = false)}
-                        class="text-xs"
-                    >
-                        Cerrar Detalle
-                    </Button>
-                </DialogFooter>
-            </div>
+            <DialogFooter>
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onclick={() => (open = false)}
+                    class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
+                >
+                    Cerrar
+                </Button>
+            </DialogFooter>
         {/if}
     </DialogContent>
 </Dialog>
