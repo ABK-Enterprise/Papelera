@@ -27,8 +27,8 @@
 
     function submit(e: Event) {
         e.preventDefault();
-        $form.post('/register', {
-            onFinish: () => $form.reset('password', 'password_confirmation'),
+        form.post('/register', {
+            onFinish: () => form.reset('password', 'password_confirmation'),
         });
     }
 </script>
@@ -42,14 +42,14 @@
             <Input
                 id="name"
                 type="text"
-                bind:value={$form.name}
+                bind:value={form.name}
                 required
                 autofocus
                 autocomplete="name"
                 placeholder="Tu nombre completo"
                 class="h-11 rounded-lg border-input/60 bg-muted/40 px-3.5 transition-colors focus:bg-background"
             />
-            <InputError message={$form.errors.name} />
+            <InputError message={form.errors.name} />
         </div>
 
         <div class="grid gap-2">
@@ -57,26 +57,26 @@
             <Input
                 id="email"
                 type="email"
-                bind:value={$form.email}
+                bind:value={form.email}
                 required
                 autocomplete="username"
                 placeholder="nombre@ejemplo.com"
                 class="h-11 rounded-lg border-input/60 bg-muted/40 px-3.5 transition-colors focus:bg-background"
             />
-            <InputError message={$form.errors.email} />
+            <InputError message={form.errors.email} />
         </div>
 
         <div class="grid gap-2">
             <Label for="password" class="text-sm font-medium text-foreground">Contraseña</Label>
             <PasswordInput
                 id="password"
-                bind:value={$form.password}
+                bind:value={form.password}
                 required
                 autocomplete="new-password"
                 placeholder="Crea una contraseña segura"
                 class="h-11 rounded-lg border-input/60 bg-muted/40 px-3.5 transition-colors focus:bg-background"
             />
-            <InputError message={$form.errors.password} />
+            <InputError message={form.errors.password} />
         </div>
 
         <div class="grid gap-2">
@@ -85,21 +85,21 @@
             </Label>
             <PasswordInput
                 id="password_confirmation"
-                bind:value={$form.password_confirmation}
+                bind:value={form.password_confirmation}
                 required
                 autocomplete="new-password"
                 placeholder="Repite tu contraseña"
                 class="h-11 rounded-lg border-input/60 bg-muted/40 px-3.5 transition-colors focus:bg-background"
             />
-            <InputError message={$form.errors.password_confirmation} />
+            <InputError message={form.errors.password_confirmation} />
         </div>
 
         <Button
             type="submit"
             class="h-11 w-full rounded-lg font-medium shadow-sm transition-all"
-            disabled={$form.processing}
+            disabled={form.processing}
         >
-            {#if $form.processing}
+            {#if form.processing}
                 <Spinner class="mr-2" />
                 <span>Registrando...</span>
             {:else}

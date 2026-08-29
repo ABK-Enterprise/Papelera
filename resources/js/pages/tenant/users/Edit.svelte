@@ -34,7 +34,7 @@
 
     function submit(e: SubmitEvent) {
         e.preventDefault();
-        $form.put(`/tenant/users/${user.id}`);
+        form.put(`/tenant/users/${user.id}`);
     }
 </script>
 
@@ -48,11 +48,12 @@
                 Modifica los datos de acceso o rol asignado a {user.name}.
             </p>
         </div>
-        <Link href="/tenant/users">
-            <Button variant="outline" class="min-h-[44px] gap-2 rounded-xl border-border/70 font-medium">
-                <ArrowLeft class="h-4 w-4" />
-                <span>Volver</span>
-            </Button>
+        <Link
+            href="/tenant/users"
+            class="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-xl border border-border/70 text-sm font-medium hover:bg-muted/60 transition-colors"
+        >
+            <ArrowLeft class="h-4 w-4" />
+            <span>Volver</span>
         </Link>
     </div>
 
@@ -69,12 +70,12 @@
                     <Label for="user-name" class="text-sm font-medium text-foreground">Nombre completo <span class="text-destructive">*</span></Label>
                     <Input
                         id="user-name"
-                        bind:value={$form.name}
+                        bind:value={form.name}
                         required
                         class="h-11 rounded-xl border-border/70 bg-muted/20 px-3.5 text-sm font-normal transition-colors focus:bg-background"
                     />
-                    {#if $form.errors.name}
-                        <p class="text-xs font-medium text-destructive">{$form.errors.name}</p>
+                    {#if form.errors.name}
+                        <p class="text-xs font-medium text-destructive">{form.errors.name}</p>
                     {/if}
                 </div>
 
@@ -83,12 +84,12 @@
                     <Input
                         id="user-email"
                         type="email"
-                        bind:value={$form.email}
+                        bind:value={form.email}
                         required
                         class="h-11 rounded-xl border-border/70 bg-muted/20 px-3.5 text-sm font-normal transition-colors focus:bg-background"
                     />
-                    {#if $form.errors.email}
-                        <p class="text-xs font-medium text-destructive">{$form.errors.email}</p>
+                    {#if form.errors.email}
+                        <p class="text-xs font-medium text-destructive">{form.errors.email}</p>
                     {/if}
                 </div>
 
@@ -96,7 +97,7 @@
                     <Label for="user-role" class="text-sm font-medium text-foreground">Rol asignado <span class="text-destructive">*</span></Label>
                     <select
                         id="user-role"
-                        bind:value={$form.role}
+                        bind:value={form.role}
                         class="flex h-11 w-full rounded-xl border border-border/70 bg-muted/20 px-3.5 py-2 text-sm font-normal text-foreground shadow-2xs transition-colors focus:bg-background focus:outline-hidden focus:ring-2 focus:ring-ring"
                         required
                     >
@@ -104,8 +105,8 @@
                             <option value={role.name}>{role.name}</option>
                         {/each}
                     </select>
-                    {#if $form.errors.role}
-                        <p class="text-xs font-medium text-destructive">{$form.errors.role}</p>
+                    {#if form.errors.role}
+                        <p class="text-xs font-medium text-destructive">{form.errors.role}</p>
                     {/if}
                 </div>
 
@@ -114,12 +115,12 @@
                         <Label for="user-password" class="text-sm font-medium text-foreground">Nueva contraseña (Opcional)</Label>
                         <PasswordInput
                             id="user-password"
-                            bind:value={$form.password}
+                            bind:value={form.password}
                             placeholder="Dejar en blanco si no cambia"
                             class="h-11 rounded-xl border-border/70 bg-muted/20 px-3.5 text-sm transition-colors focus:bg-background"
                         />
-                        {#if $form.errors.password}
-                            <p class="text-xs font-medium text-destructive">{$form.errors.password}</p>
+                        {#if form.errors.password}
+                            <p class="text-xs font-medium text-destructive">{form.errors.password}</p>
                         {/if}
                     </div>
 
@@ -127,7 +128,7 @@
                         <Label for="user-password-confirmation" class="text-sm font-medium text-foreground">Confirmar contraseña</Label>
                         <PasswordInput
                             id="user-password-confirmation"
-                            bind:value={$form.password_confirmation}
+                            bind:value={form.password_confirmation}
                             placeholder="Repite la contraseña"
                             class="h-11 rounded-xl border-border/70 bg-muted/20 px-3.5 text-sm transition-colors focus:bg-background"
                         />
@@ -137,17 +138,18 @@
         </Card>
 
         <div class="flex items-center justify-end gap-3">
-            <Link href="/tenant/users">
-                <Button type="button" variant="outline" class="min-h-[44px] px-5 rounded-xl font-medium border-border/70 text-xs">
-                    Cancelar
-                </Button>
+            <Link
+                href="/tenant/users"
+                class="inline-flex items-center justify-center min-h-[44px] px-5 rounded-xl font-medium border border-border/70 text-xs hover:bg-muted/60 transition-colors"
+            >
+                Cancelar
             </Link>
             <Button
                 type="submit"
-                disabled={$form.processing}
+                disabled={form.processing}
                 class="min-h-[44px] min-w-36 gap-2 rounded-xl font-medium text-xs shadow-sm"
             >
-                {#if $form.processing}
+                {#if form.processing}
                     <Spinner class="mr-2" />
                     <span>Guardando cambios...</span>
                 {:else}

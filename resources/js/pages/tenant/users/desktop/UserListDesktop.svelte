@@ -83,15 +83,12 @@
                     </td>
                     <td class="py-4 pr-6 pl-4 text-right">
                         <div class="flex items-center justify-end gap-2">
-                            <Link href={`/tenant/users/${user.id}/edit`}>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    class="min-h-[40px] min-w-[40px] gap-1.5 rounded-xl border-border/70 text-xs font-medium hover:bg-muted/60 transition-colors"
-                                >
-                                    <Edit2 class="h-3.5 w-3.5" />
-                                    <span>Editar</span>
-                                </Button>
+                            <Link
+                                href={`/tenant/users/${user.id}/edit`}
+                                class="inline-flex items-center justify-center min-h-[40px] min-w-[40px] px-3 gap-1.5 rounded-xl border border-border/70 text-xs font-medium text-foreground hover:bg-muted/60 transition-colors shadow-2xs"
+                            >
+                                <Edit2 class="h-3.5 w-3.5" />
+                                <span>Editar</span>
                             </Link>
 
                             {#if currentUserId !== user.id}

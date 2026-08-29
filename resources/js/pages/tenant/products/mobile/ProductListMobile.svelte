@@ -134,17 +134,19 @@
 
             <div class="flex flex-col gap-1.5 shrink-0">
                 {#if isIncomplete}
-                    <Link href={`/tenant/products/${product.id}/edit`}>
-                        <Button size="sm" class="min-h-[44px] px-3 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-xl">
-                            Completar datos
-                        </Button>
+                    <Link
+                        href={`/tenant/products/${product.id}/edit`}
+                        class="inline-flex items-center justify-center min-h-[44px] px-3 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-xl transition-colors"
+                    >
+                        <span>Completar datos</span>
                     </Link>
                 {:else}
-                    <Link href={`/tenant/products/${product.id}/edit`}>
-                        <Button variant="outline" class="min-h-[44px] min-w-[44px] p-0 rounded-xl text-muted-foreground hover:text-foreground justify-center">
-                            <Edit2 class="h-4 w-4" />
-                            <span class="sr-only">Editar</span>
-                        </Button>
+                    <Link
+                        href={`/tenant/products/${product.id}/edit`}
+                        class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] p-0 rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shadow-2xs"
+                    >
+                        <Edit2 class="h-4 w-4" />
+                        <span class="sr-only">Editar</span>
                     </Link>
                 {/if}
                 <Button

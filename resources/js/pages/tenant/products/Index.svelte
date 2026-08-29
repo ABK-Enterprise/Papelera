@@ -6,6 +6,7 @@
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Filter from 'lucide-svelte/icons/filter';
     import Percent from 'lucide-svelte/icons/percent';
+    import Plus from 'lucide-svelte/icons/plus';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import BulkDiscountConfigModal from './BulkDiscountConfigModal.svelte';
     import CategorySidebarDesktop from './desktop/CategorySidebarDesktop.svelte';
