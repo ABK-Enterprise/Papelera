@@ -7,6 +7,8 @@
     import Filter from 'lucide-svelte/icons/filter';
     import Percent from 'lucide-svelte/icons/percent';
     import Plus from 'lucide-svelte/icons/plus';
+    import Search from 'lucide-svelte/icons/search';
+    import X from 'lucide-svelte/icons/x';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import BulkDiscountConfigModal from './BulkDiscountConfigModal.svelte';
     import CategorySidebarDesktop from './desktop/CategorySidebarDesktop.svelte';
