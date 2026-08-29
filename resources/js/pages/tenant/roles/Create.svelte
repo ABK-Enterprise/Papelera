@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,26 +33,26 @@
     });
 
     function togglePermission(name: string) {
-        if ($form.permissions.includes(name)) {
-            $form.permissions = $form.permissions.filter((p) => p !== name);
+        if (form.permissions.includes(name)) {
+            form.permissions = form.permissions.filter((p) => p !== name);
         } else {
-            $form.permissions = [...$form.permissions, name];
+            form.permissions = [...form.permissions, name];
         }
     }
 
     function toggleAllModulePermissions(mod: ModuleItem, selectAll: boolean) {
         const modPermNames = mod.permissions.map((p) => p.name);
         if (selectAll) {
-            const newPerms = new Set([...$form.permissions, ...modPermNames]);
-            $form.permissions = Array.from(newPerms);
+            const newPerms = new Set([...form.permissions, ...modPermNames]);
+            form.permissions = Array.from(newPerms);
         } else {
-            $form.permissions = $form.permissions.filter((p) => !modPermNames.includes(p));
+            form.permissions = form.permissions.filter((p) => !modPermNames.includes(p));
         }
     }
 
     function submit(e: SubmitEvent) {
         e.preventDefault();
-        $form.post('/tenant/roles');
+        form.post('/tenant/roles');
     }
 </script>
 
@@ -71,11 +71,12 @@
                 </p>
             </div>
         </div>
-        <Link href="/tenant/roles">
-            <Button variant="outline" class="min-h-[44px] gap-2 rounded-xl border-border/70 font-medium">
-                <ArrowLeft class="h-4 w-4" />
-                <span>Volver</span>
-            </Button>
+        <Link
+            href="/tenant/roles"
+            class="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-xl border border-border/70 text-sm font-medium hover:bg-muted/60 transition-colors"
+        >
+            <ArrowLeft class="h-4 w-4" />
+            <span>Volver</span>
         </Link>
     </div>
 
@@ -90,13 +91,13 @@
                     <Label for="role-name" class="text-sm font-medium text-foreground">Nombre del Rol <span class="text-destructive">*</span></Label>
                     <Input
                         id="role-name"
-                        bind:value={$form.name}
+                        bind:value={form.name}
                         placeholder="ej. Cajero, Repositor, Encargado de Ventas"
                         required
                         class="h-11 rounded-xl border-border/70 bg-muted/20 px-3.5 text-sm font-normal transition-colors focus:bg-background"
                     />
-                    {#if $form.errors.name}
-                        <p class="text-xs font-medium text-destructive">{$form.errors.name}</p>
+                    {#if form.errors.name}
+                        <p class="text-xs font-medium text-destructive">{form.errors.name}</p>
                     {/if}
                 </div>
             </CardContent>
@@ -112,14 +113,14 @@
                         </CardDescription>
                     </div>
                     <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums">
-                        {$form.permissions.length} seleccionados
+                        {form.permissions.length} seleccionados
                     </span>
                 </div>
             </CardHeader>
             <CardContent class="space-y-6 pt-0">
                 {#each modules as mod (mod.id)}
                     {@const modPermNames = mod.permissions.map((p) => p.name)}
-                    {@const allSelected = mod.permissions.length > 0 && mod.permissions.every((p) => $form.permissions.includes(p.name))}
+                    {@const allSelected = mod.permissions.length > 0 && mod.permissions.every((p) => form.permissions.includes(p.name))}
                     <div class="rounded-2xl border border-border/60 p-4 space-y-3.5 bg-card shadow-2xs">
                         <div class="flex items-center justify-between border-b border-border/40 pb-3">
                             <div class="flex items-center gap-2">
@@ -141,7 +142,7 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-1">
                             {#each mod.permissions as perm (perm.id)}
-                                {@const isChecked = $form.permissions.includes(perm.name)}
+                                {@const isChecked = form.permissions.includes(perm.name)}
                                 <button
                                     type="button"
                                     onclick={() => togglePermission(perm.name)}
@@ -172,24 +173,25 @@
                     </div>
                 {/if}
 
-                {#if $form.errors.permissions}
-                    <p class="text-xs font-medium text-destructive">{$form.errors.permissions}</p>
+                {#if form.errors.permissions}
+                    <p class="text-xs font-medium text-destructive">{form.errors.permissions}</p>
                 {/if}
             </CardContent>
         </Card>
 
         <div class="flex items-center justify-end gap-3">
-            <Link href="/tenant/roles">
-                <Button type="button" variant="outline" class="min-h-[44px] px-5 rounded-xl font-medium border-border/70 text-xs">
-                    Cancelar
-                </Button>
+            <Link
+                href="/tenant/roles"
+                class="inline-flex items-center justify-center min-h-[44px] px-5 rounded-xl font-medium border border-border/70 text-xs hover:bg-muted/60 transition-colors"
+            >
+                Cancelar
             </Link>
             <Button
                 type="submit"
-                disabled={$form.processing}
+                disabled={form.processing}
                 class="min-h-[44px] min-w-36 gap-2 rounded-xl font-medium text-xs shadow-sm"
             >
-                {#if $form.processing}
+                {#if form.processing}
                     <Spinner class="mr-2" />
                     <span>Guardando...</span>
                 {:else}
