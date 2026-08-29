@@ -4,8 +4,8 @@
 
 @font-face {
     font-family: 'Google Sans';
-    src: url('/fonts/GoogleSans-VariableFont_GRAD,opsz,wght.ttf') format('truetype-variations'),
-         url('/fonts/GoogleSans-VariableFont_GRAD,opsz,wght.ttf') format('truetype');
+    src: url('/fonts/GoogleSans-VariableFont.ttf') format('truetype-variations'),
+         url('/fonts/GoogleSans-VariableFont.ttf') format('truetype');
     font-weight: 100 900;
     font-style: normal;
     font-display: swap;
@@ -13,8 +13,8 @@
 
 @font-face {
     font-family: 'Google Sans';
-    src: url('/fonts/GoogleSans-Italic-VariableFont_GRAD,opsz,wght.ttf') format('truetype-variations'),
-         url('/fonts/GoogleSans-Italic-VariableFont_GRAD,opsz,wght.ttf') format('truetype');
+    src: url('/fonts/GoogleSans-Italic-VariableFont.ttf') format('truetype-variations'),
+         url('/fonts/GoogleSans-Italic-VariableFont.ttf') format('truetype');
     font-weight: 100 900;
     font-style: italic;
     font-display: swap;
