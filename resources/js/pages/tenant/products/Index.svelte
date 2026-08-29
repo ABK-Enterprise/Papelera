@@ -8,12 +8,14 @@
     import Percent from 'lucide-svelte/icons/percent';
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
+    import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import X from 'lucide-svelte/icons/x';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import BulkDiscountConfigModal from './BulkDiscountConfigModal.svelte';
     import CategorySidebarDesktop from './desktop/CategorySidebarDesktop.svelte';
     import ProductListDesktop from './desktop/ProductListDesktop.svelte';
     import ProductListMobile from './mobile/ProductListMobile.svelte';
+    import ProductFilterModalMobile from './mobile/ProductFilterModalMobile.svelte';
 
     interface CategoryItem {
         id: number;
@@ -81,6 +83,7 @@
     let selectedInfoStatus = $state(filters.info_status ?? '');
     let sortBy = $state(filters.sort_by ?? 'latest');
     let isBulkDiscountModalOpen = $state(false);
+    let isFilterModalOpen = $state(false);
 
     const sortOptions = [
         { value: 'latest', label: 'Más recientes primero' },
@@ -120,6 +123,19 @@
         applyFilters();
     }
 
+    function handleApplyMobileFilters(f: {
+        category_id: number | null;
+        stock_status: string;
+        info_status: string;
+        sort_by: string;
+    }) {
+        selectedCategoryId = f.category_id;
+        selectedStockStatus = f.stock_status;
+        selectedInfoStatus = f.info_status;
+        sortBy = f.sort_by;
+        applyFilters();
+    }
+
     function resetFilters() {
         searchTerm = '';
         selectedCategoryId = null;
@@ -131,6 +147,13 @@
 
     let hasActiveFilters = $derived(
         Boolean(searchTerm || selectedCategoryId !== null || selectedStockStatus || selectedInfoStatus || (sortBy && sortBy !== 'latest'))
+    );
+
+    let activeFiltersCount = $derived(
+        (selectedCategoryId !== null ? 1 : 0) +
+        (selectedStockStatus ? 1 : 0) +
+        (selectedInfoStatus ? 1 : 0) +
+        (sortBy && sortBy !== 'latest' ? 1 : 0)
     );
 </script>
 
@@ -195,11 +218,12 @@
         </div>
     {/if}
 
-    <!-- Bento Card: Buscador y Filtros Avanzados -->
-    <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
-        <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+    <!-- Barra de Búsqueda y Filtros -->
+    <Card class="rounded-xl p-3 sm:p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
+        <!-- Vista Desktop (>= 768px): Buscador + Selects Directos -->
+        <div class="hidden md:flex items-center justify-between gap-3">
             <!-- Buscador por Nombre, SKU o Código de Barras -->
-            <div class="relative w-full md:w-80">
+            <div class="relative w-80">
                 <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                 <input
                     type="text"
@@ -210,8 +234,8 @@
                 />
             </div>
 
-            <!-- Selectores de Filtro -->
-            <div class="flex items-center gap-2.5 w-full md:w-auto flex-wrap">
+            <!-- Selectores de Filtro en Desktop -->
+            <div class="flex items-center gap-2.5 flex-wrap">
                 <!-- Selector de Ordenamiento -->
                 <SortSelect
                     value={sortBy}
@@ -257,11 +281,6 @@
                     <option value="incomplete">Incompletos ({incompleteCount})</option>
                 </select>
 
-                <Button variant="secondary" size="sm" class="h-10 px-3 text-xs gap-1.5" onclick={applyFilters}>
-                    <Filter class="size-3.5" />
-                    Filtrar
-                </Button>
-
                 {#if hasActiveFilters}
                     <Button variant="ghost" size="sm" class="h-10 px-2 text-xs text-muted-foreground hover:text-foreground gap-1" onclick={resetFilters}>
                         <X class="size-3.5" />
@@ -269,6 +288,37 @@
                     </Button>
                 {/if}
             </div>
+        </div>
+
+        <!-- Vista Mobile (< 768px): Searchbar Expandido + Botón de Filtros con Badge -->
+        <div class="flex md:hidden items-center gap-2">
+            <div class="relative flex-1">
+                <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <input
+                    type="text"
+                    bind:value={searchTerm}
+                    onkeydown={(e) => e.key === 'Enter' && applyFilters()}
+                    placeholder="Buscar producto, SKU o código..."
+                    class="h-11 w-full rounded-xl border border-input bg-muted/20 pl-9 pr-4 text-xs placeholder:text-muted-foreground focus:bg-background focus:outline-none focus:ring-1 focus:ring-primary transition-all"
+                />
+            </div>
+
+            <!-- Botón Disparador de Modal de Filtros Mobile -->
+            <Button
+                type="button"
+                variant={activeFiltersCount > 0 ? 'secondary' : 'outline'}
+                size="icon"
+                onclick={() => (isFilterModalOpen = true)}
+                class="relative h-11 w-11 shrink-0 rounded-xl border border-border/70 shadow-2xs"
+                aria-label="Abrir filtros"
+            >
+                <SlidersHorizontal class="h-4 w-4 text-foreground" />
+                {#if activeFiltersCount > 0}
+                    <span class="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums shadow-xs">
+                        {activeFiltersCount}
+                    </span>
+                {/if}
+            </Button>
         </div>
     </Card>
 
@@ -316,5 +366,20 @@
     <BulkDiscountConfigModal
         bind:open={isBulkDiscountModalOpen}
         currentDiscount={tenantDefaultBulkDiscount}
+    />
+
+    <!-- Modal de Filtros Split para Mobile -->
+    <ProductFilterModalMobile
+        bind:open={isFilterModalOpen}
+        {categories}
+        {stats}
+        {incompleteCount}
+        {selectedCategoryId}
+        {selectedStockStatus}
+        {selectedInfoStatus}
+        {sortBy}
+        {sortOptions}
+        onapply={handleApplyMobileFilters}
+        onreset={resetFilters}
     />
 </div>
