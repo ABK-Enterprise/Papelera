@@ -339,26 +339,6 @@
 
     <!-- Vista Mobile -->
     <div class="block md:hidden space-y-4">
-        <!-- Chips de categorías móviles -->
-        <div class="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
-            <button
-                type="button"
-                class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border {selectedCategoryId === null ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-border text-muted-foreground'}"
-                onclick={() => handleSelectCategory(null)}
-            >
-                Todas (<span class="tabular-nums font-semibold">{stats.total}</span>)
-            </button>
-            {#each categories as cat}
-                <button
-                    type="button"
-                    class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border {selectedCategoryId === cat.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-border text-muted-foreground'}"
-                    onclick={() => handleSelectCategory(cat.id)}
-                >
-                    {cat.name} (<span class="tabular-nums font-semibold">{cat.products_count ?? 0}</span>)
-                </button>
-            {/each}
-        </div>
-
         <ProductListMobile {products} />
     </div>
 
