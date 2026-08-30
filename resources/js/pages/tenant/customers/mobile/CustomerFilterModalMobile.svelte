@@ -22,9 +22,9 @@
     } = $props();
 
     let activeTab = $state('status');
-    let localTaxCondition = $state(selectedTaxCondition);
-    let localStatus = $state(selectedStatus);
-    let localDefaulter = $state(selectedDefaulter);
+    let localTaxCondition = $state('');
+    let localStatus = $state('');
+    let localDefaulter = $state('');
 
     $effect(() => {
         if (open) {

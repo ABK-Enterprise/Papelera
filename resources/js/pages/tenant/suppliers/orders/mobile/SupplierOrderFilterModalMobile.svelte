@@ -25,7 +25,7 @@
     } = $props();
 
     let activeTab = $state('status');
-    let localStatus = $state(selectedStatus);
+    let localStatus = $state('all');
 
     $effect(() => {
         if (open) {

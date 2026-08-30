@@ -30,8 +30,8 @@
     } = $props();
 
     let activeTab = $state('status');
-    let localStatus = $state(selectedStatus);
-    let localSortBy = $state(sortBy);
+    let localStatus = $state('all');
+    let localSortBy = $state('latest');
 
     $effect(() => {
         if (open) {

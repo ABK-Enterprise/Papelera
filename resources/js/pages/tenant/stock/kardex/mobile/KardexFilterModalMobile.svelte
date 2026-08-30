@@ -18,7 +18,7 @@
     } = $props();
 
     let activeTab = $state('type');
-    let localType = $state(selectedType);
+    let localType = $state('');
 
     $effect(() => {
         if (open) {
