@@ -79,23 +79,34 @@
         filters?: FilterProps;
     } = $props();
 
+    import { untrack } from 'svelte';
+
+
     let searchTerm = $state('');
     let selectedCategoryId = $state<number | null>(null);
     let selectedStockStatus = $state('');
     let selectedInfoStatus = $state('');
     let sortBy = $state('latest');
-
-    $effect(() => {
-        searchTerm = filters?.search ?? '';
-        selectedCategoryId = filters?.category_id ?? null;
-        selectedStockStatus = filters?.stock_status ?? '';
-        selectedInfoStatus = filters?.info_status ?? '';
-        sortBy = filters?.sort_by ?? 'latest';
-    });
     let isBulkDiscountModalOpen = $state(false);
     let isFilterModalOpen = $state(false);
     let isProductModalOpen = $state(false);
     let selectedProductForModal = $state<any>(null);
+
+    $effect(() => {
+        const s = filters?.search ?? '';
+        const cid = filters?.category_id ?? null;
+        const ss = filters?.stock_status ?? '';
+        const is = filters?.info_status ?? '';
+        const sb = filters?.sort_by ?? 'latest';
+        untrack(() => {
+            searchTerm = s;
+            selectedCategoryId = cid;
+            selectedStockStatus = ss;
+            selectedInfoStatus = is;
+            sortBy = sb;
+        });
+    });
+
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {

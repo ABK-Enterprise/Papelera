@@ -87,17 +87,24 @@
         filters?: FilterProps;
     } = $props();
 
+    import { untrack } from 'svelte';
+
     let searchTerm = $state('');
     let selectedStatus = $state('all');
-
-    $effect(() => {
-        searchTerm = filters?.search ?? '';
-        selectedStatus = filters?.status ?? 'all';
-    });
     let isCreateModalOpen = $state(false);
     let isDetailModalOpen = $state(false);
     let isFilterModalOpen = $state(false);
     let selectedOrder = $state<SupplierOrderData | null>(null);
+
+    $effect(() => {
+        const s = filters?.search ?? '';
+        const st = filters?.status ?? 'all';
+        untrack(() => {
+            searchTerm = s;
+            selectedStatus = st;
+        });
+    });
+
 
     function applyFilters() {
         router.get(

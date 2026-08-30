@@ -1,5 +1,7 @@
 <script lang="ts">
+    import { untrack } from 'svelte';
     import AppHead from '@/components/AppHead.svelte';
+
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
     import { router } from '@inertiajs/svelte';
@@ -32,29 +34,36 @@
         filters?: FilterProps;
     } = $props();
 
-    let searchTerm = $state('');
-    let selectedStatus = $state('');
-    let selectedTaxCondition = $state('');
-    let selectedDefaulter = $state('');
-
-    $effect(() => {
-        searchTerm = filters?.search ?? '';
-        selectedStatus = filters?.status ?? '';
-        selectedTaxCondition = filters?.tax_condition ?? '';
-        selectedDefaulter = filters?.is_defaulter ?? '';
-    });
-
+    let searchTerm = $state(filters?.search ?? '');
+    let selectedStatus = $state(filters?.status ?? '');
+    let selectedTaxCondition = $state(filters?.tax_condition ?? '');
+    let selectedDefaulter = $state(filters?.is_defaulter ?? '');
     let showCreateModal = $state(false);
     let showManageModal = $state(false);
     let isFilterModalOpen = $state(false);
     let selectedCustomer = $state<CustomerItem | null>(null);
 
-    function applyFilters(customSearch?: string) {
-        const s = typeof customSearch === 'string' ? customSearch : searchTerm;
+    $effect(() => {
+        const s = filters?.search;
+        const st = filters?.status;
+        const tc = filters?.tax_condition;
+        const def = filters?.is_defaulter;
+        untrack(() => {
+            if (s !== undefined && s !== null) searchTerm = s;
+            if (st !== undefined && st !== null) selectedStatus = st;
+            if (tc !== undefined && tc !== null) selectedTaxCondition = tc;
+            if (def !== undefined && def !== null) selectedDefaulter = def;
+        });
+    });
+
+
+
+
+    function applyFilters() {
         router.get(
             '/tenant/customers',
             {
-                search: s || undefined,
+                search: searchTerm || undefined,
                 status: selectedStatus || undefined,
                 tax_condition: selectedTaxCondition || undefined,
                 is_defaulter: selectedDefaulter || undefined,
@@ -71,8 +80,9 @@
         selectedStatus = '';
         selectedTaxCondition = '';
         selectedDefaulter = '';
-        router.get('/tenant/customers');
+        router.get('/tenant/customers', {}, { preserveState: true, preserveScroll: true });
     }
+
 
     function handleSelectCustomer(customer: CustomerItem) {
         selectedCustomer = customer;
@@ -123,8 +133,11 @@
                         placeholder="Buscar por nombre, CUIT/DNI, teléfono..."
                         onsearch={(q) => {
                             searchTerm = q;
-                            applyFilters(q);
+                            applyFilters();
                         }}
+
+
+
                         onselect={handleSelectCustomer}
                         onclear={resetFilters}
                     >

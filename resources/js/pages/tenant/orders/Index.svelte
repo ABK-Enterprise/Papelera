@@ -86,16 +86,25 @@
     let searchTerm = $state('');
     let selectedStatus = $state('all');
     let sortBy = $state('latest');
-
-    $effect(() => {
-        searchTerm = filters?.search ?? '';
-        selectedStatus = filters?.status ?? 'all';
-        sortBy = filters?.sort_by ?? 'latest';
-    });
     let isCreateModalOpen = $state(false);
     let isDetailModalOpen = $state(false);
     let isFilterModalOpen = $state(false);
     let selectedOrder = $state<OrderData | null>(null);
+
+    import { untrack } from 'svelte';
+
+    $effect(() => {
+        const s = filters?.search ?? '';
+        const st = filters?.status ?? 'all';
+        const sb = filters?.sort_by ?? 'latest';
+        untrack(() => {
+            searchTerm = s;
+            selectedStatus = st;
+            sortBy = sb;
+        });
+    });
+
+
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {

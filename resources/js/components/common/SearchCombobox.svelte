@@ -13,7 +13,10 @@
         items = [],
         loading = false,
         debounceMs = 300,
-        showDropdown = true,
+        showDropdown = false,
+
+
+
         itemSnippet,
         emptySnippet,
         onsearch,
@@ -60,12 +63,15 @@
             .slice(0, 10);
     });
 
+    let lastSearchedVal: string | null = null;
+
     function handleInput(e: Event) {
         const val = (e.target as HTMLInputElement).value;
         value = val;
         activeIndex = -1;
 
         if (debounceMs <= 0) {
+            lastSearchedVal = val;
             onsearch?.(val);
             if (showDropdown) {
                 isOpen = true;
@@ -73,6 +79,7 @@
         } else {
             if (timer) clearTimeout(timer);
             timer = setTimeout(() => {
+                lastSearchedVal = val;
                 onsearch?.(val);
                 if (showDropdown) {
                     isOpen = true;
@@ -87,12 +94,21 @@
             if (isOpen && activeIndex >= 0 && displayItems[activeIndex]) {
                 selectItem(displayItems[activeIndex]);
             } else {
-                if (timer) clearTimeout(timer);
-                onsearch?.(value);
+                if (timer) {
+                    clearTimeout(timer);
+                    timer = null;
+                }
+                const currentVal = (e.target as HTMLInputElement)?.value ?? inputElement?.value ?? value;
+                value = currentVal;
+                lastSearchedVal = currentVal;
+                onsearch?.(currentVal);
                 isOpen = false;
             }
             return;
         }
+
+
+
 
         if (!isOpen || displayItems.length === 0) {
             return;
@@ -120,12 +136,18 @@
     }
 
     function clear() {
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
         value = '';
+        lastSearchedVal = '';
         isOpen = false;
         activeIndex = -1;
         onclear?.();
         inputElement?.focus();
     }
+
 
     function handleFocusOrClick() {
         if (showDropdown && (displayItems.length > 0 || emptySnippet)) {

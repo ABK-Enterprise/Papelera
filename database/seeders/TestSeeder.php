@@ -340,7 +340,11 @@ class TestSeeder extends Seeder
             ], [
                 'name' => $tData['name'],
                 'is_active' => true,
+                'default_bulk_discount_percentage' => 10.00,
             ]);
+            $tenant->default_bulk_discount_percentage = 10.00;
+            $tenant->save();
+
 
             // Asignar módulos configurados al comercio
             $moduleIds = Module::whereIn('code', $tData['modules'])->pluck('id');
