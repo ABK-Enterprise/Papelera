@@ -230,6 +230,10 @@
             aria-expanded={isOpen && matchingItems.length > 0}
             aria-autocomplete="list"
             aria-controls="search-combobox-results"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
             {placeholder}
             {disabled}
             {autofocus}
@@ -238,6 +242,7 @@
             onfocus={handleFocus}
             onkeydown={handleKeyDown}
             class={cn(
+
                 'h-10 min-h-[40px] w-full rounded-xl border border-border/80 bg-background/90 pl-9 pr-9 text-sm text-foreground placeholder:text-muted-foreground/70 transition-all duration-150',
                 'hover:border-border hover:bg-background',
                 'focus:bg-background focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs',

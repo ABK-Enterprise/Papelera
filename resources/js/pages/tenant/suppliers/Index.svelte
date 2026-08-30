@@ -108,7 +108,7 @@
         <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-border/60">
             <div class="flex flex-col md:flex-row items-center justify-between gap-3">
                 <!-- Buscador por Nombre, Contacto, Email o Dirección -->
-                <div class="w-full md:w-96">
+                <div class="w-full md:w-[538px]">
                     <SearchCombobox
                         bind:value={searchTerm}
                         items={suppliers}
@@ -152,11 +152,6 @@
                         <option value="inactive">Solo Inactivos</option>
                     </select>
 
-                    <Button variant="secondary" size="sm" class="h-10 px-3.5 text-xs gap-1.5" onclick={applyFilters}>
-                        <Filter class="h-3.5 w-3.5" />
-                        Filtrar
-                    </Button>
-
                     {#if hasActiveFilters}
                         <Button variant="ghost" size="sm" class="h-10 px-2 text-xs text-muted-foreground hover:text-foreground gap-1" onclick={resetFilters}>
                             <X class="h-3.5 w-3.5" />
@@ -164,6 +159,7 @@
                         </Button>
                     {/if}
                 </div>
+
             </div>
         </Card>
 

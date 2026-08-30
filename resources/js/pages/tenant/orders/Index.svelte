@@ -189,7 +189,7 @@
     <!-- Bento Card: Buscador y Filtros -->
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
         <div class="flex flex-col md:flex-row items-center justify-between gap-3">
-            <div class="w-full md:w-80">
+            <div class="w-full md:w-[448px]">
                 <SearchCombobox
                     bind:value={searchTerm}
                     items={orders}
@@ -208,10 +208,10 @@
                                 <span class="text-[10px] text-muted-foreground/80">{ord.created_at}</span>
                             </div>
                             <div class="flex items-center gap-2 shrink-0">
-                                <span class="rounded-full px-2 py-0.5 text-[10px] font-semibold border {badge.class}">
+                                <span class="text-xs font-bold font-sans tabular-nums text-foreground">{formatPrice(ord.total_amount)}</span>
+                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border {badge.bg} {badge.text} {badge.border}">
                                     {badge.label}
                                 </span>
-                                <span class="tabular-nums font-semibold text-foreground text-xs">{formatPrice(ord.total_amount)}</span>
                             </div>
                         </div>
                     {/snippet}
@@ -242,11 +242,6 @@
                     <option value="entregado">Entregado ({stats.entregado})</option>
                     <option value="cancelado">Cancelado ({stats.cancelado})</option>
                 </select>
-
-                <Button variant="secondary" size="sm" class="h-10 px-3 text-xs gap-1.5" onclick={applyFilters}>
-                    <Filter class="size-3.5" />
-                    Filtrar
-                </Button>
 
                 {#if hasActiveFilters}
                     <Button variant="ghost" size="sm" class="h-10 px-2 text-xs text-muted-foreground hover:text-foreground gap-1" onclick={resetFilters}>

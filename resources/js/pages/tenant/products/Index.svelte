@@ -239,9 +239,10 @@
         <!-- Vista Desktop (>= 768px): Buscador + Selects Directos -->
         <div class="hidden md:flex items-center justify-between gap-3">
             <!-- Buscador por Nombre, SKU o Código de Barras -->
-            <div class="w-80">
+            <div class="w-full md:w-[448px]">
                 <SearchCombobox
                     bind:value={searchTerm}
+
                     items={products}
                     placeholder="Buscar por nombre, SKU o barra..."
                     onsearch={applyFilters}

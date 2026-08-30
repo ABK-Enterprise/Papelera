@@ -2,13 +2,13 @@
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import { Link, router } from '@inertiajs/svelte';
-    import Filter from 'lucide-svelte/icons/filter';
     import Plus from 'lucide-svelte/icons/plus';
-    import Search from 'lucide-svelte/icons/search';
     import Truck from 'lucide-svelte/icons/truck';
     import Users from 'lucide-svelte/icons/users';
     import X from 'lucide-svelte/icons/x';
+
     import CreateSupplierOrderModal from './CreateSupplierOrderModal.svelte';
     import SupplierOrderDetailModal from './SupplierOrderDetailModal.svelte';
     import SupplierOrderListDesktop from './desktop/SupplierOrderListDesktop.svelte';
@@ -173,14 +173,14 @@
     <!-- Bento Card: Buscador y Filtros -->
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
         <div class="flex flex-col md:flex-row items-center justify-between gap-3">
-            <div class="relative w-full md:w-80">
-                <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                <input
-                    type="text"
+            <div class="w-full md:w-[448px]">
+                <SearchCombobox
                     bind:value={searchTerm}
-                    onkeydown={(e) => e.key === 'Enter' && applyFilters()}
+                    items={orders}
+                    itemLabel={(order) => `${order.order_number} ${order.supplier?.name ?? ''}`}
                     placeholder="Buscar por #orden o proveedor..."
-                    class="h-10 w-full rounded-lg border border-input bg-muted/20 pl-9 pr-4 text-sm placeholder:text-muted-foreground focus:bg-background focus:outline-none focus:ring-1 focus:ring-primary transition-all"
+                    onsearch={applyFilters}
+                    onselect={(order) => openOrderDetail(order)}
                 />
             </div>
 
@@ -196,11 +196,6 @@
                     <option value="cancelado">Cancelado ({stats.cancelado})</option>
                 </select>
 
-                <Button variant="secondary" size="sm" class="h-10 px-3 text-xs gap-1.5" onclick={applyFilters}>
-                    <Filter class="size-3.5" />
-                    Filtrar
-                </Button>
-
                 {#if hasActiveFilters}
                     <Button variant="ghost" size="sm" class="h-10 px-2 text-xs text-muted-foreground hover:text-foreground gap-1" onclick={resetFilters}>
                         <X class="size-3.5" />
@@ -210,6 +205,7 @@
             </div>
         </div>
     </Card>
+
 
     <!-- Lista Desktop -->
     <div class="hidden md:block">
