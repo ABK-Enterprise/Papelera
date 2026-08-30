@@ -7,7 +7,7 @@
     import StockNavigationTabs from '@/pages/tenant/stock/StockNavigationTabs.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import { router } from '@inertiajs/svelte';
-    import ChevronDown from 'lucide-svelte/icons/chevron-down';
+
 
     interface StockMovementItem {
         id: number;
@@ -111,18 +111,18 @@
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 bg-card/60 backdrop-blur-sm p-3.5 rounded-xl border border-border/60 shadow-xs">
         <div class="flex flex-wrap items-center gap-3 flex-1">
             <!-- Tipo de Movimiento Select -->
-            <div class="relative min-w-[160px]">
+            <div class="min-w-[160px]">
                 <select
                     value={typeFilter}
                     onchange={handleTypeChange}
-                    class="w-full appearance-none rounded-lg border border-border bg-background px-3.5 py-2 pr-9 text-xs sm:text-sm font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+                    class="w-full rounded-lg border border-border bg-background px-3.5 py-2 text-xs sm:text-sm font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
                 >
                     <option value="">Todos los tipos</option>
                     <option value="income">Solo Ingresos</option>
                     <option value="outcome">Solo Egresos</option>
                 </select>
-                <ChevronDown class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
             </div>
+
 
             <!-- Buscador por Producto / SKU -->
             <div class="flex-1 min-w-[240px]">

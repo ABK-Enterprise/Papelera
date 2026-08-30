@@ -6,8 +6,8 @@
     import { Link, router } from '@inertiajs/svelte';
     import Building2 from 'lucide-svelte/icons/building-2';
     import Calendar from 'lucide-svelte/icons/calendar';
-    import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import Edit2 from 'lucide-svelte/icons/edit-2';
+
     import Filter from 'lucide-svelte/icons/filter';
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
@@ -158,32 +158,31 @@
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 bg-card/60 backdrop-blur-sm p-3.5 rounded-xl border border-border/60 shadow-xs">
             <div class="flex flex-wrap items-center gap-3 flex-1">
                 <!-- Status Filter Select -->
-                <div class="relative min-w-[160px]">
+                <div class="min-w-[160px]">
                     <select
                         value={statusFilter}
                         onchange={handleStatusChange}
-                        class="w-full appearance-none rounded-lg border border-border bg-background px-3.5 py-2 pr-9 text-xs sm:text-sm font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+                        class="w-full rounded-lg border border-border bg-background px-3.5 py-2 text-xs sm:text-sm font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
                     >
                         <option value="all">Todos los estados</option>
                         <option value="activo">Activo</option>
                         <option value="suspendido">Suspendido</option>
                     </select>
-                    <ChevronDown class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
                 </div>
 
                 <!-- Sort Order Select -->
-                <div class="relative min-w-[210px]">
+                <div class="min-w-[210px]">
                     <select
                         value={sortFilter}
                         onchange={handleSortChange}
-                        class="w-full appearance-none rounded-lg border border-border bg-background px-3.5 py-2 pr-9 text-xs sm:text-sm font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+                        class="w-full rounded-lg border border-border bg-background px-3.5 py-2 text-xs sm:text-sm font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
                     >
                         <option value="latest">Fecha de alta (Más recientes)</option>
                         <option value="oldest">Fecha de alta (Más antiguos)</option>
                         <option value="name_asc">Nombre (A-Z)</option>
                     </select>
-                    <ChevronDown class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
                 </div>
+
 
                 <!-- Advanced Search Input (Laravel Scout powered) -->
                 <div class="relative flex-1 min-w-[240px]">
