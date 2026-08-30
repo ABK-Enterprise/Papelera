@@ -1,6 +1,13 @@
 <script lang="ts">
     import { Link, router } from '@inertiajs/svelte';
     import { Button } from '@/components/ui/button';
+    import {
+        DropdownMenu,
+        DropdownMenuContent,
+        DropdownMenuItem,
+        DropdownMenuSeparator,
+        DropdownMenuTrigger,
+    } from '@/components/ui/dropdown-menu';
     import AppPagination from '@/components/common/AppPagination.svelte';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
@@ -8,6 +15,7 @@
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Layers from 'lucide-svelte/icons/layers';
+    import MoreVertical from 'lucide-svelte/icons/more-vertical';
     import Package from 'lucide-svelte/icons/package';
     import Scale from 'lucide-svelte/icons/scale';
     import Trash2 from 'lucide-svelte/icons/trash-2';
@@ -32,6 +40,8 @@
         image_url: string | null;
         is_incomplete?: boolean;
         category?: CategorySummary | null;
+        effective_bulk_discount_percentage?: number;
+        bulk_discount_price?: string | number;
     }
 
     let {
@@ -79,12 +89,12 @@
         {@const isWeighable = product.sale_type === 'weight'}
         {@const isIncomplete = Boolean(product.is_incomplete)}
         <div
-            class="flex flex-col md:flex-row items-start md:items-center justify-between p-4 rounded-2xl border transition-all duration-200 gap-4 bg-card shadow-xs hover:shadow-md hover:border-border {isIncomplete ? 'border-amber-300 dark:border-amber-700/60 bg-amber-50/20 dark:bg-amber-950/10' : 'border-border/70'}"
+            class="flex items-center justify-between p-4 rounded-2xl border transition-all duration-200 gap-4 bg-card shadow-xs hover:shadow-md hover:border-border {isIncomplete ? 'border-amber-300 dark:border-amber-700/60 bg-amber-50/20 dark:bg-amber-950/10' : 'border-border/70'}"
         >
-            <!-- Lado Izquierdo: Imagen / Avatar Placeholder -->
+            <!-- Lado Izquierdo: Imagen / Avatar Placeholder + Info Principal -->
             <div class="flex items-center gap-4 min-w-0 flex-1">
                 {#if product.image_url}
-                    <div class="relative size-12 sm:size-12 rounded-xl border border-border/80 overflow-hidden shrink-0">
+                    <div class="relative size-12 rounded-xl border border-border/80 overflow-hidden shrink-0">
                         <img
                             src={product.image_url}
                             alt={product.name}
@@ -104,8 +114,8 @@
                     />
                 {/if}
 
-                <!-- Info Principal -->
-                <div class="space-y-1 min-w-0 flex-1">
+                <!-- Info Principal: Título, Categoría, Packaging y Stock Unificados -->
+                <div class="space-y-1.5 min-w-0 flex-1">
                     <div class="flex items-center gap-2 flex-wrap">
                         <h4 class="font-semibold text-base text-foreground truncate leading-snug">
                             {product.name}
@@ -126,8 +136,8 @@
                         {/if}
                     </div>
 
-                    <!-- Código de Barras / SKU / Categoría / Bulto -->
-                    <div class="flex items-center gap-2.5 text-xs text-muted-foreground flex-wrap">
+                    <!-- Código de Barras / SKU / Categoría / Packaging | Stock -->
+                    <div class="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                         {#if product.barcode}
                             <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs tabular-nums tracking-wide">
                                 BAR: {product.barcode}
@@ -147,24 +157,49 @@
                                 Sin categoría
                             </span>
                         {/if}
+
+                        <span class="text-muted-foreground/40 font-light select-none">|</span>
+
+                        <!-- Packaging y Stock físico unificados en la misma línea -->
                         {#if isWeighable}
-                            <span class="inline-flex items-center gap-1 text-xs bg-muted/70 px-1.5 py-0.5 rounded text-foreground tabular-nums tracking-wide">
+                            <span class="inline-flex items-center gap-1 text-xs bg-muted/60 px-1.5 py-0.5 rounded text-foreground tabular-nums tracking-wide">
                                 <Layers class="h-3 w-3 text-primary" />
                                 1 Bulto = {product.package_quantity || product.units_per_package || 1} Kg
                             </span>
                         {:else if product.units_per_package && product.units_per_package > 1}
-                            <span class="inline-flex items-center gap-1 text-xs bg-muted/70 px-1.5 py-0.5 rounded text-foreground tabular-nums tracking-wide">
+                            <span class="inline-flex items-center gap-1 text-xs bg-muted/60 px-1.5 py-0.5 rounded text-foreground tabular-nums tracking-wide">
                                 <Layers class="h-3 w-3 text-primary" />
                                 1 Bulto = {product.units_per_package} unid.
+                            </span>
+                        {/if}
+
+                        <span class="text-muted-foreground/40 font-light select-none">|</span>
+
+                        <!-- Estado y cantidad de stock físico -->
+                        {#if product.stock <= 0}
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 tabular-nums">
+                                <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
+                                Stock: Agotado
+                            </span>
+                        {:else if product.stock <= product.min_stock}
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 tabular-nums">
+                                <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                Stock: {product.stock} {isWeighable ? 'Kg' : 'unid.'} (Bajo)
+                            </span>
+                        {:else}
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 tabular-nums">
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                Stock: {product.stock} {isWeighable ? 'Kg' : 'unid.'}
                             </span>
                         {/if}
                     </div>
                 </div>
             </div>
 
-            <!-- Centro: Precios y Stock con Tabular Numbers -->
-            <div class="flex items-center gap-6 px-2">
-                <div class="flex flex-col items-end">
+            <!-- Lado Derecho: Precios (alineados a la derecha) + Menú Desplegable '...' -->
+            <div class="flex items-center gap-5 shrink-0">
+                <!-- Precios -->
+                <div class="flex flex-col items-end text-right">
                     <span class="text-xs text-muted-foreground font-medium">Precio unitario</span>
                     <span class="font-semibold text-base text-foreground tabular-nums">
                         {formatPrice(product.price)} {isWeighable ? '/Kg' : ''}
@@ -181,55 +216,50 @@
                     {/if}
                 </div>
 
-                <div class="flex flex-col items-end min-w-[100px]">
-                    <span class="text-xs text-muted-foreground font-medium">Stock físico</span>
-                    {#if product.stock <= 0}
-                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 tabular-nums">
-                            <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
-                            Agotado
-                        </span>
-                    {:else if product.stock <= product.min_stock}
-                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 tabular-nums">
-                            <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
-                            {product.stock} {isWeighable ? 'Kg' : 'unid.'}
-                        </span>
-                    {:else}
-                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 tabular-nums">
-                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                            {product.stock} {isWeighable ? 'Kg' : 'unid.'}
-                        </span>
-                    {/if}
-                </div>
-            </div>
-
-            <!-- Botones de Acción con Touch Target >= 40px -->
-            <div class="flex items-center justify-end gap-2 shrink-0">
-                {#if isIncomplete}
-                    <Link
-                        href={`/tenant/products/${product.id}/edit`}
-                        class="inline-flex items-center justify-center min-h-[40px] px-3.5 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white gap-1.5 rounded-xl shadow-xs transition-colors"
-                    >
-                        <Edit2 class="h-3.5 w-3.5" />
-                        <span>Completar datos</span>
-                    </Link>
-                {:else}
-                    <Link
-                        href={`/tenant/products/${product.id}/edit`}
-                        class="inline-flex items-center justify-center min-h-[40px] min-w-[40px] px-3 gap-1.5 rounded-xl border border-border/70 text-xs font-medium text-foreground hover:bg-muted/60 transition-colors shadow-2xs"
-                    >
-                        <Edit2 class="h-3.5 w-3.5" />
-                        <span>Editar</span>
-                    </Link>
-                {/if}
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    class="min-h-[40px] min-w-[40px] px-3 gap-1.5 rounded-xl text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive"
-                    onclick={() => promptDelete(product)}
-                >
-                    <Trash2 class="h-3.5 w-3.5" />
-                    <span>Eliminar</span>
-                </Button>
+                <!-- Menú Desplegable '...' con DropdownMenu (Touch Target >= 40px) -->
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        {#snippet children(props)}
+                            <button
+                                {...props}
+                                type="button"
+                                class="inline-flex items-center justify-center min-h-[40px] min-w-[40px] size-10 rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
+                                aria-label={`Opciones de ${product.name}`}
+                            >
+                                <MoreVertical class="h-4 w-4" />
+                            </button>
+                        {/snippet}
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" class="w-48 shadow-lg">
+                        <DropdownMenuItem asChild>
+                            {#snippet children(props)}
+                                <Link
+                                    {...props}
+                                    href={`/tenant/products/${product.id}/edit`}
+                                    class="{props.class} flex items-center gap-2 text-xs font-medium cursor-pointer"
+                                >
+                                    <Edit2 class="h-3.5 w-3.5 text-muted-foreground" />
+                                    <span>{isIncomplete ? 'Completar datos' : 'Editar producto'}</span>
+                                </Link>
+                            {/snippet}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                            {#snippet children(props)}
+                                <button
+                                    type="button"
+                                    class="{props.class} w-full flex items-center text-destructive focus:text-destructive focus:bg-destructive/10 gap-2 text-xs font-medium cursor-pointer"
+                                    onclick={() => {
+                                        promptDelete(product);
+                                    }}
+                                >
+                                    <Trash2 class="h-3.5 w-3.5" />
+                                    <span>Eliminar producto</span>
+                                </button>
+                            {/snippet}
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </div>
     {/each}
