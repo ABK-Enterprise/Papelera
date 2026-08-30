@@ -14,7 +14,9 @@
     import X from 'lucide-svelte/icons/x';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import TenantDetailDialog from './tenants/TenantDetailDialog.svelte';
+    import ModuleDetailDialog from './modules/ModuleDetailDialog.svelte';
 
     interface RecentTenant {
         id: number;
@@ -31,9 +33,15 @@
         id: number;
         code: string;
         name: string;
+        description?: string | null;
         is_active: boolean;
         tenants_count: number;
+        permissions?: Array<{ id: number; name: string; module_id: number }>;
     }
+
+    type DashboardSearchItem =
+        | { type: 'tenant'; id: number; name: string; cuit_tax_id: string | null; is_active: boolean; raw: RecentTenant }
+        | { type: 'module'; id: number; name: string; code: string; is_active: boolean; raw: PlatformModule };
 
     let {
         recentTenants = [],
@@ -45,6 +53,57 @@
 
     let selectedTenant = $state<RecentTenant | null>(null);
     let isMobileDialogOpen = $state(false);
+
+    let selectedModule = $state<PlatformModule | null>(null);
+    let isModuleDialogOpen = $state(false);
+
+    let dashboardSearch = $state('');
+
+    let searchItems = $derived.by<DashboardSearchItem[]>(() => {
+        const q = dashboardSearch.toLowerCase().trim();
+        if (!q) return [];
+
+        const tenantMatches: DashboardSearchItem[] = recentTenants
+            .filter((t) => t.name.toLowerCase().includes(q) || (t.cuit_tax_id && t.cuit_tax_id.toLowerCase().includes(q)))
+            .map((t) => ({
+                type: 'tenant',
+                id: t.id,
+                name: t.name,
+                cuit_tax_id: t.cuit_tax_id,
+                is_active: t.is_active,
+                raw: t,
+            }));
+
+        const moduleMatches: DashboardSearchItem[] = modules
+            .filter((m) => m.name.toLowerCase().includes(q) || m.code.toLowerCase().includes(q))
+            .map((m) => ({
+                type: 'module',
+                id: m.id,
+                name: m.name,
+                code: m.code,
+                is_active: m.is_active,
+                raw: m,
+            }));
+
+        return [...tenantMatches, ...moduleMatches];
+    });
+
+    function handleSelectSearchItem(item: DashboardSearchItem) {
+        if (item.type === 'tenant') {
+            selectedTenant = item.raw;
+            if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                isMobileDialogOpen = true;
+            }
+        } else if (item.type === 'module') {
+            selectedModule = {
+                ...item.raw,
+                description: item.raw.description ?? null,
+                permissions: item.raw.permissions ?? [],
+            };
+            isModuleDialogOpen = true;
+        }
+        dashboardSearch = '';
+    }
 
     function toggleDesktopDetail(tenant: RecentTenant) {
         if (selectedTenant?.id === tenant.id) {
@@ -75,26 +134,60 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1360px] mx-auto w-full">
     <!-- Header Minimalista -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border/50 pb-5">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b border-border/50 pb-5">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
                 Panel de control
             </h1>
         </div>
 
-        <div class="flex items-center gap-2.5">
-            <Link href="/platform/tenants/create">
-                <Button class="min-h-[40px] gap-2 shadow-sm font-medium rounded-xl">
-                    <Plus class="size-4" />
-                    <span>Crear comercio</span>
-                </Button>
-            </Link>
-            <Link href="/platform/modules">
-                <Button variant="outline" class="min-h-[40px] gap-2 font-medium rounded-xl border-border/70">
-                    <Boxes class="size-4" />
-                    <span>Gestionar módulos</span>
-                </Button>
-            </Link>
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <!-- SearchCombobox Rápido de Plataforma -->
+            <div class="w-full sm:w-72">
+                <SearchCombobox
+                    bind:value={dashboardSearch}
+                    items={searchItems}
+                    placeholder="Buscar comercio o módulo..."
+                    showDropdown={true}
+                    onselect={handleSelectSearchItem}
+                >
+                    {#snippet itemSnippet(item)}
+                        <div class="flex items-center justify-between gap-2 w-full">
+                            <div class="flex items-center gap-2 min-w-0">
+                                {#if item.type === 'tenant'}
+                                    <Building2 class="size-3.5 text-primary shrink-0" />
+                                    <span class="font-semibold truncate">{item.name}</span>
+                                    {#if item.cuit_tax_id}
+                                        <span class="text-[10px] text-muted-foreground tabular-nums">({item.cuit_tax_id})</span>
+                                    {/if}
+                                {:else}
+                                    <Boxes class="size-3.5 text-primary shrink-0" />
+                                    <span class="font-semibold truncate">{item.name}</span>
+                                    <span class="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground tabular-nums">{item.code}</span>
+                                {/if}
+                            </div>
+                            <span class="text-[10px] uppercase tracking-wider text-muted-foreground shrink-0 font-medium">
+                                {item.type === 'tenant' ? 'Comercio' : 'Módulo'}
+                            </span>
+                        </div>
+                    {/snippet}
+                </SearchCombobox>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+                <Link href="/platform/tenants/create">
+                    <Button class="min-h-[40px] gap-2 shadow-sm font-medium rounded-xl">
+                        <Plus class="size-4" />
+                        <span>Crear comercio</span>
+                    </Button>
+                </Link>
+                <Link href="/platform/modules">
+                    <Button variant="outline" class="min-h-[40px] gap-2 font-medium rounded-xl border-border/70">
+                        <Boxes class="size-4" />
+                        <span>Gestionar módulos</span>
+                    </Button>
+                </Link>
+            </div>
         </div>
     </div>
 
@@ -283,3 +376,6 @@
 
 <!-- Modal para Mobile -->
 <TenantDetailDialog bind:open={isMobileDialogOpen} tenant={selectedTenant} />
+
+<!-- Modal Detalle de Módulo -->
+<ModuleDetailDialog bind:open={isModuleDialogOpen} module={selectedModule} />

@@ -3,9 +3,9 @@
     import EmptyState from '@/components/common/EmptyState.svelte';
     import ModuleListDesktop from './desktop/ModuleListDesktop.svelte';
     import ModuleListMobile from './mobile/ModuleListMobile.svelte';
+    import ModuleDetailDialog from './ModuleDetailDialog.svelte';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import Boxes from 'lucide-svelte/icons/boxes';
-    import Search from 'lucide-svelte/icons/search';
-    import X from 'lucide-svelte/icons/x';
 
     interface PermissionItem {
         id: number;
@@ -25,6 +25,8 @@
     let { modules = [] }: { modules: ModuleItem[] } = $props();
 
     let searchQuery = $state('');
+    let selectedDetailModule = $state<ModuleItem | null>(null);
+    let isDetailModalOpen = $state(false);
 
     let filteredModules = $derived.by(() => {
         const q = searchQuery.toLowerCase().trim();
@@ -38,6 +40,17 @@
             return matchName || matchCode || matchDesc || matchPerms;
         });
     });
+
+    let comboboxSuggestions = $derived.by(() => {
+        const q = searchQuery.toLowerCase().trim();
+        if (!q) return [];
+        return filteredModules;
+    });
+
+    function handleSelectModule(mod: ModuleItem) {
+        selectedDetailModule = mod;
+        isDetailModalOpen = true;
+    }
 </script>
 
 <AppHead title="Módulos del sistema - Plataforma" />
@@ -56,25 +69,29 @@
             </div>
         </div>
 
-        <!-- Buscador Rápido -->
-        <div class="relative w-full sm:w-80">
-            <Search class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <input
-                type="text"
+        <!-- Buscador Rápido con SearchCombobox -->
+        <div class="w-full sm:w-80">
+            <SearchCombobox
                 bind:value={searchQuery}
+                items={comboboxSuggestions}
                 placeholder="Buscar por módulo o permiso..."
-                class="w-full rounded-xl border border-border/70 bg-background pl-10 pr-9 py-2 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
-            />
-            {#if searchQuery}
-                <button
-                    type="button"
-                    onclick={() => (searchQuery = '')}
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    aria-label="Limpiar búsqueda"
-                >
-                    <X class="size-4" />
-                </button>
-            {/if}
+                showDropdown={true}
+                onsearch={(q) => (searchQuery = q)}
+                onselect={handleSelectModule}
+                onclear={() => (searchQuery = '')}
+            >
+                {#snippet itemSnippet(item)}
+                    <div class="flex items-center justify-between gap-2 w-full">
+                        <div class="min-w-0">
+                            <span class="font-semibold text-foreground truncate block">{item.name}</span>
+                            <span class="text-[11px] text-muted-foreground">{item.permissions?.length ?? 0} permisos asignados</span>
+                        </div>
+                        <span class="text-[10px] bg-muted/70 px-1.5 py-0.5 rounded text-muted-foreground tabular-nums shrink-0 font-medium">
+                            {item.code}
+                        </span>
+                    </div>
+                {/snippet}
+            </SearchCombobox>
         </div>
     </div>
 
@@ -96,3 +113,10 @@
         />
     {/if}
 </div>
+
+<!-- Modal Detalle de Módulo -->
+<ModuleDetailDialog
+    bind:open={isDetailModalOpen}
+    module={selectedDetailModule}
+/>
+

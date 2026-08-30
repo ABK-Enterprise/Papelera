@@ -7,11 +7,9 @@
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import Filter from 'lucide-svelte/icons/filter';
-    import X from 'lucide-svelte/icons/x';
     import Truck from 'lucide-svelte/icons/truck';
     import Users from 'lucide-svelte/icons/users';
-    import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
-    import XCircle from 'lucide-svelte/icons/x-circle';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SupplierListDesktop from './desktop/SupplierListDesktop.svelte';
     import SupplierListMobile from './mobile/SupplierListMobile.svelte';
     import CreateSupplierModal from './CreateSupplierModal.svelte';
@@ -93,6 +91,9 @@
                 <Truck class="size-7 text-primary" />
                 Gestión de Proveedores
             </h1>
+            <p class="text-sm text-muted-foreground mt-0.5">
+                Administra tu red de proveedores, contactos comerciales y compras integrales.
+            </p>
         </div>
 
         <div class="flex items-center gap-2.5">
@@ -107,15 +108,36 @@
         <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-border/60">
             <div class="flex flex-col md:flex-row items-center justify-between gap-3">
                 <!-- Buscador por Nombre, Contacto, Email o Dirección -->
-                <div class="relative w-full md:w-96">
-                    <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <input
-                        type="text"
+                <div class="w-full md:w-96">
+                    <SearchCombobox
                         bind:value={searchTerm}
-                        onkeydown={(e) => e.key === 'Enter' && applyFilters()}
+                        items={suppliers}
                         placeholder="Buscar por nombre, teléfono, email..."
-                        class="h-10 w-full rounded-lg border border-input bg-muted/20 pl-9 pr-4 text-sm placeholder:text-muted-foreground focus:bg-background focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-                    />
+                        onsearch={applyFilters}
+                        onselect={handleSelectSupplier}
+                    >
+                        {#snippet item(supp)}
+                            <div class="flex items-center justify-between gap-3 w-full min-w-0">
+                                <div class="flex flex-col min-w-0">
+                                    <span class="truncate font-medium text-foreground">{supp.name}</span>
+                                    {#if supp.contact_number}
+                                        <span class="text-[11px] text-muted-foreground tabular-nums">{supp.contact_number}</span>
+                                    {/if}
+                                </div>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    {#if supp.is_active}
+                                        <span class="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                            Activo
+                                        </span>
+                                    {:else}
+                                        <span class="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground border border-border">
+                                            Inactivo
+                                        </span>
+                                    {/if}
+                                </div>
+                            </div>
+                        {/snippet}
+                    </SearchCombobox>
                 </div>
 
                 <!-- Selectores de Filtro -->

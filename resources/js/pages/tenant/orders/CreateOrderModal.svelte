@@ -3,8 +3,8 @@
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import { Link, router } from '@inertiajs/svelte';
-    import { clickOutside } from '@/lib/actions/clickOutside';
     import Check from 'lucide-svelte/icons/check';
     import Layers from 'lucide-svelte/icons/layers';
     import Minus from 'lucide-svelte/icons/minus';
@@ -68,7 +68,6 @@
     let selectedCustomerId = $state<number | null>(null);
     let selectedCustomer = $state<CustomerOption | null>(null);
     let customerSearchQuery = $state('');
-    let isCustomerSearchOpen = $state(false);
 
     let customerName = $state('');
     let customerPhone = $state('');
@@ -79,7 +78,6 @@
 
     // Search / Autocomplete state
     let searchQuery = $state('');
-    let isSearchOpen = $state(false);
     let selectedProductToAdd = $state<ProductOption | null>(null);
 
     let items = $state<OrderItemLine[]>([]);
@@ -125,17 +123,17 @@
     let searchResults = $derived.by(() => {
         const q = searchQuery.toLowerCase().trim();
         if (!q) {
-            return availableProductsWithRemainingStock.slice(0, 5);
+            return availableProductsWithRemainingStock.slice(0, 8);
         }
         return availableProductsWithRemainingStock
             .filter((p) => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)))
-            .slice(0, 5);
+            .slice(0, 8);
     });
 
     let customerSearchResults = $derived.by(() => {
         const q = customerSearchQuery.toLowerCase().trim();
         if (!q) {
-            return availableCustomers.slice(0, 5);
+            return availableCustomers.slice(0, 8);
         }
         return availableCustomers
             .filter((c) =>
@@ -143,7 +141,7 @@
                 (c.tax_id && c.tax_id.toLowerCase().includes(q)) ||
                 (c.phone && c.phone.toLowerCase().includes(q))
             )
-            .slice(0, 5);
+            .slice(0, 8);
     });
 
     function selectCustomerFromSearch(cust: CustomerOption) {
@@ -153,7 +151,6 @@
         customerSearchQuery = cust.name;
         customerPhone = cust.phone ?? '';
         deliveryAddress = cust.address ?? '';
-        isCustomerSearchOpen = false;
     }
 
     function selectUnregisteredCustomer(typedName: string) {
@@ -161,7 +158,6 @@
         selectedCustomer = null;
         customerName = typedName;
         customerSearchQuery = typedName;
-        isCustomerSearchOpen = false;
     }
 
     function clearCustomerSelection() {
@@ -171,13 +167,11 @@
         customerSearchQuery = '';
         customerPhone = '';
         deliveryAddress = '';
-        isCustomerSearchOpen = false;
     }
 
     function selectProductFromSearch(prod: ProductOption) {
         selectedProductToAdd = prod;
         searchQuery = prod.name;
-        isSearchOpen = false;
     }
 
     function addSelectedProduct() {
@@ -370,12 +364,10 @@
         customerSearchQuery = '';
         customerPhone = '';
         deliveryAddress = '';
-        isCustomerSearchOpen = false;
         notes = '';
         errorMessage = null;
         searchQuery = '';
         selectedProductToAdd = null;
-        isSearchOpen = false;
         items = [];
     }
 
@@ -536,91 +528,69 @@
                         {/if}
                     </div>
 
-                    <!-- Buscador Autocomplete de Clientes -->
-                    <div class="relative z-40" use:clickOutside={() => (isCustomerSearchOpen = false)}>
-                        <Label for="cust-search" class="text-xs font-semibold text-foreground mb-1 block">
+                    <!-- Buscador Autocomplete de Clientes con SearchCombobox -->
+                    <div class="space-y-1">
+                        <Label class="text-xs font-semibold text-foreground mb-1 block">
                             Buscar Cliente Registrado o Escribir Nuevo
                         </Label>
-                        <div class="relative">
-                            <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                            <input
-                                id="cust-search"
-                                type="text"
-                                bind:value={customerSearchQuery}
-                                onfocus={() => (isCustomerSearchOpen = true)}
-                                oninput={() => {
-                                    isCustomerSearchOpen = true;
-                                    customerName = customerSearchQuery;
-                                }}
-                                placeholder="Escribe el nombre, CUIT/DNI o teléfono para autocompletar..."
-                                class="h-9 w-full rounded-lg border border-input bg-background pl-9 pr-8 text-xs font-medium text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none"
-                            />
-                            {#if customerSearchQuery}
-                                <button
-                                    type="button"
-                                    onclick={clearCustomerSelection}
-                                    class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                                    aria-label="Limpiar cliente"
-                                >
-                                    <X class="size-3.5" />
-                                </button>
-                            {/if}
-                        </div>
-
-                        <!-- Dropdown de Sugerencias de Clientes -->
-                        {#if isCustomerSearchOpen}
-                            <div
-                                class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-xl border border-border/80 shadow-2xl z-50 overflow-hidden"
-                            >
-                                <div class="max-h-[220px] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden divide-y divide-border/40">
-                                    {#each customerSearchResults as cust (cust.id)}
-                                        <button
-                                            type="button"
-                                            class="w-full px-3.5 py-2.5 text-left text-xs hover:bg-muted/60 transition-colors flex items-center justify-between gap-3 group"
-                                            onclick={() => selectCustomerFromSearch(cust)}
-                                        >
-                                            <div class="min-w-0 flex-1">
-                                                <div class="flex items-center gap-2">
-                                                    <span class="font-bold text-foreground group-hover:text-primary transition-colors truncate">
-                                                        {cust.name}
-                                                    </span>
-                                                    {#if cust.tax_id}
-                                                        <span class="text-[10px] font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                                                            {cust.tax_id}
-                                                        </span>
-                                                    {/if}
-                                                    {#if cust.is_defaulter}
-                                                        <span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-rose-600 bg-rose-500/10 px-1 py-0.2 rounded border border-rose-500/20">
-                                                            Moroso
-                                                        </span>
-                                                    {/if}
-                                                </div>
-                                                <p class="text-[11px] text-muted-foreground mt-0.5 truncate">
-                                                    {cust.phone || 'Sin teléfono'} • {cust.address || 'Sin dirección'}
-                                                </p>
-                                            </div>
-
-                                            <div class="text-right shrink-0">
-                                                <span class="text-[10px] font-semibold text-muted-foreground uppercase">
-                                                    {cust.tax_condition.replace('_', ' ')}
+                        <SearchCombobox
+                            bind:value={customerSearchQuery}
+                            items={customerSearchResults}
+                            placeholder="Escribe el nombre, CUIT/DNI o teléfono para autocompletar..."
+                            showDropdown={true}
+                            onsearch={(q) => {
+                                customerSearchQuery = q;
+                                customerName = q;
+                            }}
+                            onselect={selectCustomerFromSearch}
+                            onclear={clearCustomerSelection}
+                            inputClass="h-9 text-xs font-medium"
+                        >
+                            {#snippet itemSnippet(cust)}
+                                <div class="flex items-center justify-between gap-3 w-full">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-bold text-foreground truncate">
+                                                {cust.name}
+                                            </span>
+                                            {#if cust.tax_id}
+                                                <span class="text-[10px] font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                                    {cust.tax_id}
                                                 </span>
-                                            </div>
-                                        </button>
-                                    {/each}
+                                            {/if}
+                                            {#if cust.is_defaulter}
+                                                <span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-rose-600 bg-rose-500/10 px-1 py-0.2 rounded border border-rose-500/20">
+                                                    Moroso
+                                                </span>
+                                            {/if}
+                                        </div>
+                                        <p class="text-[11px] text-muted-foreground mt-0.5 truncate">
+                                            {cust.phone || 'Sin teléfono'} • {cust.address || 'Sin dirección'}
+                                        </p>
+                                    </div>
 
-                                    {#if customerSearchQuery.trim().length > 0 && customerSearchResults.length === 0}
-                                        <button
-                                            type="button"
-                                            class="w-full px-3.5 py-2.5 text-left text-xs hover:bg-muted/60 transition-colors flex items-center gap-2 text-primary font-semibold bg-primary/5"
-                                            onclick={() => selectUnregisteredCustomer(customerSearchQuery.trim())}
-                                        >
-                                            <Plus class="size-3.5" />
-                                            <span>Usar "<strong>{customerSearchQuery.trim()}</strong>" como cliente no registrado</span>
-                                        </button>
-                                    {/if}
+                                    <div class="text-right shrink-0">
+                                        <span class="text-[10px] font-semibold text-muted-foreground uppercase">
+                                            {cust.tax_condition.replace('_', ' ')}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        {/if}
+                            {/snippet}
+                            {#snippet emptySnippet()}
+                                {#if customerSearchQuery.trim().length > 0}
+                                    <button
+                                        type="button"
+                                        class="w-full px-1 py-1 text-left text-xs hover:bg-muted/60 transition-colors flex items-center gap-2 text-primary font-semibold cursor-pointer"
+                                        onclick={() => selectUnregisteredCustomer(customerSearchQuery.trim())}
+                                    >
+                                        <Plus class="size-3.5 shrink-0" />
+                                        <span class="truncate">Usar "<strong>{customerSearchQuery.trim()}</strong>" como cliente no registrado</span>
+                                    </button>
+                                {:else}
+                                    <span class="text-xs text-muted-foreground italic">No hay clientes registrados coincidentes.</span>
+                                {/if}
+                            {/snippet}
+                        </SearchCombobox>
                     </div>
 
                     <!-- Alerta de Morosidad si aplica -->
@@ -674,101 +644,76 @@
                         </h3>
                     </div>
 
-                    <!-- Buscador Autocomplete Flotante de Productos -->
-                    <div class="relative z-30" use:clickOutside={() => (isSearchOpen = false)}>
-                        <div class="flex gap-2">
-                            <div class="relative flex-1">
-                                <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                                <input
-                                    type="text"
-                                    bind:value={searchQuery}
-                                    onfocus={() => (isSearchOpen = true)}
-                                    oninput={() => (isSearchOpen = true)}
-                                    placeholder="Escribe el nombre o SKU del producto para buscar..."
-                                    class="h-9 w-full rounded-lg border border-input bg-background pl-9 pr-8 text-xs font-medium text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none"
-                                />
-                                {#if searchQuery}
-                                    <button
-                                        type="button"
-                                        onclick={() => {
-                                            searchQuery = '';
-                                            selectedProductToAdd = null;
-                                        }}
-                                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                                        aria-label="Limpiar búsqueda"
-                                    >
-                                        <X class="size-3.5" />
-                                    </button>
-                                {/if}
-                            </div>
-
-                            <Button
-                                type="button"
-                                size="sm"
-                                variant="secondary"
-                                class="h-9 text-xs gap-1.5 font-semibold shrink-0"
-                                onclick={addSelectedProduct}
-                                disabled={!selectedProductToAdd}
+                    <!-- Buscador Flotante de Productos con SearchCombobox -->
+                    <div class="flex gap-2 items-start">
+                        <div class="flex-1">
+                            <SearchCombobox
+                                bind:value={searchQuery}
+                                items={searchResults}
+                                placeholder="Escribe el nombre o SKU del producto para buscar..."
+                                showDropdown={true}
+                                onsearch={(q) => (searchQuery = q)}
+                                onselect={selectProductFromSearch}
+                                onclear={() => {
+                                    searchQuery = '';
+                                    selectedProductToAdd = null;
+                                }}
+                                inputClass="h-9 text-xs font-medium"
                             >
-                                <Plus class="size-3.5" />
-                                Agregar al Pedido
-                            </Button>
-                        </div>
-
-                        <!-- Dropdown flotante de Productos -->
-                        {#if isSearchOpen}
-                            <div
-                                class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-xl border border-border/80 shadow-2xl z-50 overflow-hidden"
-                            >
-                                <div class="max-h-[220px] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden divide-y divide-border/40">
-                                    {#each searchResults as prod (prod.id)}
-                                        <button
-                                            type="button"
-                                            class="w-full px-3.5 py-2.5 text-left text-xs hover:bg-muted/60 transition-colors flex items-center justify-between gap-3 group"
-                                            onclick={() => selectProductFromSearch(prod)}
-                                        >
-                                            <div class="min-w-0 flex-1">
-                                                <div class="flex items-center gap-2">
-                                                    <span class="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
-                                                        {prod.name}
+                                {#snippet itemSnippet(prod)}
+                                    <div class="flex items-center justify-between gap-3 w-full">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-semibold text-foreground truncate">
+                                                    {prod.name}
+                                                </span>
+                                                {#if prod.sale_type === 'weight'}
+                                                    <span class="inline-flex items-center gap-0.5 text-[10px] font-medium text-sky-600 bg-sky-500/10 px-1.5 py-0.2 rounded border border-sky-500/20">
+                                                        <Scale class="size-2.5" />
+                                                        Pesaje
                                                     </span>
-                                                    {#if prod.sale_type === 'weight'}
-                                                        <span class="inline-flex items-center gap-0.5 text-[10px] font-medium text-sky-600 bg-sky-500/10 px-1.5 py-0.2 rounded border border-sky-500/20">
-                                                            <Scale class="size-2.5" />
-                                                            Pesaje
-                                                        </span>
-                                                    {/if}
-                                                </div>
-                                                {#if prod.sku}
-                                                    <div class="text-[11px] font-sans tabular-nums text-muted-foreground mt-0.5">
-                                                        SKU: {prod.sku}
-                                                    </div>
                                                 {/if}
                                             </div>
-
-                                            <div class="text-right shrink-0">
-                                                <span class="font-bold font-sans tabular-nums text-primary text-xs block">
-                                                    {formatPrice(Number(prod.price))}
-                                                </span>
-                                                <span class="text-[10px] font-sans tabular-nums text-muted-foreground block mt-0.5">
-                                                    {#if prod.sale_type === 'weight'}
-                                                        Stock: {prod.stock} Kg • Bulto: {prod.package_quantity || prod.units_per_package || 1} Kg
-                                                    {:else}
-                                                        Stock: {prod.stock} u • Bulto: x{prod.units_per_package} u
-                                                    {/if}
-                                                </span>
-                                            </div>
-                                        </button>
-                                    {/each}
-
-                                    {#if searchResults.length === 0}
-                                        <div class="p-4 text-center text-xs text-muted-foreground italic">
-                                            No hay coincidencias en el catálogo. No es posible crear pedidos con productos inexistentes.
+                                            {#if prod.sku}
+                                                <div class="text-[11px] font-sans tabular-nums text-muted-foreground mt-0.5">
+                                                    SKU: {prod.sku}
+                                                </div>
+                                            {/if}
                                         </div>
-                                    {/if}
-                                </div>
-                            </div>
-                        {/if}
+
+                                        <div class="text-right shrink-0">
+                                            <span class="font-bold font-sans tabular-nums text-primary text-xs block">
+                                                {formatPrice(Number(prod.price))}
+                                            </span>
+                                            <span class="text-[10px] font-sans tabular-nums text-muted-foreground block mt-0.5">
+                                                {#if prod.sale_type === 'weight'}
+                                                    Stock: {prod.stock} Kg • Bulto: {prod.package_quantity || prod.units_per_package || 1} Kg
+                                                {:else}
+                                                    Stock: {prod.stock} u • Bulto: x{prod.units_per_package} u
+                                                {/if}
+                                            </span>
+                                        </div>
+                                    </div>
+                                {/snippet}
+                                {#snippet emptySnippet()}
+                                    <span class="text-xs text-muted-foreground italic">
+                                        No hay coincidencias en el catálogo. No es posible crear pedidos con productos inexistentes.
+                                    </span>
+                                {/snippet}
+                            </SearchCombobox>
+                        </div>
+
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            class="h-10 text-xs gap-1.5 font-semibold shrink-0"
+                            onclick={addSelectedProduct}
+                            disabled={!selectedProductToAdd}
+                        >
+                            <Plus class="size-3.5" />
+                            Agregar al Pedido
+                        </Button>
                     </div>
 
                     <!-- Lista de Ítems del Pedido -->

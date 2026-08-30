@@ -4,6 +4,8 @@
     import TenantListDesktop from './desktop/TenantListDesktop.svelte';
     import TenantListMobile from './mobile/TenantListMobile.svelte';
     import CreateTenantDialog from './CreateTenantDialog.svelte';
+    import TenantDetailDialog from './TenantDetailDialog.svelte';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import Store from 'lucide-svelte/icons/store';
@@ -40,21 +42,29 @@
     } = $props();
 
     let isCreateModalOpen = $state(false);
+    let selectedDetailTenant = $state<TenantItem | null>(null);
+    let isDetailModalOpen = $state(false);
 
     let searchInput = $state(filters?.search ?? '');
     let statusFilter = $state(filters?.status ?? 'all');
     let sortFilter = $state(filters?.sort ?? 'latest');
 
-    let searchTimeout: ReturnType<typeof setTimeout> | null = null;
+    let tenantSuggestions = $derived.by(() => {
+        const q = searchInput.toLowerCase().trim();
+        if (!q) return [];
+        return tenants.filter(
+            (t) => t.name.toLowerCase().includes(q) || (t.cuit_tax_id && t.cuit_tax_id.toLowerCase().includes(q))
+        );
+    });
 
-    function handleSearchInput(e: Event) {
-        const value = (e.target as HTMLInputElement).value;
-        searchInput = value;
+    function handleSelectTenantSuggestion(tenant: TenantItem) {
+        selectedDetailTenant = tenant;
+        isDetailModalOpen = true;
+    }
 
-        if (searchTimeout) clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            applyFilters();
-        }, 300);
+    function handleSearch(val: string) {
+        searchInput = val;
+        applyFilters();
     }
 
     function handleStatusChange(e: Event) {
@@ -152,26 +162,39 @@
                 <ChevronDown class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
             </div>
 
-            <!-- Input de Búsqueda -->
-            <div class="relative flex-1 min-w-[240px]">
-                <Search class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                <input
-                    type="text"
-                    value={searchInput}
-                    oninput={handleSearchInput}
+            <!-- SearchCombobox de Búsqueda de Comercios -->
+            <div class="flex-1 min-w-[240px]">
+                <SearchCombobox
+                    bind:value={searchInput}
+                    items={tenantSuggestions}
                     placeholder="Buscar comercios por nombre o CUIT..."
-                    class="w-full rounded-xl border border-border bg-background pl-9 pr-8 py-2 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
-                />
-                {#if searchInput}
-                    <button
-                        type="button"
-                        onclick={clearSearch}
-                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        aria-label="Limpiar búsqueda"
-                    >
-                        <X class="size-3.5" />
-                    </button>
-                {/if}
+                    showDropdown={true}
+                    onsearch={handleSearch}
+                    onselect={handleSelectTenantSuggestion}
+                    onclear={clearSearch}
+                >
+                    {#snippet itemSnippet(item)}
+                        <div class="flex items-center justify-between gap-3 w-full">
+                            <div class="min-w-0">
+                                <span class="font-semibold text-foreground truncate block">{item.name}</span>
+                                <span class="text-[11px] text-muted-foreground tabular-nums">
+                                    {item.cuit_tax_id ? `CUIT: ${item.cuit_tax_id}` : `ID: MER-${item.id.toString().padStart(5, '0')}`}
+                                </span>
+                            </div>
+                            {#if item.is_active}
+                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                                    <span class="size-1.5 rounded-full bg-emerald-500"></span>
+                                    Activo
+                                </span>
+                            {:else}
+                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0">
+                                    <span class="size-1.5 rounded-full bg-rose-500"></span>
+                                    Suspendido
+                                </span>
+                            {/if}
+                        </div>
+                    {/snippet}
+                </SearchCombobox>
             </div>
         </div>
 
@@ -228,3 +251,10 @@
     bind:open={isCreateModalOpen}
     modules={availableModules}
 />
+
+<!-- Modal para Detalle de Comercio -->
+<TenantDetailDialog
+    bind:open={isDetailModalOpen}
+    tenant={selectedDetailTenant}
+/>
+

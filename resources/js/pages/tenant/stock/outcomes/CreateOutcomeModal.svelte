@@ -12,6 +12,7 @@
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import { useForm } from '@inertiajs/svelte';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
     import Loader2 from 'lucide-svelte/icons/loader-2';
@@ -40,6 +41,8 @@
         notes: '',
     });
 
+    let productSearchQuery = $state('');
+
     let selectedProduct = $derived(
         products.find((p) => String(p.id) === String(form.product_id))
     );
@@ -47,6 +50,24 @@
     let isQuantityExceeded = $derived(
         selectedProduct ? form.quantity > selectedProduct.stock : false
     );
+
+    let comboboxProducts = $derived.by(() => {
+        const q = productSearchQuery.toLowerCase().trim();
+        if (!q) return products.slice(0, 10);
+        return products.filter(
+            (p) => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q))
+        );
+    });
+
+    function handleSelectProduct(product: ProductItem) {
+        form.product_id = String(product.id);
+        productSearchQuery = product.name;
+    }
+
+    function handleClearProduct() {
+        form.product_id = '';
+        productSearchQuery = '';
+    }
 
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
@@ -56,6 +77,7 @@
             preserveScroll: true,
             onSuccess: () => {
                 form.reset();
+                productSearchQuery = '';
                 open = false;
             },
         });
@@ -65,6 +87,7 @@
         if (!form.processing) {
             form.reset();
             form.clearErrors();
+            productSearchQuery = '';
             open = false;
         }
     }
@@ -94,24 +117,34 @@
 
         <DialogBody>
             <form id="create-outcome-form" onsubmit={handleSubmit} class="space-y-4">
-                <!-- Selección de Producto -->
+                <!-- Selección de Producto con SearchCombobox -->
                 <div class="space-y-1.5">
-                    <Label for="outcome-product" class="text-xs font-semibold text-foreground">
+                    <Label class="text-xs font-semibold text-foreground">
                         Producto *
                     </Label>
-                    <select
-                        id="outcome-product"
-                        bind:value={form.product_id}
-                        class="w-full rounded-lg border border-border bg-background px-3.5 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
-                        required
+                    <SearchCombobox
+                        bind:value={productSearchQuery}
+                        items={comboboxProducts}
+                        placeholder="Buscar producto por nombre o SKU..."
+                        showDropdown={true}
+                        onsearch={(q) => (productSearchQuery = q)}
+                        onselect={handleSelectProduct}
+                        onclear={handleClearProduct}
                     >
-                        <option value="" disabled>Selecciona un producto...</option>
-                        {#each products as product}
-                            <option value={String(product.id)}>
-                                {product.name} {product.sku ? `(${product.sku})` : ''} — Stock disponible: {product.stock}
-                            </option>
-                        {/each}
-                    </select>
+                        {#snippet itemSnippet(product)}
+                            <div class="flex items-center justify-between gap-3 w-full">
+                                <div class="min-w-0">
+                                    <span class="font-medium text-foreground truncate block">{product.name}</span>
+                                    {#if product.sku}
+                                        <span class="text-[11px] text-muted-foreground tabular-nums">SKU: {product.sku}</span>
+                                    {/if}
+                                </div>
+                                <span class="text-xs tabular-nums shrink-0 {product.stock === 0 ? 'text-rose-500 font-semibold' : 'text-muted-foreground'}">
+                                    Stock: <strong class="font-bold {product.stock === 0 ? 'text-rose-500' : 'text-foreground'} tabular-nums">{product.stock}</strong>
+                                </span>
+                            </div>
+                        {/snippet}
+                    </SearchCombobox>
                     {#if form.errors.product_id}
                         <p class="text-xs text-rose-500 font-medium">{form.errors.product_id}</p>
                     {/if}

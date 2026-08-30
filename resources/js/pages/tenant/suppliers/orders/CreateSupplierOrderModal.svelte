@@ -3,6 +3,7 @@
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import { router } from '@inertiajs/svelte';
     import AlertCircle from 'lucide-svelte/icons/alert-circle';
     import Check from 'lucide-svelte/icons/check';
@@ -38,7 +39,6 @@
         quantity: number;
         unit_cost: number | '';
         search_query: string;
-        is_dropdown_open: boolean;
     }
 
     let {
@@ -64,7 +64,6 @@
             quantity: 1,
             unit_cost: '',
             search_query: '',
-            is_dropdown_open: false,
         },
     ]);
 
@@ -78,7 +77,6 @@
                 quantity: 1,
                 unit_cost: '',
                 search_query: '',
-                is_dropdown_open: false,
             },
         ];
     }
@@ -95,7 +93,6 @@
                     quantity: 1,
                     unit_cost: '',
                     search_query: '',
-                    is_dropdown_open: false,
                 },
             ];
         }
@@ -114,7 +111,7 @@
     function getFilteredProducts(query: string): ProductOption[] {
         const q = query.trim().toLowerCase();
         if (!q) return availableProducts.slice(0, 5);
-        return availableProducts.filter((p) => p.name.toLowerCase().includes(q)).slice(0, 5);
+        return availableProducts.filter((p) => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q))).slice(0, 5);
     }
 
     function selectProduct(index: number, product: ProductOption) {
@@ -124,14 +121,12 @@
         if (product.cost_price && !items[index].unit_cost) {
             items[index].unit_cost = Number(product.cost_price);
         }
-        items[index].is_dropdown_open = false;
     }
 
     function handleSearchInput(index: number, value: string) {
         items[index].search_query = value;
         items[index].product_name = value;
         items[index].product_id = null;
-        items[index].is_dropdown_open = true;
 
         const match = availableProducts.find(
             (p) => p.name.toLowerCase().trim() === value.toLowerCase().trim()
@@ -141,12 +136,6 @@
             if (match.cost_price && !items[index].unit_cost) {
                 items[index].unit_cost = Number(match.cost_price);
             }
-        }
-    }
-
-    function closeAllDropdowns() {
-        for (const it of items) {
-            it.is_dropdown_open = false;
         }
     }
 
@@ -254,8 +243,6 @@
     }
 </script>
 
-<svelte:window onclick={closeAllDropdowns} />
-
 {#if open}
     <!-- Backdrop oscuro accesible -->
     <div
@@ -353,50 +340,40 @@
                             {@const lineSubtotal = item.quantity * (Number(item.unit_cost) || 0)}
                             <div
                                 class="flex flex-col gap-2 p-3 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs relative"
-                                onclick={(e) => e.stopPropagation()}
                             >
                                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
-                                    <!-- Input / Dropdown Buscador -->
+                                    <!-- SearchCombobox Buscador de Producto -->
                                     <div class="sm:col-span-5 relative">
-                                        <Label for={`prod-name-${index}`} class="text-[11px] font-semibold text-muted-foreground sm:hidden mb-1 block">
+                                        <Label class="text-[11px] font-semibold text-muted-foreground sm:hidden mb-1 block">
                                             Producto
                                         </Label>
-                                        <Input
-                                            id={`prod-name-${index}`}
-                                            type="text"
+                                        <SearchCombobox
                                             value={item.search_query}
-                                            oninput={(e) => handleSearchInput(index, (e.target as HTMLInputElement).value)}
-                                            onfocus={() => {
-                                                closeAllDropdowns();
-                                                item.is_dropdown_open = true;
+                                            items={getFilteredProducts(item.search_query)}
+                                            placeholder="Buscar producto o escribir..."
+                                            showDropdown={true}
+                                            onsearch={(val) => handleSearchInput(index, val)}
+                                            onselect={(prod) => selectProduct(index, prod)}
+                                            onclear={() => {
+                                                items[index].product_id = null;
+                                                items[index].product_name = '';
+                                                items[index].search_query = '';
                                             }}
-                                            placeholder="Buscar producto o escribir nuevo..."
-                                            class="h-9 sm:h-10 text-xs font-medium"
-                                        />
-
-                                        <!-- Autocomplete flotante -->
-                                        {#if item.is_dropdown_open}
-                                            <div
-                                                class="absolute left-0 right-0 top-full mt-1 bg-popover text-popover-foreground rounded-lg border shadow-lg z-50 max-h-48 overflow-y-auto"
-                                            >
-                                                {#each getFilteredProducts(item.search_query) as prod}
-                                                    <button
-                                                        type="button"
-                                                        class="w-full px-3 py-2 text-left text-xs hover:bg-muted transition-colors flex items-center justify-between gap-2 border-b last:border-0"
-                                                        onclick={() => selectProduct(index, prod)}
-                                                    >
-                                                        <span class="font-medium truncate">{prod.name}</span>
-                                                        <div class="text-[11px] text-muted-foreground font-sans tabular-nums shrink-0">
-                                                            {#if prod.cost_price}
-                                                                <span>Costo: {formatPrice(Number(prod.cost_price))}</span>
-                                                            {:else}
-                                                                <span>Stock: {prod.stock ?? 0}</span>
-                                                            {/if}
-                                                        </div>
-                                                    </button>
-                                                {/each}
-                                            </div>
-                                        {/if}
+                                            inputClass="h-9 sm:h-10 text-xs font-medium"
+                                        >
+                                            {#snippet itemSnippet(prod)}
+                                                <div class="flex items-center justify-between gap-2 w-full">
+                                                    <span class="font-medium truncate">{prod.name}</span>
+                                                    <div class="text-[11px] text-muted-foreground font-sans tabular-nums shrink-0">
+                                                        {#if prod.cost_price}
+                                                            <span>Costo: {formatPrice(Number(prod.cost_price))}</span>
+                                                        {:else}
+                                                            <span>Stock: {prod.stock ?? 0}</span>
+                                                        {/if}
+                                                    </div>
+                                                </div>
+                                            {/snippet}
+                                        </SearchCombobox>
                                     </div>
 
                                     <!-- Costo Unitario -->
