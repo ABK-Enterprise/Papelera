@@ -204,7 +204,7 @@
             items = [
                 ...items,
                 {
-                    id: crypto.randomUUID(),
+                    id: 'item_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8),
                     product_id: prod.id,
                     product_name: prod.name,
                     sku: prod.sku,
