@@ -44,7 +44,10 @@
     let inputElement = $state<HTMLInputElement | null>(null);
 
     let displayItems = $derived.by(() => {
-        if (!value || !value.trim()) return [];
+        if (!items || items.length === 0) return [];
+        if (!value || !value.trim()) {
+            return items.slice(0, 10);
+        }
         const q = value.toLowerCase().trim();
         return items
             .filter((item) => {
@@ -54,7 +57,7 @@
                     .toLowerCase();
                 return str.includes(q);
             })
-            .slice(0, 6);
+            .slice(0, 10);
     });
 
     function handleInput(e: Event) {
@@ -64,14 +67,14 @@
 
         if (debounceMs <= 0) {
             onsearch?.(val);
-            if (showDropdown && val.trim().length > 0) {
+            if (showDropdown) {
                 isOpen = true;
             }
         } else {
             if (timer) clearTimeout(timer);
             timer = setTimeout(() => {
                 onsearch?.(val);
-                if (showDropdown && val.trim().length > 0) {
+                if (showDropdown) {
                     isOpen = true;
                 }
             }, debounceMs);
@@ -124,6 +127,12 @@
         inputElement?.focus();
     }
 
+    function handleFocusOrClick() {
+        if (showDropdown && (displayItems.length > 0 || emptySnippet)) {
+            isOpen = true;
+        }
+    }
+
     const listboxId = 'combobox-listbox-' + Math.random().toString(36).substring(2, 9);
 </script>
 
@@ -140,11 +149,8 @@
             bind:value={value}
             oninput={handleInput}
             onkeydown={handleKeyDown}
-            onfocus={() => {
-                if (showDropdown && value.trim().length > 0 && displayItems.length > 0) {
-                    isOpen = true;
-                }
-            }}
+            onfocus={handleFocusOrClick}
+            onclick={handleFocusOrClick}
             {placeholder}
             role="combobox"
             aria-expanded={isOpen}
@@ -167,25 +173,31 @@
         {/if}
     </div>
 
-    {#if isOpen && showDropdown && displayItems.length > 0}
-        <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border shadow-xl z-50 overflow-hidden animate-in fade-in duration-150">
-            <div id={listboxId} class="max-h-64 overflow-y-auto divide-y divide-border/40 custom-scrollbar" role="listbox">
-                {#each displayItems as item, i (item.id || i)}
-                    <button
-                        type="button"
-                        role="option"
-                        aria-selected={activeIndex === i}
-                        class="w-full px-3.5 py-2.5 text-left text-xs transition-colors flex items-center justify-between gap-2 cursor-pointer {activeIndex === i ? 'bg-muted/80 text-foreground font-medium' : 'hover:bg-muted/50 text-foreground'}"
-                        onclick={() => selectItem(item)}
-                    >
-                        {#if itemSnippet}
-                            {@render itemSnippet(item, i)}
-                        {:else}
-                            <span class="truncate">{item.name || item.title || item.code || JSON.stringify(item)}</span>
-                        {/if}
-                    </button>
-                {/each}
+    {#if isOpen && showDropdown}
+        {#if displayItems.length > 0}
+            <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border shadow-xl z-50 overflow-hidden animate-in fade-in duration-150">
+                <div id={listboxId} class="max-h-64 overflow-y-auto divide-y divide-border/40 custom-scrollbar" role="listbox">
+                    {#each displayItems as item, i (item.id || i)}
+                        <button
+                            type="button"
+                            role="option"
+                            aria-selected={activeIndex === i}
+                            class="w-full px-3.5 py-2.5 text-left text-xs transition-colors flex items-center justify-between gap-2 cursor-pointer {activeIndex === i ? 'bg-muted/80 text-foreground font-medium' : 'hover:bg-muted/50 text-foreground'}"
+                            onclick={() => selectItem(item)}
+                        >
+                            {#if itemSnippet}
+                                {@render itemSnippet(item, i)}
+                            {:else}
+                                <span class="truncate">{item.name || item.title || item.code || JSON.stringify(item)}</span>
+                            {/if}
+                        </button>
+                    {/each}
+                </div>
             </div>
-        </div>
+        {:else if emptySnippet}
+            <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border shadow-xl z-50 overflow-hidden animate-in fade-in duration-150 p-2">
+                {@render emptySnippet()}
+            </div>
+        {/if}
     {/if}
 </div>
