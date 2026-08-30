@@ -51,7 +51,6 @@ class HandleInertiaRequests extends Middleware
                     'is_active' => $user->tenant->is_active,
                 ];
                 $modules = $user->tenant->modules()
-                    ->where('modules.is_active', true)
                     ->where(function ($query) {
                         $query->whereNull('tenant_modules.expires_at')
                             ->orWhere('tenant_modules.expires_at', '>', now());

@@ -9,7 +9,8 @@
     import FileText from 'lucide-svelte/icons/file-text';
     import Layers from 'lucide-svelte/icons/layers';
     import Shield from 'lucide-svelte/icons/shield';
-    import Power from 'lucide-svelte/icons/power';
+    import Eye from 'lucide-svelte/icons/eye';
+    import ModuleDetailDialog from '../ModuleDetailDialog.svelte';
 
     interface PermissionItem {
         id: number;
@@ -22,20 +23,19 @@
         name: string;
         code: string;
         description: string | null;
-        is_active: boolean;
         tenants_count?: number;
         permissions: PermissionItem[];
     }
 
-    let {
-        modules = [],
-        togglingId = null,
-        ontoggle,
-    }: {
-        modules: ModuleItem[];
-        togglingId?: number | null;
-        ontoggle: (mod: ModuleItem) => void;
-    } = $props();
+    let { modules = [] }: { modules: ModuleItem[] } = $props();
+
+    let selectedModule = $state<ModuleItem | null>(null);
+    let isDialogOpen = $state(false);
+
+    function openDetail(mod: ModuleItem) {
+        selectedModule = mod;
+        isDialogOpen = true;
+    }
 
     function getModuleIcon(code: string) {
         switch (code) {
@@ -57,90 +57,55 @@
     }
 </script>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
     {#each modules as mod (mod.id)}
         {@const ModuleIcon = getModuleIcon(mod.code)}
 
-        <div
-            class="bg-card rounded-2xl p-6 shadow-xs border border-border/70 relative overflow-hidden flex flex-col justify-between transition-all duration-200 hover:shadow-md hover:border-border {mod.is_active ? '' : 'opacity-70 bg-muted/20'}"
-        >
-            <!-- Cabecera de la Card -->
+        <div class="bg-card rounded-2xl p-5 shadow-2xs border border-border/70 flex flex-col justify-between transition-all hover:border-border hover:shadow-xs">
             <div>
-                <div class="flex justify-between items-start mb-4">
-                    <div class="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
-                        <ModuleIcon class="h-6 w-6 stroke-[1.75]" />
+                <div class="flex justify-between items-start mb-3.5">
+                    <div class="size-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                        <ModuleIcon class="size-5 stroke-[1.75]" />
                     </div>
 
-                    <div class="flex items-center gap-2">
-                        <span
-                            class="px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide border {mod.is_active
-                                ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/25'
-                                : 'bg-muted text-muted-foreground border-border/60'}"
-                        >
-                            {mod.is_active ? 'Activo' : 'Desactivado'}
-                        </span>
-                    </div>
+                    <Badge variant="outline" class="text-xs tracking-wide tabular-nums bg-muted/50 px-2 py-0.5">
+                        {mod.code}
+                    </Badge>
                 </div>
 
-                <!-- Título y Descripción -->
-                <div class="mt-2">
-                    <div class="flex items-center justify-between gap-2">
-                        <h3 class="text-base font-semibold leading-snug text-foreground">
-                            {mod.name}
-                        </h3>
-                        <Badge variant="outline" class="text-xs tracking-wide tabular-nums bg-muted/50 px-2 py-0.5">
-                            {mod.code}
-                        </Badge>
-                    </div>
+                <div class="space-y-1.5">
+                    <h3 class="text-base font-semibold leading-snug text-foreground">
+                        {mod.name}
+                    </h3>
 
                     {#if mod.description}
-                        <p class="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
+                        <p class="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                             {mod.description}
                         </p>
                     {/if}
                 </div>
-
-                <!-- Permisos Granulares Asociados -->
-                <div class="mt-4 pt-3 border-t border-border/40">
-                    <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-2">
-                        Permisos granulares <span class="tabular-nums">({mod.permissions.length})</span>
-                    </span>
-
-                    <div class="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pr-1">
-                        {#each mod.permissions as perm (perm.id)}
-                            <span class="inline-flex items-center text-xs tabular-nums bg-muted/40 border border-border/50 text-foreground/85 px-2 py-0.5 rounded-md">
-                                {perm.name}
-                            </span>
-                        {/each}
-
-                        {#if mod.permissions.length === 0}
-                            <span class="text-xs italic text-muted-foreground">
-                                Sin permisos definidos
-                            </span>
-                        {/if}
-                    </div>
-                </div>
             </div>
 
-            <!-- Footer de la Card con Control de Activación/Desactivación -->
-            <div class="mt-5 pt-3.5 border-t border-border/40 flex items-center justify-between">
+            <!-- Footer con m�trica y bot�n Ver -->
+            <div class="mt-5 pt-3 border-t border-border/40 flex items-center justify-between">
                 <div class="flex items-center gap-1.5 text-xs text-muted-foreground font-medium tabular-nums">
-                    <Shield class="h-3.5 w-3.5 text-muted-foreground/80" />
+                    <Shield class="size-3.5 text-muted-foreground/80" />
                     <span>{mod.tenants_count ?? 0} {mod.tenants_count === 1 ? 'comercio' : 'comercios'}</span>
                 </div>
 
                 <Button
                     type="button"
-                    variant={mod.is_active ? 'outline' : 'default'}
+                    variant="outline"
                     size="sm"
-                    onclick={() => ontoggle(mod)}
-                    disabled={togglingId === mod.id}
-                    class="min-h-[40px] gap-1.5 rounded-xl text-xs font-medium transition-colors"
+                    class="min-h-[38px] gap-1.5 rounded-xl text-xs font-medium border-border/70"
+                    onclick={() => openDetail(mod)}
                 >
-                    <Power class="h-3.5 w-3.5" />
-                    <span>{mod.is_active ? 'Desactivar' : 'Activar'}</span>
+                    <Eye class="size-4" />
+                    <span>Ver detalle</span>
                 </Button>
             </div>
         </div>
     {/each}
 </div>
+
+<ModuleDetailDialog bind:open={isDialogOpen} module={selectedModule} />

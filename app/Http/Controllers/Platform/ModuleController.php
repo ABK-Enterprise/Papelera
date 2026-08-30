@@ -24,16 +24,4 @@ class ModuleController extends Controller
             'modules' => $modules,
         ]);
     }
-
-    /**
-     * Toggle the active status of a system module globally.
-     */
-    public function toggleActive(Module $module): RedirectResponse
-    {
-        $module->update([
-            'is_active' => ! $module->is_active,
-        ]);
-
-        return back()->with('success', "Estado del módulo {$module->name} actualizado correctamente.");
-    }
 }

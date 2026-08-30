@@ -43,7 +43,6 @@ class RoleController extends Controller
             : $user->getAllPermissions()->pluck('id')->all();
 
         $modules = $tenant->modules()
-            ->where('modules.is_active', true)
             ->where(function ($query) {
                 $query->whereNull('tenant_modules.expires_at')
                     ->orWhere('tenant_modules.expires_at', '>', now());
@@ -109,7 +108,6 @@ class RoleController extends Controller
             : $user->getAllPermissions()->pluck('id')->all();
 
         $modules = $tenant->modules()
-            ->where('modules.is_active', true)
             ->where(function ($query) {
                 $query->whereNull('tenant_modules.expires_at')
                     ->orWhere('tenant_modules.expires_at', '>', now());
