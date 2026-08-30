@@ -154,3 +154,52 @@ test('product routes are forbidden if tenant does not have stock module', functi
         ->getJson('/tenant/products')
         ->assertForbidden();
 });
+
+test('cannot create duplicate product name for same tenant and sale_type', function () {
+    Product::factory()->forTenant($this->tenant)->create([
+        'name' => 'Papel Kraft 80g',
+        'sale_type' => 'unit',
+    ]);
+
+    $this->actingAs($this->user)
+        ->postJson('/tenant/products', [
+            'name' => 'Papel Kraft 80g',
+            'sale_type' => 'unit',
+            'price' => 100,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['name']);
+});
+
+test('can create same product name or sku if sale_type is different', function () {
+    Product::factory()->forTenant($this->tenant)->create([
+        'name' => 'Bolsa Plastica',
+        'sku' => 'BP-01',
+        'sale_type' => 'unit',
+    ]);
+
+    $this->actingAs($this->user)
+        ->postJson('/tenant/products', [
+            'name' => 'Bolsa Plastica',
+            'sku' => 'BP-01',
+            'sale_type' => 'weight',
+            'price' => 1500,
+        ])
+        ->assertCreated();
+});
+
+test('cannot create duplicate barcode in same tenant', function () {
+    Product::factory()->forTenant($this->tenant)->create([
+        'barcode' => '7791234567890',
+    ]);
+
+    $this->actingAs($this->user)
+        ->postJson('/tenant/products', [
+            'name' => 'Otro Producto',
+            'barcode' => '7791234567890',
+            'price' => 100,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['barcode']);
+});
+

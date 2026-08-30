@@ -28,7 +28,7 @@ class CustomerOrderController extends Controller
         $status = $request->input('status');
         $sortBy = $request->input('sort_by', 'latest');
 
-        $query = CustomerOrder::with(['items.product:id,name,sku,units_per_package,price', 'customer:id,name,tax_id,tax_condition,phone,address,is_defaulter'])
+        $query = CustomerOrder::with(['items.product:id,name,sku,sale_type,units_per_package,price', 'customer:id,name,tax_id,tax_condition,phone,address,is_defaulter'])
             ->when($search, function ($q, $search) {
                 $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
                 $q->where(function ($sub) use ($searchTerm) {
@@ -61,9 +61,10 @@ class CustomerOrderController extends Controller
         $availableProducts = Product::active()
             ->complete()
             ->where('stock', '>', 0)
-            ->select('id', 'tenant_id', 'name', 'sku', 'price', 'stock', 'units_per_package', 'package_quantity', 'bulk_discount_type', 'custom_bulk_discount_percentage')
+            ->select('id', 'tenant_id', 'name', 'sku', 'sale_type', 'price', 'stock', 'units_per_package', 'package_quantity', 'bulk_discount_type', 'custom_bulk_discount_percentage')
             ->orderBy('name')
             ->get();
+
 
         $availableCustomers = Customer::query()
             ->where('is_active', true)

@@ -28,7 +28,7 @@ class SupplierOrderController extends Controller
 
         $query = SupplierOrder::with([
             'supplier:id,name,contact_number,email',
-            'items.product:id,name,sku,stock',
+            'items.product:id,name,sku,sale_type,stock',
         ])
             ->when($search, function ($q, $search) {
                 $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
@@ -64,9 +64,10 @@ class SupplierOrderController extends Controller
             ->get();
 
         $availableProducts = Product::active()
-            ->select('id', 'name', 'sku', 'cost_price', 'stock')
+            ->select('id', 'name', 'sku', 'sale_type', 'cost_price', 'stock', 'units_per_package', 'package_quantity')
             ->orderBy('name')
             ->get();
+
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
