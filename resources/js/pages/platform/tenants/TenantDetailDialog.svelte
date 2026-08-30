@@ -9,6 +9,7 @@
     import Calendar from 'lucide-svelte/icons/calendar';
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import X from 'lucide-svelte/icons/x';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     interface ModuleSummary {
         id: number;
@@ -52,9 +53,9 @@
         <DialogContent class="max-w-md w-[calc(100%-2rem)] mx-4 p-5 rounded-2xl sm:rounded-3xl border border-border/80 shadow-lg">
             <DialogHeader class="flex flex-row items-center justify-between pb-3 border-b border-border/50">
                 <div class="flex items-center gap-3">
-                    <div class="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-base border border-primary/20 shrink-0">
+                    <IconContainer size="md" variant="primary">
                         {tenant.name ? tenant.name.charAt(0).toUpperCase() : 'C'}
-                    </div>
+                    </IconContainer>
                     <div>
                         <DialogTitle class="text-base font-bold text-foreground leading-snug">{tenant.name}</DialogTitle>
                         <span class="text-xs text-muted-foreground tabular-nums">

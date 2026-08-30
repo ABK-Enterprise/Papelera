@@ -10,6 +10,7 @@
     import Layers from 'lucide-svelte/icons/layers';
     import Shield from 'lucide-svelte/icons/shield';
     import Eye from 'lucide-svelte/icons/eye';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import ModuleDetailDialog from '../ModuleDetailDialog.svelte';
 
     interface PermissionItem {
@@ -64,9 +65,9 @@
         <div class="bg-card rounded-2xl p-5 shadow-2xs border border-border/70 flex flex-col justify-between transition-all hover:border-border hover:shadow-xs">
             <div>
                 <div class="flex justify-between items-start mb-3.5">
-                    <div class="size-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                    <IconContainer size="md" variant="primary">
                         <ModuleIcon class="size-5 stroke-[1.75]" />
-                    </div>
+                    </IconContainer>
 
                     <Badge variant="outline" class="text-xs tracking-wide tabular-nums bg-muted/50 px-2 py-0.5">
                         {mod.code}

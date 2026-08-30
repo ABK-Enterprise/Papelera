@@ -4,6 +4,7 @@
     import AppPagination from '@/components/common/AppPagination.svelte';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Package from 'lucide-svelte/icons/package';
@@ -75,15 +76,17 @@
         {@const isIncomplete = product.is_incomplete ?? (!product.category || Number(product.price) <= 0)}
         {@const isWeighable = product.sale_type === 'weight'}
         <div class="flex items-center gap-3.5 rounded-2xl border {isIncomplete ? 'border-amber-500/40 bg-amber-500/5' : 'border-border/70 bg-card'} p-3.5 shadow-2xs">
-            <div class="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted/60 border border-border/40 flex items-center justify-center">
-                {#if product.image_url}
+            {#if product.image_url}
+                <div class="size-12 shrink-0 rounded-xl border border-border/80 overflow-hidden">
                     <img src={product.image_url} alt={product.name} class="h-full w-full object-cover" />
-                {:else if isWeighable}
-                    <Scale class="h-6 w-6 text-muted-foreground/60" />
-                {:else}
-                    <Package class="h-6 w-6 text-muted-foreground/60" />
-                {/if}
-            </div>
+                </div>
+            {:else}
+                <IconContainer
+                    size="lg"
+                    variant={isWeighable ? 'info' : 'primary'}
+                    icon={isWeighable ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone'}
+                />
+            {/if}
 
             <div class="flex flex-1 flex-col min-w-0 justify-center">
                 <div class="flex items-center gap-1.5 truncate">

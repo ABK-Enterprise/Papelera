@@ -9,6 +9,7 @@
         DialogHeader,
         DialogTitle,
     } from '@/components/ui/dialog';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
     import Calendar from 'lucide-svelte/icons/calendar';
@@ -71,9 +72,7 @@
         {#if movement}
             <DialogHeader>
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
-                        <History class="size-5" />
-                    </div>
+                    <IconContainer size="md" variant="primary" icon="solar:history-bold-duotone" />
                     <div class="min-w-0">
                         <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug truncate">Detalle de movimiento de Kardex</DialogTitle>
                         <DialogDescription class="text-xs text-muted-foreground">

@@ -5,6 +5,7 @@
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import UserCheck from 'lucide-svelte/icons/user-check';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     interface RoleItem {
         id: number;
@@ -45,9 +46,9 @@
                 <tr class="group transition-colors hover:bg-muted/30">
                     <td class="py-4 pl-6 pr-4">
                         <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-sm">
+                            <IconContainer size="md" variant="primary">
                                 {user.name.charAt(0).toUpperCase()}
-                            </div>
+                            </IconContainer>
                             <div class="flex flex-col">
                                 <div class="flex items-center gap-2">
                                     <span class="font-semibold text-foreground">{user.name}</span>

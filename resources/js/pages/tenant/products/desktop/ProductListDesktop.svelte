@@ -4,6 +4,7 @@
     import AppPagination from '@/components/common/AppPagination.svelte';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Layers from 'lucide-svelte/icons/layers';
@@ -82,25 +83,26 @@
         >
             <!-- Lado Izquierdo: Imagen / Avatar Placeholder -->
             <div class="flex items-center gap-4 min-w-0 flex-1">
-                <div class="relative size-16 rounded-xl bg-muted/60 border border-border/60 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
-                    {#if product.image_url}
+                {#if product.image_url}
+                    <div class="relative size-12 sm:size-12 rounded-xl border border-border/80 overflow-hidden shrink-0">
                         <img
                             src={product.image_url}
                             alt={product.name}
                             class="h-full w-full object-cover"
                         />
-                    {:else if isWeighable}
-                        <Scale class="h-7 w-7 text-primary/70 stroke-[1.75]" />
-                    {:else}
-                        <Package class="h-7 w-7 text-muted-foreground/60 stroke-[1.75]" />
-                    {/if}
-
-                    {#if isWeighable}
-                        <span class="absolute bottom-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-tl tabular-nums">
-                            Kg
-                        </span>
-                    {/if}
-                </div>
+                        {#if isWeighable}
+                            <span class="absolute bottom-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-1 py-0.5 rounded-tl tabular-nums">
+                                Kg
+                            </span>
+                        {/if}
+                    </div>
+                {:else}
+                    <IconContainer
+                        size="lg"
+                        variant={isWeighable ? 'info' : 'primary'}
+                        icon={isWeighable ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone'}
+                    />
+                {/if}
 
                 <!-- Info Principal -->
                 <div class="space-y-1 min-w-0 flex-1">

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import { router } from '@inertiajs/svelte';
     import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
     import PackageCheck from 'lucide-svelte/icons/package-check';
@@ -142,9 +143,7 @@
             <!-- Header (shrink-0) -->
             <div class="flex items-center justify-between border-b pb-3.5 sm:pb-4 shrink-0">
                 <div class="flex items-center gap-2.5">
-                    <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold">
-                        <Truck class="size-5" />
-                    </div>
+                    <IconContainer size="md" variant="primary" icon="solar:clipboard-list-bold-duotone" />
                     <div>
                         <div class="flex items-center gap-2">
                             <h2 class="text-base sm:text-lg font-bold text-foreground font-sans tabular-nums">{order.order_number}</h2>

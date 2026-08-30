@@ -9,6 +9,7 @@
     import Calendar from 'lucide-svelte/icons/calendar';
     import ChevronRight from 'lucide-svelte/icons/chevron-right';
     import Plus from 'lucide-svelte/icons/plus';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     export interface SupplierItem {
         id: number;
@@ -62,9 +63,12 @@
             <!-- Lado Izquierdo: Icono + Información Principal (Wide Hierarchy) -->
             <div class="flex items-center gap-4.5 min-w-0 flex-1">
                 <!-- Icon Avatar Badge -->
-                <div class="flex size-14 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 transition-transform group-hover:scale-105">
-                    <Truck class="size-7 stroke-[1.75]" />
-                </div>
+                <IconContainer
+                    size="xl"
+                    variant="primary"
+                    icon="solar:delivery-bold-duotone"
+                    class="transition-transform group-hover:scale-105"
+                />
 
                 <!-- Detalle y Metadatos -->
                 <div class="flex flex-col gap-1.5 min-w-0 flex-1">

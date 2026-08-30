@@ -9,6 +9,7 @@
     import ChevronRight from 'lucide-svelte/icons/chevron-right';
     import Plus from 'lucide-svelte/icons/plus';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     export interface CustomerItem {
         id: number;
@@ -80,17 +81,12 @@
             <!-- Cabecera Mobile: Nombre + Estado + Icono Chevron -->
             <div class="flex items-start justify-between gap-2">
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <div
-                        class="flex size-9 shrink-0 items-center justify-center rounded-lg border {customer.is_defaulter
-                            ? 'bg-rose-500/10 text-rose-600 border-rose-500/30'
-                            : 'bg-primary/10 text-primary border-primary/20'}"
-                    >
-                        {#if customer.is_defaulter}
-                            <AlertTriangle class="size-4.5" />
-                        {:else}
-                            <UserCheck class="size-4.5" />
-                        {/if}
-                    </div>
+                    <IconContainer
+                        size="sm"
+                        rounded="lg"
+                        variant={customer.is_defaulter ? 'warning' : 'primary'}
+                        icon={customer.is_defaulter ? 'solar:danger-triangle-bold-duotone' : 'solar:shop-bold-duotone'}
+                    />
                     <div class="min-w-0">
                         <div class="flex items-center gap-1.5">
                             <h4 class="font-bold text-sm text-foreground truncate">

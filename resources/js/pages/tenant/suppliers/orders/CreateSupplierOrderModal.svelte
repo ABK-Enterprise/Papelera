@@ -2,6 +2,7 @@
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import { router } from '@inertiajs/svelte';
     import AlertCircle from 'lucide-svelte/icons/alert-circle';
     import Check from 'lucide-svelte/icons/check';
@@ -273,9 +274,7 @@
             <!-- Header Bento (shrink-0) -->
             <div class="flex items-center justify-between border-b pb-3.5 sm:pb-4 shrink-0">
                 <div class="flex items-center gap-2.5">
-                    <div class="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
-                        <Truck class="size-5" />
-                    </div>
+                    <IconContainer size="md" variant="primary" icon="solar:clipboard-list-bold-duotone" />
                     <div>
                         <h2 id="supplier-order-modal-title" class="text-base font-bold text-foreground">
                             Nueva Orden de Compra a Proveedor

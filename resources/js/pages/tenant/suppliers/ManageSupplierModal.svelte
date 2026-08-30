@@ -30,6 +30,7 @@
     import MoreHorizontal from 'lucide-svelte/icons/more-horizontal';
     import X from 'lucide-svelte/icons/x';
     import Calendar from 'lucide-svelte/icons/calendar';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     export interface SupplierItem {
         id: number;
@@ -137,9 +138,7 @@
     <DialogContent class="max-w-2xl max-h-[85vh]">
         <DialogHeader>
             <div class="flex items-center gap-3 min-w-0">
-                <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Truck class="size-5" />
-                </div>
+                <IconContainer size="md" variant="primary" icon="solar:delivery-bold-duotone" />
                 <div class="min-w-0">
                     <div class="flex items-center gap-2">
                         <DialogTitle class="text-xl font-bold text-foreground">Gestión de Proveedor</DialogTitle>

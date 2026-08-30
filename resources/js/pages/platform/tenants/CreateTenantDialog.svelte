@@ -17,6 +17,7 @@
     import Package from 'lucide-svelte/icons/package';
     import User from 'lucide-svelte/icons/user';
     import X from 'lucide-svelte/icons/x';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     interface AvailableModule {
         id: number;
@@ -76,9 +77,7 @@
     <DialogContent class="max-w-2xl max-h-[85vh]">
         <DialogHeader>
             <div class="flex items-center gap-3 min-w-0">
-                <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Building2 class="size-5" />
-                </div>
+                <IconContainer size="md" variant="primary" icon="solar:shop-bold-duotone" />
                 <div class="min-w-0">
                     <DialogTitle class="text-xl font-bold text-foreground">Crear Comercio</DialogTitle>
                     <DialogDescription class="text-xs text-muted-foreground mt-0.5">

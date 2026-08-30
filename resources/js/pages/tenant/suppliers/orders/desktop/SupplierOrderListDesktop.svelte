@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
     import AppPagination from '@/components/common/AppPagination.svelte';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import Calendar from 'lucide-svelte/icons/calendar';
     import Eye from 'lucide-svelte/icons/eye';
     import Package from 'lucide-svelte/icons/package';
@@ -77,9 +78,7 @@
         >
             <!-- Número de Orden & Proveedor -->
             <div class="flex items-center gap-3.5 min-w-[220px]">
-                <div class="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold shrink-0 group-hover:scale-105 transition-transform">
-                    <Truck class="size-5" />
-                </div>
+                <IconContainer size="lg" variant="primary" icon="solar:clipboard-list-bold-duotone" />
                 <div>
                     <span class="font-bold text-base font-sans tabular-nums text-foreground">{order.order_number}</span>
                     <div class="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">

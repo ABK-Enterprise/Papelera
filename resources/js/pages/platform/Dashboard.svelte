@@ -13,6 +13,7 @@
     import Calendar from 'lucide-svelte/icons/calendar';
     import X from 'lucide-svelte/icons/x';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import TenantDetailDialog from './tenants/TenantDetailDialog.svelte';
 
     interface RecentTenant {
@@ -122,9 +123,9 @@
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <!-- Info Principal -->
                                 <div class="flex items-center gap-3.5 min-w-0">
-                                    <div class="size-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-base border border-primary/20 shrink-0">
+                                    <IconContainer size="lg" variant="primary">
                                         {tenant.name ? tenant.name.charAt(0).toUpperCase() : 'C'}
-                                    </div>
+                                    </IconContainer>
                                     <div class="min-w-0">
                                         <div class="flex items-center gap-2.5">
                                             <h3 class="font-semibold text-base text-foreground truncate">{tenant.name}</h3>
@@ -201,9 +202,9 @@
                 <div class="hidden lg:block lg:w-[35%] lg:sticky lg:top-6 bg-card border border-border/80 rounded-2xl p-5 shadow-sm space-y-4 animate-in fade-in duration-200">
                     <div class="flex items-center justify-between pb-3 border-b border-border/50">
                         <div class="flex items-center gap-3">
-                            <div class="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-base border border-primary/20 shrink-0">
+                            <IconContainer size="md" variant="primary">
                                 {selectedTenant.name ? selectedTenant.name.charAt(0).toUpperCase() : 'C'}
-                            </div>
+                            </IconContainer>
                             <div>
                                 <h3 class="font-bold text-base text-foreground leading-snug">{selectedTenant.name}</h3>
                                 <span class="text-xs text-muted-foreground tabular-nums">

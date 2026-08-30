@@ -11,6 +11,7 @@
     import Layers from 'lucide-svelte/icons/layers';
     import Shield from 'lucide-svelte/icons/shield';
     import X from 'lucide-svelte/icons/x';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     interface PermissionItem {
         id: number;
@@ -63,9 +64,9 @@
         <DialogContent class="max-w-md w-[calc(100%-2rem)] mx-4 p-5 rounded-2xl sm:rounded-3xl border border-border/80 shadow-lg">
             <DialogHeader class="flex flex-row items-center justify-between pb-3 border-b border-border/50">
                 <div class="flex items-center gap-3 min-w-0">
-                    <div class="size-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                    <IconContainer size="md" variant="primary">
                         <ModuleIcon class="size-5 stroke-[1.75]" />
-                    </div>
+                    </IconContainer>
                     <div class="min-w-0">
                         <DialogTitle class="text-base font-bold text-foreground leading-snug truncate">{module.name}</DialogTitle>
                         <Badge variant="outline" class="text-xs tracking-wide tabular-nums bg-muted/50 px-2 py-0.5 mt-0.5">

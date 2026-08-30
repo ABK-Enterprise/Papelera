@@ -13,6 +13,7 @@
     import ShieldCheck from 'lucide-svelte/icons/shield-check';
     import Sliders from 'lucide-svelte/icons/sliders';
     import User from 'lucide-svelte/icons/user';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import type { CustomerAccountFull } from '../desktop/AccountLedgerDesktop.svelte';
 
     let {
@@ -69,9 +70,9 @@
         >
             <div class="flex items-start justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
-                    <div class="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0 border border-primary/20">
-                        {cust.name.substring(0, 2).toUpperCase()}
-                    </div>
+                    <IconContainer size="md" variant="primary">
+                        {cust.name.slice(0, 2).toUpperCase()}
+                    </IconContainer>
                     <div class="min-w-0">
                         <div class="flex items-center gap-1.5 flex-wrap">
                             <h3 class="font-bold text-sm text-foreground truncate group-hover:text-primary transition-colors">

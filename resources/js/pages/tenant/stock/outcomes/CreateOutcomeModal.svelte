@@ -11,6 +11,7 @@
     } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import { useForm } from '@inertiajs/svelte';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
     import Loader2 from 'lucide-svelte/icons/loader-2';
@@ -73,9 +74,7 @@
     <DialogContent size="default" class="max-w-lg">
         <DialogHeader>
             <div class="flex items-center gap-2.5 min-w-0">
-                <div class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-                    <ArrowUpRight class="size-5" />
-                </div>
+                <IconContainer size="md" variant="destructive" icon="solar:box-arrow-up-bold-duotone" />
                 <div class="min-w-0">
                     <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug">Registrar egreso de stock</DialogTitle>
                     <DialogDescription class="text-xs text-muted-foreground">

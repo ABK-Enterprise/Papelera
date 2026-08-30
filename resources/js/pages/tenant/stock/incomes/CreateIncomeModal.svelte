@@ -11,6 +11,7 @@
     } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import { useForm } from '@inertiajs/svelte';
     import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
     import Loader2 from 'lucide-svelte/icons/loader-2';
@@ -66,9 +67,7 @@
     <DialogContent size="default" class="max-w-lg">
         <DialogHeader>
             <div class="flex items-center gap-2.5 min-w-0">
-                <div class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                    <ArrowDownLeft class="size-5" />
-                </div>
+                <IconContainer size="md" variant="success" icon="solar:box-arrow-down-bold-duotone" />
                 <div class="min-w-0">
                     <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug">Registrar ingreso de stock</DialogTitle>
                     <DialogDescription class="text-xs text-muted-foreground">

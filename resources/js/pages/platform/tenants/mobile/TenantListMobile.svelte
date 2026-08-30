@@ -7,6 +7,7 @@
     import Eye from 'lucide-svelte/icons/eye';
     import Users from 'lucide-svelte/icons/users';
     import Calendar from 'lucide-svelte/icons/calendar';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import TenantDetailDialog from '../TenantDetailDialog.svelte';
 
     interface ModuleSummary {
@@ -58,9 +59,9 @@
             <CardContent class="p-0 space-y-3">
                 <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3 min-w-0">
-                        <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-base border border-primary/20">
+                        <IconContainer size="lg" variant="primary">
                             {tenant.name ? tenant.name.charAt(0).toUpperCase() : 'C'}
-                        </div>
+                        </IconContainer>
                         <div class="flex flex-col min-w-0">
                             <span class="font-semibold text-foreground text-sm leading-snug truncate">{tenant.name}</span>
                             <span class="text-xs text-muted-foreground tabular-nums">

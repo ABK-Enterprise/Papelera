@@ -2,6 +2,7 @@
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import { Link, router } from '@inertiajs/svelte';
     import { clickOutside } from '@/lib/actions/clickOutside';
     import Check from 'lucide-svelte/icons/check';
@@ -491,9 +492,7 @@
             <!-- Header Bento -->
             <div class="flex items-center justify-between border-b pb-3.5 sm:pb-4 shrink-0">
                 <div class="flex items-center gap-2.5">
-                    <div class="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
-                        <ShoppingBag class="size-5" />
-                    </div>
+                    <IconContainer size="md" variant="primary" icon="solar:bill-list-bold-duotone" />
                     <div>
                         <h2 id="modal-title" class="text-base font-bold text-foreground">
                             Nuevo Pedido de Cliente
@@ -782,13 +781,11 @@
 
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
                                 <div class="flex items-center gap-3 min-w-0 flex-1">
-                                    <div class="size-10 rounded-xl {item.sale_type === 'weight' ? 'bg-sky-500/10 text-sky-600 border-sky-500/20' : 'bg-primary/10 text-primary border-primary/20'} flex items-center justify-center shrink-0 border">
-                                        {#if item.sale_type === 'weight'}
-                                            <Scale class="size-5" />
-                                        {:else}
-                                            <ShoppingBag class="size-5" />
-                                        {/if}
-                                    </div>
+                                    <IconContainer
+                                        size="md"
+                                        variant={item.sale_type === 'weight' ? 'info' : 'primary'}
+                                        icon={item.sale_type === 'weight' ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone'}
+                                    />
 
                                     <div class="min-w-0 flex-1">
                                         <div class="flex items-center gap-2">

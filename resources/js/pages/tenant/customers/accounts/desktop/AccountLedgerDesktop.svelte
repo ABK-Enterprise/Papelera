@@ -18,6 +18,7 @@
     import User from 'lucide-svelte/icons/user';
     import UserCheck from 'lucide-svelte/icons/user-check';
     import X from 'lucide-svelte/icons/x';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     export interface MovementData {
         id: number;
@@ -311,9 +312,9 @@
             <div class="bg-card text-card-foreground rounded-3xl border border-border/80 p-6 shadow-2xs space-y-5 sticky top-20">
                 <!-- Header Perfil Cliente -->
                 <div class="flex items-start gap-3.5 pb-4 border-b border-border/70">
-                    <div class="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-bold text-base shrink-0 border border-primary/20">
-                        {selectedCustomer.name.substring(0, 2).toUpperCase()}
-                    </div>
+                    <IconContainer size="lg" variant="primary">
+                        {selectedCustomer.name.slice(0, 2).toUpperCase()}
+                    </IconContainer>
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2 flex-wrap">
                             <h2 class="text-base font-bold text-foreground truncate">{selectedCustomer.name}</h2>

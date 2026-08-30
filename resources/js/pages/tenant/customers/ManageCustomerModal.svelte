@@ -33,6 +33,7 @@
     import MoreHorizontal from 'lucide-svelte/icons/more-horizontal';
     import X from 'lucide-svelte/icons/x';
     import Calendar from 'lucide-svelte/icons/calendar';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import type { CustomerItem } from './desktop/CustomerListDesktop.svelte';
 
     let {
@@ -139,17 +140,11 @@
     <DialogContent class="max-w-2xl max-h-[85vh]">
         <DialogHeader>
             <div class="flex items-center gap-3 min-w-0">
-                <div
-                    class="flex size-10 shrink-0 items-center justify-center rounded-lg border {form.is_defaulter
-                        ? 'bg-rose-500/10 text-rose-600 border-rose-500/30'
-                        : 'bg-primary/10 text-primary border-primary/20'}"
-                >
-                    {#if form.is_defaulter}
-                        <AlertTriangle class="size-5" />
-                    {:else}
-                        <UserCheck class="size-5" />
-                    {/if}
-                </div>
+                <IconContainer
+                    size="md"
+                    variant={form.is_defaulter ? 'warning' : 'primary'}
+                    icon={form.is_defaulter ? 'solar:danger-triangle-bold-duotone' : 'solar:shop-bold-duotone'}
+                />
                 <div class="min-w-0">
                     <div class="flex items-center gap-2">
                         <DialogTitle class="text-xl font-bold text-foreground">Gestión de Cliente</DialogTitle>
