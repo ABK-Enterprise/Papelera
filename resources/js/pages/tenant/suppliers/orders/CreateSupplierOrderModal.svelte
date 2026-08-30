@@ -71,7 +71,7 @@
         items = [
             ...items,
             {
-                id: 'item_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8),
+                id: 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
                 product_id: null,
                 product_name: '',
                 quantity: 1,
@@ -110,10 +110,8 @@
 
     function getFilteredProducts(query: string): ProductOption[] {
         const q = query.trim().toLowerCase();
-        if (!q) return availableProducts.slice(0, 10);
-        return availableProducts
-            .filter((p) => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)))
-            .slice(0, 10);
+        if (!q) return availableProducts.slice(0, 5);
+        return availableProducts.filter((p) => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q))).slice(0, 5);
     }
 
     function selectProduct(index: number, product: ProductOption) {
@@ -170,6 +168,7 @@
                 quantity: 1,
                 unit_cost: '',
                 search_query: '',
+                is_dropdown_open: false,
             },
         ];
     }
@@ -204,17 +203,28 @@
         isSubmitting = true;
         errorMessage = null;
 
+        const payloadItems: {
+            product_id: number | null;
+            product_name: string;
+            quantity: number;
+            unit_cost: number;
+        }[] = [];
+
+        for (const it of validItems) {
+            payloadItems.push({
+                product_id: it.product_id,
+                product_name: it.product_name,
+                quantity: it.quantity,
+                unit_cost: Number(it.unit_cost),
+            });
+        }
+
         router.post(
             '/tenant/suppliers/orders',
             {
-                supplier_id: selectedSupplierId,
+                supplier_id: Number(selectedSupplierId),
                 notes: notes,
-                items: validItems.map((it) => ({
-                    product_id: it.product_id,
-                    product_name: it.product_name,
-                    quantity: it.quantity,
-                    unit_cost: Number(it.unit_cost),
-                })),
+                items: payloadItems,
             },
             {
                 preserveScroll: true,
@@ -234,7 +244,7 @@
 </script>
 
 {#if open}
-    <!-- Backdrop oscuro y accesible -->
+    <!-- Backdrop oscuro accesible -->
     <div
         class="fixed inset-0 bg-background/80 backdrop-blur-xs z-50 transition-opacity"
         onclick={closeModal}
@@ -316,7 +326,7 @@
                             type="button"
                             size="sm"
                             variant="secondary"
-                            class="h-8 text-xs gap-1 font-semibold rounded-xl"
+                            class="h-8 text-xs gap-1 font-semibold"
                             onclick={addItem}
                         >
                             <Plus class="size-3.5" />
@@ -324,90 +334,55 @@
                         </Button>
                     </div>
 
-                    <!-- Lista de Productos (Filas Continuas con CSS Grid) -->
-                    <div class="pt-1">
-                        <div class="divide-y divide-border/50 border border-border/70 rounded-xl bg-card overflow-hidden">
-                            {#each items as item, index (item.id || index)}
-                                {@const lineSubtotal = item.quantity * (Number(item.unit_cost) || 0)}
-                                {@const isProductSelected = !!item.product_name && (!!item.product_id || item.search_query === item.product_name)}
-                                {@const matchedProd = item.product_id ? availableProducts.find((p) => p.id === item.product_id) : null}
-
-                                <!-- Fila Desktop (CSS Grid estricto de 12 columnas) -->
-                                <div class="hidden sm:grid sm:grid-cols-12 gap-3 items-center p-3 hover:bg-muted/20 transition-colors">
-                                    <!-- Columna Producto (6 columnas = doble de espacio) -->
-                                    <div class="sm:col-span-6 relative">
-                                        {#if isProductSelected}
-                                            <!-- Producto seleccionado como texto estático limpio -->
-                                            <div class="flex items-center justify-between gap-2.5 rounded-xl bg-background border border-input px-3 py-1.5 min-h-[40px] shadow-2xs">
-                                                <div class="min-w-0 flex items-center gap-2.5">
-                                                    <IconContainer size="sm" variant="primary" icon="solar:box-minimalistic-bold-duotone" />
-                                                    <div class="min-w-0">
-                                                        <span class="font-bold text-xs text-foreground truncate block">
-                                                            {item.product_name}
-                                                        </span>
-                                                        {#if matchedProd}
-                                                            <span class="text-[10px] text-muted-foreground font-sans tabular-nums truncate block">
-                                                                {#if matchedProd.sku}SKU: {matchedProd.sku} • {/if}Stock actual: {matchedProd.stock ?? 0}
-                                                            </span>
+                    <!-- Lista de Productos -->
+                    <div class="space-y-2.5">
+                        {#each items as item, index (item.id || index)}
+                            {@const lineSubtotal = item.quantity * (Number(item.unit_cost) || 0)}
+                            <div
+                                class="flex flex-col gap-2 p-3 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs relative"
+                            >
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
+                                    <!-- SearchCombobox Buscador de Producto -->
+                                    <div class="sm:col-span-5 relative">
+                                        <Label class="text-[11px] font-semibold text-muted-foreground sm:hidden mb-1 block">
+                                            Producto
+                                        </Label>
+                                        <SearchCombobox
+                                            value={item.search_query}
+                                            items={getFilteredProducts(item.search_query)}
+                                            placeholder="Buscar producto o escribir..."
+                                            showDropdown={true}
+                                            onsearch={(val) => handleSearchInput(index, val)}
+                                            onselect={(prod) => selectProduct(index, prod)}
+                                            onclear={() => {
+                                                items[index].product_id = null;
+                                                items[index].product_name = '';
+                                                items[index].search_query = '';
+                                            }}
+                                            inputClass="h-9 sm:h-10 text-xs font-medium"
+                                        >
+                                            {#snippet itemSnippet(prod)}
+                                                <div class="flex items-center justify-between gap-2 w-full">
+                                                    <span class="font-medium truncate">{prod.name}</span>
+                                                    <div class="text-[11px] text-muted-foreground font-sans tabular-nums shrink-0">
+                                                        {#if prod.cost_price}
+                                                            <span>Costo: {formatPrice(Number(prod.cost_price))}</span>
+                                                        {:else}
+                                                            <span>Stock: {prod.stock ?? 0}</span>
                                                         {/if}
                                                     </div>
                                                 </div>
-
-                                                <button
-                                                    type="button"
-                                                    class="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
-                                                    onclick={() => {
-                                                        items[index].product_id = null;
-                                                        items[index].product_name = '';
-                                                        items[index].search_query = '';
-                                                    }}
-                                                    title="Cambiar producto"
-                                                    aria-label="Cambiar producto"
-                                                >
-                                                    <Edit3 class="size-3.5" />
-                                                </button>
-                                            </div>
-                                        {:else}
-                                            <!-- Buscador cuando no está seleccionado -->
-                                            <SearchCombobox
-                                                value={item.search_query}
-                                                items={getFilteredProducts(item.search_query)}
-                                                placeholder="Buscar producto en catálogo o tipear..."
-                                                showDropdown={true}
-                                                onsearch={(val) => handleSearchInput(index, val)}
-                                                onselect={(prod) => selectProduct(index, prod)}
-                                                onclear={() => {
-                                                    items[index].product_id = null;
-                                                    items[index].product_name = '';
-                                                    items[index].search_query = '';
-                                                }}
-                                                inputClass="h-10 text-xs font-medium bg-background"
-                                            >
-                                                {#snippet itemSnippet(prod)}
-                                                    <div class="flex items-center justify-between gap-2 w-full">
-                                                        <div class="min-w-0">
-                                                            <span class="font-medium text-foreground truncate block">{prod.name}</span>
-                                                            {#if prod.sku}
-                                                                <span class="text-[10px] text-muted-foreground font-sans tabular-nums">SKU: {prod.sku}</span>
-                                                            {/if}
-                                                        </div>
-                                                        <div class="text-[11px] text-muted-foreground font-sans tabular-nums shrink-0 text-right">
-                                                            {#if prod.cost_price}
-                                                                <span class="font-semibold text-foreground">Costo: {formatPrice(Number(prod.cost_price))}</span>
-                                                            {:else}
-                                                                <span>Stock: {prod.stock ?? 0}</span>
-                                                            {/if}
-                                                        </div>
-                                                    </div>
-                                                {/snippet}
-                                            </SearchCombobox>
-                                        {/if}
+                                            {/snippet}
+                                        </SearchCombobox>
                                     </div>
 
-                                    <!-- Columna Costo Unitario (3 columnas) -->
+                                    <!-- Costo Unitario -->
                                     <div class="sm:col-span-3">
+                                        <Label for={`prod-cost-${index}`} class="text-[11px] font-semibold text-muted-foreground sm:hidden mb-1 block">
+                                            Costo Unit.
+                                        </Label>
                                         <div class="relative">
-                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground font-sans tabular-nums">$</span>
+                                            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-sans tabular-nums">$</span>
                                             <Input
                                                 id={`prod-cost-${index}`}
                                                 type="number"
@@ -415,48 +390,45 @@
                                                 min="0.01"
                                                 bind:value={item.unit_cost}
                                                 placeholder="0.00"
-                                                class="h-10 text-xs pl-7 text-right font-sans tabular-nums font-semibold bg-background border-input"
+                                                class="h-9 sm:h-10 text-xs pl-6 font-sans tabular-nums text-right"
                                                 required
                                             />
                                         </div>
                                     </div>
 
-                                    <!-- Columna Stepper + Subtotal + Ghost Delete (3 columnas) -->
-                                    <div class="sm:col-span-3 flex items-center justify-end gap-2">
-                                        <!-- Stepper Táctil -->
+                                    <!-- Stepper Cantidad, Subtotal en tiempo real & Botón Eliminar -->
+                                    <div class="sm:col-span-4 flex items-center justify-between sm:justify-end gap-2">
+                                        <!-- Stepper Táctil (36x36px a 40x40px touch targets) -->
                                         <div class="flex items-center border rounded-lg bg-background shadow-2xs">
                                             <button
                                                 type="button"
-                                                class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                                class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                                 onclick={() => decrementQuantity(index)}
                                                 disabled={item.quantity <= 1}
                                                 aria-label="Disminuir cantidad"
                                             >
-                                                <Minus class="size-3.5" />
+                                                <Minus class="size-4" />
                                             </button>
-                                            <input
-                                                type="number"
-                                                min="1"
-                                                bind:value={item.quantity}
-                                                class="w-10 h-9 text-xs font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0"
-                                            />
+                                            <span class="w-10 sm:w-12 text-xs sm:text-sm font-bold font-sans tabular-nums text-center">
+                                                {item.quantity}
+                                            </span>
                                             <button
                                                 type="button"
-                                                class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors"
+                                                class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors"
                                                 onclick={() => incrementQuantity(index)}
                                                 aria-label="Aumentar cantidad"
                                             >
-                                                <Plus class="size-3.5" />
+                                                <Plus class="size-4" />
                                             </button>
                                         </div>
 
-                                        <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground w-20 text-right">
+                                        <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground w-18 sm:w-20 text-right">
                                             {formatPrice(lineSubtotal)}
                                         </span>
 
                                         <button
                                             type="button"
-                                            class="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
+                                            class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors shrink-0"
                                             onclick={() => removeItem(index)}
                                             aria-label="Eliminar producto"
                                         >
@@ -464,119 +436,8 @@
                                         </button>
                                     </div>
                                 </div>
-
-                                <!-- Fila Mobile (Apilada) -->
-                                <div class="block sm:hidden p-3 space-y-2 hover:bg-muted/20 transition-colors">
-                                    <!-- Arriba: Producto o Buscador + Botones -->
-                                    {#if isProductSelected}
-                                        <div class="flex items-center justify-between gap-2">
-                                            <div class="flex items-center gap-2 min-w-0">
-                                                <IconContainer size="sm" variant="primary" icon="solar:box-minimalistic-bold-duotone" />
-                                                <div class="min-w-0">
-                                                    <span class="font-bold text-xs text-foreground truncate block">
-                                                        {item.product_name}
-                                                    </span>
-                                                    {#if matchedProd?.sku}
-                                                        <span class="text-[10px] text-muted-foreground font-sans tabular-nums">SKU: {matchedProd.sku}</span>
-                                                    {/if}
-                                                </div>
-                                            </div>
-
-                                            <div class="flex items-center gap-1 shrink-0">
-                                                <button
-                                                    type="button"
-                                                    class="p-1.5 text-muted-foreground hover:text-foreground rounded-md transition-colors"
-                                                    onclick={() => {
-                                                        items[index].product_id = null;
-                                                        items[index].product_name = '';
-                                                        items[index].search_query = '';
-                                                    }}
-                                                    aria-label="Editar producto"
-                                                >
-                                                    <Edit3 class="size-3.5" />
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    class="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors"
-                                                    onclick={() => removeItem(index)}
-                                                    aria-label="Eliminar producto"
-                                                >
-                                                    <Trash2 class="size-3.5" />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    {:else}
-                                        <div class="flex items-center gap-2">
-                                            <div class="flex-1">
-                                                <SearchCombobox
-                                                    value={item.search_query}
-                                                    items={getFilteredProducts(item.search_query)}
-                                                    placeholder="Buscar o escribir producto..."
-                                                    showDropdown={true}
-                                                    onsearch={(val) => handleSearchInput(index, val)}
-                                                    onselect={(prod) => selectProduct(index, prod)}
-                                                    inputClass="h-9 text-xs"
-                                                />
-                                            </div>
-                                            <button
-                                                type="button"
-                                                class="p-1.5 text-muted-foreground hover:text-destructive shrink-0"
-                                                onclick={() => removeItem(index)}
-                                                aria-label="Eliminar fila"
-                                            >
-                                                <Trash2 class="size-3.5" />
-                                            </button>
-                                        </div>
-                                    {/if}
-
-                                    <!-- Abajo: Costo con $ + Stepper + Subtotal (sin labels superiores redundantes) -->
-                                    <div class="flex items-center justify-between gap-2 pt-1 border-t border-border/30">
-                                        <div class="flex items-center gap-2">
-                                            <div class="relative w-24">
-                                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-muted-foreground font-sans tabular-nums">$</span>
-                                                <Input
-                                                    type="number"
-                                                    step="0.01"
-                                                    min="0.01"
-                                                    bind:value={item.unit_cost}
-                                                    placeholder="0.00"
-                                                    class="h-8 text-xs pl-5 text-right font-sans tabular-nums font-semibold bg-background"
-                                                    required
-                                                />
-                                            </div>
-
-                                            <div class="flex items-center border rounded-lg bg-background">
-                                                <button
-                                                    type="button"
-                                                    class="size-8 flex items-center justify-center text-muted-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40"
-                                                    onclick={() => decrementQuantity(index)}
-                                                    disabled={item.quantity <= 1}
-                                                >
-                                                    <Minus class="size-3" />
-                                                </button>
-                                                <input
-                                                    type="number"
-                                                    min="1"
-                                                    bind:value={item.quantity}
-                                                    class="w-9 h-8 text-xs font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    class="size-8 flex items-center justify-center text-muted-foreground hover:bg-muted rounded-r-lg transition-colors"
-                                                    onclick={() => incrementQuantity(index)}
-                                                >
-                                                    <Plus class="size-3" />
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <span class="font-sans tabular-nums text-xs font-bold text-foreground text-right">
-                                            {formatPrice(lineSubtotal)}
-                                        </span>
-                                    </div>
-                                </div>
-                            {/each}
-                        </div>
+                            </div>
+                        {/each}
                     </div>
                 </div>
 
@@ -593,55 +454,31 @@
                 </div>
             </form>
 
-            <!-- Footer Bento Responsive (Mobile apilado vs Desktop horizontal) -->
-            <div class="border-t pt-3.5 shrink-0">
-                <!-- Footer Mobile (Apilado, Total arriba, Botón full-width abajo, sin botón Cancelar) -->
-                <div class="sm:hidden space-y-2.5">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs text-muted-foreground font-medium">Total Estimado:</span>
-                        <span class="text-lg font-bold font-sans tabular-nums text-primary">{formatPrice(computedTotal)}</span>
-                    </div>
+            <!-- Footer Bento: Total Estimado & Botones (shrink-0) -->
+            <div class="flex items-center justify-between border-t pt-3.5 shrink-0">
+                <div class="flex items-baseline gap-2">
+                    <span class="text-xs text-muted-foreground">Total Estimado:</span>
+                    <span class="text-lg sm:text-xl font-bold font-sans tabular-nums text-primary">{formatPrice(computedTotal)}</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <Button type="button" variant="outline" size="sm" onclick={closeModal}>
+                        Cancelar
+                    </Button>
                     <Button
                         type="submit"
                         form="create-supplier-order-form"
-                        class="w-full min-h-[44px] gap-2 font-semibold text-sm rounded-xl shadow-xs"
+                        size="sm"
+                        class="gap-1.5 font-semibold"
                         disabled={isSubmitting}
                     >
                         {#if isSubmitting}
                             <span>Guardando...</span>
                         {:else}
                             <Check class="size-4" />
-                            <span>Crear Orden de Compra</span>
+                            <span>Crear Orden</span>
                         {/if}
                     </Button>
-                </div>
-
-                <!-- Footer Desktop -->
-                <div class="hidden sm:flex sm:items-center sm:justify-between">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-xs text-muted-foreground">Total Estimado:</span>
-                        <span class="text-xl font-bold font-sans tabular-nums text-primary">{formatPrice(computedTotal)}</span>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <Button type="button" variant="outline" size="sm" onclick={closeModal} class="min-h-[40px] px-4 rounded-xl text-xs font-medium">
-                            Cancelar
-                        </Button>
-                        <Button
-                            type="submit"
-                            form="create-supplier-order-form"
-                            size="sm"
-                            class="min-h-[40px] px-4 rounded-xl text-xs font-semibold gap-1.5 shadow-xs"
-                            disabled={isSubmitting}
-                        >
-                            {#if isSubmitting}
-                                <span>Guardando...</span>
-                            {:else}
-                                <Check class="size-4" />
-                                <span>Crear Orden</span>
-                            {/if}
-                        </Button>
-                    </div>
                 </div>
             </div>
         </div>
