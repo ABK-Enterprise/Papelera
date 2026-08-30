@@ -164,7 +164,7 @@
             </h1>
         </div>
 
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center justify-end gap-2.5">
             <Button
                 onclick={() => (isCreateModalOpen = true)}
                 class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs"
@@ -178,8 +178,9 @@
     <!-- Bento Card: Buscador y Filtros -->
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
         <div class="flex flex-col md:flex-row items-center justify-between gap-3">
-            <div class="flex items-center gap-2 w-full md:w-80">
+            <div class="flex items-center gap-2 w-full md:w-[448px]">
                 <div class="relative flex-1 min-w-0">
+
                     <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                     <input
                         type="text"

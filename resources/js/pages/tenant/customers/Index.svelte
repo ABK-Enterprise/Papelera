@@ -102,7 +102,7 @@
             </p>
         </div>
 
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center justify-end gap-2.5">
             <Button class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs" onclick={() => (showCreateModal = true)}>
                 <Plus class="h-4 w-4" />
                 <span>+ Añadir Cliente</span>
@@ -114,8 +114,9 @@
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-border/60">
         <div class="flex flex-col md:flex-row items-center justify-between gap-3">
             <!-- Buscador + Botón Filtros Mobile -->
-            <div class="flex items-center gap-2 w-full md:w-96">
+            <div class="flex items-center gap-2 w-full md:w-[538px]">
                 <div class="flex-1 min-w-0">
+
                     <SearchCombobox
                         bind:value={searchTerm}
                         items={customers}

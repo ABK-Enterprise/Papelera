@@ -196,7 +196,7 @@
             </p>
         </div>
 
-        <div class="flex items-center gap-2.5 flex-wrap">
+        <div class="flex items-center justify-end gap-2.5 flex-wrap">
             <Button
                 variant="outline"
                 class="gap-1.5 font-medium border-border/80 shadow-2xs"
@@ -248,7 +248,8 @@
         <!-- Vista Desktop (>= 768px): Buscador + Selects Directos -->
         <div class="hidden md:flex items-center justify-between gap-3">
             <!-- Buscador por Nombre, SKU o Código de Barras -->
-            <div class="w-80">
+            <div class="w-full md:w-[448px]">
+
                 <SearchCombobox
                     bind:value={searchTerm}
                     items={products}

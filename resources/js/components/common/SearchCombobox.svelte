@@ -152,12 +152,17 @@
             onfocus={handleFocusOrClick}
             onclick={handleFocusOrClick}
             {placeholder}
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
             role="combobox"
             aria-expanded={isOpen}
             aria-controls={isOpen ? listboxId : undefined}
             aria-autocomplete="list"
             class="h-10 w-full rounded-xl border border-input bg-card pl-9 pr-9 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground shadow-2xs focus:ring-1 focus:ring-primary outline-none transition-all {inputClass}"
         />
+
 
         {#if loading}
             <Loader2 class="absolute right-3 top-1/2 -translate-y-1/2 size-4 animate-spin text-muted-foreground" />
