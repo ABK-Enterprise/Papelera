@@ -534,6 +534,7 @@
                             Buscar Cliente Registrado o Escribir Nuevo
                         </Label>
                         <SearchCombobox
+                            id="cust-search"
                             bind:value={customerSearchQuery}
                             items={customerSearchResults}
                             placeholder="Escribe el nombre, CUIT/DNI o teléfono para autocompletar..."

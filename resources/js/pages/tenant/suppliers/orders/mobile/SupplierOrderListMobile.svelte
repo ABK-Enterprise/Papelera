@@ -5,16 +5,16 @@
     import Package from 'lucide-svelte/icons/package';
     import Truck from 'lucide-svelte/icons/truck';
 
-    interface SupplierOrderItem {
+    type SupplierOrderItem = {
         id: number;
         product_id: number;
         product_name: string;
         quantity: number;
         unit_cost: string | number;
         subtotal: string | number;
-    }
+    };
 
-    interface SupplierOrderData {
+    type SupplierOrderData = {
         id: number;
         order_number: string;
         supplier_id: number;
@@ -28,7 +28,7 @@
             contact_number: string | null;
         };
         items?: SupplierOrderItem[];
-    }
+    };
 
     let {
         orders = [],

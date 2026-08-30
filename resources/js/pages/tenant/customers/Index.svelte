@@ -40,11 +40,12 @@
     let showManageModal = $state(false);
     let selectedCustomer = $state<CustomerItem | null>(null);
 
-    function applyFilters() {
+    function applyFilters(customSearch?: string) {
+        const s = typeof customSearch === 'string' ? customSearch : searchTerm;
         router.get(
             '/tenant/customers',
             {
-                search: searchTerm || undefined,
+                search: s || undefined,
                 status: selectedStatus || undefined,
                 tax_condition: selectedTaxCondition || undefined,
                 is_defaulter: selectedDefaulter || undefined,
@@ -106,10 +107,14 @@
                     bind:value={searchTerm}
                     items={customers}
                     placeholder="Buscar por nombre, CUIT/DNI, teléfono..."
-                    onsearch={applyFilters}
+                    onsearch={(q) => {
+                        searchTerm = q;
+                        applyFilters(q);
+                    }}
                     onselect={handleSelectCustomer}
+                    onclear={resetFilters}
                 >
-                    {#snippet item(cust)}
+                    {#snippet itemSnippet(cust)}
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
                             <div class="flex flex-col min-w-0">
                                 <span class="truncate font-medium text-foreground">{cust.name}</span>

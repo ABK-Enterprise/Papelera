@@ -75,6 +75,7 @@
                 bind:value={searchQuery}
                 items={comboboxSuggestions}
                 placeholder="Buscar por módulo o permiso..."
+                debounceMs={0}
                 showDropdown={true}
                 onsearch={(q) => (searchQuery = q)}
                 onselect={handleSelectModule}

@@ -7,6 +7,7 @@
     import Loader2 from 'lucide-svelte/icons/loader-2';
 
     let {
+        id = '',
         value = $bindable(''),
         placeholder = 'Buscar...',
         items = [],
@@ -21,6 +22,7 @@
         class: className = '',
         inputClass = '',
     }: {
+        id?: string;
         value?: string;
         placeholder?: string;
         items?: T[];
@@ -41,48 +43,66 @@
     let timer: ReturnType<typeof setTimeout> | null = null;
     let inputElement = $state<HTMLInputElement | null>(null);
 
+    let displayItems = $derived.by(() => {
+        if (!value || !value.trim()) return [];
+        const q = value.toLowerCase().trim();
+        return items
+            .filter((item) => {
+                const str = Object.values(item)
+                    .filter((v) => typeof v === 'string' || typeof v === 'number')
+                    .join(' ')
+                    .toLowerCase();
+                return str.includes(q);
+            })
+            .slice(0, 6);
+    });
+
     function handleInput(e: Event) {
         const val = (e.target as HTMLInputElement).value;
         value = val;
         activeIndex = -1;
-        isOpen = showDropdown && val.trim().length > 0 && items.length > 0;
 
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(() => {
+        if (debounceMs <= 0) {
             onsearch?.(val);
             if (showDropdown && val.trim().length > 0) {
                 isOpen = true;
             }
-        }, debounceMs);
+        } else {
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => {
+                onsearch?.(val);
+                if (showDropdown && val.trim().length > 0) {
+                    isOpen = true;
+                }
+            }, debounceMs);
+        }
     }
 
     function handleKeyDown(e: KeyboardEvent) {
-        if (!isOpen || items.length === 0) {
-            if (e.key === 'Enter') {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (isOpen && activeIndex >= 0 && displayItems[activeIndex]) {
+                selectItem(displayItems[activeIndex]);
+            } else {
                 if (timer) clearTimeout(timer);
                 onsearch?.(value);
+                isOpen = false;
             }
+            return;
+        }
+
+        if (!isOpen || displayItems.length === 0) {
             return;
         }
 
         switch (e.key) {
             case 'ArrowDown':
                 e.preventDefault();
-                activeIndex = (activeIndex + 1) % items.length;
+                activeIndex = (activeIndex + 1) % displayItems.length;
                 break;
             case 'ArrowUp':
                 e.preventDefault();
-                activeIndex = activeIndex <= 0 ? items.length - 1 : activeIndex - 1;
-                break;
-            case 'Enter':
-                e.preventDefault();
-                if (activeIndex >= 0 && items[activeIndex]) {
-                    selectItem(items[activeIndex]);
-                } else {
-                    if (timer) clearTimeout(timer);
-                    onsearch?.(value);
-                    isOpen = false;
-                }
+                activeIndex = activeIndex <= 0 ? displayItems.length - 1 : activeIndex - 1;
                 break;
             case 'Escape':
                 isOpen = false;
@@ -113,12 +133,13 @@
         <Search class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         <input
             bind:this={inputElement}
+            id={id || undefined}
             type="text"
-            {value}
+            bind:value={value}
             oninput={handleInput}
             onkeydown={handleKeyDown}
             onfocus={() => {
-                if (showDropdown && value.trim().length > 0 && items.length > 0) {
+                if (showDropdown && value.trim().length > 0 && displayItems.length > 0) {
                     isOpen = true;
                 }
             }}
@@ -143,10 +164,10 @@
         {/if}
     </div>
 
-    {#if isOpen && showDropdown}
+    {#if isOpen && showDropdown && displayItems.length > 0}
         <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border shadow-xl z-50 overflow-hidden animate-in fade-in duration-150">
             <div class="max-h-64 overflow-y-auto divide-y divide-border/40 custom-scrollbar" role="listbox">
-                {#each items as item, i (item.id || i)}
+                {#each displayItems as item, i (item.id || i)}
                     <button
                         type="button"
                         role="option"
@@ -161,16 +182,6 @@
                         {/if}
                     </button>
                 {/each}
-
-                {#if items.length === 0 && !loading}
-                    <div class="p-4 text-center text-xs text-muted-foreground italic">
-                        {#if emptySnippet}
-                            {@render emptySnippet()}
-                        {:else}
-                            No se encontraron resultados coincidentes.
-                        {/if}
-                    </div>
-                {/if}
             </div>
         </div>
     {/if}

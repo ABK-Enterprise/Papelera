@@ -244,10 +244,14 @@
                     bind:value={searchTerm}
                     items={products}
                     placeholder="Buscar por nombre, SKU o barra..."
-                    onsearch={applyFilters}
+                    onsearch={(q) => {
+                        searchTerm = q;
+                        applyFilters();
+                    }}
                     onselect={handleSelectProductSuggestion}
+                    onclear={resetFilters}
                 >
-                    {#snippet item(prod)}
+                    {#snippet itemSnippet(prod)}
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
                             <div class="flex flex-col min-w-0">
                                 <span class="truncate font-medium text-foreground">{prod.name}</span>
@@ -324,10 +328,14 @@
                     bind:value={searchTerm}
                     items={products}
                     placeholder="Buscar producto, SKU o código..."
-                    onsearch={applyFilters}
+                    onsearch={(q) => {
+                        searchTerm = q;
+                        applyFilters();
+                    }}
                     onselect={handleSelectProductSuggestion}
+                    onclear={resetFilters}
                 >
-                    {#snippet item(prod)}
+                    {#snippet itemSnippet(prod)}
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
                             <div class="flex flex-col min-w-0">
                                 <span class="truncate font-medium text-foreground">{prod.name}</span>

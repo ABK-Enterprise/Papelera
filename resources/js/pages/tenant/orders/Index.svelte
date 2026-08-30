@@ -168,20 +168,18 @@
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
                 <ShoppingBag class="size-7 text-primary" />
-                Gestión de Pedidos de Clientes
+                Pedidos de Clientes
             </h1>
-            <p class="text-sm text-muted-foreground mt-0.5">
-                Control de estados de preparación, envíos y seguimiento logístico con validación de stock.
-            </p>
         </div>
 
         <div class="flex items-center gap-2.5">
             <Button
                 onclick={() => (isCreateModalOpen = true)}
                 class="gap-2 shadow-sm font-medium"
+                data-test="create-order-button"
             >
                 <Plus class="size-4" />
-                <span>Registrar pedido</span>
+                <span>Nuevo Pedido</span>
             </Button>
         </div>
     </div>
@@ -194,10 +192,14 @@
                     bind:value={searchTerm}
                     items={orders}
                     placeholder="Buscar por #pedido, cliente o teléfono..."
-                    onsearch={applyFilters}
+                    onsearch={(q) => {
+                        searchTerm = q;
+                        applyFilters();
+                    }}
                     onselect={openOrderDetail}
+                    onclear={resetFilters}
                 >
-                    {#snippet item(ord)}
+                    {#snippet itemSnippet(ord)}
                         {@const badge = getStatusBadge(ord.status)}
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
                             <div class="flex flex-col min-w-0">

@@ -113,10 +113,14 @@
                         bind:value={searchTerm}
                         items={suppliers}
                         placeholder="Buscar por nombre, teléfono, email..."
-                        onsearch={applyFilters}
+                        onsearch={(q) => {
+                            searchTerm = q;
+                            applyFilters();
+                        }}
                         onselect={handleSelectSupplier}
+                        onclear={resetFilters}
                     >
-                        {#snippet item(supp)}
+                        {#snippet itemSnippet(supp)}
                             <div class="flex items-center justify-between gap-3 w-full min-w-0">
                                 <div class="flex flex-col min-w-0">
                                     <span class="truncate font-medium text-foreground">{supp.name}</span>
