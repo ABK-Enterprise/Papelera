@@ -3,14 +3,15 @@
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
     import { Link, router } from '@inertiajs/svelte';
-    import Filter from 'lucide-svelte/icons/filter';
     import Plus from 'lucide-svelte/icons/plus';
+    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Search from 'lucide-svelte/icons/search';
+    import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import Truck from 'lucide-svelte/icons/truck';
     import Users from 'lucide-svelte/icons/users';
-    import X from 'lucide-svelte/icons/x';
     import CreateSupplierOrderModal from './CreateSupplierOrderModal.svelte';
     import SupplierOrderDetailModal from './SupplierOrderDetailModal.svelte';
+    import SupplierOrderFilterModalMobile from './mobile/SupplierOrderFilterModalMobile.svelte';
     import SupplierOrderListDesktop from './desktop/SupplierOrderListDesktop.svelte';
     import SupplierOrderListMobile from './mobile/SupplierOrderListMobile.svelte';
 
@@ -95,6 +96,7 @@
     });
     let isCreateModalOpen = $state(false);
     let isDetailModalOpen = $state(false);
+    let isFilterModalOpen = $state(false);
     let selectedOrder = $state<SupplierOrderData | null>(null);
 
     function applyFilters() {
@@ -132,6 +134,7 @@
     });
 
     let hasActiveFilters = $derived(Boolean(searchTerm || (selectedStatus && selectedStatus !== 'all')));
+    let activeFiltersCount = $derived(selectedStatus && selectedStatus !== 'all' ? 1 : 0);
 </script>
 
 <AppHead title="Órdenes de Compra a Proveedores - Comercio" />
@@ -164,10 +167,10 @@
         <div class="flex items-center gap-2.5">
             <Button
                 onclick={() => (isCreateModalOpen = true)}
-                class="gap-2 shadow-sm font-semibold"
+                class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs"
             >
                 <Plus class="size-4" />
-                Hacer Pedido a Proveedor
+                <span>Hacer Pedido a Proveedor</span>
             </Button>
         </div>
     </div>
@@ -175,18 +178,40 @@
     <!-- Bento Card: Buscador y Filtros -->
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
         <div class="flex flex-col md:flex-row items-center justify-between gap-3">
-            <div class="relative w-full md:w-80">
-                <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                <input
-                    type="text"
-                    bind:value={searchTerm}
-                    onkeydown={(e) => e.key === 'Enter' && applyFilters()}
-                    placeholder="Buscar por #orden o proveedor..."
-                    class="h-10 w-full rounded-lg border border-input bg-muted/20 pl-9 pr-4 text-sm placeholder:text-muted-foreground focus:bg-background focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-                />
+            <div class="flex items-center gap-2 w-full md:w-80">
+                <div class="relative flex-1 min-w-0">
+                    <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                    <input
+                        type="text"
+                        bind:value={searchTerm}
+                        onkeydown={(e) => e.key === 'Enter' && applyFilters()}
+                        placeholder="Buscar por #orden o proveedor..."
+                        class="h-10 w-full rounded-lg border border-input bg-muted/20 pl-9 pr-4 text-sm placeholder:text-muted-foreground focus:bg-background focus:outline-none focus:ring-1 focus:ring-primary transition-all"
+                    />
+                </div>
+
+                <!-- Disparador de Filtros Mobile -->
+                <div class="block md:hidden">
+                    <Button
+                        type="button"
+                        variant={activeFiltersCount > 0 ? 'secondary' : 'outline'}
+                        size="icon"
+                        onclick={() => (isFilterModalOpen = true)}
+                        class="relative h-10 w-10 shrink-0 rounded-xl border border-border/70 shadow-2xs"
+                        aria-label="Abrir filtros"
+                    >
+                        <SlidersHorizontal class="h-4 w-4 text-foreground" />
+                        {#if activeFiltersCount > 0}
+                            <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums shadow-xs">
+                                {activeFiltersCount}
+                            </span>
+                        {/if}
+                    </Button>
+                </div>
             </div>
 
-            <div class="flex items-center gap-2.5 w-full md:w-auto flex-wrap">
+            <!-- Filtros Desktop -->
+            <div class="hidden md:flex items-center gap-2.5 w-auto flex-wrap">
                 <select
                     bind:value={selectedStatus}
                     onchange={applyFilters}
@@ -198,15 +223,10 @@
                     <option value="cancelado">Cancelado ({stats.cancelado})</option>
                 </select>
 
-                <Button variant="secondary" size="sm" class="h-10 px-3 text-xs gap-1.5" onclick={applyFilters}>
-                    <Filter class="size-3.5" />
-                    Filtrar
-                </Button>
-
                 {#if hasActiveFilters}
-                    <Button variant="ghost" size="sm" class="h-10 px-2 text-xs text-muted-foreground hover:text-foreground gap-1" onclick={resetFilters}>
-                        <X class="size-3.5" />
-                        Limpiar
+                    <Button variant="ghost" size="sm" class="h-10 px-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 gap-1.5 rounded-xl transition-all" onclick={resetFilters}>
+                        <RotateCcw class="size-3.5" />
+                        <span>Limpiar</span>
                     </Button>
                 {/if}
             </div>
@@ -235,4 +255,16 @@
 <SupplierOrderDetailModal
     bind:open={isDetailModalOpen}
     bind:order={selectedOrder}
+/>
+
+<!-- Modal de Filtros Mobile -->
+<SupplierOrderFilterModalMobile
+    bind:open={isFilterModalOpen}
+    {selectedStatus}
+    {stats}
+    onapply={(f) => {
+        selectedStatus = f.status;
+        applyFilters();
+    }}
+    onreset={resetFilters}
 />

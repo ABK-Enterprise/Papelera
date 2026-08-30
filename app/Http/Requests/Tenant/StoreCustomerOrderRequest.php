@@ -29,6 +29,8 @@ class StoreCustomerOrderRequest extends FormRequest
             'customer_phone' => ['nullable', 'string', 'max:100'],
             'delivery_address' => ['nullable', 'string', 'max:500'],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'payment_type' => ['nullable', 'string', 'in:contado,cuenta_corriente'],
+            'payment_method' => ['nullable', 'string', 'in:efectivo,transferencia,cheque,debito,credito,otro'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => [
                 'required',

@@ -1,0 +1,108 @@
+<script lang="ts">
+    import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter } from '@/components/ui/dialog';
+    import { Badge } from '@/components/ui/badge';
+    import { Button } from '@/components/ui/button';
+    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
+    import type { Snippet, Component } from 'svelte';
+
+    export interface FilterTabItem {
+        id: string;
+        label: string;
+        icon?: Component<any>;
+        isActive?: boolean;
+        badge?: string | number | null;
+    }
+
+    let {
+        open = $bindable(false),
+        title = 'Filtros y ordenamiento',
+        description = 'Selecciona las opciones para filtrar los registros.',
+        tabs = [],
+        activeTab = $bindable(''),
+        activeCount = 0,
+        onapply,
+        onreset,
+        children,
+    }: {
+        open?: boolean;
+        title?: string;
+        description?: string;
+        tabs?: FilterTabItem[];
+        activeTab?: string;
+        activeCount?: number;
+        onapply?: () => void;
+        onreset?: () => void;
+        children?: Snippet;
+    } = $props();
+</script>
+
+<Dialog bind:open>
+    <DialogContent class="max-w-xl p-0 gap-0 overflow-hidden rounded-2xl sm:rounded-3xl border-border/80 shadow-xl flex flex-col max-h-[85vh]">
+        <DialogHeader class="p-4 sm:p-5 border-b border-border/50 shrink-0">
+            <div class="flex items-center justify-between pr-6">
+                <div class="flex items-center gap-2">
+                    <DialogTitle class="text-base sm:text-lg font-bold text-foreground">{title}</DialogTitle>
+                    {#if activeCount > 0}
+                        <Badge variant="default" class="h-5 px-2 text-xs font-semibold tabular-nums">
+                            {activeCount} {activeCount === 1 ? 'activo' : 'activos'}
+                        </Badge>
+                    {/if}
+                </div>
+            </div>
+            <DialogDescription class="text-xs text-muted-foreground mt-0.5">{description}</DialogDescription>
+        </DialogHeader>
+
+        <DialogBody class="p-0 flex-1 min-h-0 overflow-hidden flex flex-row bg-background">
+            <!-- Columna Izquierda: Pestañas de Navegación de Filtros -->
+            <nav class="w-[36%] sm:w-[32%] shrink-0 border-r border-border/60 bg-muted/30 p-1.5 flex flex-col gap-1 overflow-y-auto custom-scrollbar">
+                {#each tabs as tab (tab.id)}
+                    {@const TabIcon = tab.icon}
+                    <button
+                        type="button"
+                        onclick={() => (activeTab = tab.id)}
+                        class="w-full flex items-center justify-between gap-1.5 px-2.5 py-3 rounded-xl text-left text-xs font-medium transition-all {activeTab === tab.id
+                            ? 'bg-background text-foreground shadow-xs font-semibold border border-border/60'
+                            : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}"
+                    >
+                        <div class="flex items-center gap-2 min-w-0">
+                            {#if TabIcon}
+                                <TabIcon class="size-4 shrink-0 {activeTab === tab.id ? 'text-primary' : 'text-muted-foreground'}" />
+                            {/if}
+                            <span class="truncate">{tab.label}</span>
+                        </div>
+                        {#if tab.isActive}
+                            <span class="h-1.5 w-1.5 rounded-full bg-primary shrink-0"></span>
+                        {/if}
+                    </button>
+                {/each}
+            </nav>
+
+            <!-- Columna Derecha: Paneles de Contenido de Filtros -->
+            <div class="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 space-y-1.5 custom-scrollbar">
+                {@render children?.()}
+            </div>
+        </DialogBody>
+
+        <DialogFooter class="p-3 sm:p-4 border-t border-border/50 bg-muted/20 flex flex-row items-center justify-between gap-2 shrink-0">
+            <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onclick={onreset}
+                disabled={activeCount === 0}
+                class="min-h-[40px] px-3 rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground gap-1.5"
+            >
+                <RotateCcw class="size-3.5" />
+                <span>Limpiar</span>
+            </Button>
+            <Button
+                type="button"
+                size="sm"
+                onclick={onapply}
+                class="min-h-[40px] px-5 rounded-xl text-xs font-semibold shadow-sm"
+            >
+                <span>Aplicar filtros</span>
+            </Button>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>

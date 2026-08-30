@@ -273,3 +273,121 @@ test('tenant isolation: cannot view or record payment on another tenant customer
         ]);
     $responsePayment->assertStatus(404);
 });
+
+test('cash customer order registers charge and immediate payment without altering customer balance', function () {
+    $category = Category::create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Papelería',
+        'slug' => 'papeleria-contado',
+        'is_active' => true,
+    ]);
+
+    $product = Product::create([
+        'tenant_id' => $this->tenant->id,
+        'category_id' => $category->id,
+        'name' => 'Resma Contado A4',
+        'sale_type' => 'unit',
+        'price' => 2500.00,
+        'units_per_package' => 1,
+        'bulk_discount_type' => 'none',
+        'stock' => 100,
+        'min_stock' => 5,
+        'is_active' => true,
+    ]);
+
+    $customer = Customer::factory()->forTenant($this->tenant)->create([
+        'name' => 'Cliente Contado',
+        'current_balance' => 5000.00,
+        'credit_limit' => 50000.00,
+    ]);
+
+    // 1. Crear pedido de contado (2 unidades = $5000)
+    $response = $this->actingAs($this->user)
+        ->postJson(route('tenant.orders.store'), [
+            'customer_id' => $customer->id,
+            'customer_name' => $customer->name,
+            'payment_type' => 'contado',
+            'payment_method' => 'transferencia',
+            'items' => [
+                [
+                    'product_id' => $product->id,
+                    'packaging_type' => 'unidad',
+                    'quantity' => 2,
+                ],
+            ],
+        ]);
+
+    $response->assertStatus(201);
+
+    $customer->refresh();
+    // Saldo no debe haberse incrementado por el pedido de contado
+    expect((float) $customer->current_balance)->toBe(5000.00);
+
+    $order = CustomerOrder::latest()->first();
+
+    $movements = CustomerAccountMovement::where('customer_id', $customer->id)
+        ->where('customer_order_id', $order->id)
+        ->get();
+
+    expect($movements)->toHaveCount(2);
+
+    $charge = $movements->firstWhere('type', 'charge');
+    expect($charge)->not->toBeNull();
+    expect((float) $charge->amount)->toBe(5000.00);
+    expect($charge->payment_method)->toBe('transferencia');
+    expect((float) $charge->balance_after)->toBe(10000.00);
+
+    $payment = $movements->firstWhere('type', 'payment');
+    expect($payment)->not->toBeNull();
+    expect((float) $payment->amount)->toBe(5000.00);
+    expect($payment->payment_method)->toBe('transferencia');
+    expect((float) $payment->balance_after)->toBe(5000.00);
+    expect($payment->description)->toContain('Cobro de contado (transferencia)');
+
+    // 2. Cancelar el pedido de contado -> NO debe reversar saldo ni descontar $5000 del cliente
+    $cancelResponse = $this->actingAs($this->user)
+        ->patchJson(route('tenant.orders.update-status', $order), [
+            'status' => 'cancelado',
+        ]);
+    $cancelResponse->assertOk();
+
+    $customer->refresh();
+    expect((float) $customer->current_balance)->toBe(5000.00);
+});
+
+test('can record payment and adjustment that results in negative balance (advance / credit in favor)', function () {
+    $customer = Customer::factory()->forTenant($this->tenant)->create([
+        'name' => 'Cliente Saldo a Favor',
+        'current_balance' => 1000.00,
+    ]);
+
+    // Pago superior a la deuda -> Saldo a favor (negativo)
+    $responsePayment = $this->actingAs($this->user)
+        ->postJson(route('tenant.customers.accounts.payment', $customer), [
+            'amount' => 3000.00,
+            'payment_method' => 'transferencia',
+            'reference_number' => 'ANTICIPO-001',
+        ]);
+    $responsePayment->assertOk();
+
+    $customer->refresh();
+    expect((float) $customer->current_balance)->toBe(-2000.00);
+
+    $paymentMovement = CustomerAccountMovement::where('customer_id', $customer->id)
+        ->where('reference_number', 'ANTICIPO-001')
+        ->first();
+    expect($paymentMovement)->not->toBeNull();
+    expect((float) $paymentMovement->balance_after)->toBe(-2000.00);
+
+    // Ajuste de crédito que profundiza el saldo a favor
+    $responseAdjustment = $this->actingAs($this->user)
+        ->postJson(route('tenant.customers.accounts.adjustment', $customer), [
+            'type' => 'credit',
+            'amount' => 500.00,
+            'description' => 'Descuento extraordinario',
+        ]);
+    $responseAdjustment->assertOk();
+
+    $customer->refresh();
+    expect((float) $customer->current_balance)->toBe(-2500.00);
+});

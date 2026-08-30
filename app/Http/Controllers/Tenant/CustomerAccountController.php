@@ -115,7 +115,7 @@ class CustomerAccountController extends Controller
                 ->firstOrFail();
 
             $currentBalance = (float) $lockedCustomer->current_balance;
-            $newBalance = max(0, round($currentBalance - $amount, 2));
+            $newBalance = round($currentBalance - $amount, 2);
 
             CustomerAccountMovement::create([
                 'tenant_id' => $tenantId,
@@ -166,7 +166,7 @@ class CustomerAccountController extends Controller
             $currentBalance = (float) $lockedCustomer->current_balance;
             $newBalance = $type === 'debit'
                 ? round($currentBalance + $amount, 2)
-                : max(0, round($currentBalance - $amount, 2));
+                : round($currentBalance - $amount, 2);
 
             CustomerAccountMovement::create([
                 'tenant_id' => $tenantId,

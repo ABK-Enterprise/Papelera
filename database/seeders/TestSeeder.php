@@ -653,5 +653,8 @@ class TestSeeder extends Seeder
                 }
             }
         }
+
+        // 7. Generar movimientos de cuenta corriente para los 4 perfiles de clientes
+        $this->call(CustomerMovementSeeder::class);
     }
 }
