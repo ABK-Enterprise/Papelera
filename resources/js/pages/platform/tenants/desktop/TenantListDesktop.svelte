@@ -89,12 +89,12 @@
                                 </div>
                                 <p class="text-xs text-muted-foreground tabular-nums mt-0.5">
                                     {tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}
-                                    � Alta: {formatDate(tenant.created_at)}
+                                    • Alta: {formatDate(tenant.created_at)}
                                 </p>
                             </div>
                         </div>
 
-                        <!-- M�tricas y Botones -->
+                        <!-- Métricas y Botones -->
                         <div class="flex items-center gap-5 shrink-0">
                             <div class="flex items-center gap-4 text-xs tabular-nums">
                                 <div class="text-right">
@@ -179,7 +179,7 @@
                 {/if}
             </div>
 
-            <!-- M�tricas -->
+            <!-- Métricas -->
             <div class="grid grid-cols-2 gap-2.5">
                 <div class="p-3 rounded-xl border border-border/60 bg-card">
                     <div class="flex items-center gap-2 text-muted-foreground text-xs font-medium">
@@ -193,7 +193,7 @@
                 <div class="p-3 rounded-xl border border-border/60 bg-card">
                     <div class="flex items-center gap-2 text-muted-foreground text-xs font-medium">
                         <Package class="size-3.5" />
-                        <span>M�dulos</span>
+                        <span>Módulos</span>
                     </div>
                     <div class="text-xl font-bold tabular-nums text-foreground mt-1">
                         {selectedTenant.modules?.length ?? 0}
@@ -207,10 +207,10 @@
                 <span>Fecha de alta: {formatDate(selectedTenant.created_at)}</span>
             </div>
 
-            <!-- M�dulos Contratados -->
+            <!-- Módulos Contratados -->
             {#if selectedTenant.modules && selectedTenant.modules.length > 0}
                 <div class="space-y-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">M�dulos contratados</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Módulos contratados</span>
                     <div class="flex flex-wrap gap-1.5">
                         {#each selectedTenant.modules as mod}
                             <Badge variant="outline" class="text-xs font-medium tracking-wide bg-muted/50 px-2.5 py-0.5">
@@ -221,7 +221,7 @@
                 </div>
             {/if}
 
-            <!-- Acci�n Principal -->
+            <!-- Acción Principal -->
             <div class="pt-2 border-t border-border/50">
                 <Link href={`/platform/tenants/${selectedTenant.id}/edit`} class="w-full">
                     <Button class="w-full min-h-[40px] gap-2 rounded-xl font-medium shadow-sm">

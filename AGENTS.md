@@ -26,10 +26,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - **Orquestación de Subagentes para Tareas de Gran Escala o Exploratorias**: En tareas donde se deba aplicar cambios transversales a múltiples secciones del sistema (como tipografía, diseño, refactors de UI, auditorías o tareas exploratorias), el agente principal debe actuar como orquestador, definiendo objetivos determinísticos y acotados para cada subagente para preservar la limpieza de la ventana de contexto, apoyándose en skills y herramientas MCP pertinentes.
 - **Persistencia Obligatoria en Engram ante Compaction**: Siempre que se vaya a compactar la conversación o cerrar una sesión de trabajo, el agente debe persistir inmediatamente en Engram sus hallazgos, decisiones arquitectónicas y estado del plan de implementación mediante mem_save y mem_session_summary. Al iniciar una nueva ventana de contexto o reanudar sesión, debe recuperar proactivamente la información desde Engram antes de continuar.
 - **Prohibición de Cards de Métricas / KPI Decorativas sin Solicitud Explícita**: Queda estrictamente prohibido agregar tarjetas de métricas, bloques Bento KPI o patrones decorativos (con líneas diagonales o placeholders vacíos) al inicio de paneles, dashboards o vistas de módulos a menos que el usuario lo solicite de forma explícita e inequívoca. Las vistas deben comenzar directamente con los controles operativos (searchbars, filtros, tablas o feeds de acción).
-- **Prohibición Absoluta de Emojis en UI y Microcopy**: Queda estrictamente prohibido el uso de emojis en cualquier parte de la interfaz de usuario, títulos de módulos, modales, microcopy, botones, badges, placeholders, mensajes del sistema o notificaciones.
 - **Integridad y Prohibición de Eliminación en AGENTS.md**: Queda estrictamente prohibido eliminar, truncar o modificar líneas o reglas existentes en este archivo `AGENTS.md` a no ser que el usuario dé la orden explícita e inequívoca de hacerlo. Toda nueva directiva debe anexarse preservando íntegramente las reglas anteriores.
-
-
 
 # Directrices de Diseño UI/UX y Sistema de Interfaces
 
@@ -111,8 +108,6 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 | **Cards**       | Padding generoso y consistente (`p-5` o `p-6`), títulos claros y métricas destacadas.    | Llenar la tarjeta con 10 campos de texto plano y etiquetas en negrita.       |
 | **Alineación** | Alinear números a la derecha en tablas y textos a la izquierda.                               | Centrar textos largos o números en columnas comparativas.                   |
 
-
-
 ---
 
 ## 6. Estándares Tipográficos, Escala Modular y Tratamiento Numérico
@@ -155,6 +150,46 @@ El agente debe aplicar una jerarquía tipográfica rigurosa, limpia y matemátic
 | **Contraste de Jerarquía** | Crear jerarquía variando el color (`text-foreground` vs `text-muted-foreground`) y el peso (`font-medium` vs `font-normal`). | Cambiar drásticamente de tamaño de fuente para cada línea de texto secundaria.                       |
 | **Mayúsculas sostenidas**  | Usar`uppercase` solo en badges pequeños, códigos SKU o tags de 1 palabra con `text-xs font-semibold tracking-wider`.            | Usar textos largos o botones completos en MAYÚSCULAS sostenidas.                                       |
 | **Longitud de Línea**      | Limitar el ancho máximo de párrafos a 60-75 caracteres (`max-w-prose` o `max-w-lg`).                                            | Dejar párrafos de texto explicativo estirarse a lo largo de todo el ancho de la pantalla (`w-full`). |
+
+
+
+---
+
+## 7. Colorimetría y Uso Semántico (Regla 60-30-10)
+
+El agente debe utilizar la paleta de colores registrada (text, background, primary, secondary, accent) siguiendo estrictamente el modelo de distribución 60-30-10 para mantener la jerarquía visual y evitar la fatiga cognitiva del usuario.
+
+### A. Distribución del Color (60-30-10)
+
+- **60% - Superficies y Fondos (`background` y neutrales):**
+  - Es el color dominante del sistema.
+  - El fondo principal del sistema usa `bg-background-50` (light) o `bg-background-950` (dark).
+  - Las tarjetas (`Cards`), modales y contenedores elevados usan `bg-background-100` o `bg-background-200` para generar contraste de superficie sutil.
+- **30% - Contenido y Secundarios (`text` y `secondary`):**
+  - Los textos principales usan `text-900` o `text-950`. Textos descriptivos usan `text-500` o `text-600`.
+  - Botones secundarios, bordes y elementos de apoyo usan la escala `--secondary-*`.
+- **10% - Acentos y Acciones Primarias (`primary` y `accent`):**
+  - Reservado EXCLUSIVAMENTE para lo que requiere atención inmediata.
+  - Botones principales (Guardar, Confirmar), estados activos, checkboxes seleccionados y enlaces importantes usan `--primary-500` o `--primary-600`.
+  - Detalles visuales sutiles (iconos decorativos, badges) usan `--accent-*`.
+
+### B. Reglas de Opacidad y Estados Interactivos
+
+En lugar de crear nuevos colores para estados, utiliza modificadores de opacidad (alpha) sobre el color base:
+
+- **Hover en botones primarios:** Reducir opacidad al 90% (`hover:bg-primary-500/90`).
+- **Estados deshabilitados (Disabled):** Usar colores secundarios/fondo con baja opacidad y texto atenuado (`bg-background-200 text-text-400 cursor-not-allowed`).
+- **Fondos de modales/Overlays:** Fondo oscuro con alta transparencia y desenfoque (`bg-text-950/50 backdrop-blur-sm`).
+- **Componentes "Ghost" o "Outline":** Fondo transparente con texto/icono primario, y al hacer hover usar un fondo primario con opacidad del 10% (`hover:bg-primary-500/10 text-primary-600`).
+
+### C. Restricciones de Color (DO / DON'T)
+
+| Aspecto                     | DO (Hacer)                                                                                                      | DON'T (Evitar)                                                                   |
+| :-------------------------- | :-------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------- |
+| **Fondos**            | Usar los tonos más claros de`background` (50, 100) para superficies grandes.                                 | Usar un color`primary` para el fondo de toda una sección o pantalla.          |
+| **Texto sobre Color** | Asegurar contraste: usar texto muy claro (`text-50`) sobre fondos oscuros (`primary-600`).                  | Poner texto gris medio (`text-400`) sobre fondos primarios o secundarios.      |
+| **Bordes**            | Usar bordes muy sutiles (`border-background-300` o `border-secondary-200`).                                 | Usar negro puro, gris oscuro o el color primario al 100% para bordes divisorios. |
+| **Sombras (Shadows)** | Teñir ligeramente la sombra con el color de fondo para que se integre (`shadow-sm shadow-background-900/5`). | Usar sombras negras por defecto (`rgba(0,0,0, 0.5)`).                          |
 
 ## Conventions
 

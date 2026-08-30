@@ -86,8 +86,8 @@
                 </div>
             </div>
 
-            <!-- Footer con m�trica y bot�n Ver -->
-            <div class="mt-5 pt-3 border-t border-border/40 flex items-center justify-between">
+            <!-- Footer con métrica y botón Ver -->
+            <div class="mt-4 pt-3.5 border-t border-border/50 flex items-center justify-between">
                 <div class="flex items-center gap-1.5 text-xs text-muted-foreground font-medium tabular-nums">
                     <Shield class="size-3.5 text-muted-foreground/80" />
                     <span>{mod.tenants_count ?? 0} {mod.tenants_count === 1 ? 'comercio' : 'comercios'}</span>

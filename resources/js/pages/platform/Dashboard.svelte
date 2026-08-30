@@ -142,12 +142,12 @@
                                         </div>
                                         <p class="text-xs text-muted-foreground tabular-nums mt-0.5">
                                             {tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}
-                                            � Alta: {formatDate(tenant.created_at)}
+                                            • Alta: {formatDate(tenant.created_at)}
                                         </p>
                                     </div>
                                 </div>
 
-                                <!-- M�tricas y Acci�n -->
+                                <!-- Métricas y Acción -->
                                 <div class="flex items-center justify-between sm:justify-end gap-5 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/40 shrink-0">
                                     <div class="flex items-center gap-4 text-xs tabular-nums">
                                         <div class="text-left sm:text-right">
@@ -160,7 +160,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Bot�n Ver (Desktop activa Split View / Mobile abre Dialog) -->
+                                    <!-- Botón Ver (Desktop activa Split View / Mobile abre Dialog) -->
                                     <div class="hidden lg:block">
                                         <Button
                                             variant={selectedTenant?.id === tenant.id ? 'default' : 'outline'}
@@ -237,7 +237,7 @@
                         {/if}
                     </div>
 
-                    <!-- M�tricas -->
+                    <!-- Métricas -->
                     <div class="grid grid-cols-2 gap-2.5">
                         <div class="p-3 rounded-xl border border-border/60 bg-card">
                             <div class="flex items-center gap-2 text-muted-foreground text-xs font-medium">
@@ -265,7 +265,7 @@
                         <span>Fecha de alta: {formatDate(selectedTenant.created_at)}</span>
                     </div>
 
-                    <!-- Acci�n Principal -->
+                    <!-- Acción Principal -->
                     <div class="pt-2 border-t border-border/50">
                         <Link href={`/platform/tenants/${selectedTenant.id}/edit`} class="w-full">
                             <Button class="w-full min-h-[40px] gap-2 rounded-xl font-medium shadow-sm">
