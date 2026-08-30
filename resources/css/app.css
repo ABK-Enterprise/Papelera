@@ -69,6 +69,13 @@
     --color-chart-4: var(--chart-4);
     --color-chart-5: var(--chart-5);
 
+    --text-xs: 0.8125rem;
+    --text-xs--line-height: 1.15rem;
+    --text-sm: 0.9375rem;
+    --text-sm--line-height: 1.35rem;
+    --text-base: 1.0625rem;
+    --text-base--line-height: 1.55rem;
+
     --color-sidebar: var(--sidebar-background);
     --color-sidebar-foreground: var(--sidebar-foreground);
     --color-sidebar-primary: var(--sidebar-primary);
