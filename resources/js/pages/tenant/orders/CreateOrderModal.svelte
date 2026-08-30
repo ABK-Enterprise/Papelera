@@ -2,7 +2,8 @@
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
-    import { router } from '@inertiajs/svelte';
+    import { Link, router } from '@inertiajs/svelte';
+    import { clickOutside } from '@/lib/actions/clickOutside';
     import Check from 'lucide-svelte/icons/check';
     import Layers from 'lucide-svelte/icons/layers';
     import Minus from 'lucide-svelte/icons/minus';
@@ -540,7 +541,7 @@
                     </div>
 
                     <!-- Buscador Autocomplete de Clientes -->
-                    <div class="relative z-40">
+                    <div class="relative z-40" use:clickOutside={() => (isCustomerSearchOpen = false)}>
                         <Label for="cust-search" class="text-xs font-semibold text-foreground mb-1 block">
                             Buscar Cliente Registrado o Escribir Nuevo
                         </Label>
@@ -611,7 +612,7 @@
                                         </button>
                                     {/each}
 
-                                    {#if customerSearchQuery.trim().length > 0}
+                                    {#if customerSearchQuery.trim().length > 0 && customerSearchResults.length === 0}
                                         <button
                                             type="button"
                                             class="w-full px-3.5 py-2.5 text-left text-xs hover:bg-muted/60 transition-colors flex items-center gap-2 text-primary font-semibold bg-primary/5"
@@ -634,8 +635,8 @@
                         </div>
                     {/if}
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                        <div class="space-y-1">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-1">
+                        <div class="sm:col-span-5 space-y-1">
                             <Label for="cust-name" class="text-xs font-semibold text-foreground">
                                 Nombre / Razón Social <span class="text-destructive">*</span>
                             </Label>
@@ -647,7 +648,7 @@
                                 required
                             />
                         </div>
-                        <div class="space-y-1">
+                        <div class="sm:col-span-3 space-y-1">
                             <Label for="cust-phone" class="text-xs font-semibold text-foreground">Teléfono / Contacto</Label>
                             <Input
                                 id="cust-phone"
@@ -656,12 +657,12 @@
                                 class="h-9 text-xs"
                             />
                         </div>
-                        <div class="space-y-1">
+                        <div class="sm:col-span-4 space-y-1">
                             <Label for="cust-address" class="text-xs font-semibold text-foreground">Dirección de Entrega</Label>
                             <Input
                                 id="cust-address"
                                 bind:value={deliveryAddress}
-                                placeholder="Av. San Martín 1234 (o Retiro en local)"
+                                placeholder="Dirección o Retiro en local"
                                 class="h-9 text-xs"
                             />
                         </div>
@@ -678,7 +679,7 @@
                     </div>
 
                     <!-- Buscador Autocomplete Flotante de Productos -->
-                    <div class="relative z-30">
+                    <div class="relative z-30" use:clickOutside={() => (isSearchOpen = false)}>
                         <div class="flex gap-2">
                             <div class="relative flex-1">
                                 <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -732,36 +733,33 @@
                                         >
                                             <div class="min-w-0 flex-1">
                                                 <div class="flex items-center gap-2">
-                                                    <span class="font-bold text-foreground group-hover:text-primary transition-colors truncate">
+                                                    <span class="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
                                                         {prod.name}
                                                     </span>
-                                                    {#if prod.sku}
-                                                        <span class="text-[10px] font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                                                            {prod.sku}
-                                                        </span>
-                                                    {/if}
                                                     {#if prod.sale_type === 'weight'}
-                                                        <span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-sky-600 bg-sky-500/10 px-1 py-0.2 rounded border border-sky-500/20">
+                                                        <span class="inline-flex items-center gap-0.5 text-[10px] font-medium text-sky-600 bg-sky-500/10 px-1.5 py-0.2 rounded border border-sky-500/20">
                                                             <Scale class="size-2.5" />
                                                             Pesaje
                                                         </span>
                                                     {/if}
                                                 </div>
-                                                <p class="text-[11px] text-muted-foreground mt-0.5">
-                                                    {#if prod.sale_type === 'weight'}
-                                                        Stock: <span class="font-bold {prod.stock > 0 ? 'text-foreground' : 'text-destructive'}">{prod.stock} Kg</span> • Bulto: {prod.package_quantity || prod.units_per_package || 1} Kg
-                                                    {:else}
-                                                        Stock: <span class="font-bold {prod.stock > 0 ? 'text-foreground' : 'text-destructive'}">{prod.stock} u</span> • Bulto: x{prod.units_per_package} u
-                                                    {/if}
-                                                </p>
+                                                {#if prod.sku}
+                                                    <div class="text-[11px] font-sans tabular-nums text-muted-foreground mt-0.5">
+                                                        SKU: {prod.sku}
+                                                    </div>
+                                                {/if}
                                             </div>
 
                                             <div class="text-right shrink-0">
                                                 <span class="font-bold font-sans tabular-nums text-primary text-xs block">
                                                     {formatPrice(Number(prod.price))}
                                                 </span>
-                                                <span class="text-[10px] text-muted-foreground">
-                                                    {prod.sale_type === 'weight' ? 'por Kg' : 'por unidad'}
+                                                <span class="text-[10px] font-sans tabular-nums text-muted-foreground block mt-0.5">
+                                                    {#if prod.sale_type === 'weight'}
+                                                        Stock: {prod.stock} Kg • Bulto: {prod.package_quantity || prod.units_per_package || 1} Kg
+                                                    {:else}
+                                                        Stock: {prod.stock} u • Bulto: x{prod.units_per_package} u
+                                                    {/if}
                                                 </span>
                                             </div>
                                         </button>
