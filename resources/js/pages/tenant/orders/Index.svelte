@@ -7,7 +7,7 @@
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
-    import X from 'lucide-svelte/icons/x';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import CreateOrderModal from './CreateOrderModal.svelte';
     import OrderDetailModal from './OrderDetailModal.svelte';
@@ -87,6 +87,31 @@
     let isDetailModalOpen = $state(false);
     let selectedOrder = $state<OrderData | null>(null);
 
+    function formatPrice(amount: string | number) {
+        return new Intl.NumberFormat('es-AR', {
+            style: 'currency',
+            currency: 'ARS',
+            minimumFractionDigits: 2,
+        }).format(Number(amount));
+    }
+
+    function getStatusBadge(status: string) {
+        switch (status) {
+            case 'en_preparacion':
+                return { label: 'En Preparación', class: 'bg-amber-500/10 text-amber-600 border-amber-500/20' };
+            case 'preparado':
+                return { label: 'Preparado', class: 'bg-blue-500/10 text-blue-600 border-blue-500/20' };
+            case 'en_camino':
+                return { label: 'En Camino', class: 'bg-purple-500/10 text-purple-600 border-purple-500/20' };
+            case 'entregado':
+                return { label: 'Entregado', class: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' };
+            case 'cancelado':
+                return { label: 'Cancelado', class: 'bg-destructive/10 text-destructive border-destructive/20' };
+            default:
+                return { label: status, class: 'bg-muted text-muted-foreground border-border' };
+        }
+    }
+
     const sortOptions = [
         { value: 'latest', label: 'Más recientes primero' },
         { value: 'oldest', label: 'Más antiguos primero' },
@@ -164,15 +189,33 @@
     <!-- Bento Card: Buscador y Filtros -->
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
         <div class="flex flex-col md:flex-row items-center justify-between gap-3">
-            <div class="relative w-full md:w-80">
-                <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                <input
-                    type="text"
+            <div class="w-full md:w-80">
+                <SearchCombobox
                     bind:value={searchTerm}
-                    onkeydown={(e) => e.key === 'Enter' && applyFilters()}
+                    items={orders}
                     placeholder="Buscar por #pedido, cliente o teléfono..."
-                    class="h-10 w-full rounded-lg border border-input bg-muted/20 pl-9 pr-4 text-sm placeholder:text-muted-foreground focus:bg-background focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-                />
+                    onsearch={applyFilters}
+                    onselect={openOrderDetail}
+                >
+                    {#snippet item(ord)}
+                        {@const badge = getStatusBadge(ord.status)}
+                        <div class="flex items-center justify-between gap-3 w-full min-w-0">
+                            <div class="flex flex-col min-w-0">
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                    <span class="font-bold text-foreground tabular-nums">#{ord.order_number}</span>
+                                    <span class="truncate text-muted-foreground">· {ord.customer_name}</span>
+                                </div>
+                                <span class="text-[10px] text-muted-foreground/80">{ord.created_at}</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="rounded-full px-2 py-0.5 text-[10px] font-semibold border {badge.class}">
+                                    {badge.label}
+                                </span>
+                                <span class="tabular-nums font-semibold text-foreground text-xs">{formatPrice(ord.total_amount)}</span>
+                            </div>
+                        </div>
+                    {/snippet}
+                </SearchCombobox>
             </div>
 
             <div class="flex items-center gap-2.5 w-full md:w-auto flex-wrap">

@@ -430,10 +430,11 @@ class TestSeeder extends Seeder
 
                 $product = Product::firstOrCreate([
                     'tenant_id' => $tenant->id,
-                    'sku' => $pData['sku'].'-T'.$tenant->id,
-                ], [
-                    'category_id' => $category->id,
                     'name' => $pData['name'],
+                    'sale_type' => 'unit',
+                ], [
+                    'sku' => $pData['sku'].'-T'.$tenant->id,
+                    'category_id' => $category->id,
                     'price' => $pData['price'],
                     'cost_price' => $pData['cost_price'],
                     'stock' => $pData['stock'],
@@ -441,6 +442,7 @@ class TestSeeder extends Seeder
                     'units_per_package' => $pData['units_per_package'],
                     'is_active' => true,
                 ]);
+
 
                 $createdProducts[] = $product;
             }
@@ -653,5 +655,8 @@ class TestSeeder extends Seeder
                 }
             }
         }
+
+        // 7. Generar movimientos de cuenta corriente para los 4 perfiles de clientes
+        $this->call(CustomerMovementSeeder::class);
     }
 }

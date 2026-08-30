@@ -66,7 +66,7 @@ class CustomerAccountController extends Controller
                 ->first();
         }
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
                 'customers' => $customers,
                 'selectedCustomer' => $selectedCustomer,
@@ -115,7 +115,7 @@ class CustomerAccountController extends Controller
                 ->firstOrFail();
 
             $currentBalance = (float) $lockedCustomer->current_balance;
-            $newBalance = max(0, round($currentBalance - $amount, 2));
+            $newBalance = round($currentBalance - $amount, 2);
 
             CustomerAccountMovement::create([
                 'tenant_id' => $tenantId,
@@ -137,7 +137,7 @@ class CustomerAccountController extends Controller
             ]);
         });
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json(['message' => 'Cobro registrado exitosamente.']);
         }
 
@@ -166,7 +166,7 @@ class CustomerAccountController extends Controller
             $currentBalance = (float) $lockedCustomer->current_balance;
             $newBalance = $type === 'debit'
                 ? round($currentBalance + $amount, 2)
-                : max(0, round($currentBalance - $amount, 2));
+                : round($currentBalance - $amount, 2);
 
             CustomerAccountMovement::create([
                 'tenant_id' => $tenantId,
@@ -188,7 +188,7 @@ class CustomerAccountController extends Controller
             ]);
         });
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json(['message' => 'Ajuste de saldo registrado correctamente.']);
         }
 
@@ -202,7 +202,7 @@ class CustomerAccountController extends Controller
 
         $customer->update($request->validated());
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json(['message' => 'Límites y condiciones de crédito actualizados.']);
         }
 

@@ -5,10 +5,9 @@
     import KardexListDesktop from '@/pages/tenant/stock/kardex/desktop/KardexListDesktop.svelte';
     import KardexListMobile from '@/pages/tenant/stock/kardex/mobile/KardexListMobile.svelte';
     import StockNavigationTabs from '@/pages/tenant/stock/StockNavigationTabs.svelte';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import { router } from '@inertiajs/svelte';
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
-    import Search from 'lucide-svelte/icons/search';
-    import X from 'lucide-svelte/icons/x';
 
     interface StockMovementItem {
         id: number;
@@ -65,8 +64,6 @@
         typeFilter = filters.type ?? '';
     });
 
-    let debounceTimer: ReturnType<typeof setTimeout> | undefined;
-
     function applyFilters() {
         router.get(
             '/tenant/stock/kardex',
@@ -82,23 +79,9 @@
         );
     }
 
-    function handleSearchInput(e: Event) {
-        const target = e.target as HTMLInputElement;
-        searchInput = target.value;
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            applyFilters();
-        }, 300);
-    }
-
     function handleTypeChange(e: Event) {
         const target = e.target as HTMLSelectElement;
         typeFilter = target.value;
-        applyFilters();
-    }
-
-    function clearSearch() {
-        searchInput = '';
         applyFilters();
     }
 
@@ -142,25 +125,27 @@
             </div>
 
             <!-- Buscador por Producto / SKU -->
-            <div class="relative flex-1 min-w-[240px]">
-                <Search class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                <input
-                    type="text"
-                    value={searchInput}
-                    oninput={handleSearchInput}
+            <div class="flex-1 min-w-[240px]">
+                <SearchCombobox
+                    bind:value={searchInput}
+                    items={products}
+                    debounceMs={300}
                     placeholder="Buscar por producto, SKU o código de barras..."
-                    class="w-full rounded-lg border border-border bg-background pl-9 pr-8 py-2 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
-                />
-                {#if searchInput}
-                    <button
-                        type="button"
-                        onclick={clearSearch}
-                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        aria-label="Limpiar búsqueda"
-                    >
-                        <X class="size-3.5" />
-                    </button>
-                {/if}
+                    onsearch={applyFilters}
+                    onselect={(prod) => {
+                        searchInput = prod.name;
+                        applyFilters();
+                    }}
+                >
+                    {#snippet item(prod)}
+                        <div class="flex items-center justify-between gap-3 w-full min-w-0">
+                            <span class="truncate font-medium text-foreground">{prod.name}</span>
+                            {#if prod.sku}
+                                <span class="text-[11px] text-muted-foreground tabular-nums shrink-0">SKU: {prod.sku}</span>
+                            {/if}
+                        </div>
+                    {/snippet}
+                </SearchCombobox>
             </div>
         </div>
 

@@ -9,9 +9,10 @@
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
-    import X from 'lucide-svelte/icons/x';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import BulkDiscountConfigModal from './BulkDiscountConfigModal.svelte';
+    import ProductModal from './ProductModal.svelte';
     import CategorySidebarDesktop from './desktop/CategorySidebarDesktop.svelte';
     import ProductListDesktop from './desktop/ProductListDesktop.svelte';
     import ProductListMobile from './mobile/ProductListMobile.svelte';
@@ -84,6 +85,21 @@
     let sortBy = $state(filters.sort_by ?? 'latest');
     let isBulkDiscountModalOpen = $state(false);
     let isFilterModalOpen = $state(false);
+    let isProductModalOpen = $state(false);
+    let selectedProductForModal = $state<any>(null);
+
+    function formatPrice(amount: string | number) {
+        return new Intl.NumberFormat('es-AR', {
+            style: 'currency',
+            currency: 'ARS',
+            minimumFractionDigits: 2,
+        }).format(Number(amount));
+    }
+
+    function handleSelectProductSuggestion(product: ProductItem) {
+        selectedProductForModal = product;
+        isProductModalOpen = true;
+    }
 
     const sortOptions = [
         { value: 'latest', label: 'Más recientes primero' },
@@ -223,15 +239,26 @@
         <!-- Vista Desktop (>= 768px): Buscador + Selects Directos -->
         <div class="hidden md:flex items-center justify-between gap-3">
             <!-- Buscador por Nombre, SKU o Código de Barras -->
-            <div class="relative w-80">
-                <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                <input
-                    type="text"
+            <div class="w-80">
+                <SearchCombobox
                     bind:value={searchTerm}
-                    onkeydown={(e) => e.key === 'Enter' && applyFilters()}
+                    items={products}
                     placeholder="Buscar por nombre, SKU o barra..."
-                    class="h-10 w-full rounded-lg border border-input bg-muted/20 pl-9 pr-4 text-sm placeholder:text-muted-foreground focus:bg-background focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-                />
+                    onsearch={applyFilters}
+                    onselect={handleSelectProductSuggestion}
+                >
+                    {#snippet item(prod)}
+                        <div class="flex items-center justify-between gap-3 w-full min-w-0">
+                            <div class="flex flex-col min-w-0">
+                                <span class="truncate font-medium text-foreground">{prod.name}</span>
+                                {#if prod.sku}
+                                    <span class="text-[11px] text-muted-foreground tabular-nums">SKU: {prod.sku}</span>
+                                {/if}
+                            </div>
+                            <span class="tabular-nums font-semibold text-primary text-xs shrink-0">{formatPrice(prod.price)}</span>
+                        </div>
+                    {/snippet}
+                </SearchCombobox>
             </div>
 
             <!-- Selectores de Filtro en Desktop -->
@@ -292,15 +319,26 @@
 
         <!-- Vista Mobile (< 768px): Searchbar Expandido + Botón de Filtros con Badge -->
         <div class="flex md:hidden items-center gap-2">
-            <div class="relative flex-1">
-                <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                <input
-                    type="text"
+            <div class="flex-1">
+                <SearchCombobox
                     bind:value={searchTerm}
-                    onkeydown={(e) => e.key === 'Enter' && applyFilters()}
+                    items={products}
                     placeholder="Buscar producto, SKU o código..."
-                    class="h-11 w-full rounded-xl border border-input bg-muted/20 pl-9 pr-4 text-xs placeholder:text-muted-foreground focus:bg-background focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-                />
+                    onsearch={applyFilters}
+                    onselect={handleSelectProductSuggestion}
+                >
+                    {#snippet item(prod)}
+                        <div class="flex items-center justify-between gap-3 w-full min-w-0">
+                            <div class="flex flex-col min-w-0">
+                                <span class="truncate font-medium text-foreground">{prod.name}</span>
+                                {#if prod.sku}
+                                    <span class="text-[11px] text-muted-foreground tabular-nums">SKU: {prod.sku}</span>
+                                {/if}
+                            </div>
+                            <span class="tabular-nums font-semibold text-primary text-xs shrink-0">{formatPrice(prod.price)}</span>
+                        </div>
+                    {/snippet}
+                </SearchCombobox>
             </div>
 
             <!-- Botón Disparador de Modal de Filtros Mobile -->
@@ -362,4 +400,13 @@
         onapply={handleApplyMobileFilters}
         onreset={resetFilters}
     />
+
+    <!-- Modal de Edición/Detalle de Producto al Seleccionar Sugerencia -->
+    <ProductModal
+        bind:open={isProductModalOpen}
+        mode="edit"
+        product={selectedProductForModal}
+        {categories}
+    />
+
 </div>
