@@ -21,8 +21,9 @@ test.describe.serial('Pedidos y Flujos de Stock UI', () => {
         await expect(page.locator('text=Pedidos de Clientes').first()).toBeVisible();
 
         // Abrir modal de nuevo pedido
+        await page.waitForTimeout(300);
         await page.click('button:has-text("Nuevo Pedido")');
-        await expect(page.locator('text=Nuevo Pedido').first()).toBeVisible();
+        await expect(page.locator('h2:has-text("Nuevo Pedido")').first()).toBeVisible();
         await expect(page.locator('text=Datos del Cliente').first()).toBeVisible();
         await expect(page.locator('text=Productos del Pedido').first()).toBeVisible();
 

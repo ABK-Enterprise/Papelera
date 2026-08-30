@@ -166,9 +166,6 @@
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
                 Catálogo de Productos
             </h1>
-            <p class="text-sm text-muted-foreground mt-0.5 max-w-prose">
-                Gestiona y organiza el catálogo de tu comercio y parámetros de empaque.
-            </p>
         </div>
 
         <div class="flex items-center gap-2.5 flex-wrap">

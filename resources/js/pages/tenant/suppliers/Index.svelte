@@ -93,9 +93,6 @@
                 <Truck class="size-7 text-primary" />
                 Gestión de Proveedores
             </h1>
-            <p class="text-sm text-muted-foreground mt-0.5">
-                Administra tu red de proveedores, contactos comerciales y compras integrales.
-            </p>
         </div>
 
         <div class="flex items-center gap-2.5">

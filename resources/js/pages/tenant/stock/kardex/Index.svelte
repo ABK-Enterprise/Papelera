@@ -118,9 +118,6 @@
     <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">Kardex e Historial</h1>
-            <p class="mt-1 text-sm text-muted-foreground max-w-prose">
-                Auditoría cronológica y trazabilidad de todos los movimientos de inventario de tu comercio.
-            </p>
         </div>
     </div>
 

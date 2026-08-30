@@ -47,7 +47,7 @@ test('2. Filtrado y Busqueda Reactiva en Modulos', async ({ page }) => {
     await searchInput.fill('arca');
 
     await expect(page.locator('h3:has-text("Facturación ARCA")').first()).toBeVisible();
-    await expect(page.locator('h3:has-text("Productos")')).not.toBeVisible();
+    await expect(page.locator('h3:has-text("Productos")').first()).not.toBeVisible();
 
     // Limpiar buscador
     await searchInput.fill('');

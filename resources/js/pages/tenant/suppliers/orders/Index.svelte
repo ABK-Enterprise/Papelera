@@ -154,9 +154,6 @@
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
                 Órdenes de Compra a Proveedores
             </h1>
-            <p class="text-sm text-muted-foreground mt-0.5">
-                Genera pedidos de reaprovisionamiento y recibe mercadería automáticamente en Kardex.
-            </p>
         </div>
 
         <div class="flex items-center gap-2.5">

@@ -148,7 +148,7 @@
 
             <!-- Monto Total y Botón con Touch Target >= 40px -->
             <div class="flex items-center gap-4 shrink-0">
-                <div class="text-right min-w-[110px]">
+                <div class="text-right min-w-[125px] shrink-0">
                     <span class="text-xs text-muted-foreground block">Total:</span>
                     <span class="font-bold text-base text-foreground tabular-nums">
                         {formatPrice(order.total_amount)}

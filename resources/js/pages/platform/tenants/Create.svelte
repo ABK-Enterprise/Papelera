@@ -52,9 +52,6 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">Alta de Nuevo Comercio (Tenant)</h1>
-                <p class="text-sm text-muted-foreground">
-                    Crea una nueva empresa en el sistema, su cuenta de administrador inicial y asígnale los módulos contratados.
-                </p>
             </div>
             <Link href="/platform/tenants">
                 <Button variant="outline">Volver</Button>
@@ -66,7 +63,6 @@
             <Card>
                 <CardHeader>
                     <CardTitle class="text-lg">1. Datos del Comercio / Empresa</CardTitle>
-                    <CardDescription>Información fiscal y comercial de la entidad.</CardDescription>
                 </CardHeader>
                 <CardContent class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div class="space-y-2">

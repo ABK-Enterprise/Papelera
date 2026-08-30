@@ -37,9 +37,6 @@
     <div class="flex items-center justify-between">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Añadir empleado</h1>
-            <p class="text-sm text-muted-foreground mt-0.5">
-                Crea una cuenta de acceso para un miembro del equipo en tu comercio.
-            </p>
         </div>
         <Link
             href="/tenant/users"
@@ -54,9 +51,6 @@
         <Card class="rounded-2xl border-border/70 bg-card shadow-xs">
             <CardHeader class="pb-4">
                 <CardTitle class="text-base font-semibold text-foreground">Información del Empleado</CardTitle>
-                <CardDescription class="text-xs text-muted-foreground">
-                    Completa los datos de acceso e identidad del usuario.
-                </CardDescription>
             </CardHeader>
             <CardContent class="space-y-4 pt-0">
                 <div class="space-y-2">

@@ -212,9 +212,6 @@
                             <History class="size-4 text-primary" />
                             Libro Mayor de Movimientos
                         </h2>
-                        <p class="text-xs text-muted-foreground mt-0.5">
-                            Trazabilidad cronológica de cargos a crédito, cobros y notas de ajuste.
-                        </p>
                     </div>
                     <span class="text-xs font-semibold tabular-nums text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
                         {selectedCustomer.movements?.length || 0} movimientos

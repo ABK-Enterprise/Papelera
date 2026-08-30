@@ -71,7 +71,7 @@ class CustomerOrderController extends Controller
             ->orderBy('name')
             ->get();
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
                 'orders' => $orders,
                 'stats' => $stats,
@@ -264,7 +264,7 @@ class CustomerOrderController extends Controller
             return $order;
         });
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($order->load('items.product'), 201);
         }
 
@@ -366,7 +366,7 @@ class CustomerOrderController extends Controller
             return $lockedOrder;
         });
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($order->refresh());
         }
 
@@ -453,7 +453,7 @@ class CustomerOrderController extends Controller
             $lockedOrder->delete();
         });
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json(['message' => 'Pedido eliminado exitosamente.']);
         }
 

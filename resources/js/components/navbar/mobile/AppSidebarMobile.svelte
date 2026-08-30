@@ -254,7 +254,7 @@
             <button
                 type="button"
                 onclick={onClose}
-                class="flex size-9 min-h-[36px] items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                class="flex size-10 min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                 aria-label="Cerrar menú"
             >
                 <X class="h-5 w-5" />
@@ -278,7 +278,7 @@
                         <button
                             type="button"
                             onclick={() => toggleModule(item.title)}
-                            class="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition-all {item.active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'}"
+                            class="flex w-full min-h-[44px] items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition-all {item.active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'}"
                         >
                             <div class="flex items-center gap-3">
                                 <item.icon class="size-4.5 shrink-0" />
@@ -298,7 +298,7 @@
                                     <Link
                                         href={sub.href}
                                         onclick={onClose}
-                                        class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors {sub.active ? 'bg-primary/15 text-primary font-semibold' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}"
+                                        class="flex min-h-[40px] items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors {sub.active ? 'bg-primary/15 text-primary font-semibold' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}"
                                     >
                                         <SubIcon class="size-3.5 shrink-0" />
                                         <span class="truncate">{sub.title}</span>

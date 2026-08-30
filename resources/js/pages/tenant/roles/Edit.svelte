@@ -1,27 +1,25 @@
 <script lang="ts">
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
-    import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+    import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import { Badge } from '@/components/ui/badge';
-    import { Link, useForm } from '@inertiajs/svelte';
-    import Check from 'lucide-svelte/icons/check';
+    import { useForm, Link } from '@inertiajs/svelte';
     import Shield from 'lucide-svelte/icons/shield';
     import ArrowLeft from 'lucide-svelte/icons/arrow-left';
-    import { Spinner } from '@/components/ui/spinner';
+    import Check from 'lucide-svelte/icons/check';
 
     interface PermissionItem {
         id: number;
         name: string;
-        module_id: number | null;
+        module_id: number;
     }
 
     interface ModuleItem {
         id: number;
         name: string;
         code: string;
-        description: string | null;
         permissions: PermissionItem[];
     }
 
@@ -35,7 +33,7 @@
 
     const form = useForm({
         name: role.name,
-        permissions: role.permissions ? role.permissions.map((p) => p.name) : ([] as string[]),
+        permissions: role.permissions.map((p) => p.name),
     });
 
     function togglePermission(name: string) {
@@ -46,9 +44,9 @@
         }
     }
 
-    function toggleAllModulePermissions(mod: ModuleItem, selectAll: boolean) {
+    function toggleAllModulePermissions(mod: ModuleItem, select: boolean) {
         const modPermNames = mod.permissions.map((p) => p.name);
-        if (selectAll) {
+        if (select) {
             const newPerms = new Set([...form.permissions, ...modPermNames]);
             form.permissions = Array.from(newPerms);
         } else {
@@ -118,13 +116,14 @@
             <CardContent class="space-y-6 pt-0">
                 {#each modules as mod (mod.id)}
                     {@const modPermNames = mod.permissions.map((p) => p.name)}
-                    {@const allSelected = mod.permissions.length > 0 && mod.permissions.every((p) => form.permissions.includes(p.name))}
-                    <div class="rounded-2xl border border-border/60 p-4 space-y-3.5 bg-card shadow-2xs">
-                        <div class="flex items-center justify-between border-b border-border/40 pb-3">
-                            <div class="flex items-center gap-2">
-                                <h4 class="font-semibold text-sm text-foreground">{mod.name}</h4>
-                                <Badge variant="outline" class=" text-xs bg-muted/40 px-2">{mod.code}</Badge>
-                            </div>
+                    {@const selectedCountInMod = mod.permissions.filter((p) => form.permissions.includes(p.name)).length}
+                    {@const allSelected = mod.permissions.length > 0 && selectedCountInMod === mod.permissions.length}
+                    <div class="space-y-2">
+                        <!-- Header externo a la caja del módulo con control de alternancia individual -->
+                        <div class="flex items-center justify-between px-1">
+                            <span class="text-xs font-medium text-muted-foreground tabular-nums">
+                                {selectedCountInMod} de {mod.permissions.length} seleccionados
+                            </span>
                             {#if mod.permissions.length > 0}
                                 <Button
                                     type="button"
@@ -142,29 +141,39 @@
                             {/if}
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-1">
-                            {#each mod.permissions as perm (perm.id)}
-                                {@const isChecked = form.permissions.includes(perm.name)}
-                                <button
-                                    type="button"
-                                    onclick={() => togglePermission(perm.name)}
-                                    class="flex min-h-[44px] items-center gap-3 rounded-xl border p-2.5 text-left text-xs cursor-pointer select-none transition-all {isChecked
-                                        ? 'border-primary bg-primary/5 text-foreground shadow-2xs font-semibold'
-                                       : 'border-border/60 bg-muted/10 hover:bg-muted/30 text-muted-foreground'}"
-                                >
-                                    <div class="size-4.5 rounded-md border flex items-center justify-center transition-colors shrink-0 {isChecked ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-background'}">
-                                        {#if isChecked}
-                                            <Check class="size-3 stroke-[3]" />
-                                        {/if}
-                                    </div>
-                                    <span class=" text-xs truncate flex-1">{perm.name}</span>
-                                </button>
-                            {/each}
-                            {#if mod.permissions.length === 0}
-                                <p class="text-xs italic text-muted-foreground col-span-full">
-                                    Este módulo no define permisos granulares.
-                                </p>
-                            {/if}
+                        <!-- Caja / Contenedor del módulo con Pill descriptivo anclado arriba a la derecha -->
+                        <div class="rounded-2xl border border-border/60 p-4 space-y-3.5 bg-card shadow-2xs">
+                            <div class="flex items-center justify-between gap-3 border-b border-border/40 pb-3">
+                                <h4 class="font-semibold text-sm text-foreground truncate flex-1">{mod.name}</h4>
+                                <Badge variant="outline" class="text-xs bg-muted/40 font-sans tracking-wide px-2.5 py-0.5 shrink-0">
+                                    {mod.code}
+                                </Badge>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-1">
+                                {#each mod.permissions as perm (perm.id)}
+                                    {@const isChecked = form.permissions.includes(perm.name)}
+                                    <button
+                                        type="button"
+                                        onclick={() => togglePermission(perm.name)}
+                                        class="flex min-h-[44px] items-center gap-3 rounded-xl border p-2.5 text-left text-xs cursor-pointer select-none transition-all {isChecked
+                                            ? 'border-primary bg-primary/5 text-foreground shadow-2xs font-semibold'
+                                            : 'border-border/60 bg-muted/10 hover:bg-muted/30 text-muted-foreground'}"
+                                    >
+                                        <div class="size-4.5 rounded-md border flex items-center justify-center transition-colors shrink-0 {isChecked ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-background'}">
+                                            {#if isChecked}
+                                                <Check class="size-3 stroke-[3]" />
+                                            {/if}
+                                        </div>
+                                        <span class="text-xs truncate flex-1">{perm.name}</span>
+                                    </button>
+                                {/each}
+                                {#if mod.permissions.length === 0}
+                                    <p class="text-xs italic text-muted-foreground col-span-full">
+                                        Este módulo no define permisos granulares.
+                                    </p>
+                                {/if}
+                            </div>
                         </div>
                     </div>
                 {/each}
@@ -184,22 +193,16 @@
         <div class="flex items-center justify-end gap-3">
             <Link
                 href="/tenant/roles"
-                class="inline-flex items-center justify-center min-h-[44px] px-5 rounded-xl font-medium border border-border/70 text-xs hover:bg-muted/60 transition-colors"
+                class="inline-flex items-center justify-center min-h-[40px] px-4 rounded-xl border border-border/70 text-xs font-medium hover:bg-muted/60 transition-colors"
             >
                 Cancelar
             </Link>
             <Button
                 type="submit"
                 disabled={form.processing}
-                class="min-h-[44px] min-w-36 gap-2 rounded-xl font-medium text-xs shadow-sm"
+                class="min-h-[40px] px-6 rounded-xl text-xs font-semibold shadow-sm"
             >
-                {#if form.processing}
-                    <Spinner class="mr-2" />
-                    <span>Guardando cambios...</span>
-                {:else}
-                    <Check class="h-4 w-4" />
-                    <span>Guardar cambios</span>
-                {/if}
+                {form.processing ? 'Guardando...' : 'Guardar cambios'}
             </Button>
         </div>
     </form>

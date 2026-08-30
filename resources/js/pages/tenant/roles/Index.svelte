@@ -53,9 +53,6 @@
                     {roles.length} {roles.length === 1 ? 'perfil' : 'perfiles'}
                 </span>
             </div>
-            <p class="mt-1 text-sm text-muted-foreground">
-                Define perfiles de acceso para los empleados basados en los módulos contratados.
-            </p>
         </div>
         <div class="flex flex-wrap items-center gap-2.5">
             <Link href="/tenant/users">

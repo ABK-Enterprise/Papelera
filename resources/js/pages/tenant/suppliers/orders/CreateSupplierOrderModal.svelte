@@ -280,9 +280,6 @@
                         <h2 id="supplier-order-modal-title" class="text-base font-bold text-foreground">
                             Nueva Orden de Compra a Proveedor
                         </h2>
-                        <p class="text-xs text-muted-foreground">
-                            Registra el pedido de reposición de mercadería para actualizar costos e inventario al recibirlo.
-                        </p>
                     </div>
                 </div>
 

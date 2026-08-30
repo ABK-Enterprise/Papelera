@@ -79,7 +79,7 @@ class ProductController extends Controller
 
         $tenantDefaultBulkDiscount = (float) ($request->user()->tenant?->default_bulk_discount_percentage ?? 0.00);
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
                 'products' => $products,
                 'categories' => $categories,
@@ -120,7 +120,7 @@ class ProductController extends Controller
             'default_bulk_discount_percentage' => $validated['default_bulk_discount_percentage'],
         ]);
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
                 'message' => 'Descuento global por bulto actualizado exitosamente.',
                 'default_bulk_discount_percentage' => (float) $tenant->default_bulk_discount_percentage,
@@ -170,7 +170,7 @@ class ProductController extends Controller
             'is_active' => $request->boolean('is_active', true),
         ]);
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($product, 201);
         }
 
@@ -225,7 +225,7 @@ class ProductController extends Controller
             'is_active' => $request->boolean('is_active', true),
         ]);
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($product);
         }
 
@@ -241,7 +241,7 @@ class ProductController extends Controller
 
         $product->delete();
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json(['message' => 'Producto eliminado.']);
         }
 

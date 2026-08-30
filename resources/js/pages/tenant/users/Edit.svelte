@@ -44,9 +44,6 @@
     <div class="flex items-center justify-between">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Editar empleado</h1>
-            <p class="text-sm text-muted-foreground mt-0.5">
-                Modifica los datos de acceso o rol asignado a {user.name}.
-            </p>
         </div>
         <Link
             href="/tenant/users"
@@ -61,9 +58,6 @@
         <Card class="rounded-2xl border-border/70 bg-card shadow-xs">
             <CardHeader class="pb-4">
                 <CardTitle class="text-base font-semibold text-foreground">Información del Empleado</CardTitle>
-                <CardDescription class="text-xs text-muted-foreground">
-                    Actualiza la identidad y el perfil de permisos del colaborador.
-                </CardDescription>
             </CardHeader>
             <CardContent class="space-y-4 pt-0">
                 <div class="space-y-2">

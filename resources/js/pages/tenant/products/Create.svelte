@@ -85,9 +85,6 @@
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
                 Alta de Producto
             </h1>
-            <p class="text-sm text-muted-foreground mt-0.5 max-w-prose">
-                Ingresa los datos generales, modalidad de venta, precios e inventario.
-            </p>
         </div>
         <Link href="/tenant/products">
             <Button variant="outline" size="sm" class="gap-1.5 text-xs rounded-full font-medium">
@@ -106,9 +103,6 @@
                     <Package class="size-5 text-primary" />
                     Imagen y empaque
                 </h2>
-                <p class="text-xs text-muted-foreground mt-0.5">
-                    Previsualización visual y cálculo del precio por bulto cerrado.
-                </p>
             </div>
 
             <!-- Preview Card -->

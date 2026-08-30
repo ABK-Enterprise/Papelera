@@ -40,8 +40,9 @@ test.describe('E2E: Refactors de Arquitectura, UX, Wide Cards y Limite Estricto 
         await expect(page.locator('h1:has-text("Pedidos de Clientes")')).toBeVisible();
 
         // 3. Abrir modal de nuevo pedido
+        await page.waitForTimeout(300);
         await page.click('button:has-text("Nuevo Pedido")');
-        await expect(page.locator('h2:has-text("Nuevo Pedido")')).toBeVisible();
+        await expect(page.locator('h2:has-text("Nuevo Pedido")').first()).toBeVisible();
 
         // 4. Autocomplete de cliente
         const custSearch = page.locator('#cust-search');

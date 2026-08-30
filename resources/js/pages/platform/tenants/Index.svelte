@@ -1,103 +1,69 @@
 <script lang="ts">
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
-    import CreateTenantDialog from '@/pages/platform/tenants/CreateTenantDialog.svelte';
     import TenantListDesktop from './desktop/TenantListDesktop.svelte';
     import TenantListMobile from './mobile/TenantListMobile.svelte';
-    import { router } from '@inertiajs/svelte';
-    import ChevronDown from 'lucide-svelte/icons/chevron-down';
+    import CreateTenantDialog from './CreateTenantDialog.svelte';
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import Store from 'lucide-svelte/icons/store';
+    import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import X from 'lucide-svelte/icons/x';
+    import { router } from '@inertiajs/svelte';
 
-    interface ModuleSummary {
+    interface ModuleItem {
         id: number;
         name: string;
         code: string;
-        description?: string | null;
+        is_active?: boolean;
     }
 
     interface TenantItem {
         id: number;
         name: string;
-        cuit_tax_id: string | null;
+        cuit_tax_id: string;
         is_active: boolean;
-        users_count?: number;
-        modules: ModuleSummary[];
         created_at: string;
-    }
-
-    interface AvailableModule {
-        id: number;
-        name: string;
-        code: string;
-        description: string | null;
-    }
-
-    interface Filters {
-        search: string;
-        status: string;
-        sort: string;
+        users_count?: number;
+        active_modules_count?: number;
+        modules?: ModuleItem[];
     }
 
     let {
         tenants = [],
+        filters = {},
         availableModules = [],
-        filters = { search: '', status: 'all', sort: 'latest' },
     }: {
         tenants: TenantItem[];
-        availableModules?: AvailableModule[];
-        filters?: Filters;
+        filters?: { status?: string; search?: string; sort?: string };
+        availableModules?: ModuleItem[];
     } = $props();
 
     let isCreateModalOpen = $state(false);
-    let searchInput = $state(filters.search ?? '');
-    let statusFilter = $state(filters.status ?? 'all');
-    let sortFilter = $state(filters.sort ?? 'latest');
 
-    $effect(() => {
-        searchInput = filters.search ?? '';
-        statusFilter = filters.status ?? 'all';
-        sortFilter = filters.sort ?? 'latest';
-    });
+    let searchInput = $state(filters?.search ?? '');
+    let statusFilter = $state(filters?.status ?? 'all');
+    let sortFilter = $state(filters?.sort ?? 'latest');
 
-    let debounceTimer: ReturnType<typeof setTimeout> | undefined;
-
-    function applyFilters() {
-        router.get(
-            '/platform/tenants',
-            {
-                search: searchInput || undefined,
-                status: statusFilter !== 'all' ? statusFilter : undefined,
-                sort: sortFilter !== 'latest' ? sortFilter : undefined,
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                replace: true,
-            },
-        );
-    }
+    let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
     function handleSearchInput(e: Event) {
-        const target = e.target as HTMLInputElement;
-        searchInput = target.value;
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
+        const value = (e.target as HTMLInputElement).value;
+        searchInput = value;
+
+        if (searchTimeout) clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
             applyFilters();
         }, 300);
     }
 
     function handleStatusChange(e: Event) {
-        const target = e.target as HTMLSelectElement;
-        statusFilter = target.value;
+        statusFilter = (e.target as HTMLSelectElement).value;
         applyFilters();
     }
 
     function handleSortChange(e: Event) {
-        const target = e.target as HTMLSelectElement;
-        sortFilter = target.value;
+        sortFilter = (e.target as HTMLSelectElement).value;
         applyFilters();
     }
 
@@ -110,7 +76,29 @@
         searchInput = '';
         statusFilter = 'all';
         sortFilter = 'latest';
-        router.get('/platform/tenants', {}, { preserveState: true, replace: true });
+        applyFilters();
+    }
+
+    function applyFilters() {
+        const query: Record<string, string> = {};
+
+        if (searchInput.trim()) {
+            query.search = searchInput.trim();
+        }
+
+        if (statusFilter !== 'all') {
+            query.status = statusFilter;
+        }
+
+        if (sortFilter !== 'latest') {
+            query.sort = sortFilter;
+        }
+
+        router.get('/platform/tenants', query, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
     }
 </script>
 
@@ -133,7 +121,7 @@
         </div>
     </div>
 
-    <!-- Toolbar de B�squeda y Filtros -->
+    <!-- Toolbar de Búsqueda y Filtros -->
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 bg-card p-3.5 rounded-2xl border border-border/70 shadow-xs">
         <div class="flex flex-wrap items-center gap-3 flex-1">
             <!-- Selector de Estado -->
@@ -157,14 +145,14 @@
                     onchange={handleSortChange}
                     class="w-full appearance-none rounded-xl border border-border bg-background px-3.5 py-2 pr-9 text-xs sm:text-sm font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
                 >
-                    <option value="latest">M�s recientes</option>
-                    <option value="oldest">M�s antiguos</option>
+                    <option value="latest">Más recientes</option>
+                    <option value="oldest">Más antiguos</option>
                     <option value="name_asc">Nombre (A-Z)</option>
                 </select>
                 <ChevronDown class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
             </div>
 
-            <!-- Input de B�squeda -->
+            <!-- Input de Búsqueda -->
             <div class="relative flex-1 min-w-[240px]">
                 <Search class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                 <input
@@ -179,7 +167,7 @@
                         type="button"
                         onclick={clearSearch}
                         class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        aria-label="Limpiar b�squeda"
+                        aria-label="Limpiar búsqueda"
                     >
                         <X class="size-3.5" />
                     </button>
@@ -207,12 +195,12 @@
                 <Store class="size-7" />
             </div>
             <h3 class="text-lg font-bold text-foreground">
-                {searchInput || statusFilter !== 'all' ? 'No se encontraron comercios' : 'No hay comercios registrados a�n'}
+                {searchInput || statusFilter !== 'all' ? 'No se encontraron comercios' : 'No hay comercios registrados aún'}
             </h3>
             <p class="mt-1.5 text-sm text-muted-foreground max-w-md">
                 {searchInput || statusFilter !== 'all'
-                    ? 'Prueba modificando los t�rminos de b�squeda o limpiando los filtros seleccionados.'
-                    : 'Crea el primer comercio para asignarle su administrador principal y m�dulos de trabajo.'}
+                    ? 'Prueba modificando los términos de búsqueda o limpiando los filtros seleccionados.'
+                    : 'Crea el primer comercio para asignarle su administrador principal y módulos de trabajo.'}
             </p>
             {#if !searchInput && statusFilter === 'all'}
                 <Button

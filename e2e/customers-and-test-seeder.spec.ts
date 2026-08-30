@@ -31,10 +31,11 @@ test.describe.serial('Directorio de Clientes y Gestión', () => {
         // Probar Filtro de búsqueda
         const searchInput = page.locator('input[placeholder*="Buscar por nombre"]');
         await searchInput.fill('Ateneo');
+        await page.waitForTimeout(200);
         await searchInput.press('Enter');
 
         await expect(page.locator('h3:has-text("Librería El Ateneo Central")').first()).toBeVisible();
-        await expect(page.locator('h3:has-text("Gráfica Central SRL")')).not.toBeVisible();
+        await expect(page.locator('h3:has-text("Gráfica Central SRL")')).toHaveCount(0);
 
         // Limpiar filtro
         await page.click('button:has-text("Limpiar")');
@@ -43,6 +44,7 @@ test.describe.serial('Directorio de Clientes y Gestión', () => {
 
     test('2. Clientes: Alta y Modificación vía Modales Minimalistas', async () => {
         await page.goto('/tenant/customers');
+        await page.waitForTimeout(300);
 
         const uniqueSuffix = Date.now().toString().slice(-6);
         const uniqueCustName = `Librería E2E ${uniqueSuffix}`;
@@ -82,10 +84,22 @@ test.describe.serial('Directorio de Clientes y Gestión', () => {
         await page.click('button[type="submit"]:has-text("Guardar cambios")');
 
         await expect(manageModal).not.toBeVisible();
+
+        // Limpiar cliente creado abriendo modal y eliminando
+        await newCustomerCard.click();
+        await expect(manageModal).toBeVisible();
+        await page.click('button[aria-label="Más opciones"]');
+        await page.click('button:has-text("Eliminar cliente")');
+        const confirmModal = page.locator('div[role="dialog"]:has-text("Eliminar Cliente")');
+        await expect(confirmModal).toBeVisible();
+        await confirmModal.locator('button:has-text("Eliminar")').click();
+        await expect(confirmModal).not.toBeVisible();
+        await expect(manageModal).not.toBeVisible();
     });
 
     test('3. Pedidos: Autocomplete flotante de Clientes y Autocompletado reactivo', async () => {
         await page.goto('/tenant/orders');
+        await page.waitForTimeout(300);
         await expect(page.locator('text=Pedidos de Clientes').first()).toBeVisible();
 
         // Abrir modal de creación de pedido

@@ -68,7 +68,7 @@ class SupplierOrderController extends Controller
             ->orderBy('name')
             ->get();
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
                 'orders' => $orders,
                 'stats' => $stats,
@@ -169,7 +169,7 @@ class SupplierOrderController extends Controller
             return $order;
         });
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($order->load(['supplier', 'items.product']), 201);
         }
 
@@ -236,7 +236,7 @@ class SupplierOrderController extends Controller
             return $lockedOrder;
         });
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($order->refresh());
         }
 
@@ -268,7 +268,7 @@ class SupplierOrderController extends Controller
             return $lockedOrder;
         });
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($order);
         }
 

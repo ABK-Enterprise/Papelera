@@ -498,9 +498,6 @@
                         <h2 id="modal-title" class="text-base font-bold text-foreground">
                             Nuevo Pedido de Cliente
                         </h2>
-                        <p class="text-xs text-muted-foreground">
-                            Selecciona cliente, añade productos por unidades, pesaje (g/Kg) o bultos y confirma el pedido.
-                        </p>
                     </div>
                 </div>
 

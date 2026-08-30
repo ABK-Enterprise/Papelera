@@ -65,9 +65,6 @@
                     {users.length} {users.length === 1 ? 'miembro' : 'miembros'}
                 </span>
             </div>
-            <p class="mt-1 text-sm text-muted-foreground">
-                Gestiona los accesos y roles del equipo de trabajo en tu comercio.
-            </p>
         </div>
         <div class="flex flex-wrap items-center gap-2.5">
             <Link href="/tenant/roles">
