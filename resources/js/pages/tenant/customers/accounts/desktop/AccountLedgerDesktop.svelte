@@ -11,6 +11,9 @@
     import DollarSign from 'lucide-svelte/icons/dollar-sign';
     import FileText from 'lucide-svelte/icons/file-text';
     import History from 'lucide-svelte/icons/history';
+    import Mail from 'lucide-svelte/icons/mail';
+    import MapPin from 'lucide-svelte/icons/map-pin';
+    import Phone from 'lucide-svelte/icons/phone';
     import Search from 'lucide-svelte/icons/search';
     import ShieldCheck from 'lucide-svelte/icons/shield-check';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
@@ -410,10 +413,19 @@
                 <!-- Datos de Contacto Directo -->
                 <div class="p-3.5 rounded-2xl bg-muted/20 border border-border/60 space-y-2 text-xs">
                     <div class="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Datos de Contacto</div>
-                    <div class="text-foreground space-y-1">
-                        <p class="truncate">📍 {selectedCustomer.address || 'Sin dirección registrada'}</p>
-                        <p class="tabular-nums">📞 {selectedCustomer.phone || 'Sin teléfono'}</p>
-                        <p class="truncate">✉️ {selectedCustomer.email || 'Sin correo electrónico'}</p>
+                    <div class="text-foreground space-y-1.5">
+                        <p class="flex items-center gap-2 truncate text-muted-foreground">
+                            <MapPin class="size-3.5 text-primary shrink-0" />
+                            <span class="truncate text-foreground">{selectedCustomer.address || 'Sin dirección registrada'}</span>
+                        </p>
+                        <p class="flex items-center gap-2 tabular-nums text-muted-foreground">
+                            <Phone class="size-3.5 text-primary shrink-0" />
+                            <span class="text-foreground">{selectedCustomer.phone || 'Sin teléfono'}</span>
+                        </p>
+                        <p class="flex items-center gap-2 truncate text-muted-foreground">
+                            <Mail class="size-3.5 text-primary shrink-0" />
+                            <span class="truncate text-foreground">{selectedCustomer.email || 'Sin correo electrónico'}</span>
+                        </p>
                     </div>
                 </div>
             </div>

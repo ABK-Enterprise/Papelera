@@ -11,6 +11,7 @@
     } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import { router } from '@inertiajs/svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Check from 'lucide-svelte/icons/check';
@@ -38,6 +39,7 @@
     let creditDueDays = $state(30);
     let isDefaulter = $state(false);
     let isSubmitting = $state(false);
+    let isConfirmModalOpen = $state(false);
     let errorMessage = $state<string | null>(null);
 
     $effect(() => {
@@ -50,12 +52,18 @@
 
     function handleClose() {
         open = false;
+        isConfirmModalOpen = false;
         errorMessage = null;
         isSubmitting = false;
     }
 
-    function handleSubmit(e: Event) {
+    function handleOpenConfirm(e: Event) {
         e.preventDefault();
+        if (!customer) return;
+        isConfirmModalOpen = true;
+    }
+
+    function executeSave() {
         if (!customer) return;
 
         isSubmitting = true;
@@ -75,6 +83,7 @@
                 },
                 onError: (errors) => {
                     isSubmitting = false;
+                    isConfirmModalOpen = false;
                     errorMessage = (Object.values(errors)[0] as string) || 'Ocurrió un error al actualizar la configuración.';
                 },
             }
@@ -116,7 +125,7 @@
                     </div>
                 {/if}
 
-                <form id="edit-credit-settings-form" onsubmit={handleSubmit} class="space-y-4">
+                <form id="edit-credit-settings-form" onsubmit={handleOpenConfirm} class="space-y-4">
                     <!-- Límite de Crédito -->
                     <div class="space-y-1.5">
                         <Label for="credit-limit-input" class="text-xs font-semibold text-foreground">
@@ -205,3 +214,15 @@
         {/if}
     </DialogContent>
 </Dialog>
+
+<!-- Confirmación antes de actualizar límites de crédito -->
+<ConfirmActionModal
+    bind:open={isConfirmModalOpen}
+    title="¿Actualizar límites y plazos de crédito?"
+    description={`¿Deseas guardar los nuevos parámetros de cuenta corriente para "${customer?.name}" (Límite: $${Number(creditLimit) || 0}, Plazo: ${creditDueDays} días)?`}
+    confirmText="Confirmar y guardar"
+    cancelText="Volver"
+    variant="warning"
+    loading={isSubmitting}
+    onconfirm={executeSave}
+/>

@@ -76,16 +76,16 @@
             <div class="flex items-center gap-2 flex-wrap">
                 {#if modules.includes('pedidos')}
                     <Link href="/tenant/orders">
-                        <Button size="sm" class="gap-1.5 text-xs font-semibold rounded-xl shadow-xs">
-                            <Plus class="size-3.5" />
+                        <Button class="min-h-[40px] px-4 gap-2 text-sm font-medium rounded-xl shadow-xs">
+                            <Plus class="size-4" />
                             <span>Nuevo Pedido</span>
                         </Button>
                     </Link>
                 {/if}
                 {#if modules.includes('stock')}
                     <Link href="/tenant/stock/ingresos">
-                        <Button variant="secondary" size="sm" class="gap-1.5 text-xs font-medium rounded-xl">
-                            <ArrowDownLeft class="size-3.5 text-emerald-600 dark:text-emerald-400" />
+                        <Button variant="secondary" class="min-h-[40px] px-4 gap-2 text-sm font-medium rounded-xl">
+                            <ArrowDownLeft class="size-4 text-emerald-600 dark:text-emerald-400" />
                             <span>Ingreso de Stock</span>
                         </Button>
                     </Link>
@@ -94,8 +94,8 @@
         {:else if user?.is_superadmin}
             <div class="flex items-center gap-2">
                 <Link href="/platform/tenants">
-                    <Button size="sm" class="gap-1.5 text-xs font-semibold rounded-xl shadow-xs">
-                        <Building2 class="size-3.5" />
+                    <Button class="min-h-[40px] px-4 gap-2 text-sm font-medium rounded-xl shadow-xs">
+                        <Building2 class="size-4" />
                         <span>Gestionar Comercios</span>
                     </Button>
                 </Link>

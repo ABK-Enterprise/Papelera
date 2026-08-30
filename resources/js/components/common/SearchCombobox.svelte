@@ -123,6 +123,8 @@
         onclear?.();
         inputElement?.focus();
     }
+
+    const listboxId = 'combobox-listbox-' + Math.random().toString(36).substring(2, 9);
 </script>
 
 <div
@@ -146,6 +148,7 @@
             {placeholder}
             role="combobox"
             aria-expanded={isOpen}
+            aria-controls={isOpen ? listboxId : undefined}
             aria-autocomplete="list"
             class="h-10 w-full rounded-xl border border-input bg-card pl-9 pr-9 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground shadow-2xs focus:ring-1 focus:ring-primary outline-none transition-all {inputClass}"
         />
@@ -166,7 +169,7 @@
 
     {#if isOpen && showDropdown && displayItems.length > 0}
         <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border shadow-xl z-50 overflow-hidden animate-in fade-in duration-150">
-            <div class="max-h-64 overflow-y-auto divide-y divide-border/40 custom-scrollbar" role="listbox">
+            <div id={listboxId} class="max-h-64 overflow-y-auto divide-y divide-border/40 custom-scrollbar" role="listbox">
                 {#each displayItems as item, i (item.id || i)}
                     <button
                         type="button"

@@ -10,6 +10,7 @@
     import Clock from 'lucide-svelte/icons/clock';
     import CreditCard from 'lucide-svelte/icons/credit-card';
     import History from 'lucide-svelte/icons/history';
+    import Loader2 from 'lucide-svelte/icons/loader-2';
     import ShieldCheck from 'lucide-svelte/icons/shield-check';
     import Sliders from 'lucide-svelte/icons/sliders';
     import User from 'lucide-svelte/icons/user';
@@ -30,10 +31,27 @@
 
     let selectedCustomerForDrawer = $state<CustomerAccountFull | null>(null);
     let isDrawerOpen = $state(false);
+    let isLoadingMovements = $state(false);
 
-    function openCustomerDrawer(cust: CustomerAccountFull) {
+    async function openCustomerDrawer(cust: CustomerAccountFull) {
         selectedCustomerForDrawer = cust;
         isDrawerOpen = true;
+        isLoadingMovements = true;
+        try {
+            const res = await fetch(`/tenant/customers/${cust.id}/account`, {
+                headers: { Accept: 'application/json' },
+            });
+            if (res.ok) {
+                const fullData = await res.json();
+                if (selectedCustomerForDrawer && selectedCustomerForDrawer.id === cust.id) {
+                    selectedCustomerForDrawer = fullData;
+                }
+            }
+        } catch (err) {
+            console.error('Error loading customer account details:', err);
+        } finally {
+            isLoadingMovements = false;
+        }
     }
 
     function formatPrice(val: number | string | null | undefined): string {
@@ -223,12 +241,22 @@
 
             <!-- Movimientos Recientes -->
             <div class="space-y-2 pt-2">
-                <h4 class="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                    <History class="size-3.5 text-primary" />
-                    Últimos Movimientos
-                </h4>
+                <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                        <History class="size-3.5 text-primary" />
+                        Últimos Movimientos
+                    </h4>
+                    {#if isLoadingMovements}
+                        <Loader2 class="size-3.5 animate-spin text-muted-foreground" />
+                    {/if}
+                </div>
 
-                {#if selectedCustomerForDrawer.movements && selectedCustomerForDrawer.movements.length > 0}
+                {#if isLoadingMovements && (!selectedCustomerForDrawer.movements || selectedCustomerForDrawer.movements.length === 0)}
+                    <div class="py-6 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
+                        <Loader2 class="size-4 animate-spin text-primary" />
+                        <span>Cargando movimientos...</span>
+                    </div>
+                {:else if selectedCustomerForDrawer.movements && selectedCustomerForDrawer.movements.length > 0}
                     <div class="space-y-2">
                         {#each selectedCustomerForDrawer.movements as mov (mov.id)}
                             {@const isPayment = mov.type === 'payment'}

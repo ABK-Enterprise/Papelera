@@ -17,6 +17,8 @@
     import User from 'lucide-svelte/icons/user';
     import UserCheck from 'lucide-svelte/icons/user-check';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
+    import Banknote from 'lucide-svelte/icons/banknote';
+    import CreditCard from 'lucide-svelte/icons/credit-card';
     import X from 'lucide-svelte/icons/x';
     import AlertCircle from 'lucide-svelte/icons/alert-circle';
 
@@ -73,6 +75,8 @@
     let customerPhone = $state('');
     let deliveryAddress = $state('');
     let notes = $state('');
+    let paymentType = $state<'cuenta_corriente' | 'contado'>('cuenta_corriente');
+    let paymentMethod = $state<'efectivo' | 'transferencia' | 'debito' | 'credito' | 'otro'>('efectivo');
     let isSubmitting = $state(false);
     let errorMessage = $state<string | null>(null);
 
@@ -365,6 +369,8 @@
         customerPhone = '';
         deliveryAddress = '';
         notes = '';
+        paymentType = 'cuenta_corriente';
+        paymentMethod = 'efectivo';
         errorMessage = null;
         searchQuery = '';
         selectedProductToAdd = null;
@@ -447,6 +453,8 @@
                 customer_phone: customerPhone,
                 delivery_address: deliveryAddress,
                 notes: notes,
+                payment_type: paymentType,
+                payment_method: paymentType === 'contado' ? paymentMethod : null,
                 items: payloadItems,
             },
             {
@@ -836,7 +844,70 @@
                     </div>
                 </div>
 
-                <!-- Bento Card 3: Notas Adicionales -->
+                <!-- Bento Card 3: Condición y Medio de Pago -->
+                <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                            <CreditCard class="size-3.5 text-primary" />
+                            Condición de Pago
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <label
+                            class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all {paymentType === 'cuenta_corriente' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground'}"
+                        >
+                            <input
+                                type="radio"
+                                name="order_payment_type"
+                                value="cuenta_corriente"
+                                bind:group={paymentType}
+                                class="size-4 text-primary focus:ring-primary"
+                            />
+                            <div class="min-w-0">
+                                <span class="text-xs font-medium block">Cuenta Corriente</span>
+                                <span class="text-[11px] text-muted-foreground block font-normal">Se suma al saldo deudor del cliente</span>
+                            </div>
+                        </label>
+
+                        <label
+                            class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all {paymentType === 'contado' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground'}"
+                        >
+                            <input
+                                type="radio"
+                                name="order_payment_type"
+                                value="contado"
+                                bind:group={paymentType}
+                                class="size-4 text-primary focus:ring-primary"
+                            />
+                            <div class="min-w-0">
+                                <span class="text-xs font-medium block">Contado / Cobro Inmediato</span>
+                                <span class="text-[11px] text-muted-foreground block font-normal">Abonado al momento, no genera deuda</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    {#if paymentType === 'contado'}
+                        <div class="pt-1.5 space-y-1.5">
+                            <Label for="order-payment-method" class="text-xs font-semibold text-foreground">
+                                Medio de Pago
+                            </Label>
+                            <select
+                                id="order-payment-method"
+                                bind:value={paymentMethod}
+                                class="h-9 w-full rounded-lg border border-input bg-background px-3 text-xs text-foreground focus:ring-1 focus:ring-primary outline-none"
+                            >
+                                <option value="efectivo">Efectivo</option>
+                                <option value="transferencia">Transferencia Bancaria</option>
+                                <option value="debito">Tarjeta de Débito</option>
+                                <option value="credito">Tarjeta de Crédito</option>
+                                <option value="otro">Otro medio de pago</option>
+                            </select>
+                        </div>
+                    {/if}
+                </div>
+
+                <!-- Bento Card 4: Notas Adicionales -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-1.5">
                     <Label for="order-notes" class="text-xs font-semibold text-foreground">Notas / Instrucciones de Entrega</Label>
                     <textarea
