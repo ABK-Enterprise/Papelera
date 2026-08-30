@@ -9,6 +9,7 @@
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
+    import X from 'lucide-svelte/icons/x';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import BulkDiscountConfigModal from './BulkDiscountConfigModal.svelte';
@@ -78,11 +79,19 @@
         filters?: FilterProps;
     } = $props();
 
-    let searchTerm = $state(filters.search ?? '');
-    let selectedCategoryId = $state<number | null>(filters.category_id ?? null);
-    let selectedStockStatus = $state(filters.stock_status ?? '');
-    let selectedInfoStatus = $state(filters.info_status ?? '');
-    let sortBy = $state(filters.sort_by ?? 'latest');
+    let searchTerm = $state('');
+    let selectedCategoryId = $state<number | null>(null);
+    let selectedStockStatus = $state('');
+    let selectedInfoStatus = $state('');
+    let sortBy = $state('latest');
+
+    $effect(() => {
+        searchTerm = filters?.search ?? '';
+        selectedCategoryId = filters?.category_id ?? null;
+        selectedStockStatus = filters?.stock_status ?? '';
+        selectedInfoStatus = filters?.info_status ?? '';
+        sortBy = filters?.sort_by ?? 'latest';
+    });
     let isBulkDiscountModalOpen = $state(false);
     let isFilterModalOpen = $state(false);
     let isProductModalOpen = $state(false);

@@ -29,12 +29,12 @@
 
     let { tenant, modules = [] }: { tenant: TenantData; modules: ModuleItem[] } = $props();
 
-    const form = useForm({
+    const form = useForm(() => ({
         name: tenant.name,
         cuit_tax_id: tenant.cuit_tax_id || '',
         is_active: Boolean(tenant.is_active),
         module_ids: tenant.modules ? tenant.modules.map((m) => m.id) : [],
-    });
+    }));
 
     let showDeactivateModal = $state(false);
     let showActivateModal = $state(false);

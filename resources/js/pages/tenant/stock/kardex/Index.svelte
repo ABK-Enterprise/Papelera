@@ -56,12 +56,12 @@
     let selectedMovement = $state<StockMovementItem | null>(null);
     let isDetailModalOpen = $state(false);
 
-    let searchInput = $state(filters.search ?? '');
-    let typeFilter = $state(filters.type ?? '');
+    let searchInput = $state('');
+    let typeFilter = $state('');
 
     $effect(() => {
-        searchInput = filters.search ?? '';
-        typeFilter = filters.type ?? '';
+        searchInput = filters?.search ?? '';
+        typeFilter = filters?.type ?? '';
     });
 
     function applyFilters() {

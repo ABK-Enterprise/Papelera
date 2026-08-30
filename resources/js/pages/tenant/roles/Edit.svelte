@@ -31,10 +31,10 @@
 
     let { role, modules = [] }: { role: RoleItem; modules: ModuleItem[] } = $props();
 
-    const form = useForm({
+    const form = useForm(() => ({
         name: role.name,
         permissions: role.permissions.map((p) => p.name),
-    });
+    }));
 
     function togglePermission(name: string) {
         if (form.permissions.includes(name)) {

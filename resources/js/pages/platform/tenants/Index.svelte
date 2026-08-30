@@ -45,9 +45,15 @@
     let selectedDetailTenant = $state<TenantItem | null>(null);
     let isDetailModalOpen = $state(false);
 
-    let searchInput = $state(filters?.search ?? '');
-    let statusFilter = $state(filters?.status ?? 'all');
-    let sortFilter = $state(filters?.sort ?? 'latest');
+    let searchInput = $state('');
+    let statusFilter = $state('all');
+    let sortFilter = $state('latest');
+
+    $effect(() => {
+        searchInput = filters?.search ?? '';
+        statusFilter = filters?.status ?? 'all';
+        sortFilter = filters?.sort ?? 'latest';
+    });
 
     let tenantSuggestions = $derived.by(() => {
         const q = searchInput.toLowerCase().trim();

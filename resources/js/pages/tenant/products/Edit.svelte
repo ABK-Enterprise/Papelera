@@ -48,10 +48,10 @@
         tenantDefaultBulkDiscount?: number;
     } = $props();
 
-    const initialSaleType = (product.sale_type ?? 'unit') as 'unit' | 'weight';
+    let initialSaleType = $derived((product.sale_type ?? 'unit') as 'unit' | 'weight');
     let isConfirmAlertOpen = $state(false);
 
-    const form = useForm({
+    const form = useForm(() => ({
         name: product.name,
         sale_type: initialSaleType,
         category_id: product.category_id ?? ('' as string | number),
@@ -69,7 +69,7 @@
         custom_bulk_discount_percentage: product.custom_bulk_discount_percentage ?? '',
         image_url: product.image_url ?? '',
         is_active: product.is_active,
-    });
+    }));
 
     function formatPrice(amount: number) {
         return new Intl.NumberFormat('es-AR', {

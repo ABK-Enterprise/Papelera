@@ -113,10 +113,11 @@
 
             <a
                 href="/auth/google/redirect"
+                aria-label="Continuar con Google"
                 class="inline-flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-input/70 bg-background/80 px-4 text-sm font-medium shadow-xs transition-all hover:bg-accent hover:text-accent-foreground hover:shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 data-test="google-login-button"
             >
-                <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24">
+                <svg class="h-4 w-4 shrink-0" aria-hidden="true" viewBox="0 0 24 24">
                     <path
                         fill="#4285F4"
                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"

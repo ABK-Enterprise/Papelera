@@ -7,6 +7,7 @@
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
+    import X from 'lucide-svelte/icons/x';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import CreateOrderModal from './CreateOrderModal.svelte';
@@ -80,9 +81,15 @@
         filters?: FilterProps;
     } = $props();
 
-    let searchTerm = $state(filters.search ?? '');
-    let selectedStatus = $state(filters.status ?? 'all');
-    let sortBy = $state(filters.sort_by ?? 'latest');
+    let searchTerm = $state('');
+    let selectedStatus = $state('all');
+    let sortBy = $state('latest');
+
+    $effect(() => {
+        searchTerm = filters?.search ?? '';
+        selectedStatus = filters?.status ?? 'all';
+        sortBy = filters?.sort_by ?? 'latest';
+    });
     let isCreateModalOpen = $state(false);
     let isDetailModalOpen = $state(false);
     let selectedOrder = $state<OrderData | null>(null);

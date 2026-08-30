@@ -23,11 +23,13 @@
         currentDiscount?: number;
     } = $props();
 
-    let discountValue = $state(currentDiscount);
+    let discountValue = $state(0);
     let isSubmitting = $state(false);
 
     $effect(() => {
-        discountValue = currentDiscount;
+        if (open) {
+            discountValue = currentDiscount;
+        }
     });
 
     function handleSubmit(e: Event) {

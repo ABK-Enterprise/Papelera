@@ -86,8 +86,13 @@
         filters?: FilterProps;
     } = $props();
 
-    let searchTerm = $state(filters.search ?? '');
-    let selectedStatus = $state(filters.status ?? 'all');
+    let searchTerm = $state('');
+    let selectedStatus = $state('all');
+
+    $effect(() => {
+        searchTerm = filters?.search ?? '';
+        selectedStatus = filters?.status ?? 'all';
+    });
     let isCreateModalOpen = $state(false);
     let isDetailModalOpen = $state(false);
     let selectedOrder = $state<SupplierOrderData | null>(null);

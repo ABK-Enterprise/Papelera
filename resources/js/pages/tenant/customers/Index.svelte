@@ -31,10 +31,17 @@
         filters?: FilterProps;
     } = $props();
 
-    let searchTerm = $state(filters.search ?? '');
-    let selectedStatus = $state(filters.status ?? '');
-    let selectedTaxCondition = $state(filters.tax_condition ?? '');
-    let selectedDefaulter = $state(filters.is_defaulter ?? '');
+    let searchTerm = $state('');
+    let selectedStatus = $state('');
+    let selectedTaxCondition = $state('');
+    let selectedDefaulter = $state('');
+
+    $effect(() => {
+        searchTerm = filters?.search ?? '';
+        selectedStatus = filters?.status ?? '';
+        selectedTaxCondition = filters?.tax_condition ?? '';
+        selectedDefaulter = filters?.is_defaulter ?? '';
+    });
 
     let showCreateModal = $state(false);
     let showManageModal = $state(false);

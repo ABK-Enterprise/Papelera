@@ -110,7 +110,7 @@
                 items.push({
                     title: 'Stock',
                     href: '/tenant/stock/ingresos',
-                    icon: 'solar:boxes-bold-duotone',
+                    icon: 'solar:box-bold-duotone',
                     active: currentUrl.startsWith('/tenant/stock'),
                     subItems: [
                         {

@@ -17,13 +17,13 @@
 
     let { roles = [] }: { roles: RoleOption[] } = $props();
 
-    const form = useForm({
+    const form = useForm(() => ({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
         role: roles.length > 0 ? roles[0].name : '',
-    });
+    }));
 
     function submit(e: SubmitEvent) {
         e.preventDefault();

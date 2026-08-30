@@ -9,6 +9,7 @@
     import Filter from 'lucide-svelte/icons/filter';
     import Truck from 'lucide-svelte/icons/truck';
     import Users from 'lucide-svelte/icons/users';
+    import X from 'lucide-svelte/icons/x';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SupplierListDesktop from './desktop/SupplierListDesktop.svelte';
     import SupplierListMobile from './mobile/SupplierListMobile.svelte';
@@ -30,8 +31,13 @@
         filters?: FilterProps;
     } = $props();
 
-    let searchTerm = $state(filters.search ?? '');
-    let selectedStatus = $state(filters.status ?? '');
+    let searchTerm = $state('');
+    let selectedStatus = $state('');
+
+    $effect(() => {
+        searchTerm = filters?.search ?? '';
+        selectedStatus = filters?.status ?? '';
+    });
 
     let showCreateModal = $state(false);
     let showManageModal = $state(false);
