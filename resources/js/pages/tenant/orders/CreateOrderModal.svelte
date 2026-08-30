@@ -4,10 +4,18 @@
     import { Label } from '@/components/ui/label';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
+    import {
+
+        DropdownMenu,
+        DropdownMenuContent,
+        DropdownMenuItem,
+        DropdownMenuTrigger,
+    } from '@/components/ui/dropdown-menu';
     import { Link, router } from '@inertiajs/svelte';
     import Check from 'lucide-svelte/icons/check';
     import Layers from 'lucide-svelte/icons/layers';
     import Minus from 'lucide-svelte/icons/minus';
+    import MoreVertical from 'lucide-svelte/icons/more-vertical';
     import Package from 'lucide-svelte/icons/package';
     import Plus from 'lucide-svelte/icons/plus';
     import Scale from 'lucide-svelte/icons/scale';
@@ -21,6 +29,7 @@
     import CreditCard from 'lucide-svelte/icons/credit-card';
     import X from 'lucide-svelte/icons/x';
     import AlertCircle from 'lucide-svelte/icons/alert-circle';
+
 
     export interface ProductOption {
         id: number;
@@ -721,7 +730,7 @@
                             disabled={!selectedProductToAdd}
                         >
                             <Plus class="size-3.5" />
-                            Agregar al Pedido
+                            Agregar
                         </Button>
                     </div>
 
@@ -733,106 +742,131 @@
                             {@const baseQty = getItemQuantityBase(item)}
                             {@const lineSubtotal = baseQty * item.unit_price}
 
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
-                                <div class="flex items-center gap-3 min-w-0 flex-1">
-                                    <IconContainer
-                                        size="md"
-                                        variant={item.sale_type === 'weight' ? 'info' : 'primary'}
-                                        icon={item.sale_type === 'weight' ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone'}
-                                    />
-
-                                    <div class="min-w-0 flex-1">
-                                        <div class="flex items-center gap-2">
-                                            <h4 class="font-bold text-xs text-foreground truncate">{item.product_name}</h4>
+                            <div class="flex flex-col gap-2.5 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
+                                <!-- Fila 1: Nombre + SKU a la izquierda, DropdownMenu (...) a la derecha -->
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                                        <IconContainer
+                                            size="sm"
+                                            variant={item.sale_type === 'weight' ? 'info' : 'primary'}
+                                            icon={item.sale_type === 'weight' ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone'}
+                                        />
+                                        <div class="flex items-center gap-2 min-w-0 flex-wrap">
+                                            <h4 class="font-bold text-xs sm:text-sm text-foreground truncate">{item.product_name}</h4>
                                             {#if item.sku}
                                                 <span class="text-[10px] font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                                                     {item.sku}
                                                 </span>
                                             {/if}
-                                        </div>
-
-                                        <div class="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
-                                            <span>Precio base: <strong class="font-sans tabular-nums text-foreground">{formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}</strong></span>
-                                            <span>•</span>
-                                            <span>Stock: <strong class="font-sans tabular-nums text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
-                                            {#if isAtStockLimit}
-                                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
-                                                    Tope
+                                            {#if item.sale_type === 'weight'}
+                                                <span class="text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 px-1 rounded">
+                                                    Pesaje
                                                 </span>
                                             {/if}
                                         </div>
                                     </div>
+
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            {#snippet children(props)}
+                                                <Button
+                                                    {...props}
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    class="size-8 text-muted-foreground hover:text-foreground shrink-0 rounded-lg"
+                                                    aria-label="Opciones del producto"
+                                                >
+                                                    <MoreVertical class="size-4" />
+                                                </Button>
+                                            {/snippet}
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" class="w-44">
+                                            <DropdownMenuItem
+                                                class="text-destructive focus:text-destructive gap-2 cursor-pointer text-xs"
+                                                onclick={() => removeItem(index)}
+                                            >
+                                                <Trash2 class="size-3.5" />
+                                                <span>Quitar de la lista</span>
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </div>
 
-                                <div class="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 shrink-0">
-                                    <!-- Selector de Presentación (Gramos / Kg / Bulto o Unidad / Bulto) -->
-                                    <select
-                                        value={item.packaging_type}
-                                        onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                        class="h-9 sm:h-10 rounded-lg border border-input bg-background px-2.5 text-xs font-semibold text-foreground focus:ring-1 focus:ring-primary outline-none"
-                                    >
-                                        {#if item.sale_type === 'weight'}
-                                            <option value="gram">Gramos (g)</option>
-                                            <option value="kg">Kilogramos (Kg)</option>
-                                            <option value="bulto" disabled={item.stock < (item.package_quantity || item.units_per_package || 1)}>
-                                                Bulto ({item.package_quantity || item.units_per_package || 1} Kg)
-                                            </option>
-                                        {:else}
-                                            <option value="unidad">Unidad</option>
-                                            <option value="bulto" disabled={item.stock < item.units_per_package}>
-                                                Bulto (x{item.units_per_package}u)
-                                            </option>
+                                <!-- Fila 2: Metadatos (precio base y stock) abajo a la izquierda | Selector, Stepper y Subtotal a la derecha -->
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1.5 border-t border-border/50">
+                                    <div class="flex items-center gap-2 text-xs text-muted-foreground">
+                                        <span>precio: <strong class="font-sans tabular-nums text-foreground">{formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}</strong></span>
+                                        <span>|</span>
+                                        <span>stock: <strong class="font-sans tabular-nums text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
+                                        {#if isAtStockLimit}
+                                            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                                                Tope
+                                            </span>
                                         {/if}
-                                    </select>
-
-                                    <!-- Stepper Táctil / Input Cantidad (36x36px a 40x40px touch targets) -->
-                                    <div class="flex items-center border rounded-lg bg-background shadow-2xs">
-                                        <button
-                                            type="button"
-                                            class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                                            onclick={() => decrementQuantity(index)}
-                                            disabled={item.packaging_type === 'gram' ? item.quantity <= 50 : item.packaging_type === 'kg' ? item.quantity <= 0.1 : item.quantity <= 1}
-                                            aria-label="Disminuir cantidad"
-                                        >
-                                            <Minus class="size-4" />
-                                        </button>
-
-                                        <input
-                                            type="number"
-                                            step={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.1' : '1'}
-                                            min={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.01' : '1'}
-                                            max={maxAllowed}
-                                            bind:value={item.quantity}
-                                            class="w-12 sm:w-14 h-9 sm:h-10 text-xs sm:text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0"
-                                        />
-
-                                        <button
-                                            type="button"
-                                            class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                                            onclick={() => incrementQuantity(index)}
-                                            disabled={isAtStockLimit}
-                                            title={isAtStockLimit ? 'Se alcanzó el stock máximo disponible' : 'Aumentar'}
-                                            aria-label="Aumentar cantidad"
-                                        >
-                                            <Plus class="size-4" />
-                                        </button>
                                     </div>
 
-                                    <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground w-20 sm:w-24 text-right">
-                                        {formatPrice(lineSubtotal)}
-                                    </span>
+                                    <div class="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 w-full sm:w-auto shrink-0">
+                                        <!-- Selector de Presentación -->
+                                        <select
+                                            value={item.packaging_type}
+                                            onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
+                                            class="h-9 sm:h-10 rounded-lg border border-input bg-background px-2.5 text-xs font-semibold text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                        >
+                                            {#if item.sale_type === 'weight'}
+                                                <option value="gram">Gramos (g)</option>
+                                                <option value="kg">Kilogramos (Kg)</option>
+                                                <option value="bulto" disabled={item.stock < (item.package_quantity || item.units_per_package || 1)}>
+                                                    Bulto ({item.package_quantity || item.units_per_package || 1} Kg)
+                                                </option>
+                                            {:else}
+                                                <option value="unidad">Unidad</option>
+                                                <option value="bulto" disabled={item.stock < item.units_per_package}>
+                                                    Bulto (x{item.units_per_package}u)
+                                                </option>
+                                            {/if}
+                                        </select>
 
-                                    <button
-                                        type="button"
-                                        class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
-                                        onclick={() => removeItem(index)}
-                                        aria-label="Eliminar producto"
-                                    >
-                                        <Trash2 class="size-4" />
-                                    </button>
+                                        <!-- Stepper Táctil / Input Cantidad -->
+                                        <div class="flex items-center border rounded-lg bg-background shadow-2xs">
+                                            <button
+                                                type="button"
+                                                class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                                onclick={() => decrementQuantity(index)}
+                                                disabled={item.packaging_type === 'gram' ? item.quantity <= 50 : item.packaging_type === 'kg' ? item.quantity <= 0.1 : item.quantity <= 1}
+                                                aria-label="Disminuir cantidad"
+                                            >
+                                                <Minus class="size-3.5" />
+                                            </button>
+
+                                            <input
+                                                type="number"
+                                                step={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.001' : '1'}
+                                                min={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.001' : '1'}
+                                                max={maxAllowed}
+                                                bind:value={item.quantity}
+                                                class="w-12 sm:w-16 h-8 sm:h-9 text-xs sm:text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0"
+                                            />
+
+                                            <button
+                                                type="button"
+                                                class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                                onclick={() => incrementQuantity(index)}
+                                                disabled={isAtStockLimit}
+                                                title={isAtStockLimit ? 'Se alcanzó el stock máximo disponible' : 'Aumentar'}
+                                                aria-label="Aumentar cantidad"
+                                            >
+                                                <Plus class="size-3.5" />
+                                            </button>
+                                        </div>
+
+                                        <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground w-20 sm:w-24 text-right">
+                                            {formatPrice(lineSubtotal)}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         {/each}
+
 
                         {#if items.length === 0}
                             <div class="rounded-xl border border-dashed p-8 text-center bg-card/40 text-muted-foreground text-xs space-y-1">

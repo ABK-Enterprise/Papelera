@@ -229,14 +229,14 @@
                                     </div>
                                     <div class="shrink-0">
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border font-sans tabular-nums">
-                                            {item.quantity} unid.
+                                            {item.quantity} {item.product?.sale_type === 'weight' ? 'Kg' : 'unid.'}
                                         </span>
                                     </div>
                                 </div>
 
                                 <div class="flex items-center justify-between pt-2 border-t border-border/50">
                                     <div class="text-xs text-muted-foreground font-sans tabular-nums">
-                                        {Number(item.unit_cost) > 0 ? formatPrice(item.unit_cost) : '-'} × {item.quantity} unid.
+                                        {Number(item.unit_cost) > 0 ? formatPrice(item.unit_cost) : '-'} × {item.quantity} {item.product?.sale_type === 'weight' ? 'Kg' : 'unid.'}
                                     </div>
                                     <div class="text-sm font-bold font-sans tabular-nums text-foreground">
                                         {Number(item.subtotal) > 0 ? formatPrice(item.subtotal) : '-'}
@@ -267,7 +267,7 @@
                                             {/if}
                                         </td>
                                         <td class="p-2.5 text-center font-bold font-sans tabular-nums">
-                                            {item.quantity} unid.
+                                            {item.quantity} {item.product?.sale_type === 'weight' ? 'Kg' : 'unid.'}
                                         </td>
                                         <td class="p-2.5 text-right font-sans tabular-nums">
                                             {Number(item.unit_cost) > 0 ? formatPrice(item.unit_cost) : '-'}
@@ -277,6 +277,7 @@
                                         </td>
                                     </tr>
                                 {/each}
+
                             </tbody>
                         </table>
                     </div>
