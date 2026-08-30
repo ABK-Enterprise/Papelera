@@ -58,20 +58,17 @@
 
 <div class="flex h-full flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
     <!-- Header Operativo Limpio -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/50">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/50">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-                Hola, {user?.name ?? 'Usuario'} 👋
-            </h1>
-            <p class="text-xs sm:text-sm text-muted-foreground mt-0.5">
                 {#if tenant}
-                    Panel de control de <strong class="text-foreground">{tenant.name}</strong>
+                    Panel de control de {tenant.name}
                 {:else if user?.is_superadmin}
-                    Panel de administración general de la plataforma
+                    Panel de control
                 {:else}
-                    Bienvenido al sistema
+                    Panel de control
                 {/if}
-            </p>
+            </h1>
         </div>
 
         <!-- Accesos Rápidos Operativos -->

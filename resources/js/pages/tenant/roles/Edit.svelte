@@ -72,25 +72,21 @@
             </div>
             <div>
                 <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Editar rol</h1>
-                <p class="text-sm text-muted-foreground mt-0.5">
-                    Modifica el nombre y permisos asociados al perfil "{role.name}".
-                </p>
             </div>
         </div>
         <Link
             href="/tenant/roles"
-            class="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-xl border border-border/70 text-sm font-medium hover:bg-muted/60 transition-colors"
+            class="inline-flex items-center gap-2 min-h-[40px] px-4 rounded-xl border border-border/70 text-xs font-medium hover:bg-muted/60 transition-colors"
         >
-            <ArrowLeft class="h-4 w-4" />
+            <ArrowLeft class="size-4" />
             <span>Volver</span>
         </Link>
     </div>
 
     <form onsubmit={submit} class="space-y-6">
         <Card class="rounded-2xl border-border/70 bg-card shadow-xs">
-            <CardHeader class="pb-4">
+            <CardHeader class="pb-3">
                 <CardTitle class="text-base font-semibold text-foreground">Información del Rol</CardTitle>
-                <CardDescription class="text-xs text-muted-foreground">Nombre identificador del rol.</CardDescription>
             </CardHeader>
             <CardContent class="space-y-4 pt-0">
                 <div class="space-y-2">
@@ -109,15 +105,12 @@
         </Card>
 
         <Card class="rounded-2xl border-border/70 bg-card shadow-xs">
-            <CardHeader class="pb-4">
+            <CardHeader class="pb-3">
                 <div class="flex items-center justify-between">
                     <div>
                         <CardTitle class="text-base font-semibold text-foreground">Permisos por Módulo</CardTitle>
-                        <CardDescription class="text-xs text-muted-foreground mt-0.5">
-                            Selecciona qué acciones específicas podrán ejecutar los usuarios con este rol.
-                        </CardDescription>
                     </div>
-                    <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums">
+                    <span class="inline-flex items-center rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold tracking-wide text-primary tabular-nums border border-primary/20">
                         {form.permissions.length} seleccionados
                     </span>
                 </div>
@@ -135,9 +128,13 @@
                             {#if mod.permissions.length > 0}
                                 <Button
                                     type="button"
-                                    variant="ghost"
+                                    variant="outline"
                                     size="sm"
-                                    class="min-h-[36px] text-xs font-medium rounded-lg"
+                                    class={`min-h-[36px] text-xs font-medium rounded-xl border transition-all ${
+                                        allSelected
+                                            ? 'bg-primary/10 text-primary border-primary/30 hover:bg-primary/20'
+                                            : 'bg-background hover:bg-muted text-foreground border-border/70'
+                                    }`}
                                     onclick={() => toggleAllModulePermissions(mod, !allSelected)}
                                 >
                                     {allSelected ? 'Deseleccionar todos' : 'Seleccionar todos'}
