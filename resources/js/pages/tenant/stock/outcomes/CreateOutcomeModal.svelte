@@ -97,7 +97,7 @@
     <DialogContent size="default" class="max-w-lg">
         <DialogHeader>
             <div class="flex items-center gap-2.5 min-w-0">
-                <IconContainer size="md" variant="destructive" icon="solar:box-arrow-up-bold-duotone" />
+                <IconContainer size="md" variant="destructive" icon="solar:archive-up-minimalistic-bold-duotone" />
                 <div class="min-w-0">
                     <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug">Registrar egreso de stock</DialogTitle>
                     <DialogDescription class="text-xs text-muted-foreground">

@@ -35,7 +35,7 @@
             case 'productos':
                 return 'solar:box-minimalistic-bold-duotone';
             case 'stock':
-                return 'solar:box-bold-duotone';
+                return 'solar:archive-minimalistic-bold-duotone';
             case 'pedidos':
                 return 'solar:bill-list-bold-duotone';
             case 'proveedores':

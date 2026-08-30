@@ -14,6 +14,7 @@
     import X from 'lucide-svelte/icons/x';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import Icon from '@iconify/svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import TenantDetailDialog from './tenants/TenantDetailDialog.svelte';
     import ModuleDetailDialog from './modules/ModuleDetailDialog.svelte';
@@ -243,15 +244,33 @@
 
                                 <!-- Métricas y Acción -->
                                 <div class="flex items-center justify-between sm:justify-end gap-5 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/40 shrink-0">
-                                    <div class="flex items-center gap-4 text-xs tabular-nums">
-                                        <div class="text-left sm:text-right">
-                                            <span class="text-muted-foreground block text-xs font-medium">Usuarios</span>
-                                            <span class="font-bold text-foreground text-sm">{tenant.users_count}</span>
+                                    <!-- Desktop: Fila única con separador -->
+                                    <div class="hidden sm:flex items-center gap-2.5 text-xs text-muted-foreground tabular-nums font-medium">
+                                        <div class="flex items-center gap-1.5">
+                                            <Icon icon="solar:users-group-rounded-bold-duotone" class="size-3.5 text-muted-foreground/80" />
+                                            <span>Usuarios <strong class="text-foreground font-semibold">{tenant.users_count ?? 0}</strong></span>
                                         </div>
-                                        <div class="text-left sm:text-right">
-                                            <span class="text-muted-foreground block text-xs font-medium">Productos</span>
-                                            <span class="font-bold text-foreground text-sm">{tenant.products_count}</span>
+                                        {#if tenant.products_count !== undefined}
+                                            <span class="inline-block h-3 w-px bg-border/80 shrink-0" aria-hidden="true"></span>
+                                            <div class="flex items-center gap-1.5">
+                                                <Icon icon="solar:box-minimalistic-bold-duotone" class="size-3.5 text-muted-foreground/80" />
+                                                <span>Productos <strong class="text-foreground font-semibold">{tenant.products_count}</strong></span>
+                                            </div>
+                                        {/if}
+                                    </div>
+
+                                    <!-- Mobile: Stack vertical de 2 filas -->
+                                    <div class="flex sm:hidden flex-col gap-1 text-xs text-muted-foreground tabular-nums font-medium">
+                                        <div class="flex items-center gap-1.5">
+                                            <Icon icon="solar:users-group-rounded-bold-duotone" class="size-3.5 text-muted-foreground/80 shrink-0" />
+                                            <span>Usuarios <strong class="text-foreground font-semibold">{tenant.users_count ?? 0}</strong></span>
                                         </div>
+                                        {#if tenant.products_count !== undefined}
+                                            <div class="flex items-center gap-1.5">
+                                                <Icon icon="solar:box-minimalistic-bold-duotone" class="size-3.5 text-muted-foreground/80 shrink-0" />
+                                                <span>Productos <strong class="text-foreground font-semibold">{tenant.products_count}</strong></span>
+                                            </div>
+                                        {/if}
                                     </div>
 
                                     <!-- Botón Ver (Desktop activa Split View / Mobile abre Dialog) -->
@@ -262,7 +281,7 @@
                                             class="min-h-[38px] gap-1.5 rounded-xl text-xs font-medium border-border/70"
                                             onclick={() => toggleDesktopDetail(tenant)}
                                         >
-                                            <Eye class="size-4" />
+                                            <Icon icon="solar:eye-bold-duotone" class="size-4" />
                                             <span>{selectedTenant?.id === tenant.id ? 'Ocultar' : 'Ver'}</span>
                                         </Button>
                                     </div>
@@ -273,7 +292,7 @@
                                             class="min-h-[40px] gap-1.5 rounded-xl text-xs font-medium border-border/70"
                                             onclick={() => openMobileDetail(tenant)}
                                         >
-                                            <Eye class="size-4" />
+                                            <Icon icon="solar:eye-bold-duotone" class="size-4" />
                                             <span>Ver detalle</span>
                                         </Button>
                                     </div>

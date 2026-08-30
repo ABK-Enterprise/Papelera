@@ -80,15 +80,29 @@
                     {/if}
                 </div>
 
-                <div class="flex items-center justify-between text-xs text-muted-foreground tabular-nums pt-1">
-                    <div class="flex items-center gap-1.5">
-                        <Icon icon="solar:users-group-rounded-bold-duotone" class="size-3.5" />
-                        <span>{tenant.users_count ?? 0} {tenant.users_count === 1 ? 'usuario' : 'usuarios'}</span>
+                <div class="flex flex-col gap-1.5 text-xs text-muted-foreground tabular-nums pt-1">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5 font-medium">
+                            <Icon icon="solar:users-group-rounded-bold-duotone" class="size-3.5 text-muted-foreground/80 shrink-0" />
+                            <span>Usuarios <strong class="text-foreground font-semibold">{tenant.users_count ?? 0}</strong></span>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[11px] text-muted-foreground/80">
+                            <Icon icon="solar:calendar-bold-duotone" class="size-3.5 text-muted-foreground/70" />
+                            <span>{formatDate(tenant.created_at)}</span>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                        <Icon icon="solar:calendar-bold-duotone" class="size-3.5 text-muted-foreground/70" />
-                        <span>{formatDate(tenant.created_at)}</span>
-                    </div>
+
+                    {#if tenant.products_count !== undefined}
+                        <div class="flex items-center gap-1.5 font-medium">
+                            <Icon icon="solar:box-minimalistic-bold-duotone" class="size-3.5 text-muted-foreground/80 shrink-0" />
+                            <span>Productos <strong class="text-foreground font-semibold">{tenant.products_count}</strong></span>
+                        </div>
+                    {:else if tenant.modules}
+                        <div class="flex items-center gap-1.5 font-medium">
+                            <Icon icon="solar:archive-minimalistic-bold-duotone" class="size-3.5 text-muted-foreground/80 shrink-0" />
+                            <span>Módulos activos <strong class="text-foreground font-semibold">{tenant.modules.length}</strong></span>
+                        </div>
+                    {/if}
                 </div>
 
                 <div class="space-y-1.5 pt-1">

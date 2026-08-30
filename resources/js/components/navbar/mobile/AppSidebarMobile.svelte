@@ -110,19 +110,19 @@
                 items.push({
                     title: 'Stock',
                     href: '/tenant/stock/ingresos',
-                    icon: 'solar:box-bold-duotone',
+                    icon: 'solar:archive-minimalistic-bold-duotone',
                     active: currentUrl.startsWith('/tenant/stock'),
                     subItems: [
                         {
                             title: 'Ingresos de Stock',
                             href: '/tenant/stock/ingresos',
-                            icon: 'solar:box-arrow-down-bold-duotone',
+                            icon: 'solar:archive-down-minimalistic-bold-duotone',
                             active: currentUrl.startsWith('/tenant/stock/ingresos'),
                         },
                         {
                             title: 'Egresos de Stock',
                             href: '/tenant/stock/egresos',
-                            icon: 'solar:box-arrow-up-bold-duotone',
+                            icon: 'solar:archive-up-minimalistic-bold-duotone',
                             active: currentUrl.startsWith('/tenant/stock/egresos'),
                         },
                         {

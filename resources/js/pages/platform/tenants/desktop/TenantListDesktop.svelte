@@ -93,16 +93,14 @@
 
                         <!-- Métricas y Botones -->
                         <div class="flex items-center gap-5 shrink-0">
-                            <div class="flex items-center gap-4 text-xs tabular-nums">
-                                <div class="text-right">
-                                    <span class="text-muted-foreground block text-xs font-medium">Usuarios</span>
-                                    <span class="font-bold text-foreground text-sm">{tenant.users_count ?? 0}</span>
-                                </div>
+                            <div class="flex items-center gap-2.5 text-xs text-muted-foreground tabular-nums font-medium">
+                                <span>Usuarios <strong class="text-foreground font-semibold">{tenant.users_count ?? 0}</strong></span>
                                 {#if tenant.products_count !== undefined}
-                                    <div class="text-right">
-                                        <span class="text-muted-foreground block text-xs font-medium">Productos</span>
-                                        <span class="font-bold text-foreground text-sm">{tenant.products_count}</span>
-                                    </div>
+                                    <span class="inline-block h-3 w-px bg-border/80 shrink-0" aria-hidden="true"></span>
+                                    <span>Productos <strong class="text-foreground font-semibold">{tenant.products_count}</strong></span>
+                                {:else if tenant.modules}
+                                    <span class="inline-block h-3 w-px bg-border/80 shrink-0" aria-hidden="true"></span>
+                                    <span>Módulos <strong class="text-foreground font-semibold">{tenant.modules.length}</strong></span>
                                 {/if}
                             </div>
 

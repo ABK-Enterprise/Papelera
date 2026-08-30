@@ -90,7 +90,7 @@
     <DialogContent size="default" class="max-w-lg">
         <DialogHeader>
             <div class="flex items-center gap-2.5 min-w-0">
-                <IconContainer size="md" variant="success" icon="solar:box-arrow-down-bold-duotone" />
+                <IconContainer size="md" variant="success" icon="solar:archive-down-minimalistic-bold-duotone" />
                 <div class="min-w-0">
                     <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug">Registrar ingreso de stock</DialogTitle>
                     <DialogDescription class="text-xs text-muted-foreground">
