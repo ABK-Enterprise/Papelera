@@ -210,7 +210,7 @@
                     <span>Registrar Cobro / Abono</span>
                 </Button>
 
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-2 gap-2.5">
                     <Button
                         variant="secondary"
                         onclick={() => {
@@ -218,7 +218,7 @@
                             isDrawerOpen = false;
                             if (cust) onOpenAdjustment(cust);
                         }}
-                        class="h-10 text-xs font-medium rounded-xl gap-1.5"
+                        class="min-h-[40px] h-10 text-xs font-semibold rounded-xl gap-1.5"
                     >
                         <Sliders class="size-3.5" />
                         <span>Ajustar Saldo</span>
@@ -231,12 +231,13 @@
                             isDrawerOpen = false;
                             if (cust) onOpenCreditSettings(cust);
                         }}
-                        class="h-10 text-xs font-medium rounded-xl gap-1.5"
+                        class="min-h-[40px] h-10 text-xs font-semibold rounded-xl gap-1.5"
                     >
                         <ShieldCheck class="size-3.5" />
                         <span>Límites</span>
                     </Button>
                 </div>
+
             </div>
 
             <!-- Movimientos Recientes -->

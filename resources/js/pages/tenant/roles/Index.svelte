@@ -67,8 +67,9 @@
                 Define perfiles de acceso para los empleados basados en los módulos contratados.
             </p>
         </div>
-        <div class="flex flex-wrap items-center gap-2.5">
+        <div class="flex flex-wrap items-center justify-end gap-2.5">
             <Link href="/tenant/users">
+
                 <Button variant="outline" class="min-h-[44px] gap-2 rounded-xl border-border/70 text-sm font-medium">
                     <Users class="h-4 w-4" />
                     <span>Ver empleados</span>

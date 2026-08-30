@@ -90,8 +90,9 @@
                 Gestiona los accesos y roles del equipo de trabajo en tu comercio.
             </p>
         </div>
-        <div class="flex flex-wrap items-center gap-2.5">
+        <div class="flex flex-wrap items-center justify-end gap-2.5">
             <Link href="/tenant/roles">
+
                 <Button variant="outline" class="min-h-[44px] gap-2 rounded-xl border-border/70 text-sm font-medium">
                     <Shield class="h-4 w-4" />
                     <span>Roles y Permisos</span>
