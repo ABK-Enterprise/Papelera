@@ -2,14 +2,7 @@
     import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogBody, DialogFooter, DialogClose } from '@/components/ui/dialog';
     import { Button } from '@/components/ui/button';
     import { Badge } from '@/components/ui/badge';
-    import Boxes from 'lucide-svelte/icons/boxes';
-    import Package from 'lucide-svelte/icons/package';
-    import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
-    import Truck from 'lucide-svelte/icons/truck';
-    import UserCheck from 'lucide-svelte/icons/user-check';
-    import FileText from 'lucide-svelte/icons/file-text';
-    import Layers from 'lucide-svelte/icons/layers';
-    import Shield from 'lucide-svelte/icons/shield';
+    import Icon from '@iconify/svelte';
     import X from 'lucide-svelte/icons/x';
     import IconContainer from '@/components/common/IconContainer.svelte';
 
@@ -37,36 +30,34 @@
         module: ModuleItem | null;
     } = $props();
 
-    function getModuleIcon(code?: string) {
+    function getModuleIcon(code?: string): string {
         switch (code) {
             case 'productos':
-                return Package;
+                return 'solar:box-minimalistic-bold-duotone';
             case 'stock':
-                return Boxes;
+                return 'solar:boxes-bold-duotone';
             case 'pedidos':
-                return ShoppingBag;
+                return 'solar:bill-list-bold-duotone';
             case 'proveedores':
-                return Truck;
+                return 'solar:delivery-bold-duotone';
             case 'clientes':
-                return UserCheck;
+                return 'solar:shop-bold-duotone';
             case 'facturacion_arca':
-                return FileText;
+                return 'solar:document-text-bold-duotone';
             default:
-                return Layers;
+                return 'solar:layers-minimalistic-bold-duotone';
         }
     }
 </script>
 
 {#if module}
-    {@const ModuleIcon = getModuleIcon(module.code)}
+    {@const iconName = getModuleIcon(module.code)}
 
     <Dialog bind:open>
         <DialogContent class="max-w-md w-[calc(100%-2rem)] mx-4 p-5 rounded-2xl sm:rounded-3xl border border-border/80 shadow-lg">
             <DialogHeader class="flex flex-row items-center justify-between pb-3 border-b border-border/50">
                 <div class="flex items-center gap-3 min-w-0">
-                    <IconContainer size="md" variant="primary">
-                        <ModuleIcon class="size-5 stroke-[1.75]" />
-                    </IconContainer>
+                    <IconContainer size="md" variant="primary" icon={iconName} />
                     <div class="min-w-0">
                         <DialogTitle class="text-base font-bold text-foreground leading-snug truncate">{module.name}</DialogTitle>
                         <Badge variant="outline" class="text-xs tracking-wide tabular-nums bg-muted/50 px-2 py-0.5 mt-0.5">
@@ -92,7 +83,7 @@
 
                 <!-- Cobertura -->
                 <div class="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-xl border border-border/50 bg-muted/20 tabular-nums">
-                    <Shield class="size-4 text-muted-foreground/80" />
+                    <Icon icon="solar:shop-bold-duotone" class="size-4 text-muted-foreground/80" />
                     <span>Contratado por: <strong class="text-foreground font-semibold">{module.tenants_count ?? 0}</strong> {module.tenants_count === 1 ? 'comercio' : 'comercios'}</span>
                 </div>
 

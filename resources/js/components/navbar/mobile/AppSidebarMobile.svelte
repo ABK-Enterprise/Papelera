@@ -3,22 +3,9 @@
     import { toUrl } from '@/lib/utils';
     import { dashboard } from '@/routes';
     import { Link, page } from '@inertiajs/svelte';
-    import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
-    import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
-    import Boxes from 'lucide-svelte/icons/boxes';
-    import Building2 from 'lucide-svelte/icons/building-2';
+    import Icon from '@iconify/svelte';
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import ChevronRight from 'lucide-svelte/icons/chevron-right';
-    import ClipboardList from 'lucide-svelte/icons/clipboard-list';
-    import CreditCard from 'lucide-svelte/icons/credit-card';
-    import History from 'lucide-svelte/icons/history';
-    import LayoutGrid from 'lucide-svelte/icons/layout-grid';
-    import Package from 'lucide-svelte/icons/package';
-    import Shield from 'lucide-svelte/icons/shield';
-    import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
-    import Truck from 'lucide-svelte/icons/truck';
-    import UserCheck from 'lucide-svelte/icons/user-check';
-    import Users from 'lucide-svelte/icons/users';
     import X from 'lucide-svelte/icons/x';
 
     let {
@@ -63,14 +50,14 @@
     interface SubItem {
         title: string;
         href: string;
-        icon: any;
+        icon: string;
         active: boolean;
     }
 
     interface NavItem {
         title: string;
         href: string;
-        icon: any;
+        icon: string;
         active: boolean;
         subItems?: SubItem[];
     }
@@ -85,7 +72,7 @@
             {
                 title: 'Dashboard',
                 href: dashboardHref,
-                icon: LayoutGrid,
+                icon: 'solar:widget-bold-duotone',
                 active: isDashboardActive,
             },
         ];
@@ -95,13 +82,13 @@
                 {
                     title: 'Comercios',
                     href: '/platform/tenants',
-                    icon: Building2,
+                    icon: 'solar:buildings-3-bold-duotone',
                     active: currentUrl.startsWith('/platform/tenants'),
                 },
                 {
                     title: 'Módulos y Permisos',
                     href: '/platform/modules',
-                    icon: Boxes,
+                    icon: 'solar:box-minimalistic-bold-duotone',
                     active: currentUrl.startsWith('/platform/modules'),
                 },
             );
@@ -113,7 +100,7 @@
                 items.push({
                     title: 'Productos',
                     href: '/tenant/products',
-                    icon: Package,
+                    icon: 'solar:box-bold-duotone',
                     active: currentUrl.startsWith('/tenant/products') || currentUrl.startsWith('/tenant/categories'),
                 });
             }
@@ -123,25 +110,25 @@
                 items.push({
                     title: 'Stock',
                     href: '/tenant/stock/ingresos',
-                    icon: Boxes,
+                    icon: 'solar:boxes-bold-duotone',
                     active: currentUrl.startsWith('/tenant/stock'),
                     subItems: [
                         {
                             title: 'Ingresos de Stock',
                             href: '/tenant/stock/ingresos',
-                            icon: ArrowDownLeft,
+                            icon: 'solar:box-arrow-down-bold-duotone',
                             active: currentUrl.startsWith('/tenant/stock/ingresos'),
                         },
                         {
                             title: 'Egresos de Stock',
                             href: '/tenant/stock/egresos',
-                            icon: ArrowUpRight,
+                            icon: 'solar:box-arrow-up-bold-duotone',
                             active: currentUrl.startsWith('/tenant/stock/egresos'),
                         },
                         {
                             title: 'Kardex y Auditoría',
                             href: '/tenant/stock/kardex',
-                            icon: History,
+                            icon: 'solar:history-bold-duotone',
                             active: currentUrl.startsWith('/tenant/stock/kardex'),
                         },
                     ],
@@ -153,7 +140,7 @@
                 items.push({
                     title: 'Pedidos',
                     href: '/tenant/orders',
-                    icon: ShoppingBag,
+                    icon: 'solar:bill-list-bold-duotone',
                     active: currentUrl.startsWith('/tenant/orders'),
                 });
             }
@@ -163,19 +150,19 @@
                 items.push({
                     title: 'Proveedores',
                     href: '/tenant/suppliers',
-                    icon: Truck,
+                    icon: 'solar:delivery-bold-duotone',
                     active: currentUrl.startsWith('/tenant/suppliers'),
                     subItems: [
                         {
                             title: 'Directorio de Proveedores',
                             href: '/tenant/suppliers',
-                            icon: Truck,
+                            icon: 'solar:delivery-bold-duotone',
                             active: currentUrl === '/tenant/suppliers' || currentUrl.startsWith('/tenant/suppliers?'),
                         },
                         {
                             title: 'Órdenes de Compra',
                             href: '/tenant/suppliers/orders',
-                            icon: ClipboardList,
+                            icon: 'solar:clipboard-list-bold-duotone',
                             active: currentUrl.startsWith('/tenant/suppliers/orders'),
                         },
                     ],
@@ -187,19 +174,19 @@
                 items.push({
                     title: 'Clientes',
                     href: '/tenant/customers',
-                    icon: UserCheck,
+                    icon: 'solar:shop-bold-duotone',
                     active: currentUrl.startsWith('/tenant/customers'),
                     subItems: [
                         {
                             title: 'Gestión de Clientes',
                             href: '/tenant/customers',
-                            icon: UserCheck,
+                            icon: 'solar:shop-bold-duotone',
                             active: currentUrl === '/tenant/customers' || currentUrl.startsWith('/tenant/customers?'),
                         },
                         {
                             title: 'Cuentas Corrientes',
                             href: '/tenant/customers/accounts',
-                            icon: CreditCard,
+                            icon: 'solar:card-bold-duotone',
                             active: currentUrl.startsWith('/tenant/customers/accounts'),
                         },
                     ],
@@ -212,13 +199,13 @@
                     {
                         title: 'Personal / Empleados',
                         href: '/tenant/users',
-                        icon: Users,
+                        icon: 'solar:users-group-rounded-bold-duotone',
                         active: currentUrl.startsWith('/tenant/users'),
                     },
                     {
                         title: 'Roles y Permisos',
                         href: '/tenant/roles',
-                        icon: Shield,
+                        icon: 'solar:shield-user-bold-duotone',
                         active: currentUrl.startsWith('/tenant/roles'),
                     },
                 );
@@ -242,11 +229,11 @@
 
     <!-- Panel Lateral Deslizante -->
     <aside
-        class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-background shadow-2xl transition-transform border-r"
+        class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-background shadow-2xl transition-transform border-r border-border"
         aria-label="Menú principal móvil"
     >
         <!-- Header del Sidebar Móvil -->
-        <div class="flex h-16 items-center justify-between border-b px-4">
+        <div class="flex h-16 items-center justify-between border-b border-border px-4">
             <div class="flex items-center gap-2">
                 <AppLogoIcon class="h-7 w-7 text-primary fill-current" />
                 <span class="font-bold text-base tracking-tight">Menú Principal</span>
@@ -263,7 +250,7 @@
 
         <!-- Info de Tenant -->
         {#if tenant}
-            <div class="border-b bg-muted/30 px-4 py-2.5">
+            <div class="border-b border-border bg-muted/30 px-4 py-2.5">
                 <span class="text-xs text-muted-foreground font-medium block">Comercio activo:</span>
                 <span class="text-sm font-semibold text-foreground truncate block">{tenant.name}</span>
             </div>
@@ -281,7 +268,7 @@
                             class="flex w-full min-h-[44px] items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition-all {item.active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'}"
                         >
                             <div class="flex items-center gap-3">
-                                <item.icon class="size-4.5 shrink-0" />
+                                <Icon icon={item.icon} class="size-4.5 shrink-0" />
                                 <span>{item.title}</span>
                             </div>
                             {#if openModule === item.title}
@@ -294,13 +281,12 @@
                         {#if openModule === item.title}
                             <div class="pl-7 pr-1 space-y-1 border-l-2 border-primary/30 ml-4.5 my-1 animate-in fade-in slide-in-from-top-1 duration-150">
                                 {#each item.subItems as sub}
-                                    {@const SubIcon = sub.icon}
                                     <Link
                                         href={sub.href}
                                         onclick={onClose}
                                         class="flex min-h-[40px] items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors {sub.active ? 'bg-primary/15 text-primary font-semibold' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}"
                                     >
-                                        <SubIcon class="size-3.5 shrink-0" />
+                                        <Icon icon={sub.icon} class="size-3.5 shrink-0" />
                                         <span class="truncate">{sub.title}</span>
                                     </Link>
                                 {/each}
@@ -314,7 +300,7 @@
                         onclick={onClose}
                         class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors {item.active ? 'bg-primary/10 text-primary font-semibold' : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'}"
                     >
-                        <item.icon class="size-4.5 shrink-0" />
+                        <Icon icon={item.icon} class="size-4.5 shrink-0" />
                         <span>{item.title}</span>
                     </Link>
                 {/if}

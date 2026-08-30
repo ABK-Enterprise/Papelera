@@ -3,11 +3,7 @@
     import { Button } from '@/components/ui/button';
     import { Badge } from '@/components/ui/badge';
     import { Link } from '@inertiajs/svelte';
-    import Building2 from 'lucide-svelte/icons/building-2';
-    import Users from 'lucide-svelte/icons/users';
-    import Package from 'lucide-svelte/icons/package';
-    import Calendar from 'lucide-svelte/icons/calendar';
-    import Edit2 from 'lucide-svelte/icons/edit-2';
+    import Icon from '@iconify/svelte';
     import X from 'lucide-svelte/icons/x';
     import IconContainer from '@/components/common/IconContainer.svelte';
 
@@ -91,7 +87,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="p-3.5 rounded-xl border border-border/60 bg-muted/20">
                         <div class="flex items-center gap-2 text-muted-foreground text-xs font-medium">
-                            <Users class="size-3.5" />
+                            <Icon icon="solar:users-group-rounded-bold-duotone" class="size-3.5" />
                             <span>Usuarios</span>
                         </div>
                         <div class="text-xl font-bold tabular-nums text-foreground mt-1">
@@ -100,7 +96,7 @@
                     </div>
                     <div class="p-3.5 rounded-xl border border-border/60 bg-muted/20">
                         <div class="flex items-center gap-2 text-muted-foreground text-xs font-medium">
-                            <Package class="size-3.5" />
+                            <Icon icon="solar:box-minimalistic-bold-duotone" class="size-3.5" />
                             <span>Productos</span>
                         </div>
                         <div class="text-xl font-bold tabular-nums text-foreground mt-1">
@@ -111,7 +107,7 @@
 
                 <!-- Fecha de alta -->
                 <div class="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-xl border border-border/50 bg-muted/20 tabular-nums">
-                    <Calendar class="size-4 text-muted-foreground/70" />
+                    <Icon icon="solar:calendar-bold-duotone" class="size-4 text-muted-foreground/70" />
                     <span>Fecha de alta: {formatDate(tenant.created_at)}</span>
                 </div>
 
@@ -133,7 +129,7 @@
             <DialogFooter class="pt-3 border-t border-border/50">
                 <Link href={`/platform/tenants/${tenant.id}/edit`} class="w-full">
                     <Button class="w-full min-h-[44px] gap-2 rounded-xl font-medium shadow-sm">
-                        <Edit2 class="size-4" />
+                        <Icon icon="solar:pen-new-square-bold-duotone" class="size-4" />
                         <span>Editar datos del comercio</span>
                     </Button>
                 </Link>

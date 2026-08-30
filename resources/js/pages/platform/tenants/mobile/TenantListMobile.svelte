@@ -3,10 +3,7 @@
     import { Badge } from '@/components/ui/badge';
     import { Card, CardContent } from '@/components/ui/card';
     import { Link } from '@inertiajs/svelte';
-    import Edit2 from 'lucide-svelte/icons/edit-2';
-    import Eye from 'lucide-svelte/icons/eye';
-    import Users from 'lucide-svelte/icons/users';
-    import Calendar from 'lucide-svelte/icons/calendar';
+    import Icon from '@iconify/svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import TenantDetailDialog from '../TenantDetailDialog.svelte';
 
@@ -85,11 +82,11 @@
 
                 <div class="flex items-center justify-between text-xs text-muted-foreground tabular-nums pt-1">
                     <div class="flex items-center gap-1.5">
-                        <Users class="size-3.5" />
+                        <Icon icon="solar:users-group-rounded-bold-duotone" class="size-3.5" />
                         <span>{tenant.users_count ?? 0} {tenant.users_count === 1 ? 'usuario' : 'usuarios'}</span>
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <Calendar class="size-3.5 text-muted-foreground/70" />
+                        <Icon icon="solar:calendar-bold-duotone" class="size-3.5 text-muted-foreground/70" />
                         <span>{formatDate(tenant.created_at)}</span>
                     </div>
                 </div>
@@ -113,7 +110,7 @@
                         class="min-h-[44px] flex-1 gap-1.5 rounded-xl text-xs font-medium border-border/70 justify-center"
                         onclick={() => openDetail(tenant)}
                     >
-                        <Eye class="size-4" />
+                        <Icon icon="solar:eye-bold-duotone" class="size-4" />
                         <span>Ver detalle</span>
                     </Button>
                     <Link href={`/platform/tenants/${tenant.id}/edit`} class="flex-1">
@@ -121,7 +118,7 @@
                             variant="default"
                             class="min-h-[44px] w-full gap-1.5 rounded-xl text-xs font-medium justify-center"
                         >
-                            <Edit2 class="size-3.5" />
+                            <Icon icon="solar:pen-new-square-bold-duotone" class="size-3.5" />
                             <span>Editar</span>
                         </Button>
                     </Link>

@@ -107,7 +107,7 @@
                     <span class="w-full border-t border-border/70"></span>
                 </div>
                 <div class="relative flex justify-center text-xs uppercase">
-                    <span class="bg-[#fffdf0] px-3 text-[#78776f]">o</span>
+                    <span class="rounded-md border border-primary-200/80 bg-primary-50 px-2.5 py-0.5 font-semibold text-primary-700 shadow-2xs dark:border-secondary-300/40 dark:bg-secondary-200/80 dark:text-secondary-700">o</span>
                 </div>
             </div>
 

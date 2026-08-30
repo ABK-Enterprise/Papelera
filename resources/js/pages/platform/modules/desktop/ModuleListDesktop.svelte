@@ -1,15 +1,7 @@
 <script lang="ts">
     import { Badge } from '@/components/ui/badge';
     import { Button } from '@/components/ui/button';
-    import Boxes from 'lucide-svelte/icons/boxes';
-    import Package from 'lucide-svelte/icons/package';
-    import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
-    import Truck from 'lucide-svelte/icons/truck';
-    import UserCheck from 'lucide-svelte/icons/user-check';
-    import FileText from 'lucide-svelte/icons/file-text';
-    import Layers from 'lucide-svelte/icons/layers';
-    import Shield from 'lucide-svelte/icons/shield';
-    import Eye from 'lucide-svelte/icons/eye';
+    import Icon from '@iconify/svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import ModuleDetailDialog from '../ModuleDetailDialog.svelte';
 
@@ -38,36 +30,34 @@
         isDialogOpen = true;
     }
 
-    function getModuleIcon(code: string) {
+    function getModuleIcon(code: string): string {
         switch (code) {
             case 'productos':
-                return Package;
+                return 'solar:box-minimalistic-bold-duotone';
             case 'stock':
-                return Boxes;
+                return 'solar:boxes-bold-duotone';
             case 'pedidos':
-                return ShoppingBag;
+                return 'solar:bill-list-bold-duotone';
             case 'proveedores':
-                return Truck;
+                return 'solar:delivery-bold-duotone';
             case 'clientes':
-                return UserCheck;
+                return 'solar:shop-bold-duotone';
             case 'facturacion_arca':
-                return FileText;
+                return 'solar:document-text-bold-duotone';
             default:
-                return Layers;
+                return 'solar:layers-minimalistic-bold-duotone';
         }
     }
 </script>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
     {#each modules as mod (mod.id)}
-        {@const ModuleIcon = getModuleIcon(mod.code)}
+        {@const iconName = getModuleIcon(mod.code)}
 
         <div class="bg-card rounded-2xl p-5 shadow-2xs border border-border/70 flex flex-col justify-between transition-all hover:border-border hover:shadow-xs">
             <div>
                 <div class="flex justify-between items-start mb-3.5">
-                    <IconContainer size="md" variant="primary">
-                        <ModuleIcon class="size-5 stroke-[1.75]" />
-                    </IconContainer>
+                    <IconContainer size="md" variant="primary" icon={iconName} />
 
                     <Badge variant="outline" class="text-xs tracking-wide tabular-nums bg-muted/50 px-2 py-0.5">
                         {mod.code}
@@ -90,7 +80,7 @@
             <!-- Footer con métrica y botón Ver -->
             <div class="mt-4 pt-3.5 border-t border-border/50 flex items-center justify-between">
                 <div class="flex items-center gap-1.5 text-xs text-muted-foreground font-medium tabular-nums">
-                    <Shield class="size-3.5 text-muted-foreground/80" />
+                    <Icon icon="solar:shop-bold-duotone" class="size-4 text-muted-foreground/80" />
                     <span>{mod.tenants_count ?? 0} {mod.tenants_count === 1 ? 'comercio' : 'comercios'}</span>
                 </div>
 
@@ -101,7 +91,7 @@
                     class="min-h-[38px] gap-1.5 rounded-xl text-xs font-medium border-border/70"
                     onclick={() => openDetail(mod)}
                 >
-                    <Eye class="size-4" />
+                    <Icon icon="solar:eye-bold-duotone" class="size-4" />
                     <span>Ver detalle</span>
                 </Button>
             </div>
