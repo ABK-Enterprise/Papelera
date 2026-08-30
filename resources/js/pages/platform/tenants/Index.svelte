@@ -133,7 +133,7 @@
         </div>
     </div>
 
-    <!-- Toolbar de Búsqueda y Filtros -->
+    <!-- Toolbar de Bï¿½squeda y Filtros -->
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 bg-card p-3.5 rounded-2xl border border-border/70 shadow-xs">
         <div class="flex flex-wrap items-center gap-3 flex-1">
             <!-- Selector de Estado -->
@@ -157,14 +157,14 @@
                     onchange={handleSortChange}
                     class="w-full appearance-none rounded-xl border border-border bg-background px-3.5 py-2 pr-9 text-xs sm:text-sm font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
                 >
-                    <option value="latest">Más recientes</option>
-                    <option value="oldest">Más antiguos</option>
+                    <option value="latest">Mï¿½s recientes</option>
+                    <option value="oldest">Mï¿½s antiguos</option>
                     <option value="name_asc">Nombre (A-Z)</option>
                 </select>
                 <ChevronDown class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
             </div>
 
-            <!-- Input de Búsqueda -->
+            <!-- Input de Bï¿½squeda -->
             <div class="relative flex-1 min-w-[240px]">
                 <Search class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                 <input
@@ -179,7 +179,7 @@
                         type="button"
                         onclick={clearSearch}
                         class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        aria-label="Limpiar búsqueda"
+                        aria-label="Limpiar bï¿½squeda"
                     >
                         <X class="size-3.5" />
                     </button>
@@ -207,12 +207,12 @@
                 <Store class="size-7" />
             </div>
             <h3 class="text-lg font-bold text-foreground">
-                {searchInput || statusFilter !== 'all' ? 'No se encontraron comercios' : 'No hay comercios registrados aún'}
+                {searchInput || statusFilter !== 'all' ? 'No se encontraron comercios' : 'No hay comercios registrados aï¿½n'}
             </h3>
             <p class="mt-1.5 text-sm text-muted-foreground max-w-md">
                 {searchInput || statusFilter !== 'all'
-                    ? 'Prueba modificando los términos de búsqueda o limpiando los filtros seleccionados.'
-                    : 'Crea el primer comercio para asignarle su administrador principal y módulos de trabajo.'}
+                    ? 'Prueba modificando los tï¿½rminos de bï¿½squeda o limpiando los filtros seleccionados.'
+                    : 'Crea el primer comercio para asignarle su administrador principal y mï¿½dulos de trabajo.'}
             </p>
             {#if !searchInput && statusFilter === 'all'}
                 <Button

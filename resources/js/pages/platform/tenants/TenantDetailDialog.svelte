@@ -86,7 +86,7 @@
                     {/if}
                 </div>
 
-                <!-- Métricas -->
+                <!-- Mï¿½tricas -->
                 <div class="grid grid-cols-2 gap-2.5">
                     <div class="p-3 rounded-xl border border-border/60 bg-card">
                         <div class="flex items-center gap-2 text-muted-foreground text-xs font-medium">
@@ -114,10 +114,10 @@
                     <span>Fecha de alta: {formatDate(tenant.created_at)}</span>
                 </div>
 
-                <!-- Módulos Contratados -->
+                <!-- Mï¿½dulos Contratados -->
                 {#if tenant.modules && tenant.modules.length > 0}
                     <div class="space-y-2">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Módulos contratados</span>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Mï¿½dulos contratados</span>
                         <div class="flex flex-wrap gap-1.5">
                             {#each tenant.modules as mod}
                                 <Badge variant="outline" class="text-xs font-medium tracking-wide bg-muted/50 px-2.5 py-0.5">

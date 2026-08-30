@@ -81,10 +81,10 @@
             </DialogHeader>
 
             <DialogBody class="space-y-4 py-3 overflow-y-auto max-h-[60vh]">
-                <!-- Descripción -->
+                <!-- Descripciï¿½n -->
                 {#if module.description}
                     <div class="p-3.5 rounded-xl bg-muted/30 border border-border/50">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1">Descripción</span>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1">Descripciï¿½n</span>
                         <p class="text-xs text-foreground/90 leading-relaxed">{module.description}</p>
                     </div>
                 {/if}
@@ -109,7 +109,7 @@
                         {/each}
 
                         {#if module.permissions.length === 0}
-                            <span class="text-xs italic text-muted-foreground">Sin permisos específicos</span>
+                            <span class="text-xs italic text-muted-foreground">Sin permisos especï¿½ficos</span>
                         {/if}
                     </div>
                 </div>

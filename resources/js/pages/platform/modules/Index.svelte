@@ -40,7 +40,7 @@
     });
 </script>
 
-<AppHead title="M骴ulos del sistema - Plataforma" />
+<AppHead title="M贸dulos del sistema - Plataforma" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1360px] mx-auto w-full">
     <!-- Header Minimalista -->
@@ -48,21 +48,21 @@
         <div>
             <div class="flex items-center gap-2.5">
                 <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-                    M骴ulos del sistema
+                    M贸dulos del sistema
                 </h1>
                 <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide tabular-nums text-primary border border-primary/20">
-                    {modules.length} {modules.length === 1 ? 'm骴ulo' : 'm骴ulos'}
+                    {modules.length} {modules.length === 1 ? 'm贸dulo' : 'm贸dulos'}
                 </span>
             </div>
         </div>
 
-        <!-- Buscador R醦ido -->
+        <!-- Buscador R谩pido -->
         <div class="relative w-full sm:w-80">
             <Search class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <input
                 type="text"
                 bind:value={searchQuery}
-                placeholder="Buscar por m骴ulo o permiso..."
+                placeholder="Buscar por m贸dulo o permiso..."
                 class="w-full rounded-xl border border-border/70 bg-background pl-10 pr-9 py-2 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
             />
             {#if searchQuery}
@@ -70,7 +70,7 @@
                     type="button"
                     onclick={() => (searchQuery = '')}
                     class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    aria-label="Limpiar b鷖queda"
+                    aria-label="Limpiar b煤squeda"
                 >
                     <X class="size-4" />
                 </button>
@@ -89,9 +89,9 @@
     {:else}
         <EmptyState
             icon={Boxes}
-            title="No se encontraron m骴ulos"
-            description={searchQuery ? `No hay m骴ulos que coincidan con el t閞mino "${searchQuery}".` : 'No hay m骴ulos configurados en la plataforma.'}
-            actionLabel={searchQuery ? 'Limpiar b鷖queda' : undefined}
+            title="No se encontraron m贸dulos"
+            description={searchQuery ? `No hay m贸dulos que coincidan con el t茅rmino "${searchQuery}".` : 'No hay m贸dulos configurados en la plataforma.'}
+            actionLabel={searchQuery ? 'Limpiar b煤squeda' : undefined}
             onaction={() => (searchQuery = '')}
         />
     {/if}

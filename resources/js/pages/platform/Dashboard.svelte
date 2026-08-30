@@ -91,16 +91,16 @@
             <Link href="/platform/modules">
                 <Button variant="outline" class="min-h-[40px] gap-2 font-medium rounded-xl border-border/70">
                     <Boxes class="size-4" />
-                    <span>Gestionar módulos</span>
+                    <span>Gestionar mÃ³dulos</span>
                 </Button>
             </Link>
         </div>
     </div>
 
-    <!-- Sección de Comercios con Split View en Desktop -->
+    <!-- SecciÃ³n de Comercios con Split View en Desktop -->
     <div class="space-y-4">
         <div class="flex items-center justify-between">
-            <h2 class="text-base sm:text-lg font-semibold tracking-tight text-foreground">Comercios del sistema</h2>
+            <h2 class="text-base sm:text-lg font-semibold tracking-tight text-foreground">Comercios registrados</h2>
             <Link href="/platform/tenants" class="text-xs font-medium text-primary hover:underline flex items-center gap-1">
                 <span>Ver todos los comercios</span>
                 <ArrowUpRight class="size-3.5" />
@@ -142,12 +142,12 @@
                                         </div>
                                         <p class="text-xs text-muted-foreground tabular-nums mt-0.5">
                                             {tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}
-                                            • Alta: {formatDate(tenant.created_at)}
+                                            ï¿½ Alta: {formatDate(tenant.created_at)}
                                         </p>
                                     </div>
                                 </div>
 
-                                <!-- Métricas y Acción -->
+                                <!-- Mï¿½tricas y Acciï¿½n -->
                                 <div class="flex items-center justify-between sm:justify-end gap-5 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/40 shrink-0">
                                     <div class="flex items-center gap-4 text-xs tabular-nums">
                                         <div class="text-left sm:text-right">
@@ -160,7 +160,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Botón Ver (Desktop activa Split View / Mobile abre Dialog) -->
+                                    <!-- Botï¿½n Ver (Desktop activa Split View / Mobile abre Dialog) -->
                                     <div class="hidden lg:block">
                                         <Button
                                             variant={selectedTenant?.id === tenant.id ? 'default' : 'outline'}
@@ -237,7 +237,7 @@
                         {/if}
                     </div>
 
-                    <!-- Métricas -->
+                    <!-- Mï¿½tricas -->
                     <div class="grid grid-cols-2 gap-2.5">
                         <div class="p-3 rounded-xl border border-border/60 bg-card">
                             <div class="flex items-center gap-2 text-muted-foreground text-xs font-medium">
@@ -265,7 +265,7 @@
                         <span>Fecha de alta: {formatDate(selectedTenant.created_at)}</span>
                     </div>
 
-                    <!-- Acción Principal -->
+                    <!-- Acciï¿½n Principal -->
                     <div class="pt-2 border-t border-border/50">
                         <Link href={`/platform/tenants/${selectedTenant.id}/edit`} class="w-full">
                             <Button class="w-full min-h-[40px] gap-2 rounded-xl font-medium shadow-sm">

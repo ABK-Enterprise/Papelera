@@ -86,7 +86,7 @@
                 </div>
             </div>
 
-            <!-- Footer con métrica y botón Ver -->
+            <!-- Footer con mï¿½trica y botï¿½n Ver -->
             <div class="mt-5 pt-3 border-t border-border/40 flex items-center justify-between">
                 <div class="flex items-center gap-1.5 text-xs text-muted-foreground font-medium tabular-nums">
                     <Shield class="size-3.5 text-muted-foreground/80" />

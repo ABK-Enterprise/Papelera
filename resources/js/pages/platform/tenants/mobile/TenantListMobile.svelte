@@ -94,7 +94,7 @@
                 </div>
 
                 <div class="space-y-1.5 pt-1">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Módulos contratados</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Mï¿½dulos contratados</span>
                     <div class="flex flex-wrap gap-1.5">
                         {#each tenant.modules as mod}
                             <Badge variant="outline" class="text-xs font-medium tracking-wide bg-muted/40 px-2 py-0.5">
@@ -102,7 +102,7 @@
                             </Badge>
                         {/each}
                         {#if tenant.modules.length === 0}
-                            <span class="text-xs italic text-muted-foreground">Sin módulos</span>
+                            <span class="text-xs italic text-muted-foreground">Sin mï¿½dulos</span>
                         {/if}
                     </div>
                 </div>

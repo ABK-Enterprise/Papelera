@@ -156,7 +156,7 @@
                 class="gap-2 shadow-sm font-medium"
             >
                 <Plus class="size-4" />
-                <span>Registrar pedido</span>
+                <span>Nuevo Pedido</span>
             </Button>
         </div>
     </div>
