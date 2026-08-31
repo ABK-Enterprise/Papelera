@@ -1,14 +1,19 @@
 <script lang="ts">
+    import { untrack } from 'svelte';
     import AppHead from '@/components/AppHead.svelte';
+
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
     import { router } from '@inertiajs/svelte';
     import Plus from 'lucide-svelte/icons/plus';
+    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Search from 'lucide-svelte/icons/search';
-    import Filter from 'lucide-svelte/icons/filter';
-    import X from 'lucide-svelte/icons/x';
+    import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import UserCheck from 'lucide-svelte/icons/user-check';
+    import Banknote from 'lucide-svelte/icons/banknote';
+
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
+    import CustomerFilterModalMobile from './mobile/CustomerFilterModalMobile.svelte';
     import CustomerListDesktop, { type CustomerItem } from './desktop/CustomerListDesktop.svelte';
     import CustomerListMobile from './mobile/CustomerListMobile.svelte';
     import CreateCustomerModal from './CreateCustomerModal.svelte';
@@ -31,14 +36,30 @@
         filters?: FilterProps;
     } = $props();
 
-    let searchTerm = $state(filters.search ?? '');
-    let selectedStatus = $state(filters.status ?? '');
-    let selectedTaxCondition = $state(filters.tax_condition ?? '');
-    let selectedDefaulter = $state(filters.is_defaulter ?? '');
-
+    let searchTerm = $state(filters?.search ?? '');
+    let selectedStatus = $state(filters?.status ?? '');
+    let selectedTaxCondition = $state(filters?.tax_condition ?? '');
+    let selectedDefaulter = $state(filters?.is_defaulter ?? '');
     let showCreateModal = $state(false);
     let showManageModal = $state(false);
+    let isFilterModalOpen = $state(false);
     let selectedCustomer = $state<CustomerItem | null>(null);
+
+    $effect(() => {
+        const s = filters?.search;
+        const st = filters?.status;
+        const tc = filters?.tax_condition;
+        const def = filters?.is_defaulter;
+        untrack(() => {
+            if (s !== undefined && s !== null) searchTerm = s;
+            if (st !== undefined && st !== null) selectedStatus = st;
+            if (tc !== undefined && tc !== null) selectedTaxCondition = tc;
+            if (def !== undefined && def !== null) selectedDefaulter = def;
+        });
+    });
+
+
+
 
     function applyFilters() {
         router.get(
@@ -61,8 +82,9 @@
         selectedStatus = '';
         selectedTaxCondition = '';
         selectedDefaulter = '';
-        router.get('/tenant/customers');
+        router.get('/tenant/customers', {}, { preserveState: true, preserveScroll: true });
     }
+
 
     function handleSelectCustomer(customer: CustomerItem) {
         selectedCustomer = customer;
@@ -71,6 +93,9 @@
 
     let hasActiveFilters = $derived(
         Boolean(searchTerm || selectedStatus || selectedTaxCondition || selectedDefaulter)
+    );
+    let activeFiltersCount = $derived(
+        (selectedStatus ? 1 : 0) + (selectedTaxCondition ? 1 : 0) + (selectedDefaulter ? 1 : 0)
     );
 </script>
 
@@ -89,56 +114,92 @@
             </p>
         </div>
 
-        <div class="flex items-center gap-2.5">
-            <Button class="gap-2 shadow-sm font-semibold" onclick={() => (showCreateModal = true)}>
+        <div class="flex items-center justify-end gap-2.5 w-full sm:w-auto">
+            <a href="/tenant/customers/accounts" class="inline-flex">
+                <Button variant="secondary" class="min-h-[40px] px-3.5 gap-2 rounded-xl text-xs font-semibold shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
+                    <Banknote class="size-3.5" />
+                    <span>Cuentas Corrientes</span>
+                </Button>
+            </a>
+            <Button class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs" onclick={() => (showCreateModal = true)}>
                 <Plus class="h-4 w-4" />
-                + Añadir Cliente
+                <span>+ Añadir Cliente</span>
             </Button>
         </div>
+
     </div>
 
     <!-- Bento Card: Buscador y Filtros -->
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-border/60">
         <div class="flex flex-col md:flex-row items-center justify-between gap-3">
-            <!-- Buscador por Nombre, CUIT, Teléfono, Email o Dirección -->
-            <div class="w-full md:w-[538px]">
-                <SearchCombobox
-                    bind:value={searchTerm}
-                    items={customers}
-                    placeholder="Buscar por nombre, CUIT/DNI, teléfono..."
-                    onsearch={applyFilters}
-                    onselect={handleSelectCustomer}
-                >
-                    {#snippet item(cust)}
-                        <div class="flex items-center justify-between gap-3 w-full min-w-0">
-                            <div class="flex flex-col min-w-0">
-                                <span class="truncate font-medium text-foreground">{cust.name}</span>
-                                {#if cust.tax_id}
-                                    <span class="text-[11px] text-muted-foreground tabular-nums">CUIT: {cust.tax_id}</span>
-                                {/if}
+            <!-- Buscador + Botón Filtros Mobile -->
+            <div class="flex items-center gap-2 w-full md:w-[538px]">
+                <div class="flex-1 min-w-0">
+
+                    <SearchCombobox
+                        bind:value={searchTerm}
+                        items={customers}
+                        placeholder="Buscar por nombre, CUIT/DNI, teléfono..."
+                        onsearch={(q) => {
+                            searchTerm = q;
+                            applyFilters();
+                        }}
+
+
+
+                        onselect={handleSelectCustomer}
+                        onclear={resetFilters}
+                    >
+                        {#snippet itemSnippet(cust)}
+                            <div class="flex items-center justify-between gap-3 w-full min-w-0">
+                                <div class="flex flex-col min-w-0">
+                                    <span class="truncate font-medium text-foreground">{cust.name}</span>
+                                    {#if cust.tax_id}
+                                        <span class="text-[11px] text-muted-foreground tabular-nums">CUIT: {cust.tax_id}</span>
+                                    {/if}
+                                </div>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    {#if cust.is_defaulter}
+                                        <span class="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive border border-destructive/20">
+                                            Moroso
+                                        </span>
+                                    {:else if cust.is_active}
+                                        <span class="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                            Activo
+                                        </span>
+                                    {:else}
+                                        <span class="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground border border-border">
+                                            Inactivo
+                                        </span>
+                                    {/if}
+                                </div>
                             </div>
-                            <div class="flex items-center gap-1.5 shrink-0">
-                                {#if cust.is_defaulter}
-                                    <span class="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive border border-destructive/20">
-                                        Moroso
-                                    </span>
-                                {:else if cust.is_active}
-                                    <span class="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                                        Activo
-                                    </span>
-                                {:else}
-                                    <span class="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground border border-border">
-                                        Inactivo
-                                    </span>
-                                {/if}
-                            </div>
-                        </div>
-                    {/snippet}
-                </SearchCombobox>
+                        {/snippet}
+                    </SearchCombobox>
+                </div>
+
+                <!-- Disparador de Filtros Mobile -->
+                <div class="block md:hidden">
+                    <Button
+                        type="button"
+                        variant={activeFiltersCount > 0 ? 'secondary' : 'outline'}
+                        size="icon"
+                        onclick={() => (isFilterModalOpen = true)}
+                        class="relative h-10 w-10 shrink-0 rounded-xl border border-border/70 shadow-2xs"
+                        aria-label="Abrir filtros"
+                    >
+                        <SlidersHorizontal class="h-4 w-4 text-foreground" />
+                        {#if activeFiltersCount > 0}
+                            <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums shadow-xs">
+                                {activeFiltersCount}
+                            </span>
+                        {/if}
+                    </Button>
+                </div>
             </div>
 
-            <!-- Selectores de Filtro -->
-            <div class="flex items-center gap-2.5 w-full md:w-auto flex-wrap sm:flex-nowrap">
+            <!-- Selectores de Filtro Desktop -->
+            <div class="hidden md:flex items-center gap-2.5 w-auto flex-wrap sm:flex-nowrap">
                 <!-- Condición Fiscal -->
                 <select
                     bind:value={selectedTaxCondition}
@@ -175,13 +236,12 @@
                 </select>
 
                 {#if hasActiveFilters}
-                    <Button variant="ghost" size="sm" class="h-10 px-2 text-xs text-muted-foreground hover:text-foreground gap-1" onclick={resetFilters}>
-                        <X class="h-3.5 w-3.5" />
-                        Limpiar
+                    <Button variant="ghost" size="sm" class="h-10 px-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 gap-1.5 rounded-xl transition-all" onclick={resetFilters}>
+                        <RotateCcw class="size-3.5" />
+                        <span>Limpiar</span>
                     </Button>
                 {/if}
             </div>
-
         </div>
     </Card>
 
@@ -208,3 +268,18 @@
 <CreateCustomerModal bind:open={showCreateModal} />
 
 <ManageCustomerModal bind:open={showManageModal} customer={selectedCustomer} />
+
+<!-- Modal de Filtros Mobile -->
+<CustomerFilterModalMobile
+    bind:open={isFilterModalOpen}
+    {selectedTaxCondition}
+    {selectedStatus}
+    {selectedDefaulter}
+    onapply={(f) => {
+        selectedTaxCondition = f.tax_condition;
+        selectedStatus = f.status;
+        selectedDefaulter = f.is_defaulter;
+        applyFilters();
+    }}
+    onreset={resetFilters}
+/>

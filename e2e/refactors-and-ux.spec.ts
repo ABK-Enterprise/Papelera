@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('E2E: Refactors de Arquitectura, UX, Wide Cards y Límite Estricto de Bultos y Stock', () => {
-    test('1. Superadmin Dashboard: Separación de Contextos & KPIs Globales', async ({ browser }) => {
+test.describe('E2E: Refactors de Arquitectura, UX, Wide Cards y Limite Estricto de Bultos y Stock', () => {
+    test('1. Superadmin Dashboard: Separacion de Contextos & Wide-Cards con Split View', async ({ browser }) => {
         const context = await browser.newContext();
         const page = await context.newPage();
 
@@ -11,20 +11,24 @@ test.describe('E2E: Refactors de Arquitectura, UX, Wide Cards y Límite Estricto
         await page.click('button[type="submit"]');
 
         await expect(page).toHaveURL(/.*platform\/dashboard.*/);
-        await expect(page.locator('text=Panel de Control de Plataforma').first()).toBeVisible();
-        await expect(page.locator('text=Plataforma Global').first()).toBeVisible();
-        await expect(page.locator('text=Comercios').first()).toBeVisible();
-        await expect(page.locator('text=Usuarios Totales').first()).toBeVisible();
-        await expect(page.locator('text=Catálogo Global').first()).toBeVisible();
+        await expect(page.locator('h1:has-text("Panel de control")')).toBeVisible();
+        await expect(page.locator('text=Comercios registrados')).toBeVisible();
+
+        // Validar Split View interactivo si hay comercios
+        const viewBtn = page.locator('button:has-text("Ver")').first();
+        if (await viewBtn.isVisible()) {
+            await viewBtn.click();
+            await expect(page.locator('text=Estado del comercio')).toBeVisible();
+        }
 
         await context.close();
     });
 
-    test('2. Tenant User: Validación de Stock en Bultos y Control Reactivo en Pedido', async ({ browser }) => {
+    test('2. Tenant User: Validacion de Stock en Bultos y Control Reactivo en Pedido', async ({ browser }) => {
         const context = await browser.newContext();
         const page = await context.newPage();
 
-        // 1. Iniciar sesión como tenant admin
+        // 1. Iniciar sesion como tenant admin
         await page.goto('/login');
         await page.fill('#email', 'axel@axel.com');
         await page.fill('#password', 'password');
@@ -36,8 +40,9 @@ test.describe('E2E: Refactors de Arquitectura, UX, Wide Cards y Límite Estricto
         await expect(page.locator('h1:has-text("Pedidos de Clientes")')).toBeVisible();
 
         // 3. Abrir modal de nuevo pedido
+        await page.waitForTimeout(300);
         await page.click('button:has-text("Nuevo Pedido")');
-        await expect(page.locator('h2:has-text("Nuevo Pedido")')).toBeVisible();
+        await expect(page.locator('h2:has-text("Nuevo Pedido")').first()).toBeVisible();
 
         // 4. Autocomplete de cliente
         const custSearch = page.locator('#cust-search');

@@ -122,7 +122,7 @@
                         variant="outline"
                         size="sm"
                         onclick={() => onSelectMovement(mov)}
-                        class="h-7 text-xs px-2.5 rounded-lg shrink-0 font-medium"
+                        class="min-h-[36px] text-xs px-3 rounded-xl shrink-0 font-medium"
                     >
                         <Eye class="size-3 mr-1" />
                         <span>Ver detalle</span>

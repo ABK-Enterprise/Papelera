@@ -8,6 +8,7 @@
     } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import { router } from '@inertiajs/svelte';
     import Percent from 'lucide-svelte/icons/percent';
     import Tag from 'lucide-svelte/icons/tag';
@@ -22,11 +23,13 @@
         currentDiscount?: number;
     } = $props();
 
-    let discountValue = $state(currentDiscount);
+    let discountValue = $state(0);
     let isSubmitting = $state(false);
 
     $effect(() => {
-        discountValue = currentDiscount;
+        if (open) {
+            discountValue = currentDiscount;
+        }
     });
 
     function handleSubmit(e: Event) {
@@ -57,9 +60,7 @@
         <form onsubmit={handleSubmit}>
             <div class="flex items-start justify-between gap-4 pb-4 border-b border-border">
                 <div class="flex items-center gap-3">
-                    <div class="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
-                        <Percent class="size-5" />
-                    </div>
+                    <IconContainer size="md" variant="primary" icon="solar:tag-price-bold-duotone" />
                     <div>
                         <DialogTitle class="text-lg font-bold tracking-tight text-foreground">Descuento Global por Bulto</DialogTitle>
                         <DialogDescription class="text-xs text-muted-foreground mt-0.5">

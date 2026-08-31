@@ -152,7 +152,11 @@ class BaseSeeder extends Seeder
         ], [
             'name' => 'Papelera del Sol',
             'is_active' => true,
+            'default_bulk_discount_percentage' => 10.00,
         ]);
+        $tenant->default_bulk_discount_percentage = 10.00;
+        $tenant->save();
+
 
         // Attach active modules to tenant
         $tenant->modules()->syncWithoutDetaching($seededModuleIds);

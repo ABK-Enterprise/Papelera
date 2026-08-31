@@ -3,10 +3,9 @@
     import EmptyState from '@/components/common/EmptyState.svelte';
     import ModuleListDesktop from './desktop/ModuleListDesktop.svelte';
     import ModuleListMobile from './mobile/ModuleListMobile.svelte';
-    import { router } from '@inertiajs/svelte';
+    import ModuleDetailDialog from './ModuleDetailDialog.svelte';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import Boxes from 'lucide-svelte/icons/boxes';
-    import Search from 'lucide-svelte/icons/search';
-    import X from 'lucide-svelte/icons/x';
 
     interface PermissionItem {
         id: number;
@@ -19,7 +18,6 @@
         name: string;
         code: string;
         description: string | null;
-        is_active: boolean;
         tenants_count?: number;
         permissions: PermissionItem[];
     }
@@ -27,6 +25,8 @@
     let { modules = [] }: { modules: ModuleItem[] } = $props();
 
     let searchQuery = $state('');
+    let selectedDetailModule = $state<ModuleItem | null>(null);
+    let isDetailModalOpen = $state(false);
 
     let filteredModules = $derived.by(() => {
         const q = searchQuery.toLowerCase().trim();
@@ -41,87 +41,83 @@
         });
     });
 
-    let togglingId = $state<number | null>(null);
+    let comboboxSuggestions = $derived.by(() => {
+        const q = searchQuery.toLowerCase().trim();
+        if (!q) return [];
+        return filteredModules;
+    });
 
-    function toggleModuleActive(mod: ModuleItem) {
-        togglingId = mod.id;
-        router.patch(
-            `/platform/modules/${mod.id}/toggle-active`,
-            {},
-            {
-                preserveScroll: true,
-                onFinish: () => {
-                    togglingId = null;
-                },
-            }
-        );
+    function handleSelectModule(mod: ModuleItem) {
+        selectedDetailModule = mod;
+        isDetailModalOpen = true;
     }
 </script>
 
-<AppHead title="Gestión de Módulos - Plataforma" />
+<AppHead title="Módulos del sistema - Plataforma" />
 
-<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
-    <!-- Header -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1360px] mx-auto w-full">
+    <!-- Header Minimalista -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border/50 pb-5">
         <div>
             <div class="flex items-center gap-2.5">
-                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-foreground">
-                    Gestión de módulos
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+                    Módulos del sistema
                 </h1>
-                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide tabular-nums text-primary">
+                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide tabular-nums text-primary border border-primary/20">
                     {modules.length} {modules.length === 1 ? 'módulo' : 'módulos'}
                 </span>
             </div>
-            <p class="mt-1 text-sm text-muted-foreground leading-relaxed">
-                Configura la disponibilidad global y visualiza los permisos asignados a cada componente del sistema.
-            </p>
         </div>
 
-        <!-- Buscador Rápido -->
-        <div class="relative w-full sm:w-80">
-            <Search class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-                type="text"
+        <!-- Buscador Rápido con SearchCombobox -->
+        <div class="w-full sm:w-80">
+            <SearchCombobox
                 bind:value={searchQuery}
+                items={comboboxSuggestions}
                 placeholder="Buscar por módulo o permiso..."
-                class="w-full rounded-xl border border-border/70 bg-background pl-10 pr-9 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-ring shadow-2xs"
-            />
-            {#if searchQuery}
-                <button
-                    type="button"
-                    onclick={() => (searchQuery = '')}
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    aria-label="Limpiar búsqueda"
-                >
-                    <X class="h-4 w-4" />
-                </button>
-            {/if}
+                debounceMs={0}
+                showDropdown={true}
+                onsearch={(q) => (searchQuery = q)}
+                onselect={handleSelectModule}
+                onclear={() => (searchQuery = '')}
+            >
+                {#snippet itemSnippet(item)}
+                    <div class="flex items-center justify-between gap-2 w-full">
+                        <div class="min-w-0">
+                            <span class="font-semibold text-foreground truncate block">{item.name}</span>
+                            <span class="text-[11px] text-muted-foreground">{item.permissions?.length ?? 0} permisos asignados</span>
+                        </div>
+                        <span class="text-[10px] bg-muted/70 px-1.5 py-0.5 rounded text-muted-foreground tabular-nums shrink-0 font-medium">
+                            {item.code}
+                        </span>
+                    </div>
+                {/snippet}
+            </SearchCombobox>
         </div>
     </div>
 
     <!-- Contenido Modular: Desktop vs Mobile -->
     {#if filteredModules.length > 0}
         <div class="hidden md:block">
-            <ModuleListDesktop
-                modules={filteredModules}
-                {togglingId}
-                ontoggle={toggleModuleActive}
-            />
+            <ModuleListDesktop modules={filteredModules} />
         </div>
         <div class="block md:hidden">
-            <ModuleListMobile
-                modules={filteredModules}
-                {togglingId}
-                ontoggle={toggleModuleActive}
-            />
+            <ModuleListMobile modules={filteredModules} />
         </div>
     {:else}
         <EmptyState
             icon={Boxes}
             title="No se encontraron módulos"
-            description={searchQuery ? `No hay módulos que coincidan con el término "${searchQuery}".` : 'No hay módulos disponibles en la plataforma.'}
+            description={searchQuery ? `No hay módulos que coincidan con el término "${searchQuery}".` : 'No hay módulos configurados en la plataforma.'}
             actionLabel={searchQuery ? 'Limpiar búsqueda' : undefined}
             onaction={() => (searchQuery = '')}
         />
     {/if}
 </div>
+
+<!-- Modal Detalle de Módulo -->
+<ModuleDetailDialog
+    bind:open={isDetailModalOpen}
+    module={selectedDetailModule}
+/>
+

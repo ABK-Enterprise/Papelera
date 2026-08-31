@@ -44,7 +44,7 @@ class SupplierController extends Controller
 
         $suppliers = $query->get();
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
                 'suppliers' => $suppliers,
                 'total_count' => $suppliers->count(),
@@ -73,7 +73,7 @@ class SupplierController extends Controller
             'is_active' => $request->has('is_active') ? $request->boolean('is_active') : true,
         ]);
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($supplier, 201);
         }
 
@@ -95,7 +95,7 @@ class SupplierController extends Controller
             'is_active' => $request->has('is_active') ? $request->boolean('is_active') : $supplier->is_active,
         ]);
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($supplier);
         }
 
@@ -111,7 +111,7 @@ class SupplierController extends Controller
 
         $supplier->delete();
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json(['message' => 'Proveedor eliminado exitosamente.']);
         }
 

@@ -31,3 +31,18 @@ initializeTheme();
 
 // This will listen for flash toast data from the server...
 initializeFlashToast();
+
+// Suppress unhandled exceptions originating from browser DevTools / Soft Navigation heuristics
+if (typeof window !== 'undefined') {
+    window.addEventListener('error', (event) => {
+        if (event.message?.includes("reading 'startTime'")) {
+            event.preventDefault();
+        }
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+        if (event.reason?.message?.includes("reading 'startTime'")) {
+            event.preventDefault();
+        }
+    });
+}

@@ -59,7 +59,7 @@ class CustomerController extends Controller
 
         $customers = $query->get();
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
                 'customers' => $customers,
                 'total_count' => $customers->count(),
@@ -95,7 +95,7 @@ class CustomerController extends Controller
             'notes' => $request->validated('notes'),
         ]);
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($customer, 201);
         }
 
@@ -122,7 +122,7 @@ class CustomerController extends Controller
             'notes' => $request->validated('notes'),
         ]);
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($customer);
         }
 
@@ -138,7 +138,7 @@ class CustomerController extends Controller
 
         $customer->delete();
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json(['message' => 'Cliente eliminado exitosamente.']);
         }
 

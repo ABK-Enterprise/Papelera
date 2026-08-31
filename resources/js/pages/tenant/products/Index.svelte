@@ -9,6 +9,7 @@
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
+    import X from 'lucide-svelte/icons/x';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import BulkDiscountConfigModal from './BulkDiscountConfigModal.svelte';
@@ -78,15 +79,34 @@
         filters?: FilterProps;
     } = $props();
 
-    let searchTerm = $state(filters.search ?? '');
-    let selectedCategoryId = $state<number | null>(filters.category_id ?? null);
-    let selectedStockStatus = $state(filters.stock_status ?? '');
-    let selectedInfoStatus = $state(filters.info_status ?? '');
-    let sortBy = $state(filters.sort_by ?? 'latest');
+    import { untrack } from 'svelte';
+
+
+    let searchTerm = $state('');
+    let selectedCategoryId = $state<number | null>(null);
+    let selectedStockStatus = $state('');
+    let selectedInfoStatus = $state('');
+    let sortBy = $state('latest');
     let isBulkDiscountModalOpen = $state(false);
     let isFilterModalOpen = $state(false);
     let isProductModalOpen = $state(false);
     let selectedProductForModal = $state<any>(null);
+
+    $effect(() => {
+        const s = filters?.search ?? '';
+        const cid = filters?.category_id ?? null;
+        const ss = filters?.stock_status ?? '';
+        const is = filters?.info_status ?? '';
+        const sb = filters?.sort_by ?? 'latest';
+        untrack(() => {
+            searchTerm = s;
+            selectedCategoryId = cid;
+            selectedStockStatus = ss;
+            selectedInfoStatus = is;
+            sortBy = sb;
+        });
+    });
+
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
@@ -187,7 +207,7 @@
             </p>
         </div>
 
-        <div class="flex items-center gap-2.5 flex-wrap">
+        <div class="flex items-center justify-end gap-2.5 flex-wrap">
             <Button
                 variant="outline"
                 class="gap-1.5 font-medium border-border/80 shadow-2xs"
@@ -240,15 +260,19 @@
         <div class="hidden md:flex items-center justify-between gap-3">
             <!-- Buscador por Nombre, SKU o Código de Barras -->
             <div class="w-full md:w-[448px]">
+
                 <SearchCombobox
                     bind:value={searchTerm}
-
                     items={products}
                     placeholder="Buscar por nombre, SKU o barra..."
-                    onsearch={applyFilters}
+                    onsearch={(q) => {
+                        searchTerm = q;
+                        applyFilters();
+                    }}
                     onselect={handleSelectProductSuggestion}
+                    onclear={resetFilters}
                 >
-                    {#snippet item(prod)}
+                    {#snippet itemSnippet(prod)}
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
                             <div class="flex flex-col min-w-0">
                                 <span class="truncate font-medium text-foreground">{prod.name}</span>
@@ -325,10 +349,14 @@
                     bind:value={searchTerm}
                     items={products}
                     placeholder="Buscar producto, SKU o código..."
-                    onsearch={applyFilters}
+                    onsearch={(q) => {
+                        searchTerm = q;
+                        applyFilters();
+                    }}
                     onselect={handleSelectProductSuggestion}
+                    onclear={resetFilters}
                 >
-                    {#snippet item(prod)}
+                    {#snippet itemSnippet(prod)}
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
                             <div class="flex flex-col min-w-0">
                                 <span class="truncate font-medium text-foreground">{prod.name}</span>

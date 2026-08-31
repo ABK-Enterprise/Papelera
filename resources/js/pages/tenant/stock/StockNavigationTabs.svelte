@@ -10,6 +10,7 @@
         {
             id: 'incomes',
             name: 'Ingresos de stock',
+            shortName: 'Ingresos',
             href: '/tenant/stock/ingresos',
             icon: ArrowDownLeft,
             gridClass: 'col-span-1',
@@ -17,6 +18,7 @@
         {
             id: 'outcomes',
             name: 'Egresos de stock',
+            shortName: 'Egresos',
             href: '/tenant/stock/egresos',
             icon: ArrowUpRight,
             gridClass: 'col-span-1',
@@ -24,6 +26,7 @@
         {
             id: 'kardex',
             name: 'Kardex e historial de auditoría',
+            shortName: 'Kardex e historial',
             href: '/tenant/stock/kardex',
             icon: History,
             gridClass: 'col-span-2',
@@ -43,7 +46,7 @@
                 : 'border-border/60 bg-card/60 text-muted-foreground hover:bg-muted/60 hover:text-foreground'}"
         >
             <Icon class="size-4 shrink-0" />
-            <span class="truncate">{tab.name}</span>
+            <span class="truncate">{tab.shortName}</span>
         </Link>
     {/each}
 </div>

@@ -152,3 +152,26 @@ test('customer filtering by status, tax condition and defaulter works', function
         ->get(route('tenant.customers.index', ['status' => 'inactive']));
     $response->assertInertia(fn ($page) => $page->has('customers', 1));
 });
+
+test('customer filtering by search query works', function () {
+    Customer::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Librería El Ateneo Central',
+    ]);
+
+    Customer::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Gráfica Central SRL',
+    ]);
+
+    $response = $this->actingAs($this->adminUser)
+        ->get(route('tenant.customers.index', ['search' => 'Ateneo']));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->component('tenant/customers/Index')
+        ->has('customers', 1)
+        ->where('customers.0.name', 'Librería El Ateneo Central')
+    );
+});
+

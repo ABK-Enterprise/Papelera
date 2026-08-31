@@ -11,6 +11,9 @@
     import DollarSign from 'lucide-svelte/icons/dollar-sign';
     import FileText from 'lucide-svelte/icons/file-text';
     import History from 'lucide-svelte/icons/history';
+    import Mail from 'lucide-svelte/icons/mail';
+    import MapPin from 'lucide-svelte/icons/map-pin';
+    import Phone from 'lucide-svelte/icons/phone';
     import Search from 'lucide-svelte/icons/search';
     import ShieldCheck from 'lucide-svelte/icons/shield-check';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
@@ -18,6 +21,7 @@
     import User from 'lucide-svelte/icons/user';
     import UserCheck from 'lucide-svelte/icons/user-check';
     import X from 'lucide-svelte/icons/x';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     export interface MovementData {
         id: number;
@@ -212,9 +216,6 @@
                             <History class="size-4 text-primary" />
                             Libro Mayor de Movimientos
                         </h2>
-                        <p class="text-xs text-muted-foreground mt-0.5">
-                            Trazabilidad cronológica de cargos a crédito, cobros y notas de ajuste.
-                        </p>
                     </div>
                     <span class="text-xs font-semibold tabular-nums text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
                         {selectedCustomer.movements?.length || 0} movimientos
@@ -314,9 +315,9 @@
             <div class="bg-card text-card-foreground rounded-3xl border border-border/80 p-6 shadow-2xs space-y-5 sticky top-20">
                 <!-- Header Perfil Cliente -->
                 <div class="flex items-start gap-3.5 pb-4 border-b border-border/70">
-                    <div class="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-bold text-base shrink-0 border border-primary/20">
-                        {selectedCustomer.name.substring(0, 2).toUpperCase()}
-                    </div>
+                    <IconContainer size="lg" variant="primary">
+                        {selectedCustomer.name.slice(0, 2).toUpperCase()}
+                    </IconContainer>
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2 flex-wrap">
                             <h2 class="text-base font-bold text-foreground truncate">{selectedCustomer.name}</h2>
@@ -388,11 +389,11 @@
                         <span>Registrar Cobro / Abono</span>
                     </Button>
 
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-2 gap-2.5">
                         <Button
                             variant="secondary"
                             onclick={() => onOpenAdjustment(selectedCustomer!)}
-                            class="h-9 gap-1.5 text-xs font-medium rounded-xl"
+                            class="min-h-[40px] h-10 gap-1.5 text-xs font-semibold rounded-xl"
                         >
                             <Sliders class="size-3.5" />
                             <span>Ajustar Saldo</span>
@@ -401,21 +402,31 @@
                         <Button
                             variant="outline"
                             onclick={() => onOpenCreditSettings(selectedCustomer!)}
-                            class="h-9 gap-1.5 text-xs font-medium rounded-xl"
+                            class="min-h-[40px] h-10 gap-1.5 text-xs font-semibold rounded-xl"
                         >
                             <ShieldCheck class="size-3.5" />
                             <span>Editar Límites</span>
                         </Button>
                     </div>
+
                 </div>
 
                 <!-- Datos de Contacto Directo -->
                 <div class="p-3.5 rounded-2xl bg-muted/20 border border-border/60 space-y-2 text-xs">
                     <div class="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Datos de Contacto</div>
-                    <div class="text-foreground space-y-1">
-                        <p class="truncate">📍 {selectedCustomer.address || 'Sin dirección registrada'}</p>
-                        <p class="tabular-nums">📞 {selectedCustomer.phone || 'Sin teléfono'}</p>
-                        <p class="truncate">✉️ {selectedCustomer.email || 'Sin correo electrónico'}</p>
+                    <div class="text-foreground space-y-1.5">
+                        <p class="flex items-center gap-2 truncate text-muted-foreground">
+                            <MapPin class="size-3.5 text-primary shrink-0" />
+                            <span class="truncate text-foreground">{selectedCustomer.address || 'Sin dirección registrada'}</span>
+                        </p>
+                        <p class="flex items-center gap-2 tabular-nums text-muted-foreground">
+                            <Phone class="size-3.5 text-primary shrink-0" />
+                            <span class="text-foreground">{selectedCustomer.phone || 'Sin teléfono'}</span>
+                        </p>
+                        <p class="flex items-center gap-2 truncate text-muted-foreground">
+                            <Mail class="size-3.5 text-primary shrink-0" />
+                            <span class="truncate text-foreground">{selectedCustomer.email || 'Sin correo electrónico'}</span>
+                        </p>
                     </div>
                 </div>
             </div>

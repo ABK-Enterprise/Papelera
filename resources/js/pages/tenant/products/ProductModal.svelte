@@ -12,6 +12,7 @@
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import SaleTypeChangeAlertDialog from '@/components/common/SaleTypeChangeAlertDialog.svelte';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import { router, useForm } from '@inertiajs/svelte';
     import Check from 'lucide-svelte/icons/check';
     import Package from 'lucide-svelte/icons/package';
@@ -172,9 +173,11 @@
         <!-- 1. Header -->
         <DialogHeader>
             <div class="flex items-center gap-3 min-w-0">
-                <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Package class="size-5" />
-                </div>
+                <IconContainer
+                    size="md"
+                    variant={form.sale_type === 'weight' ? 'info' : 'primary'}
+                    icon={form.sale_type === 'weight' ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone'}
+                />
                 <div class="min-w-0">
                     <DialogTitle class="text-xl font-bold text-foreground">
                         {mode === 'edit' ? 'Editar Producto' : 'Crear Producto'}

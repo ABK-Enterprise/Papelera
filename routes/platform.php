@@ -20,7 +20,6 @@ Route::middleware(['auth', 'verified', 'superadmin'])
         Route::put('tenants/{tenant}', [TenantController::class, 'update'])->name('tenants.update');
         Route::patch('tenants/{tenant}/toggle-active', [TenantController::class, 'toggleActive'])->name('tenants.toggle-active');
 
-        // Modules & Permissions (Visualización y Control de Disponibilidad Global)
+        // Modules & Permissions (Catálogo y Permisos Granulares)
         Route::get('modules', [ModuleController::class, 'index'])->name('modules.index');
-        Route::patch('modules/{module}/toggle-active', [ModuleController::class, 'toggleActive'])->name('modules.toggle-active');
     });

@@ -27,7 +27,7 @@ class StockIncomeController extends Controller
             ->orderBy('name')
             ->get();
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
                 'movements' => $movements,
                 'products' => $products,
@@ -72,7 +72,7 @@ class StockIncomeController extends Controller
             ]);
         });
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($movement, 201);
         }
 

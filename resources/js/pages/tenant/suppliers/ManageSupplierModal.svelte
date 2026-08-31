@@ -9,6 +9,13 @@
         DialogHeader,
         DialogTitle,
     } from '@/components/ui/dialog';
+    import {
+        DropdownMenu,
+        DropdownMenuContent,
+        DropdownMenuItem,
+        DropdownMenuSeparator,
+        DropdownMenuTrigger,
+    } from '@/components/ui/dropdown-menu';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
@@ -20,8 +27,10 @@
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import ShieldAlert from 'lucide-svelte/icons/shield-alert';
     import ShieldCheck from 'lucide-svelte/icons/shield-check';
+    import MoreHorizontal from 'lucide-svelte/icons/more-horizontal';
     import X from 'lucide-svelte/icons/x';
     import Calendar from 'lucide-svelte/icons/calendar';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     export interface SupplierItem {
         id: number;
@@ -129,9 +138,7 @@
     <DialogContent class="max-w-2xl max-h-[85vh]">
         <DialogHeader>
             <div class="flex items-center gap-3 min-w-0">
-                <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Truck class="size-5" />
-                </div>
+                <IconContainer size="md" variant="primary" icon="solar:delivery-bold-duotone" />
                 <div class="min-w-0">
                     <div class="flex items-center gap-2">
                         <DialogTitle class="text-xl font-bold text-foreground">Gestión de Proveedor</DialogTitle>
@@ -145,26 +152,91 @@
                             </span>
                         {/if}
                     </div>
-                    <DialogDescription class="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
-                        <span>Editar información comercial y estado del proveedor</span>
-                        {#if supplier?.created_at}
-                            <span>•</span>
-                            <span class="inline-flex items-center gap-1">
-                                <Calendar class="size-3" />
-                                Registrado el {formatDate(supplier.created_at)}
-                            </span>
-                        {/if}
-                    </DialogDescription>
+                    {#if supplier?.created_at}
+                        <DialogDescription class="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                            <Calendar class="size-3 shrink-0" />
+                            <span class="tabular-nums">{formatDate(supplier.created_at)}</span>
+                        </DialogDescription>
+                    {/if}
                 </div>
             </div>
-            <button
-                type="button"
-                onclick={handleClose}
-                class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
-                aria-label="Cerrar"
-            >
-                <X class="size-4" />
-            </button>
+
+            <div class="flex items-center gap-1 shrink-0 -mr-1">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        {#snippet children(props)}
+                            <button
+                                {...props}
+                                type="button"
+                                class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                                aria-label="Más opciones"
+                            >
+                                <MoreHorizontal class="size-4" />
+                            </button>
+                        {/snippet}
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" class="w-48 shadow-lg">
+                        {#if form.is_active}
+                            <DropdownMenuItem asChild>
+                                {#snippet children(props)}
+                                    <button
+                                        type="button"
+                                        class="{props.class} w-full flex items-center text-rose-600 dark:text-rose-400 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30 gap-2 text-xs font-medium cursor-pointer"
+                                        onclick={() => {
+                                            props.onClick?.();
+                                            showDeactivateConfirm = true;
+                                        }}
+                                    >
+                                        <ShieldAlert class="size-3.5 shrink-0" />
+                                        <span>Desactivar proveedor</span>
+                                    </button>
+                                {/snippet}
+                            </DropdownMenuItem>
+                        {:else}
+                            <DropdownMenuItem asChild>
+                                {#snippet children(props)}
+                                    <button
+                                        type="button"
+                                        class="{props.class} w-full flex items-center text-emerald-600 dark:text-emerald-400 focus:text-emerald-600 focus:bg-emerald-50 dark:focus:bg-emerald-950/30 gap-2 text-xs font-medium cursor-pointer"
+                                        onclick={() => {
+                                            props.onClick?.();
+                                            showActivateConfirm = true;
+                                        }}
+                                    >
+                                        <ShieldCheck class="size-3.5 shrink-0" />
+                                        <span>Activar proveedor</span>
+                                    </button>
+                                {/snippet}
+                            </DropdownMenuItem>
+                        {/if}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                            {#snippet children(props)}
+                                <button
+                                    type="button"
+                                    class="{props.class} w-full flex items-center text-destructive focus:text-destructive focus:bg-destructive/10 gap-2 text-xs font-medium cursor-pointer"
+                                    onclick={() => {
+                                        props.onClick?.();
+                                        showDeleteConfirm = true;
+                                    }}
+                                >
+                                    <Trash2 class="size-3.5 shrink-0" />
+                                    <span>Eliminar proveedor</span>
+                                </button>
+                            {/snippet}
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+                <button
+                    type="button"
+                    onclick={handleClose}
+                    class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                    aria-label="Cerrar"
+                >
+                    <X class="size-4" />
+                </button>
+            </div>
         </DialogHeader>
 
         <DialogBody>
@@ -241,57 +313,13 @@
             </form>
         </DialogBody>
 
-        <DialogFooter class="sm:justify-between">
-            <!-- Izquierda: Estado y Eliminar -->
-            <div class="flex items-center gap-2">
-                {#if form.is_active}
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        class="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 border-rose-200 dark:border-rose-900/40 gap-1.5"
-                        onclick={() => (showDeactivateConfirm = true)}
-                        disabled={form.processing || isDeleting}
-                    >
-                        <ShieldAlert class="size-3.5" />
-                        <span>Desactivar proveedor</span>
-                    </Button>
-                {:else}
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/40 gap-1.5"
-                        onclick={() => (showActivateConfirm = true)}
-                        disabled={form.processing || isDeleting}
-                    >
-                        <ShieldCheck class="size-3.5" />
-                        <span>Activar proveedor</span>
-                    </Button>
-                {/if}
-
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    class="text-xs text-muted-foreground hover:text-destructive gap-1 px-2"
-                    onclick={() => (showDeleteConfirm = true)}
-                    disabled={isDeleting || form.processing}
-                >
-                    <Trash2 class="size-3.5" />
-                    <span>Eliminar</span>
-                </Button>
-            </div>
-
-            <!-- Derecha: Guardar cambios y Cancelar -->
-            <div class="flex items-center justify-end gap-2">
-                <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing || isDeleting} class="text-xs">
-                    Cancelar
-                </Button>
-                <Button type="submit" form="manage-supplier-form" size="sm" disabled={form.processing || isDeleting} class="min-w-32 text-xs font-semibold">
-                    {form.processing ? 'Guardando...' : 'Guardar cambios'}
-                </Button>
-            </div>
+        <DialogFooter class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2">
+            <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing || isDeleting} class="text-xs">
+                Cancelar
+            </Button>
+            <Button type="submit" form="manage-supplier-form" size="sm" disabled={form.processing || isDeleting} class="min-w-32 text-xs font-semibold">
+                {form.processing ? 'Guardando...' : 'Guardar cambios'}
+            </Button>
         </DialogFooter>
     </DialogContent>
 </Dialog>
@@ -299,33 +327,30 @@
 <!-- Modal Precaución: Desactivar Proveedor -->
 <ConfirmActionModal
     bind:open={showDeactivateConfirm}
-    title="Desactivar Proveedor"
-    description={`¿Estás seguro de que deseas desactivar al proveedor "${form.name || supplier?.name}"? No estará disponible para nuevas compras ni órdenes hasta que sea reactivado.`}
-    confirmText="Sí, desactivar"
-    cancelText="Cancelar"
-    variant="danger"
-    onconfirm={confirmToggleDeactivate}
+    title="¿Desactivar proveedor?"
+    description={`Al desactivar "${form.name}", no aparecerá disponible para emitir nuevas órdenes de compra.`}
+    confirmText="Desactivar proveedor"
+    variant="warning"
+    onConfirm={confirmToggleDeactivate}
 />
 
-<!-- Modal: Activar Proveedor -->
+<!-- Modal Precaución: Activar Proveedor -->
 <ConfirmActionModal
     bind:open={showActivateConfirm}
-    title="Activar Proveedor"
-    description={`¿Deseas activar nuevamente al proveedor "${form.name || supplier?.name}" para habilitar compras y operaciones?`}
-    confirmText="Sí, activar"
-    cancelText="Cancelar"
+    title="¿Activar proveedor?"
+    description={`Al activar "${form.name}", volverá a estar disponible para emitir órdenes de compra.`}
+    confirmText="Activar proveedor"
     variant="primary"
-    onconfirm={confirmToggleActivate}
+    onConfirm={confirmToggleActivate}
 />
 
-<!-- Modal Precaución: Eliminar Proveedor Permanentemente -->
+<!-- Modal Alerta: Eliminar Proveedor -->
 <ConfirmActionModal
     bind:open={showDeleteConfirm}
-    title="Eliminar Proveedor Permanentemente"
-    description={`¿Estás seguro de que deseas eliminar permanentemente al proveedor "${form.name || supplier?.name}"? Esta acción borrará el registro de forma definitiva.`}
-    confirmText="Sí, eliminar definitivamente"
-    cancelText="Cancelar"
-    variant="danger"
-    loading={isDeleting}
-    onconfirm={executeDelete}
+    title="¿Eliminar proveedor?"
+    description={`Esta acción es irreversible. Se eliminará "${form.name}" del directorio comercial.`}
+    confirmText="Eliminar proveedor"
+    variant="destructive"
+    isLoading={isDeleting}
+    onConfirm={executeDelete}
 />

@@ -17,6 +17,7 @@
     import CreditCard from 'lucide-svelte/icons/credit-card';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import X from 'lucide-svelte/icons/x';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     let {
         open = $bindable(false),
@@ -59,9 +60,7 @@
     <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-8">
         <div class="flex items-center justify-between pb-4 border-b border-border">
             <div class="flex items-center gap-3">
-                <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <UserPlus class="size-5" />
-                </div>
+                <IconContainer size="md" variant="primary" icon="solar:user-plus-bold-duotone" />
                 <div>
                     <DialogTitle class="text-xl font-bold text-foreground">Añadir Nuevo Cliente</DialogTitle>
                     <DialogDescription class="text-xs text-muted-foreground mt-0.5">

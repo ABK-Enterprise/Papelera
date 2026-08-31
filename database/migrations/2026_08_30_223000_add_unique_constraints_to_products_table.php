@@ -12,96 +12,105 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $driver = DB::getDriverName();
+        // 1. Deduplicate any existing duplicate SKUs per tenant and sale_type before applying unique index
+        $duplicateSkus = DB::table('products')
+            ->select('tenant_id', 'sku', 'sale_type', DB::raw('COUNT(*) as count'))
+            ->whereNotNull('sku')
+            ->where('sku', '!=', '')
+            ->groupBy('tenant_id', 'sku', 'sale_type')
+            ->havingRaw('COUNT(*) > 1')
+            ->get();
 
-        // 1. Deduplicate existing collisions for (tenant_id, sku, sale_type)
-        if ($driver === 'pgsql') {
-            DB::statement("
-                UPDATE products p
-                SET sku = p.sku || '-DUP-' || p.id
-                WHERE p.sku IS NOT NULL
-                  AND p.id NOT IN (
-                      SELECT MIN(id)
-                      FROM products
-                      WHERE sku IS NOT NULL
-                      GROUP BY tenant_id, sku, sale_type
-                  )
-            ");
+        foreach ($duplicateSkus as $dup) {
+            $records = DB::table('products')
+                ->where('tenant_id', $dup->tenant_id)
+                ->where('sku', $dup->sku)
+                ->where('sale_type', $dup->sale_type)
+                ->orderBy('id')
+                ->get();
 
-            // Deduplicate (tenant_id, name, sale_type)
-            DB::statement("
-                UPDATE products p
-                SET name = p.name || ' (' || p.id || ')'
-                WHERE p.id NOT IN (
-                    SELECT MIN(id)
-                    FROM products
-                    GROUP BY tenant_id, name, sale_type
-                )
-            ");
-
-            // Deduplicate (tenant_id, barcode)
-            DB::statement("
-                UPDATE products p
-                SET barcode = p.barcode || '-DUP-' || p.id
-                WHERE p.barcode IS NOT NULL
-                  AND p.id NOT IN (
-                      SELECT MIN(id)
-                      FROM products
-                      WHERE barcode IS NOT NULL
-                      GROUP BY tenant_id, barcode
-                  )
-            ");
-        } elseif ($driver === 'sqlite' || $driver === 'mysql') {
-            DB::statement("
-                UPDATE products
-                SET sku = sku || '-DUP-' || id
-                WHERE sku IS NOT NULL
-                  AND id NOT IN (
-                      SELECT min_id FROM (
-                          SELECT MIN(id) as min_id
-                          FROM products
-                          WHERE sku IS NOT NULL
-                          GROUP BY tenant_id, sku, sale_type
-                      ) as temp_sku
-                  )
-            ");
-
-            DB::statement("
-                UPDATE products
-                SET name = name || ' (' || id || ')'
-                WHERE id NOT IN (
-                    SELECT min_id FROM (
-                        SELECT MIN(id) as min_id
-                        FROM products
-                        GROUP BY tenant_id, name, sale_type
-                    ) as temp_name
-                )
-            ");
-
-            DB::statement("
-                UPDATE products
-                SET barcode = barcode || '-DUP-' || id
-                WHERE barcode IS NOT NULL
-                  AND id NOT IN (
-                      SELECT min_id FROM (
-                          SELECT MIN(id) as min_id
-                          FROM products
-                          WHERE barcode IS NOT NULL
-                          GROUP BY tenant_id, barcode
-                      ) as temp_bc
-                  )
-            ");
+            // Keep the first record intact, append a unique suffix to the duplicates
+            $isFirst = true;
+            foreach ($records as $record) {
+                if ($isFirst) {
+                    $isFirst = false;
+                    continue;
+                }
+                DB::table('products')
+                    ->where('id', $record->id)
+                    ->update([
+                        'sku' => $record->sku . '-DUP-' . $record->id,
+                        'updated_at' => now(),
+                    ]);
+            }
         }
 
-        // 2. Modify indexes in products table
-        Schema::table('products', function (Blueprint $table) {
-            // Drop previous non-unique index on (tenant_id, sku) if exists
-            $table->dropIndex(['tenant_id', 'sku']);
+        // 2. Deduplicate any existing duplicate Names per tenant and sale_type
+        $duplicateNames = DB::table('products')
+            ->select('tenant_id', 'name', 'sale_type', DB::raw('COUNT(*) as count'))
+            ->groupBy('tenant_id', 'name', 'sale_type')
+            ->havingRaw('COUNT(*) > 1')
+            ->get();
 
-            // Create composite UNIQUE indexes
+        foreach ($duplicateNames as $dup) {
+            $records = DB::table('products')
+                ->where('tenant_id', $dup->tenant_id)
+                ->where('name', $dup->name)
+                ->where('sale_type', $dup->sale_type)
+                ->orderBy('id')
+                ->get();
+
+            $isFirst = true;
+            foreach ($records as $record) {
+                if ($isFirst) {
+                    $isFirst = false;
+                    continue;
+                }
+                DB::table('products')
+                    ->where('id', $record->id)
+                    ->update([
+                        'name' => $record->name . ' (Copia ' . $record->id . ')',
+                        'updated_at' => now(),
+                    ]);
+            }
+        }
+
+        // 3. Deduplicate any existing duplicate Barcodes per tenant
+        $duplicateBarcodes = DB::table('products')
+            ->select('tenant_id', 'barcode', DB::raw('COUNT(*) as count'))
+            ->whereNotNull('barcode')
+            ->where('barcode', '!=', '')
+            ->groupBy('tenant_id', 'barcode')
+            ->havingRaw('COUNT(*) > 1')
+            ->get();
+
+        foreach ($duplicateBarcodes as $dup) {
+            $records = DB::table('products')
+                ->where('tenant_id', $dup->tenant_id)
+                ->where('barcode', $dup->barcode)
+                ->orderBy('id')
+                ->get();
+
+            $isFirst = true;
+            foreach ($records as $record) {
+                if ($isFirst) {
+                    $isFirst = false;
+                    continue;
+                }
+                DB::table('products')
+                    ->where('id', $record->id)
+                    ->update([
+                        'barcode' => null,
+                        'updated_at' => now(),
+                    ]);
+            }
+        }
+
+        // 4. Add composite unique indexes
+        Schema::table('products', function (Blueprint $table) {
             $table->unique(['tenant_id', 'sku', 'sale_type'], 'products_tenant_sku_sale_type_unique');
-            $table->unique(['tenant_id', 'barcode'], 'products_tenant_barcode_unique');
             $table->unique(['tenant_id', 'name', 'sale_type'], 'products_tenant_name_sale_type_unique');
+            $table->unique(['tenant_id', 'barcode'], 'products_tenant_barcode_unique');
         });
     }
 
@@ -111,11 +120,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
+            $table->dropUnique('products_tenant_sku_sale_type_unique');
             $table->dropUnique('products_tenant_name_sale_type_unique');
             $table->dropUnique('products_tenant_barcode_unique');
-            $table->dropUnique('products_tenant_sku_sale_type_unique');
-
-            $table->index(['tenant_id', 'sku']);
         });
     }
 };

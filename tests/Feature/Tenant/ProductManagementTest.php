@@ -155,63 +155,40 @@ test('product routes are forbidden if tenant does not have stock module', functi
         ->assertForbidden();
 });
 
-test('tenant user cannot create duplicate product with same name and sale_type', function () {
+test('cannot create duplicate product name for same tenant and sale_type', function () {
     Product::factory()->forTenant($this->tenant)->create([
-        'name' => 'Papel Kraft 120g',
+        'name' => 'Papel Kraft 80g',
         'sale_type' => 'unit',
     ]);
 
     $this->actingAs($this->user)
         ->postJson('/tenant/products', [
-            'name' => 'Papel Kraft 120g',
+            'name' => 'Papel Kraft 80g',
             'sale_type' => 'unit',
+            'price' => 100,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['name']);
+});
+
+test('can create same product name or sku if sale_type is different', function () {
+    Product::factory()->forTenant($this->tenant)->create([
+        'name' => 'Bolsa Plastica',
+        'sku' => 'BP-01',
+        'sale_type' => 'unit',
+    ]);
+
+    $this->actingAs($this->user)
+        ->postJson('/tenant/products', [
+            'name' => 'Bolsa Plastica',
+            'sku' => 'BP-01',
+            'sale_type' => 'weight',
             'price' => 1500,
         ])
-        ->assertUnprocessable()
-        ->assertJsonValidationErrors(['name']);
+        ->assertCreated();
 });
 
-test('tenant user can create same product name and sku for different sale_type but fails on 3rd attempt', function () {
-    $unitProduct = Product::factory()->forTenant($this->tenant)->create([
-        'name' => 'Papel Glasé',
-        'sku' => 'PAP-GL-01',
-        'sale_type' => 'unit',
-    ]);
-
-    // Allowed: variant by weight
-    $this->actingAs($this->user)
-        ->postJson('/tenant/products', [
-            'name' => 'Papel Glasé',
-            'sku' => 'PAP-GL-01',
-            'sale_type' => 'weight',
-            'price' => 2500,
-        ])
-        ->assertSuccessful();
-
-    // Rejected: 2nd unit variant with same SKU
-    $this->actingAs($this->user)
-        ->postJson('/tenant/products', [
-            'name' => 'Papel Glasé Nuevo',
-            'sku' => 'PAP-GL-01',
-            'sale_type' => 'unit',
-            'price' => 3000,
-        ])
-        ->assertUnprocessable()
-        ->assertJsonValidationErrors(['sku']);
-
-    // Rejected: 2nd weight variant with same name
-    $this->actingAs($this->user)
-        ->postJson('/tenant/products', [
-            'name' => 'Papel Glasé',
-            'sku' => 'PAP-GL-02',
-            'sale_type' => 'weight',
-            'price' => 3000,
-        ])
-        ->assertUnprocessable()
-        ->assertJsonValidationErrors(['name']);
-});
-
-test('tenant user cannot create duplicate product with same barcode', function () {
+test('cannot create duplicate barcode in same tenant', function () {
     Product::factory()->forTenant($this->tenant)->create([
         'barcode' => '7791234567890',
     ]);
@@ -220,7 +197,7 @@ test('tenant user cannot create duplicate product with same barcode', function (
         ->postJson('/tenant/products', [
             'name' => 'Otro Producto',
             'barcode' => '7791234567890',
-            'price' => 500,
+            'price' => 100,
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['barcode']);

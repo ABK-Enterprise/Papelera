@@ -61,12 +61,12 @@
             {/snippet}
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" class="w-64 p-2 shadow-lg">
+        <DropdownMenuContent align="end" class="w-64 sm:w-72 max-w-[calc(100vw-2rem)] p-2 shadow-lg">
             <!-- Header con Datos de Usuario y Comercio -->
             <DropdownMenuLabel class="p-2 font-normal">
                 <div class="flex flex-col gap-1.5">
-                    <div class="flex items-center gap-2.5">
-                        <Avatar class="h-10 w-10 rounded-full border">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <Avatar class="h-10 w-10 shrink-0 rounded-full border">
                             {#if hasAvatar}
                                 <AvatarImage src={user.avatar!} alt={user.name} />
                             {/if}
@@ -74,24 +74,24 @@
                                 {getInitials(user.name)}
                             </AvatarFallback>
                         </Avatar>
-                        <div class="flex flex-col min-w-0">
-                            <span class="truncate text-sm font-semibold text-foreground">{user.name}</span>
-                            <span class="truncate text-xs text-muted-foreground">{user.email}</span>
+                        <div class="flex flex-col min-w-0 flex-1">
+                            <span class="truncate text-sm font-semibold text-foreground" title={user.name}>{user.name}</span>
+                            <span class="truncate text-xs text-muted-foreground" title={user.email}>{user.email}</span>
                         </div>
                     </div>
 
                     {#if tenant}
-                        <div class="mt-1 flex items-center justify-between rounded-md bg-muted/50 px-2.5 py-1 text-xs text-muted-foreground">
-                            <span class="flex items-center gap-1.5 truncate font-medium">
+                        <div class="mt-1 flex items-center justify-between gap-2 rounded-md bg-muted/50 px-2.5 py-1 text-xs text-muted-foreground min-w-0">
+                            <span class="flex items-center gap-1.5 truncate min-w-0 font-medium" title={tenant.name}>
                                 <Building2 class="h-3.5 w-3.5 shrink-0" />
-                                {tenant.name}
+                                <span class="truncate">{tenant.name}</span>
                             </span>
-                            <Badge variant="outline" class="text-xs font-medium tracking-wide px-2 py-0.5">Comercio</Badge>
+                            <Badge variant="outline" class="text-xs font-medium tracking-wide px-2 py-0.5 shrink-0">Comercio</Badge>
                         </div>
                     {:else if user.is_superadmin}
-                        <div class="mt-1 flex items-center justify-between rounded-md bg-primary/10 px-2.5 py-1 text-xs text-primary font-medium">
-                            <span>Superadministrador</span>
-                            <Badge variant="default" class="text-xs font-medium tracking-wide px-2 py-0.5">Plataforma</Badge>
+                        <div class="mt-1 flex items-center justify-between gap-2 rounded-md bg-primary/10 px-2.5 py-1 text-xs text-primary font-medium min-w-0">
+                            <span class="truncate min-w-0 max-w-[130px] sm:max-w-none" title="Superadministrador">Superadministrador</span>
+                            <Badge variant="default" class="text-xs font-medium tracking-wide px-2 py-0.5 shrink-0">Plataforma</Badge>
                         </div>
                     {/if}
                 </div>

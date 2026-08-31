@@ -5,11 +5,13 @@
     import { Badge } from '@/components/ui/badge';
     import { Link, router } from '@inertiajs/svelte';
     import Plus from 'lucide-svelte/icons/plus';
+    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Search from 'lucide-svelte/icons/search';
-    import Filter from 'lucide-svelte/icons/filter';
+    import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import Truck from 'lucide-svelte/icons/truck';
     import Users from 'lucide-svelte/icons/users';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
+    import SupplierFilterModalMobile from './mobile/SupplierFilterModalMobile.svelte';
     import SupplierListDesktop from './desktop/SupplierListDesktop.svelte';
     import SupplierListMobile from './mobile/SupplierListMobile.svelte';
     import CreateSupplierModal from './CreateSupplierModal.svelte';
@@ -30,11 +32,17 @@
         filters?: FilterProps;
     } = $props();
 
-    let searchTerm = $state(filters.search ?? '');
-    let selectedStatus = $state(filters.status ?? '');
+    let searchTerm = $state('');
+    let selectedStatus = $state('');
+
+    $effect(() => {
+        searchTerm = filters?.search ?? '';
+        selectedStatus = filters?.status ?? '';
+    });
 
     let showCreateModal = $state(false);
     let showManageModal = $state(false);
+    let isFilterModalOpen = $state(false);
     let selectedSupplier = $state<SupplierItem | null>(null);
 
     function applyFilters() {
@@ -63,6 +71,7 @@
     }
 
     let hasActiveFilters = $derived(Boolean(searchTerm || selectedStatus));
+    let activeFiltersCount = $derived(selectedStatus ? 1 : 0);
 </script>
 
 <AppHead title="Gestión de Proveedores - Comercio" />
@@ -96,27 +105,33 @@
             </p>
         </div>
 
-        <div class="flex items-center gap-2.5">
-            <Button class="gap-2 shadow-sm font-semibold" onclick={() => (showCreateModal = true)}>
+        <div class="flex items-center justify-end gap-2.5">
+            <Button class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs" onclick={() => (showCreateModal = true)}>
                 <Plus class="h-4 w-4" />
-                + Añadir Proveedor
+                <span>+ Añadir Proveedor</span>
             </Button>
         </div>
     </div>
 
     <!-- Bento Card: Buscador y Filtros -->
-        <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-border/60">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-3">
-                <!-- Buscador por Nombre, Contacto, Email o Dirección -->
-                <div class="w-full md:w-[538px]">
+    <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-border/60">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+            <!-- Buscador + Botón Filtros Mobile -->
+            <div class="flex items-center gap-2 w-full md:w-[538px]">
+                <div class="flex-1 min-w-0">
+
                     <SearchCombobox
                         bind:value={searchTerm}
                         items={suppliers}
                         placeholder="Buscar por nombre, teléfono, email..."
-                        onsearch={applyFilters}
+                        onsearch={(q) => {
+                            searchTerm = q;
+                            applyFilters();
+                        }}
                         onselect={handleSelectSupplier}
+                        onclear={resetFilters}
                     >
-                        {#snippet item(supp)}
+                        {#snippet itemSnippet(supp)}
                             <div class="flex items-center justify-between gap-3 w-full min-w-0">
                                 <div class="flex flex-col min-w-0">
                                     <span class="truncate font-medium text-foreground">{supp.name}</span>
@@ -140,49 +155,79 @@
                     </SearchCombobox>
                 </div>
 
-                <!-- Selectores de Filtro -->
-                <div class="flex items-center gap-2.5 w-full md:w-auto">
-                    <select
-                        bind:value={selectedStatus}
-                        onchange={applyFilters}
-                        class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[150px]"
+                <!-- Disparador de Filtros Mobile -->
+                <div class="block md:hidden">
+                    <Button
+                        type="button"
+                        variant={activeFiltersCount > 0 ? 'secondary' : 'outline'}
+                        size="icon"
+                        onclick={() => (isFilterModalOpen = true)}
+                        class="relative h-10 w-10 shrink-0 rounded-xl border border-border/70 shadow-2xs"
+                        aria-label="Abrir filtros"
                     >
-                        <option value="">Estado: Todos</option>
-                        <option value="active">Solo Activos</option>
-                        <option value="inactive">Solo Inactivos</option>
-                    </select>
-
-                    {#if hasActiveFilters}
-                        <Button variant="ghost" size="sm" class="h-10 px-2 text-xs text-muted-foreground hover:text-foreground gap-1" onclick={resetFilters}>
-                            <X class="h-3.5 w-3.5" />
-                            Limpiar
-                        </Button>
-                    {/if}
+                        <SlidersHorizontal class="h-4 w-4 text-foreground" />
+                        {#if activeFiltersCount > 0}
+                            <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums shadow-xs">
+                                {activeFiltersCount}
+                            </span>
+                        {/if}
+                    </Button>
                 </div>
-
             </div>
-        </Card>
 
-        <!-- Lista en formato Wide Cards (Desglose Desktop) -->
-        <div class="hidden md:block">
-            <SupplierListDesktop
-                {suppliers}
-                onSelectSupplier={handleSelectSupplier}
-                onOpenCreate={() => (showCreateModal = true)}
-            />
-        </div>
+            <!-- Selectores de Filtro Desktop -->
+            <div class="hidden md:flex items-center gap-2.5 w-auto">
+                <select
+                    bind:value={selectedStatus}
+                    onchange={applyFilters}
+                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[150px]"
+                >
+                    <option value="">Estado: Todos</option>
+                    <option value="active">Solo Activos</option>
+                    <option value="inactive">Solo Inactivos</option>
+                </select>
 
-        <!-- Lista en formato Wide Cards (Desglose Mobile) -->
-        <div class="block md:hidden">
-            <SupplierListMobile
-                {suppliers}
-                onSelectSupplier={handleSelectSupplier}
-                onOpenCreate={() => (showCreateModal = true)}
-            />
+                {#if hasActiveFilters}
+                    <Button variant="ghost" size="sm" class="h-10 px-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 gap-1.5 rounded-xl transition-all" onclick={resetFilters}>
+                        <RotateCcw class="size-3.5" />
+                        <span>Limpiar</span>
+                    </Button>
+                {/if}
+            </div>
         </div>
+    </Card>
+
+    <!-- Lista en formato Wide Cards (Desglose Desktop) -->
+    <div class="hidden md:block">
+        <SupplierListDesktop
+            {suppliers}
+            onSelectSupplier={handleSelectSupplier}
+            onOpenCreate={() => (showCreateModal = true)}
+        />
     </div>
 
-    <!-- Modales de Operación -->
-    <CreateSupplierModal bind:open={showCreateModal} />
+    <!-- Lista en formato Wide Cards (Desglose Mobile) -->
+    <div class="block md:hidden">
+        <SupplierListMobile
+            {suppliers}
+            onSelectSupplier={handleSelectSupplier}
+            onOpenCreate={() => (showCreateModal = true)}
+        />
+    </div>
+</div>
 
-    <ManageSupplierModal bind:open={showManageModal} supplier={selectedSupplier} />
+<!-- Modales de Operación -->
+<CreateSupplierModal bind:open={showCreateModal} />
+
+<ManageSupplierModal bind:open={showManageModal} supplier={selectedSupplier} />
+
+<!-- Modal de Filtros Mobile -->
+<SupplierFilterModalMobile
+    bind:open={isFilterModalOpen}
+    {selectedStatus}
+    onapply={(f) => {
+        selectedStatus = f.status;
+        applyFilters();
+    }}
+    onreset={resetFilters}
+/>

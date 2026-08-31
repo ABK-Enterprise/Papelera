@@ -2,9 +2,9 @@
     import { Button } from '@/components/ui/button';
     import { Badge } from '@/components/ui/badge';
     import { Link } from '@inertiajs/svelte';
-    import Edit2 from 'lucide-svelte/icons/edit-2';
-    import Users from 'lucide-svelte/icons/users';
-    import Calendar from 'lucide-svelte/icons/calendar';
+    import Icon from '@iconify/svelte';
+    import X from 'lucide-svelte/icons/x';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     interface ModuleSummary {
         id: number;
@@ -19,11 +19,22 @@
         cuit_tax_id: string | null;
         is_active: boolean;
         users_count?: number;
+        products_count?: number;
         modules: ModuleSummary[];
         created_at: string;
     }
 
     let { tenants = [] }: { tenants: TenantItem[] } = $props();
+
+    let selectedTenant = $state<TenantItem | null>(null);
+
+    function toggleDetail(tenant: TenantItem) {
+        if (selectedTenant?.id === tenant.id) {
+            selectedTenant = null;
+        } else {
+            selectedTenant = tenant;
+        }
+    }
 
     function formatDate(dateStr: string): string {
         if (!dateStr) return '-';
@@ -40,85 +51,180 @@
     }
 </script>
 
-<div class="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-xs">
-    <table class="w-full text-left text-sm">
-        <thead class="border-b border-border/60 bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            <tr>
-                <th scope="col" class="py-3.5 pl-6 pr-4">Comercio</th>
-                <th scope="col" class="px-4 py-3.5">Usuarios</th>
-                <th scope="col" class="px-4 py-3.5">Estado</th>
-                <th scope="col" class="px-4 py-3.5">Fecha de alta</th>
-                <th scope="col" class="px-4 py-3.5 text-right">Módulos contratados</th>
-                <th scope="col" class="py-3.5 pr-6 pl-4 text-right">Acciones</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-border/40">
+<div class="flex flex-col lg:flex-row gap-6 items-start">
+    <!-- Lista de Wide-Cards -->
+    <div class={`w-full transition-all duration-300 ${selectedTenant ? 'lg:w-[65%]' : 'lg:w-full'}`}>
+        <div class="flex flex-col gap-3">
             {#each tenants as tenant (tenant.id)}
-                <tr class="group transition-colors hover:bg-muted/30">
-                    <td class="py-4 pl-6 pr-4">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-base">
+                <div
+                    class={`p-5 rounded-2xl border bg-card shadow-2xs transition-all ${
+                        selectedTenant?.id === tenant.id
+                            ? 'border-primary ring-1 ring-primary/30 bg-primary/[0.02]'
+                            : 'border-border/70 hover:border-border hover:shadow-xs'
+                    }`}
+                >
+                    <div class="flex items-center justify-between gap-4">
+                        <!-- Info Principal -->
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <IconContainer size="lg" variant="primary">
                                 {tenant.name ? tenant.name.charAt(0).toUpperCase() : 'C'}
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="font-semibold text-foreground">{tenant.name}</span>
-                                <span class="text-xs text-muted-foreground tabular-nums">
+                            </IconContainer>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2.5">
+                                    <h3 class="font-semibold text-base text-foreground truncate">{tenant.name}</h3>
+                                    {#if tenant.is_active}
+                                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                            <span class="size-1.5 rounded-full bg-emerald-500"></span>
+                                            Activo
+                                        </span>
+                                    {:else}
+                                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                                            <span class="size-1.5 rounded-full bg-rose-500"></span>
+                                            Suspendido
+                                        </span>
+                                    {/if}
+                                </div>
+                                <p class="text-xs text-muted-foreground tabular-nums mt-0.5">
                                     {tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}
-                                </span>
+                                    • Alta: {formatDate(tenant.created_at)}
+                                </p>
                             </div>
                         </div>
-                    </td>
-                    <td class="px-4 py-4">
-                        <div class="flex items-center gap-1.5 text-xs text-muted-foreground font-medium tabular-nums">
-                            <Users class="h-3.5 w-3.5" />
-                            <span>{tenant.users_count ?? 0} {tenant.users_count === 1 ? 'usuario' : 'usuarios'}</span>
+
+                        <!-- Métricas y Botones -->
+                        <div class="flex items-center gap-5 shrink-0">
+                            <div class="flex items-center gap-2.5 text-xs text-muted-foreground tabular-nums font-medium">
+                                <span>Usuarios <strong class="text-foreground font-semibold">{tenant.users_count ?? 0}</strong></span>
+                                {#if tenant.products_count !== undefined}
+                                    <span class="inline-block h-3 w-px bg-border/80 shrink-0" aria-hidden="true"></span>
+                                    <span>Productos <strong class="text-foreground font-semibold">{tenant.products_count}</strong></span>
+                                {:else if tenant.modules}
+                                    <span class="inline-block h-3 w-px bg-border/80 shrink-0" aria-hidden="true"></span>
+                                    <span>Módulos <strong class="text-foreground font-semibold">{tenant.modules.length}</strong></span>
+                                {/if}
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <Button
+                                    variant={selectedTenant?.id === tenant.id ? 'default' : 'outline'}
+                                    size="sm"
+                                    class="min-h-[38px] gap-1.5 rounded-xl text-xs font-medium border-border/70"
+                                    onclick={() => toggleDetail(tenant)}
+                                >
+                                    <Icon icon="solar:eye-bold-duotone" class="size-4" />
+                                    <span>{selectedTenant?.id === tenant.id ? 'Ocultar' : 'Ver'}</span>
+                                </Button>
+
+                                <Link href={`/platform/tenants/${tenant.id}/edit`}>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        class="min-h-[38px] gap-1.5 rounded-xl text-xs font-medium border-border/70"
+                                    >
+                                        <Icon icon="solar:pen-new-square-bold-duotone" class="size-3.5" />
+                                        <span>Editar</span>
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
-                    </td>
-                    <td class="px-4 py-4">
-                        {#if tenant.is_active}
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                                Activo
-                            </span>
-                        {:else}
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-                                <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
-                                Suspendido
-                            </span>
-                        {/if}
-                    </td>
-                    <td class="px-4 py-4 text-xs text-muted-foreground tabular-nums">
-                        <div class="flex items-center gap-1.5">
-                            <Calendar class="h-3.5 w-3.5 text-muted-foreground/70" />
-                            <span>{formatDate(tenant.created_at)}</span>
-                        </div>
-                    </td>
-                    <td class="px-4 py-4 text-right">
-                        <div class="flex flex-wrap justify-end gap-1.5 max-w-xs ml-auto">
-                            {#each tenant.modules as mod}
-                                <Badge variant="outline" class="text-xs font-medium tracking-wide bg-muted/40 px-2 py-0.5">
-                                    {mod.name}
-                                </Badge>
-                            {/each}
-                            {#if tenant.modules.length === 0}
-                                <span class="text-xs italic text-muted-foreground">Sin módulos</span>
-                            {/if}
-                        </div>
-                    </td>
-                    <td class="py-4 pr-6 pl-4 text-right">
-                        <Link href={`/platform/tenants/${tenant.id}/edit`}>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                class="min-h-[40px] gap-1.5 rounded-xl border-border/70 text-xs font-medium hover:bg-muted/60 transition-colors"
-                            >
-                                <Edit2 class="h-3.5 w-3.5" />
-                                <span>Editar</span>
-                            </Button>
-                        </Link>
-                    </td>
-                </tr>
+                    </div>
+                </div>
             {/each}
-        </tbody>
-    </table>
+        </div>
+    </div>
+
+    <!-- Panel Lateral Desktop (Split View con Fade) -->
+    {#if selectedTenant}
+        <div class="lg:w-[35%] lg:sticky lg:top-6 bg-card border border-border/80 rounded-2xl p-5 shadow-sm space-y-4 animate-in fade-in duration-200">
+            <div class="flex items-center justify-between pb-3 border-b border-border/50">
+                <div class="flex items-center gap-3">
+                    <IconContainer size="md" variant="primary">
+                        {selectedTenant.name ? selectedTenant.name.charAt(0).toUpperCase() : 'C'}
+                    </IconContainer>
+                    <div>
+                        <h3 class="font-bold text-base text-foreground leading-snug">{selectedTenant.name}</h3>
+                        <span class="text-xs text-muted-foreground tabular-nums">
+                            {selectedTenant.cuit_tax_id ? `CUIT: ${selectedTenant.cuit_tax_id}` : `ID: MER-${selectedTenant.id.toString().padStart(5, '0')}`}
+                        </span>
+                    </div>
+                </div>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    class="size-8 p-0 rounded-lg text-muted-foreground hover:text-foreground"
+                    onclick={() => selectedTenant = null}
+                >
+                    <X class="size-4" />
+                </Button>
+            </div>
+
+            <!-- Estado -->
+            <div class="flex items-center justify-between p-3 rounded-xl bg-muted/40 border border-border/50">
+                <span class="text-xs font-medium text-muted-foreground">Estado del comercio</span>
+                {#if selectedTenant.is_active}
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        <span class="size-1.5 rounded-full bg-emerald-500"></span>
+                        Activo
+                    </span>
+                {:else}
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                        <span class="size-1.5 rounded-full bg-rose-500"></span>
+                        Suspendido
+                    </span>
+                {/if}
+            </div>
+
+            <!-- Métricas -->
+            <div class="grid grid-cols-2 gap-2.5">
+                <div class="p-3 rounded-xl border border-border/60 bg-card">
+                    <div class="flex items-center gap-2 text-muted-foreground text-xs font-medium">
+                        <Icon icon="solar:users-group-rounded-bold-duotone" class="size-3.5" />
+                        <span>Usuarios</span>
+                    </div>
+                    <div class="text-xl font-bold tabular-nums text-foreground mt-1">
+                        {selectedTenant.users_count ?? 0}
+                    </div>
+                </div>
+                <div class="p-3 rounded-xl border border-border/60 bg-card">
+                    <div class="flex items-center gap-2 text-muted-foreground text-xs font-medium">
+                        <Icon icon="solar:box-minimalistic-bold-duotone" class="size-3.5" />
+                        <span>Módulos</span>
+                    </div>
+                    <div class="text-xl font-bold tabular-nums text-foreground mt-1">
+                        {selectedTenant.modules?.length ?? 0}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fecha de alta -->
+            <div class="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-xl border border-border/50 bg-muted/20 tabular-nums">
+                <Icon icon="solar:calendar-bold-duotone" class="size-4 text-muted-foreground/70" />
+                <span>Fecha de alta: {formatDate(selectedTenant.created_at)}</span>
+            </div>
+
+            <!-- Módulos Contratados -->
+            {#if selectedTenant.modules && selectedTenant.modules.length > 0}
+                <div class="space-y-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Módulos contratados</span>
+                    <div class="flex flex-wrap gap-1.5">
+                        {#each selectedTenant.modules as mod}
+                            <Badge variant="outline" class="text-xs font-medium tracking-wide bg-muted/50 px-2.5 py-0.5">
+                                {mod.name}
+                            </Badge>
+                        {/each}
+                    </div>
+                </div>
+            {/if}
+
+            <!-- Acción Principal -->
+            <div class="pt-2 border-t border-border/50">
+                <Link href={`/platform/tenants/${selectedTenant.id}/edit`} class="w-full">
+                    <Button class="w-full min-h-[40px] gap-2 rounded-xl font-medium shadow-sm">
+                        <Edit2 class="size-4" />
+                        <span>Editar datos del comercio</span>
+                    </Button>
+                </Link>
+            </div>
+        </div>
+    {/if}
 </div>

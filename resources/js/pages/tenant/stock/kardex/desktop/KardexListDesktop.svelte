@@ -195,7 +195,7 @@
                     type="text"
                     bind:value={searchTerm}
                     placeholder="Buscar producto, SKU, notas..."
-                    class="h-9 w-full rounded-full border border-input bg-background pl-8 pr-8 text-xs placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none transition-all"
+                    class="h-9 w-full rounded-full border border-input bg-background pl-8 pr-8 text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none transition-all"
                 />
                 {#if searchTerm}
                     <button
@@ -203,7 +203,7 @@
                         onclick={() => (searchTerm = '')}
                         class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
-                        <X class="size-3" />
+                        <X class="size-3.5" />
                     </button>
                 {/if}
             </div>
@@ -214,13 +214,13 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="border-b border-border/60 bg-muted/10 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                        <th class="py-3.5 px-6 text-left">Fecha y hora</th>
-                        <th class="py-3.5 px-6 text-left">Producto</th>
-                        <th class="py-3.5 px-6 text-center">Tipo</th>
-                        <th class="py-3.5 px-6 text-right">Cantidad</th>
-                        <th class="py-3.5 px-6 text-right">Stock resultante</th>
-                        <th class="py-3.5 px-6 text-left">Responsable</th>
-                        <th class="py-3.5 px-6 text-right">Acciones</th>
+                        <th class="py-3.5 px-6 text-left min-w-[140px]">Fecha y hora</th>
+                        <th class="py-3.5 px-6 text-left min-w-[200px]">Producto</th>
+                        <th class="py-3.5 px-6 text-center min-w-[100px]">Tipo</th>
+                        <th class="py-3.5 px-6 text-right min-w-[100px]">Cantidad</th>
+                        <th class="py-3.5 px-6 text-right min-w-[120px]">Stock resultante</th>
+                        <th class="py-3.5 px-6 text-left min-w-[140px]">Responsable</th>
+                        <th class="py-3.5 px-6 text-right min-w-[110px]">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border/40 text-xs text-foreground">
@@ -301,7 +301,7 @@
                                         variant="outline"
                                         size="sm"
                                         onclick={() => onSelectMovement(mov)}
-                                        class="h-8 text-xs gap-1.5 rounded-lg font-medium"
+                                        class="min-h-[36px] text-xs gap-1.5 rounded-lg font-medium px-3"
                                     >
                                         <Eye class="size-3.5" />
                                         <span>Ver detalle</span>

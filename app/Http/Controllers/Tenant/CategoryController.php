@@ -32,7 +32,7 @@ class CategoryController extends Controller
             'is_active' => $request->boolean('is_active', true),
         ]);
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($category, 201);
         }
 
@@ -53,7 +53,7 @@ class CategoryController extends Controller
             'is_active' => $request->boolean('is_active', true),
         ]);
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($category);
         }
 
@@ -67,7 +67,7 @@ class CategoryController extends Controller
         }
 
         if ($category->products()->exists()) {
-            if ($request->wantsJson()) {
+            if ($request->wantsJson() && ! $request->header('X-Inertia')) {
                 return response()->json([
                     'message' => 'No es posible eliminar la categoría porque tiene productos asociados.',
                 ], 422);
@@ -78,7 +78,7 @@ class CategoryController extends Controller
 
         $category->delete();
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json(['message' => 'Categoría eliminada.']);
         }
 

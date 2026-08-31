@@ -2,6 +2,8 @@
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import IconContainer from '@/components/common/IconContainer.svelte';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import { router } from '@inertiajs/svelte';
     import AlertCircle from 'lucide-svelte/icons/alert-circle';
     import Check from 'lucide-svelte/icons/check';
@@ -24,23 +26,22 @@
         id: number;
         name: string;
         sku?: string | null;
-        sale_type?: 'unit' | 'weight';
+        sale_type?: string;
         cost_price?: string | number | null;
         price?: string | number;
         stock?: number;
         units_per_package?: number;
-        package_quantity?: number;
     }
 
     interface SupplierOrderItemLine {
         id: string;
         product_id: number | null;
         product_name: string;
-        sale_type?: 'unit' | 'weight';
+        sale_type?: string;
         quantity: number;
         unit_cost: number | '';
         search_query: string;
-        is_dropdown_open: boolean;
+        is_dropdown_open?: boolean;
     }
 
     let {
@@ -63,7 +64,7 @@
             id: 'item_' + Date.now(),
             product_id: null,
             product_name: '',
-            sale_type: 'unit',
+            sale_type: undefined,
             quantity: 1,
             unit_cost: '',
             search_query: '',
@@ -78,7 +79,7 @@
                 id: 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
                 product_id: null,
                 product_name: '',
-                sale_type: 'unit',
+                sale_type: undefined,
                 quantity: 1,
                 unit_cost: '',
                 search_query: '',
@@ -96,7 +97,7 @@
                     id: 'item_' + Date.now(),
                     product_id: null,
                     product_name: '',
-                    sale_type: 'unit',
+                    sale_type: undefined,
                     quantity: 1,
                     unit_cost: '',
                     search_query: '',
@@ -107,40 +108,41 @@
     }
 
     function incrementQuantity(index: number) {
-        const step = items[index].sale_type === 'weight' ? 1 : 1;
         if (items[index].quantity < 10000) {
-            items[index].quantity = Math.min(10000, Number((items[index].quantity + step).toFixed(3)));
+            items[index].quantity += 1;
         }
     }
 
     function decrementQuantity(index: number) {
-        const step = items[index].sale_type === 'weight' ? 1 : 1;
         if (items[index].quantity > 1) {
-            items[index].quantity = Math.max(1, Number((items[index].quantity - step).toFixed(3)));
+            items[index].quantity -= 1;
         }
     }
 
     function getFilteredProducts(query: string): ProductOption[] {
         const q = query.trim().toLowerCase();
         if (!q) return availableProducts.slice(0, 6);
-        return availableProducts.filter((p) => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q))).slice(0, 6);
+        return availableProducts
+            .filter((p) => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)))
+            .slice(0, 6);
     }
 
     function selectProduct(index: number, product: ProductOption) {
         items[index].product_id = product.id;
         items[index].product_name = product.name;
-        items[index].sale_type = product.sale_type ?? 'unit';
         items[index].search_query = product.name;
+        items[index].sale_type = product.sale_type;
+        items[index].is_dropdown_open = false;
         if (product.cost_price && !items[index].unit_cost) {
             items[index].unit_cost = Number(product.cost_price);
         }
-        items[index].is_dropdown_open = false;
     }
 
     function handleSearchInput(index: number, value: string) {
         items[index].search_query = value;
         items[index].product_name = value;
         items[index].product_id = null;
+        items[index].sale_type = undefined;
         items[index].is_dropdown_open = true;
 
         const match = availableProducts.find(
@@ -148,19 +150,13 @@
         );
         if (match) {
             items[index].product_id = match.id;
-            items[index].sale_type = match.sale_type ?? 'unit';
+            items[index].sale_type = match.sale_type;
             if (match.cost_price && !items[index].unit_cost) {
                 items[index].unit_cost = Number(match.cost_price);
             }
         }
     }
 
-
-    function closeAllDropdowns() {
-        for (const it of items) {
-            it.is_dropdown_open = false;
-        }
-    }
 
     function formatPrice(amount: number) {
         return new Intl.NumberFormat('es-AR', {
@@ -266,8 +262,6 @@
     }
 </script>
 
-<svelte:window onclick={closeAllDropdowns} />
-
 {#if open}
     <!-- Backdrop oscuro accesible -->
     <div
@@ -286,16 +280,11 @@
             <!-- Header Bento (shrink-0) -->
             <div class="flex items-center justify-between border-b pb-3.5 sm:pb-4 shrink-0">
                 <div class="flex items-center gap-2.5">
-                    <div class="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
-                        <Truck class="size-5" />
-                    </div>
+                    <IconContainer size="md" variant="primary" icon="solar:clipboard-list-bold-duotone" />
                     <div>
                         <h2 id="supplier-order-modal-title" class="text-base font-bold text-foreground">
                             Nueva Orden de Compra a Proveedor
                         </h2>
-                        <p class="text-xs text-muted-foreground">
-                            Registra el pedido de reposición de mercadería para actualizar costos e inventario al recibirlo.
-                        </p>
                     </div>
                 </div>
 
@@ -365,7 +354,7 @@
                     </div>
 
                     <!-- Lista de Productos -->
-                    <div class="space-y-3">
+                    <div class="space-y-2.5">
                         {#each items as item, index (item.id || index)}
                             {@const lineSubtotal = item.quantity * (Number(item.unit_cost) || 0)}
                             <div
@@ -373,54 +362,47 @@
                                 onclick={(e) => e.stopPropagation()}
                             >
                                 <!-- Fila 1: Buscador de Producto + Botón Eliminar -->
-                                <div class="flex items-center gap-2">
-                                    <div class="flex-1 relative">
-                                        <Input
-                                            id={`prod-name-${index}`}
-                                            type="text"
+                                <div class="flex items-center justify-between gap-2.5">
+                                    <div class="flex-1 min-w-0 relative">
+                                        <SearchCombobox
                                             value={item.search_query}
-                                            oninput={(e) => handleSearchInput(index, (e.target as HTMLInputElement).value)}
-                                            onfocus={() => {
-                                                closeAllDropdowns();
-                                                item.is_dropdown_open = true;
-                                            }}
+                                            items={getFilteredProducts(item.search_query)}
                                             placeholder="Buscar producto por nombre o SKU..."
-                                            class="h-9 sm:h-10 text-xs font-medium"
-                                        />
-
-                                        <!-- Autocomplete flotante con z-50 -->
-                                        {#if item.is_dropdown_open}
-                                            <div
-                                                class="absolute left-0 right-0 top-full mt-1 bg-popover text-popover-foreground rounded-xl border border-border shadow-xl z-50 max-h-48 overflow-y-auto"
-                                            >
-                                                {#each getFilteredProducts(item.search_query) as prod}
-                                                    <button
-                                                        type="button"
-                                                        class="w-full px-3 py-2 text-left text-xs hover:bg-muted transition-colors flex items-center justify-between gap-2 border-b last:border-0 cursor-pointer"
-                                                        onclick={() => selectProduct(index, prod)}
-                                                    >
-                                                        <div class="flex flex-col min-w-0">
-                                                            <span class="font-medium truncate">{prod.name}</span>
-                                                            {#if prod.sku}
-                                                                <span class="text-[10px] text-muted-foreground tabular-nums">SKU: {prod.sku}</span>
-                                                            {/if}
-                                                        </div>
-                                                        <div class="text-[11px] text-muted-foreground font-sans tabular-nums shrink-0">
-                                                            {#if prod.cost_price}
-                                                                <span>Costo: {formatPrice(Number(prod.cost_price))}</span>
-                                                            {:else}
-                                                                <span>Stock: {prod.stock ?? 0} {prod.sale_type === 'weight' ? 'Kg' : 'u'}</span>
-                                                            {/if}
-                                                        </div>
-                                                    </button>
-                                                {/each}
-                                            </div>
-                                        {/if}
+                                            showDropdown={true}
+                                            onsearch={(val) => handleSearchInput(index, val)}
+                                            onselect={(prod) => selectProduct(index, prod)}
+                                            onclear={() => {
+                                                items[index].product_id = null;
+                                                items[index].product_name = '';
+                                                items[index].search_query = '';
+                                                items[index].sale_type = undefined;
+                                                items[index].is_dropdown_open = false;
+                                            }}
+                                            inputClass="h-9 sm:h-10 text-xs font-medium"
+                                        >
+                                            {#snippet itemSnippet(prod)}
+                                                <div class="flex items-center justify-between gap-2 w-full">
+                                                    <div class="flex items-center gap-1.5 truncate">
+                                                        <span class="font-medium truncate">{prod.name}</span>
+                                                        {#if prod.sale_type === 'weight'}
+                                                            <span class="text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 px-1 rounded">Kg</span>
+                                                        {/if}
+                                                    </div>
+                                                    <div class="text-[11px] text-muted-foreground font-sans tabular-nums shrink-0">
+                                                        {#if prod.cost_price}
+                                                            <span>Costo: {formatPrice(Number(prod.cost_price))}</span>
+                                                        {:else}
+                                                            <span>Stock: {prod.stock ?? 0}</span>
+                                                        {/if}
+                                                    </div>
+                                                </div>
+                                            {/snippet}
+                                        </SearchCombobox>
                                     </div>
 
                                     <button
                                         type="button"
-                                        class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors shrink-0 cursor-pointer"
+                                        class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors shrink-0"
                                         onclick={() => removeItem(index)}
                                         aria-label="Eliminar producto"
                                     >
@@ -428,12 +410,17 @@
                                     </button>
                                 </div>
 
-                                <!-- Fila 2: Costo Unitario + Stepper/Input Cantidad + Subtotal -->
-                                <div class="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-border/40">
+                                <!-- Separador Sutil -->
+                                <div class="border-t border-border/50"></div>
+
+                                <!-- Fila 2: Costo Unitario, Stepper Cantidad y Subtotal -->
+                                <div class="flex flex-wrap items-center justify-between gap-2.5">
                                     <div class="flex items-center gap-3 flex-wrap">
                                         <!-- Costo Unitario -->
                                         <div class="flex items-center gap-1.5">
-                                            <span class="text-xs text-muted-foreground font-medium">Costo:</span>
+                                            <Label for={`prod-cost-${index}`} class="text-[11px] font-semibold text-muted-foreground shrink-0">
+                                                Costo Unit:
+                                            </Label>
                                             <div class="relative w-28 sm:w-32">
                                                 <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-sans tabular-nums">$</span>
                                                 <Input
@@ -450,25 +437,27 @@
                                             </div>
                                         </div>
 
-                                        <!-- Cantidad & Unidad -->
+                                        <!-- Cantidad -->
                                         <div class="flex items-center gap-1.5">
-                                            <span class="text-xs text-muted-foreground font-medium">Cant:</span>
-                                            <div class="flex items-center border rounded-lg bg-background shadow-2xs">
+                                            <Label class="text-[11px] font-semibold text-muted-foreground shrink-0">
+                                                Cant:
+                                            </Label>
+                                            <div class="flex items-center border rounded-lg bg-background shadow-2xs h-8 sm:h-9">
                                                 <button
                                                     type="button"
-                                                    class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                                    class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                                     onclick={() => decrementQuantity(index)}
                                                     disabled={item.quantity <= 1}
                                                     aria-label="Disminuir cantidad"
                                                 >
                                                     <Minus class="size-3.5" />
                                                 </button>
-                                                <span class="w-10 sm:w-12 text-xs font-bold font-sans tabular-nums text-center">
+                                                <span class="w-10 text-xs font-bold font-sans tabular-nums text-center">
                                                     {item.quantity}
                                                 </span>
                                                 <button
                                                     type="button"
-                                                    class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors cursor-pointer"
+                                                    class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors disabled:opacity-40"
                                                     onclick={() => incrementQuantity(index)}
                                                     disabled={item.quantity >= 10000}
                                                     aria-label="Aumentar cantidad"
@@ -476,14 +465,15 @@
                                                     <Plus class="size-3.5" />
                                                 </button>
                                             </div>
-                                            <span class="text-[11px] font-semibold text-muted-foreground">
+                                            <span class="text-[11px] font-medium text-muted-foreground">
                                                 {item.sale_type === 'weight' ? 'Kg' : 'unid.'}
                                             </span>
                                         </div>
                                     </div>
 
-                                    <div class="text-right">
-                                        <span class="text-[10px] text-muted-foreground block">Subtotal:</span>
+                                    <!-- Subtotal -->
+                                    <div class="flex items-center gap-1.5 ml-auto">
+                                        <span class="text-[11px] text-muted-foreground">Subtotal:</span>
                                         <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground">
                                             {formatPrice(lineSubtotal)}
                                         </span>
@@ -491,8 +481,8 @@
                                 </div>
                             </div>
                         {/each}
-                    </div>
 
+                    </div>
                 </div>
 
                 <!-- Bento Card 3: Observaciones -->

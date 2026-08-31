@@ -67,10 +67,10 @@
         onreset: () => void;
     } = $props();
 
-    let localCategoryId = $state<number | null>(selectedCategoryId);
-    let localStockStatus = $state(selectedStockStatus);
-    let localInfoStatus = $state(selectedInfoStatus);
-    let localSortBy = $state(sortBy);
+    let localCategoryId = $state<number | null>(null);
+    let localStockStatus = $state('');
+    let localInfoStatus = $state('');
+    let localSortBy = $state('latest');
     let activeTab = $state<'sort' | 'category' | 'stock' | 'info'>('sort');
 
     $effect(() => {

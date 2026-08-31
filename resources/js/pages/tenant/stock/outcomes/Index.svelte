@@ -56,9 +56,6 @@
     <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">Egresos de Stock</h1>
-            <p class="mt-1 text-sm text-muted-foreground max-w-prose">
-                Registro de salidas y devoluciones de mercadería con trazabilidad garantizada.
-            </p>
         </div>
         <div class="flex items-center gap-3">
             <Button

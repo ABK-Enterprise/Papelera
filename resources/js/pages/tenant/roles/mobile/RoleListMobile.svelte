@@ -7,6 +7,7 @@
     import Users from 'lucide-svelte/icons/users';
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Trash2 from 'lucide-svelte/icons/trash-2';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     interface RoleItem {
         id: number;
@@ -31,9 +32,7 @@
             <CardContent class="p-0 space-y-3">
                 <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3">
-                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                            <Shield class="h-5 w-5 stroke-[1.75]" />
-                        </div>
+                        <IconContainer size="md" variant="primary" icon="solar:shield-user-bold-duotone" />
                         <div>
                             <span class="font-semibold text-foreground text-sm">{role.name}</span>
                             <div class="flex items-center gap-1 text-xs text-muted-foreground mt-0.5 tabular-nums">

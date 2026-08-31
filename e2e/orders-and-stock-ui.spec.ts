@@ -21,8 +21,9 @@ test.describe.serial('Pedidos y Flujos de Stock UI', () => {
         await expect(page.locator('text=Pedidos de Clientes').first()).toBeVisible();
 
         // Abrir modal de nuevo pedido
+        await page.waitForTimeout(300);
         await page.click('button:has-text("Nuevo Pedido")');
-        await expect(page.locator('text=Nuevo Pedido').first()).toBeVisible();
+        await expect(page.locator('h2:has-text("Nuevo Pedido")').first()).toBeVisible();
         await expect(page.locator('text=Datos del Cliente').first()).toBeVisible();
         await expect(page.locator('text=Productos del Pedido').first()).toBeVisible();
 
@@ -40,25 +41,25 @@ test.describe.serial('Pedidos y Flujos de Stock UI', () => {
         await expect(page.locator('text=Alta de Producto').first()).toBeVisible();
 
         // Columna Izquierda: Empaque & Multimedia
-        await expect(page.locator('text=Imagen & Empaque')).toBeVisible();
-        await expect(page.locator('text=Cálculo de Bulto')).toBeVisible();
+        await expect(page.locator('text=Imagen y empaque').first()).toBeVisible();
+        await expect(page.locator('text=Cálculo de bulto').first()).toBeVisible();
 
         // Columna Derecha: Formulario
-        await expect(page.locator('text=1. Información Básica')).toBeVisible();
-        await expect(page.locator('text=2. Precios & Facturación')).toBeVisible();
-        await expect(page.locator('text=3. Inventario & Empaque')).toBeVisible();
+        await expect(page.locator('text=1. Información básica').first()).toBeVisible();
+        await expect(page.locator('text=2. Precios y facturación').first()).toBeVisible();
+        await expect(page.locator('text=3. Inventario y empaque').first()).toBeVisible();
 
         // Interactuar con campos y verificar cálculo reactivo
         await page.fill('#create-prod-price', '1000');
         await page.fill('#create-prod-units-pack', '5');
 
-        // El cálculo del bulto debe reflejar el precio multiplicado
-        await expect(page.locator('text=$ 5.000,00').first()).toBeVisible();
+        // El cálculo del bulto debe reflejar el precio con el descuento global por bulto del tenant (10%)
+        await expect(page.locator('text=$ 4.500,00').first()).toBeVisible();
     });
 
     test('3. Ingresos de Stock: Tabla Minimalista & Pills de Filtros', async () => {
         await page.goto('/tenant/stock/ingresos');
-        await expect(page.locator('text=Ingresos de Stock').first()).toBeVisible();
+        await expect(page.locator('h1:has-text("Ingresos de Stock")')).toBeVisible();
 
         // Verificar presencia de Pills de Filtro Rápido
         await expect(page.locator('button:has-text("Todos")').first()).toBeVisible();
@@ -71,7 +72,7 @@ test.describe.serial('Pedidos y Flujos de Stock UI', () => {
 
     test('4. Kardex: Bento Grid de Métricas & Auditoría Cronológica', async () => {
         await page.goto('/tenant/stock/kardex');
-        await expect(page.locator('text=Kardex / Historial').first()).toBeVisible();
+        await expect(page.locator('h1:has-text("Kardex")')).toBeVisible();
 
         // Verificar Bento Grid de Métricas
         await expect(page.locator('text=Total Ingresos de Stock').first()).toBeVisible();

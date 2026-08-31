@@ -2,11 +2,13 @@
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import KardexDetailModal from '@/pages/tenant/stock/kardex/KardexDetailModal.svelte';
+    import KardexFilterModalMobile from './mobile/KardexFilterModalMobile.svelte';
     import KardexListDesktop from '@/pages/tenant/stock/kardex/desktop/KardexListDesktop.svelte';
     import KardexListMobile from '@/pages/tenant/stock/kardex/mobile/KardexListMobile.svelte';
     import StockNavigationTabs from '@/pages/tenant/stock/StockNavigationTabs.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
-    import { router } from '@inertiajs/svelte';
+    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
+    import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
 
 
     interface StockMovementItem {
@@ -56,12 +58,13 @@
     let selectedMovement = $state<StockMovementItem | null>(null);
     let isDetailModalOpen = $state(false);
 
-    let searchInput = $state(filters.search ?? '');
-    let typeFilter = $state(filters.type ?? '');
+    let searchInput = $state('');
+    let typeFilter = $state('');
+    let isFilterModalOpen = $state(false);
 
     $effect(() => {
-        searchInput = filters.search ?? '';
-        typeFilter = filters.type ?? '';
+        searchInput = filters?.search ?? '';
+        typeFilter = filters?.type ?? '';
     });
 
     function applyFilters() {
@@ -79,6 +82,12 @@
         );
     }
 
+    function resetFilters() {
+        searchInput = '';
+        typeFilter = '';
+        router.get('/tenant/stock/kardex');
+    }
+
     function handleTypeChange(e: Event) {
         const target = e.target as HTMLSelectElement;
         typeFilter = target.value;
@@ -89,6 +98,9 @@
         selectedMovement = mov;
         isDetailModalOpen = true;
     }
+
+    let hasActiveFilters = $derived(Boolean(searchInput || typeFilter));
+    let activeFiltersCount = $derived(typeFilter ? 1 : 0);
 </script>
 
 <AppHead title="Kardex de Movimientos - Comercio" />
@@ -109,23 +121,9 @@
 
     <!-- Filter / Action Toolbar -->
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 bg-card/60 backdrop-blur-sm p-3.5 rounded-xl border border-border/60 shadow-xs">
-        <div class="flex flex-wrap items-center gap-3 flex-1">
-            <!-- Tipo de Movimiento Select -->
-            <div class="min-w-[160px]">
-                <select
-                    value={typeFilter}
-                    onchange={handleTypeChange}
-                    class="w-full rounded-lg border border-border bg-background px-3.5 py-2 text-xs sm:text-sm font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
-                >
-                    <option value="">Todos los tipos</option>
-                    <option value="income">Solo Ingresos</option>
-                    <option value="outcome">Solo Egresos</option>
-                </select>
-            </div>
-
-
-            <!-- Buscador por Producto / SKU -->
-            <div class="flex-1 min-w-[240px]">
+        <div class="flex items-center gap-2.5 flex-1 w-full">
+            <!-- Buscador por Producto / SKU + Disparador Mobile -->
+            <div class="flex-1 min-w-0">
                 <SearchCombobox
                     bind:value={searchInput}
                     items={products}
@@ -147,9 +145,51 @@
                     {/snippet}
                 </SearchCombobox>
             </div>
+
+            <!-- Disparador de Filtros Mobile -->
+            <div class="block md:hidden shrink-0">
+                <Button
+                    type="button"
+                    variant={activeFiltersCount > 0 ? 'secondary' : 'outline'}
+                    size="icon"
+                    onclick={() => (isFilterModalOpen = true)}
+                    class="relative h-10 w-10 shrink-0 rounded-xl border border-border/70 shadow-2xs"
+                    aria-label="Abrir filtros"
+                >
+                    <SlidersHorizontal class="h-4 w-4 text-foreground" />
+                    {#if activeFiltersCount > 0}
+                        <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums shadow-xs">
+                            {activeFiltersCount}
+                        </span>
+                    {/if}
+                </Button>
+            </div>
+
+            <!-- Filtros Desktop -->
+            <div class="hidden md:flex items-center gap-2.5">
+                <div class="relative min-w-[160px]">
+                    <select
+                        value={typeFilter}
+                        onchange={handleTypeChange}
+                        class="w-full rounded-lg border border-border bg-background px-3.5 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
+                    >
+                        <option value="">Todos los tipos</option>
+                        <option value="income">Solo Ingresos</option>
+                        <option value="outcome">Solo Egresos</option>
+                    </select>
+                </div>
+
+
+                {#if hasActiveFilters}
+                    <Button variant="ghost" size="sm" class="h-10 px-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 gap-1.5 rounded-xl transition-all" onclick={resetFilters}>
+                        <RotateCcw class="size-3.5" />
+                        <span>Limpiar</span>
+                    </Button>
+                {/if}
+            </div>
         </div>
 
-        <div class="flex items-center justify-between lg:justify-end gap-2 text-xs text-muted-foreground font-medium pt-1 lg:pt-0">
+        <div class="flex items-center justify-between lg:justify-end gap-2 text-xs text-muted-foreground font-medium pt-1 lg:pt-0 shrink-0">
             <span>Mostrando <strong class="text-foreground tabular-nums font-semibold">{movements.length}</strong> {movements.length === 1 ? 'movimiento' : 'movimientos'}</span>
         </div>
     </div>
@@ -167,4 +207,15 @@
 <KardexDetailModal
     bind:open={isDetailModalOpen}
     movement={selectedMovement}
+/>
+
+<!-- Modal de Filtros Mobile -->
+<KardexFilterModalMobile
+    bind:open={isFilterModalOpen}
+    selectedType={typeFilter}
+    onapply={(f) => {
+        typeFilter = f.type;
+        applyFilters();
+    }}
+    onreset={resetFilters}
 />

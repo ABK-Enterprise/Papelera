@@ -5,6 +5,7 @@
     import { Link } from '@inertiajs/svelte';
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Trash2 from 'lucide-svelte/icons/trash-2';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     interface RoleItem {
         id: number;
@@ -36,9 +37,9 @@
             <CardContent class="p-0 space-y-3">
                 <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3">
-                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-base">
+                        <IconContainer size="md" variant="primary">
                             {user.name.charAt(0).toUpperCase()}
-                        </div>
+                        </IconContainer>
                         <div class="flex flex-col">
                             <div class="flex items-center gap-1.5">
                                 <span class="font-semibold text-foreground text-sm">{user.name}</span>

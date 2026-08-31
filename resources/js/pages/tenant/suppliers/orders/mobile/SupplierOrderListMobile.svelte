@@ -1,19 +1,20 @@
 <script lang="ts">
     import AppPagination from '@/components/common/AppPagination.svelte';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import Calendar from 'lucide-svelte/icons/calendar';
     import Package from 'lucide-svelte/icons/package';
     import Truck from 'lucide-svelte/icons/truck';
 
-    interface SupplierOrderItem {
+    type SupplierOrderItem = {
         id: number;
         product_id: number;
         product_name: string;
         quantity: number;
         unit_cost: string | number;
         subtotal: string | number;
-    }
+    };
 
-    interface SupplierOrderData {
+    type SupplierOrderData = {
         id: number;
         order_number: string;
         supplier_id: number;
@@ -27,7 +28,7 @@
             contact_number: string | null;
         };
         items?: SupplierOrderItem[];
-    }
+    };
 
     let {
         orders = [],
@@ -72,9 +73,15 @@
             tabindex="0"
         >
             <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <span class="font-bold text-sm font-sans tabular-nums text-foreground">{order.order_number}</span>
-                    <span class="text-[11px] text-muted-foreground">{formatDate(order.created_at)}</span>
+                <div class="flex items-center gap-3">
+                    <IconContainer size="lg" variant="primary" icon="solar:clipboard-list-bold-duotone" />
+                    <div>
+                        <span class="font-bold text-sm font-sans tabular-nums text-foreground">{order.order_number}</span>
+                        <div class="flex items-center gap-1 text-[11px] text-muted-foreground">
+                            <Calendar class="size-3" />
+                            <span>{formatDate(order.created_at)}</span>
+                        </div>
+                    </div>
                 </div>
 
                 {#if order.status === 'solicitado'}

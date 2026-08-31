@@ -8,6 +8,7 @@
     import Calendar from 'lucide-svelte/icons/calendar';
     import ChevronRight from 'lucide-svelte/icons/chevron-right';
     import Plus from 'lucide-svelte/icons/plus';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     export interface SupplierItem {
         id: number;
@@ -61,9 +62,7 @@
             <!-- Cabecera Mobile: Nombre + Estado + Icono Chevron -->
             <div class="flex items-start justify-between gap-2">
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <Truck class="size-4.5" />
-                    </div>
+                    <IconContainer size="sm" rounded="lg" variant="primary" icon="solar:delivery-bold-duotone" />
                     <div class="min-w-0">
                         <h4 class="font-bold text-sm text-foreground truncate">
                             {supplier.name}

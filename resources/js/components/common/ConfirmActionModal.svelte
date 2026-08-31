@@ -24,8 +24,11 @@
         cancelText = 'Cancelar',
         variant = 'danger',
         loading = false,
+        isLoading = false,
         onconfirm,
+        onConfirm,
         oncancel,
+        onCancel,
         children,
     }: {
         open?: boolean;
@@ -33,17 +36,25 @@
         description?: string;
         confirmText?: string;
         cancelText?: string;
-        variant?: 'danger' | 'warning' | 'primary' | 'success';
+        variant?: 'danger' | 'destructive' | 'warning' | 'primary' | 'success';
         loading?: boolean;
+        isLoading?: boolean;
         onconfirm?: () => void;
+        onConfirm?: () => void;
         oncancel?: () => void;
+        onCancel?: () => void;
         children?: Snippet;
     } = $props();
 
+    const isBusy = $derived(loading || isLoading);
+    const isDestructive = $derived(variant === 'danger' || variant === 'destructive');
+
     function handleConfirm() {
-        if (loading) return;
+        if (isBusy) return;
         if (onconfirm) {
             onconfirm();
+        } else if (onConfirm) {
+            onConfirm();
         }
     }
 
@@ -51,6 +62,8 @@
         open = false;
         if (oncancel) {
             oncancel();
+        } else if (onCancel) {
+            onCancel();
         }
     }
 </script>
@@ -61,7 +74,7 @@
             <div class="flex items-center gap-3 min-w-0">
                 <!-- Icono dinámico según variante -->
                 <div
-                    class="flex size-9 shrink-0 items-center justify-center rounded-xl {variant === 'danger'
+                    class="flex size-9 shrink-0 items-center justify-center rounded-xl {isDestructive
                         ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
                         : variant === 'warning'
                           ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
@@ -69,7 +82,7 @@
                             ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
                             : 'bg-primary/10 text-primary border border-primary/20'}"
                 >
-                    {#if variant === 'danger'}
+                    {#if isDestructive}
                         <TriangleAlert class="size-4.5" />
                     {:else if variant === 'warning'}
                         <ShieldAlert class="size-4.5" />
@@ -110,7 +123,7 @@
                 variant="outline"
                 size="sm"
                 onclick={handleCancel}
-                disabled={loading}
+                disabled={isBusy}
                 class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
             >
                 {cancelText}
@@ -119,8 +132,8 @@
                 type="button"
                 size="sm"
                 onclick={handleConfirm}
-                disabled={loading}
-                class="min-h-[40px] px-4 rounded-xl text-xs font-medium min-w-28 shadow-xs {variant === 'danger'
+                disabled={isBusy}
+                class="min-h-[40px] px-4 rounded-xl text-xs font-medium min-w-28 shadow-xs {isDestructive
                     ? 'bg-rose-600 hover:bg-rose-700 text-white dark:bg-rose-600 dark:hover:bg-rose-700'
                     : variant === 'warning'
                       ? 'bg-amber-600 hover:bg-amber-700 text-white'
@@ -128,7 +141,7 @@
                         ? 'bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-700'
                         : ''}"
             >
-                {loading ? 'Procesando...' : confirmText}
+                {isBusy ? 'Procesando...' : confirmText}
             </Button>
         </DialogFooter>
     </DialogContent>

@@ -5,12 +5,15 @@
     import { router } from '@inertiajs/svelte';
     import Filter from 'lucide-svelte/icons/filter';
     import Plus from 'lucide-svelte/icons/plus';
+    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Search from 'lucide-svelte/icons/search';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
+    import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import CreateOrderModal from './CreateOrderModal.svelte';
     import OrderDetailModal from './OrderDetailModal.svelte';
+    import OrderFilterModalMobile from './mobile/OrderFilterModalMobile.svelte';
     import OrderListDesktop from './desktop/OrderListDesktop.svelte';
     import OrderListMobile from './mobile/OrderListMobile.svelte';
 
@@ -80,12 +83,28 @@
         filters?: FilterProps;
     } = $props();
 
-    let searchTerm = $state(filters.search ?? '');
-    let selectedStatus = $state(filters.status ?? 'all');
-    let sortBy = $state(filters.sort_by ?? 'latest');
+    let searchTerm = $state('');
+    let selectedStatus = $state('all');
+    let sortBy = $state('latest');
     let isCreateModalOpen = $state(false);
     let isDetailModalOpen = $state(false);
+    let isFilterModalOpen = $state(false);
     let selectedOrder = $state<OrderData | null>(null);
+
+    import { untrack } from 'svelte';
+
+    $effect(() => {
+        const s = filters?.search ?? '';
+        const st = filters?.status ?? 'all';
+        const sb = filters?.sort_by ?? 'latest';
+        untrack(() => {
+            searchTerm = s;
+            selectedStatus = st;
+            sortBy = sb;
+        });
+    });
+
+
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
@@ -158,6 +177,9 @@
     });
 
     let hasActiveFilters = $derived(Boolean(searchTerm || (selectedStatus && selectedStatus !== 'all') || (sortBy && sortBy !== 'latest')));
+    let activeFiltersCount = $derived(
+        (selectedStatus && selectedStatus !== 'all' ? 1 : 0) + (sortBy && sortBy !== 'latest' ? 1 : 0)
+    );
 </script>
 
 <AppHead title="Gestión de Pedidos - Comercio" />
@@ -168,20 +190,18 @@
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
                 <ShoppingBag class="size-7 text-primary" />
-                Gestión de Pedidos de Clientes
+                Pedidos de Clientes
             </h1>
-            <p class="text-sm text-muted-foreground mt-0.5">
-                Control de estados de preparación, envíos y seguimiento logístico con validación de stock.
-            </p>
         </div>
 
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center justify-end gap-2.5">
             <Button
                 onclick={() => (isCreateModalOpen = true)}
-                class="gap-2 shadow-sm font-medium"
+                class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-medium shadow-xs"
+                data-test="create-order-button"
             >
                 <Plus class="size-4" />
-                <span>Registrar pedido</span>
+                <span>Nuevo Pedido</span>
             </Button>
         </div>
     </div>
@@ -189,36 +209,63 @@
     <!-- Bento Card: Buscador y Filtros -->
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
         <div class="flex flex-col md:flex-row items-center justify-between gap-3">
-            <div class="w-full md:w-[448px]">
-                <SearchCombobox
-                    bind:value={searchTerm}
-                    items={orders}
-                    placeholder="Buscar por #pedido, cliente o teléfono..."
-                    onsearch={applyFilters}
-                    onselect={openOrderDetail}
-                >
-                    {#snippet item(ord)}
-                        {@const badge = getStatusBadge(ord.status)}
-                        <div class="flex items-center justify-between gap-3 w-full min-w-0">
-                            <div class="flex flex-col min-w-0">
-                                <div class="flex items-center gap-1.5 min-w-0">
-                                    <span class="font-bold text-foreground tabular-nums">#{ord.order_number}</span>
-                                    <span class="truncate text-muted-foreground">· {ord.customer_name}</span>
+            <div class="flex items-center gap-2 w-full md:w-[448px]">
+                <div class="flex-1 min-w-0">
+
+                    <SearchCombobox
+                        bind:value={searchTerm}
+                        items={orders}
+                        placeholder="Buscar por #pedido, cliente o teléfono..."
+                        onsearch={(q) => {
+                            searchTerm = q;
+                            applyFilters();
+                        }}
+                        onselect={openOrderDetail}
+                        onclear={resetFilters}
+                    >
+                        {#snippet itemSnippet(ord)}
+                            {@const badge = getStatusBadge(ord.status)}
+                            <div class="flex items-center justify-between gap-3 w-full min-w-0">
+                                <div class="flex flex-col min-w-0">
+                                    <div class="flex items-center gap-1.5 min-w-0">
+                                        <span class="font-bold text-foreground tabular-nums">#{ord.order_number}</span>
+                                        <span class="truncate text-muted-foreground">· {ord.customer_name}</span>
+                                    </div>
+                                    <span class="text-[10px] text-muted-foreground/80">{ord.created_at}</span>
                                 </div>
-                                <span class="text-[10px] text-muted-foreground/80">{ord.created_at}</span>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <span class="rounded-full px-2 py-0.5 text-[10px] font-semibold border {badge.class}">
+                                        {badge.label}
+                                    </span>
+                                    <span class="tabular-nums font-semibold text-foreground text-xs">{formatPrice(ord.total_amount)}</span>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-2 shrink-0">
-                                <span class="text-xs font-bold font-sans tabular-nums text-foreground">{formatPrice(ord.total_amount)}</span>
-                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border {badge.bg} {badge.text} {badge.border}">
-                                    {badge.label}
-                                </span>
-                            </div>
-                        </div>
-                    {/snippet}
-                </SearchCombobox>
+                        {/snippet}
+                    </SearchCombobox>
+                </div>
+
+                <!-- Disparador de Filtros Mobile -->
+                <div class="block md:hidden">
+                    <Button
+                        type="button"
+                        variant={activeFiltersCount > 0 ? 'secondary' : 'outline'}
+                        size="icon"
+                        onclick={() => (isFilterModalOpen = true)}
+                        class="relative h-10 w-10 shrink-0 rounded-xl border border-border/70 shadow-2xs"
+                        aria-label="Abrir filtros"
+                    >
+                        <SlidersHorizontal class="h-4 w-4 text-foreground" />
+                        {#if activeFiltersCount > 0}
+                            <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums shadow-xs">
+                                {activeFiltersCount}
+                            </span>
+                        {/if}
+                    </Button>
+                </div>
             </div>
 
-            <div class="flex items-center gap-2.5 w-full md:w-auto flex-wrap">
+            <!-- Barra de Filtros Desktop -->
+            <div class="hidden md:flex items-center gap-2.5 w-auto flex-wrap">
                 <!-- Selector de Ordenamiento -->
                 <SortSelect
                     value={sortBy}
@@ -244,9 +291,9 @@
                 </select>
 
                 {#if hasActiveFilters}
-                    <Button variant="ghost" size="sm" class="h-10 px-2 text-xs text-muted-foreground hover:text-foreground gap-1" onclick={resetFilters}>
-                        <X class="size-3.5" />
-                        Limpiar
+                    <Button variant="ghost" size="sm" class="h-10 px-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 gap-1.5 rounded-xl transition-all" onclick={resetFilters}>
+                        <RotateCcw class="size-3.5" />
+                        <span>Limpiar</span>
                     </Button>
                 {/if}
             </div>
@@ -275,4 +322,18 @@
 <OrderDetailModal
     bind:open={isDetailModalOpen}
     bind:order={selectedOrder}
+/>
+
+<!-- Modal de Filtros para Mobile -->
+<OrderFilterModalMobile
+    bind:open={isFilterModalOpen}
+    {selectedStatus}
+    {sortBy}
+    {stats}
+    onapply={(f) => {
+        selectedStatus = f.status;
+        sortBy = f.sortBy;
+        applyFilters();
+    }}
+    onreset={resetFilters}
 />

@@ -29,12 +29,12 @@
 
     let { tenant, modules = [] }: { tenant: TenantData; modules: ModuleItem[] } = $props();
 
-    const form = useForm({
+    const form = useForm(() => ({
         name: tenant.name,
         cuit_tax_id: tenant.cuit_tax_id || '',
         is_active: Boolean(tenant.is_active),
         module_ids: tenant.modules ? tenant.modules.map((m) => m.id) : [],
-    });
+    }));
 
     let showDeactivateModal = $state(false);
     let showActivateModal = $state(false);
@@ -89,9 +89,6 @@
                         </span>
                     {/if}
                 </div>
-                <p class="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                    Modifica los datos fiscales y actualiza los módulos de suscripción del comercio.
-                </p>
             </div>
         </div>
         <Link href="/platform/tenants">
@@ -104,9 +101,6 @@
         <Card class="border-border/60 shadow-xs">
             <CardHeader class="pb-4">
                 <CardTitle class="text-base font-bold text-foreground">Datos Generales</CardTitle>
-                <CardDescription class="text-xs text-muted-foreground">
-                    Información fiscal y razón social del comercio.
-                </CardDescription>
             </CardHeader>
             <CardContent class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div class="space-y-1.5">

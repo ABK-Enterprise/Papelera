@@ -10,6 +10,7 @@
     import Plus from 'lucide-svelte/icons/plus';
     import CreditCard from 'lucide-svelte/icons/credit-card';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
+    import IconContainer from '@/components/common/IconContainer.svelte';
 
     export interface CustomerItem {
         id: number;
@@ -90,17 +91,12 @@
             <!-- Lado Izquierdo: Icono + Información Principal (Wide Hierarchy) -->
             <div class="flex items-center gap-4.5 min-w-0 flex-1">
                 <!-- Avatar Iniciales -->
-                <div
-                    class="flex size-14 shrink-0 items-center justify-center rounded-xl font-bold text-lg border transition-transform group-hover:scale-105 {customer.is_defaulter
-                        ? 'bg-rose-500/10 text-rose-600 border-rose-500/30'
-                        : 'bg-primary/10 text-primary border-primary/20'}"
-                >
-                    {#if customer.is_defaulter}
-                        <AlertTriangle class="size-7 stroke-[1.75]" />
-                    {:else}
-                        <UserCheck class="size-7 stroke-[1.75]" />
-                    {/if}
-                </div>
+                <IconContainer
+                    size="xl"
+                    variant={customer.is_defaulter ? 'warning' : 'primary'}
+                    icon={customer.is_defaulter ? 'solar:danger-triangle-bold-duotone' : 'solar:shop-bold-duotone'}
+                    class="transition-transform group-hover:scale-105"
+                />
 
                 <!-- Detalle y Metadatos -->
                 <div class="flex flex-col gap-1.5 min-w-0 flex-1">

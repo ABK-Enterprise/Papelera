@@ -37,7 +37,6 @@
             </div>
             <div>
                 <h2 class="text-base font-semibold tracking-tight text-foreground sm:text-lg">Alertas de stock mínimo</h2>
-                <p class="text-xs text-muted-foreground leading-relaxed">Productos que han alcanzado o están por debajo de su umbral de reposición.</p>
             </div>
         </div>
 

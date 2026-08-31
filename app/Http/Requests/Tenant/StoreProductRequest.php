@@ -18,7 +18,7 @@ class StoreProductRequest extends FormRequest
      */
     public function rules(): array
     {
-        $tenantId = $this->user()?->tenant_id;
+        $tenantId = $this->user()->tenant_id;
         $saleType = $this->input('sale_type', 'unit') ?: 'unit';
 
         return [
@@ -33,7 +33,7 @@ class StoreProductRequest extends FormRequest
             'sale_type' => ['nullable', 'string', 'in:unit,weight'],
             'category_id' => [
                 'nullable',
-                Rule::exists('categories', 'id')->where('tenant_id', $tenantId),
+                Rule::exists('categories', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)),
             ],
             'sku' => [
                 'nullable',
@@ -52,7 +52,6 @@ class StoreProductRequest extends FormRequest
                     ->where('tenant_id', $tenantId)
                     ->whereNotNull('barcode'),
             ],
-
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
             'cost_price' => ['nullable', 'numeric', 'min:0'],
@@ -69,15 +68,16 @@ class StoreProductRequest extends FormRequest
     }
 
     /**
+     * Custom validation error messages in Spanish.
+     *
      * @return array<string, string>
      */
     public function messages(): array
     {
         return [
-            'name.unique' => 'Ya existe un producto con este nombre y modalidad de venta en tu catálogo.',
-            'sku.unique' => 'El código SKU ingresado ya está asignado a otro producto con esta modalidad de venta.',
-            'barcode.unique' => 'El código de barras ingresado ya está asignado a otro producto.',
+            'name.unique' => 'Ya existe un producto con este nombre para la modalidad de venta seleccionada (unidad/pesaje).',
+            'sku.unique' => 'El código SKU ingresado ya está asignado a otro producto en esta misma modalidad de venta.',
+            'barcode.unique' => 'El código de barras ya pertenece a otro producto en tu catálogo.',
         ];
     }
 }
-

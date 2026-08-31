@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Tenant;
 
-use App\Models\Product;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -11,13 +10,7 @@ class UpdateProductRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        /** @var Product|null $product */
-        $product = $this->route('product');
-
-        return $this->user()
-            && $this->user()->tenant_id !== null
-            && $product !== null
-            && $product->tenant_id === $this->user()->tenant_id;
+        return $this->user() && $this->user()->tenant_id !== null;
     }
 
     /**
@@ -26,13 +19,8 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         $tenantId = $this->user()->tenant_id;
-
-        /** @var Product|int $product */
-        $product = $this->route('product');
-        $productId = is_object($product) ? $product->id : $product;
-
-        $currentSaleType = is_object($product) ? $product->sale_type : 'unit';
-        $saleType = $this->input('sale_type', $currentSaleType);
+        $productId = $this->route('product') ? (is_object($this->route('product')) ? $this->route('product')->id : $this->route('product')) : null;
+        $saleType = $this->input('sale_type', 'unit') ?: 'unit';
 
         return [
             'name' => [
@@ -47,7 +35,7 @@ class UpdateProductRequest extends FormRequest
             'sale_type' => ['nullable', 'string', 'in:unit,weight'],
             'category_id' => [
                 'nullable',
-                Rule::exists('categories', 'id')->where('tenant_id', $tenantId),
+                Rule::exists('categories', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)),
             ],
             'sku' => [
                 'nullable',
@@ -68,11 +56,11 @@ class UpdateProductRequest extends FormRequest
                     ->whereNotNull('barcode')
                     ->ignore($productId),
             ],
-
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
             'cost_price' => ['nullable', 'numeric', 'min:0'],
             'iva_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'stock' => ['nullable', 'numeric', 'min:0'],
             'min_stock' => ['nullable', 'numeric', 'min:0'],
             'units_per_package' => ['nullable', 'numeric', 'min:0.001'],
             'package_quantity' => ['nullable', 'numeric', 'min:0.001'],
@@ -84,15 +72,16 @@ class UpdateProductRequest extends FormRequest
     }
 
     /**
+     * Custom validation error messages in Spanish.
+     *
      * @return array<string, string>
      */
     public function messages(): array
     {
         return [
-            'name.unique' => 'Ya existe otro producto con este nombre y modalidad de venta en tu catálogo.',
-            'sku.unique' => 'El código SKU ingresado ya está asignado a otro producto con esta modalidad de venta.',
-            'barcode.unique' => 'El código de barras ingresado ya está asignado a otro producto.',
+            'name.unique' => 'Ya existe un producto con este nombre para la modalidad de venta seleccionada (unidad/pesaje).',
+            'sku.unique' => 'El código SKU ingresado ya está asignado a otro producto en esta misma modalidad de venta.',
+            'barcode.unique' => 'El código de barras ya pertenece a otro producto en tu catálogo.',
         ];
     }
 }
-

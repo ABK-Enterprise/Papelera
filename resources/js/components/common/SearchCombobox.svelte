@@ -1,265 +1,198 @@
-<script lang="ts" generics="T">
+<!-- resources/js/components/common/SearchCombobox.svelte -->
+<script lang="ts" generics="T extends Record<string, any>">
     import type { Snippet } from 'svelte';
-    import { cn } from '@/lib/utils';
+    import { clickOutside } from '@/lib/actions/clickOutside';
     import Search from 'lucide-svelte/icons/search';
     import X from 'lucide-svelte/icons/x';
     import Loader2 from 'lucide-svelte/icons/loader-2';
 
     let {
+        id = '',
         value = $bindable(''),
-        items = [],
         placeholder = 'Buscar...',
-        maxResults = 6,
-        debounceMs = 0,
-        searchKey,
-        filterFn,
-        getItemKey,
-        getItemLabel,
+        items = [],
         loading = false,
-        disabled = false,
-        autofocus = false,
-        class: className = '',
-        inputClass = '',
-        dropdownClass = '',
-        item: itemSnippet,
-        children: childrenSnippet,
-        empty: emptySnippet,
+        debounceMs = 300,
+        showDropdown = false,
+
+
+
+        itemSnippet,
+        emptySnippet,
         onsearch,
         onselect,
-        oninput,
         onclear,
+        class: className = '',
+        inputClass = '',
     }: {
+        id?: string;
         value?: string;
-        items?: T[];
         placeholder?: string;
-        maxResults?: number;
-        debounceMs?: number;
-        searchKey?: keyof T | ((item: T) => string);
-        filterFn?: (item: T, query: string) => boolean;
-        getItemKey?: (item: T, index: number) => string | number;
-        getItemLabel?: (item: T) => string;
+        items?: T[];
         loading?: boolean;
-        disabled?: boolean;
-        autofocus?: boolean;
-        class?: string;
-        inputClass?: string;
-        dropdownClass?: string;
-        item?: Snippet<[T, number]>;
-        children?: Snippet<[T, number]>;
-        empty?: Snippet<[string]>;
+        debounceMs?: number;
+        showDropdown?: boolean;
+        itemSnippet?: Snippet<[T, number]>;
+        emptySnippet?: Snippet;
         onsearch?: (query: string) => void;
         onselect?: (item: T) => void;
-        oninput?: (value: string) => void;
         onclear?: () => void;
+        class?: string;
+        inputClass?: string;
     } = $props();
 
     let isOpen = $state(false);
-    let highlightedIndex = $state(-1);
-    let containerRef: HTMLDivElement | null = $state(null);
-    let inputRef: HTMLInputElement | null = $state(null);
-    let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+    let activeIndex = $state(-1);
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let inputElement = $state<HTMLInputElement | null>(null);
 
-    function defaultItemKey(item: T, index: number): string | number {
-        if (getItemKey) return getItemKey(item, index);
-        if (item && typeof item === 'object' && 'id' in item) {
-            return (item as { id: string | number }).id;
+    let displayItems = $derived.by(() => {
+        if (!items || items.length === 0) return [];
+        if (!value || !value.trim()) {
+            return items.slice(0, 10);
         }
-        return index;
-    }
-
-    function defaultItemLabel(item: T): string {
-        if (getItemLabel) return getItemLabel(item);
-        if (item && typeof item === 'object') {
-            const obj = item as Record<string, any>;
-            return obj.name || obj.title || obj.order_number || obj.label || '';
-        }
-        return String(item ?? '');
-    }
-
-    function matchItem(item: T, query: string): boolean {
-        if (!query) return false;
-        const q = query.toLowerCase().trim();
-
-        if (filterFn) {
-            return filterFn(item, q);
-        }
-
-        if (typeof searchKey === 'function') {
-            return searchKey(item).toLowerCase().includes(q);
-        }
-
-        if (searchKey && typeof item === 'object' && item !== null) {
-            const val = (item as Record<string, any>)[searchKey as string];
-            return String(val ?? '').toLowerCase().includes(q);
-        }
-
-        if (item && typeof item === 'object') {
-            const obj = item as Record<string, any>;
-            const candidates = [
-                obj.name,
-                obj.sku,
-                obj.barcode,
-                obj.cuit,
-                obj.dni,
-                obj.email,
-                obj.phone,
-                obj.order_number,
-                obj.customer_name,
-                obj.delivery_address,
-                obj.title,
-                obj.description,
-            ];
-
-            return candidates.some((field) => {
-                if (field !== null && field !== undefined) {
-                    return String(field).toLowerCase().includes(q);
-                }
-                return false;
-            });
-        }
-
-        return String(item ?? '').toLowerCase().includes(q);
-    }
-
-    let matchingItems = $derived.by(() => {
-        if (!value || value.trim().length === 0 || !items || items.length === 0) {
-            return [];
-        }
-        return items.filter((it) => matchItem(it, value)).slice(0, maxResults);
+        const q = value.toLowerCase().trim();
+        return items
+            .filter((item) => {
+                const str = Object.values(item)
+                    .filter((v) => typeof v === 'string' || typeof v === 'number')
+                    .join(' ')
+                    .toLowerCase();
+                return str.includes(q);
+            })
+            .slice(0, 10);
     });
 
+    let lastSearchedVal: string | null = null;
+
     function handleInput(e: Event) {
-        const target = e.target as HTMLInputElement;
-        value = target.value;
-        highlightedIndex = -1;
-        isOpen = true;
+        const val = (e.target as HTMLInputElement).value;
+        value = val;
+        activeIndex = -1;
 
-        oninput?.(value);
-
-        if (debounceMs > 0) {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                onsearch?.(value);
+        if (debounceMs <= 0) {
+            lastSearchedVal = val;
+            onsearch?.(val);
+            if (showDropdown) {
+                isOpen = true;
+            }
+        } else {
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => {
+                lastSearchedVal = val;
+                onsearch?.(val);
+                if (showDropdown) {
+                    isOpen = true;
+                }
             }, debounceMs);
         }
     }
 
-    function handleFocus() {
-        if (value.trim().length > 0 && matchingItems.length > 0) {
-            isOpen = true;
-        }
-    }
-
     function handleKeyDown(e: KeyboardEvent) {
-        if (disabled) return;
-
-        if (e.key === 'ArrowDown') {
+        if (e.key === 'Enter') {
             e.preventDefault();
-            if (!isOpen) {
-                isOpen = true;
-                highlightedIndex = 0;
-            } else if (matchingItems.length > 0) {
-                highlightedIndex = (highlightedIndex + 1) % matchingItems.length;
-            }
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            if (!isOpen) {
-                isOpen = true;
-                highlightedIndex = matchingItems.length - 1;
-            } else if (matchingItems.length > 0) {
-                highlightedIndex = (highlightedIndex - 1 + matchingItems.length) % matchingItems.length;
-            }
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            if (isOpen && highlightedIndex >= 0 && matchingItems[highlightedIndex]) {
-                selectItem(matchingItems[highlightedIndex]);
+            if (isOpen && activeIndex >= 0 && displayItems[activeIndex]) {
+                selectItem(displayItems[activeIndex]);
             } else {
+                if (timer) {
+                    clearTimeout(timer);
+                    timer = null;
+                }
+                const currentVal = (e.target as HTMLInputElement)?.value ?? inputElement?.value ?? value;
+                value = currentVal;
+                lastSearchedVal = currentVal;
+                onsearch?.(currentVal);
                 isOpen = false;
-                onsearch?.(value);
             }
-        } else if (e.key === 'Escape') {
-            isOpen = false;
-            highlightedIndex = -1;
-        } else if (e.key === 'Tab') {
-            isOpen = false;
-            highlightedIndex = -1;
+            return;
+        }
+
+
+
+
+        if (!isOpen || displayItems.length === 0) {
+            return;
+        }
+
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % displayItems.length;
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                activeIndex = activeIndex <= 0 ? displayItems.length - 1 : activeIndex - 1;
+                break;
+            case 'Escape':
+                isOpen = false;
+                break;
         }
     }
 
     function selectItem(item: T) {
-        isOpen = false;
-        highlightedIndex = -1;
         onselect?.(item);
+        isOpen = false;
+        activeIndex = -1;
     }
 
     function clear() {
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
         value = '';
+        lastSearchedVal = '';
         isOpen = false;
-        highlightedIndex = -1;
+        activeIndex = -1;
         onclear?.();
-        onsearch?.('');
-        inputRef?.focus();
+        inputElement?.focus();
     }
 
-    function handleDocumentClick(e: MouseEvent) {
-        if (containerRef && !containerRef.contains(e.target as Node)) {
-            isOpen = false;
-            highlightedIndex = -1;
+
+    function handleFocusOrClick() {
+        if (showDropdown && (displayItems.length > 0 || emptySnippet)) {
+            isOpen = true;
         }
     }
 
-    $effect(() => {
-        if (typeof window !== 'undefined') {
-            document.addEventListener('click', handleDocumentClick);
-            return () => {
-                document.removeEventListener('click', handleDocumentClick);
-            };
-        }
-    });
+    const listboxId = 'combobox-listbox-' + Math.random().toString(36).substring(2, 9);
 </script>
 
-<div class={cn('relative w-full', className)} bind:this={containerRef}>
-    <!-- Input Container -->
-    <div class="relative flex items-center w-full">
-        <Search class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground shrink-0" />
-
+<div
+    class="relative w-full {className}"
+    use:clickOutside={{ callback: () => (isOpen = false), enabled: isOpen }}
+>
+    <div class="relative flex items-center">
+        <Search class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         <input
-            bind:this={inputRef}
+            bind:this={inputElement}
+            id={id || undefined}
             type="text"
-            role="combobox"
-            aria-expanded={isOpen && matchingItems.length > 0}
-            aria-autocomplete="list"
-            aria-controls="search-combobox-results"
+            bind:value={value}
+            oninput={handleInput}
+            onkeydown={handleKeyDown}
+            onfocus={handleFocusOrClick}
+            onclick={handleFocusOrClick}
+            {placeholder}
             autocomplete="off"
             autocorrect="off"
             autocapitalize="off"
             spellcheck="false"
-            {placeholder}
-            {disabled}
-            {autofocus}
-            value={value}
-            oninput={handleInput}
-            onfocus={handleFocus}
-            onkeydown={handleKeyDown}
-            class={cn(
-
-                'h-10 min-h-[40px] w-full rounded-xl border border-border/80 bg-background/90 pl-9 pr-9 text-sm text-foreground placeholder:text-muted-foreground/70 transition-all duration-150',
-                'hover:border-border hover:bg-background',
-                'focus:bg-background focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs',
-                disabled && 'opacity-60 cursor-not-allowed bg-muted/40',
-                inputClass
-            )}
+            role="combobox"
+            aria-expanded={isOpen}
+            aria-controls={isOpen ? listboxId : undefined}
+            aria-autocomplete="list"
+            class="h-10 w-full rounded-xl border border-input bg-card pl-9 pr-9 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground shadow-2xs focus:ring-1 focus:ring-primary outline-none transition-all {inputClass}"
         />
 
+
         {#if loading}
-            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground flex items-center justify-center">
-                <Loader2 class="size-4 animate-spin text-primary" />
-            </div>
+            <Loader2 class="absolute right-3 top-1/2 -translate-y-1/2 size-4 animate-spin text-muted-foreground" />
         {:else if value}
             <button
                 type="button"
                 onclick={clear}
-                class="absolute right-2.5 top-1/2 -translate-y-1/2 size-6 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 rounded cursor-pointer transition-colors"
                 aria-label="Limpiar búsqueda"
             >
                 <X class="size-3.5" />
@@ -267,46 +200,31 @@
         {/if}
     </div>
 
-    <!-- Dropdown / Results Popover -->
-    {#if isOpen && matchingItems.length > 0}
-        <div
-            id="search-combobox-results"
-            role="listbox"
-            class={cn(
-                'absolute left-0 right-0 top-full mt-1.5 z-50 max-h-80 overflow-y-auto rounded-xl border border-border/80 bg-popover/95 p-1.5 text-popover-foreground shadow-lg backdrop-blur-md transition-all duration-150',
-                dropdownClass
-            )}
-        >
-            <div class="px-2.5 py-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                Sugerencias directas ({matchingItems.length})
+    {#if isOpen && showDropdown}
+        {#if displayItems.length > 0}
+            <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border shadow-xl z-50 overflow-hidden animate-in fade-in duration-150">
+                <div id={listboxId} class="max-h-64 overflow-y-auto divide-y divide-border/40 custom-scrollbar" role="listbox">
+                    {#each displayItems as item, i (item.id || i)}
+                        <button
+                            type="button"
+                            role="option"
+                            aria-selected={activeIndex === i}
+                            class="w-full px-3.5 py-2.5 text-left text-xs transition-colors flex items-center justify-between gap-2 cursor-pointer {activeIndex === i ? 'bg-muted/80 text-foreground font-medium' : 'hover:bg-muted/50 text-foreground'}"
+                            onclick={() => selectItem(item)}
+                        >
+                            {#if itemSnippet}
+                                {@render itemSnippet(item, i)}
+                            {:else}
+                                <span class="truncate">{item.name || item.title || item.code || JSON.stringify(item)}</span>
+                            {/if}
+                        </button>
+                    {/each}
+                </div>
             </div>
-
-            <div class="space-y-0.5 mt-0.5">
-                {#each matchingItems as matchItem, idx (defaultItemKey(matchItem, idx))}
-                    <button
-                        type="button"
-                        role="option"
-                        aria-selected={highlightedIndex === idx}
-                        onclick={() => selectItem(matchItem)}
-                        class={cn(
-                            'w-full text-left rounded-lg px-2.5 py-2 text-xs transition-colors flex items-center justify-between gap-3 cursor-pointer min-h-[38px]',
-                            highlightedIndex === idx
-                                ? 'bg-primary/10 text-primary font-medium'
-                                : 'hover:bg-muted/70 text-foreground'
-                        )}
-                    >
-                        {#if itemSnippet || childrenSnippet}
-                            {@render (itemSnippet ?? childrenSnippet)?.(matchItem, idx)}
-                        {:else}
-                            <span class="truncate font-medium">{defaultItemLabel(matchItem)}</span>
-                        {/if}
-                    </button>
-                {/each}
+        {:else if emptySnippet}
+            <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border shadow-xl z-50 overflow-hidden animate-in fade-in duration-150 p-2">
+                {@render emptySnippet()}
             </div>
-
-            <div class="border-t border-border/50 mt-1.5 pt-1.5 px-2.5 py-1 flex items-center justify-between text-[11px] text-muted-foreground">
-                <span>Presiona <kbd class="px-1.5 py-0.5 rounded bg-muted text-[10px] font-mono border border-border/70 text-foreground font-semibold">↵ Enter</kbd> para filtrar todo</span>
-            </div>
-        </div>
+        {/if}
     {/if}
 </div>

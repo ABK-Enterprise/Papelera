@@ -48,10 +48,10 @@
         tenantDefaultBulkDiscount?: number;
     } = $props();
 
-    const initialSaleType = (product.sale_type ?? 'unit') as 'unit' | 'weight';
+    let initialSaleType = $derived((product.sale_type ?? 'unit') as 'unit' | 'weight');
     let isConfirmAlertOpen = $state(false);
 
-    const form = useForm({
+    const form = useForm(() => ({
         name: product.name,
         sale_type: initialSaleType,
         category_id: product.category_id ?? ('' as string | number),
@@ -69,7 +69,7 @@
         custom_bulk_discount_percentage: product.custom_bulk_discount_percentage ?? '',
         image_url: product.image_url ?? '',
         is_active: product.is_active,
-    });
+    }));
 
     function formatPrice(amount: number) {
         return new Intl.NumberFormat('es-AR', {
@@ -122,17 +122,14 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
                 Editar Producto
             </h1>
-            <p class="text-sm text-muted-foreground mt-0.5 max-w-prose">
-                Modifica los datos generales, modalidad de venta, precios e inventario de este producto.
-            </p>
         </div>
         <Link href="/tenant/products">
-            <Button variant="outline" size="sm" class="gap-1.5 text-xs rounded-full font-medium">
+            <Button variant="outline" size="sm" class="gap-2 text-xs rounded-xl font-medium px-4 py-2 min-h-[38px] border-border/70 shadow-2xs">
                 <ArrowLeft class="size-3.5" />
-                Volver al catálogo
+                <span>Volver</span>
             </Button>
         </Link>
     </div>
@@ -146,9 +143,6 @@
                     <Package class="size-5 text-primary" />
                     Imagen y empaque
                 </h2>
-                <p class="text-xs text-muted-foreground mt-0.5">
-                    Previsualización visual y cálculo del precio por bulto cerrado.
-                </p>
             </div>
 
             <!-- Preview Card -->

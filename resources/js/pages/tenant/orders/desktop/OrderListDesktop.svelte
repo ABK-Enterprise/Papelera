@@ -1,7 +1,8 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Button } from '@/components/ui/button';
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import Calendar from 'lucide-svelte/icons/calendar';
     import Eye from 'lucide-svelte/icons/eye';
     import Package from 'lucide-svelte/icons/package';
@@ -79,9 +80,7 @@
         >
             <!-- Lado Izquierdo: Icono + Número de Pedido y Fecha -->
             <div class="flex items-center gap-3.5 min-w-[200px]">
-                <div class="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
-                    <ShoppingBag class="h-6 w-6 stroke-[1.75]" />
-                </div>
+                <IconContainer size="lg" variant="primary" icon="solar:bill-list-bold-duotone" />
 
                 <div class="flex flex-col">
                     <div class="flex items-center gap-2">
@@ -148,7 +147,7 @@
 
             <!-- Monto Total y Botón con Touch Target >= 40px -->
             <div class="flex items-center gap-4 shrink-0">
-                <div class="text-right min-w-[110px]">
+                <div class="text-right min-w-[125px] shrink-0">
                     <span class="text-xs text-muted-foreground block">Total:</span>
                     <span class="font-bold text-base text-foreground tabular-nums">
                         {formatPrice(order.total_amount)}

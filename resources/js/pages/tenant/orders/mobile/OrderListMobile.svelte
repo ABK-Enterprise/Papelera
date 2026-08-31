@@ -1,7 +1,8 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Button } from '@/components/ui/button';
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
+    import IconContainer from '@/components/common/IconContainer.svelte';
     import Calendar from 'lucide-svelte/icons/calendar';
     import Eye from 'lucide-svelte/icons/eye';
     import Package from 'lucide-svelte/icons/package';
@@ -82,9 +83,7 @@
             <!-- Header Card Mobile -->
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold shrink-0">
-                        <ShoppingBag class="h-5 w-5 stroke-[1.75]" />
-                    </div>
+                    <IconContainer size="lg" variant="primary" icon="solar:bill-list-bold-duotone" />
                     <div>
                         <span class="font-semibold text-sm text-foreground tabular-nums">{order.order_number}</span>
                         <span class="text-xs text-muted-foreground flex items-center gap-1 tabular-nums">
