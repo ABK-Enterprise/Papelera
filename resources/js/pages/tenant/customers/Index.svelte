@@ -10,6 +10,8 @@
     import Search from 'lucide-svelte/icons/search';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import UserCheck from 'lucide-svelte/icons/user-check';
+    import Banknote from 'lucide-svelte/icons/banknote';
+
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import CustomerFilterModalMobile from './mobile/CustomerFilterModalMobile.svelte';
     import CustomerListDesktop, { type CustomerItem } from './desktop/CustomerListDesktop.svelte';
@@ -112,12 +114,19 @@
             </p>
         </div>
 
-        <div class="flex items-center justify-end gap-2.5">
+        <div class="flex items-center justify-end gap-2.5 w-full sm:w-auto">
+            <a href="/tenant/customers/accounts" class="inline-flex">
+                <Button variant="secondary" class="min-h-[40px] px-3.5 gap-2 rounded-xl text-xs font-semibold shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
+                    <Banknote class="size-3.5" />
+                    <span>Cuentas Corrientes</span>
+                </Button>
+            </a>
             <Button class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs" onclick={() => (showCreateModal = true)}>
                 <Plus class="h-4 w-4" />
                 <span>+ Añadir Cliente</span>
             </Button>
         </div>
+
     </div>
 
     <!-- Bento Card: Buscador y Filtros -->
