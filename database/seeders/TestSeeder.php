@@ -148,7 +148,8 @@ class TestSeeder extends Seeder
             ],
         ];
 
-        // 3. Catálogo base de 10 productos coherentes para cada comercio
+        // 3. Catálogo base de 10 productos coherentes para cada comercio.
+        //    SKUs semánticos sin sufijo de tenant — la constraint (tenant_id, sku, sale_type) garantiza unicidad.
         $productsCatalogTemplate = [
             [
                 'name' => 'Resma Chambril A4 75g (500 hojas)',
@@ -193,7 +194,7 @@ class TestSeeder extends Seeder
             [
                 'name' => 'Cinta de Embalar Transparente 48mm x 100m',
                 'category' => 'Cintas Adhesivas',
-                'sku' => 'CIN-TR-48100',
+                'sku' => 'CIN-EMB-48',
                 'price' => 2100.00,
                 'cost_price' => 1250.00,
                 'stock' => 200,
@@ -203,7 +204,7 @@ class TestSeeder extends Seeder
             [
                 'name' => 'Cinta de Enmascarar Pintor 24mm x 50m',
                 'category' => 'Cintas Adhesivas',
-                'sku' => 'CIN-ENM-2450',
+                'sku' => 'CIN-ENM-24',
                 'price' => 1800.00,
                 'cost_price' => 1050.00,
                 'stock' => 150,
@@ -213,7 +214,7 @@ class TestSeeder extends Seeder
             [
                 'name' => 'Bolsa de Polietileno Camiseta 40x50 (x100u)',
                 'category' => 'Bolsas y Sobres',
-                'sku' => 'BOL-CAM-4050',
+                'sku' => 'BOL-CAM-40',
                 'price' => 4500.00,
                 'cost_price' => 2800.00,
                 'stock' => 90,
@@ -223,7 +224,7 @@ class TestSeeder extends Seeder
             [
                 'name' => 'Bolsa Kraft con Manija 26x12x36 (x50u)',
                 'category' => 'Bolsas y Sobres',
-                'sku' => 'BOL-KRF-2636',
+                'sku' => 'BOL-KRF-26',
                 'price' => 16500.00,
                 'cost_price' => 10500.00,
                 'stock' => 40,
@@ -233,7 +234,7 @@ class TestSeeder extends Seeder
             [
                 'name' => 'Caja de Cartón Autoarmable 30x20x15 (x25u)',
                 'category' => 'Cajas de Cartón',
-                'sku' => 'CAJ-AUT-3020',
+                'sku' => 'CAJ-AUT-30',
                 'price' => 22500.00,
                 'cost_price' => 15000.00,
                 'stock' => 25,
@@ -243,7 +244,7 @@ class TestSeeder extends Seeder
             [
                 'name' => 'Bobina de Papel Kraft Sulfito 60g 60cm',
                 'category' => 'Resmas y Papeles',
-                'sku' => 'BOB-KRF-6060',
+                'sku' => 'BOB-KRF-60',
                 'price' => 28900.00,
                 'cost_price' => 19000.00,
                 'stock' => 18,
@@ -432,13 +433,16 @@ class TestSeeder extends Seeder
                     'name' => $pData['category'],
                 ]);
 
-                $product = Product::firstOrCreate([
+                // updateOrCreate keyed on the canonical business identity: (tenant_id, sku, sale_type).
+                // Name and remaining attributes are in the update block so the seeder is fully idempotent
+                // and never corrupts data already seeded by BaseSeeder or a previous run.
+                $product = Product::updateOrCreate([
                     'tenant_id' => $tenant->id,
-                    'name' => $pData['name'],
+                    'sku' => $pData['sku'],
                     'sale_type' => $pData['sale_type'] ?? 'unit',
                 ], [
                     'category_id' => $category->id,
-                    'sku' => $pData['sku'].'-T'.$tenant->id,
+                    'name' => $pData['name'],
                     'price' => $pData['price'],
                     'cost_price' => $pData['cost_price'],
                     'stock' => $pData['stock'],
@@ -447,9 +451,8 @@ class TestSeeder extends Seeder
                     'is_active' => true,
                 ]);
 
-
-
                 $createdProducts[] = $product;
+
             }
 
             // Crear Proveedores (si el módulo está habilitado)
