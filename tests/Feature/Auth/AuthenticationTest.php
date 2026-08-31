@@ -91,5 +91,6 @@ test('superadmin created in BaseSeeder can authenticate with admin credentials v
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect('/dashboard');
+    $response->assertRedirect(route('platform.dashboard'));
 });
+

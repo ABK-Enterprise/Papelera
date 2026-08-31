@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -34,7 +36,17 @@ class AppServiceProvider extends ServiceProvider
         Gate::before(function ($user, string $ability) {
             return $user->isSuperAdmin() ? true : null;
         });
+
+        RedirectIfAuthenticated::redirectUsing(function (Request $request) {
+            $user = $request->user();
+            if ($user?->isSuperAdmin()) {
+                return route('platform.dashboard');
+            }
+
+            return route('dashboard');
+        });
     }
+
 
     /**
      * Configure default behaviors for production-ready applications.
