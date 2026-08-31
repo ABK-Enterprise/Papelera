@@ -434,11 +434,11 @@ class TestSeeder extends Seeder
 
                 $product = Product::firstOrCreate([
                     'tenant_id' => $tenant->id,
-                    'sku' => $pData['sku'].'-T'.$tenant->id,
+                    'name' => $pData['name'],
                     'sale_type' => $pData['sale_type'] ?? 'unit',
                 ], [
                     'category_id' => $category->id,
-                    'name' => $pData['name'],
+                    'sku' => $pData['sku'].'-T'.$tenant->id,
                     'price' => $pData['price'],
                     'cost_price' => $pData['cost_price'],
                     'stock' => $pData['stock'],
@@ -446,6 +446,7 @@ class TestSeeder extends Seeder
                     'units_per_package' => $pData['units_per_package'],
                     'is_active' => true,
                 ]);
+
 
 
                 $createdProducts[] = $product;

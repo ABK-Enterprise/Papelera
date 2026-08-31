@@ -22,4 +22,6 @@ Route::middleware(['auth', 'verified', 'superadmin'])
 
         // Modules & Permissions (Catálogo y Permisos Granulares)
         Route::get('modules', [ModuleController::class, 'index'])->name('modules.index');
+        Route::patch('modules/{module}/toggle-active', [ModuleController::class, 'toggleActive'])->name('modules.toggle-active');
     });
+

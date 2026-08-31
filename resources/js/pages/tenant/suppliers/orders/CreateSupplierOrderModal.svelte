@@ -72,7 +72,14 @@
         },
     ]);
 
+    function hasEmptyProductRow(): boolean {
+        return items.some((it) => !it.product_name.trim() && !it.search_query.trim());
+    }
+
     function addItem() {
+        if (hasEmptyProductRow()) {
+            return;
+        }
         items = [
             ...items,
             {
@@ -108,14 +115,32 @@
     }
 
     function incrementQuantity(index: number) {
-        if (items[index].quantity < 10000) {
-            items[index].quantity += 1;
+        const isWeight = items[index].sale_type === 'weight';
+        const current = Number(items[index].quantity) || 0;
+        if (isWeight) {
+            if (current < 10000) {
+                items[index].quantity = Number((current + 0.1).toFixed(2));
+            }
+        } else {
+            if (current < 10000) {
+                items[index].quantity = Math.min(10000, Math.floor(current) + 1);
+            }
         }
     }
 
     function decrementQuantity(index: number) {
-        if (items[index].quantity > 1) {
-            items[index].quantity -= 1;
+        const isWeight = items[index].sale_type === 'weight';
+        const current = Number(items[index].quantity) || 0;
+        if (isWeight) {
+            if (current > 0.1) {
+                items[index].quantity = Number((current - 0.1).toFixed(2));
+            } else if (current > 0.01) {
+                items[index].quantity = 0.01;
+            }
+        } else {
+            if (current > 1) {
+                items[index].quantity = Math.max(1, Math.floor(current) - 1);
+            }
         }
     }
 
@@ -133,8 +158,18 @@
         items[index].search_query = product.name;
         items[index].sale_type = product.sale_type;
         items[index].is_dropdown_open = false;
-        if (product.cost_price && !items[index].unit_cost) {
+
+        // Cargar automáticamente el precio/costo del producto seleccionado
+        if (product.cost_price !== undefined && product.cost_price !== null && product.cost_price !== '') {
             items[index].unit_cost = Number(product.cost_price);
+        } else if (product.price !== undefined && product.price !== null && product.price !== '') {
+            items[index].unit_cost = Number(product.price);
+        } else {
+            items[index].unit_cost = '';
+        }
+
+        if (product.sale_type === 'weight' && (!items[index].quantity || items[index].quantity <= 0)) {
+            items[index].quantity = 1;
         }
     }
 
@@ -151,11 +186,14 @@
         if (match) {
             items[index].product_id = match.id;
             items[index].sale_type = match.sale_type;
-            if (match.cost_price && !items[index].unit_cost) {
+            if (match.cost_price !== undefined && match.cost_price !== null && match.cost_price !== '') {
                 items[index].unit_cost = Number(match.cost_price);
+            } else if (match.price !== undefined && match.price !== null && match.price !== '') {
+                items[index].unit_cost = Number(match.price);
             }
         }
     }
+
 
 
     function formatPrice(amount: number) {
@@ -347,6 +385,7 @@
                             variant="secondary"
                             class="h-8 text-xs gap-1 font-semibold"
                             onclick={addItem}
+                            disabled={hasEmptyProductRow()}
                         >
                             <Plus class="size-3.5" />
                             Añadir producto
@@ -356,7 +395,8 @@
                     <!-- Lista de Productos -->
                     <div class="space-y-2.5">
                         {#each items as item, index (item.id || index)}
-                            {@const lineSubtotal = item.quantity * (Number(item.unit_cost) || 0)}
+                            {@const lineSubtotal = (Number(item.quantity) || 0) * (Number(item.unit_cost) || 0)}
+                            {@const isWeight = item.sale_type === 'weight'}
                             <div
                                 class="flex flex-col gap-2.5 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs relative {item.is_dropdown_open ? 'z-40' : 'z-10'}"
                                 onclick={(e) => e.stopPropagation()}
@@ -376,6 +416,7 @@
                                                 items[index].product_name = '';
                                                 items[index].search_query = '';
                                                 items[index].sale_type = undefined;
+                                                items[index].unit_cost = '';
                                                 items[index].is_dropdown_open = false;
                                             }}
                                             inputClass="h-9 sm:h-10 text-xs font-medium"
@@ -414,10 +455,10 @@
                                 <div class="border-t border-border/50"></div>
 
                                 <!-- Fila 2: Costo Unitario, Stepper Cantidad y Subtotal -->
-                                <div class="flex flex-wrap items-center justify-between gap-2.5">
-                                    <div class="flex items-center gap-3 flex-wrap">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                                    <div class="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-4">
                                         <!-- Costo Unitario -->
-                                        <div class="flex items-center gap-1.5">
+                                        <div class="flex items-center justify-between sm:justify-start gap-2">
                                             <Label for={`prod-cost-${index}`} class="text-[11px] font-semibold text-muted-foreground shrink-0">
                                                 Costo Unit:
                                             </Label>
@@ -437,42 +478,66 @@
                                             </div>
                                         </div>
 
-                                        <!-- Cantidad -->
-                                        <div class="flex items-center gap-1.5">
-                                            <Label class="text-[11px] font-semibold text-muted-foreground shrink-0">
-                                                Cant:
-                                            </Label>
-                                            <div class="flex items-center border rounded-lg bg-background shadow-2xs h-8 sm:h-9">
-                                                <button
-                                                    type="button"
-                                                    class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                                                    onclick={() => decrementQuantity(index)}
-                                                    disabled={item.quantity <= 1}
-                                                    aria-label="Disminuir cantidad"
-                                                >
-                                                    <Minus class="size-3.5" />
-                                                </button>
-                                                <span class="w-10 text-xs font-bold font-sans tabular-nums text-center">
-                                                    {item.quantity}
+                                        <!-- Cantidad y Subtotal en Mobile (misma fila a la misma altura) -->
+                                        <div class="flex items-center justify-between sm:justify-start gap-2 sm:gap-4">
+                                            <!-- Stepper / Input de Cantidad -->
+                                            <div class="flex items-center gap-1.5">
+                                                <Label class="text-[11px] font-semibold text-muted-foreground shrink-0">
+                                                    Cant:
+                                                </Label>
+                                                <div class="flex items-center border rounded-lg bg-background shadow-2xs h-8 sm:h-9 overflow-hidden">
+                                                    <button
+                                                        type="button"
+                                                        class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                                                        onclick={() => decrementQuantity(index)}
+                                                        disabled={item.quantity <= (isWeight ? 0.01 : 1)}
+                                                        aria-label="Disminuir cantidad"
+                                                    >
+                                                        <Minus class="size-3.5" />
+                                                    </button>
+
+                                                    {#if isWeight}
+                                                        <input
+                                                            type="number"
+                                                            step="0.01"
+                                                            min="0.01"
+                                                            max="10000"
+                                                            bind:value={item.quantity}
+                                                            class="w-14 sm:w-16 h-full text-xs font-bold font-sans tabular-nums text-center bg-transparent border-0 focus:ring-0 focus:outline-none p-0"
+                                                        />
+                                                    {:else}
+                                                        <span class="w-10 text-xs font-bold font-sans tabular-nums text-center">
+                                                            {item.quantity}
+                                                        </span>
+                                                    {/if}
+
+                                                    <button
+                                                        type="button"
+                                                        class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 shrink-0"
+                                                        onclick={() => incrementQuantity(index)}
+                                                        disabled={item.quantity >= 10000}
+                                                        aria-label="Aumentar cantidad"
+                                                    >
+                                                        <Plus class="size-3.5" />
+                                                    </button>
+                                                </div>
+                                                <span class="text-[11px] font-medium text-muted-foreground whitespace-nowrap">
+                                                    {isWeight ? 'cant. gramos' : 'cant. unid.'}
                                                 </span>
-                                                <button
-                                                    type="button"
-                                                    class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors disabled:opacity-40"
-                                                    onclick={() => incrementQuantity(index)}
-                                                    disabled={item.quantity >= 10000}
-                                                    aria-label="Aumentar cantidad"
-                                                >
-                                                    <Plus class="size-3.5" />
-                                                </button>
                                             </div>
-                                            <span class="text-[11px] font-medium text-muted-foreground">
-                                                {item.sale_type === 'weight' ? 'Kg' : 'unid.'}
-                                            </span>
+
+                                            <!-- Subtotal en Mobile (visible solo en < sm) -->
+                                            <div class="flex sm:hidden items-center gap-1.5 shrink-0">
+                                                <span class="text-[11px] text-muted-foreground">Subtotal:</span>
+                                                <span class="font-sans tabular-nums text-xs font-bold text-foreground">
+                                                    {formatPrice(lineSubtotal)}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <!-- Subtotal -->
-                                    <div class="flex items-center gap-1.5 ml-auto">
+                                    <!-- Subtotal en Desktop (visible en sm+) -->
+                                    <div class="hidden sm:flex items-center gap-1.5 ml-auto shrink-0">
                                         <span class="text-[11px] text-muted-foreground">Subtotal:</span>
                                         <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground">
                                             {formatPrice(lineSubtotal)}
@@ -481,8 +546,8 @@
                                 </div>
                             </div>
                         {/each}
-
                     </div>
+
                 </div>
 
                 <!-- Bento Card 3: Observaciones -->
