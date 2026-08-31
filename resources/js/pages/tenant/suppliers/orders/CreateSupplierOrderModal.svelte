@@ -458,7 +458,7 @@
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                                     <div class="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-4">
                                         <!-- Costo Unitario -->
-                                        <div class="flex items-center justify-between sm:justify-start gap-2">
+                                        <div class="flex items-center gap-2">
                                             <Label for={`prod-cost-${index}`} class="text-[11px] font-semibold text-muted-foreground shrink-0">
                                                 Costo Unit:
                                             </Label>
