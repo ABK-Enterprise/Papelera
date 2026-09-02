@@ -12,7 +12,9 @@
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
+
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Layers from 'lucide-svelte/icons/layers';
     import MoreVertical from 'lucide-svelte/icons/more-vertical';
@@ -48,8 +50,10 @@
 
     let {
         products = [],
+        searchQuery = '',
     }: {
         products: ProductItem[];
+        searchQuery?: string;
     } = $props();
 
     let page = $state(1);
@@ -121,7 +125,7 @@
                 <div class="space-y-1.5 min-w-0 flex-1">
                     <div class="flex items-center gap-2 flex-wrap">
                         <h4 class="font-semibold text-base text-foreground truncate leading-snug">
-                            {product.name}
+                            <HighlightMatch text={product.name} query={searchQuery} />
                         </h4>
 
                         {#if isWeighable}
@@ -143,14 +147,15 @@
                     <div class="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                         {#if product.barcode}
                             <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs tabular-nums tracking-wide">
-                                BAR: {product.barcode}
+                                BAR: <HighlightMatch text={product.barcode} query={searchQuery} />
                             </span>
                         {/if}
                         {#if product.sku}
                             <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs tabular-nums tracking-wide">
-                                SKU: {product.sku}
+                                SKU: <HighlightMatch text={product.sku} query={searchQuery} />
                             </span>
                         {/if}
+
                         {#if product.category}
                             <span>
                                 Cat: <strong class="text-foreground font-medium">{product.category.name}</strong>

@@ -4,7 +4,9 @@
     import { Badge } from '@/components/ui/badge';
     import { Link } from '@inertiajs/svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
+    import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import AppPagination from '@/components/common/AppPagination.svelte';
+
     import Box from 'lucide-svelte/icons/box';
     import Building2 from 'lucide-svelte/icons/building-2';
     import MapPin from 'lucide-svelte/icons/map-pin';
@@ -95,8 +97,8 @@
                 <SearchCombobox
                     bind:value={searchTerm}
                     items={items.data}
-                    searchKeys={['product_name', 'product_sku', 'warehouse_name', 'warehouse_code', 'aisle_location']}
-                    placeholder="Buscar producto, SKU, depósito o estante..."
+                    searchKeys={['product_name', 'product_sku', 'product_barcode']}
+                    placeholder="Buscar por nombre de producto o SKU..."
                     onsearch={(q) => {
                         searchTerm = q;
                         onsearch?.(q);
@@ -107,12 +109,15 @@
                     }}
                     onclear={onreset}
                 >
-
                     {#snippet itemSnippet(item)}
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
-                            <div class="flex flex-col min-w-0">
-                                <span class="truncate font-medium text-foreground">{item.product_name}</span>
-                                <span class="text-[11px] text-muted-foreground">{item.warehouse_name} • SKU: {item.product_sku || 'N/A'}</span>
+                            <div class="flex flex-col min-w-0 text-left">
+                                <span class="truncate font-medium text-foreground">
+                                    <HighlightMatch text={item.product_name} query={searchTerm} />
+                                </span>
+                                <span class="text-[11px] text-muted-foreground">
+                                    {item.warehouse_name} • SKU: <HighlightMatch text={item.product_sku || 'N/A'} query={searchTerm} />
+                                </span>
                             </div>
                             <span class="text-xs font-semibold tabular-nums text-primary shrink-0">
                                 {formatNumber(item.stock, item.product_sale_type === 'weight')} {item.product_sale_type === 'weight' ? 'kg' : 'u.'}
@@ -205,20 +210,20 @@
                 {@const isOutOfStock = Number(item.stock) <= 0}
 
                 <Card class="rounded-2xl p-5 border border-border/60 hover:border-border transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 flex flex-col justify-between gap-4 bg-card">
-
                     <!-- Cabecera de la Card -->
                     <div class="space-y-2">
                         <div class="flex items-start justify-between gap-2">
                             <div class="flex-1 min-w-0">
                                 <h3 class="font-bold text-base text-foreground truncate tracking-tight" title={item.product_name}>
-                                    {item.product_name}
+                                    <HighlightMatch text={item.product_name} query={searchTerm} />
                                 </h3>
                                 <div class="flex items-center gap-2 mt-1 flex-wrap">
                                     {#if item.product_sku}
                                         <Badge variant="outline" class="text-[11px] font-mono px-1.5 py-0">
-                                            {item.product_sku}
+                                            <HighlightMatch text={item.product_sku} query={searchTerm} />
                                         </Badge>
                                     {/if}
+
                                     {#if item.category_name}
                                         <span class="text-xs text-muted-foreground truncate max-w-[140px]">
                                             {item.category_name}

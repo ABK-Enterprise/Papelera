@@ -12,7 +12,9 @@
     import Warehouse from 'lucide-svelte/icons/warehouse';
     import X from 'lucide-svelte/icons/x';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
+    import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
+
     import BulkDiscountConfigModal from './BulkDiscountConfigModal.svelte';
     import ProductModal from './ProductModal.svelte';
     import CategorySidebarDesktop from './desktop/CategorySidebarDesktop.svelte';
@@ -291,6 +293,7 @@
                 <SearchCombobox
                     bind:value={searchTerm}
                     items={products}
+                    searchKeys={['name', 'sku', 'barcode']}
                     placeholder="Buscar por nombre, SKU o barra..."
                     onsearch={(q) => {
                         searchTerm = q;
@@ -301,10 +304,14 @@
                 >
                     {#snippet itemSnippet(prod)}
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
-                            <div class="flex flex-col min-w-0">
-                                <span class="truncate font-medium text-foreground">{prod.name}</span>
+                            <div class="flex flex-col min-w-0 text-left">
+                                <span class="truncate font-medium text-foreground">
+                                    <HighlightMatch text={prod.name} query={searchTerm} />
+                                </span>
                                 {#if prod.sku}
-                                    <span class="text-[11px] text-muted-foreground tabular-nums">SKU: {prod.sku}</span>
+                                    <span class="text-[11px] text-muted-foreground tabular-nums">
+                                        SKU: <HighlightMatch text={prod.sku} query={searchTerm} />
+                                    </span>
                                 {/if}
                             </div>
                             <span class="tabular-nums font-semibold text-primary text-xs shrink-0">{formatPrice(prod.price)}</span>
@@ -375,6 +382,7 @@
                 <SearchCombobox
                     bind:value={searchTerm}
                     items={products}
+                    searchKeys={['name', 'sku', 'barcode']}
                     placeholder="Buscar producto, SKU o código..."
                     onsearch={(q) => {
                         searchTerm = q;
@@ -385,10 +393,14 @@
                 >
                     {#snippet itemSnippet(prod)}
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
-                            <div class="flex flex-col min-w-0">
-                                <span class="truncate font-medium text-foreground">{prod.name}</span>
+                            <div class="flex flex-col min-w-0 text-left">
+                                <span class="truncate font-medium text-foreground">
+                                    <HighlightMatch text={prod.name} query={searchTerm} />
+                                </span>
                                 {#if prod.sku}
-                                    <span class="text-[11px] text-muted-foreground tabular-nums">SKU: {prod.sku}</span>
+                                    <span class="text-[11px] text-muted-foreground tabular-nums">
+                                        SKU: <HighlightMatch text={prod.sku} query={searchTerm} />
+                                    </span>
                                 {/if}
                             </div>
                             <span class="tabular-nums font-semibold text-primary text-xs shrink-0">{formatPrice(prod.price)}</span>
@@ -427,14 +439,15 @@
         </div>
 
         <div class="md:col-span-9">
-            <ProductListDesktop {products} />
+            <ProductListDesktop {products} searchQuery={searchTerm} />
         </div>
     </div>
 
     <!-- Vista Mobile -->
     <div class="block md:hidden space-y-4">
-        <ProductListMobile {products} />
+        <ProductListMobile {products} searchQuery={searchTerm} />
     </div>
+
 
     <!-- Modal de Configuración Rápida de Descuento por Bulto -->
     <BulkDiscountConfigModal

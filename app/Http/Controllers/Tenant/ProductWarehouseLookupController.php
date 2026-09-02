@@ -47,14 +47,14 @@ class ProductWarehouseLookupController extends Controller
             ]);
 
         if (! empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('products.name', 'like', "%{$search}%")
-                    ->orWhere('products.sku', 'like', "%{$search}%")
-                    ->orWhere('products.barcode', 'like', "%{$search}%")
-                    ->orWhere('warehouses.name', 'like', "%{$search}%")
-                    ->orWhere('product_warehouse.aisle_location', 'like', "%{$search}%");
+            $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereRaw('LOWER(products.name) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(products.sku) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(products.barcode) LIKE ?', [$searchTerm]);
             });
         }
+
 
         if (! empty($warehouseId)) {
             $query->where('product_warehouse.warehouse_id', $warehouseId);

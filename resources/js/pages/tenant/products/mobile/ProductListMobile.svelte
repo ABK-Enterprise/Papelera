@@ -5,7 +5,9 @@
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
+
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Package from 'lucide-svelte/icons/package';
     import Scale from 'lucide-svelte/icons/scale';
@@ -35,8 +37,10 @@
 
     let {
         products = [],
+        searchQuery = '',
     }: {
         products: ProductItem[];
+        searchQuery?: string;
     } = $props();
 
     let page = $state(1);
@@ -93,7 +97,9 @@
 
             <div class="flex flex-1 flex-col min-w-0 justify-center">
                 <div class="flex items-center gap-1.5 truncate">
-                    <h4 class="font-semibold text-sm text-foreground truncate leading-snug">{product.name}</h4>
+                    <h4 class="font-semibold text-sm text-foreground truncate leading-snug">
+                        <HighlightMatch text={product.name} query={searchQuery} />
+                    </h4>
                     {#if isWeighable}
                         <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 shrink-0 tabular-nums">
                             <Scale class="h-2.5 w-2.5" />
@@ -139,9 +145,10 @@
                     {#if product.sku}
                         <span class="text-muted-foreground/40 font-light select-none">|</span>
                         <span class="text-xs text-muted-foreground tracking-wide truncate tabular-nums">
-                            {product.sku}
+                            <HighlightMatch text={product.sku} query={searchQuery} />
                         </span>
                     {/if}
+
                 </div>
             </div>
 

@@ -3,7 +3,9 @@
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
+
     import {
 
         DropdownMenu,
@@ -630,11 +632,11 @@
                                     <div class="min-w-0 flex-1">
                                         <div class="flex items-center gap-2">
                                             <span class="font-bold text-foreground truncate">
-                                                {cust.name}
+                                                <HighlightMatch text={cust.name} query={customerSearchQuery} />
                                             </span>
                                             {#if cust.tax_id}
                                                 <span class="text-[10px] font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                                                    {cust.tax_id}
+                                                    <HighlightMatch text={cust.tax_id} query={customerSearchQuery} />
                                                 </span>
                                             {/if}
                                             {#if cust.is_defaulter}
@@ -784,10 +786,10 @@
                             >
                                 {#snippet itemSnippet(prod)}
                                     <div class="flex items-center justify-between gap-3 w-full">
-                                        <div class="min-w-0 flex-1">
+                                        <div class="min-w-0 flex-1 text-left">
                                             <div class="flex items-center gap-2">
                                                 <span class="font-semibold text-foreground truncate">
-                                                    {prod.name}
+                                                    <HighlightMatch text={prod.name} query={searchQuery} />
                                                 </span>
                                                 {#if prod.sale_type === 'weight'}
                                                     <span class="inline-flex items-center gap-0.5 text-[10px] font-medium text-sky-600 bg-sky-500/10 px-1.5 py-0.2 rounded border border-sky-500/20">
@@ -798,10 +800,11 @@
                                             </div>
                                             {#if prod.sku}
                                                 <div class="text-[11px] font-sans tabular-nums text-muted-foreground mt-0.5">
-                                                    SKU: {prod.sku}
+                                                    SKU: <HighlightMatch text={prod.sku} query={searchQuery} />
                                                 </div>
                                             {/if}
                                         </div>
+
 
                                         <div class="text-right shrink-0">
                                             <span class="font-bold font-sans tabular-nums text-primary text-xs block">

@@ -4,7 +4,9 @@
     import { Badge } from '@/components/ui/badge';
     import { Link } from '@inertiajs/svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
+    import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import AppPagination from '@/components/common/AppPagination.svelte';
+
     import Box from 'lucide-svelte/icons/box';
     import Building2 from 'lucide-svelte/icons/building-2';
     import MapPin from 'lucide-svelte/icons/map-pin';
@@ -83,8 +85,8 @@
                 <SearchCombobox
                     bind:value={searchTerm}
                     items={items.data}
-                    searchKeys={['product_name', 'product_sku', 'warehouse_name', 'warehouse_code', 'aisle_location']}
-                    placeholder="Buscar producto, SKU, depósito..."
+                    searchKeys={['product_name', 'product_sku', 'product_barcode']}
+                    placeholder="Buscar por nombre o SKU..."
                     onsearch={(q) => {
                         searchTerm = q;
                         onsearch?.(q);
@@ -95,12 +97,15 @@
                     }}
                     onclear={onreset}
                 >
-
                     {#snippet itemSnippet(item)}
                         <div class="flex items-center justify-between gap-2 w-full min-w-0">
-                            <div class="flex flex-col min-w-0">
-                                <span class="truncate font-medium text-foreground text-xs">{item.product_name}</span>
-                                <span class="text-[10px] text-muted-foreground">{item.warehouse_name} • SKU: {item.product_sku || 'N/A'}</span>
+                            <div class="flex flex-col min-w-0 text-left">
+                                <span class="truncate font-medium text-foreground text-xs">
+                                    <HighlightMatch text={item.product_name} query={searchTerm} />
+                                </span>
+                                <span class="text-[10px] text-muted-foreground">
+                                    {item.warehouse_name} • SKU: <HighlightMatch text={item.product_sku || 'N/A'} query={searchTerm} />
+                                </span>
                             </div>
                             <span class="text-[11px] font-semibold tabular-nums text-primary shrink-0">
                                 {formatNumber(item.stock, item.product_sale_type === 'weight')} {item.product_sale_type === 'weight' ? 'kg' : 'u.'}
@@ -188,14 +193,15 @@
                         <div class="flex items-start justify-between gap-2">
                             <div class="flex-1 min-w-0">
                                 <h3 class="font-bold text-sm text-foreground truncate" title={item.product_name}>
-                                    {item.product_name}
+                                    <HighlightMatch text={item.product_name} query={searchTerm} />
                                 </h3>
                                 <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
                                     {#if item.product_sku}
                                         <Badge variant="outline" class="text-[10px] font-mono px-1 py-0">
-                                            {item.product_sku}
+                                            <HighlightMatch text={item.product_sku} query={searchTerm} />
                                         </Badge>
                                     {/if}
+
                                     {#if item.category_name}
                                         <span class="text-[11px] text-muted-foreground truncate">
                                             {item.category_name}

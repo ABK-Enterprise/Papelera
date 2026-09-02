@@ -3,7 +3,9 @@
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
+
     import { router } from '@inertiajs/svelte';
     import AlertCircle from 'lucide-svelte/icons/alert-circle';
     import Check from 'lucide-svelte/icons/check';
@@ -425,9 +427,11 @@
                                             inputClass="h-9 sm:h-10 text-xs font-medium"
                                         >
                                             {#snippet itemSnippet(prod)}
-                                                <div class="flex items-center justify-between gap-2 w-full">
+                                                <div class="flex items-center justify-between gap-2 w-full text-left">
                                                     <div class="flex items-center gap-1.5 truncate">
-                                                        <span class="font-medium truncate">{prod.name}</span>
+                                                        <span class="font-medium truncate">
+                                                            <HighlightMatch text={prod.name} query={item.search_query} />
+                                                        </span>
                                                         {#if prod.sale_type === 'weight'}
                                                             <span class="text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 px-1 rounded">Kg</span>
                                                         {/if}
@@ -441,6 +445,7 @@
                                                     </div>
                                                 </div>
                                             {/snippet}
+
                                         </SearchCombobox>
                                     </div>
 

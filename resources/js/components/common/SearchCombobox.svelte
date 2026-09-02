@@ -5,6 +5,8 @@
     import Search from 'lucide-svelte/icons/search';
     import X from 'lucide-svelte/icons/x';
     import Loader2 from 'lucide-svelte/icons/loader-2';
+    import HighlightMatch from '@/components/common/HighlightMatch.svelte';
+
 
     let {
         id = '',
@@ -232,8 +234,18 @@
                             {#if itemSnippet}
                                 {@render itemSnippet(item, i)}
                             {:else}
-                                <span class="truncate">{item.name || item.title || item.code || JSON.stringify(item)}</span>
+                                <div class="flex flex-col min-w-0 flex-1 text-left">
+                                    <span class="truncate font-medium text-xs">
+                                        <HighlightMatch text={item.name ?? item.title ?? item.product_name ?? item.code ?? JSON.stringify(item)} query={value} />
+                                    </span>
+                                    {#if item.sku ?? item.product_sku}
+                                        <span class="text-[10px] text-muted-foreground font-mono">
+                                            SKU: <HighlightMatch text={item.sku ?? item.product_sku} query={value} />
+                                        </span>
+                                    {/if}
+                                </div>
                             {/if}
+
                         </button>
                     {/each}
                 </div>
