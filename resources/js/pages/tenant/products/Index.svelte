@@ -29,6 +29,13 @@
         products_count?: number;
     }
 
+    interface WarehouseOption {
+        id: number;
+        name: string;
+        code: string;
+        is_default: boolean;
+    }
+
     interface ProductItem {
         id: number;
         name: string;
@@ -46,6 +53,7 @@
         bulk_discount_price?: number;
         image_url: string | null;
         is_incomplete?: boolean;
+        warehouses_count?: number;
         category?: { id: number; name: string } | null;
     }
 
@@ -68,6 +76,7 @@
     let {
         products = [],
         categories = [],
+        warehouses = [],
         stats = { total: 0, in_stock: 0, low_stock: 0, out_of_stock: 0, incomplete: 0 },
         incompleteCount = 0,
         tenantDefaultBulkDiscount = 0,
@@ -75,11 +84,13 @@
     }: {
         products: ProductItem[];
         categories: CategoryItem[];
+        warehouses?: WarehouseOption[];
         stats?: Stats;
         incompleteCount?: number;
         tenantDefaultBulkDiscount?: number;
         filters?: FilterProps;
     } = $props();
+
 
     import { untrack } from 'svelte';
 
@@ -451,6 +462,8 @@
         mode="edit"
         product={selectedProductForModal}
         {categories}
+        {warehouses}
     />
 
 </div>
+

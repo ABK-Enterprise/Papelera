@@ -16,11 +16,20 @@
         name: string;
     }
 
+    interface WarehouseOption {
+        id: number;
+        name: string;
+        code: string;
+        is_default?: boolean;
+    }
+
     let {
         categories = [],
+        warehouses = [],
         tenantDefaultBulkDiscount = 0,
     }: {
         categories: CategoryOption[];
+        warehouses?: WarehouseOption[];
         tenantDefaultBulkDiscount?: number;
     } = $props();
 
@@ -28,6 +37,7 @@
         name: '',
         sale_type: 'unit' as 'unit' | 'weight',
         category_id: '' as string | number,
+        warehouse_id: (warehouses.find(w => w.is_default)?.id ?? warehouses[0]?.id ?? '') as string | number,
         sku: '',
         barcode: '',
         description: '',
@@ -43,6 +53,7 @@
         image_url: '',
         is_active: true,
     });
+
 
     function formatPrice(amount: number) {
         return new Intl.NumberFormat('es-AR', {
@@ -366,128 +377,154 @@
 
                 <!-- 3. Inventario y Empaque -->
                 <div class="space-y-3">
-                    <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">3. Inventario y empaque</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div class="space-y-1">
-                            <Label for="create-prod-stock" class="text-xs font-semibold">
-                                Stock Inicial ({form.sale_type === 'weight' ? 'Kg' : 'unid.'})
-                            </Label>
-                            <Input
-                                id="create-prod-stock"
-                                type="number"
-                                step={form.sale_type === 'weight' ? '0.001' : '1'}
-                                min="0"
-                                bind:value={form.stock}
-                                class="h-9 text-xs rounded-xl text-center font-bold tabular-nums"
-                            />
-                            {#if form.errors.stock}
-                                <p class="text-xs text-destructive">{form.errors.stock}</p>
-                            {/if}
-                        </div>
+                    <!-- 3. Inventario & Empaque -->
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">3. Inventario y empaque</h3>
 
-                        <div class="space-y-1">
-                            <Label for="create-prod-min-stock" class="text-xs font-semibold">
-                                Stock Mínimo ({form.sale_type === 'weight' ? 'Kg' : 'unid.'})
-                            </Label>
-                            <Input
-                                id="create-prod-min-stock"
-                                type="number"
-                                step={form.sale_type === 'weight' ? '0.001' : '1'}
-                                min="0"
-                                bind:value={form.min_stock}
-                                class="h-9 text-xs rounded-xl text-center tabular-nums"
-                            />
-                            {#if form.errors.min_stock}
-                                <p class="text-xs text-destructive">{form.errors.min_stock}</p>
-                            {/if}
-                        </div>
+                        {#if warehouses.length > 0}
+                            <div class="space-y-1">
+                                <Label for="create-prod-warehouse" class="text-xs font-semibold">
+                                    Depósito Destino (Asignación de Stock Inicial)
+                                </Label>
+                                <select
+                                    id="create-prod-warehouse"
+                                    bind:value={form.warehouse_id}
+                                    class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                >
+                                    {#each warehouses as wh (wh.id)}
+                                        <option value={wh.id}>
+                                            {wh.name} ({wh.code}) {wh.is_default ? '— Principal' : ''}
+                                        </option>
+                                    {/each}
+                                </select>
+                                {#if form.errors.warehouse_id}
+                                    <p class="text-xs text-destructive">{form.errors.warehouse_id}</p>
+                                {/if}
+                            </div>
+                        {/if}
 
-                        <div class="space-y-1">
-                            {#if form.sale_type === 'weight'}
-                                <Label for="create-prod-units-pack" class="text-xs font-semibold">Kg por Bulto Cerrado</Label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="space-y-1">
+                                <Label for="create-prod-stock" class="text-xs font-semibold">
+                                    Stock Inicial ({form.sale_type === 'weight' ? 'Kg' : 'unid.'})
+                                </Label>
                                 <Input
-                                    id="create-prod-units-pack"
+                                    id="create-prod-stock"
                                     type="number"
-                                    step="0.01"
-                                    min="0.1"
-                                    bind:value={form.package_quantity}
+                                    step={form.sale_type === 'weight' ? '0.001' : '1'}
+                                    min="0"
+                                    bind:value={form.stock}
                                     class="h-9 text-xs rounded-xl text-center font-bold tabular-nums"
                                 />
-                            {:else}
-                                <Label for="create-prod-units-pack" class="text-xs font-semibold">Unidades por Bulto</Label>
+                                {#if form.errors.stock}
+                                    <p class="text-xs text-destructive">{form.errors.stock}</p>
+                                {/if}
+                            </div>
+
+                            <div class="space-y-1">
+                                <Label for="create-prod-min-stock" class="text-xs font-semibold">
+                                    Stock Mínimo ({form.sale_type === 'weight' ? 'Kg' : 'unid.'})
+                                </Label>
                                 <Input
-                                    id="create-prod-units-pack"
+                                    id="create-prod-min-stock"
                                     type="number"
-                                    min="1"
-                                    bind:value={form.units_per_package}
-                                    class="h-9 text-xs rounded-xl text-center font-bold tabular-nums"
+                                    step={form.sale_type === 'weight' ? '0.001' : '1'}
+                                    min="0"
+                                    bind:value={form.min_stock}
+                                    class="h-9 text-xs rounded-xl text-center tabular-nums"
                                 />
-                            {/if}
-                            {#if form.errors.units_per_package || form.errors.package_quantity}
-                                <p class="text-xs text-destructive">{form.errors.units_per_package || form.errors.package_quantity}</p>
-                            {/if}
+                                {#if form.errors.min_stock}
+                                    <p class="text-xs text-destructive">{form.errors.min_stock}</p>
+                                {/if}
+                            </div>
+
+                            <div class="space-y-1">
+                                {#if form.sale_type === 'weight'}
+                                    <Label for="create-prod-units-pack" class="text-xs font-semibold">Kg por Bulto Cerrado</Label>
+                                    <Input
+                                        id="create-prod-units-pack"
+                                        type="number"
+                                        step="0.01"
+                                        min="0.1"
+                                        bind:value={form.package_quantity}
+                                        class="h-9 text-xs rounded-xl text-center font-bold tabular-nums"
+                                    />
+                                {:else}
+                                    <Label for="create-prod-units-pack" class="text-xs font-semibold">Unidades por Bulto</Label>
+                                    <Input
+                                        id="create-prod-units-pack"
+                                        type="number"
+                                        min="1"
+                                        bind:value={form.units_per_package}
+                                        class="h-9 text-xs rounded-xl text-center font-bold tabular-nums"
+                                    />
+                                {/if}
+                                {#if form.errors.units_per_package || form.errors.package_quantity}
+                                    <p class="text-xs text-destructive">{form.errors.units_per_package || form.errors.package_quantity}</p>
+                                {/if}
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <hr class="border-border/60" />
+                    <hr class="border-border/60" />
 
-                <!-- 4. Código de Barras, Descripción & Estado -->
-                <div class="space-y-3">
-                    <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">4. Código de barras, descripción y estado</h3>
-                    <div class="space-y-1">
-                        <Label for="create-prod-barcode" class="text-xs font-semibold">Código de Barras (EAN / UPC)</Label>
-                        <Input
-                            id="create-prod-barcode"
-                            bind:value={form.barcode}
-                            placeholder="ej. 7791234567890"
-                            class="h-9 text-xs rounded-xl tracking-wide"
-                        />
+                    <!-- 4. Código de Barras, Descripción & Estado -->
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">4. Código de barras, descripción y estado</h3>
+                        <div class="space-y-1">
+                            <Label for="create-prod-barcode" class="text-xs font-semibold">Código de Barras (EAN / UPC)</Label>
+                            <Input
+                                id="create-prod-barcode"
+                                bind:value={form.barcode}
+                                placeholder="ej. 7791234567890"
+                                class="h-9 text-xs rounded-xl tracking-wide"
+                            />
+                        </div>
+
+                        <div class="space-y-1">
+                            <Label for="create-prod-desc" class="text-xs font-semibold">Descripción</Label>
+                            <textarea
+                                id="create-prod-desc"
+                                bind:value={form.description}
+                                rows="2"
+                                placeholder="Especificaciones de tamaño, gramaje, características..."
+                                class="w-full bg-background rounded-xl p-2.5 text-xs border border-input focus:ring-1 focus:ring-primary outline-none resize-none"
+                            ></textarea>
+                        </div>
+
+                        <div class="flex items-center gap-2 pt-1">
+                            <input
+                                type="checkbox"
+                                id="create-prod-active"
+                                bind:checked={form.is_active}
+                                class="size-4 rounded border-input text-primary focus:ring-primary"
+                            />
+                            <Label for="create-prod-active" class="text-xs font-medium cursor-pointer">
+                                Producto activo para ventas y pedidos
+                            </Label>
+                        </div>
                     </div>
 
-                    <div class="space-y-1">
-                        <Label for="create-prod-desc" class="text-xs font-semibold">Descripción</Label>
-                        <textarea
-                            id="create-prod-desc"
-                            bind:value={form.description}
-                            rows="2"
-                            placeholder="Especificaciones de tamaño, gramaje, características..."
-                            class="w-full bg-background rounded-xl p-2.5 text-xs border border-input focus:ring-1 focus:ring-primary outline-none resize-none"
-                        ></textarea>
-                    </div>
+                    <!-- Footer Acciones -->
+                    <div class="flex items-center justify-end gap-3 pt-4 border-t">
+                        <Link href="/tenant/productos">
+                            <Button type="button" variant="outline" class="min-h-[44px] px-5 rounded-xl text-sm font-medium border-border/70 hover:bg-muted/60 transition-colors">
+                                Cancelar
+                            </Button>
+                        </Link>
 
-                    <div class="flex items-center gap-2 pt-1">
-                        <input
-                            type="checkbox"
-                            id="create-prod-active"
-                            bind:checked={form.is_active}
-                            class="size-4 rounded border-input text-primary focus:ring-primary"
-                        />
-                        <Label for="create-prod-active" class="text-xs font-medium cursor-pointer">
-                            Producto activo para ventas y pedidos
-                        </Label>
-                    </div>
-                </div>
-
-                <!-- Footer Acciones -->
-                <div class="flex items-center justify-end gap-3 pt-4 border-t">
-                    <Link href="/tenant/productos">
-                        <Button type="button" variant="outline" size="sm" class="rounded-xl">
-                            Cancelar
+                        <Button
+                            type="submit"
+                            class="min-h-[44px] px-6 rounded-xl text-sm font-semibold gap-2 shadow-xs min-w-[160px]"
+                            disabled={form.processing}
+                        >
+                            <Check class="size-4" />
+                            <span>Guardar producto</span>
                         </Button>
-                    </Link>
-
-                    <Button
-                        type="submit"
-                        size="sm"
-                        class="gap-1.5 rounded-xl font-semibold"
-                        disabled={form.processing}
-                    >
-                        <Check class="size-4" />
-                        <span>Guardar producto</span>
-                    </Button>
-                </div>
-            </form>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+
+

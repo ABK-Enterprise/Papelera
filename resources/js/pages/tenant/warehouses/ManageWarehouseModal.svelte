@@ -40,33 +40,42 @@
 
     let { open = $bindable(false), mode = 'create', warehouse = null, branches = [] }: Props = $props();
 
-    const form = useForm(() => ({
-        branch_id: warehouse?.branch_id || (branches.length > 0 ? branches[0].id : null),
-        name: warehouse?.name || '',
-        code: warehouse?.code || '',
-        address: warehouse?.address || '',
-        is_active: warehouse?.is_active ?? true,
-        is_default: warehouse?.is_default ?? false,
-    }));
+    const form = useForm({
+        branch_id: null as number | null,
+        name: '',
+        code: '',
+        address: '',
+        is_active: true,
+        is_default: false,
+    });
+
+    let lastLoadedWarehouseId = $state<number | null>(null);
 
     $effect(() => {
         if (open) {
             if (mode === 'edit' && warehouse) {
-                form.branch_id = warehouse.branch_id || null;
-                form.name = warehouse.name;
-                form.code = warehouse.code;
-                form.address = warehouse.address || '';
-                form.is_active = warehouse.is_active;
-                form.is_default = warehouse.is_default;
-            } else {
+                if (warehouse.id !== lastLoadedWarehouseId) {
+                    lastLoadedWarehouseId = warehouse.id;
+                    form.branch_id = warehouse.branch_id || null;
+                    form.name = warehouse.name ?? '';
+                    form.code = warehouse.code ?? '';
+                    form.address = warehouse.address || '';
+                    form.is_active = Boolean(warehouse.is_active);
+                    form.is_default = Boolean(warehouse.is_default);
+                    form.clearErrors();
+                }
+            } else if (mode === 'create') {
+                lastLoadedWarehouseId = null;
                 form.branch_id = branches.length > 0 ? branches[0].id : null;
                 form.name = '';
                 form.code = '';
                 form.address = '';
                 form.is_active = true;
                 form.is_default = false;
+                form.clearErrors();
             }
-            form.clearErrors();
+        } else {
+            lastLoadedWarehouseId = null;
         }
     });
 
@@ -89,8 +98,6 @@
             });
         }
     }
-
-
 </script>
 
 <Dialog bind:open>
@@ -122,13 +129,13 @@
                     </Label>
                     <Input
                         id="wh-name"
-                        bind:value={$form.name}
+                        bind:value={form.name}
                         placeholder="Ej: Depósito Central, Depósito Mayorista..."
                         required
                         class="h-9 text-sm font-medium"
                     />
-                    {#if $form.errors.name}
-                        <p class="text-[11px] font-medium text-destructive">{$form.errors.name}</p>
+                    {#if form.errors.name}
+                        <p class="text-[11px] font-medium text-destructive">{form.errors.name}</p>
                     {/if}
                 </div>
 
@@ -139,13 +146,13 @@
                     </Label>
                     <Input
                         id="wh-code"
-                        bind:value={$form.code}
+                        bind:value={form.code}
                         placeholder="Ej: DEP-01, DEP-NORTE"
                         required
                         class="h-9 text-sm font-mono uppercase"
                     />
-                    {#if $form.errors.code}
-                        <p class="text-[11px] font-medium text-destructive">{$form.errors.code}</p>
+                    {#if form.errors.code}
+                        <p class="text-[11px] font-medium text-destructive">{form.errors.code}</p>
                     {/if}
                 </div>
 
@@ -158,7 +165,7 @@
                         <div class="relative">
                             <select
                                 id="wh-branch"
-                                bind:value={$form.branch_id}
+                                bind:value={form.branch_id}
                                 class="w-full h-9 rounded-lg border border-input bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                             >
                                 <option value={null}>Sin sucursal asignada (Depósito Independiente)</option>
@@ -169,8 +176,8 @@
                                 {/each}
                             </select>
                         </div>
-                        {#if $form.errors.branch_id}
-                            <p class="text-[11px] font-medium text-destructive">{$form.errors.branch_id}</p>
+                        {#if form.errors.branch_id}
+                            <p class="text-[11px] font-medium text-destructive">{form.errors.branch_id}</p>
                         {/if}
                     </div>
                 {/if}
@@ -180,12 +187,12 @@
                     <Label for="wh-address" class="text-xs font-semibold">Dirección / Ubicación Física</Label>
                     <Input
                         id="wh-address"
-                        bind:value={$form.address}
+                        bind:value={form.address}
                         placeholder="Ej: Calle Principal 1234, Galpón 4"
                         class="h-9 text-xs"
                     />
-                    {#if $form.errors.address}
-                        <p class="text-[11px] font-medium text-destructive">{$form.errors.address}</p>
+                    {#if form.errors.address}
+                        <p class="text-[11px] font-medium text-destructive">{form.errors.address}</p>
                     {/if}
                 </div>
 
@@ -194,7 +201,7 @@
                     <label class="flex items-center gap-2 cursor-pointer text-xs font-medium">
                         <input
                             type="checkbox"
-                            bind:checked={$form.is_active}
+                            bind:checked={form.is_active}
                             class="size-4 rounded border-input text-primary focus:ring-primary"
                         />
                         <span>Depósito activo</span>
@@ -203,7 +210,7 @@
                     <label class="flex items-center gap-2 cursor-pointer text-xs font-medium">
                         <input
                             type="checkbox"
-                            bind:checked={$form.is_default}
+                            bind:checked={form.is_default}
                             class="size-4 rounded border-input text-primary focus:ring-primary"
                         />
                         <span>Depósito principal por defecto</span>
@@ -211,23 +218,24 @@
                 </div>
             </div>
 
-            <DialogFooter class="gap-2 sm:gap-0">
+            <DialogFooter class="gap-2 sm:gap-2">
                 <Button
                     type="button"
                     variant="outline"
-                    class="text-xs font-medium"
+                    class="min-h-[44px] px-5 rounded-xl text-xs font-medium"
                     onclick={() => (open = false)}
                 >
                     Cancelar
                 </Button>
                 <Button
                     type="submit"
-                    disabled={$form.processing}
-                    class="text-xs font-semibold shadow-xs"
+                    disabled={form.processing}
+                    class="min-h-[44px] px-5 rounded-xl text-xs font-semibold shadow-xs"
                 >
-                    {$form.processing ? 'Guardando...' : mode === 'create' ? 'Crear depósito' : 'Guardar cambios'}
+                    {form.processing ? 'Guardando...' : mode === 'create' ? 'Crear depósito' : 'Guardar cambios'}
                 </Button>
             </DialogFooter>
         </form>
     </DialogContent>
 </Dialog>
+

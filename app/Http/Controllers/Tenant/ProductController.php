@@ -7,6 +7,8 @@ use App\Http\Requests\Tenant\StoreProductRequest;
 use App\Http\Requests\Tenant\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductWarehouse;
+use App\Models\Warehouse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,6 +26,7 @@ class ProductController extends Controller
         $sortBy = $request->input('sort_by', 'latest');
 
         $query = Product::with('category:id,name,slug,icon')
+            ->withCount('warehouses as warehouses_count')
             ->when($search, function ($q, $search) {
                 $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
                 $q->where(function ($sub) use ($searchTerm) {
@@ -67,6 +70,12 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
+        $warehouses = Warehouse::where('is_active', true)
+            ->select('id', 'name', 'code', 'is_default')
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->get();
+
         $incompleteCount = Product::incomplete()->count();
 
         $stats = [
@@ -83,6 +92,7 @@ class ProductController extends Controller
             return response()->json([
                 'products' => $products,
                 'categories' => $categories,
+                'warehouses' => $warehouses,
                 'stats' => $stats,
                 'incomplete_count' => $incompleteCount,
                 'tenant_default_bulk_discount' => $tenantDefaultBulkDiscount,
@@ -92,6 +102,7 @@ class ProductController extends Controller
         return Inertia::render('tenant/products/Index', [
             'products' => $products,
             'categories' => $categories,
+            'warehouses' => $warehouses,
             'stats' => $stats,
             'incompleteCount' => $incompleteCount,
             'tenantDefaultBulkDiscount' => $tenantDefaultBulkDiscount,
@@ -137,10 +148,17 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
+        $warehouses = Warehouse::where('is_active', true)
+            ->select('id', 'name', 'code', 'is_default')
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->get();
+
         $tenantDefaultBulkDiscount = (float) ($request->user()->tenant?->default_bulk_discount_percentage ?? 0.00);
 
         return Inertia::render('tenant/products/Create', [
             'categories' => $categories,
+            'warehouses' => $warehouses,
             'tenantDefaultBulkDiscount' => $tenantDefaultBulkDiscount,
         ]);
     }
@@ -148,6 +166,7 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request): RedirectResponse|JsonResponse
     {
         $packageQuantity = $request->validated('package_quantity') ?? $request->validated('units_per_package', 1) ?: 1;
+        $initialStock = (float) ($request->validated('stock', 0) ?? 0);
 
         $product = Product::create([
             'tenant_id' => $request->user()->tenant_id,
@@ -160,7 +179,7 @@ class ProductController extends Controller
             'price' => $request->validated('price'),
             'cost_price' => $request->validated('cost_price'),
             'iva_rate' => $request->validated('iva_rate', 21.00),
-            'stock' => $request->validated('stock', 0),
+            'stock' => $initialStock,
             'min_stock' => $request->validated('min_stock', 5),
             'units_per_package' => $packageQuantity,
             'package_quantity' => $packageQuantity,
@@ -169,6 +188,22 @@ class ProductController extends Controller
             'image_url' => $request->validated('image_url'),
             'is_active' => $request->boolean('is_active', true),
         ]);
+
+        $tenantId = $request->user()->tenant_id;
+        $targetWarehouseId = $request->validated('warehouse_id')
+            ?? Warehouse::where('tenant_id', $tenantId)->where('is_default', true)->value('id')
+            ?? Warehouse::where('tenant_id', $tenantId)->value('id');
+
+        if ($targetWarehouseId) {
+            ProductWarehouse::create([
+                'tenant_id' => $tenantId,
+                'product_id' => $product->id,
+                'warehouse_id' => $targetWarehouseId,
+                'stock' => $initialStock,
+                'min_stock' => $product->min_stock,
+            ]);
+            $product->syncConsolidatedStock();
+        }
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($product, 201);
@@ -189,14 +224,22 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
+        $warehouses = Warehouse::where('is_active', true)
+            ->select('id', 'name', 'code', 'is_default')
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->get();
+
         $tenantDefaultBulkDiscount = (float) ($request->user()->tenant?->default_bulk_discount_percentage ?? 0.00);
 
         return Inertia::render('tenant/products/Edit', [
             'product' => $product,
             'categories' => $categories,
+            'warehouses' => $warehouses,
             'tenantDefaultBulkDiscount' => $tenantDefaultBulkDiscount,
         ]);
     }
+
 
     public function update(UpdateProductRequest $request, Product $product): RedirectResponse|JsonResponse
     {

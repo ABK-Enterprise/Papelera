@@ -39,10 +39,12 @@
         package_quantity?: number;
         image_url: string | null;
         is_incomplete?: boolean;
+        warehouses_count?: number;
         category?: CategorySummary | null;
         effective_bulk_discount_percentage?: number;
         bulk_discount_price?: string | number;
     }
+
 
     let {
         products = [],
@@ -192,9 +194,15 @@
                                 Stock: {product.stock} {isWeighable ? 'Kg' : 'unid.'}
                             </span>
                         {/if}
+
+                        <span class="text-muted-foreground/40 font-light select-none">|</span>
+                        <span class="text-xs text-muted-foreground tabular-nums">
+                            {product.warehouses_count === 1 ? '1 depósito' : `${product.warehouses_count ?? 0} depósitos`}
+                        </span>
                     </div>
                 </div>
             </div>
+
 
             <!-- Lado Derecho: Precios (alineados a la derecha) + Menú Desplegable '...' -->
             <div class="flex items-center gap-5 shrink-0">

@@ -26,6 +26,13 @@
         name: string;
     }
 
+    export interface WarehouseOption {
+        id: number;
+        name: string;
+        code: string;
+        is_default?: boolean;
+    }
+
     export interface ProductData {
         id?: number;
         name?: string;
@@ -50,12 +57,14 @@
         mode = 'create', // 'create' | 'edit'
         product = null,
         categories = [],
+        warehouses = [],
         onsuccess,
     }: {
         open: boolean;
         mode?: 'create' | 'edit';
         product?: ProductData | null;
         categories: CategoryOption[];
+        warehouses?: WarehouseOption[];
         onsuccess?: () => void;
     } = $props();
 
@@ -63,6 +72,7 @@
         name: '',
         sale_type: 'unit' as 'unit' | 'weight',
         category_id: '' as string | number,
+        warehouse_id: '' as string | number,
         sku: '',
         barcode: '',
         description: '',
@@ -105,9 +115,13 @@
             lastLoadedProductId = null;
             initialSaleType = 'unit';
             form.reset();
+            form.warehouse_id = warehouses.find(w => w.is_default)?.id ?? (warehouses[0]?.id ?? '');
             form.clearErrors();
+        } else if (!product && !form.warehouse_id && warehouses.length > 0) {
+            form.warehouse_id = warehouses.find(w => w.is_default)?.id ?? warehouses[0].id;
         }
     });
+
 
     function formatPrice(amount: number) {
         return new Intl.NumberFormat('es-AR', {
@@ -431,6 +445,29 @@
                         <!-- 3. Inventario & Empaque -->
                         <div class="space-y-3">
                             <h3 class="text-xs font-bold text-primary uppercase tracking-wider">3. Inventario & Empaque</h3>
+
+                            {#if mode === 'create' && warehouses.length > 0}
+                                <div class="space-y-1">
+                                    <Label for="modal-prod-warehouse" class="text-xs font-semibold">
+                                        Depósito Destino (Asignación de Stock Inicial)
+                                    </Label>
+                                    <select
+                                        id="modal-prod-warehouse"
+                                        bind:value={form.warehouse_id}
+                                        class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                    >
+                                        {#each warehouses as wh (wh.id)}
+                                            <option value={wh.id}>
+                                                {wh.name} ({wh.code}) {wh.is_default ? '— Principal' : ''}
+                                            </option>
+                                        {/each}
+                                    </select>
+                                    {#if form.errors.warehouse_id}
+                                        <p class="text-xs text-destructive">{form.errors.warehouse_id}</p>
+                                    {/if}
+                                </div>
+                            {/if}
+
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div class="space-y-1">
                                     <div class="flex items-center justify-between">
@@ -537,27 +574,33 @@
         </DialogBody>
 
         <!-- 3. Footer -->
-        <DialogFooter>
-            <Button type="button" variant="outline" size="sm" class="text-xs" onclick={handleClose} disabled={form.processing}>
+        <DialogFooter class="gap-2 sm:gap-2">
+            <Button
+                type="button"
+                variant="outline"
+                class="min-h-[44px] px-5 rounded-xl text-sm font-medium border-border/70 hover:bg-muted/60 transition-colors"
+                onclick={handleClose}
+                disabled={form.processing}
+            >
                 Cancelar
             </Button>
             <Button
                 type="submit"
                 form="product-modal-form"
-                size="sm"
                 disabled={form.processing}
-                class="text-xs font-semibold gap-1.5 min-w-36"
+                class="min-h-[44px] px-6 rounded-xl text-sm font-semibold gap-2 shadow-xs min-w-[160px]"
             >
                 {#if form.processing}
                     <span>Guardando...</span>
                 {:else}
-                    <Check class="size-3.5" />
-                    <span>{mode === 'edit' ? 'Guardar cambios' : 'Crear producto'}</span>
+                    <Check class="size-4" />
+                    <span>{mode === 'edit' ? 'Guardar cambios' : 'Guardar producto'}</span>
                 {/if}
             </Button>
         </DialogFooter>
     </DialogContent>
 </Dialog>
+
 
 <!-- Alert Dialog de Bits UI para Confirmar Cambio de Modalidad de Venta -->
 <SaleTypeChangeAlertDialog

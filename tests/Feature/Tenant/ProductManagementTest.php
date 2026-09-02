@@ -203,3 +203,68 @@ test('cannot create duplicate barcode in same tenant', function () {
         ->assertJsonValidationErrors(['barcode']);
 });
 
+test('product creation assigns stock to specified warehouse and syncs consolidated stock', function () {
+    $warehouse = \App\Models\Warehouse::firstOrCreate(
+        ['tenant_id' => $this->tenant->id, 'code' => 'DEP-01'],
+        ['name' => 'Depósito Central', 'is_active' => true, 'is_default' => true]
+    );
+
+    $response = $this->actingAs($this->user)
+        ->postJson('/tenant/productos', [
+            'name' => 'Caja de Cartón Reforzada',
+            'sku' => 'CAJ-REF-01',
+            'price' => 1200.00,
+            'stock' => 75,
+            'warehouse_id' => $warehouse->id,
+        ])
+        ->assertCreated();
+
+    $product = Product::where('sku', 'CAJ-REF-01')->first();
+    expect($product)->not->toBeNull()
+        ->and((float) $product->stock)->toBe(75.0)
+        ->and($product->productWarehouses()->count())->toBe(1);
+
+    $pw = $product->productWarehouses()->first();
+    expect($pw->warehouse_id)->toBe($warehouse->id)
+        ->and((float) $pw->stock)->toBe(75.0);
+});
+
+test('product index returns warehouses_count and warehouses list', function () {
+    $warehouse1 = \App\Models\Warehouse::firstOrCreate(
+        ['tenant_id' => $this->tenant->id, 'code' => 'DEP-01'],
+        ['name' => 'Depósito 1', 'is_active' => true]
+    );
+    $warehouse2 = \App\Models\Warehouse::firstOrCreate(
+        ['tenant_id' => $this->tenant->id, 'code' => 'DEP-02'],
+        ['name' => 'Depósito 2', 'is_active' => true]
+    );
+
+
+
+    $product = Product::factory()->forTenant($this->tenant)->create(['name' => 'Producto Multidepósito', 'stock' => 40]);
+    \App\Models\ProductWarehouse::create([
+        'tenant_id' => $this->tenant->id,
+        'product_id' => $product->id,
+        'warehouse_id' => $warehouse1->id,
+        'stock' => 25,
+    ]);
+    \App\Models\ProductWarehouse::create([
+        'tenant_id' => $this->tenant->id,
+        'product_id' => $product->id,
+        'warehouse_id' => $warehouse2->id,
+        'stock' => 15,
+    ]);
+
+    $response = $this->actingAs($this->user)
+        ->getJson('/tenant/productos')
+        ->assertSuccessful();
+
+    $data = $response->json();
+    expect($data['warehouses'])->toHaveCount(2);
+
+    $prodData = collect($data['products'])->firstWhere('id', $product->id);
+    expect($prodData)->not->toBeNull()
+        ->and($prodData['warehouses_count'])->toBe(2);
+});
+
+

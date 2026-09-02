@@ -35,6 +35,11 @@ class StoreProductRequest extends FormRequest
                 'nullable',
                 Rule::exists('categories', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)),
             ],
+            'warehouse_id' => [
+                'nullable',
+                Rule::exists('warehouses', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)),
+            ],
+
             'sku' => [
                 'nullable',
                 'string',

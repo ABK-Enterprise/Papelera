@@ -103,8 +103,13 @@
                         searchTerm = q;
                         onsearch?.(q);
                     }}
+                    onselect={(item) => {
+                        searchTerm = item.product_name;
+                        onsearch?.(item.product_name);
+                    }}
                     onclear={onreset}
                 >
+
                     {#snippet itemSnippet(item)}
                         <div class="flex items-center justify-between gap-2 w-full min-w-0">
                             <div class="flex flex-col min-w-0">

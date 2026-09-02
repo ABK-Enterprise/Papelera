@@ -67,13 +67,29 @@
 
         // Tenant modular navigation (Zero-Trust con Navigation Menu)
         if (tenant) {
-            // Products catalog (Productos module - Enlace Directo Simple)
+            // Products catalog (Productos module)
             if (modules.includes('productos') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('productos.ver'))) {
                 items.push({
                     title: 'Productos',
                     href: '/tenant/productos',
                     icon: 'solar:box-bold-duotone',
                     active: currentUrl.startsWith('/tenant/productos') || currentUrl.startsWith('/tenant/categorias'),
+                    subItems: [
+                        {
+                            title: 'Catálogo de Productos',
+                            description: 'Gestión de precios, artículos y categorías',
+                            href: '/tenant/productos',
+                            icon: 'solar:box-bold-duotone',
+                            active: (currentUrl.startsWith('/tenant/productos') && !currentUrl.startsWith('/tenant/productos/buscar-deposito')) || currentUrl.startsWith('/tenant/categorias'),
+                        },
+                        {
+                            title: 'Buscar en Depósito',
+                            description: 'Existencias físicas y estanterías por depósito',
+                            href: '/tenant/productos/buscar-deposito',
+                            icon: 'solar:box-minimalistic-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/productos/buscar-deposito'),
+                        },
+                    ],
                 });
             }
 
@@ -83,7 +99,7 @@
                     title: 'Stock',
                     href: '/tenant/stock/ingresos',
                     icon: 'solar:archive-minimalistic-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/stock') || currentUrl.startsWith('/tenant/productos/buscar-deposito'),
+                    active: currentUrl.startsWith('/tenant/stock'),
                     subItems: [
                         {
                             title: 'Ingresos de Stock',
@@ -106,16 +122,10 @@
                             icon: 'solar:history-bold-duotone',
                             active: currentUrl.startsWith('/tenant/stock/kardex'),
                         },
-                        {
-                            title: 'Buscar en Depósito',
-                            description: 'Existencias físicas y estanterías',
-                            href: '/tenant/productos/buscar-deposito',
-                            icon: 'solar:box-minimalistic-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/productos/buscar-deposito'),
-                        },
                     ],
                 });
             }
+
 
             // Customer Orders (Pedidos module)
             if (modules.includes('pedidos') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('pedidos.ver'))) {

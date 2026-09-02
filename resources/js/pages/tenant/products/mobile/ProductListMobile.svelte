@@ -28,8 +28,10 @@
         package_quantity?: number;
         image_url: string | null;
         is_incomplete?: boolean;
+        warehouses_count?: number;
         category?: CategorySummary | null;
     }
+
 
     let {
         products = [],
@@ -113,7 +115,7 @@
                     </span>
                 {/if}
 
-                <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                <div class="flex items-center gap-1.5 mt-1.5 flex-wrap text-xs">
                     {#if product.stock <= 0}
                         <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 tabular-nums">
                             Agotado
@@ -127,13 +129,21 @@
                             Stock: {product.stock} {isWeighable ? 'Kg' : 'u'}
                         </span>
                     {/if}
+
+                    <span class="text-muted-foreground/40 font-light select-none">|</span>
+                    <span class="text-xs text-muted-foreground tabular-nums">
+                        {product.warehouses_count === 1 ? '1 depósito' : `${product.warehouses_count ?? 0} depósitos`}
+                    </span>
+
                     {#if product.sku}
+                        <span class="text-muted-foreground/40 font-light select-none">|</span>
                         <span class="text-xs text-muted-foreground tracking-wide truncate tabular-nums">
                             {product.sku}
                         </span>
                     {/if}
                 </div>
             </div>
+
 
             <div class="flex flex-col gap-1.5 shrink-0">
                 {#if isIncomplete}

@@ -137,10 +137,19 @@
     }
 
     function selectItem(item: T) {
+        if (searchKeys && searchKeys.length > 0) {
+            const firstKey = searchKeys[0] as keyof T;
+            if (item[firstKey] !== undefined && item[firstKey] !== null) {
+                value = String(item[firstKey]);
+            }
+        } else if (item.name || item.title || item.product_name) {
+            value = String(item.name || item.title || item.product_name);
+        }
         onselect?.(item);
         isOpen = false;
         activeIndex = -1;
     }
+
 
     function clear() {
         if (timer) {

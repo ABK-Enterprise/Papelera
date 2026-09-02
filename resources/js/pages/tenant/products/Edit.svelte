@@ -517,15 +517,14 @@
                 <!-- Footer Acciones -->
                 <div class="flex items-center justify-end gap-3 pt-4 border-t">
                     <Link href="/tenant/productos">
-                        <Button type="button" variant="outline" size="sm" class="rounded-xl">
+                        <Button type="button" variant="outline" class="min-h-[44px] px-5 rounded-xl text-sm font-medium border-border/70 hover:bg-muted/60 transition-colors">
                             Cancelar
                         </Button>
                     </Link>
 
                     <Button
                         type="submit"
-                        size="sm"
-                        class="gap-1.5 rounded-xl font-semibold"
+                        class="min-h-[44px] px-6 rounded-xl text-sm font-semibold gap-2 shadow-xs min-w-[160px]"
                         disabled={form.processing}
                     >
                         <Check class="size-4" />
