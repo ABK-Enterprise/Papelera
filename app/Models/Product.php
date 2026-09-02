@@ -157,6 +157,38 @@ class Product extends Model
         return $this->hasMany(StockMovement::class);
     }
 
+    public function productWarehouses(): HasMany
+    {
+        return $this->hasMany(ProductWarehouse::class);
+    }
+
+    public function warehouses(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Warehouse::class, 'product_warehouse')
+            ->withPivot(['stock', 'min_stock', 'aisle_location'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Get stock for this product in a specific warehouse.
+     */
+    public function stockInWarehouse(Warehouse|int $warehouse): float
+    {
+        $warehouseId = $warehouse instanceof Warehouse ? $warehouse->id : $warehouse;
+
+        return (float) ($this->productWarehouses()->where('warehouse_id', $warehouseId)->value('stock') ?? 0.0);
+    }
+
+    /**
+     * Sync consolidated stock from all product_warehouse rows.
+     */
+    public function syncConsolidatedStock(): void
+    {
+        $totalStock = (float) ($this->productWarehouses()->sum('stock') ?? 0.0);
+        $this->update(['stock' => $totalStock]);
+    }
+
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);

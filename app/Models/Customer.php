@@ -38,6 +38,7 @@ use Illuminate\Support\Carbon;
     'phone',
     'address',
     'credit_limit',
+    'discount_percentage',
     'current_balance',
     'credit_due_days',
     'is_defaulter',
@@ -57,12 +58,14 @@ class Customer extends Model
     {
         return [
             'credit_limit' => 'decimal:2',
+            'discount_percentage' => 'decimal:2',
             'current_balance' => 'decimal:2',
             'credit_due_days' => 'integer',
             'is_defaulter' => 'boolean',
             'is_active' => 'boolean',
         ];
     }
+
 
     public function getAvailableCreditAttribute(): float
     {

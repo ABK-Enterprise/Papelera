@@ -28,12 +28,15 @@ use Illuminate\Support\Carbon;
 #[Fillable([
     'tenant_id',
     'customer_id',
+    'warehouse_id',
     'order_number',
     'customer_name',
     'customer_phone',
     'delivery_address',
     'status',
     'total_amount',
+    'customer_discount_percentage',
+    'customer_discount_amount',
     'notes',
 ])]
 class CustomerOrder extends Model
@@ -53,6 +56,8 @@ class CustomerOrder extends Model
     {
         return [
             'total_amount' => 'decimal:2',
+            'customer_discount_percentage' => 'decimal:2',
+            'customer_discount_amount' => 'decimal:2',
         ];
     }
 
@@ -60,6 +65,12 @@ class CustomerOrder extends Model
     {
         return $this->belongsTo(Customer::class);
     }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
 
     public function items(): HasMany
     {

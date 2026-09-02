@@ -22,12 +22,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'customer_order_id',
     'product_id',
+    'warehouse_id',
     'packaging_type',
     'units_per_package',
     'quantity',
     'quantity_base',
     'unit_price',
     'subtotal',
+    'apply_customer_discount',
+    'discount_percentage',
+    'discount_amount',
 ])]
 class CustomerOrderItem extends Model
 {
@@ -42,6 +46,9 @@ class CustomerOrderItem extends Model
             'quantity_base' => FlexibleDecimal::class,
             'unit_price' => 'decimal:2',
             'subtotal' => 'decimal:2',
+            'apply_customer_discount' => 'boolean',
+            'discount_percentage' => 'decimal:2',
+            'discount_amount' => 'decimal:2',
         ];
     }
 
@@ -54,6 +61,12 @@ class CustomerOrderItem extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
 
     public function getTotalUnitsAttribute(): float
     {

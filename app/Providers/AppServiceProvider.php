@@ -37,6 +37,8 @@ class AppServiceProvider extends ServiceProvider
             return $user->isSuperAdmin() ? true : null;
         });
 
+        \App\Models\Tenant::observe(\App\Observers\TenantObserver::class);
+
         RedirectIfAuthenticated::redirectUsing(function (Request $request) {
             $user = $request->user();
             if ($user?->isSuperAdmin()) {
@@ -46,6 +48,7 @@ class AppServiceProvider extends ServiceProvider
             return route('dashboard');
         });
     }
+
 
 
     /**
