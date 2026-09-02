@@ -362,7 +362,7 @@
                                     <select
                                         id="modal-prod-cat"
                                         bind:value={form.category_id}
-                                        class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                        class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                                     >
                                         <option value="">Sin categoría asignada</option>
                                         {#each categories as cat}
@@ -430,7 +430,7 @@
                                     <select
                                         id="modal-prod-iva"
                                         bind:value={form.iva_rate}
-                                        class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary font-sans tabular-nums"
+                                        class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary font-sans tabular-nums"
                                     >
                                         <option value={21.00}>21.0% (General)</option>
                                         <option value={10.50}>10.5% (Reducido)</option>
@@ -455,8 +455,9 @@
                                     <select
                                         id="modal-prod-warehouse"
                                         bind:value={form.warehouse_id}
-                                        class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                        class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                                     >
+
                                         {#each warehouses as wh (wh.id)}
                                             <option value={wh.id}>
                                                 {wh.name} ({wh.code}) {wh.is_default ? '— Principal' : ''}
@@ -553,8 +554,9 @@
                                     bind:value={form.description}
                                     rows="2"
                                     placeholder="Especificaciones técnicas, medidas, gramaje..."
-                                    class="w-full bg-muted/30 dark:bg-black/20 dark:border-white/10 rounded-xl p-3 text-xs border border-border/80 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
+                                    class="w-full bg-background rounded-xl p-3 text-xs border border-border/80 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                                 ></textarea>
+
 
                             </div>
 

@@ -29,10 +29,11 @@
         ></button>
         <div
             class={cn(
-                'relative z-10 w-full max-w-lg rounded-2xl border bg-background text-foreground shadow-2xl flex flex-col max-h-[85vh] overflow-hidden',
+                'relative z-10 w-full max-w-lg rounded-2xl sm:rounded-3xl border border-border bg-card text-card-foreground shadow-2xl flex flex-col max-h-[85vh] overflow-hidden',
                 className,
             )}
             role="dialog"
+
             aria-modal="true"
             {...restProps}
         >

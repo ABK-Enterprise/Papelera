@@ -277,7 +277,7 @@
                             <select
                                 id="edit-prod-cat"
                                 bind:value={form.category_id}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
                                 <option value="">Sin categoría asignada</option>
                                 {#each categories as cat}
@@ -346,7 +346,7 @@
                             <select
                                 id="edit-prod-iva"
                                 bind:value={form.iva_rate}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary tabular-nums"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary tabular-nums"
                             >
                                 <option value={21.00}>21.0% (General)</option>
                                 <option value={10.50}>10.5% (Reducido)</option>
@@ -375,8 +375,9 @@
                             <select
                                 id="edit-prod-discount-type"
                                 bind:value={form.bulk_discount_type}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
+
                                 <option value="inherited">Heredar global ({tenantDefaultBulkDiscount}%)</option>
                                 <option value="custom">Personalizado (% específico)</option>
                                 <option value="none">Sin descuento por bulto (0%)</option>
@@ -500,8 +501,9 @@
                             bind:value={form.description}
                             rows="2"
                             placeholder="Especificaciones de tamaño, gramaje, características..."
-                            class="w-full bg-muted/30 dark:bg-black/20 dark:border-white/10 rounded-xl p-3 text-xs border border-border/80 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
+                            class="w-full bg-background rounded-xl p-3 text-xs border border-border/80 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                         ></textarea>
+
                     </div>
 
 

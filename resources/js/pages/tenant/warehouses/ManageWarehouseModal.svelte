@@ -171,8 +171,9 @@
                             <select
                                 id="wh-branch"
                                 bind:value={form.branch_id}
-                                class="w-full h-10 rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                class="w-full h-10 rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
+
                                 <option value={null}>Sin sucursal asignada (Depósito Independiente)</option>
                                 {#each branches as br}
                                     <option value={br.id}>

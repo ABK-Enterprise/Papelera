@@ -122,8 +122,9 @@
                     <select
                         id="create-customer-tax-condition"
                         bind:value={form.tax_condition}
-                        class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:bg-transparent disabled:border-dashed"
+                        class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:bg-transparent disabled:border-dashed"
                     >
+
                         <option value="consumidor_final">Consumidor Final</option>
                         <option value="responsable_inscripto">Responsable Inscripto</option>
                         <option value="monotributo">Monotributo</option>
@@ -259,8 +260,9 @@
                     bind:value={form.notes}
                     rows="2"
                     placeholder="ej. Horarios de recepción, condiciones de pago convenidas..."
-                    class="w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 p-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:bg-transparent disabled:border-dashed resize-none"
+                    class="w-full rounded-xl border border-border/80 bg-background p-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:bg-transparent disabled:border-dashed resize-none"
                 ></textarea>
+
                 {#if form.errors.notes}
                     <p class="text-xs text-destructive">{form.errors.notes}</p>
                 {/if}

@@ -743,8 +743,9 @@
                             <select
                                 id="order-warehouse"
                                 bind:value={selectedWarehouseId}
-                                class="h-10 w-full sm:w-64 rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                class="h-10 w-full sm:w-64 rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
+
                                 <option value={null}>Depósito Principal (Automático)</option>
                                 {#each warehouses as wh}
                                     <option value={wh.id}>{wh.name} ({wh.code})</option>
@@ -924,8 +925,9 @@
                                         <select
                                             value={item.packaging_type}
                                             onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                            class="h-9 sm:h-10 rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                            class="h-9 sm:h-10 rounded-xl border border-border/80 bg-background px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                                         >
+
 
                                             {#if item.sale_type === 'weight'}
                                                 <option value="gram">Gramos (g)</option>
@@ -1056,7 +1058,7 @@
                             <select
                                 id="order-payment-method"
                                 bind:value={paymentMethod}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
                                 <option value="efectivo">Efectivo</option>
                                 <option value="transferencia">Transferencia Bancaria</option>
@@ -1076,9 +1078,10 @@
                         bind:value={notes}
                         rows="2"
                         placeholder="ej. Entregar por la mañana, timbre 2B, empaquetar con cinta reforzada..."
-                        class="w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
+                        class="w-full rounded-xl border border-border/80 bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                     ></textarea>
                 </div>
+
             </form>
 
             <!-- Footer Bento: Total & Botones (shrink-0) -->

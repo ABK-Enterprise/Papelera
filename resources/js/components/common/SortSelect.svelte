@@ -29,7 +29,8 @@
     <select
         value={value}
         onchange={handleChange}
-        class="h-10 min-h-[40px] appearance-none rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 pl-8 pr-7 text-xs font-medium text-foreground transition-all hover:bg-muted/50 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary"
+        class="h-10 min-h-[40px] appearance-none rounded-xl border border-border/80 bg-background pl-8 pr-7 text-xs font-medium text-foreground transition-all hover:bg-muted/40 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary"
+
 
         aria-label="Criterio de ordenamiento"
     >

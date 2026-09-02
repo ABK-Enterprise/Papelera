@@ -191,8 +191,9 @@
                         <select
                             id="payment-method"
                             bind:value={paymentMethod}
-                            class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs"
+                            class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs"
                         >
+
                             <option value="efectivo">Efectivo</option>
                             <option value="transferencia">Transferencia Bancaria</option>
                             <option value="cheque">Cheque</option>

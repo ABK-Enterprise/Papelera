@@ -196,9 +196,10 @@
                         id="income-notes"
                         rows="3"
                         bind:value={form.notes}
-                        class="w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs resize-none"
+                        class="w-full rounded-xl border border-border/80 bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs resize-none"
                         placeholder="Detalles adicionales, número de remito o factura..."
                     ></textarea>
+
                     {#if form.errors.notes}
                         <p class="text-xs text-rose-500 font-medium">{form.errors.notes}</p>
                     {/if}

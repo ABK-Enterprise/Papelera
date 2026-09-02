@@ -248,7 +248,7 @@
                             <select
                                 id="create-prod-cat"
                                 bind:value={form.category_id}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
                                 <option value="">Sin categoría asignada</option>
                                 {#each categories as cat}
@@ -317,7 +317,7 @@
                             <select
                                 id="create-prod-iva"
                                 bind:value={form.iva_rate}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary tabular-nums"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary tabular-nums"
                             >
                                 <option value={21.00}>21.0% (General)</option>
                                 <option value={10.50}>10.5% (Reducido)</option>
@@ -346,7 +346,7 @@
                             <select
                                 id="create-prod-discount-type"
                                 bind:value={form.bulk_discount_type}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
                                 <option value="inherited">Heredar global ({tenantDefaultBulkDiscount}%)</option>
                                 <option value="custom">Personalizado (% específico)</option>
@@ -392,8 +392,9 @@
                                 <select
                                     id="create-prod-warehouse"
                                     bind:value={form.warehouse_id}
-                                    class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                    class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                                 >
+
                                     {#each warehouses as wh (wh.id)}
                                         <option value={wh.id}>
                                             {wh.name} ({wh.code}) {wh.is_default ? '— Principal' : ''}
@@ -444,19 +445,36 @@
                             </div>
 
                             <div class="space-y-1">
-                                <Label for="create-prod-unit" class="text-xs font-semibold">Unidad de Medida</Label>
-                                <Input
-                                    id="create-prod-unit"
-                                    bind:value={form.unit}
-                                    placeholder={form.sale_type === 'weight' ? 'kg' : 'un'}
-                                    class="h-9 text-xs rounded-xl"
-                                />
-                                {#if form.errors.unit}
-                                    <p class="text-xs text-destructive">{form.errors.unit}</p>
+                                {#if form.sale_type === 'weight'}
+                                    <Label for="create-prod-units-pack" class="text-xs font-semibold">Kg por Bulto Cerrado</Label>
+                                    <Input
+                                        id="create-prod-units-pack"
+                                        type="number"
+                                        step="0.01"
+                                        min="0.1"
+                                        bind:value={form.package_quantity}
+                                        class="h-9 text-xs rounded-xl font-semibold tabular-nums"
+                                        placeholder="1"
+                                    />
+                                {:else}
+                                    <Label for="create-prod-units-pack" class="text-xs font-semibold">Unidades por Bulto</Label>
+                                    <Input
+                                        id="create-prod-units-pack"
+                                        type="number"
+                                        step="1"
+                                        min="1"
+                                        bind:value={form.units_per_package}
+                                        class="h-9 text-xs rounded-xl font-semibold tabular-nums"
+                                        placeholder="1"
+                                    />
+                                {/if}
+                                {#if form.errors.units_per_package || form.errors.package_quantity}
+                                    <p class="text-xs text-destructive">{form.errors.units_per_package || form.errors.package_quantity}</p>
                                 {/if}
                             </div>
                         </div>
                     </div>
+
 
                     <hr class="border-border/60" />
 
@@ -480,8 +498,9 @@
                                 bind:value={form.description}
                                 rows="2"
                                 placeholder="Especificaciones de tamaño, gramaje, características..."
-                                class="w-full bg-muted/30 dark:bg-black/20 dark:border-white/10 rounded-xl p-3 text-xs border border-border/80 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
+                                class="w-full bg-background rounded-xl p-3 text-xs border border-border/80 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                             ></textarea>
+
                         </div>
 
                         <div class="flex items-center gap-2 pt-1">

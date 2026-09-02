@@ -361,9 +361,10 @@
                         <select
                             id="supplier-select"
                             bind:value={selectedSupplierId}
-                            class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                            class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             required
                         >
+
                             <option value="">Seleccionar proveedor de la lista...</option>
                             {#each suppliers as sup}
                                 <option value={sup.id}>{sup.name} {sup.contact_number ? `(${sup.contact_number})` : ''}</option>
@@ -562,8 +563,9 @@
                         bind:value={notes}
                         rows="2"
                         placeholder="ej. Entrega pactada para el viernes por la tarde..."
-                        class="w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
+                        class="w-full rounded-xl border border-border/80 bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                     ></textarea>
+
                 </div>
             </form>
 

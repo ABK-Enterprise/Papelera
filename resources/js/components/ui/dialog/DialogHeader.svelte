@@ -13,6 +13,7 @@
     } = $props();
 </script>
 
-<div class={cn('flex items-center justify-between p-5 sm:p-6 border-b border-border shrink-0 bg-background', className)} {...restProps}>
+<div class={cn('flex items-center justify-between p-5 sm:p-6 border-b border-border shrink-0 bg-card', className)} {...restProps}>
+
     {@render children?.()}
 </div>
