@@ -114,7 +114,7 @@
                 <div class="size-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
                     <ArrowDownLeft class="size-5" />
                 </div>
-                <span class="text-xs font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-950/50 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
                     Entradas
                 </span>
             </div>
@@ -130,7 +130,7 @@
                 <div class="size-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-500/20">
                     <ArrowUpRight class="size-5" />
                 </div>
-                <span class="text-xs font-semibold text-rose-600 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
+                <span class="text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-500/10 dark:bg-rose-950/50 px-2.5 py-0.5 rounded-full border border-rose-500/20">
                     Salidas
                 </span>
             </div>
@@ -141,12 +141,12 @@
         </div>
 
         <!-- Tarjeta 3: Balance Neto -->
-        <div class="p-5 rounded-2xl bg-secondary/10 dark:bg-secondary/20 border border-secondary/20 shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36">
+        <div class="p-5 rounded-2xl bg-card border border-border/70 shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36">
             <div class="flex items-center justify-between">
-                <div class="size-9 rounded-xl bg-secondary/20 text-secondary flex items-center justify-center border border-secondary/30">
+                <div class="size-9 rounded-xl bg-primary/10 text-primary dark:text-primary-300 flex items-center justify-center border border-primary/20">
                     <RefreshCw class="size-5" />
                 </div>
-                <span class="text-xs font-semibold text-secondary bg-secondary/20 px-2.5 py-0.5 rounded-full border border-secondary/30">
+                <span class="text-xs font-semibold text-primary dark:text-primary-300 bg-primary/10 dark:bg-primary-950/60 px-2.5 py-0.5 rounded-full border border-primary/20">
                     Flujo de Stock
                 </span>
             </div>
@@ -158,6 +158,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Contenedor de Tabla con Toolbar Stitch -->
     <div class="bg-card text-card-foreground rounded-2xl shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/70 overflow-hidden">
@@ -301,12 +302,13 @@
                                         variant="tertiary"
                                         size="sm"
                                         onclick={() => onSelectMovement(mov)}
-                                        class="min-h-[36px] text-xs gap-1.5 rounded-lg font-medium px-3"
+                                        class="min-h-[40px] text-xs gap-1.5 rounded-xl font-medium px-3.5"
                                     >
                                         <Eye class="size-3.5" />
                                         <span>Ver detalle</span>
                                     </Button>
                                 </td>
+
 
 
                             </tr>

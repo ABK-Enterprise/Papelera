@@ -122,11 +122,12 @@
                         variant="tertiary"
                         size="sm"
                         onclick={() => onSelectMovement(mov)}
-                        class="min-h-[36px] text-xs px-3 rounded-xl shrink-0 font-medium"
+                        class="min-h-[44px] text-xs px-3.5 rounded-xl shrink-0 font-medium"
                     >
-                        <Eye class="size-3 mr-1" />
+                        <Eye class="size-3.5 mr-1.5" />
                         <span>Ver detalle</span>
                     </Button>
+
 
 
                 </div>

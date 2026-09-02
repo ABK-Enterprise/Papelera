@@ -99,7 +99,7 @@
             <button
                 type="button"
                 onclick={handleCancel}
-                class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                 aria-label="Cerrar"
             >
                 <X class="size-4" />
@@ -121,19 +121,17 @@
             <Button
                 type="button"
                 variant="outline"
-                size="sm"
                 onclick={handleCancel}
                 disabled={isBusy}
-                class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
+                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70"
             >
                 {cancelText}
             </Button>
             <Button
                 type="button"
-                size="sm"
                 onclick={handleConfirm}
                 disabled={isBusy}
-                class="min-h-[40px] px-4 rounded-xl text-xs font-medium min-w-28 shadow-xs {isDestructive
+                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-28 shadow-xs {isDestructive
                     ? 'bg-rose-600 hover:bg-rose-700 text-white dark:bg-rose-600 dark:hover:bg-rose-700'
                     : variant === 'warning'
                       ? 'bg-amber-600 hover:bg-amber-700 text-white'
@@ -144,5 +142,6 @@
                 {isBusy ? 'Procesando...' : confirmText}
             </Button>
         </DialogFooter>
+
     </DialogContent>
 </Dialog>

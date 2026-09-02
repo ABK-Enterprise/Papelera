@@ -60,11 +60,10 @@
                     </div>
                 </div>
                 <DialogClose>
-                    <button type="button" class="size-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                        <X class="size-4" />
-                    </button>
+                    <X class="size-4" />
                 </DialogClose>
             </DialogHeader>
+
 
             <DialogBody class="space-y-4 py-3 overflow-y-auto max-h-[60vh]">
                 <!-- Estado -->

@@ -572,12 +572,13 @@
                 <button
                     type="button"
                     onclick={closeModal}
-                    class="rounded-lg p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar modal"
                 >
                     <X class="size-4" />
                 </button>
             </div>
+
 
             <!-- Error Banner -->
             {#if errorMessage}
@@ -742,13 +743,14 @@
                             <select
                                 id="order-warehouse"
                                 bind:value={selectedWarehouseId}
-                                class="h-8 w-full sm:w-64 rounded-lg border border-input bg-background px-2.5 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                class="h-10 w-full sm:w-64 rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
                                 <option value={null}>Depósito Principal (Automático)</option>
                                 {#each warehouses as wh}
                                     <option value={wh.id}>{wh.name} ({wh.code})</option>
                                 {/each}
                             </select>
+
                         </div>
                     {/if}
                 </div>
@@ -922,8 +924,9 @@
                                         <select
                                             value={item.packaging_type}
                                             onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                            class="h-9 sm:h-10 rounded-lg border border-input bg-background px-2.5 text-xs font-semibold text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                            class="h-9 sm:h-10 rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                                         >
+
                                             {#if item.sale_type === 'weight'}
                                                 <option value="gram">Gramos (g)</option>
                                                 <option value="kg">Kilogramos (Kg)</option>
@@ -1053,7 +1056,7 @@
                             <select
                                 id="order-payment-method"
                                 bind:value={paymentMethod}
-                                class="h-9 w-full rounded-lg border border-input bg-background px-3 text-xs text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
                                 <option value="efectivo">Efectivo</option>
                                 <option value="transferencia">Transferencia Bancaria</option>
@@ -1073,7 +1076,7 @@
                         bind:value={notes}
                         rows="2"
                         placeholder="ej. Entregar por la mañana, timbre 2B, empaquetar con cinta reforzada..."
-                        class="w-full rounded-lg border border-input bg-background p-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none resize-none"
+                        class="w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                     ></textarea>
                 </div>
             </form>
@@ -1101,14 +1104,13 @@
 
 
                 <div class="flex items-center gap-2">
-                    <Button type="button" variant="outline" size="sm" onclick={closeModal}>
+                    <Button type="button" variant="outline" class="min-h-[44px] px-4 rounded-xl text-sm font-semibold" onclick={closeModal}>
                         Cancelar
                     </Button>
                     <Button
                         type="submit"
                         form="create-order-form"
-                        size="sm"
-                        class="gap-1.5 font-semibold"
+                        class="min-h-[44px] px-4 rounded-xl text-sm font-semibold gap-1.5"
                         disabled={isSubmitting || items.length === 0}
                     >
                         {#if isSubmitting}
@@ -1119,6 +1121,7 @@
                         {/if}
                     </Button>
                 </div>
+
             </div>
         </div>
     </div>

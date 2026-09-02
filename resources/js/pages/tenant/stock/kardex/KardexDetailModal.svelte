@@ -83,12 +83,13 @@
                 <button
                     type="button"
                     onclick={() => (open = false)}
-                    class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
                 </button>
             </DialogHeader>
+
 
             <DialogBody class="space-y-4 text-sm">
                 <!-- Información del Producto -->
@@ -182,13 +183,13 @@
                 <Button
                     type="button"
                     variant="outline"
-                    size="sm"
                     onclick={() => (open = false)}
-                    class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
+                    class="min-h-[44px] px-5 rounded-xl text-sm font-semibold border-border/70"
                 >
                     Cerrar
                 </Button>
             </DialogFooter>
+
         {/if}
     </DialogContent>
 </Dialog>

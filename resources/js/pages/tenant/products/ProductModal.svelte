@@ -205,12 +205,13 @@
             <button
                 type="button"
                 onclick={handleClose}
-                class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                 aria-label="Cerrar"
             >
                 <X class="size-4" />
             </button>
         </DialogHeader>
+
 
         <!-- 2. Body -->
         <DialogBody>
@@ -361,7 +362,7 @@
                                     <select
                                         id="modal-prod-cat"
                                         bind:value={form.category_id}
-                                        class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                        class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                                     >
                                         <option value="">Sin categoría asignada</option>
                                         {#each categories as cat}
@@ -429,7 +430,7 @@
                                     <select
                                         id="modal-prod-iva"
                                         bind:value={form.iva_rate}
-                                        class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none font-sans tabular-nums"
+                                        class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary font-sans tabular-nums"
                                     >
                                         <option value={21.00}>21.0% (General)</option>
                                         <option value={10.50}>10.5% (Reducido)</option>
@@ -454,7 +455,7 @@
                                     <select
                                         id="modal-prod-warehouse"
                                         bind:value={form.warehouse_id}
-                                        class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                        class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                                     >
                                         {#each warehouses as wh (wh.id)}
                                             <option value={wh.id}>
@@ -462,6 +463,7 @@
                                             </option>
                                         {/each}
                                     </select>
+
                                     {#if form.errors.warehouse_id}
                                         <p class="text-xs text-destructive">{form.errors.warehouse_id}</p>
                                     {/if}
@@ -551,8 +553,9 @@
                                     bind:value={form.description}
                                     rows="2"
                                     placeholder="Especificaciones técnicas, medidas, gramaje..."
-                                    class="w-full bg-background rounded-xl p-2.5 text-xs border border-input focus:ring-1 focus:ring-primary outline-none resize-none"
+                                    class="w-full bg-muted/30 dark:bg-black/20 dark:border-white/10 rounded-xl p-3 text-xs border border-border/80 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                                 ></textarea>
+
                             </div>
 
                             <!-- Toggle de Estado Activo -->

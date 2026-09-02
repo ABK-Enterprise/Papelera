@@ -98,12 +98,13 @@
             </h1>
         </div>
         <Link href="/tenant/productos">
-            <Button variant="outline" size="sm" class="gap-1.5 text-xs rounded-full font-medium">
-                <ArrowLeft class="size-3.5" />
-                Volver al catálogo
+            <Button class="gap-2 text-sm rounded-xl font-medium min-h-[40px] px-4 shadow-2xs">
+                <ArrowLeft class="size-4" />
+                <span>Volver al catálogo</span>
             </Button>
         </Link>
     </div>
+
 
 
     <!-- Contenedor 2 Columnas Stitch Layout -->
@@ -247,13 +248,14 @@
                             <select
                                 id="create-prod-cat"
                                 bind:value={form.category_id}
-                                class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
                                 <option value="">Sin categoría asignada</option>
                                 {#each categories as cat}
                                     <option value={cat.id}>{cat.name}</option>
                                 {/each}
                             </select>
+
                             {#if form.errors.category_id}
                                 <p class="text-xs text-destructive">{form.errors.category_id}</p>
                             {/if}
@@ -315,7 +317,7 @@
                             <select
                                 id="create-prod-iva"
                                 bind:value={form.iva_rate}
-                                class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none tabular-nums"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary tabular-nums"
                             >
                                 <option value={21.00}>21.0% (General)</option>
                                 <option value={10.50}>10.5% (Reducido)</option>
@@ -344,13 +346,14 @@
                             <select
                                 id="create-prod-discount-type"
                                 bind:value={form.bulk_discount_type}
-                                class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
                                 <option value="inherited">Heredar global ({tenantDefaultBulkDiscount}%)</option>
                                 <option value="custom">Personalizado (% específico)</option>
                                 <option value="none">Sin descuento por bulto (0%)</option>
                             </select>
                         </div>
+
 
                         {#if form.bulk_discount_type === 'custom'}
                             <div class="space-y-1">
@@ -389,7 +392,7 @@
                                 <select
                                     id="create-prod-warehouse"
                                     bind:value={form.warehouse_id}
-                                    class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                    class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                                 >
                                     {#each warehouses as wh (wh.id)}
                                         <option value={wh.id}>
@@ -414,7 +417,8 @@
                                     step={form.sale_type === 'weight' ? '0.001' : '1'}
                                     min="0"
                                     bind:value={form.stock}
-                                    class="h-9 text-xs rounded-xl text-center font-bold tabular-nums"
+                                    class="h-9 text-xs rounded-xl font-semibold tabular-nums"
+                                    placeholder="0"
                                 />
                                 {#if form.errors.stock}
                                     <p class="text-xs text-destructive">{form.errors.stock}</p>
@@ -423,7 +427,7 @@
 
                             <div class="space-y-1">
                                 <Label for="create-prod-min-stock" class="text-xs font-semibold">
-                                    Stock Mínimo ({form.sale_type === 'weight' ? 'Kg' : 'unid.'})
+                                    Alerta Stock Mínimo
                                 </Label>
                                 <Input
                                     id="create-prod-min-stock"
@@ -431,7 +435,8 @@
                                     step={form.sale_type === 'weight' ? '0.001' : '1'}
                                     min="0"
                                     bind:value={form.min_stock}
-                                    class="h-9 text-xs rounded-xl text-center tabular-nums"
+                                    placeholder="0"
+                                    class="h-9 text-xs rounded-xl font-semibold tabular-nums"
                                 />
                                 {#if form.errors.min_stock}
                                     <p class="text-xs text-destructive">{form.errors.min_stock}</p>
@@ -439,28 +444,15 @@
                             </div>
 
                             <div class="space-y-1">
-                                {#if form.sale_type === 'weight'}
-                                    <Label for="create-prod-units-pack" class="text-xs font-semibold">Kg por Bulto Cerrado</Label>
-                                    <Input
-                                        id="create-prod-units-pack"
-                                        type="number"
-                                        step="0.01"
-                                        min="0.1"
-                                        bind:value={form.package_quantity}
-                                        class="h-9 text-xs rounded-xl text-center font-bold tabular-nums"
-                                    />
-                                {:else}
-                                    <Label for="create-prod-units-pack" class="text-xs font-semibold">Unidades por Bulto</Label>
-                                    <Input
-                                        id="create-prod-units-pack"
-                                        type="number"
-                                        min="1"
-                                        bind:value={form.units_per_package}
-                                        class="h-9 text-xs rounded-xl text-center font-bold tabular-nums"
-                                    />
-                                {/if}
-                                {#if form.errors.units_per_package || form.errors.package_quantity}
-                                    <p class="text-xs text-destructive">{form.errors.units_per_package || form.errors.package_quantity}</p>
+                                <Label for="create-prod-unit" class="text-xs font-semibold">Unidad de Medida</Label>
+                                <Input
+                                    id="create-prod-unit"
+                                    bind:value={form.unit}
+                                    placeholder={form.sale_type === 'weight' ? 'kg' : 'un'}
+                                    class="h-9 text-xs rounded-xl"
+                                />
+                                {#if form.errors.unit}
+                                    <p class="text-xs text-destructive">{form.errors.unit}</p>
                                 {/if}
                             </div>
                         </div>
@@ -488,7 +480,7 @@
                                 bind:value={form.description}
                                 rows="2"
                                 placeholder="Especificaciones de tamaño, gramaje, características..."
-                                class="w-full bg-background rounded-xl p-2.5 text-xs border border-input focus:ring-1 focus:ring-primary outline-none resize-none"
+                                class="w-full bg-muted/30 dark:bg-black/20 dark:border-white/10 rounded-xl p-3 text-xs border border-border/80 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                             ></textarea>
                         </div>
 

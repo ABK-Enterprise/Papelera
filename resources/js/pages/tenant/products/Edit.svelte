@@ -127,12 +127,13 @@
             </h1>
         </div>
         <Link href="/tenant/productos">
-            <Button variant="outline" size="sm" class="gap-2 text-xs rounded-xl font-medium px-4 py-2 min-h-[38px] border-border/70 shadow-2xs">
-                <ArrowLeft class="size-3.5" />
-                <span>Volver</span>
+            <Button class="gap-2 text-sm rounded-xl font-medium min-h-[40px] px-4 shadow-2xs">
+                <ArrowLeft class="size-4" />
+                <span>Volver al catálogo</span>
             </Button>
         </Link>
     </div>
+
 
 
     <!-- Contenedor 2 Columnas Stitch Layout -->
@@ -276,13 +277,14 @@
                             <select
                                 id="edit-prod-cat"
                                 bind:value={form.category_id}
-                                class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
                                 <option value="">Sin categoría asignada</option>
                                 {#each categories as cat}
                                     <option value={cat.id}>{cat.name}</option>
                                 {/each}
                             </select>
+
                             {#if form.errors.category_id}
                                 <p class="text-xs text-destructive">{form.errors.category_id}</p>
                             {/if}
@@ -344,7 +346,7 @@
                             <select
                                 id="edit-prod-iva"
                                 bind:value={form.iva_rate}
-                                class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none tabular-nums"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary tabular-nums"
                             >
                                 <option value={21.00}>21.0% (General)</option>
                                 <option value={10.50}>10.5% (Reducido)</option>
@@ -373,13 +375,14 @@
                             <select
                                 id="edit-prod-discount-type"
                                 bind:value={form.bulk_discount_type}
-                                class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
                                 <option value="inherited">Heredar global ({tenantDefaultBulkDiscount}%)</option>
                                 <option value="custom">Personalizado (% específico)</option>
                                 <option value="none">Sin descuento por bulto (0%)</option>
                             </select>
                         </div>
+
 
                         {#if form.bulk_discount_type === 'custom'}
                             <div class="space-y-1">
@@ -422,7 +425,7 @@
                                 min="0"
                                 bind:value={form.stock}
                                 disabled
-                                class="h-9 text-xs rounded-xl text-center font-bold bg-muted/50 cursor-not-allowed opacity-80 tabular-nums"
+                                class="h-10 text-xs rounded-xl text-center font-bold bg-transparent border-dashed text-muted-foreground/60 cursor-not-allowed tabular-nums"
                                 title="El stock físico se ajusta mediante Ingresos/Egresos auditados en Kardex"
                             />
                             {#if form.errors.stock}
@@ -497,9 +500,10 @@
                             bind:value={form.description}
                             rows="2"
                             placeholder="Especificaciones de tamaño, gramaje, características..."
-                            class="w-full bg-background rounded-xl p-2.5 text-xs border border-input focus:ring-1 focus:ring-primary outline-none resize-none"
+                            class="w-full bg-muted/30 dark:bg-black/20 dark:border-white/10 rounded-xl p-3 text-xs border border-border/80 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                         ></textarea>
                     </div>
+
 
                     <div class="flex items-center gap-2 pt-1">
                         <input

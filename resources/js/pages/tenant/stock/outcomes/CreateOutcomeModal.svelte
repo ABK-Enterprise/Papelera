@@ -108,12 +108,13 @@
             <button
                 type="button"
                 onclick={closeModal}
-                class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                 aria-label="Cerrar"
             >
                 <X class="size-4" />
             </button>
         </DialogHeader>
+
 
         <DialogBody>
             <form id="create-outcome-form" onsubmit={handleSubmit} class="space-y-4">
@@ -193,7 +194,7 @@
                     <select
                         id="outcome-reason"
                         bind:value={form.reason}
-                        class="w-full rounded-lg border border-border bg-background px-3.5 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs font-medium"
+                        class="w-full h-10 rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3.5 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs font-medium"
                     >
                         <option value="devolucion">Devolución de productos</option>
                         <option value="merma">Merma / Producto Dañado</option>
@@ -214,7 +215,7 @@
                         id="outcome-notes"
                         rows="3"
                         bind:value={form.notes}
-                        class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs resize-none"
+                        class="w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs resize-none"
                         placeholder="Motivo de la devolución del cliente, estado del producto..."
                     ></textarea>
                     {#if form.errors.notes}
@@ -228,10 +229,9 @@
             <Button
                 type="button"
                 variant="outline"
-                size="sm"
                 onclick={closeModal}
                 disabled={form.processing}
-                class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
+                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70"
             >
                 Cancelar
             </Button>
@@ -239,7 +239,7 @@
                 type="submit"
                 form="create-outcome-form"
                 disabled={form.processing || !form.product_id || isQuantityExceeded}
-                class="min-h-[40px] px-4 rounded-xl text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white min-w-32 shadow-xs"
+                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-700 text-white min-w-32 shadow-xs"
             >
                 {#if form.processing}
                     <Loader2 class="size-3.5 animate-spin mr-1.5" />
@@ -250,5 +250,6 @@
                 {/if}
             </Button>
         </DialogFooter>
+
     </DialogContent>
 </Dialog>

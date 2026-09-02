@@ -85,18 +85,19 @@
                 </div>
 
                 {#if order.status === 'solicitado'}
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-600">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                         Solicitado
                     </span>
                 {:else if order.status === 'recibido'}
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-600">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                         Recibido
                     </span>
                 {:else if order.status === 'cancelado'}
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/15 text-rose-600">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                         Cancelado
                     </span>
                 {/if}
+
             </div>
 
             <div class="flex items-center justify-between text-xs pt-1 border-t">

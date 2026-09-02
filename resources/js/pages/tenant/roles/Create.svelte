@@ -68,11 +68,12 @@
         </div>
         <Link
             href="/tenant/roles"
-            class="inline-flex items-center gap-2 min-h-[40px] px-4 rounded-xl border border-border/70 text-xs font-medium hover:bg-muted/60 transition-colors"
+            class="inline-flex items-center gap-2 min-h-[40px] px-4 rounded-xl border border-border/70 text-sm font-medium hover:bg-muted/60 transition-colors"
         >
             <ArrowLeft class="size-4" />
             <span>Volver</span>
         </Link>
+
     </div>
 
     <form onsubmit={submit} class="space-y-6">

@@ -197,9 +197,9 @@
             role="combobox"
             aria-expanded={isOpen}
             aria-controls={isOpen ? listboxId : undefined}
-            aria-autocomplete="list"
-            class="h-10 w-full rounded-xl border border-input bg-card pl-9 pr-9 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground shadow-2xs focus:ring-1 focus:ring-primary outline-none transition-all {inputClass}"
+            class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 pl-9 pr-9 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground shadow-2xs focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary transition-all disabled:cursor-not-allowed disabled:bg-transparent disabled:border-dashed disabled:text-muted-foreground/60 {inputClass}"
         />
+
 
 
         {#if loading}

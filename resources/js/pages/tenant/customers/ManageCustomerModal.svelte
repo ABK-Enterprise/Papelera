@@ -247,13 +247,14 @@
                 <button
                     type="button"
                     onclick={handleClose}
-                    class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
                 </button>
             </div>
         </DialogHeader>
+
 
         <DialogBody>
             <form id="manage-customer-form" onsubmit={submit} class="space-y-4">
@@ -299,13 +300,14 @@
                         <select
                             id="manage-customer-tax-condition"
                             bind:value={form.tax_condition}
-                            class="h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                            class="h-10 w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:bg-transparent disabled:border-dashed"
                         >
                             <option value="consumidor_final">Consumidor Final</option>
                             <option value="responsable_inscripto">Responsable Inscripto</option>
                             <option value="monotributo">Monotributo</option>
                             <option value="exento">Exento de IVA</option>
                         </select>
+
                         {#if form.errors.tax_condition}
                             <p class="text-xs text-destructive">{form.errors.tax_condition}</p>
                         {/if}
@@ -435,7 +437,7 @@
                         bind:value={form.notes}
                         rows="2"
                         placeholder="ej. Preferencias de entrega o historial crediticio..."
-                        class="w-full rounded-lg border border-input bg-background p-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                        class="w-full rounded-xl border border-border/80 bg-muted/30 dark:bg-black/20 dark:border-white/10 p-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:bg-transparent disabled:border-dashed resize-none"
                     ></textarea>
                     {#if form.errors.notes}
                         <p class="text-xs text-destructive">{form.errors.notes}</p>
@@ -445,13 +447,14 @@
         </DialogBody>
 
         <DialogFooter class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2">
-            <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing || isDeleting} class="text-xs">
+            <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold">
                 Cancelar
             </Button>
-            <Button type="submit" form="manage-customer-form" size="sm" disabled={form.processing || isDeleting} class="min-w-32 text-xs font-semibold">
+            <Button type="submit" form="manage-customer-form" disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-32">
                 {form.processing ? 'Guardando...' : 'Guardar cambios'}
             </Button>
         </DialogFooter>
+
     </DialogContent>
 </Dialog>
 

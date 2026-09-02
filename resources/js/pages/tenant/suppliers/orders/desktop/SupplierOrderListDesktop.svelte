@@ -107,17 +107,17 @@
             <!-- Estado -->
             <div class="min-w-[130px]">
                 {#if order.status === 'solicitado'}
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-600 border border-amber-500/30">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                         <span class="size-1.5 rounded-full bg-amber-500"></span>
                         Solicitado
                     </span>
                 {:else if order.status === 'recibido'}
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                         <span class="size-1.5 rounded-full bg-emerald-500"></span>
                         Recibido en Stock
                     </span>
                 {:else if order.status === 'cancelado'}
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-600 border border-rose-500/30">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                         <span class="size-1.5 rounded-full bg-rose-500"></span>
                         Cancelado
                     </span>
@@ -133,10 +133,11 @@
                     </span>
                 </div>
 
-                <Button size="sm" variant="tertiary" class="h-8 text-xs gap-1.5 font-semibold">
+                <Button size="sm" variant="tertiary" class="min-h-[40px] px-3.5 text-xs gap-1.5 font-semibold rounded-xl">
                     <Eye class="size-3.5" />
-                    <span>Ver</span>
+                    <span>Ver detalle</span>
                 </Button>
+
 
 
             </div>
