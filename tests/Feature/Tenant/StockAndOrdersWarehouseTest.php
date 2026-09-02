@@ -151,6 +151,7 @@ test('supplier order reception credits stock to target warehouse', function () {
         'product_id' => $this->product->id,
         'warehouse_id' => $this->warehouse2->id,
         'type' => 'income',
-        'reason' => 'orden_compra',
+        'reason' => 'orden_compra_proveedor',
     ]);
+
 });

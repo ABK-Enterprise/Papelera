@@ -72,12 +72,14 @@ class CustomerOrderController extends Controller
             ->orderBy('name')
             ->get();
 
+        $tenantId = auth()->user()?->tenant_id;
         $warehouses = \App\Models\Warehouse::where('tenant_id', $tenantId)
             ->where('is_active', true)
             ->select('id', 'name', 'code', 'is_default')
             ->orderByDesc('is_default')
             ->orderBy('name')
             ->get();
+
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
@@ -269,18 +271,25 @@ class CustomerOrderController extends Controller
 
                 $targetWhId = $prep['warehouse_id'] ?: $orderWarehouseId ?: $defaultWarehouseId;
                 if ($targetWhId) {
+                    $hasExistingWh = \App\Models\ProductWarehouse::where('tenant_id', $tenantId)
+                        ->where('product_id', $prod->id)
+                        ->exists();
+
+                    $initialStock = $hasExistingWh ? 0 : (float) $prod->stock;
+
                     $pw = \App\Models\ProductWarehouse::firstOrCreate([
                         'tenant_id' => $tenantId,
                         'product_id' => $prod->id,
                         'warehouse_id' => $targetWhId,
                     ], [
-                        'stock' => 0,
+                        'stock' => $initialStock,
                         'min_stock' => $prod->min_stock ?? 0,
                     ]);
 
                     $pw->stock = round((float) $pw->stock - $prep['quantity_base'], 3);
                     $pw->save();
                 }
+
 
                 $previousStock = (float) $prod->stock;
                 $currentStock = $previousStock - $prep['quantity_base'];

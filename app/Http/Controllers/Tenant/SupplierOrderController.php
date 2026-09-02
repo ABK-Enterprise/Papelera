@@ -68,12 +68,14 @@ class SupplierOrderController extends Controller
             ->orderBy('name')
             ->get();
 
+        $tenantId = auth()->user()?->tenant_id;
         $warehouses = \App\Models\Warehouse::where('tenant_id', $tenantId)
             ->where('is_active', true)
             ->select('id', 'name', 'code', 'is_default')
             ->orderByDesc('is_default')
             ->orderBy('name')
             ->get();
+
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
@@ -232,18 +234,25 @@ class SupplierOrderController extends Controller
                     $currentStock = round($previousStock + (float) $item->quantity, 3);
 
                     if ($targetWarehouseId) {
+                        $hasExistingWh = \App\Models\ProductWarehouse::where('tenant_id', $tenantId)
+                            ->where('product_id', $product->id)
+                            ->exists();
+
+                        $initialStock = $hasExistingWh ? 0 : (float) $product->stock;
+
                         $pw = \App\Models\ProductWarehouse::firstOrCreate([
                             'tenant_id' => $tenantId,
                             'product_id' => $product->id,
                             'warehouse_id' => $targetWarehouseId,
                         ], [
-                            'stock' => 0,
+                            'stock' => $initialStock,
                             'min_stock' => $product->min_stock ?? 0,
                         ]);
 
                         $pw->stock = round((float) $pw->stock + (float) $item->quantity, 3);
                         $pw->save();
                     }
+
 
                     $product->update([
                         'cost_price' => $item->unit_cost > 0 ? $item->unit_cost : $product->cost_price,
@@ -259,9 +268,10 @@ class SupplierOrderController extends Controller
                         'quantity' => $item->quantity,
                         'previous_stock' => $previousStock,
                         'current_stock' => $currentStock,
-                        'reason' => 'orden_compra',
+                        'reason' => 'orden_compra_proveedor',
                         'notes' => "Recepción Orden {$lockedOrder->order_number} ({$lockedOrder->supplier->name})",
                     ]);
+
                 }
             }
 

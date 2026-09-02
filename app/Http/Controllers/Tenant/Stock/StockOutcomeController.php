@@ -80,7 +80,23 @@ class StockOutcomeController extends Controller
                 ->lockForUpdate()
                 ->first();
 
-            $localWarehouseStock = $pw ? round((float) $pw->stock, 3) : 0.0;
+            if (! $pw) {
+                $hasExistingWh = ProductWarehouse::where('tenant_id', $tenantId)
+                    ->where('product_id', $productId)
+                    ->exists();
+
+                $initialStock = $hasExistingWh ? 0 : (float) $product->stock;
+
+                $pw = ProductWarehouse::create([
+                    'tenant_id' => $tenantId,
+                    'product_id' => $productId,
+                    'warehouse_id' => $warehouseId,
+                    'stock' => $initialStock,
+                    'min_stock' => $product->min_stock ?? 0,
+                ]);
+            }
+
+            $localWarehouseStock = round((float) $pw->stock, 3);
 
             if ($localWarehouseStock < $quantity) {
                 $whName = Warehouse::where('id', $warehouseId)->value('name') ?? 'depósito seleccionado';
@@ -88,6 +104,7 @@ class StockOutcomeController extends Controller
                     'quantity' => "El stock en {$whName} ({$localWarehouseStock}) es insuficiente para procesar un egreso de {$quantity}.",
                 ]);
             }
+
 
             $previousStock = round((float) $product->stock, 3);
             $currentStock = round($previousStock - $quantity, 3);

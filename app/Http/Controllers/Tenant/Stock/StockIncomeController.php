@@ -76,18 +76,25 @@ class StockIncomeController extends Controller
             $previousStock = round((float) $product->stock, 3);
             $currentStock = round($previousStock + $quantity, 3);
 
+            $hasExistingWh = ProductWarehouse::where('tenant_id', $tenantId)
+                ->where('product_id', $product->id)
+                ->exists();
+
+            $initialStock = $hasExistingWh ? 0 : (float) $product->stock;
+
             // Update or create stock in target warehouse
             $pw = ProductWarehouse::firstOrCreate([
                 'tenant_id' => $tenantId,
                 'product_id' => $product->id,
                 'warehouse_id' => $warehouseId,
             ], [
-                'stock' => 0,
+                'stock' => $initialStock,
                 'min_stock' => $product->min_stock ?? 0,
             ]);
 
             $pw->stock = round((float) $pw->stock + $quantity, 3);
             $pw->save();
+
 
             $product->syncConsolidatedStock();
 
