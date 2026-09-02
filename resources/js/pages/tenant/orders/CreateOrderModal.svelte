@@ -29,7 +29,8 @@
     import CreditCard from 'lucide-svelte/icons/credit-card';
     import X from 'lucide-svelte/icons/x';
     import AlertCircle from 'lucide-svelte/icons/alert-circle';
-
+    import Percent from 'lucide-svelte/icons/percent';
+    import Warehouse from 'lucide-svelte/icons/warehouse';
 
     export interface ProductOption {
         id: number;
@@ -49,12 +50,21 @@
         tax_condition: string;
         phone: string | null;
         address: string | null;
+        discount_percentage?: number | string | null;
         is_defaulter: boolean;
+    }
+
+    export interface WarehouseOption {
+        id: number;
+        name: string;
+        code: string;
+        is_default: boolean;
     }
 
     export interface OrderItemLine {
         id: string;
         product_id: number;
+        warehouse_id?: number | null;
         product_name: string;
         sku?: string | null;
         sale_type: 'unit' | 'weight';
@@ -64,20 +74,25 @@
         unit_price: number;
         units_per_package: number;
         package_quantity: number;
+        apply_customer_discount: boolean;
     }
 
     let {
         open = $bindable(false),
         availableProducts = [],
         availableCustomers = [],
+        warehouses = [],
     }: {
         open: boolean;
         availableProducts: ProductOption[];
         availableCustomers?: CustomerOption[];
+        warehouses?: WarehouseOption[];
     } = $props();
 
     let selectedCustomerId = $state<number | null>(null);
     let selectedCustomer = $state<CustomerOption | null>(null);
+    let selectedWarehouseId = $state<number | null>(null);
+    let applyCustomerDiscount = $state(true);
     let customerSearchQuery = $state('');
 
     let customerName = $state('');
@@ -89,11 +104,14 @@
     let isSubmitting = $state(false);
     let errorMessage = $state<string | null>(null);
 
+    let customerDiscountPercentage = $derived(Number(selectedCustomer?.discount_percentage) || 0);
+
     // Search / Autocomplete state
     let searchQuery = $state('');
     let selectedProductToAdd = $state<ProductOption | null>(null);
 
     let items = $state<OrderItemLine[]>([]);
+
 
     function getItemQuantityBase(it: OrderItemLine): number {
         if (it.sale_type === 'weight') {
@@ -202,6 +220,7 @@
         const isWeighable = prod.sale_type === 'weight';
         const defaultPackaging = isWeighable ? 'kg' : 'unidad';
         const defaultQuantity = isWeighable ? (remainingStock >= 1 ? 1 : Math.round(remainingStock * 1000) / 1000) : 1;
+        const isBulk = defaultPackaging === 'bulto';
 
         const existingIndex = items.findIndex(
             (it) => it.product_id === prod.id && it.packaging_type === defaultPackaging
@@ -215,6 +234,7 @@
                 {
                     id: 'item_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8),
                     product_id: prod.id,
+                    warehouse_id: selectedWarehouseId,
                     product_name: prod.name,
                     sku: prod.sku,
                     sale_type: prod.sale_type ?? 'unit',
@@ -224,6 +244,7 @@
                     unit_price: Number(prod.price),
                     units_per_package: prod.units_per_package || 1,
                     package_quantity: prod.package_quantity || prod.units_per_package || 1,
+                    apply_customer_discount: !isBulk,
                 },
             ];
         }
@@ -234,6 +255,12 @@
 
     function removeItem(index: number) {
         items = items.filter((_, i) => i !== index);
+    }
+
+    function toggleItemCustomerDiscount(index: number) {
+        if (items[index]) {
+            items[index].apply_customer_discount = !items[index].apply_customer_discount;
+        }
     }
 
     function getMaxAllowedQuantityForItem(index: number): number {
@@ -341,10 +368,16 @@
 
         if (newType === 'gram') {
             item.quantity = 500;
+            item.apply_customer_discount = true;
         } else if (newType === 'kg') {
             item.quantity = 1;
+            item.apply_customer_discount = true;
+        } else if (newType === 'bulto') {
+            item.quantity = 1;
+            item.apply_customer_discount = false;
         } else {
             item.quantity = 1;
+            item.apply_customer_discount = true;
         }
 
         const max = getMaxAllowedQuantityForItem(index);
@@ -361,18 +394,37 @@
         }).format(amount);
     }
 
-    let computedTotal = $derived.by(() => {
-        let total = 0;
+    function getItemLineDiscount(it: OrderItemLine): { discountAmount: number; finalSubtotal: number; baseSubtotal: number } {
+        const baseQty = getItemQuantityBase(it);
+        const baseSubtotal = baseQty * it.unit_price;
+        const isEligible = applyCustomerDiscount && it.apply_customer_discount && customerDiscountPercentage > 0;
+        const discountAmount = isEligible ? Math.round(baseSubtotal * (customerDiscountPercentage / 100) * 100) / 100 : 0;
+        const finalSubtotal = Math.round((baseSubtotal - discountAmount) * 100) / 100;
+        return { discountAmount, finalSubtotal, baseSubtotal };
+    }
+
+    let computedTotals = $derived.by(() => {
+        let baseTotal = 0;
+        let discountTotal = 0;
+        let finalTotal = 0;
         for (const it of items) {
-            const baseQty = getItemQuantityBase(it);
-            total += baseQty * it.unit_price;
+            const { discountAmount, finalSubtotal, baseSubtotal } = getItemLineDiscount(it);
+            baseTotal += baseSubtotal;
+            discountTotal += discountAmount;
+            finalTotal += finalSubtotal;
         }
-        return total;
+        return {
+            baseTotal: Math.round(baseTotal * 100) / 100,
+            discountTotal: Math.round(discountTotal * 100) / 100,
+            finalTotal: Math.round(finalTotal * 100) / 100,
+        };
     });
 
     function resetForm() {
         selectedCustomerId = null;
         selectedCustomer = null;
+        selectedWarehouseId = null;
+        applyCustomerDiscount = true;
         customerName = '';
         customerSearchQuery = '';
         customerPhone = '';
@@ -409,15 +461,19 @@
 
         const payloadItems: {
             product_id: number;
+            warehouse_id?: number | null;
             packaging_type: 'unidad' | 'bulto' | 'gram' | 'kg';
             quantity: number;
+            apply_customer_discount: boolean;
         }[] = [];
 
         for (const it of items) {
             payloadItems.push({
                 product_id: it.product_id,
+                warehouse_id: it.warehouse_id || selectedWarehouseId,
                 packaging_type: it.packaging_type,
                 quantity: it.quantity,
+                apply_customer_discount: it.apply_customer_discount,
             });
         }
 
@@ -458,12 +514,14 @@
             '/tenant/orders',
             {
                 customer_id: selectedCustomerId,
+                warehouse_id: selectedWarehouseId,
                 customer_name: customerName,
                 customer_phone: customerPhone,
                 delivery_address: deliveryAddress,
                 notes: notes,
                 payment_type: paymentType,
                 payment_method: paymentType === 'contado' ? paymentMethod : null,
+                apply_customer_discount: applyCustomerDiscount,
                 items: payloadItems,
             },
             {
@@ -482,6 +540,7 @@
         );
     }
 </script>
+
 
 {#if open}
     <!-- Backdrop oscuro y accesible -->
@@ -619,6 +678,26 @@
                         </div>
                     {/if}
 
+                    <!-- Banner de Descuento Habitual de Cliente si aplica -->
+                    {#if customerDiscountPercentage > 0}
+                        <div class="p-2.5 rounded-lg bg-primary/10 border border-primary/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+                            <div class="flex items-center gap-2">
+                                <Percent class="size-4 text-primary shrink-0" />
+                                <span class="text-foreground font-medium">
+                                    Descuento habitual del cliente: <strong class="text-primary font-bold font-sans tabular-nums">{customerDiscountPercentage}%</strong>
+                                </span>
+                            </div>
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground shrink-0">
+                                <input
+                                    type="checkbox"
+                                    bind:checked={applyCustomerDiscount}
+                                    class="size-4 rounded border-input text-primary focus:ring-primary"
+                                />
+                                <span>Aplicar descuento a este pedido</span>
+                            </label>
+                        </div>
+                    {/if}
+
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-1">
                         <div class="sm:col-span-5 space-y-1">
                             <Label for="cust-name" class="text-xs font-semibold text-foreground">
@@ -651,7 +730,28 @@
                             />
                         </div>
                     </div>
+
+                    <!-- Selector de Depósito de Despacho si hay depósitos -->
+                    {#if warehouses && warehouses.length > 0}
+                        <div class="pt-2 border-t border-border/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                            <Label for="order-warehouse" class="text-xs font-semibold text-foreground flex items-center gap-1.5 shrink-0">
+                                <Warehouse class="size-3.5 text-primary" />
+                                Depósito de Origen / Despacho:
+                            </Label>
+                            <select
+                                id="order-warehouse"
+                                bind:value={selectedWarehouseId}
+                                class="h-8 w-full sm:w-64 rounded-lg border border-input bg-background px-2.5 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                            >
+                                <option value={null}>Depósito Principal (Automático)</option>
+                                {#each warehouses as wh}
+                                    <option value={wh.id}>{wh.name} ({wh.code})</option>
+                                {/each}
+                            </select>
+                        </div>
+                    {/if}
                 </div>
+
 
                 <!-- Bento Card 2: Productos del Pedido -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3.5">
@@ -739,8 +839,8 @@
                         {#each items as item, index (item.id || index)}
                             {@const maxAllowed = getMaxAllowedQuantityForItem(index)}
                             {@const isAtStockLimit = item.quantity >= maxAllowed}
-                            {@const baseQty = getItemQuantityBase(item)}
-                            {@const lineSubtotal = baseQty * item.unit_price}
+                            {@const { discountAmount, finalSubtotal, baseSubtotal } = getItemLineDiscount(item)}
+                            {@const isDiscountActive = applyCustomerDiscount && item.apply_customer_discount && customerDiscountPercentage > 0}
 
                             <div class="flex flex-col gap-2.5 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
                                 <!-- Fila 1: Nombre + SKU a la izquierda, DropdownMenu (...) a la derecha -->
@@ -762,6 +862,17 @@
                                                 <span class="text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 px-1 rounded">
                                                     Pesaje
                                                 </span>
+                                            {/if}
+                                            {#if customerDiscountPercentage > 0 && applyCustomerDiscount}
+                                                <button
+                                                    type="button"
+                                                    onclick={() => toggleItemCustomerDiscount(index)}
+                                                    class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border transition-colors cursor-pointer {item.apply_customer_discount ? 'bg-primary/15 text-primary border-primary/30' : 'bg-muted text-muted-foreground border-border line-through'}"
+                                                    title="Click para alternar descuento de cliente en este producto"
+                                                >
+                                                    <Percent class="size-2.5" />
+                                                    Desc. {customerDiscountPercentage}% {item.apply_customer_discount ? 'Aplicado' : 'Excluido'}
+                                                </button>
                                             {/if}
                                         </div>
                                     </div>
@@ -859,13 +970,25 @@
                                             </button>
                                         </div>
 
-                                        <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground w-20 sm:w-24 text-right">
-                                            {formatPrice(lineSubtotal)}
-                                        </span>
+                                        <div class="flex flex-col items-end shrink-0 w-20 sm:w-28 text-right">
+                                            {#if isDiscountActive}
+                                                <span class="line-through text-[11px] text-muted-foreground font-sans tabular-nums">
+                                                    {formatPrice(baseSubtotal)}
+                                                </span>
+                                                <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-primary">
+                                                    {formatPrice(finalSubtotal)}
+                                                </span>
+                                            {:else}
+                                                <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground">
+                                                    {formatPrice(baseSubtotal)}
+                                                </span>
+                                            {/if}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         {/each}
+
 
 
                         {#if items.length === 0}
@@ -956,10 +1079,25 @@
 
             <!-- Footer Bento: Total & Botones (shrink-0) -->
             <div class="flex items-center justify-between border-t pt-3.5 shrink-0">
-                <div class="flex items-baseline gap-2">
-                    <span class="text-xs text-muted-foreground">Total del Pedido:</span>
-                    <span class="text-lg sm:text-xl font-bold font-sans tabular-nums text-primary">{formatPrice(computedTotal)}</span>
+                <div class="flex flex-col items-start gap-0.5">
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-xs text-muted-foreground">Total del Pedido:</span>
+                        {#if computedTotals.discountTotal > 0}
+                            <span class="line-through text-xs sm:text-sm text-muted-foreground font-sans tabular-nums">
+                                {formatPrice(computedTotals.baseTotal)}
+                            </span>
+                        {/if}
+                        <span class="text-lg sm:text-xl font-bold font-sans tabular-nums text-primary">
+                            {formatPrice(computedTotals.finalTotal)}
+                        </span>
+                    </div>
+                    {#if computedTotals.discountTotal > 0}
+                        <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold font-sans tabular-nums">
+                            Ahorro por descuento ({customerDiscountPercentage}%): -{formatPrice(computedTotals.discountTotal)}
+                        </span>
+                    {/if}
                 </div>
+
 
                 <div class="flex items-center gap-2">
                     <Button type="button" variant="outline" size="sm" onclick={closeModal}>

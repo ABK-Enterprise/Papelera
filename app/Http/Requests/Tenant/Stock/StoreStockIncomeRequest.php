@@ -28,9 +28,17 @@ class StoreStockIncomeRequest extends FormRequest
                     $query->where('tenant_id', $tenantId);
                 }),
             ],
+            'warehouse_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('warehouses', 'id')->where(function ($query) use ($tenantId) {
+                    $query->where('tenant_id', $tenantId);
+                }),
+            ],
             'quantity' => ['required', 'numeric', 'min:0.001'],
             'reason' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
     }
 }
+

@@ -74,14 +74,17 @@
         stats = { total: 0, en_preparacion: 0, preparado: 0, en_camino: 0, entregado: 0, cancelado: 0 },
         availableProducts = [],
         availableCustomers = [],
+        warehouses = [],
         filters = {},
     }: {
         orders: OrderData[];
         stats?: Stats;
         availableProducts?: ProductOption[];
         availableCustomers?: any[];
+        warehouses?: any[];
         filters?: FilterProps;
     } = $props();
+
 
     let searchTerm = $state('');
     let selectedStatus = $state('all');
@@ -316,7 +319,9 @@
     bind:open={isCreateModalOpen}
     {availableProducts}
     {availableCustomers}
+    {warehouses}
 />
+
 
 <!-- Modal de Detalle de Pedido -->
 <OrderDetailModal

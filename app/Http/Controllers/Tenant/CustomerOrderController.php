@@ -68,7 +68,14 @@ class CustomerOrderController extends Controller
 
         $availableCustomers = Customer::query()
             ->where('is_active', true)
-            ->select('id', 'name', 'tax_id', 'tax_condition', 'phone', 'address', 'is_defaulter')
+            ->select('id', 'name', 'tax_id', 'tax_condition', 'phone', 'address', 'discount_percentage', 'is_defaulter')
+            ->orderBy('name')
+            ->get();
+
+        $warehouses = \App\Models\Warehouse::where('tenant_id', $tenantId)
+            ->where('is_active', true)
+            ->select('id', 'name', 'code', 'is_default')
+            ->orderByDesc('is_default')
             ->orderBy('name')
             ->get();
 
@@ -78,6 +85,7 @@ class CustomerOrderController extends Controller
                 'stats' => $stats,
                 'available_products' => $availableProducts,
                 'available_customers' => $availableCustomers,
+                'warehouses' => $warehouses,
             ]);
         }
 
@@ -86,6 +94,7 @@ class CustomerOrderController extends Controller
             'stats' => $stats,
             'availableProducts' => $availableProducts,
             'availableCustomers' => $availableCustomers,
+            'warehouses' => $warehouses,
             'filters' => [
                 'search' => $search,
                 'status' => $status ?: 'all',
@@ -102,8 +111,25 @@ class CustomerOrderController extends Controller
         $order = DB::transaction(function () use ($request, $tenantId, $userId) {
             $orderNumber = app(TenantSequenceService::class)->nextCustomerOrderNumber($tenantId);
 
+            $customerId = $request->validated('customer_id');
+            $customer = null;
+            if ($customerId) {
+                $customer = Customer::where('id', $customerId)
+                    ->where('tenant_id', $tenantId)
+                    ->first();
+            }
+
+            $customerName = $request->validated('customer_name') ?: ($customer ? $customer->name : 'Cliente Ocasional');
+            $orderWarehouseId = $request->validated('warehouse_id');
+            $defaultWarehouseId = \App\Models\Warehouse::where('tenant_id', $tenantId)->where('is_default', true)->value('id')
+                ?: \App\Models\Warehouse::where('tenant_id', $tenantId)->value('id');
+
+            $applyOrderDiscount = $request->has('apply_customer_discount') ? $request->boolean('apply_customer_discount') : true;
+            $customerDiscountPct = ($customer && $applyOrderDiscount) ? (float) ($customer->discount_percentage ?? 0.00) : 0.00;
+
             $itemsData = $request->validated('items');
             $totalAmount = 0.00;
+            $totalDiscountAmount = 0.00;
             $preparedItems = [];
 
             $productIds = collect($itemsData)->pluck('product_id')->unique()->sort()->values();
@@ -139,12 +165,13 @@ class CustomerOrderController extends Controller
                 $packagingType = $item['packaging_type'];
                 $quantity = (float) $item['quantity'];
                 $packageSize = (float) $product->package_size;
+                $itemWarehouseId = $item['warehouse_id'] ?? $orderWarehouseId;
 
                 if ($product->isWeighable()) {
                     // Producto por pesaje (Stock almacenado en Kg)
                     if ($packagingType === 'gram') {
                         $quantityBase = $quantity / 1000.0;
-                    } elseif ($packagingType === 'bulto' || $packagingType === 'bolson') {
+                    } elseif ($packagingType === 'bulto' || $packagingType === 'bolson' || $packagingType === 'package') {
                         $quantityBase = $quantity * $packageSize;
                     } else {
                         // kg o unidad por defecto
@@ -152,7 +179,7 @@ class CustomerOrderController extends Controller
                     }
                 } else {
                     // Producto por unidad
-                    if ($packagingType === 'bulto' || $packagingType === 'bolson') {
+                    if ($packagingType === 'bulto' || $packagingType === 'bolson' || $packagingType === 'package') {
                         $quantityBase = $quantity * $packageSize;
                     } else {
                         $quantityBase = $quantity;
@@ -168,30 +195,53 @@ class CustomerOrderController extends Controller
 
                 $runningStock[$productId]['current_stock'] -= $quantityBase;
 
-                $isBulk = ($packagingType === 'bulto' || $packagingType === 'bolson');
+                $isBulk = ($packagingType === 'bulto' || $packagingType === 'bolson' || $packagingType === 'package');
                 $unitPrice = $isBulk ? (float) $product->bulk_discount_price : (float) $product->price;
-                $itemSubtotal = round($quantityBase * $unitPrice, 2);
+
+                $applyItemDiscount = isset($item['apply_customer_discount'])
+                    ? (bool) $item['apply_customer_discount']
+                    : (! $isBulk && $customerDiscountPct > 0);
+
+                if ($applyItemDiscount && $customerDiscountPct > 0) {
+                    $itemDiscountPct = $customerDiscountPct;
+                    $baseSubtotal = round($quantityBase * $unitPrice, 2);
+                    $itemDiscountAmount = round($baseSubtotal * ($itemDiscountPct / 100), 2);
+                    $itemSubtotal = round($baseSubtotal - $itemDiscountAmount, 2);
+                } else {
+                    $itemDiscountPct = 0.00;
+                    $itemDiscountAmount = 0.00;
+                    $itemSubtotal = round($quantityBase * $unitPrice, 2);
+                }
+
                 $totalAmount += $itemSubtotal;
+                $totalDiscountAmount += $itemDiscountAmount;
 
                 $preparedItems[] = [
                     'product_id' => $product->id,
+                    'warehouse_id' => $itemWarehouseId,
                     'packaging_type' => $packagingType,
                     'units_per_package' => $packageSize,
                     'quantity' => $quantity,
                     'quantity_base' => $quantityBase,
                     'unit_price' => $unitPrice,
+                    'apply_customer_discount' => $applyItemDiscount,
+                    'discount_percentage' => $itemDiscountPct,
+                    'discount_amount' => $itemDiscountAmount,
                     'subtotal' => $itemSubtotal,
                 ];
             }
 
             $order = CustomerOrder::create([
                 'tenant_id' => $tenantId,
-                'customer_id' => $request->validated('customer_id'),
+                'customer_id' => $customerId,
+                'warehouse_id' => $orderWarehouseId,
                 'order_number' => $orderNumber,
-                'customer_name' => $request->validated('customer_name'),
-                'customer_phone' => $request->validated('customer_phone'),
-                'delivery_address' => $request->validated('delivery_address'),
+                'customer_name' => $customerName,
+                'customer_phone' => $request->validated('customer_phone') ?: $customer?->phone,
+                'delivery_address' => $request->validated('delivery_address') ?: $customer?->address,
                 'status' => 'en_preparacion',
+                'customer_discount_percentage' => $customerDiscountPct,
+                'customer_discount_amount' => $totalDiscountAmount,
                 'total_amount' => $totalAmount,
                 'notes' => $request->validated('notes'),
             ]);
@@ -200,11 +250,15 @@ class CustomerOrderController extends Controller
                 CustomerOrderItem::create([
                     'customer_order_id' => $order->id,
                     'product_id' => $prep['product_id'],
+                    'warehouse_id' => $prep['warehouse_id'],
                     'packaging_type' => $prep['packaging_type'],
                     'units_per_package' => $prep['units_per_package'],
                     'quantity' => $prep['quantity'],
                     'quantity_base' => $prep['quantity_base'],
                     'unit_price' => $prep['unit_price'],
+                    'apply_customer_discount' => $prep['apply_customer_discount'],
+                    'discount_percentage' => $prep['discount_percentage'],
+                    'discount_amount' => $prep['discount_amount'],
                     'subtotal' => $prep['subtotal'],
                 ]);
 
@@ -213,13 +267,30 @@ class CustomerOrderController extends Controller
                     ->lockForUpdate()
                     ->firstOrFail();
 
+                $targetWhId = $prep['warehouse_id'] ?: $orderWarehouseId ?: $defaultWarehouseId;
+                if ($targetWhId) {
+                    $pw = \App\Models\ProductWarehouse::firstOrCreate([
+                        'tenant_id' => $tenantId,
+                        'product_id' => $prod->id,
+                        'warehouse_id' => $targetWhId,
+                    ], [
+                        'stock' => 0,
+                        'min_stock' => $prod->min_stock ?? 0,
+                    ]);
+
+                    $pw->stock = round((float) $pw->stock - $prep['quantity_base'], 3);
+                    $pw->save();
+                }
+
                 $previousStock = (float) $prod->stock;
                 $currentStock = $previousStock - $prep['quantity_base'];
                 $prod->update(['stock' => $currentStock]);
+                $prod->syncConsolidatedStock();
 
                 StockMovement::create([
                     'tenant_id' => $tenantId,
                     'product_id' => $prep['product_id'],
+                    'warehouse_id' => $targetWhId,
                     'user_id' => $userId,
                     'type' => 'outcome',
                     'quantity' => $prep['quantity_base'],
@@ -229,6 +300,7 @@ class CustomerOrderController extends Controller
                     'notes' => "Pedido {$orderNumber} ({$prep['quantity']} {$prep['packaging_type']})",
                 ]);
             }
+
 
             $customerId = $request->validated('customer_id');
             if ($customerId) {

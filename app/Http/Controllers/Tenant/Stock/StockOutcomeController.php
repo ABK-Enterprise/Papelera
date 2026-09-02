@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Tenant\Stock;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Stock\StoreStockOutcomeRequest;
 use App\Models\Product;
+use App\Models\ProductWarehouse;
 use App\Models\StockMovement;
+use App\Models\Warehouse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,8 +20,10 @@ class StockOutcomeController extends Controller
 {
     public function index(Request $request): Response|JsonResponse
     {
+        $tenantId = $request->user()->tenant_id;
+
         $movements = StockMovement::outcomes()
-            ->with(['product:id,name,sku,barcode', 'user:id,name'])
+            ->with(['product:id,name,sku,barcode', 'user:id,name', 'warehouse:id,name,code'])
             ->latest()
             ->get();
 
@@ -28,16 +32,25 @@ class StockOutcomeController extends Controller
             ->orderBy('name')
             ->get();
 
+        $warehouses = Warehouse::where('tenant_id', $tenantId)
+            ->where('is_active', true)
+            ->select('id', 'name', 'code', 'is_default')
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->get();
+
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
                 'movements' => $movements,
                 'products' => $products,
+                'warehouses' => $warehouses,
             ]);
         }
 
         return Inertia::render('tenant/stock/outcomes/Index', [
             'movements' => $movements,
             'products' => $products,
+            'warehouses' => $warehouses,
         ]);
     }
 
@@ -49,26 +62,45 @@ class StockOutcomeController extends Controller
         $reason = $request->validated('reason') ?: 'devolucion_cliente';
         $notes = $request->validated('notes');
 
-        $movement = DB::transaction(function () use ($tenantId, $productId, $quantity, $reason, $notes, $request) {
+        $warehouseId = $request->validated('warehouse_id');
+        if (! $warehouseId) {
+            $warehouseId = Warehouse::where('tenant_id', $tenantId)->where('is_default', true)->value('id')
+                ?: Warehouse::where('tenant_id', $tenantId)->value('id');
+        }
+
+        $movement = DB::transaction(function () use ($tenantId, $productId, $warehouseId, $quantity, $reason, $notes, $request) {
             $product = Product::where('id', $productId)
                 ->where('tenant_id', $tenantId)
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            $previousStock = round((float) $product->stock, 3);
+            $pw = ProductWarehouse::where('tenant_id', $tenantId)
+                ->where('product_id', $productId)
+                ->where('warehouse_id', $warehouseId)
+                ->lockForUpdate()
+                ->first();
 
-            if ($previousStock < $quantity) {
+            $localWarehouseStock = $pw ? round((float) $pw->stock, 3) : 0.0;
+
+            if ($localWarehouseStock < $quantity) {
+                $whName = Warehouse::where('id', $warehouseId)->value('name') ?? 'depósito seleccionado';
                 throw ValidationException::withMessages([
-                    'quantity' => "El stock actual ({$previousStock}) es insuficiente para procesar un egreso de {$quantity}.",
+                    'quantity' => "El stock en {$whName} ({$localWarehouseStock}) es insuficiente para procesar un egreso de {$quantity}.",
                 ]);
             }
 
+            $previousStock = round((float) $product->stock, 3);
             $currentStock = round($previousStock - $quantity, 3);
-            $product->update(['stock' => $currentStock]);
+
+            $pw->stock = round($localWarehouseStock - $quantity, 3);
+            $pw->save();
+
+            $product->syncConsolidatedStock();
 
             return StockMovement::create([
                 'tenant_id' => $tenantId,
                 'product_id' => $product->id,
+                'warehouse_id' => $warehouseId,
                 'user_id' => $request->user()->id,
                 'type' => 'outcome',
                 'reason' => $reason,
@@ -87,3 +119,4 @@ class StockOutcomeController extends Controller
             ->with('success', 'Egreso por devolución registrado correctamente.');
     }
 }
+

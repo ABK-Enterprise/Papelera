@@ -15,6 +15,7 @@
     import MapPin from 'lucide-svelte/icons/map-pin';
     import FileText from 'lucide-svelte/icons/file-text';
     import CreditCard from 'lucide-svelte/icons/credit-card';
+    import Percent from 'lucide-svelte/icons/percent';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import X from 'lucide-svelte/icons/x';
     import IconContainer from '@/components/common/IconContainer.svelte';
@@ -33,10 +34,12 @@
         phone: '',
         address: '',
         credit_limit: 0,
+        discount_percentage: 0,
         is_defaulter: false,
         is_active: true,
         notes: '',
     });
+
 
     function submit(e: SubmitEvent) {
         e.preventDefault();
@@ -187,12 +190,12 @@
                 {/if}
             </div>
 
-            <!-- Límite de Crédito & Flags -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 p-3.5 rounded-xl border bg-muted/15">
+            <!-- Límite de Crédito & Descuento Habitual & Flags -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 p-3.5 rounded-xl border bg-muted/15">
                 <div class="space-y-1.5">
                     <Label for="create-customer-credit" class="text-xs font-semibold flex items-center gap-1.5">
                         <CreditCard class="h-3.5 w-3.5 text-muted-foreground" />
-                        Límite de Crédito ($ ARS)
+                        Límite Crédito ($)
                     </Label>
                     <Input
                         id="create-customer-credit"
@@ -205,6 +208,23 @@
                     />
                 </div>
 
+                <div class="space-y-1.5">
+                    <Label for="create-customer-discount" class="text-xs font-semibold flex items-center gap-1.5">
+                        <Percent class="h-3.5 w-3.5 text-primary" />
+                        Descuento Habitual (%)
+                    </Label>
+                    <Input
+                        id="create-customer-discount"
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        max="100"
+                        bind:value={form.discount_percentage}
+                        placeholder="0.00"
+                        class="h-9 text-sm font-sans tabular-nums font-semibold text-primary"
+                    />
+                </div>
+
                 <div class="flex flex-col justify-center gap-2 pt-1">
                     <label class="flex items-center gap-2 text-xs font-semibold text-foreground cursor-pointer">
                         <input
@@ -214,9 +234,10 @@
                         />
                         <span class="flex items-center gap-1 text-rose-600 dark:text-rose-400">
                             <AlertTriangle class="size-3.5" />
-                            Marcar como Moroso / Saldo Pendiente
+                            Moroso / Riesgo
                         </span>
                     </label>
+
 
                     <label class="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer">
                         <input
