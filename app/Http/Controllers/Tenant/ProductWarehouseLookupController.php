@@ -90,7 +90,7 @@ class ProductWarehouseLookupController extends Controller
             ->orderBy('name')
             ->get();
 
-        return Inertia::render('tenant/products/WarehouseLookup', [
+        return Inertia::render('tenant/products/lookup/Index', [
             'items' => $items,
             'warehouses' => $warehouses,
             'categories' => $categories,
@@ -101,5 +101,6 @@ class ProductWarehouseLookupController extends Controller
                 'stock_status' => $stockStatus,
             ],
         ]);
+
     }
 }
