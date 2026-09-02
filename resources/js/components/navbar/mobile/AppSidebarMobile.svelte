@@ -31,7 +31,7 @@
     // Auto-expansión inicial del módulo activo al abrir el Sidebar
     $effect(() => {
         if (open) {
-            if (currentUrl.startsWith('/tenant/stock')) {
+            if (currentUrl.startsWith('/tenant/stock') || currentUrl.startsWith('/tenant/warehouses') || currentUrl.startsWith('/tenant/products/buscar-deposito')) {
                 openModule = 'Stock';
             } else if (currentUrl.startsWith('/tenant/suppliers')) {
                 openModule = 'Proveedores';
@@ -111,7 +111,7 @@
                     title: 'Stock',
                     href: '/tenant/stock/ingresos',
                     icon: 'solar:archive-minimalistic-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/stock'),
+                    active: currentUrl.startsWith('/tenant/stock') || currentUrl.startsWith('/tenant/warehouses') || currentUrl.startsWith('/tenant/products/buscar-deposito'),
                     subItems: [
                         {
                             title: 'Ingresos de Stock',
@@ -131,9 +131,22 @@
                             icon: 'solar:history-bold-duotone',
                             active: currentUrl.startsWith('/tenant/stock/kardex'),
                         },
+                        {
+                            title: 'Depósitos y Almacenes',
+                            href: '/tenant/warehouses',
+                            icon: 'solar:buildings-2-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/warehouses'),
+                        },
+                        {
+                            title: 'Buscar en Depósito',
+                            href: '/tenant/products/buscar-deposito',
+                            icon: 'solar:box-minimalistic-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/products/buscar-deposito'),
+                        },
                     ],
                 });
             }
+
 
             // Pedidos: Enlace Directo Simple
             if (modules.includes('pedidos') && (isAdmin || permissions.includes('pedidos.ver'))) {

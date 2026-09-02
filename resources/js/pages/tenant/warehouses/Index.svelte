@@ -65,7 +65,7 @@
     function handleDeleteConfirm() {
         if (!warehouseToDelete) return;
 
-        router.delete(route('tenant.warehouses.destroy', warehouseToDelete.id), {
+        router.delete(`/tenant/warehouses/${warehouseToDelete.id}`, {
             preserveScroll: true,
             onSuccess: () => {
                 isDeleteConfirmOpen = false;
@@ -91,12 +91,13 @@
         </div>
 
         <div class="flex items-center gap-2.5 flex-wrap">
-            <Link href={route('tenant.products.warehouse-search')}>
+            <Link href="/tenant/products/buscar-deposito">
                 <Button variant="outline" class="gap-1.5 font-medium shadow-2xs">
                     <WarehouseIcon class="size-4 text-muted-foreground" />
                     Buscar en Depósitos
                 </Button>
             </Link>
+
 
             <Button onclick={openCreateModal} class="gap-1.5 font-semibold shadow-sm">
                 <Plus class="size-4" />

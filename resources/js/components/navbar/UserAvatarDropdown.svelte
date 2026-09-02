@@ -25,6 +25,8 @@
 
     let user = $derived(page.props.auth?.user);
     let tenant = $derived(page.props.auth?.tenant);
+    let roles = $derived(page.props.auth?.roles ?? []);
+    let isAdmin = $derived(page.props.auth?.is_admin || roles.includes('admin') || user?.is_superadmin);
 
     let imageFailed = $state(false);
     let hasAvatar = $derived(Boolean(user?.avatar && !imageFailed));
@@ -101,6 +103,21 @@
 
             <!-- Enlaces de Configuración -->
             <DropdownMenuGroup>
+                {#if tenant && isAdmin}
+                    <DropdownMenuItem asChild>
+                        {#snippet children(props)}
+                            <Link
+                                class="{props.class} flex items-center gap-2 cursor-pointer py-2 text-sm font-normal"
+                                href="/tenant/warehouses"
+                                prefetch
+                            >
+                                <Building2 class="h-4 w-4 text-muted-foreground" />
+                                <span>Gestión de depósitos</span>
+                            </Link>
+                        {/snippet}
+                    </DropdownMenuItem>
+                {/if}
+
                 <DropdownMenuItem asChild>
                     {#snippet children(props)}
                         <Link
@@ -113,6 +130,7 @@
                         </Link>
                     {/snippet}
                 </DropdownMenuItem>
+
 
                 <DropdownMenuItem asChild>
                     {#snippet children(props)}

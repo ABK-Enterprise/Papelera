@@ -88,11 +88,12 @@
             params.stock_status = selectedStockStatus;
         }
 
-        router.get(route('tenant.products.warehouse-search'), params, {
+        router.get('/tenant/products/buscar-deposito', params, {
             preserveState: true,
             preserveScroll: true,
             replace: true,
         });
+
     }
 
     function resetFilters() {
@@ -100,7 +101,7 @@
         selectedWarehouseId = '';
         selectedCategoryId = '';
         selectedStockStatus = '';
-        router.get(route('tenant.products.warehouse-search'), {}, {
+        router.get('/tenant/products/buscar-deposito', {}, {
             preserveState: true,
             preserveScroll: true,
             replace: true,
@@ -125,7 +126,7 @@
         <div>
             <div class="flex items-center gap-2 mb-1">
                 <Link
-                    href={route('tenant.products.index')}
+                    href="/tenant/products"
                     class="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
                     <ArrowLeft class="size-3.5" />
@@ -142,7 +143,7 @@
         </div>
 
         <div class="flex items-center gap-2.5">
-            <Link href={route('tenant.products.index')}>
+            <Link href="/tenant/products">
                 <Button variant="outline" class="gap-1.5 font-medium shadow-2xs">
                     <Box class="size-4 text-muted-foreground" />
                     Catálogo Completo
@@ -150,6 +151,7 @@
             </Link>
         </div>
     </div>
+
 
     <!-- Barra de Búsqueda y Filtros de Depósito -->
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60 space-y-3">

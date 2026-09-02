@@ -74,14 +74,14 @@
         e.preventDefault();
 
         if (mode === 'edit' && warehouse) {
-            form.put(route('tenant.warehouses.update', warehouse.id), {
+            form.put(`/tenant/warehouses/${warehouse.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     open = false;
                 },
             });
         } else {
-            form.post(route('tenant.warehouses.store'), {
+            form.post('/tenant/warehouses', {
                 preserveScroll: true,
                 onSuccess: () => {
                     open = false;
@@ -89,6 +89,7 @@
             });
         }
     }
+
 </script>
 
 <Dialog bind:open>

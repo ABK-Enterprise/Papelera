@@ -83,7 +83,7 @@
                     title: 'Stock',
                     href: '/tenant/stock/ingresos',
                     icon: 'solar:archive-minimalistic-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/stock'),
+                    active: currentUrl.startsWith('/tenant/stock') || currentUrl.startsWith('/tenant/warehouses') || currentUrl.startsWith('/tenant/products/buscar-deposito'),
                     subItems: [
                         {
                             title: 'Ingresos de Stock',
@@ -106,9 +106,24 @@
                             icon: 'solar:history-bold-duotone',
                             active: currentUrl.startsWith('/tenant/stock/kardex'),
                         },
+                        {
+                            title: 'Depósitos y Almacenes',
+                            description: 'Administración de depósitos y sucursales',
+                            href: '/tenant/warehouses',
+                            icon: 'solar:buildings-2-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/warehouses'),
+                        },
+                        {
+                            title: 'Buscar en Depósito',
+                            description: 'Existencias físicas y estanterías',
+                            href: '/tenant/products/buscar-deposito',
+                            icon: 'solar:box-minimalistic-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/products/buscar-deposito'),
+                        },
                     ],
                 });
             }
+
 
             // Customer Orders (Pedidos module)
             if (modules.includes('pedidos') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('pedidos.ver'))) {

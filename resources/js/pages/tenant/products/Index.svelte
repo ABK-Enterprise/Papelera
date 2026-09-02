@@ -210,7 +210,7 @@
         </div>
 
         <div class="flex items-center justify-end gap-2.5 flex-wrap">
-            <Link href={route('tenant.products.warehouse-search')}>
+            <Link href="/tenant/products/buscar-deposito">
                 <Button
                     variant="outline"
                     class="gap-1.5 font-medium border-border/80 shadow-2xs"
@@ -219,6 +219,7 @@
                     <span>Buscar en Depósito</span>
                 </Button>
             </Link>
+
 
             <Button
                 variant="outline"
