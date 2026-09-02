@@ -84,36 +84,10 @@
     }
 </script>
 
-<div class="hidden md:flex flex-col gap-6 w-full font-sans">
-    <!-- Encabezado y Acciones del Módulo -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <div class="flex items-center gap-2.5">
-                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-                    <WarehouseIcon class="size-7 text-primary" />
-                    <span>Buscar en Depósito</span>
-                </h1>
-                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums">
-                    {items.total} {items.total === 1 ? 'registro' : 'registros'}
-                </span>
-            </div>
-            <p class="mt-1 text-sm text-muted-foreground">
-                Consulta y audita el stock físico distribuido por depósito, estante y producto.
-            </p>
-        </div>
-
-        <div class="flex items-center gap-2.5">
-            <Link href="/tenant/productos">
-                <Button variant="secondary" class="min-h-[44px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs">
-                    <Box class="size-4 text-primary" />
-                    <span>Catálogo de productos</span>
-                </Button>
-            </Link>
-        </div>
-    </div>
-
+<div class="flex flex-col gap-6 w-full font-sans">
     <!-- Barra de Búsqueda y Filtros de Depósito -->
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
+
 
         <div class="flex items-center justify-between gap-3">
             <!-- Buscador con SearchCombobox -->
