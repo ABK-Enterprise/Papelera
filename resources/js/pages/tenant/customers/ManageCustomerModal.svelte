@@ -92,7 +92,7 @@
         e.preventDefault();
         if (!customer) return;
 
-        form.put(`/tenant/customers/${customer.id}`, {
+        form.put(`/tenant/clientes/${customer.id}`, {
             onSuccess: () => {
                 open = false;
             },
@@ -113,7 +113,7 @@
         if (!customer) return;
 
         isDeleting = true;
-        router.delete(`/tenant/customers/${customer.id}`, {
+        router.delete(`/tenant/clientes/${customer.id}`, {
             onFinish: () => {
                 isDeleting = false;
                 showDeleteConfirm = false;
@@ -121,6 +121,7 @@
             },
         });
     }
+
 
     function handleClose() {
         open = false;

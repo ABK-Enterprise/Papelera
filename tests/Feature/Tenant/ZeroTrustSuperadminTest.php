@@ -12,11 +12,11 @@ test('superadmin without tenant context cannot access tenant routes and is redir
     $superadmin = User::factory()->superadmin()->create();
 
     $this->actingAs($superadmin)
-        ->get('/tenant/users')
+        ->get('/tenant/usuarios')
         ->assertRedirect(route('platform.dashboard'));
 
     $this->actingAs($superadmin)
-        ->getJson('/tenant/users')
+        ->getJson('/tenant/usuarios')
         ->assertForbidden();
 
     $this->actingAs($superadmin)
@@ -29,10 +29,10 @@ test('user from inactive tenant cannot access tenant routes and is redirected to
     $user = User::factory()->forTenant($inactiveTenant)->create();
 
     $this->actingAs($user)
-        ->get('/tenant/users')
+        ->get('/tenant/usuarios')
         ->assertRedirect(route('auth.access-denied', ['reason' => 'account_deactivated']));
 
     $this->actingAs($user)
-        ->getJson('/tenant/users')
+        ->getJson('/tenant/usuarios')
         ->assertForbidden();
 });

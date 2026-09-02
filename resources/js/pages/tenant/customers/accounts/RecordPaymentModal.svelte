@@ -79,8 +79,9 @@
         errorMessage = null;
 
         router.post(
-            `/tenant/customers/${customer.id}/account/payment`,
+            `/tenant/clientes/${customer.id}/cuenta-corriente/cobro`,
             {
+
                 amount: amountNum,
                 payment_method: paymentMethod,
                 reference_number: referenceNumber || null,

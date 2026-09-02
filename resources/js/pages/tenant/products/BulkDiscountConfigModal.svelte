@@ -37,10 +37,11 @@
         isSubmitting = true;
 
         router.patch(
-            '/tenant/products/bulk-discount/global',
+            '/tenant/productos/descuento-bulto/global',
             {
                 default_bulk_discount_percentage: discountValue,
             },
+
             {
                 preserveScroll: true,
                 onSuccess: () => {

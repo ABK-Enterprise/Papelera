@@ -51,12 +51,12 @@ test('tenant 1 cannot access, edit, update or delete tenant 2 product', function
 
     // View / Edit attempt
     $this->actingAs($this->user1)
-        ->getJson("/tenant/products/{$productT2->id}/edit")
+        ->getJson("/tenant/productos/{$productT2->id}/editar")
         ->assertNotFound();
 
     // Update attempt
     $this->actingAs($this->user1)
-        ->putJson("/tenant/products/{$productT2->id}", [
+        ->putJson("/tenant/productos/{$productT2->id}", [
             'name' => 'Hackeado',
             'price' => 1.00,
         ])
@@ -64,7 +64,7 @@ test('tenant 1 cannot access, edit, update or delete tenant 2 product', function
 
     // Delete attempt
     $this->actingAs($this->user1)
-        ->deleteJson("/tenant/products/{$productT2->id}")
+        ->deleteJson("/tenant/productos/{$productT2->id}")
         ->assertNotFound();
 
     expect(Product::withoutGlobalScopes()->find($productT2->id)?->name)->toBe('Producto Secreto T2');
@@ -76,14 +76,14 @@ test('tenant 1 cannot edit, update or delete tenant 2 category', function () {
     ]);
 
     $this->actingAs($this->user1)
-        ->putJson("/tenant/categories/{$catT2->id}", [
+        ->putJson("/tenant/categorias/{$catT2->id}", [
             'name' => 'Categoria Hackeada',
             'slug' => 'categoria-hackeada',
         ])
         ->assertNotFound();
 
     $this->actingAs($this->user1)
-        ->deleteJson("/tenant/categories/{$catT2->id}")
+        ->deleteJson("/tenant/categorias/{$catT2->id}")
         ->assertNotFound();
 
     expect(Category::withoutGlobalScopes()->find($catT2->id))->not->toBeNull();
@@ -97,8 +97,9 @@ test('products and categories listings are strictly isolated between tenants', f
     Category::factory()->forTenant($this->tenant2)->count(4)->create();
 
     $resT1 = $this->actingAs($this->user1)
-        ->getJson('/tenant/products')
+        ->getJson('/tenant/productos')
         ->assertSuccessful();
+
 
     expect($resT1->json()['products'])->toHaveCount(2)
         ->and($resT1->json()['categories'])->toHaveCount(1)

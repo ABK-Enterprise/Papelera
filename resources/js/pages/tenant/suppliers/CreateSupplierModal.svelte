@@ -40,13 +40,14 @@
 
     function submit(e: SubmitEvent) {
         e.preventDefault();
-        form.post('/tenant/suppliers', {
+        form.post('/tenant/proveedores', {
             onSuccess: () => {
                 open = false;
                 form.reset();
             },
         });
     }
+
 
     function handleClose() {
         open = false;

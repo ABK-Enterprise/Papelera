@@ -40,7 +40,7 @@ test('tenant user can list products with filters and stats via JSON API', functi
     Product::factory()->forCategory($cat2)->create(['name' => 'Bolsa Kraft 20x30', 'stock' => 0, 'min_stock' => 5]); // out of stock
 
     $response = $this->actingAs($this->user)
-        ->getJson('/tenant/products')
+        ->getJson('/tenant/productos')
         ->assertSuccessful();
 
     $data = $response->json();
@@ -60,14 +60,14 @@ test('tenant user can filter products by search, category and stock status', fun
 
     // Filter by search
     $resSearch = $this->actingAs($this->user)
-        ->getJson('/tenant/products?search=Cinta')
+        ->getJson('/tenant/productos?search=Cinta')
         ->assertSuccessful();
     expect($resSearch->json()['products'])->toHaveCount(1)
         ->and($resSearch->json()['products'][0]['sku'])->toBe('CIN-01');
 
     // Filter by stock_status = low_stock
     $resLowStock = $this->actingAs($this->user)
-        ->getJson('/tenant/products?stock_status=low_stock')
+        ->getJson('/tenant/productos?stock_status=low_stock')
         ->assertSuccessful();
     expect($resLowStock->json()['products'])->toHaveCount(1)
         ->and($resLowStock->json()['products'][0]['sku'])->toBe('TIJ-02');
@@ -77,7 +77,7 @@ test('tenant user can create a product', function () {
     $category = Category::factory()->forTenant($this->tenant)->create();
 
     $response = $this->actingAs($this->user)
-        ->postJson('/tenant/products', [
+        ->postJson('/tenant/productos', [
             'category_id' => $category->id,
             'name' => 'Bobina de Papel Kraft 80g',
             'sku' => 'BOB-KRF-80',
@@ -104,7 +104,7 @@ test('validates product creation fields and category tenant ownership', function
     $otherCategory = Category::factory()->forTenant($otherTenant)->create();
 
     $this->actingAs($this->user)
-        ->postJson('/tenant/products', [
+        ->postJson('/tenant/productos', [
             'category_id' => $otherCategory->id, // Belongs to other tenant!
             'name' => '',
             'price' => -50,
@@ -122,7 +122,7 @@ test('tenant user can update a product', function () {
     ]);
 
     $this->actingAs($this->user)
-        ->putJson("/tenant/products/{$product->id}", [
+        ->putJson("/tenant/productos/{$product->id}", [
             'name' => 'Producto Modificado',
             'price' => 250.00,
             'min_stock' => 15,
@@ -140,7 +140,7 @@ test('tenant user can delete a product', function () {
     $product = Product::factory()->forTenant($this->tenant)->create();
 
     $this->actingAs($this->user)
-        ->deleteJson("/tenant/products/{$product->id}")
+        ->deleteJson("/tenant/productos/{$product->id}")
         ->assertSuccessful();
 
     expect(Product::find($product->id))->toBeNull();
@@ -151,7 +151,7 @@ test('product routes are forbidden if tenant does not have stock module', functi
     $userNoModule = User::factory()->forTenant($tenantNoModule)->create();
 
     $this->actingAs($userNoModule)
-        ->getJson('/tenant/products')
+        ->getJson('/tenant/productos')
         ->assertForbidden();
 });
 
@@ -162,7 +162,7 @@ test('cannot create duplicate product name for same tenant and sale_type', funct
     ]);
 
     $this->actingAs($this->user)
-        ->postJson('/tenant/products', [
+        ->postJson('/tenant/productos', [
             'name' => 'Papel Kraft 80g',
             'sale_type' => 'unit',
             'price' => 100,
@@ -179,7 +179,7 @@ test('can create same product name or sku if sale_type is different', function (
     ]);
 
     $this->actingAs($this->user)
-        ->postJson('/tenant/products', [
+        ->postJson('/tenant/productos', [
             'name' => 'Bolsa Plastica',
             'sku' => 'BP-01',
             'sale_type' => 'weight',
@@ -194,7 +194,7 @@ test('cannot create duplicate barcode in same tenant', function () {
     ]);
 
     $this->actingAs($this->user)
-        ->postJson('/tenant/products', [
+        ->postJson('/tenant/productos', [
             'name' => 'Otro Producto',
             'barcode' => '7791234567890',
             'price' => 100,

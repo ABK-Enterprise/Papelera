@@ -38,13 +38,14 @@
 
     function submitCategory(e: SubmitEvent) {
         e.preventDefault();
-        categoryForm.post('/tenant/categories', {
+        categoryForm.post('/tenant/categorias', {
             onSuccess: () => {
                 categoryForm.reset();
                 showNewCategory = false;
             },
         });
     }
+
 
     function getCategoryIcon(iconName?: string | null) {
         switch (iconName) {

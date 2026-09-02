@@ -98,7 +98,7 @@
         } else {
             form.package_quantity = form.units_per_package || 1;
         }
-        form.put(`/tenant/products/${product.id}`, {
+        form.put(`/tenant/productos/${product.id}`, {
             onSuccess: () => {
                 isConfirmAlertOpen = false;
             },
@@ -126,13 +126,14 @@
                 Editar Producto
             </h1>
         </div>
-        <Link href="/tenant/products">
+        <Link href="/tenant/productos">
             <Button variant="outline" size="sm" class="gap-2 text-xs rounded-xl font-medium px-4 py-2 min-h-[38px] border-border/70 shadow-2xs">
                 <ArrowLeft class="size-3.5" />
                 <span>Volver</span>
             </Button>
         </Link>
     </div>
+
 
     <!-- Contenedor 2 Columnas Stitch Layout -->
     <div class="bg-card text-card-foreground rounded-3xl border border-border/80 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] overflow-hidden flex flex-col md:flex-row">
@@ -515,11 +516,12 @@
 
                 <!-- Footer Acciones -->
                 <div class="flex items-center justify-end gap-3 pt-4 border-t">
-                    <Link href="/tenant/products">
+                    <Link href="/tenant/productos">
                         <Button type="button" variant="outline" size="sm" class="rounded-xl">
                             Cancelar
                         </Button>
                     </Link>
+
                     <Button
                         type="submit"
                         size="sm"

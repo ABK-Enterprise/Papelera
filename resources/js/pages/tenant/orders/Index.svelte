@@ -145,7 +145,7 @@
 
     function applyFilters() {
         router.get(
-            '/tenant/orders',
+            '/tenant/pedidos',
             {
                 search: searchTerm || undefined,
                 status: selectedStatus !== 'all' ? selectedStatus : undefined,
@@ -162,8 +162,9 @@
         searchTerm = '';
         selectedStatus = 'all';
         sortBy = 'latest';
-        router.get('/tenant/orders', {}, { preserveState: true, preserveScroll: true });
+        router.get('/tenant/pedidos', {}, { preserveState: true, preserveScroll: true });
     }
+
 
     function openOrderDetail(order: OrderData) {
         selectedOrder = order;

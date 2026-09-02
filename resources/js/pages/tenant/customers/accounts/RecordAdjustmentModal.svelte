@@ -82,8 +82,9 @@
         errorMessage = null;
 
         router.post(
-            `/tenant/customers/${customer.id}/account/adjustment`,
+            `/tenant/clientes/${customer.id}/cuenta-corriente/ajuste`,
             {
+
                 type,
                 amount: amountNum,
                 description: description.trim(),

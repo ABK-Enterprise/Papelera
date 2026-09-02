@@ -136,7 +136,7 @@
 
     function applyFilters() {
         router.get(
-            '/tenant/products',
+            '/tenant/productos',
             {
                 search: searchTerm || undefined,
                 category_id: selectedCategoryId ?? undefined,
@@ -180,7 +180,7 @@
         selectedStockStatus = '';
         selectedInfoStatus = '';
         sortBy = 'latest';
-        router.get('/tenant/products', {}, { preserveState: true, preserveScroll: true });
+        router.get('/tenant/productos', {}, { preserveState: true, preserveScroll: true });
     }
 
     let hasActiveFilters = $derived(
@@ -210,7 +210,7 @@
         </div>
 
         <div class="flex items-center justify-end gap-2.5 flex-wrap">
-            <Link href="/tenant/products/buscar-deposito">
+            <Link href="/tenant/productos/buscar-deposito">
                 <Button
                     variant="outline"
                     class="gap-1.5 font-medium border-border/80 shadow-2xs"
@@ -231,13 +231,14 @@
                 <span class="tabular-nums font-bold text-primary">({tenantDefaultBulkDiscount}%)</span>
             </Button>
 
-            <Link href="/tenant/products/create">
+            <Link href="/tenant/productos/crear">
                 <Button class="gap-2 shadow-sm font-semibold">
                     <Plus class="size-4" />
                     Crear producto
                 </Button>
             </Link>
         </div>
+
 
     </div>
 

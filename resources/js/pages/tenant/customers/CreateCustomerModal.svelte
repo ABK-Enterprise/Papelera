@@ -44,13 +44,14 @@
     function submit(e: SubmitEvent) {
         e.preventDefault();
 
-        form.post('/tenant/customers', {
+        form.post('/tenant/clientes', {
             onSuccess: () => {
                 open = false;
                 form.reset();
             },
         });
     }
+
 
     function handleClose() {
         open = false;

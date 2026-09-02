@@ -49,24 +49,24 @@ beforeEach(function () {
 test('1. Secuencias de pedidos de clientes son independientes y correlativas por tenant', function () {
     $seqService = app(TenantSequenceService::class);
 
-    expect($seqService->nextCustomerOrderNumber($this->tenant1->id))->toBe('#PED-00001');
-    expect($seqService->nextCustomerOrderNumber($this->tenant1->id))->toBe('#PED-00002');
+    expect($seqService->nextCustomerOrderNumber($this->tenant1->id))->toBe('PED-0001');
+    expect($seqService->nextCustomerOrderNumber($this->tenant1->id))->toBe('PED-0002');
 
-    // Tenant 2 debe comenzar su propia secuencia desde 00001
-    expect($seqService->nextCustomerOrderNumber($this->tenant2->id))->toBe('#PED-00001');
-    expect($seqService->nextCustomerOrderNumber($this->tenant2->id))->toBe('#PED-00002');
-    expect($seqService->nextCustomerOrderNumber($this->tenant2->id))->toBe('#PED-00003');
+    // Tenant 2 debe comenzar su propia secuencia desde 0001
+    expect($seqService->nextCustomerOrderNumber($this->tenant2->id))->toBe('PED-0001');
+    expect($seqService->nextCustomerOrderNumber($this->tenant2->id))->toBe('PED-0002');
+    expect($seqService->nextCustomerOrderNumber($this->tenant2->id))->toBe('PED-0003');
 
     // Tenant 1 continúa su numeración
-    expect($seqService->nextCustomerOrderNumber($this->tenant1->id))->toBe('#PED-00003');
+    expect($seqService->nextCustomerOrderNumber($this->tenant1->id))->toBe('PED-0003');
 });
 
 test('2. Secuencias de ordenes de compra a proveedores son independientes por tenant', function () {
     $seqService = app(TenantSequenceService::class);
 
-    expect($seqService->nextSupplierOrderNumber($this->tenant1->id))->toBe('#OC-00001');
-    expect($seqService->nextSupplierOrderNumber($this->tenant2->id))->toBe('#OC-00001');
-    expect($seqService->nextSupplierOrderNumber($this->tenant1->id))->toBe('#OC-00002');
+    expect($seqService->nextSupplierOrderNumber($this->tenant1->id))->toBe('OC-0001');
+    expect($seqService->nextSupplierOrderNumber($this->tenant2->id))->toBe('OC-0001');
+    expect($seqService->nextSupplierOrderNumber($this->tenant1->id))->toBe('OC-0002');
 });
 
 test('3. Creacion de pedidos en API utiliza secuencias atomicas y aplica bloqueo determinista', function () {
@@ -109,7 +109,8 @@ test('3. Creacion de pedidos en API utiliza secuencias atomicas y aplica bloqueo
     $response->assertStatus(201);
     $order = CustomerOrder::where('tenant_id', $this->tenant1->id)->first();
     expect($order)->not->toBeNull()
-        ->and($order->order_number)->toBe('#PED-00001');
+        ->and($order->order_number)->toBe('PED-0001');
+
 
     $prodA->refresh();
     $prodB->refresh();

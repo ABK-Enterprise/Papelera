@@ -511,9 +511,10 @@
         }
 
         router.post(
-            '/tenant/orders',
+            '/tenant/pedidos',
             {
                 customer_id: selectedCustomerId,
+
                 warehouse_id: selectedWarehouseId,
                 customer_name: customerName,
                 customer_phone: customerPhone,

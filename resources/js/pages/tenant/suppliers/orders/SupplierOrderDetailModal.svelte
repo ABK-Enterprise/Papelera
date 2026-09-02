@@ -82,7 +82,7 @@
     function executeReceive() {
         if (!order) return;
         isProcessing = true;
-        router.patch(`/tenant/suppliers/orders/${order.id}/receive`, {}, {
+        router.patch(`/tenant/proveedores/ordenes/${order.id}/recibir`, {}, {
             preserveScroll: true,
             preserveState: true,
             onSuccess: () => {
@@ -109,7 +109,8 @@
     function executeCancel() {
         if (!order) return;
         isProcessing = true;
-        router.patch(`/tenant/suppliers/orders/${order.id}/cancel`, {}, {
+        router.patch(`/tenant/proveedores/ordenes/${order.id}/cancelar`, {}, {
+
             preserveScroll: true,
             preserveState: true,
             onSuccess: () => {

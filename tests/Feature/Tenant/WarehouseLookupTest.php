@@ -23,8 +23,9 @@ test('user with permission can view warehouse lookup page with products and ware
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
-        ->component('tenant/products/WarehouseLookup')
+        ->component('tenant/products/lookup/Index')
         ->has('items.data')
+
         ->has('warehouses')
         ->has('categories')
     );

@@ -87,10 +87,11 @@
         customerSearchQuery = '';
         isDropdownOpen = false;
         router.get(
-            '/tenant/customers/accounts',
+            '/tenant/clientes/cuentas-corrientes',
             { customer_id: cust.id },
             { preserveState: true, preserveScroll: true }
         );
+
     }
 
     function formatPrice(val: number | string | null | undefined): string {

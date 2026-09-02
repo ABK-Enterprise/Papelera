@@ -37,7 +37,7 @@ test('tenant user can render products index page with inertia', function () {
     Product::factory()->forCategory($category)->count(3)->create();
 
     $this->actingAs($this->user)
-        ->get('/tenant/products')
+        ->get('/tenant/productos')
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
@@ -52,7 +52,7 @@ test('tenant user can render product create page with inertia', function () {
     Category::factory()->forTenant($this->tenant)->count(2)->create();
 
     $this->actingAs($this->user)
-        ->get('/tenant/products/create')
+        ->get('/tenant/productos/crear')
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Create')
@@ -65,7 +65,7 @@ test('tenant user can render product edit page with inertia', function () {
     Category::factory()->forTenant($this->tenant)->count(2)->create();
 
     $this->actingAs($this->user)
-        ->get("/tenant/products/{$product->id}/edit")
+        ->get("/tenant/productos/{$product->id}/editar")
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Edit')
@@ -73,3 +73,4 @@ test('tenant user can render product edit page with inertia', function () {
             ->has('categories', 2)
         );
 });
+

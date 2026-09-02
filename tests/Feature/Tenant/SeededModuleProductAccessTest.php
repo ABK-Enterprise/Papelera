@@ -58,9 +58,9 @@ test('seeded productos and stock modules match routes and grant access to tenant
     ]);
     $tenantUser->assignRole($adminRole);
 
-    // Tenant user accesses /tenant/products successfully
+    // Tenant user accesses /tenant/productos successfully
     $this->actingAs($tenantUser)
-        ->get('/tenant/products')
+        ->get('/tenant/productos')
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
@@ -83,6 +83,6 @@ test('seeded productos and stock modules match routes and grant access to tenant
     $tenant->modules()->detach($productosModule->id);
 
     $this->actingAs($tenantUser)
-        ->get('/tenant/products')
+        ->get('/tenant/productos')
         ->assertRedirect(route('auth.access-denied', ['reason' => 'module_not_assigned']));
 });

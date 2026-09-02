@@ -86,7 +86,7 @@
         e.preventDefault();
         if (!supplier) return;
 
-        form.put(`/tenant/suppliers/${supplier.id}`, {
+        form.put(`/tenant/proveedores/${supplier.id}`, {
             onSuccess: () => {
                 open = false;
             },
@@ -107,7 +107,7 @@
         if (!supplier) return;
 
         isDeleting = true;
-        router.delete(`/tenant/suppliers/${supplier.id}`, {
+        router.delete(`/tenant/proveedores/${supplier.id}`, {
             onFinish: () => {
                 isDeleting = false;
                 showDeleteConfirm = false;
@@ -115,6 +115,7 @@
             },
         });
     }
+
 
     function handleClose() {
         open = false;

@@ -70,7 +70,7 @@ test('user axel@axel.com can authenticate via login and access products endpoint
     $loginResponse->assertRedirect('/dashboard');
     $this->assertAuthenticatedAs($this->axelUser);
 
-    $this->get('/tenant/products')
+    $this->get('/tenant/productos')
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
@@ -84,7 +84,7 @@ test('user axel@axel.com can access employee management and edit pages', functio
     $this->actingAs($this->axelUser);
 
     // Index
-    $this->get('/tenant/users')
+    $this->get('/tenant/usuarios')
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/users/Index')
@@ -92,7 +92,7 @@ test('user axel@axel.com can access employee management and edit pages', functio
         );
 
     // Create
-    $this->get('/tenant/users/create')
+    $this->get('/tenant/usuarios/create')
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/users/Create')
@@ -100,7 +100,7 @@ test('user axel@axel.com can access employee management and edit pages', functio
         );
 
     // Edit
-    $this->get("/tenant/users/{$this->employee->id}/edit")
+    $this->get("/tenant/usuarios/{$this->employee->id}/edit")
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/users/Edit')
@@ -143,13 +143,13 @@ test('user axel@axel.com can access roles management and edit pages', function (
 test('user axel@axel.com can update employee details via PUT', function () {
     $this->actingAs($this->axelUser);
 
-    $response = $this->put("/tenant/users/{$this->employee->id}", [
+    $response = $this->put("/tenant/usuarios/{$this->employee->id}", [
         'name' => 'Marcos Empleado Actualizado',
         'email' => 'marcos.nuevo@comercio.com',
         'role' => 'Gestor de Stock',
     ]);
 
-    $response->assertRedirect('/tenant/users');
+    $response->assertRedirect('/tenant/usuarios');
     $this->assertDatabaseHas('users', [
         'id' => $this->employee->id,
         'name' => 'Marcos Empleado Actualizado',
@@ -176,18 +176,18 @@ test('administrator accounts cannot be edited, updated or deleted via employee m
     $this->actingAs($this->axelUser);
 
     // Attempting to edit own admin user via employee management URL
-    $this->get("/tenant/users/{$this->axelUser->id}/edit")
+    $this->get("/tenant/usuarios/{$this->axelUser->id}/edit")
         ->assertForbidden();
 
     // Attempting to update admin user via PUT
-    $this->put("/tenant/users/{$this->axelUser->id}", [
+    $this->put("/tenant/usuarios/{$this->axelUser->id}", [
         'name' => 'Hacked Admin',
         'email' => 'hacked@comercio.com',
         'role' => 'Gestor de Stock',
     ])->assertForbidden();
 
     // Attempting to delete admin user via DELETE
-    $this->delete("/tenant/users/{$this->axelUser->id}")
+    $this->delete("/tenant/usuarios/{$this->axelUser->id}")
         ->assertForbidden();
 });
 

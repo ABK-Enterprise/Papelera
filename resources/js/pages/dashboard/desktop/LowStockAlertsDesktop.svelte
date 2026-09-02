@@ -73,10 +73,11 @@
                         <div class="flex items-center gap-2">
                             <span class="font-semibold text-foreground truncate max-w-xs">{product.name}</span>
                             <Link
-                                href={`/tenant/products/${product.id}/edit`}
+                                href={`/tenant/productos/${product.id}/editar`}
                                 class="text-muted-foreground hover:text-foreground transition-colors"
                                 title="Editar producto"
                             >
+
                                 <ExternalLink class="size-3.5" />
                             </Link>
                         </div>

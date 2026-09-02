@@ -85,9 +85,10 @@
                     <td class="py-4 pr-6 pl-4 text-right">
                         <div class="flex items-center justify-end gap-2">
                             <Link
-                                href={`/tenant/users/${user.id}/edit`}
+                                href={`/tenant/usuarios/${user.id}/edit`}
                                 class="inline-flex items-center justify-center min-h-[40px] min-w-[40px] px-3 gap-1.5 rounded-xl border border-border/70 text-xs font-medium text-foreground hover:bg-muted/60 transition-colors shadow-2xs"
                             >
+
                                 <Edit2 class="h-3.5 w-3.5" />
                                 <span>Editar</span>
                             </Link>

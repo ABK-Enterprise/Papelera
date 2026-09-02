@@ -70,8 +70,9 @@
         errorMessage = null;
 
         router.patch(
-            `/tenant/customers/${customer.id}/account/credit-settings`,
+            `/tenant/clientes/${customer.id}/cuenta-corriente/limite-credito`,
             {
+
                 credit_limit: Number(creditLimit) || 0,
                 credit_due_days: Number(creditDueDays) || 30,
                 is_defaulter: isDefaulter,

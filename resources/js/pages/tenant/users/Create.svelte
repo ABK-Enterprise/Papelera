@@ -27,7 +27,7 @@
 
     function submit(e: SubmitEvent) {
         e.preventDefault();
-        form.post('/tenant/users');
+        form.post('/tenant/usuarios');
     }
 </script>
 
@@ -39,13 +39,14 @@
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Añadir empleado</h1>
         </div>
         <Link
-            href="/tenant/users"
+            href="/tenant/usuarios"
             class="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-xl border border-border/70 text-sm font-medium hover:bg-muted/60 transition-colors"
         >
             <ArrowLeft class="h-4 w-4" />
             <span>Volver</span>
         </Link>
     </div>
+
 
     <form onsubmit={submit} class="space-y-6">
         <Card class="rounded-2xl border-border/70 bg-card shadow-xs">
@@ -130,11 +131,12 @@
 
         <div class="flex items-center justify-end gap-3">
             <Link
-                href="/tenant/users"
+                href="/tenant/usuarios"
                 class="inline-flex items-center justify-center min-h-[44px] px-5 rounded-xl font-medium border border-border/70 text-xs hover:bg-muted/60 transition-colors"
             >
                 Cancelar
             </Link>
+
             <Button
                 type="submit"
                 disabled={form.processing}

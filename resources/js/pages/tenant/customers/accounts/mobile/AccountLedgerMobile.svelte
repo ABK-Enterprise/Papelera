@@ -38,9 +38,10 @@
         isDrawerOpen = true;
         isLoadingMovements = true;
         try {
-            const res = await fetch(`/tenant/customers/${cust.id}/account`, {
+            const res = await fetch(`/tenant/clientes/${cust.id}/cuenta-corriente`, {
                 headers: { Accept: 'application/json' },
             });
+
             if (res.ok) {
                 const fullData = await res.json();
                 if (selectedCustomerForDrawer && selectedCustomerForDrawer.id === cust.id) {

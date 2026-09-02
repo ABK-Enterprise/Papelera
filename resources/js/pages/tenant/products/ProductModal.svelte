@@ -133,7 +133,7 @@
         }
 
         if (mode === 'edit' && product?.id) {
-            form.put(`/tenant/products/${product.id}`, {
+            form.put(`/tenant/productos/${product.id}`, {
                 onSuccess: () => {
                     isConfirmAlertOpen = false;
                     open = false;
@@ -141,7 +141,7 @@
                 },
             });
         } else {
-            form.post('/tenant/products', {
+            form.post('/tenant/productos', {
                 onSuccess: () => {
                     open = false;
                     form.reset();
@@ -150,6 +150,7 @@
             });
         }
     }
+
 
     function submit(e: SubmitEvent) {
         e.preventDefault();

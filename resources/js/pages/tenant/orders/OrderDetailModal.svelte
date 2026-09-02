@@ -96,7 +96,7 @@
         isUpdatingStatus = true;
 
         router.patch(
-            `/tenant/orders/${order.id}/status`,
+            `/tenant/pedidos/${order.id}/estado`,
             { status: statusToSet },
             {
                 preserveScroll: true,
@@ -128,13 +128,14 @@
 
     function executeDelete() {
         if (!order) return;
-        router.delete(`/tenant/orders/${order.id}`, {
+        router.delete(`/tenant/pedidos/${order.id}`, {
             onSuccess: () => {
                 isDeleteModalOpen = false;
                 open = false;
             },
         });
     }
+
 
     // Modal Copy Generator según el estado a aplicar
     let confirmModalConfig = $derived.by(() => {

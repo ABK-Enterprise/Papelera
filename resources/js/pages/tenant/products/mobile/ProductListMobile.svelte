@@ -61,7 +61,7 @@
     function executeDelete() {
         if (!productToDelete) return;
         isDeleting = true;
-        router.delete(`/tenant/products/${productToDelete.id}`, {
+        router.delete(`/tenant/productos/${productToDelete.id}`, {
             onFinish: () => {
                 isDeleting = false;
                 isDeleteModalOpen = false;
@@ -138,14 +138,14 @@
             <div class="flex flex-col gap-1.5 shrink-0">
                 {#if isIncomplete}
                     <Link
-                        href={`/tenant/products/${product.id}/edit`}
+                        href={`/tenant/productos/${product.id}/editar`}
                         class="inline-flex items-center justify-center min-h-[44px] px-3 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-xl transition-colors"
                     >
                         <span>Completar datos</span>
                     </Link>
                 {:else}
                     <Link
-                        href={`/tenant/products/${product.id}/edit`}
+                        href={`/tenant/productos/${product.id}/editar`}
                         class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] p-0 rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shadow-2xs"
                     >
                         <Edit2 class="h-4 w-4" />
@@ -170,9 +170,10 @@
             title="No se encontraron productos"
             description="No hay productos disponibles en tu catálogo o filtros seleccionados."
             actionLabel="Crear producto"
-            actionHref="/tenant/products/create"
+            actionHref="/tenant/productos/crear"
         />
     {/if}
+
 
     {#if products.length > perPage}
         <AppPagination count={products.length} {perPage} bind:page />

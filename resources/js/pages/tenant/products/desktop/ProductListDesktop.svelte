@@ -74,7 +74,7 @@
     function executeDelete() {
         if (!productToDelete) return;
         isDeleting = true;
-        router.delete(`/tenant/products/${productToDelete.id}`, {
+        router.delete(`/tenant/productos/${productToDelete.id}`, {
             onFinish: () => {
                 isDeleting = false;
                 isDeleteModalOpen = false;
@@ -235,7 +235,7 @@
                             {#snippet children(props)}
                                 <Link
                                     {...props}
-                                    href={`/tenant/products/${product.id}/edit`}
+                                    href={`/tenant/productos/${product.id}/editar`}
                                     class="{props.class} flex items-center gap-2 text-xs font-medium cursor-pointer"
                                 >
                                     <Edit2 class="h-3.5 w-3.5 text-muted-foreground" />
@@ -270,9 +270,10 @@
             title="No se encontraron productos"
             description="No hay productos que coincidan con los filtros seleccionados o el catálogo de tu comercio está vacío."
             actionLabel="Crear producto"
-            actionHref="/tenant/products/create"
+            actionHref="/tenant/productos/crear"
         />
     {/if}
+
 
     {#if products.length > perPage}
         <AppPagination count={products.length} {perPage} bind:page />

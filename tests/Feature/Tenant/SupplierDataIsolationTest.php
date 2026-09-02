@@ -50,7 +50,7 @@ test('tenant 1 cannot access, edit, update or delete tenant 2 supplier', functio
 
     // Update attempt
     $this->actingAs($this->user1)
-        ->putJson("/tenant/suppliers/{$supplierT2->id}", [
+        ->putJson("/tenant/proveedores/{$supplierT2->id}", [
             'name' => 'Intento Hackeo',
             'contact_number' => '00000000',
         ])
@@ -58,7 +58,7 @@ test('tenant 1 cannot access, edit, update or delete tenant 2 supplier', functio
 
     // Delete attempt
     $this->actingAs($this->user1)
-        ->deleteJson("/tenant/suppliers/{$supplierT2->id}")
+        ->deleteJson("/tenant/proveedores/{$supplierT2->id}")
         ->assertNotFound();
 
     expect(Supplier::withoutGlobalScopes()->find($supplierT2->id)?->name)->toBe('Proveedor Confidencial T2');
@@ -69,14 +69,14 @@ test('supplier listings and stats are strictly isolated between tenants', functi
     Supplier::factory()->forTenant($this->tenant2)->count(4)->create(['is_active' => true]);
 
     $resT1 = $this->actingAs($this->user1)
-        ->getJson('/tenant/suppliers')
+        ->getJson('/tenant/proveedores')
         ->assertSuccessful();
 
     expect($resT1->json()['suppliers'])->toHaveCount(2)
         ->and($resT1->json()['total_count'])->toBe(2);
 
     $resT2 = $this->actingAs($this->user2)
-        ->getJson('/tenant/suppliers')
+        ->getJson('/tenant/proveedores')
         ->assertSuccessful();
 
     expect($resT2->json()['suppliers'])->toHaveCount(4)

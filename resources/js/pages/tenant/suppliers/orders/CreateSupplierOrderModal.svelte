@@ -277,9 +277,10 @@
         }
 
         router.post(
-            '/tenant/suppliers/orders',
+            '/tenant/proveedores/ordenes',
             {
                 supplier_id: Number(selectedSupplierId),
+
                 notes: notes,
                 items: payloadItems,
             },
