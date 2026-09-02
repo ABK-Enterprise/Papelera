@@ -66,7 +66,8 @@
 <div class="flex flex-col gap-3">
     {#each paginatedOrders as order (order.id)}
         <div
-            class="flex flex-col gap-2.5 rounded-xl border border-border/70 bg-card p-3.5 shadow-sm cursor-pointer hover:border-primary/40 transition-colors"
+            class="flex flex-col gap-2.5 rounded-xl border border-border/70 bg-card p-3.5 shadow-sm cursor-pointer hover:border-primary/40 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25"
+
             onclick={() => onSelectOrder(order)}
             onkeydown={(e) => e.key === 'Enter' && onSelectOrder(order)}
             role="button"

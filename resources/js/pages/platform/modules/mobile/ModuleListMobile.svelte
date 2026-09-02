@@ -55,7 +55,8 @@
     {#each modules as mod (mod.id)}
         {@const iconName = getModuleIcon(mod.code)}
 
-        <Card class="rounded-2xl border-border/70 bg-card p-4 shadow-2xs">
+        <Card class="rounded-2xl border-border/70 bg-card p-4 shadow-2xs transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25">
+
             <CardContent class="p-0 space-y-3">
                 <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3 min-w-0">

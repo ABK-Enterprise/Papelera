@@ -219,14 +219,14 @@
 
     {#if isOpen && showDropdown}
         {#if displayItems.length > 0}
-            <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border shadow-xl z-50 overflow-hidden animate-in fade-in duration-150">
-                <div id={listboxId} class="max-h-64 overflow-y-auto divide-y divide-border/40 custom-scrollbar" role="listbox">
+            <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border/90 shadow-2xl shadow-accent/15 z-50 overflow-hidden animate-in fade-in duration-150 p-1.5">
+                <div id={listboxId} class="max-h-64 overflow-y-auto space-y-0.5 custom-scrollbar" role="listbox">
                     {#each displayItems as item, i (item.id || i)}
                         <button
                             type="button"
                             role="option"
                             aria-selected={activeIndex === i}
-                            class="w-full px-3.5 py-2.5 text-left text-xs transition-colors flex items-center justify-between gap-2 cursor-pointer {activeIndex === i ? 'bg-muted/80 text-foreground font-medium' : 'hover:bg-muted/50 text-foreground'}"
+                            class="w-full px-3 py-2 rounded-xl text-left text-xs transition-all flex items-center justify-between gap-2 cursor-pointer {activeIndex === i ? 'bg-accent text-accent-foreground font-semibold shadow-2xs' : 'text-foreground hover:bg-accent/40 hover:text-accent-foreground'}"
                             onclick={() => selectItem(item)}
                         >
                             {#if itemSnippet}
@@ -239,9 +239,10 @@
                 </div>
             </div>
         {:else if emptySnippet}
-            <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border shadow-xl z-50 overflow-hidden animate-in fade-in duration-150 p-2">
+            <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border/90 shadow-2xl shadow-accent/15 z-50 overflow-hidden animate-in fade-in duration-150 p-3">
                 {@render emptySnippet()}
             </div>
         {/if}
     {/if}
 </div>
+

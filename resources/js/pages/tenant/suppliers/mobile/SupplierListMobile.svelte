@@ -52,7 +52,8 @@
 <div class="flex flex-col gap-3">
     {#each paginatedSuppliers as supplier (supplier.id)}
         <div
-            class="flex flex-col gap-2.5 rounded-xl border border-border/70 bg-card p-4 shadow-sm active:bg-muted/40 transition-colors cursor-pointer"
+            class="flex flex-col gap-2.5 rounded-xl border border-border/70 bg-card p-4 shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 cursor-pointer"
+
             onclick={() => onSelectSupplier(supplier)}
             onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelectSupplier(supplier)}
             role="button"

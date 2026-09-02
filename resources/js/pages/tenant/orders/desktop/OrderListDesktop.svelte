@@ -76,7 +76,8 @@
             tabindex="0"
             onclick={() => onSelectOrder(order)}
             onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelectOrder(order)}
-            class="flex items-center justify-between p-4 rounded-2xl border border-border/70 bg-card shadow-xs hover:shadow-md hover:border-border transition-all duration-200 gap-4 cursor-pointer select-none"
+            class="flex items-center justify-between p-4 rounded-2xl border border-border/70 bg-card shadow-xs hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-border transition-all duration-200 gap-4 cursor-pointer select-none"
+
         >
             <!-- Lado Izquierdo: Icono + Número de Pedido y Fecha -->
             <div class="flex items-center gap-3.5 min-w-[200px]">

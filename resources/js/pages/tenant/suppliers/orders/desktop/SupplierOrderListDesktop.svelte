@@ -70,7 +70,8 @@
 <div class="flex flex-col gap-3.5">
     {#each paginatedOrders as order (order.id)}
         <div
-            class="bento-card group flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-xl border border-border/60 bg-card p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] transition-all hover:border-primary/30 hover:shadow-md cursor-pointer"
+            class="bento-card group flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-xl border border-border/60 bg-card p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-primary/30 cursor-pointer"
+
             onclick={() => onSelectOrder(order)}
             onkeydown={(e) => e.key === 'Enter' && onSelectOrder(order)}
             role="button"

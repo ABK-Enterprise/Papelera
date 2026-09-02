@@ -28,7 +28,8 @@
 
 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
     {#each roles as role (role.id)}
-        <Card class="flex flex-col justify-between rounded-2xl border border-border/70 bg-card shadow-xs transition-all hover:shadow-md hover:border-border">
+        <Card class="flex flex-col justify-between rounded-2xl border border-border/70 bg-card shadow-xs transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-border">
+
             <CardHeader class="pb-3.5">
                 <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3">
