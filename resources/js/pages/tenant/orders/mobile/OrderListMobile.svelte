@@ -140,10 +140,11 @@
                 <span class="font-bold text-base text-primary tabular-nums">
                     {formatPrice(order.total_amount)}
                 </span>
-                <Button size="sm" variant="outline" class="min-h-[44px] px-3.5 text-xs gap-1.5 font-medium rounded-xl border-border/70">
+                <Button size="sm" variant="accent" class="min-h-[44px] px-3.5 text-xs gap-1.5 font-medium rounded-xl">
                     <Eye class="h-3.5 w-3.5" />
                     <span>Ver detalle</span>
                 </Button>
+
             </div>
         </div>
     {/each}

@@ -119,7 +119,7 @@
                     </div>
 
                     <Button
-                        variant="outline"
+                        variant="accent"
                         size="sm"
                         onclick={() => onSelectMovement(mov)}
                         class="min-h-[36px] text-xs px-3 rounded-xl shrink-0 font-medium"
@@ -127,6 +127,7 @@
                         <Eye class="size-3 mr-1" />
                         <span>Ver detalle</span>
                     </Button>
+
                 </div>
             </div>
         {/each}

@@ -111,10 +111,11 @@
 
             <div class="flex items-center justify-between text-[11px] text-muted-foreground">
                 <span>{order.items?.length ?? 0} {order.items?.length === 1 ? 'producto' : 'productos'}</span>
-                <span class="text-primary font-medium flex items-center gap-0.5">
+                <span class="text-accent-foreground bg-accent/60 px-2 py-0.5 rounded font-medium flex items-center gap-0.5 border border-accent-300/30">
                     Ver detalle &rarr;
                 </span>
             </div>
+
         </div>
     {/each}
 

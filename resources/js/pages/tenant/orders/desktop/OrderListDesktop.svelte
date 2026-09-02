@@ -154,10 +154,11 @@
                     </span>
                 </div>
 
-                <Button size="sm" variant="outline" class="min-h-[40px] px-3.5 text-xs gap-1.5 font-medium rounded-xl border-border/70 hover:bg-muted/60">
+                <Button size="sm" variant="accent" class="min-h-[40px] px-3.5 text-xs gap-1.5 font-medium rounded-xl">
                     <Eye class="h-3.5 w-3.5" />
                     <span>Ver detalle</span>
                 </Button>
+
             </div>
         </div>
     {/each}
