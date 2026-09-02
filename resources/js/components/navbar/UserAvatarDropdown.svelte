@@ -108,7 +108,7 @@
                         {#snippet children(props)}
                             <Link
                                 class="{props.class} flex items-center gap-2 cursor-pointer py-2 text-sm font-normal"
-                                href="/tenant/warehouses"
+                                href="/tenant/configuracion/depositos"
                                 prefetch
                             >
                                 <Building2 class="h-4 w-4 text-muted-foreground" />
@@ -117,6 +117,7 @@
                         {/snippet}
                     </DropdownMenuItem>
                 {/if}
+
 
                 <DropdownMenuItem asChild>
                     {#snippet children(props)}

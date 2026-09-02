@@ -74,14 +74,14 @@
         e.preventDefault();
 
         if (mode === 'edit' && warehouse) {
-            form.put(`/tenant/warehouses/${warehouse.id}`, {
+            form.put(`/tenant/configuracion/depositos/${warehouse.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     open = false;
                 },
             });
         } else {
-            form.post('/tenant/warehouses', {
+            form.post('/tenant/configuracion/depositos', {
                 preserveScroll: true,
                 onSuccess: () => {
                     open = false;
@@ -89,6 +89,7 @@
             });
         }
     }
+
 
 </script>
 
