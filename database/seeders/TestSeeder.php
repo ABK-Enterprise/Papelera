@@ -654,8 +654,9 @@ class TestSeeder extends Seeder
                 ];
 
                 foreach ($orderConfigs as $idx => $oCfg) {
-                    $orderNum = sprintf('PED-T%d-%04d', $tenant->id, $idx + 1);
+                    $orderNum = sprintf('PED-%04d', $idx + 1);
                     $prod1 = $createdProducts[0];
+
                     $prod2 = $createdProducts[4] ?? $createdProducts[1];
                     $subtotal1 = 2 * (float) $prod1->price;
                     $subtotal2 = 1 * (float) $prod2->price;
@@ -729,8 +730,9 @@ class TestSeeder extends Seeder
                 ];
 
                 foreach ($suppOrdersData as $sIdx => $soData) {
-                    $sOrderNum = sprintf('OC-T%d-%04d', $tenant->id, $sIdx + 1);
+                    $sOrderNum = sprintf('OC-%04d', $sIdx + 1);
                     $pItem = $createdProducts[0];
+
                     $costTotal = 20 * (float) $pItem->cost_price;
 
                     $suppOrder = SupplierOrder::firstOrCreate([

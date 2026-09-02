@@ -30,11 +30,12 @@ class TenantSequenceService
 
     public function nextCustomerOrderNumber(int $tenantId): string
     {
-        return $this->nextNumber($tenantId, 'customer_order', '#PED-');
+        return $this->nextNumber($tenantId, 'customer_order', 'PED-', 4);
     }
 
     public function nextSupplierOrderNumber(int $tenantId): string
     {
-        return $this->nextNumber($tenantId, 'supplier_order', '#OC-');
+        return $this->nextNumber($tenantId, 'supplier_order', 'OC-', 4);
     }
 }
+

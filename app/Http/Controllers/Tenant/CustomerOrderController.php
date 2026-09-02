@@ -33,10 +33,10 @@ class CustomerOrderController extends Controller
                 $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
                 $q->where(function ($sub) use ($searchTerm) {
                     $sub->whereRaw('LOWER(order_number) LIKE ?', [$searchTerm])
-                        ->orWhereRaw('LOWER(customer_name) LIKE ?', [$searchTerm])
-                        ->orWhereRaw('LOWER(customer_phone) LIKE ?', [$searchTerm]);
+                        ->orWhereRaw('LOWER(customer_name) LIKE ?', [$searchTerm]);
                 });
             })
+
             ->when($status && $status !== 'all', function ($q) use ($status) {
                 $q->where('status', $status);
             })
