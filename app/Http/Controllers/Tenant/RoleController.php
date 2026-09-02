@@ -51,7 +51,8 @@ class RoleController extends Controller
                 if ($userPermissionIds !== null) {
                     $query->whereIn('id', $userPermissionIds);
                 }
-                $query->select('id', 'name', 'module_id');
+                $query->where('name', '!=', 'deposito.gestion')
+                    ->select('id', 'name', 'module_id');
             }])
             ->select('modules.id', 'modules.name', 'modules.code', 'modules.description')
             ->get()
@@ -116,8 +117,10 @@ class RoleController extends Controller
                 if ($userPermissionIds !== null) {
                     $query->whereIn('id', $userPermissionIds);
                 }
-                $query->select('id', 'name', 'module_id');
+                $query->where('name', '!=', 'deposito.gestion')
+                    ->select('id', 'name', 'module_id');
             }])
+
             ->select('modules.id', 'modules.name', 'modules.code', 'modules.description')
             ->get()
             ->filter(function ($module) {

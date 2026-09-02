@@ -70,7 +70,9 @@ class BaseSeeder extends Seeder
                     'stock_egreso.crear',
                     'stock_historial.ver',
                     'stock_minimo.ver',
+                    'deposito.gestion',
                 ],
+
             ],
             [
                 'name' => SystemModule::Proveedores->label(),
