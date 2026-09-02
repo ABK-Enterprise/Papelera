@@ -13,10 +13,8 @@
         items = [],
         loading = false,
         debounceMs = 300,
-        showDropdown = false,
-
-
-
+        showDropdown = true,
+        searchKeys,
         itemSnippet,
         emptySnippet,
         onsearch,
@@ -32,6 +30,7 @@
         loading?: boolean;
         debounceMs?: number;
         showDropdown?: boolean;
+        searchKeys?: (keyof T | string)[];
         itemSnippet?: Snippet<[T, number]>;
         emptySnippet?: Snippet;
         onsearch?: (query: string) => void;
@@ -49,19 +48,27 @@
     let displayItems = $derived.by(() => {
         if (!items || items.length === 0) return [];
         if (!value || !value.trim()) {
-            return items.slice(0, 10);
+            return items.slice(0, 5);
         }
         const q = value.toLowerCase().trim();
         return items
             .filter((item) => {
-                const str = Object.values(item)
-                    .filter((v) => typeof v === 'string' || typeof v === 'number')
+                if (searchKeys && searchKeys.length > 0) {
+                    return searchKeys.some((k) => {
+                        const val = item[k as keyof T];
+                        return val !== undefined && val !== null && String(val).toLowerCase().includes(q);
+                    });
+                }
+                const str = Object.entries(item)
+                    .filter(([key, v]) => !['id', 'tenant_id', 'module_id', 'branch_id', 'warehouse_id', 'customer_id', 'supplier_id', 'created_at', 'updated_at', 'deleted_at'].includes(key) && (typeof v === 'string' || typeof v === 'number'))
+                    .map(([, v]) => String(v))
                     .join(' ')
                     .toLowerCase();
                 return str.includes(q);
             })
-            .slice(0, 10);
+            .slice(0, 5);
     });
+
 
     let lastSearchedVal: string | null = null;
 
