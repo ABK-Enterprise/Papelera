@@ -133,10 +133,11 @@
                     </span>
                 </div>
 
-                <Button size="sm" variant="accent" class="h-8 text-xs gap-1.5 font-semibold">
+                <Button size="sm" variant="tertiary" class="h-8 text-xs gap-1.5 font-semibold">
                     <Eye class="size-3.5" />
                     <span>Ver</span>
                 </Button>
+
 
             </div>
         </div>

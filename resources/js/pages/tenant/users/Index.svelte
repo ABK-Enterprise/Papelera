@@ -92,12 +92,12 @@
         </div>
         <div class="flex flex-wrap items-center justify-end gap-2.5">
             <Link href="/tenant/roles">
-
-                <Button variant="outline" class="min-h-[44px] gap-2 rounded-xl border-border/70 text-sm font-medium">
+                <Button variant="secondary" class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-2xs">
                     <Shield class="h-4 w-4" />
                     <span>Roles y Permisos</span>
                 </Button>
             </Link>
+
             <Link href="/tenant/usuarios/create">
                 <Button class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-xs">
                     <UserPlus class="h-4 w-4" />

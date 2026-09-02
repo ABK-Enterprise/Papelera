@@ -198,6 +198,13 @@ En lugar de crear nuevos colores para estados, utiliza modificadores de opacidad
 | **Bordes**            | Usar bordes muy sutiles (`border-background-300` o `border-secondary-200`).                                 | Usar negro puro, gris oscuro o el color primario al 100% para bordes divisorios. |
 | **Sombras (Shadows)** | Teñir ligeramente la sombra con el color de fondo para que se integre (`shadow-sm shadow-background-900/5`). | Usar sombras negras por defecto (`rgba(0,0,0, 0.5)`).                          |
 
+### D. Campos de Texto y Formularios (Dark Mode)
+- **Contraste de Inputs:** Los campos de texto NUNCA deben compartir el mismo color exacto del fondo del contenedor. Deben usar un tono más claro (`bg-background-900`) o un fondo translúcido (`bg-black/20`) para crear contraste de profundidad.
+- **Bordes Visibles:** Definir los límites del input con bordes de baja opacidad (`border-white/10` o `border-background-700`).
+- **Estados Focus:** Todo input debe reaccionar al foco ocultando el outline nativo y aplicando un borde del color primario (`focus:outline-none focus:border-primary-500`).
+- **Estados Disabled:** Los inputs deshabilitados deben distinguirse claramente reduciendo la opacidad del texto (`text-text-600`), quitando el fondo sólido (`bg-transparent`) y usando bordes punteados o ausentes (`border-dashed`).
+
+
 ## Conventions
 
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.

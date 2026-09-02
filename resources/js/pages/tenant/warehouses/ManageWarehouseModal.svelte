@@ -51,13 +51,15 @@
         is_default: false,
     });
 
-    let lastLoadedWarehouseId = $state<number | null>(null);
+    import { untrack } from 'svelte';
+
+    let wasOpen = $state(false);
 
     $effect(() => {
-        if (open) {
-            if (mode === 'edit' && warehouse) {
-                if (warehouse.id !== lastLoadedWarehouseId) {
-                    lastLoadedWarehouseId = warehouse.id;
+        if (open && !wasOpen) {
+            wasOpen = true;
+            untrack(() => {
+                if (mode === 'edit' && warehouse) {
                     form.branch_id = warehouse.branch_id || null;
                     form.name = warehouse.name ?? '';
                     form.code = warehouse.code ?? '';
@@ -65,21 +67,21 @@
                     form.is_active = Boolean(warehouse.is_active);
                     form.is_default = Boolean(warehouse.is_default);
                     form.clearErrors();
+                } else if (mode === 'create') {
+                    form.branch_id = branches.length > 0 ? branches[0].id : null;
+                    form.name = '';
+                    form.code = '';
+                    form.address = '';
+                    form.is_active = true;
+                    form.is_default = false;
+                    form.clearErrors();
                 }
-            } else if (mode === 'create') {
-                lastLoadedWarehouseId = null;
-                form.branch_id = branches.length > 0 ? branches[0].id : null;
-                form.name = '';
-                form.code = '';
-                form.address = '';
-                form.is_active = true;
-                form.is_default = false;
-                form.clearErrors();
-            }
-        } else {
-            lastLoadedWarehouseId = null;
+            });
+        } else if (!open && wasOpen) {
+            wasOpen = false;
         }
     });
+
 
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();

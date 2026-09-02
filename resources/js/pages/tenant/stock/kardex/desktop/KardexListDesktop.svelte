@@ -298,7 +298,7 @@
                                 <!-- Acciones -->
                                 <td class="py-4 px-6 text-right whitespace-nowrap">
                                     <Button
-                                        variant="accent"
+                                        variant="tertiary"
                                         size="sm"
                                         onclick={() => onSelectMovement(mov)}
                                         class="min-h-[36px] text-xs gap-1.5 rounded-lg font-medium px-3"
@@ -307,6 +307,7 @@
                                         <span>Ver detalle</span>
                                     </Button>
                                 </td>
+
 
                             </tr>
                         {/each}

@@ -5,6 +5,7 @@
     type Variant =
         | 'default'
         | 'secondary'
+        | 'tertiary'
         | 'ghost'
         | 'destructive'
         | 'outline'
@@ -23,14 +24,17 @@
     const variants: Record<Variant, string> = {
         default: 'bg-primary text-primary-foreground shadow hover:bg-primary/90',
         secondary:
-            'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
+            'bg-secondary text-secondary-foreground shadow-2xs hover:bg-secondary/80 border border-secondary/40',
+        tertiary:
+            'bg-primary-300/10 text-primary-600 border border-primary-300/30 hover:bg-primary-300/20 dark:bg-primary-400/10 dark:text-primary-300 dark:border-primary-400/30 dark:hover:bg-primary-400/20 shadow-2xs transition-colors',
+        ghost: 'hover:bg-muted hover:text-foreground',
         destructive:
             'bg-destructive text-destructive-foreground shadow hover:bg-destructive/90',
-        outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+        outline: 'border border-input bg-background hover:bg-muted hover:text-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
         accent: 'bg-accent/80 text-accent-foreground border border-accent/40 shadow-2xs hover:bg-accent hover:border-accent/60',
     };
+
 
 
     const sizes: Record<Size, string> = {

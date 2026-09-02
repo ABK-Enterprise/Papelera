@@ -223,23 +223,23 @@
         <div class="flex items-center justify-end gap-2.5 flex-wrap">
             <Link href="/tenant/productos/buscar-deposito">
                 <Button
-                    variant="outline"
-                    class="gap-1.5 font-medium border-border/80 shadow-2xs"
+                    variant="secondary"
+                    class="gap-1.5 font-medium shadow-2xs"
                 >
-                    <Warehouse class="size-4 text-primary" />
+                    <Warehouse class="size-4" />
                     <span>Buscar en Depósito</span>
                 </Button>
             </Link>
 
 
             <Button
-                variant="outline"
-                class="gap-1.5 font-medium border-border/80 shadow-2xs"
+                variant="secondary"
+                class="gap-1.5 font-medium shadow-2xs"
                 onclick={() => (isBulkDiscountModalOpen = true)}
             >
-                <Percent class="size-4 text-primary" />
+                <Percent class="size-4" />
                 <span>Desc. por Bulto</span>
-                <span class="tabular-nums font-bold text-primary">({tenantDefaultBulkDiscount}%)</span>
+                <span class="tabular-nums font-bold">({tenantDefaultBulkDiscount}%)</span>
             </Button>
 
             <Link href="/tenant/productos/crear">
@@ -249,6 +249,7 @@
                 </Button>
             </Link>
         </div>
+
 
 
     </div>
