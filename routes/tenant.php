@@ -5,6 +5,7 @@ use App\Http\Controllers\Tenant\CustomerAccountController;
 use App\Http\Controllers\Tenant\CustomerController;
 use App\Http\Controllers\Tenant\CustomerOrderController;
 use App\Http\Controllers\Tenant\ProductController;
+use App\Http\Controllers\Tenant\ProductWarehouseLookupController;
 use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\Stock\StockIncomeController;
 use App\Http\Controllers\Tenant\Stock\StockKardexController;
@@ -12,21 +13,24 @@ use App\Http\Controllers\Tenant\Stock\StockOutcomeController;
 use App\Http\Controllers\Tenant\SupplierController;
 use App\Http\Controllers\Tenant\SupplierOrderController;
 use App\Http\Controllers\Tenant\UserController;
+use App\Http\Controllers\Tenant\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'tenant'])
     ->prefix('tenant')
     ->name('tenant.')
     ->group(function () {
-        // Users & Roles Management (Restricted to Tenant Admin & Superadmin)
+        // Users, Roles & Warehouses Management (Restricted to Tenant Admin & Superadmin)
         Route::middleware('tenant.admin')->group(function () {
             Route::resource('users', UserController::class)->except(['show']);
             Route::resource('roles', RoleController::class)->except(['show']);
+            Route::resource('warehouses', WarehouseController::class)->except(['show']);
         });
 
         // Products & Categories Management (Productos module)
         Route::middleware('module:productos')->group(function () {
             Route::get('products', [ProductController::class, 'index'])->name('products.index')->middleware('tenant.permission:productos.ver');
+            Route::get('products/buscar-deposito', [ProductWarehouseLookupController::class, 'index'])->name('products.warehouse-search')->middleware('tenant.permission:productos.ver');
             Route::patch('products/bulk-discount/global', [ProductController::class, 'updateGlobalBulkDiscount'])->name('products.bulk-discount.global')->middleware('tenant.permission:productos.editar');
             Route::get('products/create', [ProductController::class, 'create'])->name('products.create')->middleware('tenant.permission:productos.crear');
             Route::post('products', [ProductController::class, 'store'])->name('products.store')->middleware('tenant.permission:productos.crear');
@@ -39,6 +43,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update')->middleware('tenant.permission:productos.editar');
             Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy')->middleware('tenant.permission:productos.eliminar');
         });
+
 
         // Stock Management & Kardex (Stock module)
         Route::middleware('module:stock')->group(function () {

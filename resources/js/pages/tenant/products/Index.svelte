@@ -9,6 +9,7 @@
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
+    import Warehouse from 'lucide-svelte/icons/warehouse';
     import X from 'lucide-svelte/icons/x';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
@@ -18,6 +19,7 @@
     import ProductListDesktop from './desktop/ProductListDesktop.svelte';
     import ProductListMobile from './mobile/ProductListMobile.svelte';
     import ProductFilterModalMobile from './mobile/ProductFilterModalMobile.svelte';
+
 
     interface CategoryItem {
         id: number;
@@ -208,6 +210,16 @@
         </div>
 
         <div class="flex items-center justify-end gap-2.5 flex-wrap">
+            <Link href={route('tenant.products.warehouse-search')}>
+                <Button
+                    variant="outline"
+                    class="gap-1.5 font-medium border-border/80 shadow-2xs"
+                >
+                    <Warehouse class="size-4 text-primary" />
+                    <span>Buscar en Depósito</span>
+                </Button>
+            </Link>
+
             <Button
                 variant="outline"
                 class="gap-1.5 font-medium border-border/80 shadow-2xs"
@@ -225,6 +237,7 @@
                 </Button>
             </Link>
         </div>
+
     </div>
 
     <!-- Banner Wide Card de Productos Incompletos -->
