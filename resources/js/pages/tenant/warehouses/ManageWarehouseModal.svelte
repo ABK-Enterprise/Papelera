@@ -2,6 +2,7 @@
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
+        DialogBody,
         DialogContent,
         DialogDescription,
         DialogFooter,
@@ -10,6 +11,7 @@
     } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import { Switch } from '@/components/ui/switch';
     import { useForm } from '@inertiajs/svelte';
     import Building2 from 'lucide-svelte/icons/building-2';
     import MapPin from 'lucide-svelte/icons/map-pin';
@@ -101,18 +103,18 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="sm:max-w-[480px]">
-        <form onsubmit={handleSubmit} class="space-y-4">
+    <DialogContent class="sm:max-w-[500px]">
+        <form onsubmit={handleSubmit} class="flex flex-col">
             <DialogHeader>
-                <div class="flex items-center gap-2">
-                    <div class="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <div class="flex items-center gap-3">
+                    <div class="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
                         <Warehouse class="size-5" />
                     </div>
-                    <div>
-                        <DialogTitle class="text-lg font-bold">
+                    <div class="min-w-0">
+                        <DialogTitle class="text-lg font-bold text-foreground">
                             {mode === 'create' ? 'Nuevo Depósito' : 'Editar Depósito'}
                         </DialogTitle>
-                        <DialogDescription class="text-xs">
+                        <DialogDescription class="text-xs text-muted-foreground mt-0.5">
                             {mode === 'create'
                                 ? 'Define un nuevo espacio físico o depósito para control de inventario.'
                                 : 'Modifica los parámetros y ubicación del depósito seleccionado.'}
@@ -121,7 +123,7 @@
                 </div>
             </DialogHeader>
 
-            <div class="space-y-3.5 py-2">
+            <DialogBody class="p-5 sm:p-6 space-y-4">
                 <!-- Nombre del Depósito -->
                 <div class="space-y-1.5">
                     <Label for="wh-name" class="text-xs font-semibold">
@@ -132,7 +134,7 @@
                         bind:value={form.name}
                         placeholder="Ej: Depósito Central, Depósito Mayorista..."
                         required
-                        class="h-9 text-sm font-medium"
+                        class="h-10 text-sm font-medium rounded-xl"
                     />
                     {#if form.errors.name}
                         <p class="text-[11px] font-medium text-destructive">{form.errors.name}</p>
@@ -149,7 +151,7 @@
                         bind:value={form.code}
                         placeholder="Ej: DEP-01, DEP-NORTE"
                         required
-                        class="h-9 text-sm font-mono uppercase"
+                        class="h-10 text-sm font-mono uppercase rounded-xl"
                     />
                     {#if form.errors.code}
                         <p class="text-[11px] font-medium text-destructive">{form.errors.code}</p>
@@ -159,14 +161,15 @@
                 <!-- Sucursal Vinculada -->
                 {#if branches.length > 0}
                     <div class="space-y-1.5">
-                        <Label for="wh-branch" class="text-xs font-semibold">
-                            Sucursal Vinculada
+                        <Label for="wh-branch" class="text-xs font-semibold flex items-center gap-1.5">
+                            <Building2 class="size-3.5 text-muted-foreground" />
+                            <span>Sucursal Vinculada</span>
                         </Label>
                         <div class="relative">
                             <select
                                 id="wh-branch"
                                 bind:value={form.branch_id}
-                                class="w-full h-9 rounded-lg border border-input bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                                class="w-full h-10 rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                             >
                                 <option value={null}>Sin sucursal asignada (Depósito Independiente)</option>
                                 {#each branches as br}
@@ -184,45 +187,64 @@
 
                 <!-- Dirección Física -->
                 <div class="space-y-1.5">
-                    <Label for="wh-address" class="text-xs font-semibold">Dirección / Ubicación Física</Label>
+                    <Label for="wh-address" class="text-xs font-semibold flex items-center gap-1.5">
+                        <MapPin class="size-3.5 text-muted-foreground" />
+                        <span>Dirección / Ubicación Física</span>
+                    </Label>
                     <Input
                         id="wh-address"
                         bind:value={form.address}
                         placeholder="Ej: Calle Principal 1234, Galpón 4"
-                        class="h-9 text-xs"
+                        class="h-10 text-xs rounded-xl"
                     />
                     {#if form.errors.address}
                         <p class="text-[11px] font-medium text-destructive">{form.errors.address}</p>
                     {/if}
                 </div>
 
-                <!-- Opciones / Estado -->
-                <div class="pt-2 border-t border-border/50 flex items-center justify-between">
-                    <label class="flex items-center gap-2 cursor-pointer text-xs font-medium">
-                        <input
-                            type="checkbox"
-                            bind:checked={form.is_active}
-                            class="size-4 rounded border-input text-primary focus:ring-primary"
-                        />
-                        <span>Depósito activo</span>
-                    </label>
+                <!-- Switches con Separador Vertical y Centrados -->
+                <div class="rounded-2xl border border-border/70 bg-muted/30 p-3.5 sm:p-4 mt-2">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-around gap-4">
+                        <!-- Switch 1: Activo -->
+                        <div class="flex items-center justify-between sm:justify-center gap-3">
+                            <div class="flex flex-col">
+                                <Label for="wh-switch-active" class="text-xs font-semibold cursor-pointer text-foreground">
+                                    Depósito activo
+                                </Label>
+                                <span class="text-[11px] text-muted-foreground">Operativo en sistema</span>
+                            </div>
+                            <Switch
+                                id="wh-switch-active"
+                                bind:checked={form.is_active}
+                            />
+                        </div>
 
-                    <label class="flex items-center gap-2 cursor-pointer text-xs font-medium">
-                        <input
-                            type="checkbox"
-                            bind:checked={form.is_default}
-                            class="size-4 rounded border-input text-primary focus:ring-primary"
-                        />
-                        <span>Depósito principal por defecto</span>
-                    </label>
+                        <!-- Separador vertical en desktop / horizontal en mobile -->
+                        <div class="hidden sm:block w-px h-9 bg-border/80 self-center"></div>
+                        <div class="block sm:hidden h-px w-full bg-border/60"></div>
+
+                        <!-- Switch 2: Principal -->
+                        <div class="flex items-center justify-between sm:justify-center gap-3">
+                            <div class="flex flex-col">
+                                <Label for="wh-switch-default" class="text-xs font-semibold cursor-pointer text-foreground">
+                                    Depósito principal
+                                </Label>
+                                <span class="text-[11px] text-muted-foreground">Por defecto para stock</span>
+                            </div>
+                            <Switch
+                                id="wh-switch-default"
+                                bind:checked={form.is_default}
+                            />
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </DialogBody>
 
-            <DialogFooter class="gap-2 sm:gap-2">
+            <DialogFooter class="p-5 sm:p-6 border-t border-border/60 gap-2.5 sm:gap-2.5 bg-muted/10">
                 <Button
                     type="button"
                     variant="outline"
-                    class="min-h-[44px] px-5 rounded-xl text-xs font-medium"
+                    class="min-h-[44px] px-5 rounded-xl text-sm font-medium border-border/70 hover:bg-muted/60 transition-colors"
                     onclick={() => (open = false)}
                 >
                     Cancelar
@@ -230,7 +252,7 @@
                 <Button
                     type="submit"
                     disabled={form.processing}
-                    class="min-h-[44px] px-5 rounded-xl text-xs font-semibold shadow-xs"
+                    class="min-h-[44px] px-6 rounded-xl text-sm font-semibold shadow-xs min-w-[150px]"
                 >
                     {form.processing ? 'Guardando...' : mode === 'create' ? 'Crear depósito' : 'Guardar cambios'}
                 </Button>
@@ -238,4 +260,5 @@
         </form>
     </DialogContent>
 </Dialog>
+
 

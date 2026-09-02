@@ -72,26 +72,32 @@
     }
 </script>
 
-<div class="flex md:hidden flex-col gap-4 w-full font-sans">
-    <!-- Header Mobile: Título a la izquierda, Botón secundario a la derecha -->
-    <div class="flex items-center justify-between gap-2">
-        <h1 class="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <WarehouseIcon class="size-6 text-primary" />
-            <span>Buscar en Depósito</span>
-        </h1>
+<div class="flex md:hidden flex-col gap-6 w-full font-sans">
+    <!-- Header Mobile: Encabezado y botón secundario con separación hacia el cuerpo -->
+    <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+                <WarehouseIcon class="size-6 text-primary" />
+                <h1 class="text-xl font-bold tracking-tight text-foreground">
+                    Buscar en Depósito
+                </h1>
+            </div>
 
-        <div class="flex items-center justify-end ml-auto">
             <Link href="/tenant/productos">
-                <Button variant="secondary" size="sm" class="min-h-[36px] px-3 gap-1.5 rounded-xl text-xs font-semibold shadow-2xs">
+                <Button variant="secondary" size="sm" class="min-h-[38px] px-3 gap-1.5 rounded-xl text-xs font-semibold shadow-2xs">
                     <Box class="size-3.5 text-primary" />
-                    <span>catálogo de productos</span>
+                    <span>Catálogo</span>
                 </Button>
             </Link>
         </div>
+        <p class="text-xs text-muted-foreground">
+            Consulta el stock físico distribuido por cada depósito y estante.
+        </p>
     </div>
 
     <!-- Barra de Búsqueda y Botón Filtros Mobile -->
     <Card class="rounded-xl p-3 shadow-2xs border border-border/60">
+
         <div class="flex items-center gap-2">
             <div class="flex-1 min-w-0">
                 <SearchCombobox
