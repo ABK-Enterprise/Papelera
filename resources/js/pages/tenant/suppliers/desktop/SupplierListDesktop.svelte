@@ -137,12 +137,12 @@
             <!-- Lado Derecho: Acción Rápida / Indicador -->
             <div class="flex items-center gap-2 shrink-0">
                 <Button
-                    variant="ghost"
+                    variant="tertiary"
                     size="sm"
-                    class="h-9 px-3 text-xs gap-1.5 text-muted-foreground group-hover:text-primary group-hover:bg-primary/10 transition-colors"
+                    class="min-h-[38px] px-3.5 text-xs gap-1.5 font-semibold rounded-xl"
                 >
                     <span>Gestionar</span>
-                    <ChevronRight class="size-4 transition-transform group-hover:translate-x-0.5" />
+                    <ChevronRight class="size-4" />
                 </Button>
             </div>
         </div>

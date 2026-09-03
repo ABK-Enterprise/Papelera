@@ -113,7 +113,7 @@
 
             <div class="flex items-center justify-between text-[11px] text-muted-foreground">
                 <span>{order.items?.length ?? 0} {order.items?.length === 1 ? 'producto' : 'productos'}</span>
-                <span class="text-primary-600 dark:text-primary-300 bg-primary-300/10 px-2 py-0.5 rounded font-medium flex items-center gap-0.5 border border-primary-300/20">
+                <span class="border border-primary/30 bg-primary/15 text-white dark:text-sky-100 dark:border-primary/40 px-2.5 py-0.5 rounded-lg text-xs font-semibold flex items-center gap-0.5 shadow-2xs">
                     Ver detalle &rarr;
                 </span>
             </div>

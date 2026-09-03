@@ -73,9 +73,9 @@
 
                 <div class="flex items-center justify-between border-t border-border/40 pt-3 gap-2">
                     <Button
-                        variant="outline"
+                        variant="tertiary"
                         onclick={() => onedit?.(wh)}
-                        class="flex-1 inline-flex items-center justify-center min-h-[44px] w-full gap-2 rounded-xl text-xs font-medium border border-border/70 text-foreground hover:bg-muted/60 transition-colors shadow-2xs"
+                        class="flex-1 inline-flex items-center justify-center min-h-[44px] w-full gap-2 rounded-xl text-xs font-semibold"
                     >
                         <Edit2 class="h-4 w-4" />
                         <span>Editar depósito</span>
