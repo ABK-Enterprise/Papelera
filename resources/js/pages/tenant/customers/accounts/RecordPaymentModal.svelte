@@ -79,8 +79,9 @@
         errorMessage = null;
 
         router.post(
-            `/tenant/customers/${customer.id}/account/payment`,
+            `/tenant/clientes/${customer.id}/cuenta-corriente/cobro`,
             {
+
                 amount: amountNum,
                 payment_method: paymentMethod,
                 reference_number: referenceNumber || null,
@@ -120,7 +121,7 @@
                 <button
                     type="button"
                     onclick={handleClose}
-                    class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
@@ -190,8 +191,9 @@
                         <select
                             id="payment-method"
                             bind:value={paymentMethod}
-                            class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none shadow-2xs"
+                            class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs"
                         >
+
                             <option value="efectivo">Efectivo</option>
                             <option value="transferencia">Transferencia Bancaria</option>
                             <option value="cheque">Cheque</option>
@@ -199,6 +201,7 @@
                             <option value="otro">Otro medio de pago</option>
                         </select>
                     </div>
+
 
                     <!-- Nro Comprobante / Referencia -->
                     <div class="space-y-1.5">
@@ -232,24 +235,23 @@
                 <Button
                     type="button"
                     variant="outline"
-                    size="sm"
                     onclick={handleClose}
                     disabled={isSubmitting}
-                    class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70"
                 >
                     Cancelar
                 </Button>
                 <Button
                     type="submit"
                     form="record-payment-form"
-                    size="sm"
                     disabled={isSubmitting || amountNum <= 0}
-                    class="min-h-[40px] px-4 rounded-xl text-xs font-semibold gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white min-w-32 shadow-xs"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-semibold gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white min-w-32 shadow-xs"
                 >
                     <Check class="size-3.5" />
                     <span>Confirmar cobro</span>
                 </Button>
             </DialogFooter>
+
         {/if}
     </DialogContent>
 </Dialog>

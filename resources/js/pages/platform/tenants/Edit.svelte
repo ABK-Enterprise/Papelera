@@ -6,7 +6,9 @@
     import { Label } from '@/components/ui/label';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import { Link, useForm } from '@inertiajs/svelte';
+    import ArrowLeft from 'lucide-svelte/icons/arrow-left';
     import Building2 from 'lucide-svelte/icons/building-2';
+
     import Check from 'lucide-svelte/icons/check';
     import Package from 'lucide-svelte/icons/package';
     import ShieldAlert from 'lucide-svelte/icons/shield-alert';
@@ -92,9 +94,13 @@
             </div>
         </div>
         <Link href="/platform/tenants">
-            <Button variant="outline" size="sm" class="text-xs">Volver al listado</Button>
+            <Button variant="outline" class="min-h-[40px] px-4 rounded-xl text-sm font-medium gap-2">
+                <ArrowLeft class="size-4" />
+                <span>Volver al listado</span>
+            </Button>
         </Link>
     </div>
+
 
     <form onsubmit={submit} class="space-y-6">
         <!-- 1. Datos Generales -->

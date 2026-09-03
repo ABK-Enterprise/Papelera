@@ -66,7 +66,8 @@
 <div class="flex flex-col gap-3">
     {#each paginatedOrders as order (order.id)}
         <div
-            class="flex flex-col gap-2.5 rounded-xl border border-border/70 bg-card p-3.5 shadow-sm cursor-pointer hover:border-primary/40 transition-colors"
+            class="flex flex-col gap-2.5 rounded-xl border border-border/70 bg-card p-3.5 shadow-sm cursor-pointer hover:border-primary/40 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25"
+
             onclick={() => onSelectOrder(order)}
             onkeydown={(e) => e.key === 'Enter' && onSelectOrder(order)}
             role="button"
@@ -85,18 +86,19 @@
                 </div>
 
                 {#if order.status === 'solicitado'}
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-600">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                         Solicitado
                     </span>
                 {:else if order.status === 'recibido'}
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-600">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                         Recibido
                     </span>
                 {:else if order.status === 'cancelado'}
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/15 text-rose-600">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                         Cancelado
                     </span>
                 {/if}
+
             </div>
 
             <div class="flex items-center justify-between text-xs pt-1 border-t">
@@ -111,10 +113,12 @@
 
             <div class="flex items-center justify-between text-[11px] text-muted-foreground">
                 <span>{order.items?.length ?? 0} {order.items?.length === 1 ? 'producto' : 'productos'}</span>
-                <span class="text-primary font-medium flex items-center gap-0.5">
+                <span class="border border-primary/30 bg-primary/15 text-white dark:text-sky-100 dark:border-primary/40 px-2.5 py-0.5 rounded-lg text-xs font-semibold flex items-center gap-0.5 shadow-2xs">
                     Ver detalle &rarr;
                 </span>
             </div>
+
+
         </div>
     {/each}
 

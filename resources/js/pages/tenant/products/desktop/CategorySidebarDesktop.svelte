@@ -4,7 +4,16 @@
     import { Badge } from '@/components/ui/badge';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
-    import { router, useForm } from '@inertiajs/svelte';
+    import {
+        Dialog,
+        DialogContent,
+        DialogHeader,
+        DialogTitle,
+        DialogDescription,
+    } from '@/components/ui/dialog';
+    import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
+    import IconContainer from '@/components/common/IconContainer.svelte';
+    import { router } from '@inertiajs/svelte';
     import Tag from 'lucide-svelte/icons/tag';
     import Plus from 'lucide-svelte/icons/plus';
     import Box from 'lucide-svelte/icons/box';
@@ -29,21 +38,51 @@
         onSelectCategory: (id: number | null) => void;
     } = $props();
 
-    let showNewCategory = $state(false);
+    let isCategoryModalOpen = $state(false);
+    let isConfirmAlertOpen = $state(false);
+    let newCategoryName = $state('');
+    let categoryError = $state('');
+    let isSaving = $state(false);
 
-    const categoryForm = useForm({
-        name: '',
-        icon: 'box',
-    });
+    function openCreateCategoryModal() {
+        newCategoryName = '';
+        categoryError = '';
+        isCategoryModalOpen = true;
+    }
 
-    function submitCategory(e: SubmitEvent) {
+    function handleCategorySubmit(e: SubmitEvent) {
         e.preventDefault();
-        categoryForm.post('/tenant/categories', {
-            onSuccess: () => {
-                categoryForm.reset();
-                showNewCategory = false;
+        if (!newCategoryName.trim()) {
+            categoryError = 'El nombre de la categoría es obligatorio.';
+            return;
+        }
+        categoryError = '';
+        isConfirmAlertOpen = true;
+    }
+
+    function handleConfirmedSubmit() {
+        isSaving = true;
+        router.post(
+            '/tenant/categorias',
+            {
+                name: newCategoryName.trim(),
+                icon: 'box',
             },
-        });
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    isSaving = false;
+                    isConfirmAlertOpen = false;
+                    isCategoryModalOpen = false;
+                    newCategoryName = '';
+                },
+                onError: (errs) => {
+                    isSaving = false;
+                    isConfirmAlertOpen = false;
+                    categoryError = (errs.name as string) || (errs.slug as string) || 'Error al registrar la categoría.';
+                },
+            }
+        );
     }
 
     function getCategoryIcon(iconName?: string | null) {
@@ -66,48 +105,25 @@
             Categorías
         </h3>
         <Button
-            size="sm"
-            variant="ghost"
-            class="h-8 px-2 text-xs gap-1"
-            onclick={() => (showNewCategory = !showNewCategory)}
+            size="icon"
+            class="size-8 rounded-xl shadow-xs cursor-pointer"
+            onclick={openCreateCategoryModal}
+            title="Nueva categoría"
+            aria-label="Nueva categoría"
         >
-            <Plus class="h-3.5 w-3.5" />
-            Nueva categoría
+            <Plus class="size-4" />
         </Button>
     </div>
-
-    {#if showNewCategory}
-        <form onsubmit={submitCategory} class="mb-4 p-3 rounded-lg border bg-muted/40 space-y-2.5">
-            <div class="space-y-1">
-                <Label for="new-cat-name" class="text-xs font-medium">Nombre de Categoría</Label>
-                <Input
-                    id="new-cat-name"
-                    bind:value={categoryForm.name}
-                    placeholder="ej. Papelería"
-                    class="h-8 text-xs"
-                    required
-                />
-            </div>
-            <div class="flex justify-end gap-1.5 pt-1">
-                <Button type="button" size="sm" variant="ghost" class="h-7 text-xs" onclick={() => (showNewCategory = false)}>
-                    Cancelar
-                </Button>
-                <Button type="submit" size="sm" class="h-7 text-xs" disabled={categoryForm.processing}>
-                    Guardar categoría
-                </Button>
-            </div>
-        </form>
-    {/if}
 
     <ul class="flex flex-col gap-1.5">
         <li>
             <button
                 type="button"
-                class="w-full flex items-center justify-between p-2.5 rounded-lg text-left text-sm transition-all {selectedCategoryId === null ? 'bg-primary/10 text-primary font-semibold' : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'}"
+                class="w-full flex items-center justify-between p-2.5 rounded-xl text-left text-sm transition-colors cursor-pointer select-none {selectedCategoryId === null ? 'bg-primary/15 text-primary font-bold shadow-2xs' : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground dark:hover:bg-primary/15 dark:hover:text-sky-100'}"
                 onclick={() => onSelectCategory(null)}
             >
                 <div class="flex items-center gap-2.5">
-                    <Tag class="h-4 w-4" />
+                    <Tag class="h-4 w-4 {selectedCategoryId === null ? 'text-primary' : 'text-muted-foreground'}" />
                     <span>Todas las Categorías</span>
                 </div>
             </button>
@@ -118,7 +134,7 @@
             <li>
                 <button
                     type="button"
-                    class="w-full flex items-center justify-between p-2.5 rounded-lg text-left text-sm transition-all {selectedCategoryId === cat.id ? 'bg-primary/10 text-primary font-semibold' : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'}"
+                    class="w-full flex items-center justify-between p-2.5 rounded-xl text-left text-sm transition-colors cursor-pointer select-none {selectedCategoryId === cat.id ? 'bg-primary/15 text-primary font-bold shadow-2xs' : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground dark:hover:bg-primary/15 dark:hover:text-sky-100'}"
                     onclick={() => onSelectCategory(cat.id)}
                 >
                     <div class="flex items-center gap-2.5 min-w-0">
@@ -139,3 +155,72 @@
         </p>
     {/if}
 </Card>
+
+<!-- Dialog Pequeño para Crear Categoría -->
+<Dialog bind:open={isCategoryModalOpen}>
+    <DialogContent class="sm:max-w-[440px] p-5 sm:p-6 space-y-4">
+        <DialogHeader class="space-y-2">
+            <div class="flex items-center gap-3">
+                <IconContainer size="md" variant="primary" icon="solar:tag-bold-duotone" />
+                <div>
+                    <DialogTitle class="text-lg font-bold text-foreground">
+                        Nueva Categoría
+                    </DialogTitle>
+                    <DialogDescription class="text-xs text-muted-foreground mt-0.5">
+                        Crea una nueva categoría para clasificar productos en el catálogo.
+                    </DialogDescription>
+                </div>
+            </div>
+        </DialogHeader>
+
+        <form onsubmit={handleCategorySubmit} class="space-y-4 pt-1">
+            <div class="space-y-1.5">
+                <Label for="modal-cat-name" class="text-xs font-semibold text-foreground">
+                    Nombre de la Categoría <span class="text-destructive">*</span>
+                </Label>
+                <Input
+                    id="modal-cat-name"
+                    bind:value={newCategoryName}
+                    placeholder="ej. Papelería, Embalaje, Librería..."
+                    class="h-10 text-sm rounded-xl border-border/80 bg-background text-foreground focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+                    required
+                    disabled={isSaving}
+                />
+                {#if categoryError}
+                    <p class="text-xs text-destructive font-medium mt-1">{categoryError}</p>
+                {/if}
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-border/50">
+                <Button
+                    type="button"
+                    variant="secondary"
+                    class="min-h-[40px] px-4 rounded-xl text-xs font-semibold"
+                    onclick={() => (isCategoryModalOpen = false)}
+                    disabled={isSaving}
+                >
+                    Cancelar
+                </Button>
+                <Button
+                    type="submit"
+                    class="min-h-[40px] px-5 rounded-xl text-xs font-semibold shadow-xs"
+                    disabled={isSaving || !newCategoryName.trim()}
+                >
+                    <span>Guardar categoría</span>
+                </Button>
+            </div>
+        </form>
+    </DialogContent>
+</Dialog>
+
+<!-- Alert Dialog de Confirmación para Guardar Categoría -->
+<ConfirmActionModal
+    bind:open={isConfirmAlertOpen}
+    title="¿Confirmar creación de categoría?"
+    description={`¿Deseas registrar la categoría "${newCategoryName.trim()}" en el catálogo del comercio?`}
+    confirmText="Sí, guardar categoría"
+    cancelText="Volver"
+    variant="primary"
+    loading={isSaving}
+    onconfirm={handleConfirmedSubmit}
+/>

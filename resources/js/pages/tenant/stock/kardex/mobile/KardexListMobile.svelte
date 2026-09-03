@@ -59,7 +59,8 @@
 {#if movements.length > 0}
     <div class="flex flex-col gap-3">
         {#each movements as mov (mov.id)}
-            <div class="rounded-xl border border-border/70 bg-card p-4 shadow-xs">
+            <div class="rounded-xl border border-border/70 bg-card p-4 shadow-xs transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
+
                 <!-- Header Card Mobile: Producto y Badge de Operación -->
                 <div class="flex items-start justify-between gap-3 pb-3 border-b border-border/40">
                     <div class="flex items-center gap-2.5 min-w-0">
@@ -119,14 +120,17 @@
                     </div>
 
                     <Button
-                        variant="outline"
+                        variant="tertiary"
                         size="sm"
                         onclick={() => onSelectMovement(mov)}
-                        class="min-h-[36px] text-xs px-3 rounded-xl shrink-0 font-medium"
+                        class="min-h-[44px] text-xs px-3.5 rounded-xl shrink-0 font-medium"
                     >
-                        <Eye class="size-3 mr-1" />
+                        <Eye class="size-3.5 mr-1.5" />
                         <span>Ver detalle</span>
                     </Button>
+
+
+
                 </div>
             </div>
         {/each}

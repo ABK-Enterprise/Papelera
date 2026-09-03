@@ -90,6 +90,7 @@ class CustomerController extends Controller
             'phone' => $request->validated('phone'),
             'address' => $request->validated('address'),
             'credit_limit' => $request->validated('credit_limit') ?? 0,
+            'discount_percentage' => $request->validated('discount_percentage') ?? 0.00,
             'is_defaulter' => $request->boolean('is_defaulter', false),
             'is_active' => $request->has('is_active') ? $request->boolean('is_active') : true,
             'notes' => $request->validated('notes'),
@@ -117,10 +118,12 @@ class CustomerController extends Controller
             'phone' => $request->validated('phone'),
             'address' => $request->validated('address'),
             'credit_limit' => $request->validated('credit_limit') ?? $customer->credit_limit,
+            'discount_percentage' => $request->has('discount_percentage') ? ($request->validated('discount_percentage') ?? 0.00) : $customer->discount_percentage,
             'is_defaulter' => $request->has('is_defaulter') ? $request->boolean('is_defaulter') : $customer->is_defaulter,
             'is_active' => $request->has('is_active') ? $request->boolean('is_active') : $customer->is_active,
             'notes' => $request->validated('notes'),
         ]);
+
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($customer);

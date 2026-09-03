@@ -74,10 +74,11 @@
                         </div>
 
                         <Link
-                            href={`/tenant/products/${product.id}/edit`}
+                            href={`/tenant/productos/${product.id}/editar`}
                             class="flex size-7 items-center justify-center rounded-lg bg-background/60 text-muted-foreground hover:text-foreground border border-border/40"
                             title="Editar producto"
                         >
+
                             <Edit2 class="size-3" />
                         </Link>
                     </div>

@@ -40,13 +40,14 @@
 
     function submit(e: SubmitEvent) {
         e.preventDefault();
-        form.post('/tenant/suppliers', {
+        form.post('/tenant/proveedores', {
             onSuccess: () => {
                 open = false;
                 form.reset();
             },
         });
     }
+
 
     function handleClose() {
         open = false;
@@ -70,12 +71,13 @@
             <button
                 type="button"
                 onclick={handleClose}
-                class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                 aria-label="Cerrar"
             >
                 <X class="size-4" />
             </button>
         </DialogHeader>
+
 
         <DialogBody>
             <form id="create-supplier-form" onsubmit={submit} class="space-y-4">
@@ -182,12 +184,13 @@
         </DialogBody>
 
         <DialogFooter>
-            <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing} class="text-xs">
+            <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold">
                 Cancelar
             </Button>
-            <Button type="submit" form="create-supplier-form" size="sm" disabled={form.processing} class="min-w-32 text-xs font-semibold">
+            <Button type="submit" form="create-supplier-form" disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-32">
                 {form.processing ? 'Creando...' : 'Crear proveedor'}
             </Button>
         </DialogFooter>
+
     </DialogContent>
 </Dialog>

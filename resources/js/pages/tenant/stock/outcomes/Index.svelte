@@ -60,7 +60,7 @@
         <div class="flex items-center gap-3">
             <Button
                 onclick={() => (isCreateModalOpen = true)}
-                class="flex items-center gap-2 font-semibold shadow-sm bg-rose-600 hover:bg-rose-700 text-white"
+                class="flex items-center gap-2 font-semibold shadow-sm bg-rose-600 hover:bg-rose-700 text-white sm:hover:shadow-lg sm:hover:shadow-rose-600/25 cursor-pointer"
             >
                 <Minus class="size-4" />
                 <span>Registrar egreso</span>

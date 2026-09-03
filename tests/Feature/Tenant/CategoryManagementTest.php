@@ -38,7 +38,7 @@ test('tenant user can list categories via API', function () {
     Category::factory()->forTenant($otherTenant)->create(['name' => 'Otra Categoria']);
 
     $response = $this->actingAs($this->user)
-        ->getJson('/tenant/categories')
+        ->getJson('/tenant/categorias')
         ->assertSuccessful();
 
     $data = $response->json();
@@ -47,7 +47,7 @@ test('tenant user can list categories via API', function () {
 
 test('tenant user can create category for their tenant', function () {
     $response = $this->actingAs($this->user)
-        ->postJson('/tenant/categories', [
+        ->postJson('/tenant/categorias', [
             'name' => 'Cajas de Cartón',
             'icon' => 'box',
             'description' => 'Cajas reforzadas',
@@ -68,7 +68,7 @@ test('validates unique category slug per tenant', function () {
     ]);
 
     $this->actingAs($this->user)
-        ->postJson('/tenant/categories', [
+        ->postJson('/tenant/categorias', [
             'name' => 'Cajas',
             'slug' => 'cajas',
         ])
@@ -80,7 +80,7 @@ test('tenant user can update a category', function () {
     $category = Category::factory()->forTenant($this->tenant)->create(['name' => 'Nombre Viejo']);
 
     $this->actingAs($this->user)
-        ->putJson("/tenant/categories/{$category->id}", [
+        ->putJson("/tenant/categorias/{$category->id}", [
             'name' => 'Nombre Nuevo',
             'slug' => 'nombre-nuevo',
             'icon' => 'chair',
@@ -95,7 +95,7 @@ test('tenant user can delete a category', function () {
     $category = Category::factory()->forTenant($this->tenant)->create();
 
     $this->actingAs($this->user)
-        ->deleteJson("/tenant/categories/{$category->id}")
+        ->deleteJson("/tenant/categorias/{$category->id}")
         ->assertSuccessful();
 
     expect(Category::find($category->id))->toBeNull();
@@ -106,6 +106,6 @@ test('category access is forbidden if tenant does not have stock module', functi
     $userWithoutModule = User::factory()->forTenant($tenantWithoutModule)->create();
 
     $this->actingAs($userWithoutModule)
-        ->getJson('/tenant/categories')
+        ->getJson('/tenant/categorias')
         ->assertForbidden();
 });

@@ -31,11 +31,11 @@
     // Auto-expansión inicial del módulo activo al abrir el Sidebar
     $effect(() => {
         if (open) {
-            if (currentUrl.startsWith('/tenant/stock')) {
+            if (currentUrl.startsWith('/tenant/stock') || currentUrl.startsWith('/tenant/productos/buscar-deposito')) {
                 openModule = 'Stock';
-            } else if (currentUrl.startsWith('/tenant/suppliers')) {
+            } else if (currentUrl.startsWith('/tenant/proveedores')) {
                 openModule = 'Proveedores';
-            } else if (currentUrl.startsWith('/tenant/customers')) {
+            } else if (currentUrl.startsWith('/tenant/clientes')) {
                 openModule = 'Clientes';
             } else {
                 openModule = null;
@@ -95,13 +95,27 @@
         }
 
         if (tenant) {
-            // Productos: Enlace Directo Simple (Sin submódulos)
+            // Productos: Acordeón con Catálogo y Buscar en Depósito
             if (modules.includes('productos') && (isAdmin || permissions.includes('productos.ver'))) {
                 items.push({
                     title: 'Productos',
-                    href: '/tenant/products',
+                    href: '/tenant/productos',
                     icon: 'solar:box-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/products') || currentUrl.startsWith('/tenant/categories'),
+                    active: currentUrl.startsWith('/tenant/productos') || currentUrl.startsWith('/tenant/categorias'),
+                    subItems: [
+                        {
+                            title: 'Catálogo de Productos',
+                            href: '/tenant/productos',
+                            icon: 'solar:box-bold-duotone',
+                            active: (currentUrl.startsWith('/tenant/productos') && !currentUrl.startsWith('/tenant/productos/buscar-deposito')) || currentUrl.startsWith('/tenant/categorias'),
+                        },
+                        {
+                            title: 'Buscar en Depósito',
+                            href: '/tenant/productos/buscar-deposito',
+                            icon: 'solar:box-minimalistic-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/productos/buscar-deposito'),
+                        },
+                    ],
                 });
             }
 
@@ -135,13 +149,15 @@
                 });
             }
 
+
+
             // Pedidos: Enlace Directo Simple
             if (modules.includes('pedidos') && (isAdmin || permissions.includes('pedidos.ver'))) {
                 items.push({
                     title: 'Pedidos',
-                    href: '/tenant/orders',
+                    href: '/tenant/pedidos',
                     icon: 'solar:bill-list-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/orders'),
+                    active: currentUrl.startsWith('/tenant/pedidos'),
                 });
             }
 
@@ -149,21 +165,21 @@
             if (modules.includes('proveedores') && (isAdmin || permissions.includes('proveedores.ver') || permissions.includes('proveedores.pedidos.ver'))) {
                 items.push({
                     title: 'Proveedores',
-                    href: '/tenant/suppliers',
+                    href: '/tenant/proveedores',
                     icon: 'solar:delivery-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/suppliers'),
+                    active: currentUrl.startsWith('/tenant/proveedores'),
                     subItems: [
                         {
                             title: 'Directorio de Proveedores',
-                            href: '/tenant/suppliers',
+                            href: '/tenant/proveedores',
                             icon: 'solar:delivery-bold-duotone',
-                            active: currentUrl === '/tenant/suppliers' || currentUrl.startsWith('/tenant/suppliers?'),
+                            active: currentUrl === '/tenant/proveedores' || currentUrl.startsWith('/tenant/proveedores?'),
                         },
                         {
                             title: 'Órdenes de Compra',
-                            href: '/tenant/suppliers/orders',
+                            href: '/tenant/proveedores/ordenes',
                             icon: 'solar:clipboard-list-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/suppliers/orders'),
+                            active: currentUrl.startsWith('/tenant/proveedores/ordenes'),
                         },
                     ],
                 });
@@ -173,21 +189,21 @@
             if (modules.includes('clientes') && (isAdmin || permissions.includes('clientes.ver'))) {
                 items.push({
                     title: 'Clientes',
-                    href: '/tenant/customers',
+                    href: '/tenant/clientes',
                     icon: 'solar:shop-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/customers'),
+                    active: currentUrl.startsWith('/tenant/clientes'),
                     subItems: [
                         {
                             title: 'Gestión de Clientes',
-                            href: '/tenant/customers',
+                            href: '/tenant/clientes',
                             icon: 'solar:shop-bold-duotone',
-                            active: currentUrl === '/tenant/customers' || currentUrl.startsWith('/tenant/customers?'),
+                            active: currentUrl === '/tenant/clientes' || currentUrl.startsWith('/tenant/clientes?'),
                         },
                         {
                             title: 'Cuentas Corrientes',
-                            href: '/tenant/customers/accounts',
+                            href: '/tenant/clientes/cuentas-corrientes',
                             icon: 'solar:card-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/customers/accounts'),
+                            active: currentUrl.startsWith('/tenant/clientes/cuentas-corrientes'),
                         },
                     ],
                 });
@@ -197,13 +213,13 @@
             if (isAdmin) {
                 items.push(
                     {
-                        title: 'Personal / Empleados',
-                        href: '/tenant/users',
+                        title: 'Personal',
+                        href: '/tenant/usuarios',
                         icon: 'solar:users-group-rounded-bold-duotone',
-                        active: currentUrl.startsWith('/tenant/users'),
+                        active: currentUrl.startsWith('/tenant/usuarios'),
                     },
                     {
-                        title: 'Roles y Permisos',
+                        title: 'Roles',
                         href: '/tenant/roles',
                         icon: 'solar:shield-user-bold-duotone',
                         active: currentUrl.startsWith('/tenant/roles'),

@@ -3,7 +3,9 @@
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
+
     import { router } from '@inertiajs/svelte';
     import AlertCircle from 'lucide-svelte/icons/alert-circle';
     import Check from 'lucide-svelte/icons/check';
@@ -277,9 +279,10 @@
         }
 
         router.post(
-            '/tenant/suppliers/orders',
+            '/tenant/proveedores/ordenes',
             {
                 supplier_id: Number(selectedSupplierId),
+
                 notes: notes,
                 items: payloadItems,
             },
@@ -329,7 +332,7 @@
                 <button
                     type="button"
                     onclick={closeModal}
-                    class="rounded-lg p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar modal"
                 >
                     <X class="size-4" />
@@ -360,9 +363,10 @@
                         <select
                             id="supplier-select"
                             bind:value={selectedSupplierId}
-                            class="h-9 w-full rounded-lg border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                            class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             required
                         >
+
                             <option value="">Seleccionar proveedor de la lista...</option>
                             {#each suppliers as sup}
                                 <option value={sup.id}>{sup.name} {sup.contact_number ? `(${sup.contact_number})` : ''}</option>
@@ -370,6 +374,7 @@
                         </select>
                     </div>
                 </div>
+
 
                 <!-- Bento Card 2: Productos -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3.5">
@@ -422,9 +427,11 @@
                                             inputClass="h-9 sm:h-10 text-xs font-medium"
                                         >
                                             {#snippet itemSnippet(prod)}
-                                                <div class="flex items-center justify-between gap-2 w-full">
+                                                <div class="flex items-center justify-between gap-2 w-full text-left">
                                                     <div class="flex items-center gap-1.5 truncate">
-                                                        <span class="font-medium truncate">{prod.name}</span>
+                                                        <span class="font-medium truncate">
+                                                            <HighlightMatch text={prod.name} query={item.search_query} />
+                                                        </span>
                                                         {#if prod.sale_type === 'weight'}
                                                             <span class="text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 px-1 rounded">Kg</span>
                                                         {/if}
@@ -438,6 +445,7 @@
                                                     </div>
                                                 </div>
                                             {/snippet}
+
                                         </SearchCombobox>
                                     </div>
 
@@ -551,15 +559,18 @@
                 </div>
 
                 <!-- Bento Card 3: Observaciones -->
-                <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-1.5">
-                    <Label for="supplier-order-notes" class="text-xs font-semibold text-foreground">Notas Adicionales</Label>
+                <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-2">
+                    <Label for="supplier-order-notes" class="text-xs font-semibold text-foreground">
+                        Observaciones / Notas de Entrega <span class="text-muted-foreground font-normal">(Opcional)</span>
+                    </Label>
                     <textarea
                         id="supplier-order-notes"
                         bind:value={notes}
                         rows="2"
                         placeholder="ej. Entrega pactada para el viernes por la tarde..."
-                        class="w-full rounded-lg border border-input bg-background p-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none resize-none"
+                        class="w-full rounded-xl border border-border/80 bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                     ></textarea>
+
                 </div>
             </form>
 
@@ -571,14 +582,13 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <Button type="button" variant="outline" size="sm" onclick={closeModal}>
+                    <Button type="button" variant="outline" class="min-h-[44px] px-4 rounded-xl text-sm font-semibold" onclick={closeModal}>
                         Cancelar
                     </Button>
                     <Button
                         type="submit"
                         form="create-supplier-order-form"
-                        size="sm"
-                        class="gap-1.5 font-semibold"
+                        class="min-h-[44px] px-4 rounded-xl text-sm font-semibold gap-1.5"
                         disabled={isSubmitting}
                     >
                         {#if isSubmitting}

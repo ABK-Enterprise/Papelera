@@ -86,7 +86,7 @@
         e.preventDefault();
         if (!supplier) return;
 
-        form.put(`/tenant/suppliers/${supplier.id}`, {
+        form.put(`/tenant/proveedores/${supplier.id}`, {
             onSuccess: () => {
                 open = false;
             },
@@ -107,7 +107,7 @@
         if (!supplier) return;
 
         isDeleting = true;
-        router.delete(`/tenant/suppliers/${supplier.id}`, {
+        router.delete(`/tenant/proveedores/${supplier.id}`, {
             onFinish: () => {
                 isDeleting = false;
                 showDeleteConfirm = false;
@@ -115,6 +115,7 @@
             },
         });
     }
+
 
     function handleClose() {
         open = false;
@@ -231,13 +232,14 @@
                 <button
                     type="button"
                     onclick={handleClose}
-                    class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
                 </button>
             </div>
         </DialogHeader>
+
 
         <DialogBody>
             <form id="manage-supplier-form" onsubmit={submit} class="space-y-4">
@@ -314,13 +316,14 @@
         </DialogBody>
 
         <DialogFooter class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2">
-            <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing || isDeleting} class="text-xs">
+            <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold">
                 Cancelar
             </Button>
-            <Button type="submit" form="manage-supplier-form" size="sm" disabled={form.processing || isDeleting} class="min-w-32 text-xs font-semibold">
+            <Button type="submit" form="manage-supplier-form" disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-32">
                 {form.processing ? 'Guardando...' : 'Guardar cambios'}
             </Button>
         </DialogFooter>
+
     </DialogContent>
 </Dialog>
 

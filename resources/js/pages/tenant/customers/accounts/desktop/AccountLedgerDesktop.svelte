@@ -87,10 +87,11 @@
         customerSearchQuery = '';
         isDropdownOpen = false;
         router.get(
-            '/tenant/customers/accounts',
+            '/tenant/clientes/cuentas-corrientes',
             { customer_id: cust.id },
             { preserveState: true, preserveScroll: true }
         );
+
     }
 
     function formatPrice(val: number | string | null | undefined): string {
@@ -229,7 +230,8 @@
                             {@const isPayment = mov.type === 'payment'}
                             {@const isAdjustment = mov.type === 'adjustment'}
 
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border bg-card hover:bg-muted/20 transition-colors shadow-2xs">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border bg-card shadow-2xs transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
+
                                 <div class="flex items-start gap-3.5 min-w-0">
                                     <div class="size-9 rounded-xl flex items-center justify-center shrink-0 border {isPayment ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400' : isCharge ? 'bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400' : 'bg-sky-500/10 text-sky-600 border-sky-500/20 dark:text-sky-400'}">
                                         {#if isPayment}

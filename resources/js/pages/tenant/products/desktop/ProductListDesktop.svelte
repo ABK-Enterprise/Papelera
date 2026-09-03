@@ -12,7 +12,9 @@
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
+
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Layers from 'lucide-svelte/icons/layers';
     import MoreVertical from 'lucide-svelte/icons/more-vertical';
@@ -39,15 +41,19 @@
         package_quantity?: number;
         image_url: string | null;
         is_incomplete?: boolean;
+        warehouses_count?: number;
         category?: CategorySummary | null;
         effective_bulk_discount_percentage?: number;
         bulk_discount_price?: string | number;
     }
 
+
     let {
         products = [],
+        searchQuery = '',
     }: {
         products: ProductItem[];
+        searchQuery?: string;
     } = $props();
 
     let page = $state(1);
@@ -74,7 +80,7 @@
     function executeDelete() {
         if (!productToDelete) return;
         isDeleting = true;
-        router.delete(`/tenant/products/${productToDelete.id}`, {
+        router.delete(`/tenant/productos/${productToDelete.id}`, {
             onFinish: () => {
                 isDeleting = false;
                 isDeleteModalOpen = false;
@@ -89,8 +95,9 @@
         {@const isWeighable = product.sale_type === 'weight'}
         {@const isIncomplete = Boolean(product.is_incomplete)}
         <div
-            class="flex items-center justify-between p-4 rounded-2xl border transition-all duration-200 gap-4 bg-card shadow-xs hover:shadow-md hover:border-border {isIncomplete ? 'border-amber-300 dark:border-amber-700/60 bg-amber-50/20 dark:bg-amber-950/10' : 'border-border/70'}"
+            class="flex items-center justify-between p-4 rounded-2xl border transition-all duration-200 hover:shadow-lg hover:shadow-accent/20 hover:border-border gap-4 bg-card shadow-xs {isIncomplete ? 'border-amber-300 dark:border-amber-700/60 bg-amber-50/20 dark:bg-amber-950/10' : 'border-border/70'}"
         >
+
             <!-- Lado Izquierdo: Imagen / Avatar Placeholder + Info Principal -->
             <div class="flex items-center gap-4 min-w-0 flex-1">
                 {#if product.image_url}
@@ -118,7 +125,7 @@
                 <div class="space-y-1.5 min-w-0 flex-1">
                     <div class="flex items-center gap-2 flex-wrap">
                         <h4 class="font-semibold text-base text-foreground truncate leading-snug">
-                            {product.name}
+                            <HighlightMatch text={product.name} query={searchQuery} />
                         </h4>
 
                         {#if isWeighable}
@@ -140,14 +147,15 @@
                     <div class="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                         {#if product.barcode}
                             <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs tabular-nums tracking-wide">
-                                BAR: {product.barcode}
+                                BAR: <HighlightMatch text={product.barcode} query={searchQuery} />
                             </span>
                         {/if}
                         {#if product.sku}
                             <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs tabular-nums tracking-wide">
-                                SKU: {product.sku}
+                                SKU: <HighlightMatch text={product.sku} query={searchQuery} />
                             </span>
                         {/if}
+
                         {#if product.category}
                             <span>
                                 Cat: <strong class="text-foreground font-medium">{product.category.name}</strong>
@@ -192,9 +200,15 @@
                                 Stock: {product.stock} {isWeighable ? 'Kg' : 'unid.'}
                             </span>
                         {/if}
+
+                        <span class="text-muted-foreground/40 font-light select-none">|</span>
+                        <span class="text-xs text-muted-foreground tabular-nums">
+                            {product.warehouses_count === 1 ? '1 depósito' : `${product.warehouses_count ?? 0} depósitos`}
+                        </span>
                     </div>
                 </div>
             </div>
+
 
             <!-- Lado Derecho: Precios (alineados a la derecha) + Menú Desplegable '...' -->
             <div class="flex items-center gap-5 shrink-0">
@@ -235,7 +249,7 @@
                             {#snippet children(props)}
                                 <Link
                                     {...props}
-                                    href={`/tenant/products/${product.id}/edit`}
+                                    href={`/tenant/productos/${product.id}/editar`}
                                     class="{props.class} flex items-center gap-2 text-xs font-medium cursor-pointer"
                                 >
                                     <Edit2 class="h-3.5 w-3.5 text-muted-foreground" />
@@ -270,9 +284,10 @@
             title="No se encontraron productos"
             description="No hay productos que coincidan con los filtros seleccionados o el catálogo de tu comercio está vacío."
             actionLabel="Crear producto"
-            actionHref="/tenant/products/create"
+            actionHref="/tenant/productos/crear"
         />
     {/if}
+
 
     {#if products.length > perPage}
         <AppPagination count={products.length} {perPage} bind:page />

@@ -47,7 +47,7 @@
 
     function applyFilters() {
         router.get(
-            '/tenant/suppliers',
+            '/tenant/proveedores',
             {
                 search: searchTerm || undefined,
                 status: selectedStatus || undefined,
@@ -62,7 +62,7 @@
     function resetFilters() {
         searchTerm = '';
         selectedStatus = '';
-        router.get('/tenant/suppliers');
+        router.get('/tenant/proveedores');
     }
 
     function handleSelectSupplier(supplier: SupplierItem) {
@@ -79,13 +79,13 @@
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
     <!-- Pestañas de Navegación del Módulo Proveedores -->
     <div class="flex items-center gap-2 border-b pb-3">
-        <Link href="/tenant/suppliers">
+        <Link href="/tenant/proveedores">
             <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs">
                 <Users class="size-4" />
                 Directorio de Proveedores ({totalCount})
             </Button>
         </Link>
-        <Link href="/tenant/suppliers/orders">
+        <Link href="/tenant/proveedores/ordenes">
             <Button variant="ghost" size="sm" class="gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground">
                 <Truck class="size-4" />
                 Órdenes de Compra
@@ -108,7 +108,7 @@
         <div class="flex items-center justify-end gap-2.5">
             <Button class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs" onclick={() => (showCreateModal = true)}>
                 <Plus class="h-4 w-4" />
-                <span>+ Añadir Proveedor</span>
+                <span>Añadir Proveedor</span>
             </Button>
         </div>
     </div>
@@ -119,10 +119,10 @@
             <!-- Buscador + Botón Filtros Mobile -->
             <div class="flex items-center gap-2 w-full md:w-[538px]">
                 <div class="flex-1 min-w-0">
-
                     <SearchCombobox
                         bind:value={searchTerm}
                         items={suppliers}
+                        searchKeys={['name', 'contact_number', 'email', 'address']}
                         placeholder="Buscar por nombre, teléfono, email..."
                         onsearch={(q) => {
                             searchTerm = q;
@@ -131,6 +131,7 @@
                         onselect={handleSelectSupplier}
                         onclear={resetFilters}
                     >
+
                         {#snippet itemSnippet(supp)}
                             <div class="flex items-center justify-between gap-3 w-full min-w-0">
                                 <div class="flex flex-col min-w-0">

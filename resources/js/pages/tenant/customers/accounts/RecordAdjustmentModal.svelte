@@ -82,8 +82,9 @@
         errorMessage = null;
 
         router.post(
-            `/tenant/customers/${customer.id}/account/adjustment`,
+            `/tenant/clientes/${customer.id}/cuenta-corriente/ajuste`,
             {
+
                 type,
                 amount: amountNum,
                 description: description.trim(),
@@ -123,12 +124,13 @@
                 <button
                     type="button"
                     onclick={handleClose}
-                    class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
                 </button>
             </DialogHeader>
+
 
             <DialogBody>
                 {#if errorMessage}
@@ -232,10 +234,9 @@
                 <Button
                     type="button"
                     variant="outline"
-                    size="sm"
                     onclick={handleClose}
                     disabled={isSubmitting}
-                    class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70"
                 >
                     Cancelar
                 </Button>
@@ -243,12 +244,13 @@
                     type="submit"
                     form="record-adjustment-form"
                     disabled={isSubmitting || amountNum <= 0 || !description.trim()}
-                    class="min-h-[40px] px-4 rounded-xl text-xs font-semibold gap-1.5 min-w-32 shadow-xs"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-semibold gap-1.5 min-w-32 shadow-xs"
                 >
                     <Check class="size-3.5" />
                     <span>Aplicar ajuste</span>
                 </Button>
             </DialogFooter>
+
         {/if}
     </DialogContent>
 </Dialog>

@@ -64,7 +64,7 @@
     function executeDelete() {
         if (!userToDelete) return;
         isDeleting = true;
-        router.delete(`/tenant/users/${userToDelete.id}`, {
+        router.delete(`/tenant/usuarios/${userToDelete.id}`, {
             onFinish: () => {
                 isDeleting = false;
                 isDeleteModalOpen = false;
@@ -92,13 +92,13 @@
         </div>
         <div class="flex flex-wrap items-center justify-end gap-2.5">
             <Link href="/tenant/roles">
-
-                <Button variant="outline" class="min-h-[44px] gap-2 rounded-xl border-border/70 text-sm font-medium">
+                <Button variant="secondary" class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-2xs">
                     <Shield class="h-4 w-4" />
                     <span>Roles y Permisos</span>
                 </Button>
             </Link>
-            <Link href="/tenant/users/create">
+
+            <Link href="/tenant/usuarios/create">
                 <Button class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-xs">
                     <UserPlus class="h-4 w-4" />
                     <span>Añadir empleado</span>
@@ -174,8 +174,9 @@
             title="No hay empleados registrados"
             description="Comienza agregando los miembros de tu equipo para otorgarles acceso operativo al sistema."
             actionLabel="Añadir primer empleado"
-            actionHref="/tenant/users/create"
+            actionHref="/tenant/usuarios/create"
         />
+
     {/if}
 
     <!-- Paginación -->

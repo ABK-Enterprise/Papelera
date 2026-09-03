@@ -68,13 +68,14 @@
             </p>
         </div>
         <div class="flex flex-wrap items-center justify-end gap-2.5">
-            <Link href="/tenant/users">
-
-                <Button variant="outline" class="min-h-[44px] gap-2 rounded-xl border-border/70 text-sm font-medium">
+            <Link href="/tenant/usuarios">
+                <Button variant="secondary" class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-2xs">
                     <Users class="h-4 w-4" />
                     <span>Ver empleados</span>
                 </Button>
             </Link>
+
+
             <Link href="/tenant/roles/create">
                 <Button class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-xs">
                     <Shield class="h-4 w-4" />

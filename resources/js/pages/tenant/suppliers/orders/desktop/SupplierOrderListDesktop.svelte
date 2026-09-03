@@ -70,7 +70,8 @@
 <div class="flex flex-col gap-3.5">
     {#each paginatedOrders as order (order.id)}
         <div
-            class="bento-card group flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-xl border border-border/60 bg-card p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] transition-all hover:border-primary/30 hover:shadow-md cursor-pointer"
+            class="bento-card group flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-xl border border-border/60 bg-card p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-primary/30 cursor-pointer"
+
             onclick={() => onSelectOrder(order)}
             onkeydown={(e) => e.key === 'Enter' && onSelectOrder(order)}
             role="button"
@@ -107,17 +108,17 @@
             <!-- Estado -->
             <div class="min-w-[130px]">
                 {#if order.status === 'solicitado'}
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-600 border border-amber-500/30">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                         <span class="size-1.5 rounded-full bg-amber-500"></span>
                         Solicitado
                     </span>
                 {:else if order.status === 'recibido'}
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                         <span class="size-1.5 rounded-full bg-emerald-500"></span>
                         Recibido en Stock
                     </span>
                 {:else if order.status === 'cancelado'}
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-600 border border-rose-500/30">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                         <span class="size-1.5 rounded-full bg-rose-500"></span>
                         Cancelado
                     </span>
@@ -133,10 +134,13 @@
                     </span>
                 </div>
 
-                <Button size="sm" variant="outline" class="h-8 text-xs gap-1.5 font-semibold">
+                <Button size="sm" variant="tertiary" class="min-h-[40px] px-3.5 text-xs gap-1.5 font-semibold rounded-xl">
                     <Eye class="size-3.5" />
-                    <span>Ver</span>
+                    <span>Ver detalle</span>
                 </Button>
+
+
+
             </div>
         </div>
     {/each}

@@ -81,7 +81,8 @@
 <div class="flex flex-col gap-3.5">
     {#each paginatedCustomers as customer (customer.id)}
         <div
-            class="bento-card group flex items-center justify-between gap-6 rounded-xl border border-border/60 bg-card p-5 shadow-[0px_10px_30px_rgba(0,0,0,0.02)] transition-all duration-200 hover:border-primary/40 hover:shadow-md hover:bg-muted/10 cursor-pointer"
+            class="bento-card group flex items-center justify-between gap-6 rounded-xl border border-border/60 bg-card p-5 shadow-[0px_10px_30px_rgba(0,0,0,0.02)] transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-primary/40 cursor-pointer"
+
             onclick={() => onSelectCustomer(customer)}
             onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelectCustomer(customer)}
             role="button"
@@ -188,12 +189,12 @@
             <!-- Lado Derecho: Acción Rápida -->
             <div class="flex items-center gap-2 shrink-0">
                 <Button
-                    variant="ghost"
+                    variant="tertiary"
                     size="sm"
-                    class="h-9 px-3 text-xs gap-1.5 text-muted-foreground group-hover:text-primary group-hover:bg-primary/10 transition-colors"
+                    class="min-h-[38px] px-3.5 text-xs gap-1.5 font-semibold rounded-xl"
                 >
                     <span>Gestionar</span>
-                    <ChevronRight class="size-4 transition-transform group-hover:translate-x-0.5" />
+                    <ChevronRight class="size-4" />
                 </Button>
             </div>
         </div>

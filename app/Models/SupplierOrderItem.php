@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'supplier_order_id',
     'product_id',
+    'warehouse_id',
     'product_name',
     'quantity',
     'unit_cost',
@@ -49,4 +50,10 @@ class SupplierOrderItem extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
 }
+

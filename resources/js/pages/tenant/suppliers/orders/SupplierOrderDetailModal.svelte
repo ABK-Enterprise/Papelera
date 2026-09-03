@@ -82,7 +82,7 @@
     function executeReceive() {
         if (!order) return;
         isProcessing = true;
-        router.patch(`/tenant/suppliers/orders/${order.id}/receive`, {}, {
+        router.patch(`/tenant/proveedores/ordenes/${order.id}/recibir`, {}, {
             preserveScroll: true,
             preserveState: true,
             onSuccess: () => {
@@ -109,7 +109,8 @@
     function executeCancel() {
         if (!order) return;
         isProcessing = true;
-        router.patch(`/tenant/suppliers/orders/${order.id}/cancel`, {}, {
+        router.patch(`/tenant/proveedores/ordenes/${order.id}/cancelar`, {}, {
+
             preserveScroll: true,
             preserveState: true,
             onSuccess: () => {
@@ -148,15 +149,15 @@
                         <div class="flex items-center gap-2">
                             <h2 class="text-base sm:text-lg font-bold text-foreground font-sans tabular-nums">{order.order_number}</h2>
                             {#if order.status === 'solicitado'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-600 border border-amber-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                                     Solicitado (Pendiente)
                                 </span>
                             {:else if order.status === 'recibido'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                                     Recibido en Stock
                                 </span>
                             {:else if order.status === 'cancelado'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-600 border border-rose-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                                     Cancelado
                                 </span>
                             {/if}
@@ -168,12 +169,13 @@
                 <button
                     type="button"
                     onclick={() => (open = false)}
-                    class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
-                    <X class="size-5" />
+                    <X class="size-4" />
                 </button>
             </div>
+
 
             <!-- Scrollable Content Body -->
             <div class="flex-1 min-h-0 overflow-y-auto space-y-4 sm:space-y-5 py-2 pr-1">
@@ -309,14 +311,13 @@
                 {#if order.status === 'solicitado'}
                     <Button
                         type="button"
-                        variant="ghost"
-                        size="sm"
-                        class="text-xs text-destructive hover:bg-destructive/10 gap-1.5"
+                        variant="outline"
+                        class="min-h-[44px] px-4 rounded-xl text-xs font-semibold text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-2"
                         onclick={promptCancel}
                         disabled={isProcessing}
                     >
-                        <XCircle class="size-3.5" />
-                        Cancelar Orden
+                        <XCircle class="size-4" />
+                        <span>Cancelar orden</span>
                     </Button>
                 {:else}
                     <div></div>
@@ -327,11 +328,12 @@
                         <span class="text-xs text-muted-foreground block">Costo Total:</span>
                         <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary">{formatPrice(order.total_cost)}</span>
                     </div>
-                    <Button type="button" size="sm" variant="outline" onclick={() => (open = false)}>
+                    <Button type="button" variant="outline" class="min-h-[44px] px-4 rounded-xl text-sm font-semibold" onclick={() => (open = false)}>
                         Cerrar
                     </Button>
                 </div>
             </div>
+
         </div>
     </div>
 

@@ -98,7 +98,7 @@
         } else {
             form.package_quantity = form.units_per_package || 1;
         }
-        form.put(`/tenant/products/${product.id}`, {
+        form.put(`/tenant/productos/${product.id}`, {
             onSuccess: () => {
                 isConfirmAlertOpen = false;
             },
@@ -126,13 +126,15 @@
                 Editar Producto
             </h1>
         </div>
-        <Link href="/tenant/products">
-            <Button variant="outline" size="sm" class="gap-2 text-xs rounded-xl font-medium px-4 py-2 min-h-[38px] border-border/70 shadow-2xs">
-                <ArrowLeft class="size-3.5" />
-                <span>Volver</span>
+        <Link href="/tenant/productos">
+            <Button class="gap-2 text-sm rounded-xl font-medium min-h-[40px] px-4 shadow-2xs">
+                <ArrowLeft class="size-4" />
+                <span>Volver al catálogo</span>
             </Button>
         </Link>
     </div>
+
+
 
     <!-- Contenedor 2 Columnas Stitch Layout -->
     <div class="bg-card text-card-foreground rounded-3xl border border-border/80 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] overflow-hidden flex flex-col md:flex-row">
@@ -275,13 +277,14 @@
                             <select
                                 id="edit-prod-cat"
                                 bind:value={form.category_id}
-                                class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
                                 <option value="">Sin categoría asignada</option>
                                 {#each categories as cat}
                                     <option value={cat.id}>{cat.name}</option>
                                 {/each}
                             </select>
+
                             {#if form.errors.category_id}
                                 <p class="text-xs text-destructive">{form.errors.category_id}</p>
                             {/if}
@@ -343,7 +346,7 @@
                             <select
                                 id="edit-prod-iva"
                                 bind:value={form.iva_rate}
-                                class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none tabular-nums"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary tabular-nums"
                             >
                                 <option value={21.00}>21.0% (General)</option>
                                 <option value={10.50}>10.5% (Reducido)</option>
@@ -372,13 +375,15 @@
                             <select
                                 id="edit-prod-discount-type"
                                 bind:value={form.bulk_discount_type}
-                                class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
+
                                 <option value="inherited">Heredar global ({tenantDefaultBulkDiscount}%)</option>
                                 <option value="custom">Personalizado (% específico)</option>
                                 <option value="none">Sin descuento por bulto (0%)</option>
                             </select>
                         </div>
+
 
                         {#if form.bulk_discount_type === 'custom'}
                             <div class="space-y-1">
@@ -421,7 +426,7 @@
                                 min="0"
                                 bind:value={form.stock}
                                 disabled
-                                class="h-9 text-xs rounded-xl text-center font-bold bg-muted/50 cursor-not-allowed opacity-80 tabular-nums"
+                                class="h-10 text-xs rounded-xl text-center font-bold bg-transparent border-dashed text-muted-foreground/60 cursor-not-allowed tabular-nums"
                                 title="El stock físico se ajusta mediante Ingresos/Egresos auditados en Kardex"
                             />
                             {#if form.errors.stock}
@@ -496,9 +501,11 @@
                             bind:value={form.description}
                             rows="2"
                             placeholder="Especificaciones de tamaño, gramaje, características..."
-                            class="w-full bg-background rounded-xl p-2.5 text-xs border border-input focus:ring-1 focus:ring-primary outline-none resize-none"
+                            class="w-full bg-background rounded-xl p-3 text-xs border border-border/80 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                         ></textarea>
+
                     </div>
+
 
                     <div class="flex items-center gap-2 pt-1">
                         <input
@@ -515,15 +522,15 @@
 
                 <!-- Footer Acciones -->
                 <div class="flex items-center justify-end gap-3 pt-4 border-t">
-                    <Link href="/tenant/products">
-                        <Button type="button" variant="outline" size="sm" class="rounded-xl">
+                    <Link href="/tenant/productos">
+                        <Button type="button" variant="outline" class="min-h-[44px] px-5 rounded-xl text-sm font-medium border-border/70 hover:bg-muted/60 transition-colors">
                             Cancelar
                         </Button>
                     </Link>
+
                     <Button
                         type="submit"
-                        size="sm"
-                        class="gap-1.5 rounded-xl font-semibold"
+                        class="min-h-[44px] px-6 rounded-xl text-sm font-semibold gap-2 shadow-xs min-w-[160px]"
                         disabled={form.processing}
                     >
                         <Check class="size-4" />

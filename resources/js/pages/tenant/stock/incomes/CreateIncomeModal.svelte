@@ -101,12 +101,13 @@
             <button
                 type="button"
                 onclick={closeModal}
-                class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                 aria-label="Cerrar"
             >
                 <X class="size-4" />
             </button>
         </DialogHeader>
+
 
         <DialogBody>
             <form id="create-income-form" onsubmit={handleSubmit} class="space-y-4">
@@ -195,9 +196,10 @@
                         id="income-notes"
                         rows="3"
                         bind:value={form.notes}
-                        class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs resize-none"
+                        class="w-full rounded-xl border border-border/80 bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs resize-none"
                         placeholder="Detalles adicionales, número de remito o factura..."
                     ></textarea>
+
                     {#if form.errors.notes}
                         <p class="text-xs text-rose-500 font-medium">{form.errors.notes}</p>
                     {/if}
@@ -209,10 +211,9 @@
             <Button
                 type="button"
                 variant="outline"
-                size="sm"
                 onclick={closeModal}
                 disabled={form.processing}
-                class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
+                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70"
             >
                 Cancelar
             </Button>
@@ -220,7 +221,7 @@
                 type="submit"
                 form="create-income-form"
                 disabled={form.processing || !form.product_id}
-                class="min-h-[40px] px-4 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white min-w-32 shadow-xs"
+                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white min-w-32 shadow-xs"
             >
                 {#if form.processing}
                     <Loader2 class="size-3.5 animate-spin mr-1.5" />
@@ -231,5 +232,6 @@
                 {/if}
             </Button>
         </DialogFooter>
+
     </DialogContent>
 </Dialog>

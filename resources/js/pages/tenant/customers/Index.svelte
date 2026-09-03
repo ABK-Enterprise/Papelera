@@ -63,7 +63,7 @@
 
     function applyFilters() {
         router.get(
-            '/tenant/customers',
+            '/tenant/clientes',
             {
                 search: searchTerm || undefined,
                 status: selectedStatus || undefined,
@@ -82,9 +82,8 @@
         selectedStatus = '';
         selectedTaxCondition = '';
         selectedDefaulter = '';
-        router.get('/tenant/customers', {}, { preserveState: true, preserveScroll: true });
+        router.get('/tenant/clientes', {}, { preserveState: true, preserveScroll: true });
     }
-
 
     function handleSelectCustomer(customer: CustomerItem) {
         selectedCustomer = customer;
@@ -115,7 +114,7 @@
         </div>
 
         <div class="flex items-center justify-end gap-2.5 w-full sm:w-auto">
-            <a href="/tenant/customers/accounts" class="inline-flex">
+            <a href="/tenant/clientes/cuentas-corrientes" class="inline-flex">
                 <Button variant="secondary" class="min-h-[40px] px-3.5 gap-2 rounded-xl text-xs font-semibold shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
                     <Banknote class="size-3.5" />
                     <span>Cuentas Corrientes</span>
@@ -123,10 +122,9 @@
             </a>
             <Button class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs" onclick={() => (showCreateModal = true)}>
                 <Plus class="h-4 w-4" />
-                <span>+ Añadir Cliente</span>
+                <span>Añadir Cliente</span>
             </Button>
         </div>
-
     </div>
 
     <!-- Bento Card: Buscador y Filtros -->
@@ -135,21 +133,19 @@
             <!-- Buscador + Botón Filtros Mobile -->
             <div class="flex items-center gap-2 w-full md:w-[538px]">
                 <div class="flex-1 min-w-0">
-
                     <SearchCombobox
                         bind:value={searchTerm}
                         items={customers}
+                        searchKeys={['name', 'tax_id', 'phone', 'address']}
                         placeholder="Buscar por nombre, CUIT/DNI, teléfono..."
                         onsearch={(q) => {
                             searchTerm = q;
                             applyFilters();
                         }}
-
-
-
                         onselect={handleSelectCustomer}
                         onclear={resetFilters}
                     >
+
                         {#snippet itemSnippet(cust)}
                             <div class="flex items-center justify-between gap-3 w-full min-w-0">
                                 <div class="flex flex-col min-w-0">

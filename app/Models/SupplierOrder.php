@@ -26,6 +26,7 @@ use Illuminate\Support\Carbon;
 #[Fillable([
     'tenant_id',
     'supplier_id',
+    'warehouse_id',
     'order_number',
     'status',
     'total_cost',
@@ -54,10 +55,16 @@ class SupplierOrder extends Model
         return $this->belongsTo(Supplier::class);
     }
 
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(SupplierOrderItem::class);
     }
+
 
     public function isTerminal(): bool
     {

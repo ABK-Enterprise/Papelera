@@ -6,8 +6,10 @@ use App\Enums\SystemModule;
 use App\Models\Category;
 use App\Models\Module;
 use App\Models\Product;
+use App\Models\ProductWarehouse;
 use App\Models\Tenant;
 use App\Models\User;
+
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -68,7 +70,9 @@ class BaseSeeder extends Seeder
                     'stock_egreso.crear',
                     'stock_historial.ver',
                     'stock_minimo.ver',
+                    'deposito.gestion',
                 ],
+
             ],
             [
                 'name' => SystemModule::Proveedores->label(),
@@ -222,7 +226,7 @@ class BaseSeeder extends Seeder
                 'icon' => 'shopping_bag',
             ]);
 
-            Product::create([
+            $p1 = Product::create([
                 'tenant_id' => $tenant->id,
                 'category_id' => $catPapel->id,
                 'name' => 'Resma Chambril A4 75g (500 hojas)',
@@ -237,7 +241,7 @@ class BaseSeeder extends Seeder
                 'is_active' => true,
             ]);
 
-            Product::create([
+            $p2 = Product::create([
                 'tenant_id' => $tenant->id,
                 'category_id' => $catBolsas->id,
                 'name' => 'Bolsa Kraft con Manija 20x30 (x100)',
@@ -251,6 +255,30 @@ class BaseSeeder extends Seeder
                 'units_per_package' => 10, // 1 bolsón = 10 paquetes
                 'is_active' => true,
             ]);
+
+            $defaultWarehouse = $tenant->warehouses()->where('is_default', true)->first();
+            if ($defaultWarehouse) {
+                ProductWarehouse::updateOrCreate([
+                    'tenant_id' => $tenant->id,
+                    'product_id' => $p1->id,
+                    'warehouse_id' => $defaultWarehouse->id,
+                ], [
+                    'stock' => 45,
+                    'min_stock' => 10,
+                    'aisle_location' => 'Pasillo Central A-01',
+                ]);
+
+                ProductWarehouse::updateOrCreate([
+                    'tenant_id' => $tenant->id,
+                    'product_id' => $p2->id,
+                    'warehouse_id' => $defaultWarehouse->id,
+                ], [
+                    'stock' => 4,
+                    'min_stock' => 10,
+                    'aisle_location' => 'Estante B-03',
+                ]);
+            }
         }
     }
 }
+

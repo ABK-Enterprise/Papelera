@@ -45,8 +45,9 @@
         role="dialog"
         aria-modal="true"
         aria-labelledby="drawer-title"
-        class="fixed inset-x-0 bottom-0 z-50 max-h-[90vh] flex flex-col rounded-t-[20px] border-t border-border/80 bg-background shadow-2xl overflow-hidden focus:outline-none"
+        class="fixed inset-x-0 bottom-0 z-50 max-h-[90vh] flex flex-col rounded-t-[20px] border-t border-border/80 bg-card text-card-foreground shadow-2xl overflow-hidden focus:outline-none"
         transition:fly={{ y: '100%', duration: 280 }}
+
     >
         <!-- Tirador / Drag handle visual característico de Google / iOS -->
         <div class="flex items-center justify-center pt-3 pb-1">
@@ -87,9 +88,10 @@
 
         <!-- Footer con acciones -->
         {#if footer}
-            <div class="px-5 py-3.5 border-t border-border/60 bg-muted/20 flex items-center justify-end gap-2.5">
+            <div class="px-5 py-3.5 border-t border-border/60 bg-card flex items-center justify-end gap-2.5">
                 {@render footer()}
             </div>
         {/if}
+
     </div>
 {/if}

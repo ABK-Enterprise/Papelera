@@ -108,7 +108,7 @@
 
     function applyFilters() {
         router.get(
-            '/tenant/suppliers/orders',
+            '/tenant/proveedores/ordenes',
             {
                 search: searchTerm || undefined,
                 status: selectedStatus !== 'all' ? selectedStatus : undefined,
@@ -123,7 +123,7 @@
     function resetFilters() {
         searchTerm = '';
         selectedStatus = 'all';
-        router.get('/tenant/suppliers/orders');
+        router.get('/tenant/proveedores/ordenes');
     }
 
     function openOrderDetail(order: SupplierOrderData) {
@@ -149,19 +149,20 @@
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1360px] mx-auto w-full">
     <!-- Pestañas de Navegación del Módulo Proveedores -->
     <div class="flex items-center gap-2 border-b pb-3">
-        <Link href="/tenant/suppliers">
+        <Link href="/tenant/proveedores">
             <Button variant="ghost" size="sm" class="gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground">
                 <Users class="size-4" />
                 Directorio de Proveedores
             </Button>
         </Link>
-        <Link href="/tenant/suppliers/orders">
+        <Link href="/tenant/proveedores/ordenes">
             <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs">
                 <Truck class="size-4" />
                 Órdenes de Compra ({stats.total})
             </Button>
         </Link>
     </div>
+
 
     <!-- Header de la Página -->
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

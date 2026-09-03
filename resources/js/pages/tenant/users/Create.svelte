@@ -27,7 +27,7 @@
 
     function submit(e: SubmitEvent) {
         e.preventDefault();
-        form.post('/tenant/users');
+        form.post('/tenant/usuarios');
     }
 </script>
 
@@ -39,8 +39,8 @@
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Añadir empleado</h1>
         </div>
         <Link
-            href="/tenant/users"
-            class="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-xl border border-border/70 text-sm font-medium hover:bg-muted/60 transition-colors"
+            href="/tenant/usuarios"
+            class="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-xl border border-border/80 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-sm font-medium shadow-2xs transition-colors"
         >
             <ArrowLeft class="h-4 w-4" />
             <span>Volver</span>
@@ -60,7 +60,7 @@
                         bind:value={form.name}
                         placeholder="ej. María González"
                         required
-                        class="h-11 rounded-xl border-border/70 bg-muted/20 px-3.5 text-sm font-normal transition-colors focus:bg-background"
+                        class="h-11 rounded-xl border border-border/80 bg-background px-3.5 text-sm font-normal text-foreground transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                     {#if form.errors.name}
                         <p class="text-xs font-medium text-destructive">{form.errors.name}</p>
@@ -75,7 +75,7 @@
                         bind:value={form.email}
                         placeholder="maria@comercio.com"
                         required
-                        class="h-11 rounded-xl border-border/70 bg-muted/20 px-3.5 text-sm font-normal transition-colors focus:bg-background"
+                        class="h-11 rounded-xl border border-border/80 bg-background px-3.5 text-sm font-normal text-foreground transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                     {#if form.errors.email}
                         <p class="text-xs font-medium text-destructive">{form.errors.email}</p>
@@ -87,7 +87,7 @@
                     <select
                         id="user-role"
                         bind:value={form.role}
-                        class="flex h-11 w-full rounded-xl border border-border/70 bg-muted/20 px-3.5 py-2 text-sm font-normal text-foreground shadow-2xs transition-colors focus:bg-background focus:outline-hidden focus:ring-2 focus:ring-ring"
+                        class="flex h-11 w-full rounded-xl border border-border/80 bg-background px-3.5 py-2 text-sm font-normal text-foreground shadow-2xs transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                         required
                     >
                         {#each roles as role (role.id)}
@@ -107,7 +107,7 @@
                             bind:value={form.password}
                             placeholder="Mínimo 8 caracteres"
                             required
-                            class="h-11 rounded-xl border-border/70 bg-muted/20 px-3.5 text-sm transition-colors focus:bg-background"
+                            class="h-11 rounded-xl border border-border/80 bg-background px-3.5 text-sm transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary"
                         />
                         {#if form.errors.password}
                             <p class="text-xs font-medium text-destructive">{form.errors.password}</p>
@@ -121,7 +121,7 @@
                             bind:value={form.password_confirmation}
                             placeholder="Repite la contraseña"
                             required
-                            class="h-11 rounded-xl border-border/70 bg-muted/20 px-3.5 text-sm transition-colors focus:bg-background"
+                            class="h-11 rounded-xl border border-border/80 bg-background px-3.5 text-sm transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary"
                         />
                     </div>
                 </div>
@@ -130,15 +130,16 @@
 
         <div class="flex items-center justify-end gap-3">
             <Link
-                href="/tenant/users"
-                class="inline-flex items-center justify-center min-h-[44px] px-5 rounded-xl font-medium border border-border/70 text-xs hover:bg-muted/60 transition-colors"
+                href="/tenant/usuarios"
+                class="inline-flex items-center justify-center min-h-[44px] min-w-36 px-5 rounded-xl font-semibold border border-border/80 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-xs transition-colors shadow-2xs"
             >
                 Cancelar
             </Link>
+
             <Button
                 type="submit"
                 disabled={form.processing}
-                class="min-h-[44px] min-w-36 gap-2 rounded-xl font-medium text-xs shadow-sm"
+                class="min-h-[44px] min-w-36 px-5 gap-2 rounded-xl font-semibold text-xs shadow-xs"
             >
                 {#if form.processing}
                     <Spinner class="mr-2" />

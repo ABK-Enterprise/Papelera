@@ -3,18 +3,22 @@
 namespace Database\Seeders;
 
 use App\Enums\SystemModule;
+use App\Models\Branch;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\CustomerOrder;
 use App\Models\CustomerOrderItem;
 use App\Models\Module;
 use App\Models\Product;
+use App\Models\ProductWarehouse;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Models\SupplierOrder;
 use App\Models\SupplierOrderItem;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Models\Warehouse;
+
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -263,6 +267,7 @@ class TestSeeder extends Seeder
                 'phone' => '+54 11 4321-9988',
                 'address' => 'Av. Santa Fe 1860, CABA',
                 'credit_limit' => 250000.00,
+                'discount_percentage' => 10.00,
                 'is_defaulter' => false,
                 'notes' => 'Cliente corporativo con entrega semanal los martes.',
             ],
@@ -274,6 +279,7 @@ class TestSeeder extends Seeder
                 'phone' => '+54 11 4876-1234',
                 'address' => 'Av. Belgrano 2450, CABA',
                 'credit_limit' => 180000.00,
+                'discount_percentage' => 15.00,
                 'is_defaulter' => false,
                 'notes' => 'Pedidos de resmas paletizadas con factura A.',
             ],
@@ -285,6 +291,7 @@ class TestSeeder extends Seeder
                 'phone' => '+54 11 4765-4321',
                 'address' => 'San Martín 450, San Isidro',
                 'credit_limit' => 100000.00,
+                'discount_percentage' => 5.00,
                 'is_defaulter' => false,
                 'notes' => 'Exento de IVA. Recepción por secretaría de 8 a 12hs.',
             ],
@@ -296,6 +303,7 @@ class TestSeeder extends Seeder
                 'phone' => '+54 11 6543-2109',
                 'address' => 'Estación Retiro, Local 14',
                 'credit_limit' => 45000.00,
+                'discount_percentage' => 0.00,
                 'is_defaulter' => false,
                 'notes' => 'Retira mercadería en sucursal.',
             ],
@@ -307,10 +315,12 @@ class TestSeeder extends Seeder
                 'phone' => '+54 11 5566-7788',
                 'address' => 'Ruta 8 Km 45, Pilar',
                 'credit_limit' => 80000.00,
+                'discount_percentage' => 0.00,
                 'is_defaulter' => true,
                 'notes' => 'Cuenta suspendida por mora de 45 días en facturas.',
             ],
         ];
+
 
         // 5. Proveedores plantilla
         $suppliersTemplate = [
@@ -425,6 +435,38 @@ class TestSeeder extends Seeder
             $stockUser = $createdUsers[1] ?? $createdUsers[0];
             $salesUser = $createdUsers[2] ?? $createdUsers[0];
 
+            // Sucursal y Depósitos para este comercio
+            $branch = Branch::firstOrCreate([
+                'tenant_id' => $tenant->id,
+                'name' => 'Casa Central',
+            ], [
+                'point_of_sale' => 1,
+                'address' => 'Av. Comercial 100',
+                'is_active' => true,
+            ]);
+
+            $defaultWarehouse = Warehouse::firstOrCreate([
+                'tenant_id' => $tenant->id,
+                'code' => 'DEP-01',
+            ], [
+                'branch_id' => $branch->id,
+                'name' => 'Depósito Central General',
+                'address' => 'Av. Comercial 100 - Planta Baja',
+                'is_active' => true,
+                'is_default' => true,
+            ]);
+
+            $secondaryWarehouse = Warehouse::firstOrCreate([
+                'tenant_id' => $tenant->id,
+                'code' => 'DEP-02',
+            ], [
+                'branch_id' => $branch->id,
+                'name' => 'Depósito Secundario / Mayorista',
+                'address' => 'Av. Industrial 550',
+                'is_active' => true,
+                'is_default' => false,
+            ]);
+
             // Crear Categorías y Productos para este comercio
             $createdProducts = [];
             foreach ($productsCatalogTemplate as $pData) {
@@ -433,16 +475,25 @@ class TestSeeder extends Seeder
                     'name' => $pData['category'],
                 ]);
 
-                // updateOrCreate keyed on the canonical business identity: (tenant_id, sku, sale_type).
-                // Name and remaining attributes are in the update block so the seeder is fully idempotent
-                // and never corrupts data already seeded by BaseSeeder or a previous run.
-                $product = Product::updateOrCreate([
-                    'tenant_id' => $tenant->id,
-                    'sku' => $pData['sku'],
-                    'sale_type' => $pData['sale_type'] ?? 'unit',
-                ], [
+                $product = Product::withoutGlobalScopes()
+                    ->where('tenant_id', $tenant->id)
+                    ->where('sale_type', $pData['sale_type'] ?? 'unit')
+                    ->where(function ($q) use ($pData) {
+                        $q->where('sku', $pData['sku'])
+                            ->orWhere('name', $pData['name']);
+                    })
+                    ->first();
+
+                if (! $product) {
+                    $product = new Product();
+                    $product->tenant_id = $tenant->id;
+                }
+
+                $product->fill([
                     'category_id' => $category->id,
                     'name' => $pData['name'],
+                    'sku' => $pData['sku'],
+                    'sale_type' => $pData['sale_type'] ?? 'unit',
                     'price' => $pData['price'],
                     'cost_price' => $pData['cost_price'],
                     'stock' => $pData['stock'],
@@ -450,9 +501,36 @@ class TestSeeder extends Seeder
                     'units_per_package' => $pData['units_per_package'],
                     'is_active' => true,
                 ]);
+                $product->save();
+
+
+                // Asignar stock distribuido en depósitos
+                $stockDep1 = (float) ceil($pData['stock'] * 0.7);
+                $stockDep2 = (float) floor($pData['stock'] * 0.3);
+
+                ProductWarehouse::updateOrCreate([
+                    'tenant_id' => $tenant->id,
+                    'product_id' => $product->id,
+                    'warehouse_id' => $defaultWarehouse->id,
+                ], [
+                    'stock' => $stockDep1,
+                    'min_stock' => $pData['min_stock'],
+                    'aisle_location' => 'Pasillo A-01',
+                ]);
+
+                ProductWarehouse::updateOrCreate([
+                    'tenant_id' => $tenant->id,
+                    'product_id' => $product->id,
+                    'warehouse_id' => $secondaryWarehouse->id,
+                ], [
+                    'stock' => $stockDep2,
+                    'min_stock' => 0,
+                    'aisle_location' => 'Pasillo B-02',
+                ]);
+
+                $product->syncConsolidatedStock();
 
                 $createdProducts[] = $product;
-
             }
 
             // Crear Proveedores (si el módulo está habilitado)
@@ -486,10 +564,13 @@ class TestSeeder extends Seeder
                         'phone' => $cData['phone'],
                         'address' => $cData['address'],
                         'credit_limit' => $cData['credit_limit'],
+                        'discount_percentage' => $cData['discount_percentage'] ?? 0.00,
                         'is_defaulter' => $cData['is_defaulter'],
                         'is_active' => true,
                         'notes' => $cData['notes'],
                     ]);
+                    $customer->discount_percentage = $cData['discount_percentage'] ?? 0.00;
+                    $customer->save();
                     $createdCustomers[] = $customer;
                 }
             }
@@ -500,6 +581,7 @@ class TestSeeder extends Seeder
                 StockMovement::firstOrCreate([
                     'tenant_id' => $tenant->id,
                     'product_id' => $createdProducts[0]->id,
+                    'warehouse_id' => $defaultWarehouse->id,
                     'notes' => 'Ingreso de lote inicial de producción',
                 ], [
                     'user_id' => $stockUser->id,
@@ -514,6 +596,7 @@ class TestSeeder extends Seeder
                 StockMovement::firstOrCreate([
                     'tenant_id' => $tenant->id,
                     'product_id' => $createdProducts[1]->id,
+                    'warehouse_id' => $defaultWarehouse->id,
                     'notes' => 'Bobina dañada por humedad en transporte',
                 ], [
                     'user_id' => $stockUser->id,
@@ -571,8 +654,9 @@ class TestSeeder extends Seeder
                 ];
 
                 foreach ($orderConfigs as $idx => $oCfg) {
-                    $orderNum = sprintf('PED-T%d-%04d', $tenant->id, $idx + 1);
+                    $orderNum = sprintf('PED-%04d', $idx + 1);
                     $prod1 = $createdProducts[0];
+
                     $prod2 = $createdProducts[4] ?? $createdProducts[1];
                     $subtotal1 = 2 * (float) $prod1->price;
                     $subtotal2 = 1 * (float) $prod2->price;
@@ -582,6 +666,7 @@ class TestSeeder extends Seeder
                         'tenant_id' => $tenant->id,
                         'order_number' => $orderNum,
                     ], [
+                        'warehouse_id' => $defaultWarehouse->id,
                         'customer_id' => $oCfg['customer']?->id,
                         'customer_name' => $oCfg['name'],
                         'customer_phone' => $oCfg['phone'],
@@ -590,29 +675,37 @@ class TestSeeder extends Seeder
                         'total_amount' => $total,
                         'notes' => $oCfg['notes'],
                     ]);
+                    $order->warehouse_id = $defaultWarehouse->id;
+                    $order->save();
 
                     // Items del pedido
-                    CustomerOrderItem::firstOrCreate([
+                    $item1 = CustomerOrderItem::firstOrCreate([
                         'customer_order_id' => $order->id,
                         'product_id' => $prod1->id,
                     ], [
+                        'warehouse_id' => $defaultWarehouse->id,
                         'packaging_type' => 'paquete',
                         'units_per_package' => 1,
                         'quantity' => 2,
                         'unit_price' => $prod1->price,
                         'subtotal' => $subtotal1,
                     ]);
+                    $item1->warehouse_id = $defaultWarehouse->id;
+                    $item1->save();
 
-                    CustomerOrderItem::firstOrCreate([
+                    $item2 = CustomerOrderItem::firstOrCreate([
                         'customer_order_id' => $order->id,
                         'product_id' => $prod2->id,
                     ], [
+                        'warehouse_id' => $defaultWarehouse->id,
                         'packaging_type' => 'paquete',
                         'units_per_package' => 1,
                         'quantity' => 1,
                         'unit_price' => $prod2->price,
                         'subtotal' => $subtotal2,
                     ]);
+                    $item2->warehouse_id = $defaultWarehouse->id;
+                    $item2->save();
                 }
             }
 
@@ -637,31 +730,40 @@ class TestSeeder extends Seeder
                 ];
 
                 foreach ($suppOrdersData as $sIdx => $soData) {
-                    $sOrderNum = sprintf('OC-T%d-%04d', $tenant->id, $sIdx + 1);
+                    $sOrderNum = sprintf('OC-%04d', $sIdx + 1);
                     $pItem = $createdProducts[0];
+
                     $costTotal = 20 * (float) $pItem->cost_price;
 
                     $suppOrder = SupplierOrder::firstOrCreate([
                         'tenant_id' => $tenant->id,
                         'order_number' => $sOrderNum,
                     ], [
+                        'warehouse_id' => $defaultWarehouse->id,
                         'supplier_id' => $soData['supplier']->id,
                         'status' => $soData['status'],
                         'total_cost' => $costTotal,
                         'notes' => $soData['notes'],
                     ]);
+                    $suppOrder->warehouse_id = $defaultWarehouse->id;
+                    $suppOrder->save();
 
-                    SupplierOrderItem::firstOrCreate([
+                    $soItem = SupplierOrderItem::firstOrCreate([
                         'supplier_order_id' => $suppOrder->id,
                         'product_id' => $pItem->id,
                     ], [
+                        'warehouse_id' => $defaultWarehouse->id,
                         'product_name' => $pItem->name,
                         'quantity' => 20,
                         'unit_cost' => $pItem->cost_price,
                         'subtotal' => $costTotal,
                     ]);
+                    $soItem->warehouse_id = $defaultWarehouse->id;
+                    $soItem->save();
                 }
             }
+
+
         }
 
         // 7. Generar movimientos de cuenta corriente para los 4 perfiles de clientes

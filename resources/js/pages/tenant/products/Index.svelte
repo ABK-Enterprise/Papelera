@@ -9,9 +9,12 @@
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
+    import Warehouse from 'lucide-svelte/icons/warehouse';
     import X from 'lucide-svelte/icons/x';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
+    import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
+
     import BulkDiscountConfigModal from './BulkDiscountConfigModal.svelte';
     import ProductModal from './ProductModal.svelte';
     import CategorySidebarDesktop from './desktop/CategorySidebarDesktop.svelte';
@@ -19,12 +22,20 @@
     import ProductListMobile from './mobile/ProductListMobile.svelte';
     import ProductFilterModalMobile from './mobile/ProductFilterModalMobile.svelte';
 
+
     interface CategoryItem {
         id: number;
         name: string;
         slug: string;
         icon: string | null;
         products_count?: number;
+    }
+
+    interface WarehouseOption {
+        id: number;
+        name: string;
+        code: string;
+        is_default: boolean;
     }
 
     interface ProductItem {
@@ -44,6 +55,7 @@
         bulk_discount_price?: number;
         image_url: string | null;
         is_incomplete?: boolean;
+        warehouses_count?: number;
         category?: { id: number; name: string } | null;
     }
 
@@ -66,6 +78,7 @@
     let {
         products = [],
         categories = [],
+        warehouses = [],
         stats = { total: 0, in_stock: 0, low_stock: 0, out_of_stock: 0, incomplete: 0 },
         incompleteCount = 0,
         tenantDefaultBulkDiscount = 0,
@@ -73,11 +86,13 @@
     }: {
         products: ProductItem[];
         categories: CategoryItem[];
+        warehouses?: WarehouseOption[];
         stats?: Stats;
         incompleteCount?: number;
         tenantDefaultBulkDiscount?: number;
         filters?: FilterProps;
     } = $props();
+
 
     import { untrack } from 'svelte';
 
@@ -134,7 +149,7 @@
 
     function applyFilters() {
         router.get(
-            '/tenant/products',
+            '/tenant/productos',
             {
                 search: searchTerm || undefined,
                 category_id: selectedCategoryId ?? undefined,
@@ -178,7 +193,7 @@
         selectedStockStatus = '';
         selectedInfoStatus = '';
         sortBy = 'latest';
-        router.get('/tenant/products', {}, { preserveState: true, preserveScroll: true });
+        router.get('/tenant/productos', {}, { preserveState: true, preserveScroll: true });
     }
 
     let hasActiveFilters = $derived(
@@ -208,23 +223,37 @@
         </div>
 
         <div class="flex items-center justify-end gap-2.5 flex-wrap">
+            <Link href="/tenant/productos/buscar-deposito">
+                <Button
+                    variant="secondary"
+                    class="gap-1.5 font-medium shadow-2xs"
+                >
+                    <Warehouse class="size-4" />
+                    <span>Buscar en Depósito</span>
+                </Button>
+            </Link>
+
+
             <Button
-                variant="outline"
-                class="gap-1.5 font-medium border-border/80 shadow-2xs"
+                variant="secondary"
+                class="gap-1.5 font-medium shadow-2xs"
                 onclick={() => (isBulkDiscountModalOpen = true)}
             >
-                <Percent class="size-4 text-primary" />
+                <Percent class="size-4" />
                 <span>Desc. por Bulto</span>
-                <span class="tabular-nums font-bold text-primary">({tenantDefaultBulkDiscount}%)</span>
+                <span class="tabular-nums font-bold">({tenantDefaultBulkDiscount}%)</span>
             </Button>
 
-            <Link href="/tenant/products/create">
+            <Link href="/tenant/productos/crear">
                 <Button class="gap-2 shadow-sm font-semibold">
                     <Plus class="size-4" />
                     Crear producto
                 </Button>
             </Link>
         </div>
+
+
+
     </div>
 
     <!-- Banner Wide Card de Productos Incompletos -->
@@ -257,13 +286,14 @@
     <!-- Barra de Búsqueda y Filtros -->
     <Card class="rounded-xl p-3 sm:p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
         <!-- Vista Desktop (>= 768px): Buscador + Selects Directos -->
-        <div class="hidden md:flex items-center justify-between gap-3">
+        <div class="hidden md:flex items-center gap-3 flex-nowrap">
             <!-- Buscador por Nombre, SKU o Código de Barras -->
-            <div class="w-full md:w-[448px]">
+            <div class="w-full md:w-[448px] shrink-0">
 
                 <SearchCombobox
                     bind:value={searchTerm}
                     items={products}
+                    searchKeys={['name', 'sku', 'barcode']}
                     placeholder="Buscar por nombre, SKU o barra..."
                     onsearch={(q) => {
                         searchTerm = q;
@@ -274,10 +304,14 @@
                 >
                     {#snippet itemSnippet(prod)}
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
-                            <div class="flex flex-col min-w-0">
-                                <span class="truncate font-medium text-foreground">{prod.name}</span>
+                            <div class="flex flex-col min-w-0 text-left">
+                                <span class="truncate font-medium text-foreground">
+                                    <HighlightMatch text={prod.name} query={searchTerm} />
+                                </span>
                                 {#if prod.sku}
-                                    <span class="text-[11px] text-muted-foreground tabular-nums">SKU: {prod.sku}</span>
+                                    <span class="text-[11px] text-muted-foreground tabular-nums">
+                                        SKU: <HighlightMatch text={prod.sku} query={searchTerm} />
+                                    </span>
                                 {/if}
                             </div>
                             <span class="tabular-nums font-semibold text-primary text-xs shrink-0">{formatPrice(prod.price)}</span>
@@ -286,8 +320,8 @@
                 </SearchCombobox>
             </div>
 
-            <!-- Selectores de Filtro en Desktop -->
-            <div class="flex items-center gap-2.5 flex-wrap">
+            <!-- Selectores de Filtro en Desktop + Botón Limpiar -->
+            <div class="flex items-center gap-2.5 flex-nowrap flex-1 min-w-0 justify-end">
                 <!-- Selector de Ordenamiento -->
                 <SortSelect
                     value={sortBy}
@@ -302,7 +336,7 @@
                 <select
                     bind:value={selectedCategoryId}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[130px]"
+                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[120px] max-w-[150px]"
                 >
                     <option value={null}>Todas las Categorías</option>
                     {#each categories as cat}
@@ -314,7 +348,7 @@
                 <select
                     bind:value={selectedStockStatus}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[130px]"
+                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
                 >
                     <option value="">Stock: Todos</option>
                     <option value="in_stock">En Stock ({stats.in_stock})</option>
@@ -326,7 +360,7 @@
                 <select
                     bind:value={selectedInfoStatus}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[130px]"
+                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
                 >
                     <option value="">Datos: Todos</option>
                     <option value="complete">Completos</option>
@@ -334,7 +368,7 @@
                 </select>
 
                 {#if hasActiveFilters}
-                    <Button variant="ghost" size="sm" class="h-10 px-2 text-xs text-muted-foreground hover:text-foreground gap-1" onclick={resetFilters}>
+                    <Button variant="ghost" size="sm" class="h-10 px-2 text-xs text-muted-foreground hover:text-foreground gap-1 shrink-0" onclick={resetFilters}>
                         <X class="size-3.5" />
                         Limpiar
                     </Button>
@@ -348,6 +382,7 @@
                 <SearchCombobox
                     bind:value={searchTerm}
                     items={products}
+                    searchKeys={['name', 'sku', 'barcode']}
                     placeholder="Buscar producto, SKU o código..."
                     onsearch={(q) => {
                         searchTerm = q;
@@ -358,10 +393,14 @@
                 >
                     {#snippet itemSnippet(prod)}
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
-                            <div class="flex flex-col min-w-0">
-                                <span class="truncate font-medium text-foreground">{prod.name}</span>
+                            <div class="flex flex-col min-w-0 text-left">
+                                <span class="truncate font-medium text-foreground">
+                                    <HighlightMatch text={prod.name} query={searchTerm} />
+                                </span>
                                 {#if prod.sku}
-                                    <span class="text-[11px] text-muted-foreground tabular-nums">SKU: {prod.sku}</span>
+                                    <span class="text-[11px] text-muted-foreground tabular-nums">
+                                        SKU: <HighlightMatch text={prod.sku} query={searchTerm} />
+                                    </span>
                                 {/if}
                             </div>
                             <span class="tabular-nums font-semibold text-primary text-xs shrink-0">{formatPrice(prod.price)}</span>
@@ -400,14 +439,15 @@
         </div>
 
         <div class="md:col-span-9">
-            <ProductListDesktop {products} />
+            <ProductListDesktop {products} searchQuery={searchTerm} />
         </div>
     </div>
 
     <!-- Vista Mobile -->
     <div class="block md:hidden space-y-4">
-        <ProductListMobile {products} />
+        <ProductListMobile {products} searchQuery={searchTerm} />
     </div>
+
 
     <!-- Modal de Configuración Rápida de Descuento por Bulto -->
     <BulkDiscountConfigModal
@@ -436,6 +476,8 @@
         mode="edit"
         product={selectedProductForModal}
         {categories}
+        {warehouses}
     />
 
 </div>
+

@@ -70,8 +70,9 @@
         errorMessage = null;
 
         router.patch(
-            `/tenant/customers/${customer.id}/account/credit-settings`,
+            `/tenant/clientes/${customer.id}/cuenta-corriente/limite-credito`,
             {
+
                 credit_limit: Number(creditLimit) || 0,
                 credit_due_days: Number(creditDueDays) || 30,
                 is_defaulter: isDefaulter,
@@ -111,12 +112,13 @@
                 <button
                     type="button"
                     onclick={handleClose}
-                    class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
                 </button>
             </DialogHeader>
+
 
             <DialogBody>
                 {#if errorMessage}
@@ -194,10 +196,9 @@
                 <Button
                     type="button"
                     variant="outline"
-                    size="sm"
                     onclick={handleClose}
                     disabled={isSubmitting}
-                    class="min-h-[40px] px-4 rounded-xl text-xs font-medium border-border/70"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70"
                 >
                     Cancelar
                 </Button>
@@ -205,12 +206,13 @@
                     type="submit"
                     form="edit-credit-settings-form"
                     disabled={isSubmitting}
-                    class="min-h-[40px] px-4 rounded-xl text-xs font-semibold gap-1.5 min-w-32 shadow-xs"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-semibold gap-1.5 min-w-32 shadow-xs"
                 >
                     <Check class="size-3.5" />
                     <span>Guardar cambios</span>
                 </Button>
             </DialogFooter>
+
         {/if}
     </DialogContent>
 </Dialog>

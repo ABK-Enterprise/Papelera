@@ -74,7 +74,8 @@
 <div class="flex flex-col gap-3">
     {#each paginatedOrders as order (order.id)}
         <div
-            class="flex flex-col min-h-[56px] gap-3 rounded-2xl border border-border/70 bg-card p-4 shadow-2xs transition-all active:scale-[0.99] cursor-pointer select-none"
+            class="flex flex-col min-h-[56px] gap-3 rounded-2xl border border-border/70 bg-card p-4 shadow-2xs transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 active:scale-[0.99] cursor-pointer select-none"
+
             onclick={() => onSelectOrder(order)}
             onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelectOrder(order)}
             role="button"
@@ -140,10 +141,12 @@
                 <span class="font-bold text-base text-primary tabular-nums">
                     {formatPrice(order.total_amount)}
                 </span>
-                <Button size="sm" variant="outline" class="min-h-[44px] px-3.5 text-xs gap-1.5 font-medium rounded-xl border-border/70">
+                <Button size="sm" variant="tertiary" class="min-h-[44px] px-3.5 text-xs gap-1.5 font-medium rounded-xl">
                     <Eye class="h-3.5 w-3.5" />
                     <span>Ver detalle</span>
                 </Button>
+
+
             </div>
         </div>
     {/each}

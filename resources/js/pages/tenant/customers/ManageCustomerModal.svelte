@@ -29,6 +29,7 @@
     import ShieldCheck from 'lucide-svelte/icons/shield-check';
     import FileText from 'lucide-svelte/icons/file-text';
     import CreditCard from 'lucide-svelte/icons/credit-card';
+    import Percent from 'lucide-svelte/icons/percent';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import MoreHorizontal from 'lucide-svelte/icons/more-horizontal';
     import X from 'lucide-svelte/icons/x';
@@ -52,6 +53,7 @@
         phone: '',
         address: '',
         credit_limit: 0,
+        discount_percentage: 0,
         is_defaulter: false,
         is_active: true,
         notes: '',
@@ -75,6 +77,7 @@
             form.phone = customer.phone ?? '';
             form.address = customer.address ?? '';
             form.credit_limit = Number(customer.credit_limit) || 0;
+            form.discount_percentage = Number((customer as any).discount_percentage) || 0;
             form.is_defaulter = Boolean(customer.is_defaulter);
             form.is_active = Boolean(customer.is_active);
             form.notes = customer.notes ?? '';
@@ -84,11 +87,12 @@
         }
     });
 
+
     function submit(e: SubmitEvent) {
         e.preventDefault();
         if (!customer) return;
 
-        form.put(`/tenant/customers/${customer.id}`, {
+        form.put(`/tenant/clientes/${customer.id}`, {
             onSuccess: () => {
                 open = false;
             },
@@ -109,7 +113,7 @@
         if (!customer) return;
 
         isDeleting = true;
-        router.delete(`/tenant/customers/${customer.id}`, {
+        router.delete(`/tenant/clientes/${customer.id}`, {
             onFinish: () => {
                 isDeleting = false;
                 showDeleteConfirm = false;
@@ -117,6 +121,7 @@
             },
         });
     }
+
 
     function handleClose() {
         open = false;
@@ -242,13 +247,14 @@
                 <button
                     type="button"
                     onclick={handleClose}
-                    class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
                 </button>
             </div>
         </DialogHeader>
+
 
         <DialogBody>
             <form id="manage-customer-form" onsubmit={submit} class="space-y-4">
@@ -294,13 +300,15 @@
                         <select
                             id="manage-customer-tax-condition"
                             bind:value={form.tax_condition}
-                            class="h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                            class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:bg-transparent disabled:border-dashed"
                         >
+
                             <option value="consumidor_final">Consumidor Final</option>
                             <option value="responsable_inscripto">Responsable Inscripto</option>
                             <option value="monotributo">Monotributo</option>
                             <option value="exento">Exento de IVA</option>
                         </select>
+
                         {#if form.errors.tax_condition}
                             <p class="text-xs text-destructive">{form.errors.tax_condition}</p>
                         {/if}
@@ -360,12 +368,12 @@
                     {/if}
                 </div>
 
-                <!-- Límite de Crédito & Flags -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 p-3.5 rounded-xl border bg-muted/15">
+                <!-- Límite de Crédito & Descuento Habitual & Flags -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 p-3.5 rounded-xl border bg-muted/15">
                     <div class="space-y-1.5">
                         <Label for="manage-customer-credit" class="text-xs font-semibold flex items-center gap-1.5">
                             <CreditCard class="h-3.5 w-3.5 text-muted-foreground" />
-                            Límite de Crédito ($ ARS)
+                            Límite Crédito ($)
                         </Label>
                         <Input
                             id="manage-customer-credit"
@@ -378,6 +386,23 @@
                         />
                     </div>
 
+                    <div class="space-y-1.5">
+                        <Label for="manage-customer-discount" class="text-xs font-semibold flex items-center gap-1.5">
+                            <Percent class="h-3.5 w-3.5 text-primary" />
+                            Descuento Habitual (%)
+                        </Label>
+                        <Input
+                            id="manage-customer-discount"
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            max="100"
+                            bind:value={form.discount_percentage}
+                            placeholder="0.00"
+                            class="h-9 text-sm font-sans tabular-nums font-semibold text-primary"
+                        />
+                    </div>
+
                     <div class="flex flex-col justify-center gap-2 pt-1">
                         <label class="flex items-center gap-2 text-xs font-semibold text-foreground cursor-pointer">
                             <input
@@ -387,9 +412,10 @@
                             />
                             <span class="flex items-center gap-1 text-rose-600 dark:text-rose-400">
                                 <AlertTriangle class="size-3.5" />
-                                Marcar como Moroso / Saldo Pendiente
+                                Moroso / Riesgo
                             </span>
                         </label>
+
 
                         <label class="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer">
                             <input
@@ -412,8 +438,9 @@
                         bind:value={form.notes}
                         rows="2"
                         placeholder="ej. Preferencias de entrega o historial crediticio..."
-                        class="w-full rounded-lg border border-input bg-background p-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                        class="w-full rounded-xl border border-border/80 bg-background p-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:bg-transparent disabled:border-dashed resize-none"
                     ></textarea>
+
                     {#if form.errors.notes}
                         <p class="text-xs text-destructive">{form.errors.notes}</p>
                     {/if}
@@ -422,13 +449,14 @@
         </DialogBody>
 
         <DialogFooter class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2">
-            <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing || isDeleting} class="text-xs">
+            <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold">
                 Cancelar
             </Button>
-            <Button type="submit" form="manage-customer-form" size="sm" disabled={form.processing || isDeleting} class="min-w-32 text-xs font-semibold">
+            <Button type="submit" form="manage-customer-form" disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-32">
                 {form.processing ? 'Guardando...' : 'Guardar cambios'}
             </Button>
         </DialogFooter>
+
     </DialogContent>
 </Dialog>
 

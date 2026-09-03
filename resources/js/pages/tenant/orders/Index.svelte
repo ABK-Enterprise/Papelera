@@ -74,14 +74,17 @@
         stats = { total: 0, en_preparacion: 0, preparado: 0, en_camino: 0, entregado: 0, cancelado: 0 },
         availableProducts = [],
         availableCustomers = [],
+        warehouses = [],
         filters = {},
     }: {
         orders: OrderData[];
         stats?: Stats;
         availableProducts?: ProductOption[];
         availableCustomers?: any[];
+        warehouses?: any[];
         filters?: FilterProps;
     } = $props();
+
 
     let searchTerm = $state('');
     let selectedStatus = $state('all');
@@ -142,7 +145,7 @@
 
     function applyFilters() {
         router.get(
-            '/tenant/orders',
+            '/tenant/pedidos',
             {
                 search: searchTerm || undefined,
                 status: selectedStatus !== 'all' ? selectedStatus : undefined,
@@ -159,8 +162,9 @@
         searchTerm = '';
         selectedStatus = 'all';
         sortBy = 'latest';
-        router.get('/tenant/orders', {}, { preserveState: true, preserveScroll: true });
+        router.get('/tenant/pedidos', {}, { preserveState: true, preserveScroll: true });
     }
+
 
     function openOrderDetail(order: OrderData) {
         selectedOrder = order;
@@ -316,7 +320,9 @@
     bind:open={isCreateModalOpen}
     {availableProducts}
     {availableCustomers}
+    {warehouses}
 />
+
 
 <!-- Modal de Detalle de Pedido -->
 <OrderDetailModal

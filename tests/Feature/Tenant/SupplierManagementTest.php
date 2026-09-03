@@ -46,7 +46,7 @@ test('tenant user can list suppliers with stats via JSON API', function () {
     ]);
 
     $response = $this->actingAs($this->user)
-        ->getJson('/tenant/suppliers')
+        ->getJson('/tenant/proveedores')
         ->assertSuccessful();
 
     $data = $response->json();
@@ -70,28 +70,28 @@ test('tenant user can filter suppliers by search and active status', function ()
 
     // Search by name
     $resSearch = $this->actingAs($this->user)
-        ->getJson('/tenant/suppliers?search=Telmo')
+        ->getJson('/tenant/proveedores?search=Telmo')
         ->assertSuccessful();
     expect($resSearch->json()['suppliers'])->toHaveCount(1)
         ->and($resSearch->json()['suppliers'][0]['name'])->toBe('Distribuidora San Telmo');
 
     // Search by email
     $resEmail = $this->actingAs($this->user)
-        ->getJson('/tenant/suppliers?search=palermo.com')
+        ->getJson('/tenant/proveedores?search=palermo.com')
         ->assertSuccessful();
     expect($resEmail->json()['suppliers'])->toHaveCount(1)
         ->and($resEmail->json()['suppliers'][0]['name'])->toBe('Cartonera Palermo');
 
     // Filter by status=active
     $resActive = $this->actingAs($this->user)
-        ->getJson('/tenant/suppliers?status=active')
+        ->getJson('/tenant/proveedores?status=active')
         ->assertSuccessful();
     expect($resActive->json()['suppliers'])->toHaveCount(1)
         ->and($resActive->json()['suppliers'][0]['name'])->toBe('Distribuidora San Telmo');
 
     // Filter by status=inactive
     $resInactive = $this->actingAs($this->user)
-        ->getJson('/tenant/suppliers?status=inactive')
+        ->getJson('/tenant/proveedores?status=inactive')
         ->assertSuccessful();
     expect($resInactive->json()['suppliers'])->toHaveCount(1)
         ->and($resInactive->json()['suppliers'][0]['name'])->toBe('Cartonera Palermo');
@@ -101,7 +101,7 @@ test('tenant user can render Inertia suppliers index page', function () {
     Supplier::factory()->forTenant($this->tenant)->count(2)->create();
 
     $this->actingAs($this->user)
-        ->get('/tenant/suppliers')
+        ->get('/tenant/proveedores')
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/suppliers/Index')
@@ -113,7 +113,7 @@ test('tenant user can render Inertia suppliers index page', function () {
 
 test('tenant user can create a supplier', function () {
     $response = $this->actingAs($this->user)
-        ->postJson('/tenant/suppliers', [
+        ->postJson('/tenant/proveedores', [
             'name' => 'Industrias Gráficas del Plata',
             'contact_number' => '+54 11 5555-1234',
             'email' => 'info@graficasplata.com',
@@ -134,7 +134,7 @@ test('tenant user can create a supplier', function () {
 
 test('validates required fields on supplier creation', function () {
     $this->actingAs($this->user)
-        ->postJson('/tenant/suppliers', [
+        ->postJson('/tenant/proveedores', [
             'name' => '',
             'email' => 'invalid-email-format',
         ])
@@ -150,7 +150,7 @@ test('tenant user can update a supplier', function () {
     ]);
 
     $this->actingAs($this->user)
-        ->putJson("/tenant/suppliers/{$supplier->id}", [
+        ->putJson("/tenant/proveedores/{$supplier->id}", [
             'name' => 'Nombre Actualizado S.R.L.',
             'contact_number' => '22222222',
             'email' => 'nuevo@proveedor.com',
@@ -171,7 +171,7 @@ test('tenant user can delete a supplier', function () {
     $supplier = Supplier::factory()->forTenant($this->tenant)->create();
 
     $this->actingAs($this->user)
-        ->deleteJson("/tenant/suppliers/{$supplier->id}")
+        ->deleteJson("/tenant/proveedores/{$supplier->id}")
         ->assertSuccessful();
 
     expect(Supplier::find($supplier->id))->toBeNull();
@@ -182,6 +182,6 @@ test('supplier routes are forbidden if tenant does not have proveedores module',
     $userNoModule = User::factory()->forTenant($tenantNoModule)->create();
 
     $this->actingAs($userNoModule)
-        ->getJson('/tenant/suppliers')
+        ->getJson('/tenant/proveedores')
         ->assertForbidden();
 });

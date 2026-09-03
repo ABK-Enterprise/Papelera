@@ -55,6 +55,16 @@ class UpdateRoleRequest extends FormRequest
                 return;
             }
 
+            // El permiso deposito.gestion es exclusivo del administrador y no puede ser delegado a roles de empleados
+            if (in_array('deposito.gestion', $permissions, true)) {
+                $validator->errors()->add(
+                    'permissions',
+                    'El permiso de gestión de depósitos es exclusivo del administrador y no puede asignarse a roles de empleados.'
+                );
+
+                return;
+            }
+
             $user = $this->user();
             $tenant = $user->tenant;
             if (! $tenant) {
@@ -62,6 +72,7 @@ class UpdateRoleRequest extends FormRequest
 
                 return;
             }
+
 
             setPermissionsTeamId($tenant->id);
 

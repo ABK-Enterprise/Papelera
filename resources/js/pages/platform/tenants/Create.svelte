@@ -6,8 +6,10 @@
     import { Label } from '@/components/ui/label';
     import { Checkbox } from '@/components/ui/checkbox';
     import { Link, useForm } from '@inertiajs/svelte';
+    import ArrowLeft from 'lucide-svelte/icons/arrow-left';
 
     interface AvailableModule {
+
         id: number;
         name: string;
         code: string;
@@ -54,9 +56,13 @@
                 <h1 class="text-2xl font-bold tracking-tight">Alta de Nuevo Comercio (Tenant)</h1>
             </div>
             <Link href="/platform/tenants">
-                <Button variant="outline">Volver</Button>
+                <Button variant="outline" class="min-h-[40px] px-4 rounded-xl text-sm font-medium gap-2">
+                    <ArrowLeft class="size-4" />
+                    <span>Volver</span>
+                </Button>
             </Link>
         </div>
+
 
         <form onsubmit={submit} class="space-y-6">
             <!-- Sección 1: Datos de la Empresa -->

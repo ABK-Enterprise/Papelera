@@ -66,7 +66,7 @@
             items.push(
                 {
                     title: 'Personal / Empleados',
-                    href: '/tenant/users',
+                    href: '/tenant/usuarios',
                     icon: Users,
                 },
                 {
@@ -80,10 +80,11 @@
         if (modules.includes('inventario_stock') || modules.includes('stock')) {
             items.push({
                 title: 'Stock e Inventario',
-                href: '/tenant/products',
+                href: '/tenant/productos',
                 icon: Package,
             });
         }
+
 
         return items;
     });

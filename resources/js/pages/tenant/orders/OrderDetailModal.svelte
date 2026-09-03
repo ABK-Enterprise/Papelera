@@ -96,7 +96,7 @@
         isUpdatingStatus = true;
 
         router.patch(
-            `/tenant/orders/${order.id}/status`,
+            `/tenant/pedidos/${order.id}/estado`,
             { status: statusToSet },
             {
                 preserveScroll: true,
@@ -128,13 +128,14 @@
 
     function executeDelete() {
         if (!order) return;
-        router.delete(`/tenant/orders/${order.id}`, {
+        router.delete(`/tenant/pedidos/${order.id}`, {
             onSuccess: () => {
                 isDeleteModalOpen = false;
                 open = false;
             },
         });
     }
+
 
     // Modal Copy Generator según el estado a aplicar
     let confirmModalConfig = $derived.by(() => {
@@ -197,23 +198,23 @@
                         <div class="flex items-center gap-2">
                             <h2 class="text-base sm:text-lg font-bold text-foreground font-sans tabular-nums">{order.order_number}</h2>
                             {#if order.status === 'en_preparacion'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-600 border border-amber-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                                     En Preparación
                                 </span>
                             {:else if order.status === 'preparado'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-600 border border-blue-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/30">
                                     Preparado
                                 </span>
                             {:else if order.status === 'en_camino'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/15 text-indigo-600 border border-indigo-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30">
                                     En Camino
                                 </span>
                             {:else if order.status === 'entregado'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                                     Entregado
                                 </span>
                             {:else if order.status === 'cancelado'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-600 border border-rose-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                                     Cancelado
                                 </span>
                             {/if}
@@ -225,12 +226,13 @@
                 <button
                     type="button"
                     onclick={() => (open = false)}
-                    class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
-                    <X class="size-5" />
+                    <X class="size-4" />
                 </button>
             </div>
+
 
             <!-- Scrollable Content Body -->
             <div class="flex-1 min-h-0 overflow-y-auto space-y-4 sm:space-y-5 py-2 pr-1">
@@ -471,13 +473,12 @@
                 {#if order.status !== 'cancelado' && order.status !== 'entregado'}
                     <Button
                         type="button"
-                        variant="ghost"
-                        size="sm"
-                        class="text-xs text-destructive hover:bg-destructive/10 gap-1.5"
+                        variant="outline"
+                        class="min-h-[44px] px-4 rounded-xl text-xs font-semibold text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-2"
                         onclick={handleDelete}
                     >
-                        <Trash2 class="size-3.5" />
-                        Eliminar Pedido
+                        <Trash2 class="size-4" />
+                        <span>Eliminar pedido</span>
                     </Button>
                 {:else}
                     <div></div>
@@ -488,11 +489,12 @@
                         <span class="text-xs text-muted-foreground block">Total:</span>
                         <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary">{formatPrice(order.total_amount)}</span>
                     </div>
-                    <Button type="button" size="sm" variant="outline" onclick={() => (open = false)}>
+                    <Button type="button" variant="outline" class="min-h-[44px] px-4 rounded-xl text-sm font-semibold" onclick={() => (open = false)}>
                         Cerrar
                     </Button>
                 </div>
             </div>
+
         </div>
     </div>
 

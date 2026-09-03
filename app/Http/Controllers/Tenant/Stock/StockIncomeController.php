@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Tenant\Stock;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Stock\StoreStockIncomeRequest;
 use App\Models\Product;
+use App\Models\ProductWarehouse;
 use App\Models\StockMovement;
+use App\Models\Warehouse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,8 +19,10 @@ class StockIncomeController extends Controller
 {
     public function index(Request $request): Response|JsonResponse
     {
+        $tenantId = $request->user()->tenant_id;
+
         $movements = StockMovement::incomes()
-            ->with(['product:id,name,sku,barcode', 'user:id,name'])
+            ->with(['product:id,name,sku,barcode', 'user:id,name', 'warehouse:id,name,code'])
             ->latest()
             ->get();
 
@@ -27,16 +31,25 @@ class StockIncomeController extends Controller
             ->orderBy('name')
             ->get();
 
+        $warehouses = Warehouse::where('tenant_id', $tenantId)
+            ->where('is_active', true)
+            ->select('id', 'name', 'code', 'is_default')
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->get();
+
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
                 'movements' => $movements,
                 'products' => $products,
+                'warehouses' => $warehouses,
             ]);
         }
 
         return Inertia::render('tenant/stock/incomes/Index', [
             'movements' => $movements,
             'products' => $products,
+            'warehouses' => $warehouses,
         ]);
     }
 
@@ -48,7 +61,13 @@ class StockIncomeController extends Controller
         $reason = $request->validated('reason') ?: 'ingreso_manual';
         $notes = $request->validated('notes');
 
-        $movement = DB::transaction(function () use ($tenantId, $productId, $quantity, $reason, $notes, $request) {
+        $warehouseId = $request->validated('warehouse_id');
+        if (! $warehouseId) {
+            $warehouseId = Warehouse::where('tenant_id', $tenantId)->where('is_default', true)->value('id')
+                ?: Warehouse::where('tenant_id', $tenantId)->value('id');
+        }
+
+        $movement = DB::transaction(function () use ($tenantId, $productId, $warehouseId, $quantity, $reason, $notes, $request) {
             $product = Product::where('id', $productId)
                 ->where('tenant_id', $tenantId)
                 ->lockForUpdate()
@@ -57,11 +76,32 @@ class StockIncomeController extends Controller
             $previousStock = round((float) $product->stock, 3);
             $currentStock = round($previousStock + $quantity, 3);
 
-            $product->update(['stock' => $currentStock]);
+            $hasExistingWh = ProductWarehouse::where('tenant_id', $tenantId)
+                ->where('product_id', $product->id)
+                ->exists();
+
+            $initialStock = $hasExistingWh ? 0 : (float) $product->stock;
+
+            // Update or create stock in target warehouse
+            $pw = ProductWarehouse::firstOrCreate([
+                'tenant_id' => $tenantId,
+                'product_id' => $product->id,
+                'warehouse_id' => $warehouseId,
+            ], [
+                'stock' => $initialStock,
+                'min_stock' => $product->min_stock ?? 0,
+            ]);
+
+            $pw->stock = round((float) $pw->stock + $quantity, 3);
+            $pw->save();
+
+
+            $product->syncConsolidatedStock();
 
             return StockMovement::create([
                 'tenant_id' => $tenantId,
                 'product_id' => $product->id,
+                'warehouse_id' => $warehouseId,
                 'user_id' => $request->user()->id,
                 'type' => 'income',
                 'reason' => $reason,
@@ -80,3 +120,4 @@ class StockIncomeController extends Controller
             ->with('success', 'Ingreso de stock registrado correctamente.');
     }
 }
+

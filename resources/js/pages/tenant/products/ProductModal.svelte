@@ -26,6 +26,13 @@
         name: string;
     }
 
+    export interface WarehouseOption {
+        id: number;
+        name: string;
+        code: string;
+        is_default?: boolean;
+    }
+
     export interface ProductData {
         id?: number;
         name?: string;
@@ -50,12 +57,14 @@
         mode = 'create', // 'create' | 'edit'
         product = null,
         categories = [],
+        warehouses = [],
         onsuccess,
     }: {
         open: boolean;
         mode?: 'create' | 'edit';
         product?: ProductData | null;
         categories: CategoryOption[];
+        warehouses?: WarehouseOption[];
         onsuccess?: () => void;
     } = $props();
 
@@ -63,6 +72,7 @@
         name: '',
         sale_type: 'unit' as 'unit' | 'weight',
         category_id: '' as string | number,
+        warehouse_id: '' as string | number,
         sku: '',
         barcode: '',
         description: '',
@@ -105,9 +115,13 @@
             lastLoadedProductId = null;
             initialSaleType = 'unit';
             form.reset();
+            form.warehouse_id = warehouses.find(w => w.is_default)?.id ?? (warehouses[0]?.id ?? '');
             form.clearErrors();
+        } else if (!product && !form.warehouse_id && warehouses.length > 0) {
+            form.warehouse_id = warehouses.find(w => w.is_default)?.id ?? warehouses[0].id;
         }
     });
+
 
     function formatPrice(amount: number) {
         return new Intl.NumberFormat('es-AR', {
@@ -133,7 +147,7 @@
         }
 
         if (mode === 'edit' && product?.id) {
-            form.put(`/tenant/products/${product.id}`, {
+            form.put(`/tenant/productos/${product.id}`, {
                 onSuccess: () => {
                     isConfirmAlertOpen = false;
                     open = false;
@@ -141,7 +155,7 @@
                 },
             });
         } else {
-            form.post('/tenant/products', {
+            form.post('/tenant/productos', {
                 onSuccess: () => {
                     open = false;
                     form.reset();
@@ -150,6 +164,7 @@
             });
         }
     }
+
 
     function submit(e: SubmitEvent) {
         e.preventDefault();
@@ -190,12 +205,13 @@
             <button
                 type="button"
                 onclick={handleClose}
-                class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                 aria-label="Cerrar"
             >
                 <X class="size-4" />
             </button>
         </DialogHeader>
+
 
         <!-- 2. Body -->
         <DialogBody>
@@ -346,7 +362,7 @@
                                     <select
                                         id="modal-prod-cat"
                                         bind:value={form.category_id}
-                                        class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none"
+                                        class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                                     >
                                         <option value="">Sin categoría asignada</option>
                                         {#each categories as cat}
@@ -414,7 +430,7 @@
                                     <select
                                         id="modal-prod-iva"
                                         bind:value={form.iva_rate}
-                                        class="h-9 w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary outline-none font-sans tabular-nums"
+                                        class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary font-sans tabular-nums"
                                     >
                                         <option value={21.00}>21.0% (General)</option>
                                         <option value={10.50}>10.5% (Reducido)</option>
@@ -430,6 +446,31 @@
                         <!-- 3. Inventario & Empaque -->
                         <div class="space-y-3">
                             <h3 class="text-xs font-bold text-primary uppercase tracking-wider">3. Inventario & Empaque</h3>
+
+                            {#if mode === 'create' && warehouses.length > 0}
+                                <div class="space-y-1">
+                                    <Label for="modal-prod-warehouse" class="text-xs font-semibold">
+                                        Depósito Destino (Asignación de Stock Inicial)
+                                    </Label>
+                                    <select
+                                        id="modal-prod-warehouse"
+                                        bind:value={form.warehouse_id}
+                                        class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                    >
+
+                                        {#each warehouses as wh (wh.id)}
+                                            <option value={wh.id}>
+                                                {wh.name} ({wh.code}) {wh.is_default ? '— Principal' : ''}
+                                            </option>
+                                        {/each}
+                                    </select>
+
+                                    {#if form.errors.warehouse_id}
+                                        <p class="text-xs text-destructive">{form.errors.warehouse_id}</p>
+                                    {/if}
+                                </div>
+                            {/if}
+
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div class="space-y-1">
                                     <div class="flex items-center justify-between">
@@ -513,8 +554,10 @@
                                     bind:value={form.description}
                                     rows="2"
                                     placeholder="Especificaciones técnicas, medidas, gramaje..."
-                                    class="w-full bg-background rounded-xl p-2.5 text-xs border border-input focus:ring-1 focus:ring-primary outline-none resize-none"
+                                    class="w-full bg-background rounded-xl p-3 text-xs border border-border/80 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                                 ></textarea>
+
+
                             </div>
 
                             <!-- Toggle de Estado Activo -->
@@ -536,27 +579,33 @@
         </DialogBody>
 
         <!-- 3. Footer -->
-        <DialogFooter>
-            <Button type="button" variant="outline" size="sm" class="text-xs" onclick={handleClose} disabled={form.processing}>
+        <DialogFooter class="gap-2 sm:gap-2">
+            <Button
+                type="button"
+                variant="outline"
+                class="min-h-[44px] px-5 rounded-xl text-sm font-medium border-border/70 hover:bg-muted/60 transition-colors"
+                onclick={handleClose}
+                disabled={form.processing}
+            >
                 Cancelar
             </Button>
             <Button
                 type="submit"
                 form="product-modal-form"
-                size="sm"
                 disabled={form.processing}
-                class="text-xs font-semibold gap-1.5 min-w-36"
+                class="min-h-[44px] px-6 rounded-xl text-sm font-semibold gap-2 shadow-xs min-w-[160px]"
             >
                 {#if form.processing}
                     <span>Guardando...</span>
                 {:else}
-                    <Check class="size-3.5" />
-                    <span>{mode === 'edit' ? 'Guardar cambios' : 'Crear producto'}</span>
+                    <Check class="size-4" />
+                    <span>{mode === 'edit' ? 'Guardar cambios' : 'Guardar producto'}</span>
                 {/if}
             </Button>
         </DialogFooter>
     </DialogContent>
 </Dialog>
+
 
 <!-- Alert Dialog de Bits UI para Confirmar Cambio de Modalidad de Venta -->
 <SaleTypeChangeAlertDialog

@@ -66,9 +66,7 @@
                     </div>
                 </div>
                 <DialogClose>
-                    <button type="button" class="size-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                        <X class="size-4" />
-                    </button>
+                    <X class="size-4" />
                 </DialogClose>
             </DialogHeader>
 
@@ -108,12 +106,15 @@
             </DialogBody>
 
             <DialogFooter class="pt-3 border-t border-border/50">
-                <DialogClose class="w-full">
-                    <Button variant="outline" class="w-full min-h-[40px] rounded-xl font-medium">
-                        Cerrar
-                    </Button>
+                <DialogClose class="w-full" asChild>
+                    {#snippet children({ onClick })}
+                        <Button variant="outline" class="w-full min-h-[44px] rounded-xl font-semibold" onclick={onClick}>
+                            Cerrar
+                        </Button>
+                    {/snippet}
                 </DialogClose>
             </DialogFooter>
+
         </DialogContent>
     </Dialog>
 {/if}

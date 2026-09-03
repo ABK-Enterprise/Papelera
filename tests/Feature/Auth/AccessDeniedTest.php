@@ -41,7 +41,8 @@ test('authenticated user with deactivated tenant is redirected from tenant route
         'is_superadmin' => false,
     ]);
 
-    $response = $this->actingAs($user)->get('/tenant/users');
+    $response = $this->actingAs($user)->get('/tenant/usuarios');
+
 
     $response->assertRedirect(route('auth.access-denied', ['reason' => 'account_deactivated']));
 });
@@ -65,7 +66,8 @@ test('authenticated tenant user accessing unassigned module is redirected to acc
     $tenant = Tenant::factory()->create(['is_active' => true]);
     $user = User::factory()->forTenant($tenant)->create();
 
-    $response = $this->actingAs($user)->get('/tenant/products');
+    $response = $this->actingAs($user)->get('/tenant/productos');
+
 
     $response->assertRedirect(route('auth.access-denied', ['reason' => 'module_not_assigned']));
 });

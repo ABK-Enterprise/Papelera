@@ -68,6 +68,14 @@ class SupplierOrderController extends Controller
             ->orderBy('name')
             ->get();
 
+        $tenantId = auth()->user()?->tenant_id;
+        $warehouses = \App\Models\Warehouse::where('tenant_id', $tenantId)
+            ->where('is_active', true)
+            ->select('id', 'name', 'code', 'is_default')
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->get();
+
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
@@ -75,6 +83,7 @@ class SupplierOrderController extends Controller
                 'stats' => $stats,
                 'suppliers' => $suppliers,
                 'available_products' => $availableProducts,
+                'warehouses' => $warehouses,
             ]);
         }
 
@@ -83,6 +92,7 @@ class SupplierOrderController extends Controller
             'stats' => $stats,
             'suppliers' => $suppliers,
             'availableProducts' => $availableProducts,
+            'warehouses' => $warehouses,
             'filters' => [
                 'search' => $search,
                 'status' => $status ?: 'all',
@@ -94,8 +104,9 @@ class SupplierOrderController extends Controller
     public function store(StoreSupplierOrderRequest $request): RedirectResponse|JsonResponse
     {
         $tenantId = $request->user()->tenant_id;
+        $orderWarehouseId = $request->validated('warehouse_id');
 
-        $order = DB::transaction(function () use ($request, $tenantId) {
+        $order = DB::transaction(function () use ($request, $tenantId, $orderWarehouseId) {
             $orderNumber = app(TenantSequenceService::class)->nextSupplierOrderNumber($tenantId);
 
             $itemsData = $request->validated('items');
@@ -106,6 +117,7 @@ class SupplierOrderController extends Controller
                 $productName = trim((string) $item['product_name']);
                 $unitCost = isset($item['unit_cost']) ? (float) $item['unit_cost'] : 0.00;
                 $quantity = round((float) $item['quantity'], 3);
+                $itemWarehouseId = $item['warehouse_id'] ?? $orderWarehouseId;
 
                 $product = null;
                 if (! empty($item['product_id'])) {
@@ -115,8 +127,8 @@ class SupplierOrderController extends Controller
                 }
 
                 if (! $product) {
-                    $product = Product::where('tenant_id', $tenantId)
-                        ->whereRaw('LOWER(name) = ?', [mb_strtolower($productName, 'UTF-8')])
+                    $product = Product::where('name', $productName)
+                        ->where('tenant_id', $tenantId)
                         ->first();
                 }
 
@@ -140,6 +152,7 @@ class SupplierOrderController extends Controller
 
                 $preparedItems[] = [
                     'product_id' => $product->id,
+                    'warehouse_id' => $itemWarehouseId,
                     'product_name' => $product->name,
                     'quantity' => $quantity,
                     'unit_cost' => $unitCost,
@@ -150,6 +163,7 @@ class SupplierOrderController extends Controller
             $order = SupplierOrder::create([
                 'tenant_id' => $tenantId,
                 'supplier_id' => $request->validated('supplier_id'),
+                'warehouse_id' => $orderWarehouseId,
                 'order_number' => $orderNumber,
                 'status' => 'solicitado',
                 'total_cost' => $totalCost,
@@ -160,6 +174,7 @@ class SupplierOrderController extends Controller
                 SupplierOrderItem::create([
                     'supplier_order_id' => $order->id,
                     'product_id' => $prep['product_id'],
+                    'warehouse_id' => $prep['warehouse_id'],
                     'product_name' => $prep['product_name'],
                     'quantity' => $prep['quantity'],
                     'unit_cost' => $prep['unit_cost'],
@@ -203,6 +218,9 @@ class SupplierOrderController extends Controller
             $lockedOrder->load(['supplier', 'items.product']);
             $sortedItems = $lockedOrder->items->sortBy('product_id');
 
+            $defaultWarehouseId = \App\Models\Warehouse::where('tenant_id', $tenantId)->where('is_default', true)->value('id')
+                ?: \App\Models\Warehouse::where('tenant_id', $tenantId)->value('id');
+
             foreach ($sortedItems as $item) {
                 $product = Product::where('id', $item->product_id)
                     ->where('tenant_id', $tenantId)
@@ -210,17 +228,41 @@ class SupplierOrderController extends Controller
                     ->first();
 
                 if ($product) {
+                    $targetWarehouseId = $item->warehouse_id ?: $lockedOrder->warehouse_id ?: $defaultWarehouseId;
+
                     $previousStock = round((float) $product->stock, 3);
                     $currentStock = round($previousStock + (float) $item->quantity, 3);
 
+                    if ($targetWarehouseId) {
+                        $hasExistingWh = \App\Models\ProductWarehouse::where('tenant_id', $tenantId)
+                            ->where('product_id', $product->id)
+                            ->exists();
+
+                        $initialStock = $hasExistingWh ? 0 : (float) $product->stock;
+
+                        $pw = \App\Models\ProductWarehouse::firstOrCreate([
+                            'tenant_id' => $tenantId,
+                            'product_id' => $product->id,
+                            'warehouse_id' => $targetWarehouseId,
+                        ], [
+                            'stock' => $initialStock,
+                            'min_stock' => $product->min_stock ?? 0,
+                        ]);
+
+                        $pw->stock = round((float) $pw->stock + (float) $item->quantity, 3);
+                        $pw->save();
+                    }
+
+
                     $product->update([
-                        'stock' => $currentStock,
                         'cost_price' => $item->unit_cost > 0 ? $item->unit_cost : $product->cost_price,
                     ]);
+                    $product->syncConsolidatedStock();
 
                     StockMovement::create([
                         'tenant_id' => $tenantId,
                         'product_id' => $product->id,
+                        'warehouse_id' => $targetWarehouseId,
                         'user_id' => $userId,
                         'type' => 'income',
                         'quantity' => $item->quantity,
@@ -229,6 +271,7 @@ class SupplierOrderController extends Controller
                         'reason' => 'orden_compra_proveedor',
                         'notes' => "Recepción Orden {$lockedOrder->order_number} ({$lockedOrder->supplier->name})",
                     ]);
+
                 }
             }
 

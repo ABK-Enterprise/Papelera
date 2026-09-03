@@ -15,6 +15,7 @@
     import MapPin from 'lucide-svelte/icons/map-pin';
     import FileText from 'lucide-svelte/icons/file-text';
     import CreditCard from 'lucide-svelte/icons/credit-card';
+    import Percent from 'lucide-svelte/icons/percent';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import X from 'lucide-svelte/icons/x';
     import IconContainer from '@/components/common/IconContainer.svelte';
@@ -33,21 +34,24 @@
         phone: '',
         address: '',
         credit_limit: 0,
+        discount_percentage: 0,
         is_defaulter: false,
         is_active: true,
         notes: '',
     });
 
+
     function submit(e: SubmitEvent) {
         e.preventDefault();
 
-        form.post('/tenant/customers', {
+        form.post('/tenant/clientes', {
             onSuccess: () => {
                 open = false;
                 form.reset();
             },
         });
     }
+
 
     function handleClose() {
         open = false;
@@ -71,7 +75,7 @@
             <button
                 type="button"
                 onclick={handleClose}
-                class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                 aria-label="Cerrar"
             >
                 <X class="size-4" />
@@ -87,9 +91,9 @@
                 <Input
                     id="create-customer-name"
                     bind:value={form.name}
-                    placeholder="ej. Librería San Martín / Juan Pérez"
+                    placeholder="ej. Papelera San Martín S.R.L."
+                    class="h-9 text-sm"
                     required
-                    class="h-9 text-sm font-medium"
                 />
                 {#if form.errors.name}
                     <p class="text-xs text-destructive">{form.errors.name}</p>
@@ -99,15 +103,12 @@
             <!-- CUIT / DNI y Condición Fiscal -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div class="space-y-1.5">
-                    <Label for="create-customer-tax-id" class="text-xs font-semibold flex items-center gap-1.5">
-                        <FileText class="h-3.5 w-3.5 text-muted-foreground" />
-                        CUIT / CUIL / DNI
-                    </Label>
+                    <Label for="create-customer-tax-id" class="text-xs font-semibold">CUIT / DNI</Label>
                     <Input
                         id="create-customer-tax-id"
                         bind:value={form.tax_id}
-                        placeholder="ej. 20-33445566-9 o 33445566"
-                        class="h-9 text-sm font-sans tabular-nums"
+                        placeholder="ej. 30-71234567-9"
+                        class="h-9 text-sm"
                     />
                     {#if form.errors.tax_id}
                         <p class="text-xs text-destructive">{form.errors.tax_id}</p>
@@ -121,13 +122,15 @@
                     <select
                         id="create-customer-tax-condition"
                         bind:value={form.tax_condition}
-                        class="h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                        class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:bg-transparent disabled:border-dashed"
                     >
+
                         <option value="consumidor_final">Consumidor Final</option>
                         <option value="responsable_inscripto">Responsable Inscripto</option>
                         <option value="monotributo">Monotributo</option>
                         <option value="exento">Exento de IVA</option>
                     </select>
+
                     {#if form.errors.tax_condition}
                         <p class="text-xs text-destructive">{form.errors.tax_condition}</p>
                     {/if}
@@ -187,12 +190,12 @@
                 {/if}
             </div>
 
-            <!-- Límite de Crédito & Flags -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 p-3.5 rounded-xl border bg-muted/15">
+            <!-- Límite de Crédito & Descuento Habitual & Flags -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 p-3.5 rounded-xl border bg-muted/15">
                 <div class="space-y-1.5">
                     <Label for="create-customer-credit" class="text-xs font-semibold flex items-center gap-1.5">
                         <CreditCard class="h-3.5 w-3.5 text-muted-foreground" />
-                        Límite de Crédito ($ ARS)
+                        Límite Crédito ($)
                     </Label>
                     <Input
                         id="create-customer-credit"
@@ -205,6 +208,23 @@
                     />
                 </div>
 
+                <div class="space-y-1.5">
+                    <Label for="create-customer-discount" class="text-xs font-semibold flex items-center gap-1.5">
+                        <Percent class="h-3.5 w-3.5 text-primary" />
+                        Descuento Habitual (%)
+                    </Label>
+                    <Input
+                        id="create-customer-discount"
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        max="100"
+                        bind:value={form.discount_percentage}
+                        placeholder="0.00"
+                        class="h-9 text-sm font-sans tabular-nums font-semibold text-primary"
+                    />
+                </div>
+
                 <div class="flex flex-col justify-center gap-2 pt-1">
                     <label class="flex items-center gap-2 text-xs font-semibold text-foreground cursor-pointer">
                         <input
@@ -214,9 +234,10 @@
                         />
                         <span class="flex items-center gap-1 text-rose-600 dark:text-rose-400">
                             <AlertTriangle class="size-3.5" />
-                            Marcar como Moroso / Saldo Pendiente
+                            Moroso / Riesgo
                         </span>
                     </label>
+
 
                     <label class="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer">
                         <input
@@ -239,8 +260,9 @@
                     bind:value={form.notes}
                     rows="2"
                     placeholder="ej. Horarios de recepción, condiciones de pago convenidas..."
-                    class="w-full rounded-lg border border-input bg-background p-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    class="w-full rounded-xl border border-border/80 bg-background p-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:bg-transparent disabled:border-dashed resize-none"
                 ></textarea>
+
                 {#if form.errors.notes}
                     <p class="text-xs text-destructive">{form.errors.notes}</p>
                 {/if}
@@ -248,13 +270,14 @@
 
             <!-- Footer: Botones -->
             <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-border mt-6">
-                <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing} class="text-xs">
+                <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold">
                     Cancelar
                 </Button>
-                <Button type="submit" size="sm" disabled={form.processing} class="min-w-32 text-xs font-semibold">
+                <Button type="submit" disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-32">
                     {form.processing ? 'Registrando...' : 'Registrar Cliente'}
                 </Button>
             </div>
+
         </form>
     </DialogContent>
 </Dialog>

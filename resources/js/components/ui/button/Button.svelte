@@ -5,10 +5,12 @@
     type Variant =
         | 'default'
         | 'secondary'
+        | 'tertiary'
         | 'ghost'
         | 'destructive'
         | 'outline'
-        | 'link';
+        | 'link'
+        | 'accent';
     type Size = 'default' | 'sm' | 'lg' | 'icon';
     type AsChildProps = {
         class?: string;
@@ -17,18 +19,24 @@
     };
 
     const base =
-        'inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
+        'inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer select-none active:scale-95';
 
     const variants: Record<Variant, string> = {
-        default: 'bg-primary text-primary-foreground shadow hover:bg-primary/90',
+        default:
+            'bg-primary text-primary-foreground shadow hover:bg-primary/90 sm:hover:shadow-lg sm:hover:shadow-primary/25 active:scale-95 transition-all duration-150',
         secondary:
-            'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
+            'bg-secondary text-secondary-foreground shadow-2xs hover:bg-secondary/80 border border-secondary/40 active:scale-95 transition-all duration-150',
+        tertiary:
+            'border border-primary/30 bg-primary/15 text-white hover:bg-primary/25 hover:text-white dark:text-sky-100 dark:border-primary/40 font-semibold shadow-2xs transition-colors',
+        ghost: 'hover:bg-muted hover:text-foreground active:scale-95 transition-all duration-150',
         destructive:
-            'bg-destructive text-destructive-foreground shadow hover:bg-destructive/90',
-        outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+            'bg-destructive text-destructive-foreground shadow hover:bg-destructive/90 sm:hover:shadow-lg sm:hover:shadow-destructive/25 active:scale-95 transition-all duration-150',
+        outline: 'border border-input bg-background hover:bg-muted hover:text-foreground active:scale-95 transition-all duration-150',
         link: 'text-primary underline-offset-4 hover:underline',
+        accent: 'bg-accent/80 text-accent-foreground border border-accent/40 shadow-2xs hover:bg-accent hover:border-accent/60 sm:hover:shadow-lg sm:hover:shadow-accent/25 active:scale-95 transition-all duration-150',
     };
+
+
 
     const sizes: Record<Size, string> = {
         default: 'h-9 px-4 py-2',

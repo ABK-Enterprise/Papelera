@@ -5,6 +5,8 @@
     import Search from 'lucide-svelte/icons/search';
     import X from 'lucide-svelte/icons/x';
     import Loader2 from 'lucide-svelte/icons/loader-2';
+    import HighlightMatch from '@/components/common/HighlightMatch.svelte';
+
 
     let {
         id = '',
@@ -13,10 +15,8 @@
         items = [],
         loading = false,
         debounceMs = 300,
-        showDropdown = false,
-
-
-
+        showDropdown = true,
+        searchKeys,
         itemSnippet,
         emptySnippet,
         onsearch,
@@ -32,6 +32,7 @@
         loading?: boolean;
         debounceMs?: number;
         showDropdown?: boolean;
+        searchKeys?: (keyof T | string)[];
         itemSnippet?: Snippet<[T, number]>;
         emptySnippet?: Snippet;
         onsearch?: (query: string) => void;
@@ -49,19 +50,27 @@
     let displayItems = $derived.by(() => {
         if (!items || items.length === 0) return [];
         if (!value || !value.trim()) {
-            return items.slice(0, 10);
+            return items.slice(0, 5);
         }
         const q = value.toLowerCase().trim();
         return items
             .filter((item) => {
-                const str = Object.values(item)
-                    .filter((v) => typeof v === 'string' || typeof v === 'number')
+                if (searchKeys && searchKeys.length > 0) {
+                    return searchKeys.some((k) => {
+                        const val = item[k as keyof T];
+                        return val !== undefined && val !== null && String(val).toLowerCase().includes(q);
+                    });
+                }
+                const str = Object.entries(item)
+                    .filter(([key, v]) => !['id', 'tenant_id', 'module_id', 'branch_id', 'warehouse_id', 'customer_id', 'supplier_id', 'created_at', 'updated_at', 'deleted_at'].includes(key) && (typeof v === 'string' || typeof v === 'number'))
+                    .map(([, v]) => String(v))
                     .join(' ')
                     .toLowerCase();
                 return str.includes(q);
             })
-            .slice(0, 10);
+            .slice(0, 5);
     });
+
 
     let lastSearchedVal: string | null = null;
 
@@ -130,10 +139,19 @@
     }
 
     function selectItem(item: T) {
+        if (searchKeys && searchKeys.length > 0) {
+            const firstKey = searchKeys[0] as keyof T;
+            if (item[firstKey] !== undefined && item[firstKey] !== null) {
+                value = String(item[firstKey]);
+            }
+        } else if (item.name || item.title || item.product_name) {
+            value = String(item.name || item.title || item.product_name);
+        }
         onselect?.(item);
         isOpen = false;
         activeIndex = -1;
     }
+
 
     function clear() {
         if (timer) {
@@ -181,9 +199,10 @@
             role="combobox"
             aria-expanded={isOpen}
             aria-controls={isOpen ? listboxId : undefined}
-            aria-autocomplete="list"
-            class="h-10 w-full rounded-xl border border-input bg-card pl-9 pr-9 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground shadow-2xs focus:ring-1 focus:ring-primary outline-none transition-all {inputClass}"
+            class="h-10 w-full rounded-xl border border-border/80 bg-background pl-9 pr-9 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground shadow-2xs focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary transition-all disabled:cursor-not-allowed disabled:bg-transparent disabled:border-dashed disabled:text-muted-foreground/60 {inputClass}"
         />
+
+
 
 
         {#if loading}
@@ -202,29 +221,40 @@
 
     {#if isOpen && showDropdown}
         {#if displayItems.length > 0}
-            <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border shadow-xl z-50 overflow-hidden animate-in fade-in duration-150">
-                <div id={listboxId} class="max-h-64 overflow-y-auto divide-y divide-border/40 custom-scrollbar" role="listbox">
+            <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border/90 shadow-2xl shadow-accent/15 z-50 overflow-hidden animate-in fade-in duration-150 p-1.5">
+                <div id={listboxId} class="max-h-64 overflow-y-auto space-y-0.5 custom-scrollbar" role="listbox">
                     {#each displayItems as item, i (item.id || i)}
                         <button
                             type="button"
                             role="option"
                             aria-selected={activeIndex === i}
-                            class="w-full px-3.5 py-2.5 text-left text-xs transition-colors flex items-center justify-between gap-2 cursor-pointer {activeIndex === i ? 'bg-muted/80 text-foreground font-medium' : 'hover:bg-muted/50 text-foreground'}"
+                            class="w-full px-3 py-2 rounded-xl text-left text-xs transition-all flex items-center justify-between gap-2 cursor-pointer {activeIndex === i ? 'bg-accent text-accent-foreground font-semibold shadow-2xs' : 'text-foreground hover:bg-accent/40 hover:text-accent-foreground'}"
                             onclick={() => selectItem(item)}
                         >
                             {#if itemSnippet}
                                 {@render itemSnippet(item, i)}
                             {:else}
-                                <span class="truncate">{item.name || item.title || item.code || JSON.stringify(item)}</span>
+                                <div class="flex flex-col min-w-0 flex-1 text-left">
+                                    <span class="truncate font-medium text-xs">
+                                        <HighlightMatch text={item.name ?? item.title ?? item.product_name ?? item.code ?? JSON.stringify(item)} query={value} />
+                                    </span>
+                                    {#if item.sku ?? item.product_sku}
+                                        <span class="text-[10px] text-muted-foreground font-mono">
+                                            SKU: <HighlightMatch text={item.sku ?? item.product_sku} query={value} />
+                                        </span>
+                                    {/if}
+                                </div>
                             {/if}
+
                         </button>
                     {/each}
                 </div>
             </div>
         {:else if emptySnippet}
-            <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border shadow-xl z-50 overflow-hidden animate-in fade-in duration-150 p-2">
+            <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border/90 shadow-2xl shadow-accent/15 z-50 overflow-hidden animate-in fade-in duration-150 p-3">
                 {@render emptySnippet()}
             </div>
         {/if}
     {/if}
 </div>
+

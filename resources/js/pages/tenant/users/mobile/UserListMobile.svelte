@@ -2,7 +2,7 @@
     import { Button } from '@/components/ui/button';
     import { Badge } from '@/components/ui/badge';
     import { Card, CardContent } from '@/components/ui/card';
-    import { Link } from '@inertiajs/svelte';
+    import { Link, router } from '@inertiajs/svelte';
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import IconContainer from '@/components/common/IconContainer.svelte';
@@ -29,11 +29,26 @@
         currentUserId?: number;
         ondelete: (user: UserItem) => void;
     } = $props();
+
+    function navigateToEdit(userId: number) {
+        router.visit(`/tenant/usuarios/${userId}/edit`);
+    }
 </script>
 
 <div class="flex flex-col gap-3">
     {#each users as user (user.id)}
-        <Card class="rounded-2xl border-border/70 bg-card p-4 shadow-2xs transition-all active:scale-[0.99]">
+        <Card
+            role="button"
+            tabindex="0"
+            onclick={() => navigateToEdit(user.id)}
+            onkeydown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigateToEdit(user.id);
+                }
+            }}
+            class="rounded-2xl border-border/70 bg-card p-4 shadow-2xs transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 active:scale-[0.99] cursor-pointer text-left select-none"
+        >
             <CardContent class="p-0 space-y-3">
                 <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3">
@@ -58,7 +73,7 @@
                         {#each user.roles as role}
                             <Badge
                                 variant={role.name === 'admin' ? 'default' : 'outline'}
-                                class="h-6 text-xs font-medium tracking-wide rounded-md px-2"
+                                class="h-6 text-xs font-semibold tracking-wide rounded-md px-2"
                             >
                                 {role.name}
                             </Badge>
@@ -71,8 +86,9 @@
 
                 <div class="flex items-center justify-between border-t border-border/40 pt-3 gap-2">
                     <Link
-                        href={`/tenant/users/${user.id}/edit`}
-                        class="flex-1 inline-flex items-center justify-center min-h-[44px] w-full gap-2 rounded-xl text-xs font-medium border border-border/70 text-foreground hover:bg-muted/60 transition-colors shadow-2xs"
+                        href={`/tenant/usuarios/${user.id}/edit`}
+                        onclick={(e) => e.stopPropagation()}
+                        class="flex-1 inline-flex items-center justify-center min-h-[44px] w-full gap-2 rounded-xl text-xs font-semibold border border-primary/30 bg-primary/15 text-white hover:bg-primary/25 hover:text-white dark:text-sky-100 dark:border-primary/40 transition-colors shadow-2xs"
                     >
                         <Edit2 class="h-4 w-4" />
                         <span>Editar</span>
@@ -82,7 +98,10 @@
                         <Button
                             variant="destructive"
                             class="min-h-[44px] min-w-[44px] px-3.5 gap-2 rounded-xl text-xs font-medium justify-center"
-                            onclick={() => ondelete(user)}
+                            onclick={(e) => {
+                                e.stopPropagation();
+                                ondelete(user);
+                            }}
                         >
                             <Trash2 class="h-4 w-4" />
                             <span class="sr-only">Eliminar</span>
@@ -93,3 +112,4 @@
         </Card>
     {/each}
 </div>
+

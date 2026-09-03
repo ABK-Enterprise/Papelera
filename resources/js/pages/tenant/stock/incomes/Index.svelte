@@ -60,7 +60,7 @@
         <div class="flex items-center gap-3">
             <Button
                 onclick={() => (isCreateModalOpen = true)}
-                class="flex items-center gap-2 font-semibold shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white"
+                class="flex items-center gap-2 font-semibold shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white sm:hover:shadow-lg sm:hover:shadow-emerald-600/25 cursor-pointer"
             >
                 <Plus class="size-4" />
                 <span>Registrar ingreso</span>

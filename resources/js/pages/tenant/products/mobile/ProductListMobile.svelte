@@ -5,7 +5,9 @@
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
+
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Package from 'lucide-svelte/icons/package';
     import Scale from 'lucide-svelte/icons/scale';
@@ -28,13 +30,17 @@
         package_quantity?: number;
         image_url: string | null;
         is_incomplete?: boolean;
+        warehouses_count?: number;
         category?: CategorySummary | null;
     }
 
+
     let {
         products = [],
+        searchQuery = '',
     }: {
         products: ProductItem[];
+        searchQuery?: string;
     } = $props();
 
     let page = $state(1);
@@ -61,7 +67,7 @@
     function executeDelete() {
         if (!productToDelete) return;
         isDeleting = true;
-        router.delete(`/tenant/products/${productToDelete.id}`, {
+        router.delete(`/tenant/productos/${productToDelete.id}`, {
             onFinish: () => {
                 isDeleting = false;
                 isDeleteModalOpen = false;
@@ -75,7 +81,8 @@
     {#each paginatedProducts as product (product.id)}
         {@const isIncomplete = product.is_incomplete ?? (!product.category || Number(product.price) <= 0)}
         {@const isWeighable = product.sale_type === 'weight'}
-        <div class="flex items-center gap-3.5 rounded-2xl border {isIncomplete ? 'border-amber-500/40 bg-amber-500/5' : 'border-border/70 bg-card'} p-3.5 shadow-2xs">
+        <div class="flex items-center gap-3.5 rounded-2xl border transition-all duration-200 hover:shadow-lg hover:shadow-accent/20 {isIncomplete ? 'border-amber-500/40 bg-amber-500/5' : 'border-border/70 bg-card'} p-3.5 shadow-2xs">
+
             {#if product.image_url}
                 <div class="size-12 shrink-0 rounded-xl border border-border/80 overflow-hidden">
                     <img src={product.image_url} alt={product.name} class="h-full w-full object-cover" />
@@ -90,7 +97,9 @@
 
             <div class="flex flex-1 flex-col min-w-0 justify-center">
                 <div class="flex items-center gap-1.5 truncate">
-                    <h4 class="font-semibold text-sm text-foreground truncate leading-snug">{product.name}</h4>
+                    <h4 class="font-semibold text-sm text-foreground truncate leading-snug">
+                        <HighlightMatch text={product.name} query={searchQuery} />
+                    </h4>
                     {#if isWeighable}
                         <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 shrink-0 tabular-nums">
                             <Scale class="h-2.5 w-2.5" />
@@ -113,7 +122,7 @@
                     </span>
                 {/if}
 
-                <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                <div class="flex items-center gap-1.5 mt-1.5 flex-wrap text-xs">
                     {#if product.stock <= 0}
                         <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 tabular-nums">
                             Agotado
@@ -127,25 +136,34 @@
                             Stock: {product.stock} {isWeighable ? 'Kg' : 'u'}
                         </span>
                     {/if}
+
+                    <span class="text-muted-foreground/40 font-light select-none">|</span>
+                    <span class="text-xs text-muted-foreground tabular-nums">
+                        {product.warehouses_count === 1 ? '1 depósito' : `${product.warehouses_count ?? 0} depósitos`}
+                    </span>
+
                     {#if product.sku}
+                        <span class="text-muted-foreground/40 font-light select-none">|</span>
                         <span class="text-xs text-muted-foreground tracking-wide truncate tabular-nums">
-                            {product.sku}
+                            <HighlightMatch text={product.sku} query={searchQuery} />
                         </span>
                     {/if}
+
                 </div>
             </div>
+
 
             <div class="flex flex-col gap-1.5 shrink-0">
                 {#if isIncomplete}
                     <Link
-                        href={`/tenant/products/${product.id}/edit`}
+                        href={`/tenant/productos/${product.id}/editar`}
                         class="inline-flex items-center justify-center min-h-[44px] px-3 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-xl transition-colors"
                     >
                         <span>Completar datos</span>
                     </Link>
                 {:else}
                     <Link
-                        href={`/tenant/products/${product.id}/edit`}
+                        href={`/tenant/productos/${product.id}/editar`}
                         class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] p-0 rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shadow-2xs"
                     >
                         <Edit2 class="h-4 w-4" />
@@ -170,9 +188,10 @@
             title="No se encontraron productos"
             description="No hay productos disponibles en tu catálogo o filtros seleccionados."
             actionLabel="Crear producto"
-            actionHref="/tenant/products/create"
+            actionHref="/tenant/productos/crear"
         />
     {/if}
+
 
     {#if products.length > perPage}
         <AppPagination count={products.length} {perPage} bind:page />

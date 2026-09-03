@@ -208,12 +208,13 @@
                 <div class="flex flex-col gap-3">
                     {#each recentTenants as tenant (tenant.id)}
                         <div
-                            class={`p-4 sm:p-5 rounded-2xl border bg-card shadow-2xs transition-all ${
+                            class={`p-4 sm:p-5 rounded-2xl border bg-card shadow-2xs transition-all duration-200 hover:shadow-lg hover:shadow-accent/20 ${
                                 selectedTenant?.id === tenant.id
                                     ? 'border-primary ring-1 ring-primary/30 bg-primary/[0.02]'
-                                    : 'border-border/70 hover:border-border hover:shadow-xs'
+                                    : 'border-border/70 hover:border-border'
                             }`}
                         >
+
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <!-- Info Principal -->
                                 <div class="flex items-center gap-3.5 min-w-0">

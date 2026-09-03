@@ -37,10 +37,11 @@
         isSubmitting = true;
 
         router.patch(
-            '/tenant/products/bulk-discount/global',
+            '/tenant/productos/descuento-bulto/global',
             {
                 default_bulk_discount_percentage: discountValue,
             },
+
             {
                 preserveScroll: true,
                 onSuccess: () => {
@@ -71,7 +72,7 @@
                 <button
                     type="button"
                     onclick={() => (open = false)}
-                    class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
@@ -111,14 +112,15 @@
             </div>
 
             <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-border">
-                <Button type="button" variant="outline" onclick={() => (open = false)} disabled={isSubmitting}>
+                <Button type="button" variant="outline" class="min-h-[44px] px-4 rounded-xl text-sm font-semibold" onclick={() => (open = false)} disabled={isSubmitting}>
                     Cancelar
                 </Button>
-                <Button type="submit" disabled={isSubmitting} class="gap-1.5">
+                <Button type="submit" disabled={isSubmitting} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold gap-1.5">
                     <Check class="size-4" />
                     <span>Guardar configuración</span>
                 </Button>
             </div>
+
         </form>
     </DialogContent>
 </Dialog>

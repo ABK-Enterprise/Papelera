@@ -48,7 +48,7 @@ test('tenant admin can view list of users of their tenant only', function () {
     ]);
 
     $this->actingAs($this->tenantAdmin)
-        ->get('/tenant/users')
+        ->get('/tenant/usuarios')
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/users/Index')
@@ -59,7 +59,7 @@ test('tenant admin can view list of users of their tenant only', function () {
 
 test('tenant admin can view create user form with tenant roles', function () {
     $this->actingAs($this->tenantAdmin)
-        ->get('/tenant/users/create')
+        ->get('/tenant/usuarios/create')
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/users/Create')
@@ -69,7 +69,7 @@ test('tenant admin can view create user form with tenant roles', function () {
 
 test('tenant admin can create a new employee and assign role within tenant', function () {
     $response = $this->actingAs($this->tenantAdmin)
-        ->post('/tenant/users', [
+        ->post('/tenant/usuarios', [
             'name' => 'Nuevo Empleado',
             'email' => 'nuevo@tenant1.com',
             'password' => 'secret1234',
@@ -77,7 +77,7 @@ test('tenant admin can create a new employee and assign role within tenant', fun
             'role' => 'empleado',
         ]);
 
-    $response->assertRedirect('/tenant/users');
+    $response->assertRedirect('/tenant/usuarios');
 
     $user = User::where('email', 'nuevo@tenant1.com')->first();
     expect($user)->not->toBeNull()
@@ -93,7 +93,7 @@ test('validates required fields and unique email on user creation', function () 
     User::factory()->create(['email' => 'existente@tenant.com']);
 
     $this->actingAs($this->tenantAdmin)
-        ->post('/tenant/users', [
+        ->post('/tenant/usuarios', [
             'name' => '',
             'email' => 'existente@tenant.com',
             'password' => '123',
@@ -111,7 +111,7 @@ test('tenant admin can edit and update an employee of their tenant', function ()
     $employee->assignRole($this->employeeRole);
 
     $this->actingAs($this->tenantAdmin)
-        ->get("/tenant/users/{$employee->id}/edit")
+        ->get("/tenant/usuarios/{$employee->id}/edit")
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/users/Edit')
@@ -120,13 +120,13 @@ test('tenant admin can edit and update an employee of their tenant', function ()
         );
 
     $response = $this->actingAs($this->tenantAdmin)
-        ->put("/tenant/users/{$employee->id}", [
+        ->put("/tenant/usuarios/{$employee->id}", [
             'name' => 'Empleado Modificado',
             'email' => 'modificado@tenant1.com',
             'role' => 'empleado',
         ]);
 
-    $response->assertRedirect('/tenant/users');
+    $response->assertRedirect('/tenant/usuarios');
 
     $employee->refresh();
     expect($employee->name)->toBe('Empleado Modificado')
@@ -140,15 +140,15 @@ test('tenant admin can delete an employee of their tenant', function () {
     $employee = User::factory()->forTenant($this->tenant)->create();
 
     $this->actingAs($this->tenantAdmin)
-        ->delete("/tenant/users/{$employee->id}")
-        ->assertRedirect('/tenant/users');
+        ->delete("/tenant/usuarios/{$employee->id}")
+        ->assertRedirect('/tenant/usuarios');
 
     expect(User::find($employee->id))->toBeNull();
 });
 
 test('tenant admin cannot delete themselves', function () {
     $this->actingAs($this->tenantAdmin)
-        ->delete("/tenant/users/{$this->tenantAdmin->id}")
+        ->delete("/tenant/usuarios/{$this->tenantAdmin->id}")
         ->assertForbidden();
 
     expect(User::find($this->tenantAdmin->id))->not->toBeNull();

@@ -68,7 +68,7 @@
         </div>
         <Link
             href="/tenant/roles"
-            class="inline-flex items-center gap-2 min-h-[40px] px-4 rounded-xl border border-border/70 text-xs font-medium hover:bg-muted/60 transition-colors"
+            class="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-xl border border-border/80 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-sm font-medium shadow-2xs transition-colors"
         >
             <ArrowLeft class="size-4" />
             <span>Volver</span>
@@ -88,7 +88,7 @@
                         bind:value={form.name}
                         placeholder="ej. Cajero, Repositor, Encargado de Ventas"
                         required
-                        class="h-11 rounded-xl border-border/70 bg-muted/20 px-3.5 text-sm font-normal transition-colors focus:bg-background"
+                        class="h-11 rounded-xl border border-border/80 bg-background px-3.5 text-sm font-normal text-foreground transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                     {#if form.errors.name}
                         <p class="text-xs font-medium text-destructive">{form.errors.name}</p>
@@ -124,10 +124,10 @@
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    class={`min-h-[36px] text-xs font-medium rounded-xl border transition-all ${
+                                    class={`min-h-[36px] text-xs font-semibold rounded-xl border transition-all ${
                                         allSelected
-                                            ? 'bg-primary/10 text-primary border-primary/30 hover:bg-primary/20'
-                                            : 'bg-background hover:bg-muted text-foreground border-border/70'
+                                            ? 'bg-primary/15 text-primary border-primary/40 hover:bg-primary/25'
+                                            : 'bg-background hover:bg-muted text-foreground border-border/80'
                                     }`}
                                     onclick={() => toggleAllModulePermissions(mod, !allSelected)}
                                 >
@@ -136,11 +136,11 @@
                             {/if}
                         </div>
 
-                        <!-- Caja / Contenedor del módulo con Pill descriptivo anclado arriba a la derecha -->
-                        <div class="rounded-2xl border border-border/60 p-4 space-y-3.5 bg-card shadow-2xs">
-                            <div class="flex items-center justify-between gap-3 border-b border-border/40 pb-3">
-                                <h4 class="font-semibold text-sm text-foreground truncate flex-1">{mod.name}</h4>
-                                <Badge variant="outline" class="text-xs bg-muted/40 font-sans tracking-wide px-2.5 py-0.5 shrink-0">
+                        <!-- Caja / Contenedor del módulo con distinción de superficie tonal escalonada -->
+                        <div class="rounded-2xl border border-border/80 p-4 space-y-3.5 bg-background/80 dark:bg-background-900/60 shadow-xs">
+                            <div class="flex items-center justify-between gap-3 border-b border-border/60 pb-3">
+                                <h4 class="font-bold text-sm text-foreground truncate flex-1">{mod.name}</h4>
+                                <Badge variant="secondary" class="text-xs font-sans tracking-wide px-2.5 py-0.5 shrink-0 border border-border/60">
                                     {mod.code}
                                 </Badge>
                             </div>
@@ -152,15 +152,15 @@
                                         type="button"
                                         onclick={() => togglePermission(perm.name)}
                                         class="flex min-h-[44px] items-center gap-3 rounded-xl border p-2.5 text-left text-xs cursor-pointer select-none transition-all {isChecked
-                                            ? 'border-primary bg-primary/5 text-foreground shadow-2xs font-semibold'
-                                            : 'border-border/60 bg-muted/10 hover:bg-muted/30 text-muted-foreground'}"
+                                            ? 'border-primary bg-primary/10 text-foreground shadow-2xs font-semibold'
+                                            : 'border-border/80 bg-card hover:bg-muted/60 text-muted-foreground'}"
                                     >
-                                        <div class="size-4.5 rounded-md border flex items-center justify-center transition-colors shrink-0 {isChecked ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-background'}">
+                                        <div class="size-4.5 rounded-md border flex items-center justify-center transition-colors shrink-0 {isChecked ? 'bg-primary text-primary-foreground border-primary' : 'border-border/80 bg-background'}">
                                             {#if isChecked}
                                                 <Check class="size-3 stroke-[3]" />
                                             {/if}
                                         </div>
-                                        <span class="text-xs truncate flex-1">{perm.name}</span>
+                                        <span class="text-xs truncate flex-1 {isChecked ? 'text-foreground font-semibold' : 'text-muted-foreground'}">{perm.name}</span>
                                     </button>
                                 {/each}
                                 {#if mod.permissions.length === 0}
@@ -188,14 +188,14 @@
         <div class="flex items-center justify-end gap-3">
             <Link
                 href="/tenant/roles"
-                class="inline-flex items-center justify-center min-h-[40px] px-4 rounded-xl border border-border/70 text-xs font-medium hover:bg-muted/60 transition-colors"
+                class="inline-flex items-center justify-center min-h-[44px] min-w-36 px-5 rounded-xl font-semibold border border-border/80 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-xs transition-colors shadow-2xs"
             >
                 Cancelar
             </Link>
             <Button
                 type="submit"
                 disabled={form.processing}
-                class="min-h-[40px] px-6 rounded-xl text-xs font-semibold shadow-sm"
+                class="min-h-[44px] min-w-36 px-5 gap-2 rounded-xl font-semibold text-xs shadow-xs"
             >
                 {form.processing ? 'Guardando...' : 'Crear rol'}
             </Button>

@@ -38,9 +38,10 @@
         isDrawerOpen = true;
         isLoadingMovements = true;
         try {
-            const res = await fetch(`/tenant/customers/${cust.id}/account`, {
+            const res = await fetch(`/tenant/clientes/${cust.id}/cuenta-corriente`, {
                 headers: { Accept: 'application/json' },
             });
+
             if (res.ok) {
                 const fullData = await res.json();
                 if (selectedCustomerForDrawer && selectedCustomerForDrawer.id === cust.id) {
@@ -83,9 +84,10 @@
 
         <button
             type="button"
-            class="w-full text-left p-4 rounded-2xl border border-border/80 bg-card hover:bg-muted/15 transition-all shadow-2xs space-y-3 group"
+            class="w-full text-left p-4 rounded-2xl border border-border/80 bg-card shadow-2xs space-y-3 group transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25"
             onclick={() => openCustomerDrawer(cust)}
         >
+
             <div class="flex items-start justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
                     <IconContainer size="md" variant="primary">

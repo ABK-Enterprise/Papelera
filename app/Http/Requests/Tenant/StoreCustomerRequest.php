@@ -38,11 +38,13 @@ class StoreCustomerRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:100'],
             'address' => ['nullable', 'string', 'max:255'],
             'credit_limit' => ['nullable', 'numeric', 'min:0'],
+            'discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'is_defaulter' => ['boolean'],
             'is_active' => ['boolean'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
     }
+
 
     /**
      * @return array<string, string>

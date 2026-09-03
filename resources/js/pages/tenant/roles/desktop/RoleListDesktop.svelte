@@ -2,7 +2,7 @@
     import { Button } from '@/components/ui/button';
     import { Badge } from '@/components/ui/badge';
     import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-    import { Link } from '@inertiajs/svelte';
+    import { Link, router } from '@inertiajs/svelte';
     import Shield from 'lucide-svelte/icons/shield';
     import Users from 'lucide-svelte/icons/users';
     import Edit2 from 'lucide-svelte/icons/edit-2';
@@ -24,11 +24,26 @@
         roles: RoleItem[];
         ondelete: (role: RoleItem) => void;
     } = $props();
+
+    function navigateToEdit(roleId: number) {
+        router.visit(`/tenant/roles/${roleId}/edit`);
+    }
 </script>
 
 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
     {#each roles as role (role.id)}
-        <Card class="flex flex-col justify-between rounded-2xl border border-border/70 bg-card shadow-xs transition-all hover:shadow-md hover:border-border">
+        <Card
+            role="button"
+            tabindex="0"
+            onclick={() => navigateToEdit(role.id)}
+            onkeydown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigateToEdit(role.id);
+                }
+            }}
+            class="flex flex-col justify-between rounded-2xl border border-border/70 bg-card shadow-xs transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-border cursor-pointer text-left select-none"
+        >
             <CardHeader class="pb-3.5">
                 <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3">
@@ -55,7 +70,8 @@
                 <div class="flex items-center justify-between border-t border-border/40 pt-3 gap-2">
                     <Link
                         href={`/tenant/roles/${role.id}/edit`}
-                        class="flex-1 inline-flex items-center justify-center min-h-[40px] w-full gap-1.5 rounded-xl border border-border/70 text-xs font-medium text-foreground hover:bg-muted/60 transition-colors shadow-2xs"
+                        onclick={(e) => e.stopPropagation()}
+                        class="flex-1 inline-flex items-center justify-center min-h-[40px] w-full gap-1.5 rounded-xl border border-primary/30 bg-primary/15 text-white hover:bg-primary/25 hover:text-white dark:text-sky-100 dark:border-primary/40 text-xs font-semibold transition-colors shadow-2xs"
                     >
                         <Edit2 class="h-3.5 w-3.5" />
                         <span>Editar rol</span>
@@ -64,7 +80,10 @@
                     <Button
                         variant="ghost"
                         size="sm"
-                        onclick={() => ondelete(role)}
+                        onclick={(e) => {
+                            e.stopPropagation();
+                            ondelete(role);
+                        }}
                         class="min-h-[40px] min-w-[40px] px-3 gap-1.5 rounded-xl text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive justify-center"
                     >
                         <Trash2 class="h-3.5 w-3.5" />
@@ -75,3 +94,4 @@
         </Card>
     {/each}
 </div>
+

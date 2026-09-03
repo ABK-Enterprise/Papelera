@@ -29,6 +29,7 @@ use Illuminate\Support\Carbon;
 #[Fillable([
     'tenant_id',
     'product_id',
+    'warehouse_id',
     'user_id',
     'type',
     'reason',
@@ -56,10 +57,16 @@ class StockMovement extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
+
 
     public function scopeIncomes(Builder $query): Builder
     {
