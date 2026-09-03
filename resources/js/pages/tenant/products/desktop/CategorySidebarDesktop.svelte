@@ -105,12 +105,13 @@
             Categorías
         </h3>
         <Button
-            size="sm"
-            class="min-h-[34px] px-3 text-xs font-semibold gap-1.5 rounded-xl shadow-xs"
+            size="icon"
+            class="size-8 rounded-xl shadow-xs cursor-pointer"
             onclick={openCreateCategoryModal}
+            title="Nueva categoría"
+            aria-label="Nueva categoría"
         >
-            <Plus class="size-3.5" />
-            <span>Nueva categoría</span>
+            <Plus class="size-4" />
         </Button>
     </div>
 

@@ -286,9 +286,9 @@
     <!-- Barra de Búsqueda y Filtros -->
     <Card class="rounded-xl p-3 sm:p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
         <!-- Vista Desktop (>= 768px): Buscador + Selects Directos -->
-        <div class="hidden md:flex items-center justify-between gap-3">
+        <div class="hidden md:flex items-center gap-3 flex-nowrap">
             <!-- Buscador por Nombre, SKU o Código de Barras -->
-            <div class="w-full md:w-[448px]">
+            <div class="w-full md:w-[448px] shrink-0">
 
                 <SearchCombobox
                     bind:value={searchTerm}
@@ -320,8 +320,8 @@
                 </SearchCombobox>
             </div>
 
-            <!-- Selectores de Filtro en Desktop -->
-            <div class="flex items-center gap-2.5 flex-wrap">
+            <!-- Selectores de Filtro en Desktop + Botón Limpiar -->
+            <div class="flex items-center gap-2.5 flex-nowrap flex-1 min-w-0 justify-end">
                 <!-- Selector de Ordenamiento -->
                 <SortSelect
                     value={sortBy}
@@ -336,7 +336,7 @@
                 <select
                     bind:value={selectedCategoryId}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[130px]"
+                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[120px] max-w-[150px]"
                 >
                     <option value={null}>Todas las Categorías</option>
                     {#each categories as cat}
@@ -348,7 +348,7 @@
                 <select
                     bind:value={selectedStockStatus}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[130px]"
+                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
                 >
                     <option value="">Stock: Todos</option>
                     <option value="in_stock">En Stock ({stats.in_stock})</option>
@@ -360,7 +360,7 @@
                 <select
                     bind:value={selectedInfoStatus}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[130px]"
+                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
                 >
                     <option value="">Datos: Todos</option>
                     <option value="complete">Completos</option>
@@ -368,7 +368,7 @@
                 </select>
 
                 {#if hasActiveFilters}
-                    <Button variant="ghost" size="sm" class="h-10 px-2 text-xs text-muted-foreground hover:text-foreground gap-1" onclick={resetFilters}>
+                    <Button variant="ghost" size="sm" class="h-10 px-2 text-xs text-muted-foreground hover:text-foreground gap-1 shrink-0" onclick={resetFilters}>
                         <X class="size-3.5" />
                         Limpiar
                     </Button>
