@@ -81,7 +81,7 @@
     {#each paginatedProducts as product (product.id)}
         {@const isIncomplete = product.is_incomplete ?? (!product.category || Number(product.price) <= 0)}
         {@const isWeighable = product.sale_type === 'weight'}
-        <div class="flex items-center gap-3.5 rounded-2xl border transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 {isIncomplete ? 'border-amber-500/40 bg-amber-500/5' : 'border-border/70 bg-card'} p-3.5 shadow-2xs">
+        <div class="flex items-center gap-3.5 rounded-2xl border transition-all duration-200 hover:shadow-lg hover:shadow-accent/20 {isIncomplete ? 'border-amber-500/40 bg-amber-500/5' : 'border-border/70 bg-card'} p-3.5 shadow-2xs">
 
             {#if product.image_url}
                 <div class="size-12 shrink-0 rounded-xl border border-border/80 overflow-hidden">

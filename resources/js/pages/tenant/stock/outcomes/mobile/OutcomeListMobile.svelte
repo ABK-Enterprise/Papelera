@@ -48,7 +48,7 @@
 {#if movements.length > 0}
     <div class="flex flex-col gap-3">
         {#each movements as mov (mov.id)}
-            <div class="rounded-xl border border-border/70 bg-card p-4 shadow-xs transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25">
+            <div class="rounded-xl border border-border/70 bg-card p-4 shadow-xs transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
 
                 <!-- Header de Card Mobile: Producto y Cantidad -->
                 <div class="flex items-start justify-between gap-3 pb-3 border-b border-border/40">

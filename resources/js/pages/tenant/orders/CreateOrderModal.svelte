@@ -737,7 +737,7 @@
 
                     <!-- Selector de Depósito de Despacho si hay depósitos -->
                     {#if warehouses && warehouses.length > 0}
-                        <div class="pt-2 border-t border-border/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <div class="pt-3 mt-1.5 border-t border-border/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                             <Label for="order-warehouse" class="text-xs font-semibold text-foreground flex items-center gap-1.5 shrink-0">
                                 <Warehouse class="size-3.5 text-primary" />
                                 Depósito de Origen / Despacho:
@@ -1054,7 +1054,7 @@
                     </div>
 
                     {#if paymentType === 'contado'}
-                        <div class="pt-1.5 space-y-1.5">
+                        <div class="pt-2.5 mt-1 border-t border-border/50 space-y-1.5">
                             <Label for="order-payment-method" class="text-xs font-semibold text-foreground">
                                 Medio de Pago
                             </Label>
@@ -1088,35 +1088,44 @@
             </form>
 
             <!-- Footer Bento: Total & Botones (shrink-0) -->
-            <div class="flex items-center justify-between border-t pt-3.5 shrink-0">
-                <div class="flex flex-col items-start gap-0.5">
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-xs text-muted-foreground">Total del Pedido:</span>
-                        {#if computedTotals.discountTotal > 0}
-                            <span class="line-through text-xs sm:text-sm text-muted-foreground font-sans tabular-nums">
-                                {formatPrice(computedTotals.baseTotal)}
+            <div class="border-t border-border/60 pt-4 mt-2 space-y-3 shrink-0">
+                <!-- Contenedor Superior: Resumen de Totales y Descuentos -->
+                <div class="rounded-xl bg-card border border-border/70 p-3 sm:p-3.5 space-y-1.5 shadow-2xs">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs sm:text-sm font-medium text-muted-foreground">Total del Pedido:</span>
+                        <div class="flex items-baseline gap-2">
+                            {#if computedTotals.discountTotal > 0}
+                                <span class="line-through text-xs sm:text-sm text-muted-foreground font-sans tabular-nums">
+                                    {formatPrice(computedTotals.baseTotal)}
+                                </span>
+                            {/if}
+                            <span class="text-base sm:text-xl font-bold font-sans tabular-nums text-primary">
+                                {formatPrice(computedTotals.finalTotal)}
                             </span>
-                        {/if}
-                        <span class="text-lg sm:text-xl font-bold font-sans tabular-nums text-primary">
-                            {formatPrice(computedTotals.finalTotal)}
-                        </span>
+                        </div>
                     </div>
                     {#if computedTotals.discountTotal > 0}
-                        <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold font-sans tabular-nums">
-                            Ahorro por descuento ({customerDiscountPercentage}%): -{formatPrice(computedTotals.discountTotal)}
-                        </span>
+                        <div class="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5 mt-1">
+                            <span>Ahorro por descuento ({customerDiscountPercentage}%):</span>
+                            <span>-{formatPrice(computedTotals.discountTotal)}</span>
+                        </div>
                     {/if}
                 </div>
 
-
-                <div class="flex items-center gap-2">
-                    <Button type="button" variant="outline" class="min-h-[44px] px-4 rounded-xl text-sm font-semibold" onclick={closeModal}>
+                <!-- Fila Inferior: Botones de Acción (ambos simétricos, min-h-[44px], sin text-wrap) -->
+                <div class="flex items-center justify-end gap-3 w-full">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        class="min-h-[44px] px-5 rounded-xl text-xs sm:text-sm font-semibold flex-1 sm:flex-initial"
+                        onclick={closeModal}
+                    >
                         Cancelar
                     </Button>
                     <Button
                         type="submit"
                         form="create-order-form"
-                        class="min-h-[44px] px-4 rounded-xl text-sm font-semibold gap-1.5"
+                        class="min-h-[44px] min-w-[150px] px-6 rounded-xl text-xs sm:text-sm font-semibold gap-2 whitespace-nowrap flex-1 sm:flex-initial shadow-xs"
                         disabled={isSubmitting || items.length === 0}
                     >
                         {#if isSubmitting}
@@ -1127,7 +1136,6 @@
                         {/if}
                     </Button>
                 </div>
-
             </div>
         </div>
     </div>

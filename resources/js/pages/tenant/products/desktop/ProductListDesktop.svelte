@@ -95,7 +95,7 @@
         {@const isWeighable = product.sale_type === 'weight'}
         {@const isIncomplete = Boolean(product.is_incomplete)}
         <div
-            class="flex items-center justify-between p-4 rounded-2xl border transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-border gap-4 bg-card shadow-xs {isIncomplete ? 'border-amber-300 dark:border-amber-700/60 bg-amber-50/20 dark:bg-amber-950/10' : 'border-border/70'}"
+            class="flex items-center justify-between p-4 rounded-2xl border transition-all duration-200 hover:shadow-lg hover:shadow-accent/20 hover:border-border gap-4 bg-card shadow-xs {isIncomplete ? 'border-amber-300 dark:border-amber-700/60 bg-amber-50/20 dark:bg-amber-950/10' : 'border-border/70'}"
         >
 
             <!-- Lado Izquierdo: Imagen / Avatar Placeholder + Info Principal -->

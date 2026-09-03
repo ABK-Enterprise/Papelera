@@ -109,7 +109,7 @@
     <!-- Bento Grid de Métricas Clave (diseño-stitch-stock-kardex.html) -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <!-- Tarjeta 1: Total Ingresos -->
-        <div class="p-5 rounded-2xl bg-card border border-border/70 shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25">
+        <div class="p-5 rounded-2xl bg-card border border-border/70 shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
             <div class="flex items-center justify-between">
                 <div class="size-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
                     <ArrowDownLeft class="size-5" />
@@ -125,7 +125,7 @@
         </div>
 
         <!-- Tarjeta 2: Total Salidas -->
-        <div class="p-5 rounded-2xl bg-card border border-border/70 shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25">
+        <div class="p-5 rounded-2xl bg-card border border-border/70 shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
             <div class="flex items-center justify-between">
                 <div class="size-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-500/20">
                     <ArrowUpRight class="size-5" />
@@ -141,7 +141,7 @@
         </div>
 
         <!-- Tarjeta 3: Balance Neto -->
-        <div class="p-5 rounded-2xl bg-card border border-border/70 shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25">
+        <div class="p-5 rounded-2xl bg-card border border-border/70 shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
 
             <div class="flex items-center justify-between">
                 <div class="size-9 rounded-xl bg-primary/10 text-primary dark:text-primary-300 flex items-center justify-center border border-primary/20">

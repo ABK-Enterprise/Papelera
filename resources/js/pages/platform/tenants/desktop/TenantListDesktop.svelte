@@ -57,7 +57,7 @@
         <div class="flex flex-col gap-3">
             {#each tenants as tenant (tenant.id)}
                 <div
-                    class={`p-5 rounded-2xl border bg-card shadow-2xs transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 ${
+                    class={`p-5 rounded-2xl border bg-card shadow-2xs transition-all duration-200 hover:shadow-lg hover:shadow-accent/20 ${
                         selectedTenant?.id === tenant.id
                             ? 'border-primary ring-1 ring-primary/30 bg-primary/[0.02]'
                             : 'border-border/70 hover:border-border'

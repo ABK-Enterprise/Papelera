@@ -186,7 +186,7 @@
                 {@const isLowStock = Number(item.stock) <= Number(item.min_stock) && Number(item.stock) > 0}
                 {@const isOutOfStock = Number(item.stock) <= 0}
 
-                <Card class="rounded-2xl p-4 border border-border/60 shadow-2xs transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 flex flex-col justify-between gap-3 bg-card">
+                <Card class="rounded-2xl p-4 border border-border/60 shadow-2xs transition-all duration-200 hover:shadow-lg hover:shadow-accent/20 flex flex-col justify-between gap-3 bg-card">
 
                     <!-- Cabecera de la Card -->
                     <div class="space-y-1.5">

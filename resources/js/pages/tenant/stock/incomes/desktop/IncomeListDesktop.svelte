@@ -158,7 +158,7 @@
     <!-- Lista de Wide Cards (Jerarquía Visual de Elementos) -->
     <div class="flex flex-col gap-3">
         {#each filteredMovements as mov (mov.id)}
-            <div class="bento-card group flex items-center justify-between gap-6 rounded-2xl border border-border/70 bg-card p-4.5 shadow-[0px_10px_30px_rgba(0,0,0,0.02)] transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-primary/40">
+            <div class="bento-card group flex items-center justify-between gap-6 rounded-2xl border border-border/70 bg-card p-4.5 shadow-[0px_10px_30px_rgba(0,0,0,0.02)] transition-all duration-200 hover:shadow-lg hover:shadow-accent/20 hover:border-primary/40">
 
                 <!-- Lado Izquierdo: Icon Avatar + Datos Principales -->
                 <div class="flex items-center gap-4.5 min-w-0 flex-1">

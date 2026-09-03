@@ -54,7 +54,7 @@
     {#each modules as mod (mod.id)}
         {@const iconName = getModuleIcon(mod.code)}
 
-        <div class="bg-card rounded-2xl p-5 shadow-2xs border border-border/70 flex flex-col justify-between transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-border">
+        <div class="bg-card rounded-2xl p-5 shadow-2xs border border-border/70 flex flex-col justify-between transition-all duration-200 hover:shadow-lg hover:shadow-accent/20 hover:border-border">
 
             <div>
                 <div class="flex justify-between items-start mb-3.5">

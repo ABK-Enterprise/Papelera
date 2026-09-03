@@ -1,10 +1,11 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
     import { Badge } from '@/components/ui/badge';
-    import { Link } from '@inertiajs/svelte';
+    import { Link, router } from '@inertiajs/svelte';
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Trash2 from 'lucide-svelte/icons/trash-2';
-    import UserCheck from 'lucide-svelte/icons/user-check';
+    import Calendar from 'lucide-svelte/icons/calendar';
+    import Shield from 'lucide-svelte/icons/shield';
     import IconContainer from '@/components/common/IconContainer.svelte';
 
     interface RoleItem {
@@ -29,85 +30,110 @@
         currentUserId?: number;
         ondelete: (user: UserItem) => void;
     } = $props();
+
+    function navigateToEdit(userId: number) {
+        router.visit(`/tenant/usuarios/${userId}/edit`);
+    }
 </script>
 
-<div class="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-xs">
-    <table class="w-full text-left text-sm">
-        <thead class="border-b border-border/60 bg-muted/40 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            <tr>
-                <th scope="col" class="py-3.5 pl-6 pr-4">Empleado</th>
-                <th scope="col" class="px-4 py-3.5">Roles Asignados</th>
-                <th scope="col" class="px-4 py-3.5">Alta en Sistema</th>
-                <th scope="col" class="py-3.5 pr-6 pl-4 text-right">Acciones</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-border/40">
-            {#each users as user (user.id)}
-                <tr class="group transition-colors hover:bg-muted/30">
-                    <td class="py-4 pl-6 pr-4">
-                        <div class="flex items-center gap-3">
-                            <IconContainer size="md" variant="primary">
-                                {user.name.charAt(0).toUpperCase()}
-                            </IconContainer>
-                            <div class="flex flex-col">
-                                <div class="flex items-center gap-2">
-                                    <span class="font-semibold text-foreground">{user.name}</span>
-                                    {#if currentUserId === user.id}
-                                        <Badge variant="secondary" class="h-5 text-xs px-1.5 font-medium tracking-wide">Tú</Badge>
-                                    {/if}
-                                </div>
-                                <span class="text-xs text-muted-foreground">{user.email}</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-4 py-4">
-                        <div class="flex flex-wrap gap-1.5">
-                            {#each user.roles as role}
-                                <Badge
-                                    variant={role.name === 'admin' ? 'default' : 'outline'}
-                                    class="h-6 text-xs font-medium tracking-wide rounded-md px-2.5"
-                                >
-                                    {role.name}
-                                </Badge>
-                            {/each}
-                            {#if user.roles.length === 0}
-                                <span class="text-xs italic text-muted-foreground">Sin rol asignado</span>
-                            {/if}
-                        </div>
-                    </td>
-                    <td class="px-4 py-4 text-xs text-muted-foreground tabular-nums">
-                        {new Date(user.created_at).toLocaleDateString('es-AR', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                        })}
-                    </td>
-                    <td class="py-4 pr-6 pl-4 text-right">
-                        <div class="flex items-center justify-end gap-2">
-                            <Link
-                                href={`/tenant/usuarios/${user.id}/edit`}
-                                class="inline-flex items-center justify-center min-h-[40px] min-w-[40px] px-3 gap-1.5 rounded-xl border border-primary-300/30 bg-primary-300/10 text-primary-600 hover:bg-primary-300/20 dark:bg-primary-400/10 dark:text-primary-300 dark:border-primary-400/30 dark:hover:bg-primary-400/20 text-xs font-medium transition-colors shadow-2xs"
-                            >
-                                <Edit2 class="h-3.5 w-3.5" />
-                                <span>Editar</span>
-                            </Link>
+<div class="flex flex-col gap-3">
+    {#each users as user (user.id)}
+        <div
+            role="button"
+            tabindex="0"
+            onclick={() => navigateToEdit(user.id)}
+            onkeydown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigateToEdit(user.id);
+                }
+            }}
+            class="flex items-center justify-between p-4 sm:p-5 rounded-2xl border border-border/70 bg-card shadow-xs transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-border cursor-pointer gap-4 text-left select-none"
+        >
+            <!-- Lado Izquierdo: Avatar + Información del Empleado -->
+            <div class="flex items-center gap-4 min-w-0 flex-1">
+                <IconContainer size="lg" variant="primary">
+                    <span class="text-sm font-bold">{user.name.charAt(0).toUpperCase()}</span>
+                </IconContainer>
 
+                <div class="flex flex-col min-w-0 space-y-1">
+                    <div class="flex items-center gap-2">
+                        <h4 class="font-bold text-base text-foreground truncate leading-snug">
+                            {user.name}
+                        </h4>
+                        {#if currentUserId === user.id}
+                            <Badge variant="secondary" class="h-5 text-xs px-2 font-medium tracking-wide">
+                                Tú
+                            </Badge>
+                        {/if}
+                    </div>
+                    <span class="text-xs text-muted-foreground truncate">{user.email}</span>
+                </div>
+            </div>
 
-                            {#if currentUserId !== user.id}
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onclick={() => ondelete(user)}
-                                    class="min-h-[40px] min-w-[40px] gap-1.5 rounded-xl text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"
-                                >
-                                    <Trash2 class="h-3.5 w-3.5" />
-                                    <span>Eliminar</span>
-                                </Button>
-                            {/if}
-                        </div>
-                    </td>
-                </tr>
-            {/each}
-        </tbody>
-    </table>
+            <!-- Centro: Roles Asignados -->
+            <div class="hidden md:flex flex-col items-start gap-1 min-w-[180px]">
+                <span class="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                    <Shield class="size-3 text-primary" />
+                    Roles Asignados
+                </span>
+                <div class="flex flex-wrap gap-1.5">
+                    {#each user.roles as role}
+                        <Badge
+                            variant={role.name === 'admin' ? 'default' : 'outline'}
+                            class="h-6 text-xs font-semibold tracking-wide rounded-lg px-2.5"
+                        >
+                            {role.name}
+                        </Badge>
+                    {/each}
+                    {#if user.roles.length === 0}
+                        <span class="text-xs italic text-muted-foreground">Sin rol asignado</span>
+                    {/if}
+                </div>
+            </div>
+
+            <!-- Centro-Derecha: Fecha de Alta -->
+            <div class="hidden lg:flex flex-col items-start gap-0.5 min-w-[140px] text-xs text-muted-foreground tabular-nums">
+                <span class="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                    <Calendar class="size-3 text-muted-foreground" />
+                    Alta en Sistema
+                </span>
+                <span class="text-foreground font-medium">
+                    {new Date(user.created_at).toLocaleDateString('es-AR', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                    })}
+                </span>
+            </div>
+
+            <!-- Lado Derecho: Acciones -->
+            <div class="flex items-center justify-end gap-2 shrink-0">
+                <Link
+                    href={`/tenant/usuarios/${user.id}/edit`}
+                    onclick={(e) => e.stopPropagation()}
+                    class="inline-flex items-center justify-center min-h-[40px] px-4 gap-1.5 rounded-xl border border-primary/30 bg-primary/15 text-white hover:bg-primary/25 hover:text-white dark:text-sky-100 dark:border-primary/40 text-xs font-semibold transition-colors shadow-2xs"
+                >
+                    <Edit2 class="h-3.5 w-3.5" />
+                    <span>Editar</span>
+                </Link>
+
+                {#if currentUserId !== user.id}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onclick={(e) => {
+                            e.stopPropagation();
+                            ondelete(user);
+                        }}
+                        class="min-h-[40px] min-w-[40px] px-3 gap-1.5 rounded-xl text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors justify-center"
+                    >
+                        <Trash2 class="h-3.5 w-3.5" />
+                        <span class="sr-only">Eliminar</span>
+                    </Button>
+                {/if}
+            </div>
+        </div>
+    {/each}
 </div>
+
