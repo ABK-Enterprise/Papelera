@@ -36,6 +36,8 @@ use Illuminate\Support\Carbon;
     'customer_phone',
     'delivery_address',
     'status',
+    'payment_status',
+    'debt_amount',
     'subtotal_amount',
     'shipping_cost',
     'total_amount',
@@ -56,12 +58,15 @@ class CustomerOrder extends Model
         'cancelado' => [], // Estado terminal
     ];
 
+    public const PAYMENT_STATUSES = ['pendiente', 'parcial', 'cobrado'];
+
     protected function casts(): array
     {
         return [
             'subtotal_amount' => 'decimal:2',
             'shipping_cost' => 'decimal:2',
             'total_amount' => 'decimal:2',
+            'debt_amount' => 'decimal:2',
             'customer_discount_percentage' => 'decimal:2',
             'customer_discount_amount' => 'decimal:2',
         ];
@@ -88,6 +93,28 @@ class CustomerOrder extends Model
         return $this->hasMany(CustomerOrderItem::class);
     }
 
+    public function receiptAllocations(): HasMany
+    {
+        return $this->hasMany(CustomerOrderReceipt::class, 'customer_order_id');
+    }
+
+    public function receipts(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Receipt::class, 'customer_order_receipt')
+            ->withPivot('amount_applied')
+            ->withTimestamps();
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->payment_status === 'cobrado' && (float) $this->debt_amount <= 0;
+    }
+
+    public function canBePaid(): bool
+    {
+        return $this->status !== 'cancelado' && $this->payment_status !== 'cobrado';
+    }
+
     public function isTerminal(): bool
     {
         return in_array($this->status, ['entregado', 'cancelado'], true);
@@ -107,5 +134,10 @@ class CustomerOrder extends Model
     public function scopeStatus(Builder $query, string $status): Builder
     {
         return $query->where('status', $status);
+    }
+
+    public function scopePaymentStatus(Builder $query, string $paymentStatus): Builder
+    {
+        return $query->where('payment_status', $paymentStatus);
     }
 }

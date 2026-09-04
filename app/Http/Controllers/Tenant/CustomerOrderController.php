@@ -263,6 +263,10 @@ class CustomerOrderController extends Controller
                 }
             }
 
+            $paymentType = $request->input('payment_type') ?: 'cuenta_corriente';
+            $paymentMethod = $request->input('payment_method') ?: 'efectivo';
+            $isContado = ($paymentType === 'contado');
+
             $order = CustomerOrder::create([
                 'tenant_id' => $tenantId,
                 'customer_id' => $customerId,
@@ -274,6 +278,8 @@ class CustomerOrderController extends Controller
                 'customer_phone' => $request->validated('customer_phone') ?: $customer?->phone,
                 'delivery_address' => $request->validated('delivery_address') ?: $customer?->address,
                 'status' => 'en_preparacion',
+                'payment_status' => $isContado ? 'cobrado' : 'pendiente',
+                'debt_amount' => $isContado ? 0.00 : $totalAmount,
                 'customer_discount_percentage' => $customerDiscountPct,
                 'customer_discount_amount' => $totalDiscountAmount,
                 'subtotal_amount' => $subtotalProducts,
@@ -281,6 +287,28 @@ class CustomerOrderController extends Controller
                 'total_amount' => $totalAmount,
                 'notes' => $request->validated('notes'),
             ]);
+
+            if ($isContado) {
+                $receiptNumber = app(TenantSequenceService::class)->nextReceiptNumber($tenantId);
+                $receipt = \App\Models\Receipt::create([
+                    'tenant_id' => $tenantId,
+                    'customer_id' => $customerId,
+                    'receipt_number' => $receiptNumber,
+                    'created_by_user_id' => $userId,
+                    'amount' => $totalAmount,
+                    'payment_method' => $paymentMethod,
+                    'reference_number' => $orderNumber,
+                    'notes' => "Cobro de contado - Pedido {$orderNumber}",
+                    'is_cancelled' => false,
+                ]);
+
+                \App\Models\CustomerOrderReceipt::create([
+                    'tenant_id' => $tenantId,
+                    'customer_order_id' => $order->id,
+                    'receipt_id' => $receipt->id,
+                    'amount_applied' => $totalAmount,
+                ]);
+            }
 
             foreach ($preparedItems as $prep) {
                 CustomerOrderItem::create([
