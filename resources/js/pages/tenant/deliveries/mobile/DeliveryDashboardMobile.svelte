@@ -140,7 +140,6 @@
 
         <div class="flex items-center justify-between pt-1 border-t border-border/40 text-xs text-muted-foreground">
             <span>Entregados: <strong class="text-foreground font-bold">{shiftSummary.delivered_count}</strong></span>
-            <span>En ruta: <strong class="text-foreground font-bold">{myRouteOrders.length}</strong></span>
             <span>Disponibles: <strong class="text-foreground font-bold">{availableOrders.length}</strong></span>
         </div>
     </div>
@@ -152,7 +151,7 @@
             class="py-2.5 px-2 rounded-lg text-xs font-bold transition-all min-h-[44px] flex flex-col items-center justify-center gap-0.5 {activeTab === 'my_route' ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'}"
             onclick={() => (activeTab = 'my_route')}
         >
-            <span>Mi Ruta</span>
+            <span>Mis pedidos</span>
             <span class="text-[11px] font-mono opacity-80">({myRouteOrders.length})</span>
         </button>
 
@@ -161,7 +160,7 @@
             class="py-2.5 px-2 rounded-lg text-xs font-bold transition-all min-h-[44px] flex flex-col items-center justify-center gap-0.5 {activeTab === 'available' ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'}"
             onclick={() => (activeTab = 'available')}
         >
-            <span>Bolsa</span>
+            <span>Disponibles</span>
             <span class="text-[11px] font-mono opacity-80">({availableOrders.length})</span>
         </button>
 
@@ -170,26 +169,26 @@
             class="py-2.5 px-2 rounded-lg text-xs font-bold transition-all min-h-[44px] flex flex-col items-center justify-center gap-0.5 {activeTab === 'failed' ? 'bg-card text-rose-600 dark:text-rose-400 shadow-xs' : 'text-muted-foreground hover:text-foreground'}"
             onclick={() => (activeTab = 'failed')}
         >
-            <span>Incidentes</span>
+            <span>Cancelados</span>
             <span class="text-[11px] font-mono opacity-80">({failedOrders.length})</span>
         </button>
     </div>
 
-    <!-- Pestaña Mi Ruta Mobile -->
+    <!-- Pestaña Mis Pedidos Mobile -->
     {#if activeTab === 'my_route'}
         {#if myRouteOrders.length === 0}
             <div class="flex flex-col items-center justify-center p-8 text-center rounded-2xl border border-dashed border-border/80 bg-card/40">
                 <Truck class="size-10 text-muted-foreground/40 mb-2" />
                 <h3 class="text-sm font-semibold text-foreground">Sin pedidos en tu ruta actual</h3>
                 <p class="text-xs text-muted-foreground mt-1 mb-3">
-                    Toca la pestaña "Bolsa" para tomar pedidos preparados en depósito.
+                    Toca la pestaña "Disponibles" para tomar pedidos en depósito.
                 </p>
                 <Button
                     class="h-11 min-h-[44px] px-4 font-semibold text-xs gap-1.5"
                     onclick={() => (activeTab = 'available')}
                 >
                     <PackageCheck class="size-4" />
-                    <span>Ver Pedidos en Bolsa</span>
+                    <span>Ver Pedidos Disponibles</span>
                 </Button>
             </div>
         {:else}
@@ -356,32 +355,42 @@
             </div>
         {/if}
     {:else if activeTab === 'failed'}
-        <div class="space-y-3">
-            {#each failedOrders as order (order.id)}
-                <div class="p-3.5 rounded-2xl border border-rose-500/30 bg-card shadow-xs space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="font-mono text-xs font-bold text-rose-600 dark:text-rose-400">#{order.order_number}</span>
-                        <span class="text-xs font-semibold text-rose-700 dark:text-rose-300 bg-rose-500/10 px-2 py-0.5 rounded-md">
-                            {order.delivery_failure_reason ? (failureReasonLabels[order.delivery_failure_reason] || order.delivery_failure_reason) : 'No entregado'}
-                        </span>
+        {#if failedOrders.length === 0}
+            <div class="flex flex-col items-center justify-center p-8 text-center rounded-2xl border border-dashed border-border/80 bg-card/40">
+                <AlertTriangle class="size-10 text-muted-foreground/40 mb-2" />
+                <h3 class="text-sm font-semibold text-foreground">No hay pedidos cancelados</h3>
+                <p class="text-xs text-muted-foreground mt-1">
+                    Todos los repartos están en curso o se han entregado normalmente.
+                </p>
+            </div>
+        {:else}
+            <div class="space-y-3">
+                {#each failedOrders as order (order.id)}
+                    <div class="p-3.5 rounded-2xl border border-rose-500/30 bg-card shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-bold text-rose-600 dark:text-rose-400">#{order.order_number}</span>
+                            <span class="text-xs font-semibold text-rose-700 dark:text-rose-300 bg-rose-500/10 px-2 py-0.5 rounded-md">
+                                {order.delivery_failure_reason ? (failureReasonLabels[order.delivery_failure_reason] || order.delivery_failure_reason) : 'No entregado'}
+                            </span>
+                        </div>
+                        <h4 class="text-sm font-bold text-foreground">{order.customer_name}</h4>
+                        {#if order.delivery_notes}
+                            <p class="text-xs text-muted-foreground italic bg-background/50 p-2 rounded-lg border border-border/40">
+                                "{order.delivery_notes}"
+                            </p>
+                        {/if}
+                        <div class="pt-1">
+                            <Button
+                                class="w-full h-11 min-h-[44px] text-xs font-semibold gap-2 bg-primary"
+                                onclick={() => handleReschedule(order.id)}
+                            >
+                                <RefreshCw class="size-4" />
+                                <span>Reprogramar Pedido</span>
+                            </Button>
+                        </div>
                     </div>
-                    <h4 class="text-sm font-bold text-foreground">{order.customer_name}</h4>
-                    {#if order.delivery_notes}
-                        <p class="text-xs text-muted-foreground italic bg-background/50 p-2 rounded-lg border border-border/40">
-                            "{order.delivery_notes}"
-                        </p>
-                    {/if}
-                    <div class="pt-1">
-                        <Button
-                            class="w-full h-11 min-h-[44px] text-xs font-semibold gap-2 bg-primary"
-                            onclick={() => handleReschedule(order.id)}
-                        >
-                            <RefreshCw class="size-4" />
-                            <span>Reprogramar Pedido</span>
-                        </Button>
-                    </div>
-                </div>
-            {/each}
-        </div>
+                {/each}
+            </div>
+        {/if}
     {/if}
 </div>

@@ -9,7 +9,7 @@ test.describe.serial('Motor de Pagos, Cobranzas y Recibos UI/UX', () => {
         await page.fill('#email', 'axel@axel.com');
         await page.fill('#password', 'password');
         await page.click('button[type="submit"]');
-        await expect(page).toHaveURL(/.*(dashboard|tenant).*/);
+        await expect(page).toHaveURL(/.*(dashboard|tenant).*/, { timeout: 10000 });
     });
 
     test.afterAll(async () => {

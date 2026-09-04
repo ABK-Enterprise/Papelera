@@ -159,13 +159,13 @@
         </div>
 
         <div class="flex items-center gap-3.5 p-3 rounded-xl bg-background/60 border border-border/50">
-            <div class="size-10 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                <Truck class="size-5" />
+            <div class="size-10 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
+                <PackageCheck class="size-5" />
             </div>
             <div>
-                <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">En Ruta Actual</p>
+                <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Pedidos Disponibles</p>
                 <p class="text-lg font-bold tabular-nums text-foreground">
-                    {myRouteOrders.length} <span class="text-xs font-normal text-muted-foreground">pendientes</span>
+                    {availableOrders.length} <span class="text-xs font-normal text-muted-foreground">en bolsa</span>
                 </p>
             </div>
         </div>
@@ -179,7 +179,7 @@
             onclick={() => (activeTab = 'my_route')}
         >
             <Truck class="size-4" />
-            <span>Mi Ruta en Curso</span>
+            <span>Mis pedidos</span>
             <Badge variant="secondary" class="ml-1 px-1.5 py-0.5 text-xs font-mono">
                 {myRouteOrders.length}
             </Badge>
@@ -191,25 +191,23 @@
             onclick={() => (activeTab = 'available')}
         >
             <PackageCheck class="size-4" />
-            <span>Bolsa de Pedidos Disponibles</span>
+            <span>Pedidos Disponibles</span>
             <Badge variant="secondary" class="ml-1 px-1.5 py-0.5 text-xs font-mono">
                 {availableOrders.length}
             </Badge>
         </button>
 
-        {#if failedOrders.length > 0}
-            <button
-                type="button"
-                class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all min-h-[44px] {activeTab === 'failed' ? 'bg-rose-600 text-white shadow-xs' : 'bg-background hover:bg-muted text-muted-foreground'}"
-                onclick={() => (activeTab = 'failed')}
-            >
-                <AlertTriangle class="size-4" />
-                <span>Incidentes / No Entregados</span>
-                <Badge variant="destructive" class="ml-1 px-1.5 py-0.5 text-xs font-mono">
-                    {failedOrders.length}
-                </Badge>
-            </button>
-        {/if}
+        <button
+            type="button"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all min-h-[44px] {activeTab === 'failed' ? 'bg-primary text-primary-foreground shadow-xs' : 'bg-background hover:bg-muted text-muted-foreground'}"
+            onclick={() => (activeTab = 'failed')}
+        >
+            <AlertTriangle class="size-4" />
+            <span>Pedidos Cancelados</span>
+            <Badge variant="secondary" class="ml-1 px-1.5 py-0.5 text-xs font-mono">
+                {failedOrders.length}
+            </Badge>
+        </button>
     </div>
 
     <!-- Contenido de las Pestañas -->
@@ -417,40 +415,50 @@
             </div>
         {/if}
     {:else if activeTab === 'failed'}
-        <div class="grid grid-cols-1 gap-4">
-            {#each failedOrders as order (order.id)}
-                <div class="p-5 rounded-2xl border border-rose-500/30 bg-card shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div class="space-y-2 flex-1 min-w-0">
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span class="font-mono text-sm font-bold text-rose-600 dark:text-rose-400">#{order.order_number}</span>
-                            <span class="text-base font-bold text-foreground">{order.customer_name}</span>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-300">
-                                {order.delivery_failure_reason ? (failureReasonLabels[order.delivery_failure_reason] || order.delivery_failure_reason) : 'Visita fallida'}
-                            </span>
+        {#if failedOrders.length === 0}
+            <div class="flex flex-col items-center justify-center p-12 text-center rounded-2xl border border-dashed border-border/80 bg-card/40">
+                <ShieldAlert class="size-12 text-muted-foreground/40 mb-3" />
+                <h3 class="text-base font-semibold text-foreground">No hay pedidos cancelados o con incidentes</h3>
+                <p class="text-xs text-muted-foreground mt-1 max-w-sm">
+                    Todos los pedidos están en curso o se han entregado normalmente sin cancelaciones.
+                </p>
+            </div>
+        {:else}
+            <div class="grid grid-cols-1 gap-4">
+                {#each failedOrders as order (order.id)}
+                    <div class="p-5 rounded-2xl border border-rose-500/30 bg-card shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="space-y-2 flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="font-mono text-sm font-bold text-rose-600 dark:text-rose-400">#{order.order_number}</span>
+                                <span class="text-base font-bold text-foreground">{order.customer_name}</span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-300">
+                                    {order.delivery_failure_reason ? (failureReasonLabels[order.delivery_failure_reason] || order.delivery_failure_reason) : 'Visita fallida'}
+                                </span>
+                            </div>
+
+                            {#if order.delivery_notes}
+                                <p class="text-xs text-muted-foreground italic bg-background/50 p-2.5 rounded-xl border border-border/50">
+                                    Observaciones: "{order.delivery_notes}"
+                                </p>
+                            {/if}
+
+                            <p class="text-xs text-muted-foreground flex items-center gap-2">
+                                <span>Dirección: {order.delivery_address || 'Sin dirección registrada'}</span>
+                                <span>•</span>
+                                <span class="tabular-nums">Importe: ${Number(order.total_amount).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+                            </p>
                         </div>
 
-                        {#if order.delivery_notes}
-                            <p class="text-xs text-muted-foreground italic bg-background/50 p-2.5 rounded-xl border border-border/50">
-                                Observaciones: "{order.delivery_notes}"
-                            </p>
-                        {/if}
-
-                        <p class="text-xs text-muted-foreground flex items-center gap-2">
-                            <span>Dirección: {order.delivery_address || 'Sin dirección registrada'}</span>
-                            <span>•</span>
-                            <span class="tabular-nums">Importe: ${Number(order.total_amount).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
-                        </p>
+                        <Button
+                            class="h-11 min-h-[44px] px-5 font-semibold gap-2 shrink-0 bg-primary"
+                            onclick={() => handleReschedule(order.id)}
+                        >
+                            <RefreshCw class="size-4" />
+                            <span>Reprogramar Pedido</span>
+                        </Button>
                     </div>
-
-                    <Button
-                        class="h-11 min-h-[44px] px-5 font-semibold gap-2 shrink-0 bg-primary"
-                        onclick={() => handleReschedule(order.id)}
-                    >
-                        <RefreshCw class="size-4" />
-                        <span>Reprogramar Pedido</span>
-                    </Button>
-                </div>
-            {/each}
-        </div>
+                {/each}
+            </div>
+        {/if}
     {/if}
 </div>

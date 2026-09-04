@@ -65,7 +65,7 @@
                     <Link
                         href={`/tenant/roles/${role.id}/edit`}
                         onclick={(e) => e.stopPropagation()}
-                        class="flex-1 inline-flex items-center justify-center min-h-[44px] w-full gap-2 rounded-xl text-xs font-semibold border border-primary/30 bg-primary/15 text-white hover:bg-primary/25 hover:text-white dark:text-sky-100 dark:border-primary/40 transition-colors shadow-2xs"
+                        class="flex-1 inline-flex items-center justify-center min-h-[44px] w-full gap-2 rounded-xl text-xs font-semibold border border-primary/30 bg-primary/15 text-foreground hover:bg-primary/25 dark:text-sky-100 dark:border-primary/40 transition-colors shadow-2xs"
                     >
                         <Edit2 class="h-4 w-4" />
                         <span>Editar rol</span>

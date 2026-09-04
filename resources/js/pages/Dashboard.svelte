@@ -75,7 +75,7 @@
         {#if tenant}
             <div class="flex items-center gap-2 flex-wrap">
                 {#if modules.includes('pedidos')}
-                    <Link href="/tenant/pedidos">
+                    <Link href="/tenant/pedidos?crear=1">
                         <Button class="min-h-[40px] px-4 gap-2 text-sm font-medium rounded-xl shadow-xs">
                             <Plus class="size-4" />
                             <span>Nuevo Pedido</span>
@@ -84,7 +84,7 @@
                 {/if}
 
                 {#if modules.includes('stock')}
-                    <Link href="/tenant/stock/ingresos">
+                    <Link href="/tenant/stock/ingresos?crear=1">
                         <Button variant="secondary" class="min-h-[40px] px-4 gap-2 text-sm font-medium rounded-xl">
                             <ArrowDownLeft class="size-4 text-emerald-600 dark:text-emerald-400" />
                             <span>Ingreso de Stock</span>

@@ -39,14 +39,14 @@ test.describe('E2E: SearchCombobox, IconContainer and Realtime Color Palette', (
         await expect(page).toHaveURL(/.*(dashboard|tenant).*/);
 
         // 1. Products search combobox
-        await page.goto('/tenant/products');
+        await page.goto('/tenant/productos');
         await expect(page.locator('h1:has-text("Catálogo de Productos")')).toBeVisible();
 
         const productSearch = page.locator('input[role="combobox"]').first();
         await expect(productSearch).toBeVisible();
 
         // 2. Customers search combobox
-        await page.goto('/tenant/customers');
+        await page.goto('/tenant/clientes');
         await expect(page.locator('h1:has-text("Directorio de Clientes")')).toBeVisible();
 
         const customerSearch = page.locator('input[role="combobox"]').first();

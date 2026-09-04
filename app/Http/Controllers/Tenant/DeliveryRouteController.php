@@ -29,9 +29,9 @@ class DeliveryRouteController extends Controller
         $tenantId = $request->user()->tenant_id;
         $userId = $request->user()->id;
 
-        // Pedidos Disponibles en depósito (preparados, sin chofer asignado)
+        // Pedidos Disponibles en depósito (en preparación o preparados, sin chofer asignado)
         $availableOrders = CustomerOrder::where('tenant_id', $tenantId)
-            ->where('status', 'preparado')
+            ->whereIn('status', ['en_preparacion', 'preparado'])
             ->whereNull('delivery_user_id')
             ->with(['customer', 'shippingZone', 'items.product'])
             ->latest()
@@ -47,12 +47,12 @@ class DeliveryRouteController extends Controller
             ->get()
             ->map(fn ($order) => $this->transformOrder($order));
 
-        // Pedidos fallidos recientes que requieren atención o reprogramación
-        $failedOrders = CustomerOrder::where('tenant_id', $tenantId)
-            ->where('status', 'no_entregado')
+        // Pedidos cancelados o no entregados
+        $cancelledOrders = CustomerOrder::where('tenant_id', $tenantId)
+            ->whereIn('status', ['cancelado', 'no_entregado'])
             ->with(['customer', 'shippingZone', 'items.product'])
             ->latest()
-            ->take(20)
+            ->take(30)
             ->get()
             ->map(fn ($order) => $this->transformOrder($order));
 
@@ -62,7 +62,8 @@ class DeliveryRouteController extends Controller
             return response()->json([
                 'available_orders' => $availableOrders,
                 'my_route_orders' => $myRouteOrders,
-                'failed_orders' => $failedOrders,
+                'failed_orders' => $cancelledOrders,
+                'cancelled_orders' => $cancelledOrders,
                 'shift_summary' => $shiftSummary,
             ]);
         }
@@ -70,7 +71,8 @@ class DeliveryRouteController extends Controller
         return Inertia::render('tenant/deliveries/Index', [
             'availableOrders' => $availableOrders,
             'myRouteOrders' => $myRouteOrders,
-            'failedOrders' => $failedOrders,
+            'failedOrders' => $cancelledOrders,
+            'cancelledOrders' => $cancelledOrders,
             'shiftSummary' => $shiftSummary,
         ]);
     }
@@ -108,8 +110,8 @@ class DeliveryRouteController extends Controller
                     continue;
                 }
 
-                // Control estricto de concurrencia: debe estar preparado y sin chofer
-                if ($order->status !== 'preparado' || $order->delivery_user_id !== null) {
+                // Control estricto de concurrencia: debe estar en preparación o preparado y sin chofer
+                if (! in_array($order->status, ['en_preparacion', 'preparado']) || $order->delivery_user_id !== null) {
                     $unavailableOrders[] = $order->order_number;
                     continue;
                 }

@@ -116,8 +116,10 @@
     let customerPhone = $state('');
     let deliveryAddress = $state('');
     let notes = $state('');
-    let paymentType = $state<'cuenta_corriente' | 'contado'>('cuenta_corriente');
+    let paymentType = $state<'cuenta_corriente' | 'contado' | 'parcial'>('cuenta_corriente');
     let paymentMethod = $state<'efectivo' | 'transferencia' | 'debito' | 'credito' | 'otro'>('efectivo');
+    let paidAmount = $state<number | string>('');
+    let paymentReference = $state('');
     let isSubmitting = $state(false);
     let errorMessage = $state<string | null>(null);
 
@@ -460,6 +462,8 @@
         notes = '';
         paymentType = 'cuenta_corriente';
         paymentMethod = 'efectivo';
+        paidAmount = '';
+        paymentReference = '';
         errorMessage = null;
         searchQuery = '';
         selectedProductToAdd = null;
@@ -538,6 +542,22 @@
             }
         }
 
+        let numericPaidAmount: number | null = null;
+        if (paymentType === 'parcial') {
+            const raw = Number(paidAmount) || 0;
+            if (raw <= 0) {
+                errorMessage = 'Por favor ingresa un monto válido a cobrar para el pago parcial.';
+                isSubmitting = false;
+                return;
+            }
+            if (raw >= grandTotal) {
+                errorMessage = 'El pago parcial debe ser menor al total del pedido. Para cobrar el total, selecciona "Cobro Total en el Momento".';
+                isSubmitting = false;
+                return;
+            }
+            numericPaidAmount = raw;
+        }
+
         router.post(
             '/tenant/pedidos',
             {
@@ -549,7 +569,9 @@
                 delivery_address: deliveryAddress,
                 notes: notes,
                 payment_type: paymentType,
-                payment_method: paymentType === 'contado' ? paymentMethod : null,
+                payment_method: (paymentType === 'contado' || paymentType === 'parcial') ? paymentMethod : null,
+                paid_amount: numericPaidAmount,
+                payment_reference: (paymentType === 'contado' || paymentType === 'parcial') ? (paymentReference.trim() || null) : null,
                 apply_customer_discount: applyCustomerDiscount,
                 items: payloadItems,
             },
@@ -1063,16 +1085,16 @@
                         </h3>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         <label
-                            class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all {paymentType === 'cuenta_corriente' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground'}"
+                            class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {paymentType === 'cuenta_corriente' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground'}"
                         >
                             <input
                                 type="radio"
                                 name="order_payment_type"
                                 value="cuenta_corriente"
                                 bind:group={paymentType}
-                                class="size-4 text-primary focus:ring-primary"
+                                class="mt-0.5 size-4 text-primary focus:ring-primary"
                             />
                             <div class="min-w-0">
                                 <span class="text-xs font-medium block">Cuenta Corriente</span>
@@ -1081,38 +1103,99 @@
                         </label>
 
                         <label
-                            class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all {paymentType === 'contado' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground'}"
+                            class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {paymentType === 'contado' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground'}"
                         >
                             <input
                                 type="radio"
                                 name="order_payment_type"
                                 value="contado"
                                 bind:group={paymentType}
-                                class="size-4 text-primary focus:ring-primary"
+                                class="mt-0.5 size-4 text-primary focus:ring-primary"
                             />
                             <div class="min-w-0">
-                                <span class="text-xs font-medium block">Contado / Cobro Inmediato</span>
+                                <span class="text-xs font-medium block">Cobro Total</span>
                                 <span class="text-[11px] text-muted-foreground block font-normal">Abonado al momento, no genera deuda</span>
+                            </div>
+                        </label>
+
+                        <label
+                            class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {paymentType === 'parcial' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground'}"
+                        >
+                            <input
+                                type="radio"
+                                name="order_payment_type"
+                                value="parcial"
+                                bind:group={paymentType}
+                                class="mt-0.5 size-4 text-primary focus:ring-primary"
+                            />
+                            <div class="min-w-0">
+                                <span class="text-xs font-medium block">Pago Parcial / Seña</span>
+                                <span class="text-[11px] text-muted-foreground block font-normal">Entrega anticipada + saldo a cobrar</span>
                             </div>
                         </label>
                     </div>
 
-                    {#if paymentType === 'contado'}
-                        <div class="pt-2.5 mt-1 border-t border-border/50 space-y-1.5">
-                            <Label for="order-payment-method" class="text-xs font-semibold text-foreground">
-                                Medio de Pago
-                            </Label>
-                            <select
-                                id="order-payment-method"
-                                bind:value={paymentMethod}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
-                            >
-                                <option value="efectivo">Efectivo</option>
-                                <option value="transferencia">Transferencia Bancaria</option>
-                                <option value="debito">Tarjeta de Débito</option>
-                                <option value="credito">Tarjeta de Crédito</option>
-                                <option value="otro">Otro medio de pago</option>
-                            </select>
+                    {#if paymentType === 'contado' || paymentType === 'parcial'}
+                        <div class="pt-2.5 mt-1 border-t border-border/50 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="space-y-1.5">
+                                <Label for="order-payment-method" class="text-xs font-semibold text-foreground">
+                                    Medio de Pago
+                                </Label>
+                                <select
+                                    id="order-payment-method"
+                                    bind:value={paymentMethod}
+                                    class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                >
+                                    <option value="efectivo">Efectivo</option>
+                                    <option value="transferencia">Transferencia Bancaria</option>
+                                    <option value="debito">Tarjeta de Débito</option>
+                                    <option value="credito">Tarjeta de Crédito</option>
+                                    <option value="otro">Otro medio de pago</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <Label for="order-payment-reference" class="text-xs font-semibold text-foreground">
+                                    Nro. Comprobante / Referencia (Opcional)
+                                </Label>
+                                <Input
+                                    id="order-payment-reference"
+                                    type="text"
+                                    placeholder="ej. TRF-889911, Recibo provisorio..."
+                                    bind:value={paymentReference}
+                                    class="h-10 text-xs rounded-xl"
+                                />
+                            </div>
+
+                            {#if paymentType === 'parcial'}
+                                <div class="space-y-1.5 sm:col-span-2 bg-background/80 p-3 rounded-xl border border-border/80">
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                        <div>
+                                            <Label for="order-paid-amount" class="text-xs font-semibold text-foreground">
+                                                Monto Cobrado Anticipadamente ($)
+                                            </Label>
+                                            <p class="text-[11px] text-muted-foreground">
+                                                Deuda restante que quedará pendiente:
+                                                <span class="font-semibold tabular-nums text-foreground">
+                                                    {formatPrice(Math.max(0, grandTotal - (Number(paidAmount) || 0)))}
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <div class="w-full sm:w-48">
+                                            <Input
+                                                id="order-paid-amount"
+                                                type="number"
+                                                step="0.01"
+                                                min="0.01"
+                                                max={grandTotal}
+                                                placeholder={`ej. ${(grandTotal / 2).toFixed(2)}`}
+                                                bind:value={paidAmount}
+                                                class="h-10 text-xs rounded-xl font-mono tabular-nums"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            {/if}
                         </div>
                     {/if}
                 </div>

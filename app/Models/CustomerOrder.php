@@ -54,7 +54,7 @@ class CustomerOrder extends Model
     use BelongsToTenant, HasFactory;
 
     public const ALLOWED_TRANSITIONS = [
-        'en_preparacion' => ['preparado', 'cancelado'],
+        'en_preparacion' => ['preparado', 'en_camino', 'cancelado'],
         'preparado' => ['en_camino', 'entregado', 'cancelado'],
         'en_camino' => ['entregado', 'no_entregado', 'cancelado'],
         'no_entregado' => ['preparado', 'cancelado'],

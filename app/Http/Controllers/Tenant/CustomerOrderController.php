@@ -265,7 +265,23 @@ class CustomerOrderController extends Controller
 
             $paymentType = $request->input('payment_type') ?: 'cuenta_corriente';
             $paymentMethod = $request->input('payment_method') ?: 'efectivo';
-            $isContado = ($paymentType === 'contado');
+            $paymentReference = $request->input('payment_reference');
+
+            $paidAmount = 0.00;
+            if ($paymentType === 'contado') {
+                $paidAmount = $totalAmount;
+            } elseif ($paymentType === 'parcial') {
+                $inputPaid = (float) $request->input('paid_amount', 0);
+                $paidAmount = min($totalAmount, max(0.00, round($inputPaid, 2)));
+            }
+
+            $orderDebt = round($totalAmount - $paidAmount, 2);
+            $paymentStatus = 'pendiente';
+            if ($paidAmount >= $totalAmount) {
+                $paymentStatus = 'cobrado';
+            } elseif ($paidAmount > 0) {
+                $paymentStatus = 'parcial';
+            }
 
             $order = CustomerOrder::create([
                 'tenant_id' => $tenantId,
@@ -278,8 +294,8 @@ class CustomerOrderController extends Controller
                 'customer_phone' => $request->validated('customer_phone') ?: $customer?->phone,
                 'delivery_address' => $request->validated('delivery_address') ?: $customer?->address,
                 'status' => 'en_preparacion',
-                'payment_status' => $isContado ? 'cobrado' : 'pendiente',
-                'debt_amount' => $isContado ? 0.00 : $totalAmount,
+                'payment_status' => $paymentStatus,
+                'debt_amount' => $orderDebt,
                 'customer_discount_percentage' => $customerDiscountPct,
                 'customer_discount_amount' => $totalDiscountAmount,
                 'subtotal_amount' => $subtotalProducts,
@@ -288,17 +304,18 @@ class CustomerOrderController extends Controller
                 'notes' => $request->validated('notes'),
             ]);
 
-            if ($isContado) {
+            if ($paidAmount > 0) {
                 $receiptNumber = app(TenantSequenceService::class)->nextReceiptNumber($tenantId);
+                $notesPrefix = ($paymentType === 'parcial') ? 'Pago parcial / seña' : 'Cobro de contado';
                 $receipt = \App\Models\Receipt::create([
                     'tenant_id' => $tenantId,
                     'customer_id' => $customerId,
                     'receipt_number' => $receiptNumber,
                     'created_by_user_id' => $userId,
-                    'amount' => $totalAmount,
+                    'amount' => $paidAmount,
                     'payment_method' => $paymentMethod,
-                    'reference_number' => $orderNumber,
-                    'notes' => "Cobro de contado - Pedido {$orderNumber}",
+                    'reference_number' => $paymentReference ?: $orderNumber,
+                    'notes' => "{$notesPrefix} - Pedido {$orderNumber}",
                     'is_cancelled' => false,
                 ]);
 
@@ -306,7 +323,7 @@ class CustomerOrderController extends Controller
                     'tenant_id' => $tenantId,
                     'customer_order_id' => $order->id,
                     'receipt_id' => $receipt->id,
-                    'amount_applied' => $totalAmount,
+                    'amount_applied' => $paidAmount,
                 ]);
             }
 
@@ -382,30 +399,35 @@ class CustomerOrderController extends Controller
                     ->first();
 
                 if ($customer) {
-                    $paymentType = $request->input('payment_type') ?: 'cuenta_corriente';
-                    $paymentMethod = $request->input('payment_method');
                     $dueDays = $customer->credit_due_days ?: 30;
                     $dueDate = now()->addDays($dueDays)->toDateString();
                     $currentBalance = (float) $customer->current_balance;
 
-                    if ($paymentType === 'contado') {
-                        $method = $paymentMethod ?: 'efectivo';
-                        $tempBalance = round($currentBalance + $totalAmount, 2);
+                    $tempBalance = round($currentBalance + $totalAmount, 2);
+                    $chargeDesc = ($paidAmount >= $totalAmount)
+                        ? "Venta - Pedido {$orderNumber}"
+                        : "Venta a crédito - Pedido {$orderNumber}";
 
-                        CustomerAccountMovement::create([
-                            'tenant_id' => $tenantId,
-                            'customer_id' => $customer->id,
-                            'customer_order_id' => $order->id,
-                            'created_by_user_id' => $userId,
-                            'type' => 'charge',
-                            'description' => "Venta - Pedido {$orderNumber}",
-                            'amount' => $totalAmount,
-                            'balance_after' => $tempBalance,
-                            'due_date' => $dueDate,
-                            'payment_method' => $method,
-                            'reference_number' => $orderNumber,
-                            'notes' => $order->notes,
-                        ]);
+                    CustomerAccountMovement::create([
+                        'tenant_id' => $tenantId,
+                        'customer_id' => $customer->id,
+                        'customer_order_id' => $order->id,
+                        'created_by_user_id' => $userId,
+                        'type' => 'charge',
+                        'description' => $chargeDesc,
+                        'amount' => $totalAmount,
+                        'balance_after' => $tempBalance,
+                        'due_date' => $dueDate,
+                        'payment_method' => ($paidAmount > 0) ? $paymentMethod : 'cuenta_corriente',
+                        'reference_number' => $orderNumber,
+                        'notes' => $order->notes,
+                    ]);
+
+                    if ($paidAmount > 0) {
+                        $finalBalance = round($tempBalance - $paidAmount, 2);
+                        $paymentDesc = ($paidAmount >= $totalAmount)
+                            ? "Cobro de contado ({$paymentMethod}) - Pedido {$orderNumber}"
+                            : "Pago parcial / seña ({$paymentMethod}) - Pedido {$orderNumber}";
 
                         CustomerAccountMovement::create([
                             'tenant_id' => $tenantId,
@@ -413,33 +435,18 @@ class CustomerOrderController extends Controller
                             'customer_order_id' => $order->id,
                             'created_by_user_id' => $userId,
                             'type' => 'payment',
-                            'description' => "Cobro de contado ({$method}) - Pedido {$orderNumber}",
-                            'amount' => $totalAmount,
-                            'balance_after' => $currentBalance,
+                            'description' => $paymentDesc,
+                            'amount' => $paidAmount,
+                            'balance_after' => $finalBalance,
                             'due_date' => null,
-                            'payment_method' => $method,
-                            'reference_number' => $orderNumber,
+                            'payment_method' => $paymentMethod,
+                            'reference_number' => $paymentReference ?: $orderNumber,
                             'notes' => $order->notes,
                         ]);
+
+                        $customer->update(['current_balance' => $finalBalance]);
                     } else {
-                        $newBalance = round($currentBalance + $totalAmount, 2);
-
-                        CustomerAccountMovement::create([
-                            'tenant_id' => $tenantId,
-                            'customer_id' => $customer->id,
-                            'customer_order_id' => $order->id,
-                            'created_by_user_id' => $userId,
-                            'type' => 'charge',
-                            'description' => "Venta a crédito - Pedido {$orderNumber}",
-                            'amount' => $totalAmount,
-                            'balance_after' => $newBalance,
-                            'due_date' => $dueDate,
-                            'payment_method' => 'cuenta_corriente',
-                            'reference_number' => $orderNumber,
-                            'notes' => $order->notes,
-                        ]);
-
-                        $customer->update(['current_balance' => $newBalance]);
+                        $customer->update(['current_balance' => $tempBalance]);
                     }
                 }
             }
@@ -618,13 +625,8 @@ class CustomerOrderController extends Controller
                         ->first();
 
                     if ($customer) {
-                        $isCashOrder = CustomerAccountMovement::where('customer_order_id', $lockedOrder->id)
-                            ->where('tenant_id', $tenantId)
-                            ->where('type', 'payment')
-                            ->exists();
-
-                        if (! $isCashOrder) {
-                            $reversalAmount = (float) $lockedOrder->total_amount;
+                        $reversalAmount = (float) $lockedOrder->debt_amount;
+                        if ($reversalAmount > 0) {
                             $newBalance = round((float) $customer->current_balance - $reversalAmount, 2);
 
                             CustomerAccountMovement::create([

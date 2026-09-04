@@ -10,6 +10,7 @@
         availableOrders?: DeliveryOrder[];
         myRouteOrders?: DeliveryOrder[];
         failedOrders?: DeliveryOrder[];
+        cancelledOrders?: DeliveryOrder[];
         shiftSummary?: ShiftSummary;
     }
 
@@ -17,6 +18,7 @@
         availableOrders = [],
         myRouteOrders = [],
         failedOrders = [],
+        cancelledOrders = [],
         shiftSummary = {
             cash_total: 0,
             transfer_total: 0,
@@ -33,6 +35,8 @@
     let selectedOrderForFail = $state<DeliveryOrder | null>(null);
     let isFailModalOpen = $state(false);
 
+    let effectiveCancelledOrders = $derived(cancelledOrders.length > 0 ? cancelledOrders : failedOrders);
+
     function handleOpenDeliver(order: DeliveryOrder) {
         selectedOrderForDeliver = order;
         isDeliverModalOpen = true;
@@ -44,7 +48,7 @@
     }
 </script>
 
-<AppHead title="Repartos y Última Milla" />
+<AppHead title="Repartos" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1440px] mx-auto w-full">
     <!-- Header del Módulo con separación estándar mb-6 / gap-6 -->
@@ -52,11 +56,8 @@
         <div>
             <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
                 <Truck class="size-7 text-primary" />
-                Repartos y Última Milla
+                Repartos
             </h1>
-            <p class="text-xs sm:text-sm text-muted-foreground mt-1">
-                Bolsa de trabajo para choferes, gestión de ruta en tiempo real, cobros contra entrega y rendición de caja.
-            </p>
         </div>
     </div>
 
@@ -65,7 +66,8 @@
         <DeliveryDashboardDesktop
             {availableOrders}
             {myRouteOrders}
-            {failedOrders}
+            failedOrders={effectiveCancelledOrders}
+            cancelledOrders={effectiveCancelledOrders}
             {shiftSummary}
             onDeliverOrder={handleOpenDeliver}
             onFailDelivery={handleOpenFail}
@@ -77,7 +79,8 @@
         <DeliveryDashboardMobile
             {availableOrders}
             {myRouteOrders}
-            {failedOrders}
+            failedOrders={effectiveCancelledOrders}
+            cancelledOrders={effectiveCancelledOrders}
             {shiftSummary}
             onDeliverOrder={handleOpenDeliver}
             onFailDelivery={handleOpenFail}

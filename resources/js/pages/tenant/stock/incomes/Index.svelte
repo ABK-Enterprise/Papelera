@@ -44,6 +44,21 @@
     } = $props();
 
     let isCreateModalOpen = $state(false);
+
+    $effect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('crear') === '1') {
+                const timer = setTimeout(() => {
+                    isCreateModalOpen = true;
+                    params.delete('crear');
+                    const newUrl = window.location.pathname + (params.toString() ? `?${params.toString()}` : '');
+                    window.history.replaceState({}, '', newUrl);
+                }, 300);
+                return () => clearTimeout(timer);
+            }
+        }
+    });
 </script>
 
 <AppHead title="Ingresos de Stock - Comercio" />

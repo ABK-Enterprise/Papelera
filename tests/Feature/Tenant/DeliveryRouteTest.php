@@ -99,7 +99,7 @@ test('user can view deliveries index with available and my route orders', functi
         'delivery_user_id' => $this->adminUser->id,
     ]);
 
-    // Pedido en preparación (no debe aparecer como disponible)
+    // Pedido en preparación (debe aparecer como disponible en bolsa)
     $preparingOrder = CustomerOrder::create([
         'tenant_id' => $this->tenant->id,
         'customer_id' => $this->customer->id,
@@ -113,14 +113,27 @@ test('user can view deliveries index with available and my route orders', functi
         'delivery_user_id' => null,
     ]);
 
+    // Pedido cancelado (no debe aparecer como disponible en bolsa)
+    $cancelledOrder = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->defaultWarehouse->id,
+        'order_number' => 'PED-CANC-001',
+        'customer_name' => $this->customer->name,
+        'status' => 'cancelado',
+        'payment_status' => 'pendiente',
+        'total_amount' => 1000.00,
+        'debt_amount' => 1000.00,
+        'delivery_user_id' => null,
+    ]);
+
     $response = $this->actingAs($this->adminUser)
         ->get(route('tenant.deliveries.index'));
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
         ->component('tenant/deliveries/Index')
-        ->has('availableOrders', 1)
-        ->where('availableOrders.0.order_number', 'PED-AVAIL-001')
+        ->has('availableOrders', 2)
         ->has('myRouteOrders', 1)
         ->where('myRouteOrders.0.order_number', 'PED-MYROUTE-001')
         ->has('shiftSummary')
@@ -379,4 +392,67 @@ test('driver can retrieve shift summary data', function () {
         'total_collected' => 8000.00,
         'receipts_count' => 2,
     ]);
+});
+
+test('available orders include both en_preparacion and preparado orders without driver', function () {
+    $order1 = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->defaultWarehouse->id,
+        'order_number' => 'PED-PREP-01',
+        'customer_name' => $this->customer->name,
+        'status' => 'en_preparacion',
+        'payment_status' => 'pendiente',
+        'subtotal_amount' => 1000.00,
+        'total_amount' => 1000.00,
+        'debt_amount' => 1000.00,
+        'delivery_user_id' => null,
+    ]);
+
+    $order2 = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->defaultWarehouse->id,
+        'order_number' => 'PED-PREP-02',
+        'customer_name' => $this->customer->name,
+        'status' => 'preparado',
+        'payment_status' => 'pendiente',
+        'subtotal_amount' => 2000.00,
+        'total_amount' => 2000.00,
+        'debt_amount' => 2000.00,
+        'delivery_user_id' => null,
+    ]);
+
+    $response = $this->actingAs($this->adminUser)->getJson(route('tenant.deliveries.index'));
+    $response->assertOk();
+    $data = $response->json('available_orders');
+
+    $orderNumbers = collect($data)->pluck('order_number')->all();
+    expect($orderNumbers)->toContain('PED-PREP-01')
+        ->and($orderNumbers)->toContain('PED-PREP-02');
+});
+
+test('driver can assign order with en_preparacion status', function () {
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->defaultWarehouse->id,
+        'order_number' => 'PED-ASSIGN-PREP',
+        'customer_name' => $this->customer->name,
+        'status' => 'en_preparacion',
+        'payment_status' => 'pendiente',
+        'subtotal_amount' => 1000.00,
+        'total_amount' => 1000.00,
+        'debt_amount' => 1000.00,
+        'delivery_user_id' => null,
+    ]);
+
+    $response = $this->actingAs($this->adminUser)->post(route('tenant.deliveries.assign'), [
+        'order_ids' => [$order->id],
+    ]);
+
+    $response->assertRedirect();
+    $order->refresh();
+    expect($order->status)->toBe('en_camino')
+        ->and($order->delivery_user_id)->toBe($this->adminUser->id);
 });

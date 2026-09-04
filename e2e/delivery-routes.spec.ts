@@ -21,23 +21,23 @@ test.describe.serial('Logística de Repartos y Última Milla UI/UX', () => {
         await page.waitForLoadState('networkidle');
 
         // Verificar encabezado de la página
-        await expect(page.locator('h1:has-text("Repartos y Última Milla")')).toBeVisible();
+        await expect(page.locator('h1:has-text("Repartos")')).toBeVisible();
 
         // Verificar Widget Caja del Turno
         await expect(page.locator('text=Efectivo en Mano').first()).toBeVisible();
         await expect(page.locator('text=Transferencias / QR').first()).toBeVisible();
 
         // Verificar Pestañas operativas
-        await expect(page.locator('button:has-text("Mi Ruta en Curso")').first()).toBeVisible();
-        await expect(page.locator('button:has-text("Bolsa de Pedidos Disponibles")').first()).toBeVisible();
+        await expect(page.locator('button:has-text("Mis pedidos")').first()).toBeVisible();
+        await expect(page.locator('button:has-text("Pedidos Disponibles")').first()).toBeVisible();
     });
 
     test('2. Bolsa de Trabajo: Navegación entre pestañas y selección', async () => {
         await page.goto('/tenant/repartos');
         await page.waitForLoadState('networkidle');
 
-        // Cambiar a Bolsa de Pedidos Disponibles
-        const bolsaBtn = page.locator('button:has-text("Bolsa de Pedidos Disponibles")').first();
+        // Cambiar a Pedidos Disponibles
+        const bolsaBtn = page.locator('button:has-text("Pedidos Disponibles")').first();
         await bolsaBtn.click();
         await page.waitForTimeout(300);
 
