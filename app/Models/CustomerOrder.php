@@ -38,6 +38,9 @@ use Illuminate\Support\Carbon;
     'status',
     'payment_status',
     'debt_amount',
+    'delivery_user_id',
+    'delivery_failure_reason',
+    'delivery_notes',
     'subtotal_amount',
     'shipping_cost',
     'total_amount',
@@ -53,9 +56,18 @@ class CustomerOrder extends Model
     public const ALLOWED_TRANSITIONS = [
         'en_preparacion' => ['preparado', 'cancelado'],
         'preparado' => ['en_camino', 'entregado', 'cancelado'],
-        'en_camino' => ['entregado', 'cancelado'],
+        'en_camino' => ['entregado', 'no_entregado', 'cancelado'],
+        'no_entregado' => ['preparado', 'cancelado'],
         'entregado' => [], // Estado terminal
         'cancelado' => [], // Estado terminal
+    ];
+
+    public const DELIVERY_FAILURE_REASONS = [
+        'local_cerrado',
+        'rechazado',
+        'daniado',
+        'sin_dinero',
+        'otro',
     ];
 
     public const PAYMENT_STATUSES = ['pendiente', 'parcial', 'cobrado'];
@@ -85,6 +97,11 @@ class CustomerOrder extends Model
     public function shippingZone(): BelongsTo
     {
         return $this->belongsTo(ShippingZone::class);
+    }
+
+    public function deliveryUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'delivery_user_id');
     }
 
 

@@ -114,6 +114,8 @@ class BaseSeeder extends Seeder
                     'pedidos.cancelar',
                     'zonas.ver',
                     'zonas.gestionar',
+                    'repartos.ver',
+                    'repartos.gestionar',
                 ],
             ],
             [

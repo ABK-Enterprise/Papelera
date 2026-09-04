@@ -133,7 +133,23 @@
                     title: 'Pedidos',
                     href: '/tenant/pedidos',
                     icon: 'solar:bill-list-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/pedidos'),
+                    active: currentUrl.startsWith('/tenant/pedidos') || currentUrl.startsWith('/tenant/repartos'),
+                    subItems: [
+                        {
+                            title: 'Listado de Pedidos',
+                            description: 'Ventas, armado y estados logísticos',
+                            href: '/tenant/pedidos',
+                            icon: 'solar:bill-list-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/pedidos'),
+                        },
+                        {
+                            title: 'Repartos y Última Milla',
+                            description: 'Bolsa de trabajo y rutas de entrega',
+                            href: '/tenant/repartos',
+                            icon: 'solar:delivery-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/repartos'),
+                        },
+                    ],
                 });
             }
 
@@ -163,13 +179,13 @@
                 });
             }
 
-            // Customers (Clientes module con Cuentas Corrientes)
+            // Customers (Clientes module con Cuentas Corrientes y Cobranzas)
             if (modules.includes('clientes') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('clientes.ver'))) {
                 items.push({
                     title: 'Clientes',
                     href: '/tenant/clientes',
                     icon: 'solar:shop-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/clientes'),
+                    active: currentUrl.startsWith('/tenant/clientes') || currentUrl.startsWith('/tenant/cobranzas'),
                     subItems: [
                         {
                             title: 'Gestión de Clientes',
@@ -184,6 +200,13 @@
                             href: '/tenant/clientes/cuentas-corrientes',
                             icon: 'solar:card-bold-duotone',
                             active: currentUrl.startsWith('/tenant/clientes/cuentas-corrientes'),
+                        },
+                        {
+                            title: 'Panel de Cobranzas',
+                            description: 'Gestión de cobros e imputación de recibos',
+                            href: '/tenant/cobranzas',
+                            icon: 'solar:hand-money-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/cobranzas'),
                         },
                     ],
                 });

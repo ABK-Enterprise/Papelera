@@ -4,6 +4,7 @@ use App\Http\Controllers\Tenant\CategoryController;
 use App\Http\Controllers\Tenant\CustomerAccountController;
 use App\Http\Controllers\Tenant\CustomerController;
 use App\Http\Controllers\Tenant\CustomerOrderController;
+use App\Http\Controllers\Tenant\DeliveryRouteController;
 use App\Http\Controllers\Tenant\PaymentCollectionController;
 use App\Http\Controllers\Tenant\ProductController;
 use App\Http\Controllers\Tenant\ProductWarehouseLookupController;
@@ -111,6 +112,14 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('pedidos', [CustomerOrderController::class, 'store'])->name('orders.store')->middleware('tenant.permission:pedidos.crear');
             Route::patch('pedidos/{customerOrder}/estado', [CustomerOrderController::class, 'updateStatus'])->name('orders.update-status')->middleware('tenant.permission:pedidos.editar_estado');
             Route::delete('pedidos/{customerOrder}', [CustomerOrderController::class, 'destroy'])->name('orders.destroy')->middleware('tenant.permission:pedidos.cancelar');
+
+            // Repartos y Logística de Última Milla
+            Route::get('repartos', [DeliveryRouteController::class, 'index'])->name('deliveries.index')->middleware('tenant.permission:repartos.ver');
+            Route::post('repartos/asignar', [DeliveryRouteController::class, 'assign'])->name('deliveries.assign')->middleware('tenant.permission:repartos.gestionar');
+            Route::post('repartos/{customerOrder}/entregar', [DeliveryRouteController::class, 'deliver'])->name('deliveries.deliver')->middleware('tenant.permission:repartos.gestionar');
+            Route::post('repartos/{customerOrder}/fallar', [DeliveryRouteController::class, 'fail'])->name('deliveries.fail')->middleware('tenant.permission:repartos.gestionar');
+            Route::post('repartos/{customerOrder}/reprogramar', [DeliveryRouteController::class, 'reschedule'])->name('deliveries.reschedule')->middleware('tenant.permission:repartos.gestionar');
+            Route::get('repartos/rendicion', [DeliveryRouteController::class, 'shiftSummary'])->name('deliveries.shift-summary')->middleware('tenant.permission:repartos.ver');
         });
     });
 

@@ -151,13 +151,27 @@
 
 
 
-            // Pedidos: Enlace Directo Simple
+            // Pedidos: Acordeón con Listado y Repartos
             if (modules.includes('pedidos') && (isAdmin || permissions.includes('pedidos.ver'))) {
                 items.push({
                     title: 'Pedidos',
                     href: '/tenant/pedidos',
                     icon: 'solar:bill-list-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/pedidos'),
+                    active: currentUrl.startsWith('/tenant/pedidos') || currentUrl.startsWith('/tenant/repartos'),
+                    subItems: [
+                        {
+                            title: 'Listado de Pedidos',
+                            href: '/tenant/pedidos',
+                            icon: 'solar:bill-list-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/pedidos'),
+                        },
+                        {
+                            title: 'Repartos y Última Milla',
+                            href: '/tenant/repartos',
+                            icon: 'solar:delivery-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/repartos'),
+                        },
+                    ],
                 });
             }
 
@@ -185,13 +199,13 @@
                 });
             }
 
-            // Clientes: Acordeón
+            // Clientes: Acordeón con Cobranzas
             if (modules.includes('clientes') && (isAdmin || permissions.includes('clientes.ver'))) {
                 items.push({
                     title: 'Clientes',
                     href: '/tenant/clientes',
                     icon: 'solar:shop-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/clientes'),
+                    active: currentUrl.startsWith('/tenant/clientes') || currentUrl.startsWith('/tenant/cobranzas'),
                     subItems: [
                         {
                             title: 'Gestión de Clientes',
@@ -204,6 +218,12 @@
                             href: '/tenant/clientes/cuentas-corrientes',
                             icon: 'solar:card-bold-duotone',
                             active: currentUrl.startsWith('/tenant/clientes/cuentas-corrientes'),
+                        },
+                        {
+                            title: 'Panel de Cobranzas',
+                            href: '/tenant/cobranzas',
+                            icon: 'solar:hand-money-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/cobranzas'),
                         },
                     ],
                 });
