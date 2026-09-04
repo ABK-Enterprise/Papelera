@@ -33,6 +33,7 @@
     import AlertCircle from 'lucide-svelte/icons/alert-circle';
     import Percent from 'lucide-svelte/icons/percent';
     import Warehouse from 'lucide-svelte/icons/warehouse';
+    import MapPin from 'lucide-svelte/icons/map-pin';
 
     export interface ProductOption {
         id: number;
@@ -63,6 +64,13 @@
         is_default: boolean;
     }
 
+    export interface ShippingZoneOption {
+        id: number;
+        name: string;
+        distance_km: number | string;
+        surcharge_percentage: number | string;
+    }
+
     export interface OrderItemLine {
         id: string;
         product_id: number;
@@ -84,18 +92,25 @@
         availableProducts = [],
         availableCustomers = [],
         warehouses = [],
+        shippingZones = [],
     }: {
         open: boolean;
         availableProducts: ProductOption[];
         availableCustomers?: CustomerOption[];
         warehouses?: WarehouseOption[];
+        shippingZones?: ShippingZoneOption[];
     } = $props();
 
     let selectedCustomerId = $state<number | null>(null);
     let selectedCustomer = $state<CustomerOption | null>(null);
     let selectedWarehouseId = $state<number | null>(null);
+    let selectedShippingZoneId = $state<number | null>(null);
     let applyCustomerDiscount = $state(true);
     let customerSearchQuery = $state('');
+
+    let selectedShippingZone = $derived(
+        shippingZones.find((z) => z.id === selectedShippingZoneId) || null
+    );
 
     let customerName = $state('');
     let customerPhone = $state('');
@@ -422,10 +437,21 @@
         };
     });
 
+    let shippingCost = $derived.by(() => {
+        if (!selectedShippingZone) return 0;
+        const pct = Number(selectedShippingZone.surcharge_percentage) || 0;
+        return Math.round(computedTotals.finalTotal * (pct / 100) * 100) / 100;
+    });
+
+    let grandTotal = $derived(
+        Math.round((computedTotals.finalTotal + shippingCost) * 100) / 100
+    );
+
     function resetForm() {
         selectedCustomerId = null;
         selectedCustomer = null;
         selectedWarehouseId = null;
+        selectedShippingZoneId = null;
         applyCustomerDiscount = true;
         customerName = '';
         customerSearchQuery = '';
@@ -516,8 +542,8 @@
             '/tenant/pedidos',
             {
                 customer_id: selectedCustomerId,
-
                 warehouse_id: selectedWarehouseId,
+                shipping_zone_id: selectedShippingZoneId,
                 customer_name: customerName,
                 customer_phone: customerPhone,
                 delivery_address: deliveryAddress,
@@ -747,15 +773,33 @@
                                 bind:value={selectedWarehouseId}
                                 class="h-10 w-full sm:w-64 rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
-
                                 <option value={null}>Depósito Principal (Automático)</option>
                                 {#each warehouses as wh}
                                     <option value={wh.id}>{wh.name} ({wh.code})</option>
                                 {/each}
                             </select>
-
                         </div>
                     {/if}
+
+                    <!-- Selector de Zona de Envío / Flete -->
+                    <div class="pt-3 mt-1.5 border-t border-border/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <Label for="order-shipping-zone" class="text-xs font-semibold text-foreground flex items-center gap-1.5 shrink-0">
+                            <MapPin class="size-3.5 text-primary" />
+                            Zona de Envío / Flete:
+                        </Label>
+                        <select
+                            id="order-shipping-zone"
+                            bind:value={selectedShippingZoneId}
+                            class="h-10 w-full sm:w-64 rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                        >
+                            <option value={null}>Sin envío / Retiro en local ($0.00)</option>
+                            {#each shippingZones as zone}
+                                <option value={zone.id}>
+                                    {zone.name} ({zone.distance_km} km - +{zone.surcharge_percentage}%)
+                                </option>
+                            {/each}
+                        </select>
+                    </div>
                 </div>
 
 
@@ -1091,25 +1135,43 @@
             <div class="border-t border-border/60 pt-4 mt-2 space-y-3 shrink-0">
                 <!-- Contenedor Superior: Resumen de Totales y Descuentos -->
                 <div class="rounded-xl bg-card border border-border/70 p-3 sm:p-3.5 space-y-1.5 shadow-2xs">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs sm:text-sm font-medium text-muted-foreground">Total del Pedido:</span>
+                    <div class="flex items-center justify-between text-xs sm:text-sm font-medium text-muted-foreground">
+                        <span>Subtotal Productos:</span>
                         <div class="flex items-baseline gap-2">
                             {#if computedTotals.discountTotal > 0}
-                                <span class="line-through text-xs sm:text-sm text-muted-foreground font-sans tabular-nums">
+                                <span class="line-through text-xs text-muted-foreground font-sans tabular-nums">
                                     {formatPrice(computedTotals.baseTotal)}
                                 </span>
                             {/if}
-                            <span class="text-base sm:text-xl font-bold font-sans tabular-nums text-primary">
+                            <span class="font-bold font-sans tabular-nums text-foreground">
                                 {formatPrice(computedTotals.finalTotal)}
                             </span>
                         </div>
                     </div>
+
+                    {#if selectedShippingZone && shippingCost > 0}
+                        <div class="flex items-center justify-between text-xs text-primary font-semibold border-t border-border/40 pt-1.5">
+                            <span class="flex items-center gap-1">
+                                <MapPin class="size-3.5" />
+                                Envío ({selectedShippingZone.name} - +{selectedShippingZone.surcharge_percentage}%):
+                            </span>
+                            <span class="font-sans tabular-nums">+{formatPrice(shippingCost)}</span>
+                        </div>
+                    {/if}
+
                     {#if computedTotals.discountTotal > 0}
-                        <div class="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5 mt-1">
+                        <div class="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
                             <span>Ahorro por descuento ({customerDiscountPercentage}%):</span>
                             <span>-{formatPrice(computedTotals.discountTotal)}</span>
                         </div>
                     {/if}
+
+                    <div class="flex items-center justify-between border-t border-border/60 pt-2 mt-1">
+                        <span class="text-xs sm:text-sm font-bold text-foreground">Total a Pagar:</span>
+                        <span class="text-base sm:text-xl font-bold font-sans tabular-nums text-primary">
+                            {formatPrice(grandTotal)}
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Fila Inferior: Botones de Acción (ambos simétricos, min-h-[44px], sin text-wrap) -->

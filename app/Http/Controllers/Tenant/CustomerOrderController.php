@@ -28,7 +28,11 @@ class CustomerOrderController extends Controller
         $status = $request->input('status');
         $sortBy = $request->input('sort_by', 'latest');
 
-        $query = CustomerOrder::with(['items.product:id,name,sku,sale_type,units_per_package,price', 'customer:id,name,tax_id,tax_condition,phone,address,is_defaulter'])
+        $query = CustomerOrder::with([
+            'items.product:id,name,sku,sale_type,units_per_package,price',
+            'customer:id,name,tax_id,tax_condition,phone,address,is_defaulter',
+            'shippingZone:id,name,distance_km,surcharge_percentage',
+        ])
             ->when($search, function ($q, $search) {
                 $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
                 $q->where(function ($sub) use ($searchTerm) {
@@ -80,6 +84,11 @@ class CustomerOrderController extends Controller
             ->orderBy('name')
             ->get();
 
+        $shippingZones = \App\Models\ShippingZone::where('tenant_id', $tenantId)
+            ->where('is_active', true)
+            ->select('id', 'name', 'distance_km', 'surcharge_percentage')
+            ->orderBy('name')
+            ->get();
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
@@ -88,6 +97,7 @@ class CustomerOrderController extends Controller
                 'available_products' => $availableProducts,
                 'available_customers' => $availableCustomers,
                 'warehouses' => $warehouses,
+                'shipping_zones' => $shippingZones,
             ]);
         }
 
@@ -97,6 +107,7 @@ class CustomerOrderController extends Controller
             'availableProducts' => $availableProducts,
             'availableCustomers' => $availableCustomers,
             'warehouses' => $warehouses,
+            'shippingZones' => $shippingZones,
             'filters' => [
                 'search' => $search,
                 'status' => $status ?: 'all',
@@ -233,10 +244,31 @@ class CustomerOrderController extends Controller
                 ];
             }
 
+            $subtotalProducts = $totalAmount;
+            $shippingCost = 0.00;
+            $shippingZoneId = $request->validated('shipping_zone_id');
+            $shippingZoneName = null;
+
+            if ($shippingZoneId) {
+                $shippingZone = \App\Models\ShippingZone::where('id', $shippingZoneId)
+                    ->where('tenant_id', $tenantId)
+                    ->where('is_active', true)
+                    ->first();
+
+                if ($shippingZone) {
+                    $shippingZoneName = $shippingZone->name;
+                    $surchargePct = (float) $shippingZone->surcharge_percentage;
+                    $shippingCost = round($subtotalProducts * ($surchargePct / 100), 2);
+                    $totalAmount = round($subtotalProducts + $shippingCost, 2);
+                }
+            }
+
             $order = CustomerOrder::create([
                 'tenant_id' => $tenantId,
                 'customer_id' => $customerId,
                 'warehouse_id' => $orderWarehouseId,
+                'shipping_zone_id' => $shippingZoneId,
+                'shipping_zone_name' => $shippingZoneName,
                 'order_number' => $orderNumber,
                 'customer_name' => $customerName,
                 'customer_phone' => $request->validated('customer_phone') ?: $customer?->phone,
@@ -244,6 +276,8 @@ class CustomerOrderController extends Controller
                 'status' => 'en_preparacion',
                 'customer_discount_percentage' => $customerDiscountPct,
                 'customer_discount_amount' => $totalDiscountAmount,
+                'subtotal_amount' => $subtotalProducts,
+                'shipping_cost' => $shippingCost,
                 'total_amount' => $totalAmount,
                 'notes' => $request->validated('notes'),
             ]);

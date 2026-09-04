@@ -109,6 +109,8 @@ class BaseSeeder extends Seeder
                     'pedidos.crear',
                     'pedidos.editar_estado',
                     'pedidos.cancelar',
+                    'zonas.ver',
+                    'zonas.gestionar',
                 ],
             ],
             [

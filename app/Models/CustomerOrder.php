@@ -29,11 +29,15 @@ use Illuminate\Support\Carbon;
     'tenant_id',
     'customer_id',
     'warehouse_id',
+    'shipping_zone_id',
+    'shipping_zone_name',
     'order_number',
     'customer_name',
     'customer_phone',
     'delivery_address',
     'status',
+    'subtotal_amount',
+    'shipping_cost',
     'total_amount',
     'customer_discount_percentage',
     'customer_discount_amount',
@@ -55,6 +59,8 @@ class CustomerOrder extends Model
     protected function casts(): array
     {
         return [
+            'subtotal_amount' => 'decimal:2',
+            'shipping_cost' => 'decimal:2',
             'total_amount' => 'decimal:2',
             'customer_discount_percentage' => 'decimal:2',
             'customer_discount_amount' => 'decimal:2',
@@ -69,6 +75,11 @@ class CustomerOrder extends Model
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
+    }
+
+    public function shippingZone(): BelongsTo
+    {
+        return $this->belongsTo(ShippingZone::class);
     }
 
 

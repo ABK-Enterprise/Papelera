@@ -29,6 +29,10 @@ class StoreCustomerOrderRequest extends FormRequest
                 'nullable',
                 Rule::exists('warehouses', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)),
             ],
+            'shipping_zone_id' => [
+                'nullable',
+                Rule::exists('shipping_zones', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)->where('is_active', true)),
+            ],
             'customer_name' => ['nullable', 'string', 'max:255'],
             'customer_phone' => ['nullable', 'string', 'max:100'],
             'delivery_address' => ['nullable', 'string', 'max:500'],

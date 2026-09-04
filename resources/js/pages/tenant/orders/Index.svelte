@@ -75,6 +75,7 @@
         availableProducts = [],
         availableCustomers = [],
         warehouses = [],
+        shippingZones = [],
         filters = {},
     }: {
         orders: OrderData[];
@@ -82,6 +83,7 @@
         availableProducts?: ProductOption[];
         availableCustomers?: any[];
         warehouses?: any[];
+        shippingZones?: any[];
         filters?: FilterProps;
     } = $props();
 
@@ -321,6 +323,7 @@
     {availableProducts}
     {availableCustomers}
     {warehouses}
+    {shippingZones}
 />
 
 

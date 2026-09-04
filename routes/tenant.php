@@ -10,6 +10,7 @@ use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\Stock\StockIncomeController;
 use App\Http\Controllers\Tenant\Stock\StockKardexController;
 use App\Http\Controllers\Tenant\Stock\StockOutcomeController;
+use App\Http\Controllers\Tenant\ShippingZoneController;
 use App\Http\Controllers\Tenant\SupplierController;
 use App\Http\Controllers\Tenant\SupplierOrderController;
 use App\Http\Controllers\Tenant\UserController;
@@ -32,6 +33,14 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('configuracion/depositos', [WarehouseController::class, 'store'])->name('warehouses.store');
             Route::put('configuracion/depositos/{warehouse}', [WarehouseController::class, 'update'])->name('warehouses.update');
             Route::delete('configuracion/depositos/{warehouse}', [WarehouseController::class, 'destroy'])->name('warehouses.destroy');
+        });
+
+        // Shipping Zones Management (Configuración de Zonas de Envío - Exclusivo para el Administrador)
+        Route::middleware(['tenant.admin', 'module:pedidos'])->group(function () {
+            Route::get('configuracion/zonas', [ShippingZoneController::class, 'index'])->name('shipping-zones.index');
+            Route::post('configuracion/zonas', [ShippingZoneController::class, 'store'])->name('shipping-zones.store');
+            Route::put('configuracion/zonas/{shippingZone}', [ShippingZoneController::class, 'update'])->name('shipping-zones.update');
+            Route::delete('configuracion/zonas/{shippingZone}', [ShippingZoneController::class, 'destroy'])->name('shipping-zones.destroy');
         });
 
         // Products & Categories Management (Productos module)
