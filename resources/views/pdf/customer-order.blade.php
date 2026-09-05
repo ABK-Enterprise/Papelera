@@ -83,14 +83,26 @@
             border-radius: 2px;
         }
 
-        /* Tabla central de productos */
+        /* Tabla central de productos con layout fijo y alineaciones simétricas */
         .items-table {
             width: 100%;
+            table-layout: fixed;
             border-collapse: collapse;
             margin-bottom: 16px;
         }
+        .col-product {
+            width: 46%;
+        }
+        .col-quantity {
+            width: 18%;
+        }
+        .col-price {
+            width: 18%;
+        }
+        .col-subtotal {
+            width: 18%;
+        }
         .items-table th {
-            text-align: left;
             padding: 8px 10px;
             font-size: 10px;
             font-weight: 700;
@@ -109,6 +121,21 @@
         .items-table tr:nth-child(even) {
             background-color: #fafafa;
         }
+
+        /* Alineaciones con alta especificidad para evitar descalces */
+        .items-table th.text-left,
+        .items-table td.text-left {
+            text-align: left;
+        }
+        .items-table th.text-center,
+        .items-table td.text-center {
+            text-align: center;
+        }
+        .items-table th.text-right,
+        .items-table td.text-right {
+            text-align: right;
+        }
+
         .product-name {
             font-weight: 600;
             color: #0f172a;
@@ -118,12 +145,6 @@
             font-size: 10px;
             color: #64748b;
             margin-top: 2px;
-        }
-        .text-right {
-            text-align: right;
-        }
-        .text-center {
-            text-align: center;
         }
         .tabular-nums {
             font-variant-numeric: tabular-nums;
@@ -139,7 +160,7 @@
             margin-left: 4px;
         }
 
-        /* Sección inferior */
+        /* Sección inferior con relación 40/60 */
         .bottom-table {
             width: 100%;
             border-collapse: collapse;
@@ -147,6 +168,7 @@
         }
         .bottom-table td {
             vertical-align: top;
+            padding: 0;
         }
         .notes-box {
             font-size: 10px;
@@ -155,7 +177,7 @@
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             padding: 10px 12px;
-            max-width: 320px;
+            width: 90%;
         }
         .notes-title {
             font-weight: 700;
@@ -165,24 +187,48 @@
             letter-spacing: 0.5px;
             margin-bottom: 3px;
         }
+
+        /* Tabla de totales en bloque derecho (60%) */
         .totals-table {
-            width: 320px;
-            margin-left: auto;
+            width: 100%;
             border-collapse: collapse;
         }
         .totals-table td {
-            padding: 5px 6px;
+            padding: 4px 10px;
             font-size: 11px;
         }
-        .discount-row td {
-            color: #15803d;
-            font-weight: 600;
+        .totals-table td.totals-label {
+            text-align: right;
+            padding-right: 14px;
+            color: #475569;
+            font-weight: 500;
         }
-        .total-highlight-row td {
+        .totals-table td.totals-value {
+            text-align: right;
+            padding-right: 10px;
+            white-space: nowrap;
+            font-weight: 600;
+            color: #0f172a;
+            width: 1%;
+        }
+        .totals-table .text-green {
+            color: #15803d;
+            font-weight: 700;
+        }
+        .total-highlight-row td.totals-label {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+            padding-top: 10px;
+            padding-bottom: 4px;
+            border-top: 2px solid #0f172a;
+        }
+        .total-highlight-row td.totals-value {
             font-size: 18px;
             font-weight: 800;
             color: #0f172a;
             padding-top: 10px;
+            padding-bottom: 4px;
             border-top: 2px solid #0f172a;
         }
     </style>
@@ -225,17 +271,16 @@
     <table class="items-table">
         <thead>
             <tr>
-                <th style="width: 45%;">Producto</th>
-                <th style="width: 20%;" class="text-center">Cantidad</th>
-                <th style="width: 17%;" class="text-right">Precio Unit.</th>
-                <th style="width: 18%;" class="text-right">Subtotal</th>
+                <th class="col-product text-left">Producto</th>
+                <th class="col-quantity text-center">Cantidad</th>
+                <th class="col-price text-right">Precio Unit.</th>
+                <th class="col-subtotal text-right">Subtotal</th>
             </tr>
         </thead>
         <tbody>
             @php
-                $grossSubtotal = 0.00;
                 $bulkDiscountTotal = 0.00;
-                $customerDiscountTotal = (float) ($order->customer_discount_amount ?? 0.00);
+                $customerDiscountPct = (float) ($order->customer_discount_percentage ?? 0.00);
             @endphp
 
             @forelse($order->items as $item)
@@ -246,30 +291,44 @@
 
                     // Formateo de cantidad: si es pesaje, 2 decimales con coma (ej. 1,62 kg)
                     if ($isWeighable) {
-                        $qtyFormatted = number_format((float) $item->quantity_base, 2, ',', '.') . ' kg';
+                        $qtyBase = (float) ($item->quantity_base ?: $item->quantity);
+                        $qtyFormatted = number_format($qtyBase, 2, ',', '.') . ' kg';
                     } elseif ($isBulk) {
                         $qtyFormatted = (int) $item->quantity . ' bulto(s)';
                     } else {
                         $qtyFormatted = (int) $item->quantity . ' u.';
                     }
 
-                    // Precios para desglose
-                    $catalogPrice = (float) ($product->price ?? $item->unit_price);
-                    $lineGross = $catalogPrice * (float) $item->quantity_base;
-                    $grossSubtotal += $lineGross;
+                    // Cálculo del ahorro por bulto si aplica
+                    if ($isBulk) {
+                        $totalUnits = 0.0;
+                        if ($item->quantity_base !== null && (float) $item->quantity_base > 0) {
+                            $totalUnits = (float) $item->quantity_base;
+                        } else {
+                            $packageSize = (float) ($item->units_per_package ?: ($product ? $product->package_size : 1));
+                            $totalUnits = (float) $item->quantity * ($packageSize > 0 ? $packageSize : 1);
+                        }
 
-                    if ($isBulk && (float) ($product->bulk_discount_price ?? 0) > 0 && $catalogPrice > (float) $item->unit_price) {
-                        $bulkDiscountTotal += ($catalogPrice - (float) $item->unit_price) * (float) $item->quantity_base;
+                        if ($product) {
+                            $regularPrice = (float) $product->price;
+                            $unitPrice = (float) $item->unit_price;
+                            if ($regularPrice > $unitPrice) {
+                                $bulkDiscountTotal += ($regularPrice - $unitPrice) * $totalUnits;
+                            } elseif ((float) $product->effective_bulk_discount_percentage > 0) {
+                                $discountPct = (float) $product->effective_bulk_discount_percentage;
+                                $bulkDiscountTotal += round($regularPrice * ($discountPct / 100) * $totalUnits, 2);
+                            }
+                        }
                     }
 
                     $itemSubtotal = (float) $item->subtotal;
                 @endphp
                 <tr>
-                    <td>
+                    <td class="text-left">
                         <div class="product-name">
                             {{ $product->name ?? 'Producto' }}
                             @if($isBulk)
-                                <span class="badge-bulto">Bulto x {{ (float) ($item->units_per_package ?: $product->package_size ?? 1) }}</span>
+                                <span class="badge-bulto">Bulto x {{ (float) ($item->units_per_package ?: ($product ? $product->package_size : 1)) }}</span>
                             @endif
                         </div>
                         @if(!empty($product?->sku))
@@ -299,10 +358,10 @@
     <!-- Barra divisoria clásica negra inferior -->
     <div class="black-bar"></div>
 
-    <!-- Zona Inferior: Desglose de Totales y Notas -->
+    <!-- Zona Inferior: Desglose de Totales y Notas (Relación 40 / 60) -->
     <table class="bottom-table">
         <tr>
-            <td style="width: 50%;">
+            <td style="width: 40%;">
                 @if(!empty($order->notes))
                     <div class="notes-box">
                         <div class="notes-title">Observaciones</div>
@@ -310,36 +369,34 @@
                     </div>
                 @endif
             </td>
-            <td style="width: 50%;">
+            <td style="width: 60%;">
                 <table class="totals-table">
                     <tr>
-                        <td style="color: #64748b;">Suma total de productos:</td>
-                        <td class="text-right tabular-nums font-semibold">
-                            ${{ number_format($grossSubtotal, 2, ',', '.') }}
+                        <td class="totals-label">Descuento por cliente:</td>
+                        <td class="totals-value tabular-nums {{ $customerDiscountPct > 0 ? 'text-green' : '' }}">
+                            %{{ number_format($customerDiscountPct, 1, ',', '.') }}
                         </td>
                     </tr>
 
-                    @if($bulkDiscountTotal > 0.01)
-                        <tr class="discount-row">
-                            <td>Descuento por bulto:</td>
-                            <td class="text-right tabular-nums">
-                                -${{ number_format($bulkDiscountTotal, 2, ',', '.') }}
-                            </td>
-                        </tr>
-                    @endif
+                    <tr>
+                        <td class="totals-label">Descuento por bulto:</td>
+                        <td class="totals-value tabular-nums {{ $bulkDiscountTotal > 0 ? 'text-green' : '' }}">
+                            ${{ number_format($bulkDiscountTotal, 2, ',', '.') }}
+                        </td>
+                    </tr>
 
-                    @if($customerDiscountTotal > 0.01)
-                        <tr class="discount-row">
-                            <td>Descuento por cliente ({{ (float) ($order->customer_discount_percentage ?? 0) }}%):</td>
-                            <td class="text-right tabular-nums">
-                                -${{ number_format($customerDiscountTotal, 2, ',', '.') }}
+                    @if((float) ($order->shipping_cost ?? 0) > 0)
+                        <tr>
+                            <td class="totals-label">Costo de envío ({{ $order->shipping_zone_name ?? 'Zona' }}):</td>
+                            <td class="totals-value tabular-nums">
+                                ${{ number_format((float) $order->shipping_cost, 2, ',', '.') }}
                             </td>
                         </tr>
                     @endif
 
                     <tr class="total-highlight-row">
-                        <td>TOTAL DEL PEDIDO:</td>
-                        <td class="text-right tabular-nums">
+                        <td class="totals-label">TOTAL DEL PEDIDO:</td>
+                        <td class="totals-value tabular-nums">
                             ${{ number_format((float) $order->total_amount, 2, ',', '.') }}
                         </td>
                     </tr>

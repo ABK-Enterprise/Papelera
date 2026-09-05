@@ -192,3 +192,79 @@ test('authenticated user can preview supplier order pdf inline', function () {
         return $pdf->viewName === 'pdf.supplier-order';
     });
 });
+
+test('customer order pdf blade view renders correct columns and 3-row totals structure', function () {
+    $this->customerOrder->load(['items.product', 'customer', 'tenant']);
+
+    $html = view('pdf.customer-order', ['order' => $this->customerOrder])->render();
+
+    // Verification of fixed layout and symmetric alignments
+    expect($html)->toContain('col-product text-left')
+        ->toContain('col-quantity text-center')
+        ->toContain('col-price text-right')
+        ->toContain('col-subtotal text-right');
+
+    // Verification of 3-row totals breakdown
+    expect($html)->toContain('Descuento por cliente:')
+        ->toContain('%0,0')
+        ->toContain('Descuento por bulto:')
+        ->toContain('$0,00')
+        ->toContain('TOTAL DEL PEDIDO:')
+        ->toContain('$15.000,00');
+
+    // Subtotal text must NOT be present in totals table
+    expect($html)->not->toContain('Suma total de productos:');
+
+    // 40/60 distribution present
+    expect($html)->toContain('width: 40%;')
+        ->toContain('width: 60%;');
+});
+
+test('customer order pdf calculates bulk discounts and customer discounts correctly', function () {
+    $bulkProduct = Product::create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Cuaderno A4 Pack',
+        'sku' => 'CUAD-PACK',
+        'sale_type' => 'unit',
+        'price' => 1000.00,
+        'units_per_package' => 10,
+        'package_quantity' => 10,
+        'bulk_discount_type' => 'custom',
+        'custom_bulk_discount_percentage' => 15.00,
+        'stock' => 100,
+        'is_active' => true,
+    ]);
+
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'order_number' => 'PED-BULK-01',
+        'customer_name' => 'Librería Central',
+        'status' => 'en_preparacion',
+        'customer_discount_percentage' => 5.00,
+        'total_amount' => 8500.00,
+    ]);
+
+    // 1 package of 10 units at bulk price $850 (saving $150 per package)
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $bulkProduct->id,
+        'packaging_type' => 'bulto',
+        'units_per_package' => 10,
+        'quantity' => 1,
+        'quantity_base' => 10,
+        'unit_price' => 850.00,
+        'subtotal' => 8500.00,
+    ]);
+
+    $order->load(['items.product', 'customer', 'tenant']);
+
+    $html = view('pdf.customer-order', ['order' => $order])->render();
+
+    // Customer discount 5.0%
+    expect($html)->toContain('%5,0');
+
+    // Bulk discount savings: (1000 - 850) * 10 = $1.500,00
+    expect($html)->toContain('$1.500,00');
+});
+
