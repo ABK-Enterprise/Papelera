@@ -4,6 +4,8 @@
     import DeliveryDashboardMobile from './mobile/DeliveryDashboardMobile.svelte';
     import DeliverOrderModal, { type DeliveryOrder } from './components/DeliverOrderModal.svelte';
     import FailDeliveryModal from './components/FailDeliveryModal.svelte';
+    import RescheduleOrderModal from './components/RescheduleOrderModal.svelte';
+    import ViewOrderNotesModal from './components/ViewOrderNotesModal.svelte';
     import Truck from 'lucide-svelte/icons/truck';
 
     interface Props {
@@ -35,6 +37,12 @@
     let selectedOrderForFail = $state<DeliveryOrder | null>(null);
     let isFailModalOpen = $state(false);
 
+    let selectedOrderForReschedule = $state<DeliveryOrder | null>(null);
+    let isRescheduleModalOpen = $state(false);
+
+    let selectedOrderForNotes = $state<DeliveryOrder | null>(null);
+    let isNotesModalOpen = $state(false);
+
     let effectiveCancelledOrders = $derived(cancelledOrders.length > 0 ? cancelledOrders : failedOrders);
 
     function handleOpenDeliver(order: DeliveryOrder) {
@@ -45,6 +53,16 @@
     function handleOpenFail(order: DeliveryOrder) {
         selectedOrderForFail = order;
         isFailModalOpen = true;
+    }
+
+    function handleOpenReschedule(order: DeliveryOrder) {
+        selectedOrderForReschedule = order;
+        isRescheduleModalOpen = true;
+    }
+
+    function handleOpenNotes(order: DeliveryOrder) {
+        selectedOrderForNotes = order;
+        isNotesModalOpen = true;
     }
 </script>
 
@@ -71,6 +89,8 @@
             {shiftSummary}
             onDeliverOrder={handleOpenDeliver}
             onFailDelivery={handleOpenFail}
+            onRescheduleOrder={handleOpenReschedule}
+            onViewOrderNotes={handleOpenNotes}
         />
     </div>
 
@@ -84,6 +104,8 @@
             {shiftSummary}
             onDeliverOrder={handleOpenDeliver}
             onFailDelivery={handleOpenFail}
+            onRescheduleOrder={handleOpenReschedule}
+            onViewOrderNotes={handleOpenNotes}
         />
     </div>
 </div>
@@ -104,5 +126,23 @@
     onSuccess={() => {
         isFailModalOpen = false;
         selectedOrderForFail = null;
+    }}
+/>
+
+<RescheduleOrderModal
+    bind:open={isRescheduleModalOpen}
+    order={selectedOrderForReschedule}
+    onSuccess={() => {
+        isRescheduleModalOpen = false;
+        selectedOrderForReschedule = null;
+    }}
+/>
+
+<ViewOrderNotesModal
+    bind:open={isNotesModalOpen}
+    order={selectedOrderForNotes}
+    onclose={() => {
+        isNotesModalOpen = false;
+        selectedOrderForNotes = null;
     }}
 />

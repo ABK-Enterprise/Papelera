@@ -27,7 +27,7 @@
         secondary:
             'bg-secondary text-secondary-foreground shadow-2xs hover:bg-secondary/80 border border-secondary/40 active:scale-95 transition-all duration-150',
         tertiary:
-            'border border-primary/30 bg-primary/15 text-white hover:bg-primary/25 hover:text-white dark:text-sky-100 dark:border-primary/40 font-semibold shadow-2xs transition-colors',
+            'border border-primary/30 bg-primary/15 text-primary hover:bg-primary/25 hover:text-primary dark:text-sky-100 dark:border-primary/40 font-semibold shadow-2xs transition-colors',
         ghost: 'hover:bg-muted hover:text-foreground active:scale-95 transition-all duration-150',
         destructive:
             'bg-destructive text-destructive-foreground shadow hover:bg-destructive/90 sm:hover:shadow-lg sm:hover:shadow-destructive/25 active:scale-95 transition-all duration-150',

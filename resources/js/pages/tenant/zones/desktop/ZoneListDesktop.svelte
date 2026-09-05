@@ -50,7 +50,7 @@
                 </div>
 
                 <!-- Fila 2, Columna 1: Distancia (ej. 20 km) -->
-                <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-background-900/60 p-3 flex flex-col justify-center">
+                <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-card/50 p-3 flex flex-col justify-center">
                     <span class="text-[11px] font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
                         <Navigation class="size-3 text-primary" />
                         Distancia
@@ -61,7 +61,7 @@
                 </div>
 
                 <!-- Fila 2, Columna 2: Porcentaje de Recargo (ej. 5%) -->
-                <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-background-900/60 p-3 flex flex-col justify-center">
+                <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-card/50 p-3 flex flex-col justify-center">
                     <span class="text-[11px] font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
                         <Percent class="size-3 text-primary" />
                         Recargo

@@ -332,7 +332,7 @@ test('driver can mark delivery as failed with reason and notes', function () {
         ->and($order->delivery_user_id)->toBeNull();
 });
 
-test('failed order can be rescheduled back to preparado', function () {
+test('failed order can be rescheduled back to en_preparacion in warehouse', function () {
     $order = CustomerOrder::create([
         'tenant_id' => $this->tenant->id,
         'customer_id' => $this->customer->id,
@@ -349,14 +349,69 @@ test('failed order can be rescheduled back to preparado', function () {
     ]);
 
     $response = $this->actingAs($this->adminUser)
-        ->post(route('tenant.deliveries.reschedule', $order));
+        ->post(route('tenant.deliveries.reschedule', $order), [
+            'destination' => 'en_preparacion',
+            'reason' => 'Volver a preparar en depósito',
+        ]);
 
     $response->assertRedirect();
     $response->assertSessionHas('success');
 
     $order->refresh();
-    expect($order->status)->toBe('preparado')
+    expect($order->status)->toBe('en_preparacion')
         ->and($order->delivery_failure_reason)->toBeNull();
+});
+
+test('failed order can be cancelled permanently returning stock to warehouse', function () {
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->defaultWarehouse->id,
+        'order_number' => 'PED-CANCEL-001',
+        'customer_name' => $this->customer->name,
+        'delivery_address' => 'Defensa 800',
+        'status' => 'no_entregado',
+        'delivery_failure_reason' => 'rechazado',
+        'payment_status' => 'pendiente',
+        'total_amount' => 6000.00,
+        'debt_amount' => 6000.00,
+        'delivery_user_id' => null,
+    ]);
+
+    $order->items()->create([
+        'tenant_id' => $this->tenant->id,
+        'product_id' => $this->product->id,
+        'product_name' => $this->product->name,
+        'quantity' => 5,
+        'unit_price' => 1200.00,
+        'subtotal' => 6000.00,
+    ]);
+
+    $this->customer->update(['current_balance' => 6000.00]);
+
+    $response = $this->actingAs($this->adminUser)
+        ->post(route('tenant.deliveries.reschedule', $order), [
+            'destination' => 'cancelado',
+            'reason' => 'Cliente canceló el pedido definitivamente en puerta',
+        ]);
+
+    $response->assertRedirect();
+    $response->assertSessionHas('success');
+
+    $order->refresh();
+    expect($order->status)->toBe('cancelado')
+        ->and((float) $order->debt_amount)->toBe(0.00);
+
+    $this->customer->refresh();
+    expect((float) $this->customer->current_balance)->toBe(0.00);
+
+    $this->assertDatabaseHas('stock_movements', [
+        'tenant_id' => $this->tenant->id,
+        'warehouse_id' => $this->defaultWarehouse->id,
+        'product_id' => $this->product->id,
+        'type' => 'income',
+        'reason' => 'cancelacion_pedido',
+    ]);
 });
 
 test('driver can retrieve shift summary data', function () {

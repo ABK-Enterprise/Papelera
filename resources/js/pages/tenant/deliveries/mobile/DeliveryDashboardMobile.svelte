@@ -15,14 +15,18 @@
     import CheckSquare from 'lucide-svelte/icons/check-square';
     import Square from 'lucide-svelte/icons/square';
     import RefreshCw from 'lucide-svelte/icons/refresh-cw';
+    import Eye from 'lucide-svelte/icons/eye';
 
     interface Props {
         availableOrders?: DeliveryOrder[];
         myRouteOrders?: DeliveryOrder[];
         failedOrders?: DeliveryOrder[];
+        cancelledOrders?: DeliveryOrder[];
         shiftSummary?: ShiftSummary;
         onDeliverOrder: (order: DeliveryOrder) => void;
         onFailDelivery: (order: DeliveryOrder) => void;
+        onRescheduleOrder?: (order: DeliveryOrder) => void;
+        onViewOrderNotes?: (order: DeliveryOrder) => void;
     }
 
     let {
@@ -39,6 +43,8 @@
         },
         onDeliverOrder,
         onFailDelivery,
+        onRescheduleOrder,
+        onViewOrderNotes,
     }: Props = $props();
 
     let activeTab = $state<'my_route' | 'available' | 'failed'>('my_route');
@@ -243,6 +249,23 @@
                                 </a>
                             {/if}
                         </div>
+                        {#if order.notes}
+                            <div class="flex items-center gap-2 bg-background/50 p-2 rounded-xl border border-border/50 text-xs">
+                                <p class="text-muted-foreground italic truncate flex-1 min-w-0">
+                                    Nota: {order.notes}
+                                </p>
+                                {#if onViewOrderNotes}
+                                    <button
+                                        type="button"
+                                        class="size-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
+                                        title="Ver notas completas"
+                                        onclick={() => onViewOrderNotes(order)}
+                                    >
+                                        <Eye class="size-3.5" />
+                                    </button>
+                                {/if}
+                            </div>
+                        {/if}
 
                         <!-- Botones de Acción Mobile con min-h-[44px] -->
                         <div class="grid grid-cols-2 gap-2 pt-1 border-t border-border/50">
@@ -375,14 +398,26 @@
                         </div>
                         <h4 class="text-sm font-bold text-foreground">{order.customer_name}</h4>
                         {#if order.delivery_notes}
-                            <p class="text-xs text-muted-foreground italic bg-background/50 p-2 rounded-lg border border-border/40">
-                                "{order.delivery_notes}"
-                            </p>
+                            <div class="flex items-center gap-2 bg-background/50 p-2 rounded-lg border border-border/40 text-xs">
+                                <p class="text-muted-foreground italic truncate flex-1 min-w-0">
+                                    "{order.delivery_notes}"
+                                </p>
+                                {#if onViewOrderNotes}
+                                    <button
+                                        type="button"
+                                        class="size-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
+                                        title="Ver observaciones completas"
+                                        onclick={() => onViewOrderNotes(order)}
+                                    >
+                                        <Eye class="size-3.5" />
+                                    </button>
+                                {/if}
+                            </div>
                         {/if}
                         <div class="pt-1">
                             <Button
                                 class="w-full h-11 min-h-[44px] text-xs font-semibold gap-2 bg-primary"
-                                onclick={() => handleReschedule(order.id)}
+                                onclick={() => onRescheduleOrder ? onRescheduleOrder(order) : handleReschedule(order.id)}
                             >
                                 <RefreshCw class="size-4" />
                                 <span>Reprogramar Pedido</span>

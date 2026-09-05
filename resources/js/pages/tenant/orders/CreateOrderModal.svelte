@@ -14,6 +14,7 @@
         DropdownMenuTrigger,
     } from '@/components/ui/dropdown-menu';
     import { Link, router } from '@inertiajs/svelte';
+    import { fade, scale } from 'svelte/transition';
     import Check from 'lucide-svelte/icons/check';
     import Layers from 'lucide-svelte/icons/layers';
     import Minus from 'lucide-svelte/icons/minus';
@@ -596,14 +597,16 @@
 {#if open}
     <!-- Backdrop oscuro y accesible -->
     <div
-        class="fixed inset-0 bg-background/80 backdrop-blur-xs z-50 transition-opacity"
+        transition:fade={{ duration: 150 }}
+        class="fixed inset-0 bg-background/80 backdrop-blur-xs z-50"
         onclick={closeModal}
         aria-hidden="true"
     ></div>
 
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto pointer-events-none">
         <div
-            class="relative w-full max-w-3xl rounded-2xl sm:rounded-3xl bg-card border border-border shadow-2xl p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto"
+            transition:scale={{ start: 0.97, duration: 150 }}
+            class="relative w-full max-w-3xl rounded-2xl sm:rounded-3xl bg-card border border-border shadow-2xl p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto pointer-events-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"

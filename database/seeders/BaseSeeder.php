@@ -193,7 +193,8 @@ class BaseSeeder extends Seeder
         $activePermissions = Permission::whereIn('module_id', $activeModuleIds)->get();
         $adminRole->syncPermissions($activePermissions);
 
-        $tenantUser = User::where('tenant_id', $tenant->id)->first();
+        $tenantUser = User::where('tenant_id', $tenant->id)->where('email', 'axel@axel.com')->first()
+            ?? User::where('tenant_id', $tenant->id)->orderBy('id')->first();
         if ($tenantUser) {
             $tenantUser->forceFill([
                 'password' => 'password',

@@ -142,7 +142,7 @@
                         </div>
 
                         <!-- Caja / Contenedor del módulo con distinción de superficie tonal escalonada -->
-                        <div class="rounded-2xl border border-border/80 p-4 space-y-3.5 bg-background/80 dark:bg-background-900/60 shadow-xs">
+                        <div class="rounded-2xl border border-border/80 p-4 space-y-3.5 bg-background/80 dark:bg-card/50 shadow-xs">
                             <div class="flex items-center justify-between gap-3 border-b border-border/60 pb-3">
                                 <h4 class="font-bold text-sm text-foreground truncate flex-1">{mod.name}</h4>
                                 <Badge variant="secondary" class="text-xs font-sans tracking-wide px-2.5 py-0.5 shrink-0 border border-border/60">

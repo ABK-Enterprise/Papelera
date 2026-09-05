@@ -15,6 +15,7 @@
     import Square from 'lucide-svelte/icons/square';
     import RefreshCw from 'lucide-svelte/icons/refresh-cw';
     import ShieldAlert from 'lucide-svelte/icons/shield-alert';
+    import Eye from 'lucide-svelte/icons/eye';
 
     export interface ShiftSummary {
         cash_total: number;
@@ -29,9 +30,12 @@
         availableOrders?: DeliveryOrder[];
         myRouteOrders?: DeliveryOrder[];
         failedOrders?: DeliveryOrder[];
+        cancelledOrders?: DeliveryOrder[];
         shiftSummary?: ShiftSummary;
         onDeliverOrder: (order: DeliveryOrder) => void;
         onFailDelivery: (order: DeliveryOrder) => void;
+        onRescheduleOrder?: (order: DeliveryOrder) => void;
+        onViewOrderNotes?: (order: DeliveryOrder) => void;
     }
 
     let {
@@ -48,6 +52,8 @@
         },
         onDeliverOrder,
         onFailDelivery,
+        onRescheduleOrder,
+        onViewOrderNotes,
     }: Props = $props();
 
     let activeTab = $state<'my_route' | 'available' | 'failed'>('my_route');
@@ -284,9 +290,21 @@
                             </div>
 
                             {#if order.notes}
-                                <p class="text-xs text-muted-foreground italic bg-background/40 p-2 rounded-lg border border-border/40">
-                                    Nota: {order.notes}
-                                </p>
+                                <div class="flex items-center gap-2 bg-background/50 p-2 rounded-xl border border-border/50 text-xs">
+                                    <p class="text-muted-foreground italic truncate flex-1 min-w-0">
+                                        Nota: {order.notes}
+                                    </p>
+                                    {#if onViewOrderNotes}
+                                        <button
+                                            type="button"
+                                            class="size-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
+                                            title="Ver notas completas"
+                                            onclick={() => onViewOrderNotes(order)}
+                                        >
+                                            <Eye class="size-3.5" />
+                                        </button>
+                                    {/if}
+                                </div>
                             {/if}
                         </div>
 
@@ -437,9 +455,21 @@
                             </div>
 
                             {#if order.delivery_notes}
-                                <p class="text-xs text-muted-foreground italic bg-background/50 p-2.5 rounded-xl border border-border/50">
-                                    Observaciones: "{order.delivery_notes}"
-                                </p>
+                                <div class="flex items-center gap-2 bg-background/50 p-2.5 rounded-xl border border-border/50 text-xs">
+                                    <p class="text-muted-foreground italic truncate flex-1 min-w-0">
+                                        Observaciones: "{order.delivery_notes}"
+                                    </p>
+                                    {#if onViewOrderNotes}
+                                        <button
+                                            type="button"
+                                            class="size-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
+                                            title="Ver observaciones completas"
+                                            onclick={() => onViewOrderNotes(order)}
+                                        >
+                                            <Eye class="size-3.5" />
+                                        </button>
+                                    {/if}
+                                </div>
                             {/if}
 
                             <p class="text-xs text-muted-foreground flex items-center gap-2">
@@ -451,7 +481,7 @@
 
                         <Button
                             class="h-11 min-h-[44px] px-5 font-semibold gap-2 shrink-0 bg-primary"
-                            onclick={() => handleReschedule(order.id)}
+                            onclick={() => onRescheduleOrder ? onRescheduleOrder(order) : handleReschedule(order.id)}
                         >
                             <RefreshCw class="size-4" />
                             <span>Reprogramar Pedido</span>

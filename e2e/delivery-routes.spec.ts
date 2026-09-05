@@ -59,14 +59,14 @@ test.describe.serial('Logística de Repartos y Última Milla UI/UX', () => {
             await page.waitForTimeout(300);
 
             // Verificar diálogo de entrega
-            await expect(page.locator('text=Confirmar Entrega de Pedido').first()).toBeVisible();
+            await expect(page.locator('text=/Confirmar entrega/i').first()).toBeVisible();
             await expect(page.locator('text=Modalidad de cobro').first()).toBeVisible();
             await expect(page.locator('#delivery-notes')).toBeVisible();
 
             // Cerrar modal
             await page.locator('button:has-text("Cancelar")').click();
             await page.waitForTimeout(200);
-            await expect(page.locator('text=Confirmar Entrega de Pedido')).not.toBeVisible();
+            await expect(page.locator('text=/Confirmar entrega/i')).not.toBeVisible();
         }
 
         // Probar modal de No Entregado

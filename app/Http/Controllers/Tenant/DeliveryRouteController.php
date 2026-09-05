@@ -6,8 +6,12 @@ use App\Actions\Tenant\Payments\RegisterReceiptAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\DeliverOrderRequest;
 use App\Http\Requests\Tenant\FailDeliveryRequest;
+use App\Models\Customer;
+use App\Models\CustomerAccountMovement;
 use App\Models\CustomerOrder;
+use App\Models\Product;
 use App\Models\Receipt;
+use App\Models\StockMovement;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -164,26 +168,43 @@ class DeliveryRouteController extends Controller
 
             if ($paymentMode === 'paid_now' && (float) $order->debt_amount > 0) {
                 $amount = (float) $request->validated('amount');
-                if ($amount > (float) $order->debt_amount) {
-                    throw ValidationException::withMessages([
-                        'amount' => 'El monto a cobrar no puede superar el saldo adeudado del pedido ($' . number_format((float) $order->debt_amount, 2, ',', '.') . ').',
-                    ]);
+                $orderDebt = (float) $order->debt_amount;
+                $paymentMethod = $request->validated('payment_method');
+                $hasAccount = $order->customer_id !== null;
+
+                if (! $hasAccount) {
+                    // Cliente ocasional sin cuenta corriente
+                    if ($paymentMethod === 'efectivo') {
+                        // Comportamiento POS: Si abona en efectivo con un billete superior, el chofer le da el vuelto en mano.
+                        // El recibo se emite por el importe real adeudado.
+                        $amount = min($amount, $orderDebt);
+                    } else {
+                        // En medios electrónicos, no se permite sobrecobro sin cuenta corriente
+                        if ($amount > $orderDebt) {
+                            throw ValidationException::withMessages([
+                                'amount' => 'En cobros electrónicos para clientes sin cuenta corriente, el importe no puede superar el total adeudado ($' . number_format($orderDebt, 2, ',', '.') . ').',
+                            ]);
+                        }
+                    }
                 }
+
+                $allocationAmount = min($amount, $orderDebt);
 
                 $registerReceiptAction->execute(
                     tenantId: $tenantId,
                     userId: $userId,
                     customerId: $order->customer_id,
                     amount: $amount,
-                    paymentMethod: $request->validated('payment_method'),
+                    paymentMethod: $paymentMethod,
                     referenceNumber: $request->validated('reference_number'),
                     notes: 'Cobro contra entrega. Observaciones: ' . ($request->validated('delivery_notes') ?? 'Sin notas'),
                     orderAllocations: [
                         [
                             'order_id' => $order->id,
-                            'amount' => $amount,
+                            'amount' => $allocationAmount,
                         ],
                     ],
+                    allowSurplus: $hasAccount,
                 );
             }
 
@@ -227,13 +248,20 @@ class DeliveryRouteController extends Controller
     }
 
     /**
-     * Reprogramación desde el panel operativo (vuelve el pedido a 'preparado' para reintentar reparto)
+     * Reprogramación desde el panel operativo (devuelve a 'en_preparacion' o cancela definitivamente con reincorporación de stock)
      */
-    public function reschedule(CustomerOrder $customerOrder): RedirectResponse
+    public function reschedule(Request $request, CustomerOrder $customerOrder): RedirectResponse
     {
         $tenantId = auth()->user()->tenant_id;
+        $userId = auth()->user()->id;
 
-        DB::transaction(function () use ($tenantId, $customerOrder) {
+        $destination = $request->input('destination', 'en_preparacion');
+        if (! in_array($destination, ['en_preparacion', 'cancelado'], true)) {
+            $destination = 'en_preparacion';
+        }
+        $reason = $request->input('reason');
+
+        DB::transaction(function () use ($tenantId, $userId, $customerOrder, $destination, $reason) {
             /** @var CustomerOrder $order */
             $order = CustomerOrder::where('tenant_id', $tenantId)
                 ->where('id', $customerOrder->id)
@@ -246,12 +274,94 @@ class DeliveryRouteController extends Controller
                 ]);
             }
 
-            $order->status = 'preparado';
-            $order->delivery_failure_reason = null;
-            $order->save();
+            if ($destination === 'cancelado') {
+                $order->status = 'cancelado';
+                $order->delivery_user_id = null;
+                $notePrefix = $reason ? "Cancelado tras visita fallida: {$reason}" : 'Cancelado tras visita fallida.';
+                $order->delivery_notes = trim(($order->delivery_notes ? $order->delivery_notes . ' | ' : '') . $notePrefix);
+                $order->save();
+
+                // Reincorporar stock físico a depósito
+                $order->load('items.product');
+                $sortedItems = $order->items->sortBy('product_id');
+                foreach ($sortedItems as $item) {
+                    $product = Product::where('id', $item->product_id)
+                        ->where('tenant_id', $tenantId)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($product) {
+                        $qtyBase = (float) ($item->quantity_base ?? $item->total_units ?? $item->quantity);
+                        $previousStock = (float) $product->stock;
+                        $currentStock = $previousStock + $qtyBase;
+                        $product->update(['stock' => $currentStock]);
+
+                        StockMovement::create([
+                            'tenant_id' => $tenantId,
+                            'warehouse_id' => $order->warehouse_id,
+                            'product_id' => $item->product_id,
+                            'user_id' => $userId,
+                            'type' => 'income',
+                            'quantity' => $qtyBase,
+                            'previous_stock' => $previousStock,
+                            'current_stock' => $currentStock,
+                            'reason' => 'cancelacion_pedido',
+                            'notes' => "Reincorporación de stock por pedido {$order->order_number} cancelado en reparto",
+                        ]);
+                    }
+                }
+
+                // Revertir deuda de cuenta corriente si aplica
+                if ($order->customer_id) {
+                    $customer = Customer::where('id', $order->customer_id)
+                        ->where('tenant_id', $tenantId)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($customer) {
+                        $reversalAmount = (float) $order->debt_amount;
+                        if ($reversalAmount > 0) {
+                            $newBalance = round((float) $customer->current_balance - $reversalAmount, 2);
+
+                            CustomerAccountMovement::create([
+                                'tenant_id' => $tenantId,
+                                'customer_id' => $customer->id,
+                                'customer_order_id' => $order->id,
+                                'created_by_user_id' => $userId,
+                                'type' => 'adjustment',
+                                'description' => "Anulación de deuda por pedido {$order->order_number} cancelado",
+                                'amount' => $reversalAmount,
+                                'balance_after' => $newBalance,
+                                'payment_method' => 'ajuste',
+                                'reference_number' => "DEL-{$order->order_number}",
+                                'notes' => 'Ajuste automático de saldo por cancelación definitiva tras reparto.',
+                            ]);
+
+                            $customer->update(['current_balance' => $newBalance]);
+                        }
+                    }
+                }
+
+                $order->debt_amount = 0.00;
+                $order->save();
+            } else {
+                // destination === 'en_preparacion'
+                $order->status = 'en_preparacion';
+                $order->delivery_failure_reason = null;
+                $order->delivery_user_id = null;
+                if ($reason) {
+                    $notePrefix = "Devuelto a preparación: {$reason}";
+                    $order->delivery_notes = trim(($order->delivery_notes ? $order->delivery_notes . ' | ' : '') . $notePrefix);
+                }
+                $order->save();
+            }
         });
 
-        return back()->with('success', "Pedido {$customerOrder->order_number} reprogramado y devuelto a la bolsa de pedidos disponibles.");
+        $msg = ($destination === 'cancelado')
+            ? "Pedido {$customerOrder->order_number} cancelado definitivamente y stock reincorporado."
+            : "Pedido {$customerOrder->order_number} devuelto a preparación para su posterior revisión.";
+
+        return back()->with('success', $msg);
     }
 
     /**

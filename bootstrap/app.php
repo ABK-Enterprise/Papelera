@@ -51,4 +51,26 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        $exceptions->respond(function (\Symfony\Component\HttpFoundation\Response $response, \Throwable $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return $response;
+            }
+
+            if ($response->getStatusCode() === 403) {
+                return \Inertia\Inertia::render('errors/403', [
+                    'status' => 403,
+                    'message' => $e->getMessage() ?: 'Acción no permitida',
+                ])->toResponse($request)->setStatusCode(403);
+            }
+
+            if ($response->getStatusCode() === 419) {
+                return \Inertia\Inertia::render('errors/419', [
+                    'status' => 419,
+                    'message' => 'Expiró la sesión en el navegador',
+                ])->toResponse($request)->setStatusCode(419);
+            }
+
+            return $response;
+        });
     })->create();

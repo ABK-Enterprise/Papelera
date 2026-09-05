@@ -57,7 +57,7 @@ class CustomerOrder extends Model
         'en_preparacion' => ['preparado', 'en_camino', 'cancelado'],
         'preparado' => ['en_camino', 'entregado', 'cancelado'],
         'en_camino' => ['entregado', 'no_entregado', 'cancelado'],
-        'no_entregado' => ['preparado', 'cancelado'],
+        'no_entregado' => ['preparado', 'en_preparacion', 'cancelado'],
         'entregado' => [], // Estado terminal
         'cancelado' => [], // Estado terminal
     ];

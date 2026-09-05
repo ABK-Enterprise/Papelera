@@ -83,10 +83,10 @@
             </p>
         </div>
 
-        <div>
+        <div class="flex justify-end">
             <Button
                 variant="default"
-                class="h-11 px-5 rounded-xl font-semibold gap-2 shadow-sm min-h-[44px] w-full sm:w-auto"
+                class="h-10 sm:h-11 px-4 sm:px-5 rounded-xl font-semibold gap-2 shadow-sm min-h-[40px] sm:min-h-[44px] text-xs sm:text-sm"
                 onclick={openCreateModal}
             >
                 <Plus class="size-4" />

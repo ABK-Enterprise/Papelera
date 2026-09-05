@@ -31,7 +31,8 @@ class RegisterReceiptAction
         string $paymentMethod,
         ?string $referenceNumber = null,
         ?string $notes = null,
-        array $orderAllocations = []
+        array $orderAllocations = [],
+        bool $allowSurplus = false
     ): Receipt {
         if ($amount <= 0) {
             throw ValidationException::withMessages([
@@ -39,7 +40,7 @@ class RegisterReceiptAction
             ]);
         }
 
-        // Si se enviaron imputaciones a pedidos, validar que la suma coincida exactamente con el monto del recibo
+        // Si se enviaron imputaciones a pedidos, validar que la suma coincida con el monto del recibo (o no lo supere si se permite saldo a favor)
         if (! empty($orderAllocations)) {
             $sumAllocations = 0.0;
             foreach ($orderAllocations as $alloc) {
@@ -52,10 +53,18 @@ class RegisterReceiptAction
                 $sumAllocations += $allocAmount;
             }
 
-            if (abs($sumAllocations - $amount) > 0.01) {
+            if (! $allowSurplus && abs($sumAllocations - $amount) > 0.01) {
                 throw ValidationException::withMessages([
                     'allocations' => [
                         "La suma de las imputaciones ($".number_format($sumAllocations, 2).") no coincide con el total del recibo ($".number_format($amount, 2).").",
+                    ],
+                ]);
+            }
+
+            if ($allowSurplus && $sumAllocations > ($amount + 0.01)) {
+                throw ValidationException::withMessages([
+                    'allocations' => [
+                        "La suma de las imputaciones ($".number_format($sumAllocations, 2).") no puede superar el total del recibo ($".number_format($amount, 2).").",
                     ],
                 ]);
             }

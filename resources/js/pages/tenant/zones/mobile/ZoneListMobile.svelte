@@ -39,7 +39,7 @@
                 </div>
 
                 <!-- Fila 2, Col 1: Distancia -->
-                <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-background-900/60 p-2.5 flex flex-col justify-center">
+                <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-card/50 p-2.5 flex flex-col justify-center">
                     <span class="text-[10px] font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
                         <Navigation class="size-3 text-primary" />
                         Distancia
@@ -50,7 +50,7 @@
                 </div>
 
                 <!-- Fila 2, Col 2: Recargo -->
-                <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-background-900/60 p-2.5 flex flex-col justify-center">
+                <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-card/50 p-2.5 flex flex-col justify-center">
                     <span class="text-[10px] font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
                         <Percent class="size-3 text-primary" />
                         Recargo
