@@ -4,6 +4,7 @@
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import { Textarea } from '@/components/ui/textarea';
+    import { Switch } from '@/components/ui/switch';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import { router } from '@inertiajs/svelte';
     import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
@@ -55,6 +56,7 @@
     let amountToPay = $state<number>(0);
     let referenceNumber = $state<string>('');
     let deliveryNotes = $state<string>('');
+    let collectExtraBalance = $state<boolean>(false);
     let isSubmitting = $state(false);
     let errorMessage = $state<string | null>(null);
 
@@ -68,13 +70,15 @@
 
     $effect(() => {
         if (open && order) {
-            amountToPay = Number(order.debt_amount) || 0;
+            const currentDebt = Number(order.debt_amount) || 0;
+            amountToPay = currentDebt > 0 ? currentDebt : 0;
             referenceNumber = '';
             deliveryNotes = '';
             errorMessage = null;
             isOverpaymentConfirmOpen = false;
-
-            paymentMode = 'paid_now';
+            collectExtraBalance = false;
+            paymentMode = currentDebt > 0 ? 'paid_now' : 'on_credit';
+            paymentMethod = 'efectivo';
         }
     });
 
@@ -95,28 +99,44 @@
         if (!order) return;
         errorMessage = null;
 
-        if (paymentMode === 'paid_now' && debt > 0) {
-            if (!paymentMethod) {
-                errorMessage = 'Selecciona un método de cobro.';
-                return;
-            }
-            if (amountToPay <= 0) {
-                errorMessage = 'El monto cobrado debe ser mayor a cero.';
-                return;
-            }
+        if (debt > 0) {
+            if (paymentMode === 'paid_now') {
+                if (!paymentMethod) {
+                    errorMessage = 'Selecciona un método de cobro.';
+                    return;
+                }
+                if (amountToPay <= 0) {
+                    errorMessage = 'El monto cobrado debe ser mayor a cero.';
+                    return;
+                }
 
-            // Validaciones según si el cliente tiene o no cuenta corriente
-            if (!hasAccount) {
-                if (paymentMethod !== 'efectivo' && isOverpaid) {
-                    errorMessage = `En cobros electrónicos para clientes sin cuenta corriente, el importe no puede superar el total adeudado (${formatCurrency(debt)}).`;
+                // Validaciones según si el cliente tiene o no cuenta corriente
+                if (!hasAccount) {
+                    if (paymentMethod !== 'efectivo' && isOverpaid) {
+                        errorMessage = `En cobros electrónicos para clientes sin cuenta corriente, el importe no puede superar el total adeudado (${formatCurrency(debt)}).`;
+                        return;
+                    }
+                } else {
+                    // Si tiene cuenta corriente y hay sobrecobro, solicitar confirmación explícita
+                    if (isOverpaid) {
+                        isOverpaymentConfirmOpen = true;
+                        return;
+                    }
+                }
+            }
+        } else {
+            // Pedido ya pagado
+            if (collectExtraBalance) {
+                if (!paymentMethod) {
+                    errorMessage = 'Selecciona un método de cobro para la cuenta corriente.';
                     return;
                 }
-            } else {
-                // Si tiene cuenta corriente y hay sobrecobro, solicitar confirmación explícita
-                if (isOverpaid) {
-                    isOverpaymentConfirmOpen = true;
+                if (amountToPay <= 0) {
+                    errorMessage = 'El monto a cobrar debe ser mayor a cero.';
                     return;
                 }
+                isOverpaymentConfirmOpen = true;
+                return;
             }
         }
 
@@ -128,12 +148,14 @@
         isSubmitting = true;
         errorMessage = null;
 
+        const willCollect = (debt > 0 && paymentMode === 'paid_now') || (debt <= 0 && collectExtraBalance);
+
         router.post(
             `/tenant/repartos/${order.id}/entregar`,
             {
-                payment_mode: paymentMode,
-                payment_method: paymentMode === 'paid_now' && debt > 0 ? paymentMethod : null,
-                amount: paymentMode === 'paid_now' && debt > 0 ? amountToPay : null,
+                payment_mode: debt <= 0 && !collectExtraBalance ? 'on_credit' : paymentMode,
+                payment_method: willCollect ? paymentMethod : null,
+                amount: willCollect ? amountToPay : null,
                 reference_number: referenceNumber.trim() || null,
                 delivery_notes: deliveryNotes.trim() || null,
             },
@@ -156,15 +178,23 @@
 
 <Dialog bind:open>
     <DialogContent class="max-w-lg p-0 flex flex-col max-h-[85vh] sm:max-h-[88vh] bg-card text-card-foreground border border-border/80 overflow-hidden">
-        <DialogHeader class="p-5 sm:p-6 pb-2 text-left border-b border-border/50 shrink-0">
-            <DialogTitle class="text-lg font-bold flex items-center gap-2">
-                <CheckCircle2 class="size-5 text-emerald-500" />
-                <span>Confirmar entrega del pedido</span>
-            </DialogTitle>
-            <DialogDescription class="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                <span>Registra la finalización de entrega para el pedido</span>
-                <span class="font-mono font-bold tabular-nums text-foreground">#{order?.order_number}</span>
-            </DialogDescription>
+        <DialogHeader class="p-5 sm:p-6 pb-3 text-left border-b border-border/50 shrink-0">
+            <div class="flex items-start justify-between gap-3">
+                <div class="space-y-1">
+                    <DialogTitle class="text-lg font-bold flex items-center gap-2 font-sans">
+                        <CheckCircle2 class="size-5 text-emerald-500 shrink-0" />
+                        <span>Confirmar entrega del pedido</span>
+                    </DialogTitle>
+                    <DialogDescription class="text-xs text-muted-foreground max-w-[260px] sm:max-w-md break-words font-sans">
+                        Registra la finalización de entrega para este pedido
+                    </DialogDescription>
+                </div>
+                {#if order}
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold font-sans tabular-nums bg-primary/15 text-primary border border-primary/20 shrink-0">
+                        #{order.order_number}
+                    </span>
+                {/if}
+            </div>
         </DialogHeader>
 
         <DialogBody class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
@@ -173,7 +203,7 @@
                 <div class="rounded-2xl border border-border/70 bg-background/50 p-4 space-y-2.5">
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-semibold text-foreground">{order.customer_name}</span>
-                        <span class="text-xs font-mono font-bold text-primary tabular-nums">#{order.order_number}</span>
+                        <span class="text-xs font-sans font-bold text-primary tabular-nums">#{order.order_number}</span>
                     </div>
                     {#if order.delivery_address}
                         <p class="text-xs text-muted-foreground flex items-center gap-1.5">
@@ -306,6 +336,82 @@
                         <CheckCircle2 class="size-4 shrink-0" />
                         <span>Este pedido ya se encuentra completamente pago. No se requiere cobro en la entrega.</span>
                     </div>
+
+                    <!-- Switch para saldar saldo a favor / cuenta corriente si el cliente tiene cuenta -->
+                    {#if hasAccount}
+                        <div class="p-4 rounded-2xl border border-border/80 bg-background/40 space-y-3">
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="space-y-0.5">
+                                    <Label for="switch-extra-balance" class="text-xs font-semibold text-foreground cursor-pointer">
+                                        ¿Cobrar saldo a favor / saldar cuenta corriente?
+                                    </Label>
+                                    <p class="text-[11px] text-muted-foreground">
+                                        Cobrar un importe adicional para acreditarlo en la cuenta corriente del cliente
+                                    </p>
+                                </div>
+                                <Switch id="switch-extra-balance" bind:checked={collectExtraBalance} />
+                            </div>
+
+                            {#if collectExtraBalance}
+                                <div class="pt-3 border-t border-border/50 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div class="space-y-1.5">
+                                        <Label for="extra-payment-method" class="text-xs font-medium text-foreground">Método de cobro</Label>
+                                        <select
+                                            id="extra-payment-method"
+                                            bind:value={paymentMethod}
+                                            class="w-full h-11 px-3 text-sm rounded-xl border border-border/80 bg-background text-foreground focus:outline-none focus:border-primary-500 transition-all min-h-[44px]"
+                                        >
+                                            <option value="efectivo">Efectivo</option>
+                                            <option value="transferencia">Transferencia bancaria</option>
+                                            <option value="mercadopago">MercadoPago / QR</option>
+                                            <option value="cheque">Cheque</option>
+                                            <option value="otro">Otro</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <Label for="extra-amount" class="text-xs font-medium text-foreground">Monto a cobrar</Label>
+                                        <div class="relative">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                                            <Input
+                                                id="extra-amount"
+                                                type="number"
+                                                step="0.01"
+                                                min="0.01"
+                                                bind:value={amountToPay}
+                                                class="pl-7 h-11 tabular-nums font-semibold min-h-[44px] bg-background border-border/80"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {#if amountToPay > 0}
+                                        <div class="col-span-1 sm:col-span-2 p-3 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <Coins class="size-4 text-primary" />
+                                                <span class="text-xs font-medium text-foreground">Importe a acreditar en cuenta:</span>
+                                            </div>
+                                            <span class="font-bold tabular-nums text-base text-primary font-sans">
+                                                +{formatCurrency(amountToPay)}
+                                            </span>
+                                        </div>
+                                    {/if}
+
+                                    {#if paymentMethod !== 'efectivo'}
+                                        <div class="col-span-1 sm:col-span-2 space-y-1.5">
+                                            <Label for="extra-ref" class="text-xs font-medium text-foreground">Nº Comprobante / Transacción (opcional)</Label>
+                                            <Input
+                                                id="extra-ref"
+                                                type="text"
+                                                placeholder="Ej: TRANSF-987213"
+                                                bind:value={referenceNumber}
+                                                class="h-11 min-h-[44px] bg-background border-border/80"
+                                            />
+                                        </div>
+                                    {/if}
+                                </div>
+                            {/if}
+                        </div>
+                    {/if}
                 {/if}
 
                 <!-- Observaciones de la entrega -->
@@ -359,8 +465,10 @@
 {#if order}
     <ConfirmActionModal
         bind:open={isOverpaymentConfirmOpen}
-        title="¿Confirmar cobro con excedente a favor?"
-        description={`El importe ingresado (${formatCurrency(amountToPay)}) supera el saldo adeudado del pedido (${formatCurrency(debt)}). El excedente de ${formatCurrency(overpaidAmount)} se acreditará como saldo a favor en la cuenta corriente de ${order.customer_name}. ¿Deseas continuar?`}
+        title={debt <= 0 ? '¿Confirmar cobro para cuenta corriente?' : '¿Confirmar cobro con excedente a favor?'}
+        description={debt <= 0
+            ? `Se registrará un cobro de ${formatCurrency(amountToPay)} que se acreditará directamente en la cuenta corriente de ${order.customer_name}. ¿Deseas continuar?`
+            : `El importe ingresado (${formatCurrency(amountToPay)}) supera el saldo adeudado del pedido (${formatCurrency(debt)}). El excedente de ${formatCurrency(overpaidAmount)} se acreditará como saldo a favor en la cuenta corriente de ${order.customer_name}. ¿Deseas continuar?`}
         confirmText="Confirmar e imputar"
         cancelText="Volver y corregir"
         variant="primary"

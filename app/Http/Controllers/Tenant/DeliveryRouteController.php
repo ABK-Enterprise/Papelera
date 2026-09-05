@@ -51,9 +51,9 @@ class DeliveryRouteController extends Controller
             ->get()
             ->map(fn ($order) => $this->transformOrder($order));
 
-        // Pedidos cancelados o no entregados
-        $cancelledOrders = CustomerOrder::where('tenant_id', $tenantId)
-            ->whereIn('status', ['cancelado', 'no_entregado'])
+        // Pedidos con visita fallida (no entregados) pendientes de resolución operativa
+        $failedOrders = CustomerOrder::where('tenant_id', $tenantId)
+            ->where('status', 'no_entregado')
             ->with(['customer', 'shippingZone', 'items.product'])
             ->latest()
             ->take(30)
@@ -66,8 +66,8 @@ class DeliveryRouteController extends Controller
             return response()->json([
                 'available_orders' => $availableOrders,
                 'my_route_orders' => $myRouteOrders,
-                'failed_orders' => $cancelledOrders,
-                'cancelled_orders' => $cancelledOrders,
+                'failed_orders' => $failedOrders,
+                'cancelled_orders' => $failedOrders,
                 'shift_summary' => $shiftSummary,
             ]);
         }
@@ -75,8 +75,8 @@ class DeliveryRouteController extends Controller
         return Inertia::render('tenant/deliveries/Index', [
             'availableOrders' => $availableOrders,
             'myRouteOrders' => $myRouteOrders,
-            'failedOrders' => $cancelledOrders,
-            'cancelledOrders' => $cancelledOrders,
+            'failedOrders' => $failedOrders,
+            'cancelledOrders' => $failedOrders,
             'shiftSummary' => $shiftSummary,
         ]);
     }
@@ -165,13 +165,14 @@ class DeliveryRouteController extends Controller
             }
 
             $paymentMode = $request->validated('payment_mode');
+            $rawAmount = $request->validated('amount');
+            $amount = $rawAmount !== null ? (float) $rawAmount : 0.0;
+            $paymentMethod = $request->validated('payment_method');
+            $orderDebt = (float) $order->debt_amount;
+            $hasAccount = $order->customer_id !== null;
 
-            if ($paymentMode === 'paid_now' && (float) $order->debt_amount > 0) {
-                $amount = (float) $request->validated('amount');
-                $orderDebt = (float) $order->debt_amount;
-                $paymentMethod = $request->validated('payment_method');
-                $hasAccount = $order->customer_id !== null;
-
+            // Escenario 1: Pedido con deuda pendiente y cobro en el acto
+            if ($paymentMode === 'paid_now' && $orderDebt > 0) {
                 if (! $hasAccount) {
                     // Cliente ocasional sin cuenta corriente
                     if ($paymentMethod === 'efectivo') {
@@ -205,6 +206,20 @@ class DeliveryRouteController extends Controller
                         ],
                     ],
                     allowSurplus: $hasAccount,
+                );
+            }
+            // Escenario 2: Pedido ya pagado (orderDebt <= 0), pero el chofer cobró extra para cuenta corriente
+            elseif ($orderDebt <= 0 && $amount > 0 && $paymentMethod && $hasAccount) {
+                $registerReceiptAction->execute(
+                    tenantId: $tenantId,
+                    userId: $userId,
+                    customerId: $order->customer_id,
+                    amount: $amount,
+                    paymentMethod: $paymentMethod,
+                    referenceNumber: $request->validated('reference_number'),
+                    notes: "Cobro a cuenta corriente en entrega de pedido {$order->order_number}. Observaciones: " . ($request->validated('delivery_notes') ?? 'Sin notas'),
+                    orderAllocations: [], // No imputa a este pedido porque ya tiene deuda 0
+                    allowSurplus: true,
                 );
             }
 

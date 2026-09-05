@@ -511,3 +511,119 @@ test('driver can assign order with en_preparacion status', function () {
     expect($order->status)->toBe('en_camino')
         ->and($order->delivery_user_id)->toBe($this->adminUser->id);
 });
+
+test('deliveries index failed orders only includes no_entregado and strictly excludes cancelado', function () {
+    $failedOrder = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->defaultWarehouse->id,
+        'order_number' => 'PED-FAIL-EXCLUSIVE',
+        'customer_name' => $this->customer->name,
+        'status' => 'no_entregado',
+        'delivery_failure_reason' => 'local_cerrado',
+        'payment_status' => 'pendiente',
+        'total_amount' => 1500.00,
+        'debt_amount' => 1500.00,
+        'delivery_user_id' => null,
+    ]);
+
+    $cancelledOrder = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->defaultWarehouse->id,
+        'order_number' => 'PED-CANC-EXCLUSIVE',
+        'customer_name' => $this->customer->name,
+        'status' => 'cancelado',
+        'payment_status' => 'pendiente',
+        'total_amount' => 1500.00,
+        'debt_amount' => 0.00,
+        'delivery_user_id' => null,
+    ]);
+
+    $response = $this->actingAs($this->adminUser)->get(route('tenant.deliveries.index'));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->component('tenant/deliveries/Index')
+        ->has('failedOrders', 1)
+        ->where('failedOrders.0.order_number', 'PED-FAIL-EXCLUSIVE')
+    );
+});
+
+test('driver can deliver already paid order without payment method or amount', function () {
+    $paidOrder = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->defaultWarehouse->id,
+        'order_number' => 'PED-ALREADY-PAID',
+        'customer_name' => $this->customer->name,
+        'status' => 'en_camino',
+        'payment_status' => 'cobrado',
+        'total_amount' => 4500.00,
+        'debt_amount' => 0.00,
+        'delivery_user_id' => $this->adminUser->id,
+    ]);
+
+    $response = $this->actingAs($this->adminUser)
+        ->post(route('tenant.deliveries.deliver', $paidOrder), [
+            'payment_mode' => 'on_credit',
+            'delivery_notes' => 'Entregado al portero, pedido ya estaba abonado',
+        ]);
+
+    $response->assertRedirect();
+    $response->assertSessionHas('success');
+
+    $paidOrder->refresh();
+    expect($paidOrder->status)->toBe('entregado')
+        ->and($paidOrder->payment_status)->toBe('cobrado')
+        ->and((float) $paidOrder->debt_amount)->toBe(0.0)
+        ->and($paidOrder->delivery_notes)->toBe('Entregado al portero, pedido ya estaba abonado');
+
+    // No se genera recibo espurio
+    expect(Receipt::count())->toBe(0);
+});
+
+test('driver can deliver already paid order and collect extra payment towards customer account', function () {
+    $this->customer->update(['current_balance' => 5000.00]);
+
+    $paidOrder = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->defaultWarehouse->id,
+        'order_number' => 'PED-PAID-EXTRA-COLLECT',
+        'customer_name' => $this->customer->name,
+        'status' => 'en_camino',
+        'payment_status' => 'cobrado',
+        'total_amount' => 4500.00,
+        'debt_amount' => 0.00,
+        'delivery_user_id' => $this->adminUser->id,
+    ]);
+
+    $response = $this->actingAs($this->adminUser)
+        ->post(route('tenant.deliveries.deliver', $paidOrder), [
+            'payment_mode' => 'paid_now',
+            'payment_method' => 'efectivo',
+            'amount' => 2000.00,
+            'reference_number' => null,
+            'delivery_notes' => 'Cliente paga 2000 a cuenta de su saldo deudor',
+        ]);
+
+    $response->assertRedirect();
+    $response->assertSessionHas('success');
+
+    $paidOrder->refresh();
+    expect($paidOrder->status)->toBe('entregado')
+        ->and($paidOrder->payment_status)->toBe('cobrado')
+        ->and((float) $paidOrder->debt_amount)->toBe(0.0);
+
+    // Se genera el recibo
+    $receipt = Receipt::where('tenant_id', $this->tenant->id)->latest()->first();
+    expect($receipt)->not->toBeNull()
+        ->and((float) $receipt->amount)->toBe(2000.00)
+        ->and($receipt->payment_method)->toBe('efectivo')
+        ->and($receipt->created_by_user_id)->toBe($this->adminUser->id);
+
+    // Saldo del cliente se reduce de 5000 a 3000
+    $this->customer->refresh();
+    expect((float) $this->customer->current_balance)->toBe(3000.00);
+});

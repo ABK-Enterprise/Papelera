@@ -26,15 +26,23 @@
 
 <Dialog bind:open>
     <DialogContent class="max-w-md p-0 flex flex-col max-h-[85vh] sm:max-h-[88vh] bg-card text-card-foreground border border-border/80 overflow-hidden">
-        <DialogHeader class="p-5 sm:p-6 pb-2 text-left border-b border-border/50 shrink-0">
-            <DialogTitle class="text-lg font-bold flex items-center gap-2">
-                <FileText class="size-5 text-primary" />
-                <span>Notas y observaciones</span>
-            </DialogTitle>
-            <DialogDescription class="text-xs text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                <span>Historial de notas del pedido</span>
-                <span class="font-mono font-bold tabular-nums text-foreground">#{order?.order_number}</span>
-            </DialogDescription>
+        <DialogHeader class="p-5 sm:p-6 pb-3 text-left border-b border-border/50 shrink-0">
+            <div class="flex items-start justify-between gap-3">
+                <div class="space-y-1">
+                    <DialogTitle class="text-lg font-bold flex items-center gap-2 font-sans">
+                        <FileText class="size-5 text-primary shrink-0" />
+                        <span>Notas y observaciones</span>
+                    </DialogTitle>
+                    <DialogDescription class="text-xs text-muted-foreground max-w-[260px] sm:max-w-md break-words font-sans">
+                        Historial de notas y observaciones del pedido
+                    </DialogDescription>
+                </div>
+                {#if order}
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold font-sans tabular-nums bg-primary/15 text-primary border border-primary/20 shrink-0">
+                        #{order.order_number}
+                    </span>
+                {/if}
+            </div>
         </DialogHeader>
 
         <DialogBody class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-3.5">
@@ -42,7 +50,7 @@
                 <!-- Resumen de Cliente -->
                 <div class="flex items-center justify-between p-3 rounded-xl bg-background/50 border border-border/70 text-xs">
                     <span class="font-semibold text-foreground">{order.customer_name}</span>
-                    <span class="text-muted-foreground font-mono font-bold">#{order.order_number}</span>
+                    <span class="text-muted-foreground font-sans font-bold tabular-nums">#{order.order_number}</span>
                 </div>
 
                 <!-- 1. Notas de Venta / Instrucciones de Entrega -->

@@ -175,7 +175,7 @@
             class="py-2.5 px-2 rounded-lg text-xs font-bold transition-all min-h-[44px] flex flex-col items-center justify-center gap-0.5 {activeTab === 'failed' ? 'bg-card text-rose-600 dark:text-rose-400 shadow-xs' : 'text-muted-foreground hover:text-foreground'}"
             onclick={() => (activeTab = 'failed')}
         >
-            <span>Cancelados</span>
+            <span>No entregados</span>
             <span class="text-[11px] font-mono opacity-80">({failedOrders.length})</span>
         </button>
     </div>
@@ -203,7 +203,7 @@
                     <div class="p-4 rounded-2xl border border-border/80 bg-card shadow-xs space-y-3">
                         <div class="flex items-start justify-between gap-2">
                             <div class="min-w-0">
-                                <p class="text-xs font-mono font-bold text-primary">#{order.order_number}</p>
+                                <p class="text-xs font-sans font-bold text-primary tabular-nums">#{order.order_number}</p>
                                 <h4 class="text-sm font-bold text-foreground truncate">{order.customer_name}</h4>
                             </div>
 
@@ -345,7 +345,7 @@
 
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center justify-between gap-1">
-                                    <span class="text-xs font-mono font-bold text-primary">#{order.order_number}</span>
+                                    <span class="text-xs font-sans font-bold text-primary tabular-nums">#{order.order_number}</span>
                                     {#if Number(order.debt_amount) <= 0}
                                         <Badge variant="outline" class="text-[10px] font-bold text-emerald-600">PAGADO</Badge>
                                     {:else}
@@ -381,7 +381,7 @@
         {#if failedOrders.length === 0}
             <div class="flex flex-col items-center justify-center p-8 text-center rounded-2xl border border-dashed border-border/80 bg-card/40">
                 <AlertTriangle class="size-10 text-muted-foreground/40 mb-2" />
-                <h3 class="text-sm font-semibold text-foreground">No hay pedidos cancelados</h3>
+                <h3 class="text-sm font-semibold text-foreground">No hay pedidos no entregados</h3>
                 <p class="text-xs text-muted-foreground mt-1">
                     Todos los repartos están en curso o se han entregado normalmente.
                 </p>
@@ -389,18 +389,67 @@
         {:else}
             <div class="space-y-3">
                 {#each failedOrders as order (order.id)}
-                    <div class="p-3.5 rounded-2xl border border-rose-500/30 bg-card shadow-xs space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="font-mono text-xs font-bold text-rose-600 dark:text-rose-400">#{order.order_number}</span>
-                            <span class="text-xs font-semibold text-rose-700 dark:text-rose-300 bg-rose-500/10 px-2 py-0.5 rounded-md">
+                    <div class="p-4 rounded-2xl border border-rose-500/30 bg-card shadow-xs space-y-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="min-w-0">
+                                <p class="text-xs font-sans font-bold text-rose-600 dark:text-rose-400 tabular-nums">#{order.order_number}</p>
+                                <h4 class="text-sm font-bold text-foreground truncate">{order.customer_name}</h4>
+                            </div>
+
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[11px] font-bold bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30 shrink-0">
                                 {order.delivery_failure_reason ? (failureReasonLabels[order.delivery_failure_reason] || order.delivery_failure_reason) : 'No entregado'}
                             </span>
                         </div>
-                        <h4 class="text-sm font-bold text-foreground">{order.customer_name}</h4>
+
+                        <!-- Dirección y Contacto Clickeables -->
+                        {#if order.delivery_address}
+                            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-background/50 border border-border/50">
+                                <div class="flex items-start gap-1.5 min-w-0">
+                                    <MapPin class="size-3.5 text-primary shrink-0 mt-0.5" />
+                                    <p class="text-xs text-foreground line-clamp-2">{order.delivery_address}</p>
+                                </div>
+                                <a
+                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.delivery_address)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="h-9 px-2.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold inline-flex items-center gap-1 shrink-0 min-h-[36px]"
+                                >
+                                    <ExternalLink class="size-3" />
+                                    <span>Maps</span>
+                                </a>
+                            </div>
+                        {/if}
+
+                        <div class="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                            <span>Zona: {order.shipping_zone_name}</span>
+                            {#if order.customer_phone}
+                                <a
+                                    href={`tel:${order.customer_phone}`}
+                                    class="h-8 px-2.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold inline-flex items-center gap-1"
+                                >
+                                    <Phone class="size-3" />
+                                    <span>Llamar</span>
+                                </a>
+                            {/if}
+                        </div>
+
+                        <div class="flex items-center justify-between text-xs pt-1 border-t border-border/40">
+                            <span class="text-muted-foreground tabular-nums">Total: ${Number(order.total_amount).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+                            {#if Number(order.debt_amount) <= 0}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                                    PAGADO
+                                </span>
+                            {:else}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 tabular-nums">
+                                    Deuda: ${Number(order.debt_amount).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                                </span>
+                            {/if}
+                        </div>
+
                         {#if order.delivery_notes}
-                            <div class="flex items-center gap-2 bg-background/50 p-2 rounded-lg border border-border/40 text-xs">
+                            <div class="flex items-center gap-2 bg-background/50 p-2 rounded-xl border border-border/50 text-xs">
                                 <p class="text-muted-foreground italic truncate flex-1 min-w-0">
-                                    "{order.delivery_notes}"
+                                    Nota: "{order.delivery_notes}"
                                 </p>
                                 {#if onViewOrderNotes}
                                     <button
@@ -414,6 +463,7 @@
                                 {/if}
                             </div>
                         {/if}
+
                         <div class="pt-1">
                             <Button
                                 class="w-full h-11 min-h-[44px] text-xs font-semibold gap-2 bg-primary"

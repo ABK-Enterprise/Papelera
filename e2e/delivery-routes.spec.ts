@@ -30,6 +30,7 @@ test.describe.serial('Logística de Repartos y Última Milla UI/UX', () => {
         // Verificar Pestañas operativas
         await expect(page.locator('button:has-text("Mis pedidos")').first()).toBeVisible();
         await expect(page.locator('button:has-text("Pedidos Disponibles")').first()).toBeVisible();
+        await expect(page.locator('button:has-text("Pedidos no entregados"), button:has-text("No entregados")').first()).toBeVisible();
     });
 
     test('2. Bolsa de Trabajo: Navegación entre pestañas y selección', async () => {
@@ -51,16 +52,17 @@ test.describe.serial('Logística de Repartos y Última Milla UI/UX', () => {
     test('3. Modales de Entrega y No Entregado (Happy / Unhappy Path UI)', async () => {
         await page.goto('/tenant/repartos');
         await page.waitForLoadState('networkidle');
+        await page.getByRole('button', { name: /Mis pedidos/i }).click();
+        await page.waitForTimeout(300);
 
         // Si hay pedidos en Mi Ruta
-        const deliverBtn = page.locator('button:has-text("Marcar como Entregado")').first();
+        const deliverBtn = page.getByRole('button', { name: 'Entregado', exact: true }).first();
         if (await deliverBtn.isVisible()) {
             await deliverBtn.click();
             await page.waitForTimeout(300);
 
             // Verificar diálogo de entrega
             await expect(page.locator('text=/Confirmar entrega/i').first()).toBeVisible();
-            await expect(page.locator('text=Modalidad de cobro').first()).toBeVisible();
             await expect(page.locator('#delivery-notes')).toBeVisible();
 
             // Cerrar modal
@@ -70,7 +72,7 @@ test.describe.serial('Logística de Repartos y Última Milla UI/UX', () => {
         }
 
         // Probar modal de No Entregado
-        const failBtn = page.locator('button:has-text("No Entregado")').first();
+        const failBtn = page.getByRole('button', { name: 'No Entregado', exact: true }).first();
         if (await failBtn.isVisible()) {
             await failBtn.click();
             await page.waitForTimeout(300);

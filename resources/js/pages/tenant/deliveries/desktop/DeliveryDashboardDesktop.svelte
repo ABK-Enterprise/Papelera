@@ -209,7 +209,7 @@
             onclick={() => (activeTab = 'failed')}
         >
             <AlertTriangle class="size-4" />
-            <span>Pedidos Cancelados</span>
+            <span>Pedidos no entregados</span>
             <Badge variant="secondary" class="ml-1 px-1.5 py-0.5 text-xs font-mono">
                 {failedOrders.length}
             </Badge>
@@ -239,7 +239,7 @@
                     <div class="p-5 rounded-2xl border border-border/80 bg-card shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-5 transition-all hover:border-primary/40">
                         <div class="space-y-2.5 flex-1 min-w-0">
                             <div class="flex flex-wrap items-center gap-2.5">
-                                <span class="font-mono text-sm font-bold text-primary">#{order.order_number}</span>
+                                <span class="font-sans font-bold text-sm text-primary tabular-nums">#{order.order_number}</span>
                                 <span class="text-base font-bold text-foreground">{order.customer_name}</span>
 
                                 <!-- Badge Financiero de Alto Contraste -->
@@ -290,7 +290,7 @@
                             </div>
 
                             {#if order.notes}
-                                <div class="flex items-center gap-2 bg-background/50 p-2 rounded-xl border border-border/50 text-xs">
+                                <div class="flex items-center gap-2 bg-background/50 p-2 rounded-xl border border-border/50 text-xs w-full md:max-w-[25%]">
                                     <p class="text-muted-foreground italic truncate flex-1 min-w-0">
                                         Nota: {order.notes}
                                     </p>
@@ -308,23 +308,23 @@
                             {/if}
                         </div>
 
-                        <!-- Botones de Acción con Altura Simétrica min-h-[44px] -->
-                        <div class="flex items-center gap-3 shrink-0">
+                        <!-- Botones de Acción en Stack Vertical con Altura Simétrica min-h-[44px] -->
+                        <div class="flex flex-col gap-2 w-full sm:w-48 shrink-0">
+                            <Button
+                                class="w-full h-11 min-h-[44px] px-4 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xs"
+                                onclick={() => onDeliverOrder(order)}
+                            >
+                                <PackageCheck class="size-4.5" />
+                                <span>Entregado</span>
+                            </Button>
+
                             <Button
                                 variant="outline"
-                                class="h-11 min-h-[44px] px-4 font-semibold text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 gap-2"
+                                class="w-full h-11 min-h-[44px] px-4 font-semibold text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 gap-2"
                                 onclick={() => onFailDelivery(order)}
                             >
                                 <AlertTriangle class="size-4" />
                                 <span>No Entregado</span>
-                            </Button>
-
-                            <Button
-                                class="h-11 min-h-[44px] px-5 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xs"
-                                onclick={() => onDeliverOrder(order)}
-                            >
-                                <PackageCheck class="size-4.5" />
-                                <span>Marcar como Entregado</span>
                             </Button>
                         </div>
                     </div>
@@ -387,7 +387,7 @@
 
                             <div class="space-y-1.5 min-w-0">
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <span class="font-mono text-sm font-bold text-primary">#{order.order_number}</span>
+                                    <span class="font-sans font-bold text-sm text-primary tabular-nums">#{order.order_number}</span>
                                     <span class="text-sm font-semibold text-foreground">{order.customer_name}</span>
 
                                     {#if Number(order.debt_amount) <= 0}
@@ -436,9 +436,9 @@
         {#if failedOrders.length === 0}
             <div class="flex flex-col items-center justify-center p-12 text-center rounded-2xl border border-dashed border-border/80 bg-card/40">
                 <ShieldAlert class="size-12 text-muted-foreground/40 mb-3" />
-                <h3 class="text-base font-semibold text-foreground">No hay pedidos cancelados o con incidentes</h3>
+                <h3 class="text-base font-semibold text-foreground">No hay pedidos no entregados o con incidentes</h3>
                 <p class="text-xs text-muted-foreground mt-1 max-w-sm">
-                    Todos los pedidos están en curso o se han entregado normalmente sin cancelaciones.
+                    Todos los pedidos están en curso o se han entregado normalmente.
                 </p>
             </div>
         {:else}
@@ -447,7 +447,7 @@
                     <div class="p-5 rounded-2xl border border-rose-500/30 bg-card shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div class="space-y-2 flex-1 min-w-0">
                             <div class="flex flex-wrap items-center gap-2">
-                                <span class="font-mono text-sm font-bold text-rose-600 dark:text-rose-400">#{order.order_number}</span>
+                                <span class="font-sans font-bold text-sm text-rose-600 dark:text-rose-400 tabular-nums">#{order.order_number}</span>
                                 <span class="text-base font-bold text-foreground">{order.customer_name}</span>
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-300">
                                     {order.delivery_failure_reason ? (failureReasonLabels[order.delivery_failure_reason] || order.delivery_failure_reason) : 'Visita fallida'}
@@ -455,7 +455,7 @@
                             </div>
 
                             {#if order.delivery_notes}
-                                <div class="flex items-center gap-2 bg-background/50 p-2.5 rounded-xl border border-border/50 text-xs">
+                                <div class="flex items-center gap-2 bg-background/50 p-2.5 rounded-xl border border-border/50 text-xs w-full md:max-w-[25%]">
                                     <p class="text-muted-foreground italic truncate flex-1 min-w-0">
                                         Observaciones: "{order.delivery_notes}"
                                     </p>
