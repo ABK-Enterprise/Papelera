@@ -318,4 +318,41 @@ class SupplierOrderController extends Controller
 
         return back()->with('success', "Orden de compra {$order->order_number} cancelada.");
     }
+
+    /**
+     * Download the supplier order PDF document.
+     */
+    public function downloadPdf(Request $request, SupplierOrder $supplierOrder)
+    {
+        if ($supplierOrder->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        $supplierOrder->load(['items.product', 'supplier', 'tenant']);
+
+        return \Spatie\LaravelPdf\Facades\Pdf::view('pdf.supplier-order', [
+            'order' => $supplierOrder,
+        ])
+            ->format('a4')
+            ->name("orden-compra-{$supplierOrder->order_number}.pdf")
+            ->download();
+    }
+
+    /**
+     * Preview the supplier order PDF document inline.
+     */
+    public function previewPdf(Request $request, SupplierOrder $supplierOrder)
+    {
+        if ($supplierOrder->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        $supplierOrder->load(['items.product', 'supplier', 'tenant']);
+
+        return \Spatie\LaravelPdf\Facades\Pdf::view('pdf.supplier-order', [
+            'order' => $supplierOrder,
+        ])
+            ->format('a4')
+            ->inline("orden-compra-{$supplierOrder->order_number}.pdf");
+    }
 }

@@ -659,4 +659,41 @@ class CustomerOrderController extends Controller
         return redirect()->route('tenant.orders.index')
             ->with('success', 'Pedido eliminado correctamente.');
     }
+
+    /**
+     * Download the customer order PDF document.
+     */
+    public function downloadPdf(Request $request, CustomerOrder $customerOrder)
+    {
+        if ($customerOrder->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        $customerOrder->load(['items.product', 'customer', 'tenant']);
+
+        return \Spatie\LaravelPdf\Facades\Pdf::view('pdf.customer-order', [
+            'order' => $customerOrder,
+        ])
+            ->format('a4')
+            ->name("pedido-{$customerOrder->order_number}.pdf")
+            ->download();
+    }
+
+    /**
+     * Preview the customer order PDF document inline.
+     */
+    public function previewPdf(Request $request, CustomerOrder $customerOrder)
+    {
+        if ($customerOrder->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        $customerOrder->load(['items.product', 'customer', 'tenant']);
+
+        return \Spatie\LaravelPdf\Facades\Pdf::view('pdf.customer-order', [
+            'order' => $customerOrder,
+        ])
+            ->format('a4')
+            ->inline("pedido-{$customerOrder->order_number}.pdf");
+    }
 }

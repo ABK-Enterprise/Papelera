@@ -81,6 +81,8 @@ Route::middleware(['auth', 'verified', 'tenant'])
             // Supplier Orders (Órdenes de Compra)
             Route::get('proveedores/ordenes', [SupplierOrderController::class, 'index'])->name('suppliers.orders.index')->middleware('tenant.permission:proveedores.pedidos.ver');
             Route::post('proveedores/ordenes', [SupplierOrderController::class, 'store'])->name('suppliers.orders.store')->middleware('tenant.permission:proveedores.pedidos.crear');
+            Route::get('proveedores/ordenes/{supplierOrder}/pdf', [SupplierOrderController::class, 'downloadPdf'])->name('suppliers.orders.pdf')->middleware('tenant.permission:proveedores.pedidos.ver');
+            Route::get('proveedores/ordenes/{supplierOrder}/previsualizar-pdf', [SupplierOrderController::class, 'previewPdf'])->name('suppliers.orders.preview-pdf')->middleware('tenant.permission:proveedores.pedidos.ver');
             Route::patch('proveedores/ordenes/{supplierOrder}/recibir', [SupplierOrderController::class, 'receive'])->name('suppliers.orders.receive')->middleware('tenant.permission:proveedores.pedidos.recibir');
             Route::patch('proveedores/ordenes/{supplierOrder}/cancelar', [SupplierOrderController::class, 'cancel'])->name('suppliers.orders.cancel')->middleware('tenant.permission:proveedores.pedidos.cancelar');
         });
@@ -110,6 +112,8 @@ Route::middleware(['auth', 'verified', 'tenant'])
         Route::middleware('module:pedidos')->group(function () {
             Route::get('pedidos', [CustomerOrderController::class, 'index'])->name('orders.index')->middleware('tenant.permission:pedidos.ver');
             Route::post('pedidos', [CustomerOrderController::class, 'store'])->name('orders.store')->middleware('tenant.permission:pedidos.crear');
+            Route::get('pedidos/{customerOrder}/pdf', [CustomerOrderController::class, 'downloadPdf'])->name('orders.pdf')->middleware('tenant.permission:pedidos.ver');
+            Route::get('pedidos/{customerOrder}/previsualizar-pdf', [CustomerOrderController::class, 'previewPdf'])->name('orders.preview-pdf')->middleware('tenant.permission:pedidos.ver');
             Route::patch('pedidos/{customerOrder}/estado', [CustomerOrderController::class, 'updateStatus'])->name('orders.update-status')->middleware('tenant.permission:pedidos.editar_estado');
             Route::delete('pedidos/{customerOrder}', [CustomerOrderController::class, 'destroy'])->name('orders.destroy')->middleware('tenant.permission:pedidos.cancelar');
 

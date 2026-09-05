@@ -1,12 +1,14 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
+    import PdfPreviewModal from '@/components/common/PdfPreviewModal.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import { router } from '@inertiajs/svelte';
     import { fade, scale } from 'svelte/transition';
     import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
     import PackageCheck from 'lucide-svelte/icons/package-check';
     import Phone from 'lucide-svelte/icons/phone';
+    import Printer from 'lucide-svelte/icons/printer';
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import Truck from 'lucide-svelte/icons/truck';
     import X from 'lucide-svelte/icons/x';
@@ -55,6 +57,7 @@
     let isProcessing = $state(false);
     let isReceiveModalOpen = $state(false);
     let isCancelModalOpen = $state(false);
+    let isPdfModalOpen = $state(false);
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
@@ -331,11 +334,22 @@
                     <div></div>
                 {/if}
 
-                <div class="flex items-center gap-3">
-                    <div class="text-right">
+                <div class="flex items-center gap-2.5">
+                    <div class="text-right mr-1">
                         <span class="text-xs text-muted-foreground block">Costo Total:</span>
                         <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary">{formatPrice(order.total_cost)}</span>
                     </div>
+
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        class="min-h-[44px] px-3.5 sm:px-4 rounded-xl text-xs sm:text-sm font-semibold gap-2 shadow-xs"
+                        onclick={() => (isPdfModalOpen = true)}
+                    >
+                        <Printer class="size-4 text-primary" />
+                        <span>Generar PDF</span>
+                    </Button>
+
                     <Button type="button" variant="outline" class="min-h-[44px] px-4 rounded-xl text-sm font-semibold" onclick={() => (open = false)}>
                         Cerrar
                     </Button>
@@ -368,4 +382,15 @@
         loading={isProcessing}
         onconfirm={executeCancel}
     />
+
+    <!-- Modal de Previsualización y Descarga de PDF -->
+    {#if order}
+        <PdfPreviewModal
+            bind:open={isPdfModalOpen}
+            title="Orden de Compra"
+            orderNumber={order.order_number}
+            previewUrl={`/tenant/proveedores/ordenes/${order.id}/previsualizar-pdf`}
+            downloadUrl={`/tenant/proveedores/ordenes/${order.id}/pdf`}
+        />
+    {/if}
 {/if}
