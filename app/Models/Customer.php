@@ -89,4 +89,9 @@ class Customer extends Model
     {
         return $this->hasMany(CustomerAccountMovement::class)->latest();
     }
+
+    public function receipts(): HasMany
+    {
+        return $this->hasMany(Receipt::class)->latest();
+    }
 }

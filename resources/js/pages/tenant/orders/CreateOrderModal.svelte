@@ -14,6 +14,7 @@
         DropdownMenuTrigger,
     } from '@/components/ui/dropdown-menu';
     import { Link, router } from '@inertiajs/svelte';
+    import { fade, scale } from 'svelte/transition';
     import Check from 'lucide-svelte/icons/check';
     import Layers from 'lucide-svelte/icons/layers';
     import Minus from 'lucide-svelte/icons/minus';
@@ -33,6 +34,7 @@
     import AlertCircle from 'lucide-svelte/icons/alert-circle';
     import Percent from 'lucide-svelte/icons/percent';
     import Warehouse from 'lucide-svelte/icons/warehouse';
+    import MapPin from 'lucide-svelte/icons/map-pin';
 
     export interface ProductOption {
         id: number;
@@ -63,6 +65,13 @@
         is_default: boolean;
     }
 
+    export interface ShippingZoneOption {
+        id: number;
+        name: string;
+        distance_km: number | string;
+        surcharge_percentage: number | string;
+    }
+
     export interface OrderItemLine {
         id: string;
         product_id: number;
@@ -84,25 +93,34 @@
         availableProducts = [],
         availableCustomers = [],
         warehouses = [],
+        shippingZones = [],
     }: {
         open: boolean;
         availableProducts: ProductOption[];
         availableCustomers?: CustomerOption[];
         warehouses?: WarehouseOption[];
+        shippingZones?: ShippingZoneOption[];
     } = $props();
 
     let selectedCustomerId = $state<number | null>(null);
     let selectedCustomer = $state<CustomerOption | null>(null);
     let selectedWarehouseId = $state<number | null>(null);
+    let selectedShippingZoneId = $state<number | null>(null);
     let applyCustomerDiscount = $state(true);
     let customerSearchQuery = $state('');
+
+    let selectedShippingZone = $derived(
+        shippingZones.find((z) => z.id === selectedShippingZoneId) || null
+    );
 
     let customerName = $state('');
     let customerPhone = $state('');
     let deliveryAddress = $state('');
     let notes = $state('');
-    let paymentType = $state<'cuenta_corriente' | 'contado'>('cuenta_corriente');
+    let paymentType = $state<'cuenta_corriente' | 'contado' | 'parcial'>('cuenta_corriente');
     let paymentMethod = $state<'efectivo' | 'transferencia' | 'debito' | 'credito' | 'otro'>('efectivo');
+    let paidAmount = $state<number | string>('');
+    let paymentReference = $state('');
     let isSubmitting = $state(false);
     let errorMessage = $state<string | null>(null);
 
@@ -422,10 +440,21 @@
         };
     });
 
+    let shippingCost = $derived.by(() => {
+        if (!selectedShippingZone) return 0;
+        const pct = Number(selectedShippingZone.surcharge_percentage) || 0;
+        return Math.round(computedTotals.finalTotal * (pct / 100) * 100) / 100;
+    });
+
+    let grandTotal = $derived(
+        Math.round((computedTotals.finalTotal + shippingCost) * 100) / 100
+    );
+
     function resetForm() {
         selectedCustomerId = null;
         selectedCustomer = null;
         selectedWarehouseId = null;
+        selectedShippingZoneId = null;
         applyCustomerDiscount = true;
         customerName = '';
         customerSearchQuery = '';
@@ -434,6 +463,8 @@
         notes = '';
         paymentType = 'cuenta_corriente';
         paymentMethod = 'efectivo';
+        paidAmount = '';
+        paymentReference = '';
         errorMessage = null;
         searchQuery = '';
         selectedProductToAdd = null;
@@ -512,18 +543,36 @@
             }
         }
 
+        let numericPaidAmount: number | null = null;
+        if (paymentType === 'parcial') {
+            const raw = Number(paidAmount) || 0;
+            if (raw <= 0) {
+                errorMessage = 'Por favor ingresa un monto válido a cobrar para el pago parcial.';
+                isSubmitting = false;
+                return;
+            }
+            if (raw >= grandTotal) {
+                errorMessage = 'El pago parcial debe ser menor al total del pedido. Para cobrar el total, selecciona "Cobro Total en el Momento".';
+                isSubmitting = false;
+                return;
+            }
+            numericPaidAmount = raw;
+        }
+
         router.post(
             '/tenant/pedidos',
             {
                 customer_id: selectedCustomerId,
-
                 warehouse_id: selectedWarehouseId,
+                shipping_zone_id: selectedShippingZoneId,
                 customer_name: customerName,
                 customer_phone: customerPhone,
                 delivery_address: deliveryAddress,
                 notes: notes,
                 payment_type: paymentType,
-                payment_method: paymentType === 'contado' ? paymentMethod : null,
+                payment_method: (paymentType === 'contado' || paymentType === 'parcial') ? paymentMethod : null,
+                paid_amount: numericPaidAmount,
+                payment_reference: (paymentType === 'contado' || paymentType === 'parcial') ? (paymentReference.trim() || null) : null,
                 apply_customer_discount: applyCustomerDiscount,
                 items: payloadItems,
             },
@@ -548,14 +597,16 @@
 {#if open}
     <!-- Backdrop oscuro y accesible -->
     <div
-        class="fixed inset-0 bg-background/80 backdrop-blur-xs z-50 transition-opacity"
+        transition:fade={{ duration: 150 }}
+        class="fixed inset-0 bg-background/80 backdrop-blur-xs z-50"
         onclick={closeModal}
         aria-hidden="true"
     ></div>
 
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto pointer-events-none">
         <div
-            class="relative w-full max-w-3xl rounded-2xl sm:rounded-3xl bg-card border border-border shadow-2xl p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto"
+            transition:scale={{ start: 0.97, duration: 150 }}
+            class="relative w-full max-w-3xl rounded-2xl sm:rounded-3xl bg-card border border-border shadow-2xl p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto pointer-events-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
@@ -747,15 +798,33 @@
                                 bind:value={selectedWarehouseId}
                                 class="h-10 w-full sm:w-64 rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
-
                                 <option value={null}>Depósito Principal (Automático)</option>
                                 {#each warehouses as wh}
                                     <option value={wh.id}>{wh.name} ({wh.code})</option>
                                 {/each}
                             </select>
-
                         </div>
                     {/if}
+
+                    <!-- Selector de Zona de Envío / Flete -->
+                    <div class="pt-3 mt-1.5 border-t border-border/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <Label for="order-shipping-zone" class="text-xs font-semibold text-foreground flex items-center gap-1.5 shrink-0">
+                            <MapPin class="size-3.5 text-primary" />
+                            Zona de Envío / Flete:
+                        </Label>
+                        <select
+                            id="order-shipping-zone"
+                            bind:value={selectedShippingZoneId}
+                            class="h-10 w-full sm:w-64 rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                        >
+                            <option value={null}>Sin envío / Retiro en local ($0.00)</option>
+                            {#each shippingZones as zone}
+                                <option value={zone.id}>
+                                    {zone.name} ({zone.distance_km} km - +{zone.surcharge_percentage}%)
+                                </option>
+                            {/each}
+                        </select>
+                    </div>
                 </div>
 
 
@@ -1019,16 +1088,16 @@
                         </h3>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         <label
-                            class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all {paymentType === 'cuenta_corriente' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground'}"
+                            class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {paymentType === 'cuenta_corriente' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground'}"
                         >
                             <input
                                 type="radio"
                                 name="order_payment_type"
                                 value="cuenta_corriente"
                                 bind:group={paymentType}
-                                class="size-4 text-primary focus:ring-primary"
+                                class="mt-0.5 size-4 text-primary focus:ring-primary"
                             />
                             <div class="min-w-0">
                                 <span class="text-xs font-medium block">Cuenta Corriente</span>
@@ -1037,38 +1106,99 @@
                         </label>
 
                         <label
-                            class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all {paymentType === 'contado' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground'}"
+                            class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {paymentType === 'contado' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground'}"
                         >
                             <input
                                 type="radio"
                                 name="order_payment_type"
                                 value="contado"
                                 bind:group={paymentType}
-                                class="size-4 text-primary focus:ring-primary"
+                                class="mt-0.5 size-4 text-primary focus:ring-primary"
                             />
                             <div class="min-w-0">
-                                <span class="text-xs font-medium block">Contado / Cobro Inmediato</span>
+                                <span class="text-xs font-medium block">Cobro Total</span>
                                 <span class="text-[11px] text-muted-foreground block font-normal">Abonado al momento, no genera deuda</span>
+                            </div>
+                        </label>
+
+                        <label
+                            class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {paymentType === 'parcial' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground'}"
+                        >
+                            <input
+                                type="radio"
+                                name="order_payment_type"
+                                value="parcial"
+                                bind:group={paymentType}
+                                class="mt-0.5 size-4 text-primary focus:ring-primary"
+                            />
+                            <div class="min-w-0">
+                                <span class="text-xs font-medium block">Pago Parcial / Seña</span>
+                                <span class="text-[11px] text-muted-foreground block font-normal">Entrega anticipada + saldo a cobrar</span>
                             </div>
                         </label>
                     </div>
 
-                    {#if paymentType === 'contado'}
-                        <div class="pt-2.5 mt-1 border-t border-border/50 space-y-1.5">
-                            <Label for="order-payment-method" class="text-xs font-semibold text-foreground">
-                                Medio de Pago
-                            </Label>
-                            <select
-                                id="order-payment-method"
-                                bind:value={paymentMethod}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
-                            >
-                                <option value="efectivo">Efectivo</option>
-                                <option value="transferencia">Transferencia Bancaria</option>
-                                <option value="debito">Tarjeta de Débito</option>
-                                <option value="credito">Tarjeta de Crédito</option>
-                                <option value="otro">Otro medio de pago</option>
-                            </select>
+                    {#if paymentType === 'contado' || paymentType === 'parcial'}
+                        <div class="pt-2.5 mt-1 border-t border-border/50 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="space-y-1.5">
+                                <Label for="order-payment-method" class="text-xs font-semibold text-foreground">
+                                    Medio de Pago
+                                </Label>
+                                <select
+                                    id="order-payment-method"
+                                    bind:value={paymentMethod}
+                                    class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                >
+                                    <option value="efectivo">Efectivo</option>
+                                    <option value="transferencia">Transferencia Bancaria</option>
+                                    <option value="debito">Tarjeta de Débito</option>
+                                    <option value="credito">Tarjeta de Crédito</option>
+                                    <option value="otro">Otro medio de pago</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <Label for="order-payment-reference" class="text-xs font-semibold text-foreground">
+                                    Nro. Comprobante / Referencia (Opcional)
+                                </Label>
+                                <Input
+                                    id="order-payment-reference"
+                                    type="text"
+                                    placeholder="ej. TRF-889911, Recibo provisorio..."
+                                    bind:value={paymentReference}
+                                    class="h-10 text-xs rounded-xl"
+                                />
+                            </div>
+
+                            {#if paymentType === 'parcial'}
+                                <div class="space-y-1.5 sm:col-span-2 bg-background/80 p-3 rounded-xl border border-border/80">
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                        <div>
+                                            <Label for="order-paid-amount" class="text-xs font-semibold text-foreground">
+                                                Monto Cobrado Anticipadamente ($)
+                                            </Label>
+                                            <p class="text-[11px] text-muted-foreground">
+                                                Deuda restante que quedará pendiente:
+                                                <span class="font-semibold tabular-nums text-foreground">
+                                                    {formatPrice(Math.max(0, grandTotal - (Number(paidAmount) || 0)))}
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <div class="w-full sm:w-48">
+                                            <Input
+                                                id="order-paid-amount"
+                                                type="number"
+                                                step="0.01"
+                                                min="0.01"
+                                                max={grandTotal}
+                                                placeholder={`ej. ${(grandTotal / 2).toFixed(2)}`}
+                                                bind:value={paidAmount}
+                                                class="h-10 text-xs rounded-xl font-mono tabular-nums"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            {/if}
                         </div>
                     {/if}
                 </div>
@@ -1091,25 +1221,43 @@
             <div class="border-t border-border/60 pt-4 mt-2 space-y-3 shrink-0">
                 <!-- Contenedor Superior: Resumen de Totales y Descuentos -->
                 <div class="rounded-xl bg-card border border-border/70 p-3 sm:p-3.5 space-y-1.5 shadow-2xs">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs sm:text-sm font-medium text-muted-foreground">Total del Pedido:</span>
+                    <div class="flex items-center justify-between text-xs sm:text-sm font-medium text-muted-foreground">
+                        <span>Subtotal Productos:</span>
                         <div class="flex items-baseline gap-2">
                             {#if computedTotals.discountTotal > 0}
-                                <span class="line-through text-xs sm:text-sm text-muted-foreground font-sans tabular-nums">
+                                <span class="line-through text-xs text-muted-foreground font-sans tabular-nums">
                                     {formatPrice(computedTotals.baseTotal)}
                                 </span>
                             {/if}
-                            <span class="text-base sm:text-xl font-bold font-sans tabular-nums text-primary">
+                            <span class="font-bold font-sans tabular-nums text-foreground">
                                 {formatPrice(computedTotals.finalTotal)}
                             </span>
                         </div>
                     </div>
+
+                    {#if selectedShippingZone && shippingCost > 0}
+                        <div class="flex items-center justify-between text-xs text-primary font-semibold border-t border-border/40 pt-1.5">
+                            <span class="flex items-center gap-1">
+                                <MapPin class="size-3.5" />
+                                Envío ({selectedShippingZone.name} - +{selectedShippingZone.surcharge_percentage}%):
+                            </span>
+                            <span class="font-sans tabular-nums">+{formatPrice(shippingCost)}</span>
+                        </div>
+                    {/if}
+
                     {#if computedTotals.discountTotal > 0}
-                        <div class="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5 mt-1">
+                        <div class="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
                             <span>Ahorro por descuento ({customerDiscountPercentage}%):</span>
                             <span>-{formatPrice(computedTotals.discountTotal)}</span>
                         </div>
                     {/if}
+
+                    <div class="flex items-center justify-between border-t border-border/60 pt-2 mt-1">
+                        <span class="text-xs sm:text-sm font-bold text-foreground">Total a Pagar:</span>
+                        <span class="text-base sm:text-xl font-bold font-sans tabular-nums text-primary">
+                            {formatPrice(grandTotal)}
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Fila Inferior: Botones de Acción (ambos simétricos, min-h-[44px], sin text-wrap) -->

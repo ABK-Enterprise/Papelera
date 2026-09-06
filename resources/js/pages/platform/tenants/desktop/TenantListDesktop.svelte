@@ -4,6 +4,7 @@
     import { Link } from '@inertiajs/svelte';
     import Icon from '@iconify/svelte';
     import X from 'lucide-svelte/icons/x';
+    import Edit2 from 'lucide-svelte/icons/edit-2';
     import IconContainer from '@/components/common/IconContainer.svelte';
 
     interface ModuleSummary {

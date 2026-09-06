@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Events\Tenant\CustomerAccountMovementRecorded;
+use App\Events\Tenant\CustomerOrderCreated;
+use App\Events\Tenant\CustomerOrderPaymentReceived;
+use App\Events\Tenant\CustomerOrderStatusUpdated;
+use App\Events\Tenant\LowStockAlertTriggered;
+use App\Events\Tenant\StockMovementRecorded;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreCustomerOrderRequest;
 use App\Http\Requests\Tenant\UpdateCustomerOrderStatusRequest;
@@ -11,6 +17,8 @@ use App\Models\CustomerOrder;
 use App\Models\CustomerOrderItem;
 use App\Models\Product;
 use App\Models\StockMovement;
+use App\Models\Warehouse;
+use App\Services\MercadoPago\MercadoPagoService;
 use App\Services\TenantSequenceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -28,7 +36,11 @@ class CustomerOrderController extends Controller
         $status = $request->input('status');
         $sortBy = $request->input('sort_by', 'latest');
 
-        $query = CustomerOrder::with(['items.product:id,name,sku,sale_type,units_per_package,price', 'customer:id,name,tax_id,tax_condition,phone,address,is_defaulter'])
+        $query = CustomerOrder::with([
+            'items.product:id,name,sku,sale_type,units_per_package,price',
+            'customer:id,name,tax_id,tax_condition,phone,address,is_defaulter',
+            'shippingZone:id,name,distance_km,surcharge_percentage',
+        ])
             ->when($search, function ($q, $search) {
                 $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
                 $q->where(function ($sub) use ($searchTerm) {
@@ -80,6 +92,11 @@ class CustomerOrderController extends Controller
             ->orderBy('name')
             ->get();
 
+        $shippingZones = \App\Models\ShippingZone::where('tenant_id', $tenantId)
+            ->where('is_active', true)
+            ->select('id', 'name', 'distance_km', 'surcharge_percentage')
+            ->orderBy('name')
+            ->get();
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
@@ -88,6 +105,7 @@ class CustomerOrderController extends Controller
                 'available_products' => $availableProducts,
                 'available_customers' => $availableCustomers,
                 'warehouses' => $warehouses,
+                'shipping_zones' => $shippingZones,
             ]);
         }
 
@@ -97,6 +115,7 @@ class CustomerOrderController extends Controller
             'availableProducts' => $availableProducts,
             'availableCustomers' => $availableCustomers,
             'warehouses' => $warehouses,
+            'shippingZones' => $shippingZones,
             'filters' => [
                 'search' => $search,
                 'status' => $status ?: 'all',
@@ -110,7 +129,8 @@ class CustomerOrderController extends Controller
         $tenantId = $request->user()->tenant_id;
         $userId = $request->user()->id;
 
-        $order = DB::transaction(function () use ($request, $tenantId, $userId) {
+        $eventsToBroadcast = [];
+        $order = DB::transaction(function () use ($request, $tenantId, $userId, &$eventsToBroadcast) {
             $orderNumber = app(TenantSequenceService::class)->nextCustomerOrderNumber($tenantId);
 
             $customerId = $request->validated('customer_id');
@@ -233,20 +253,95 @@ class CustomerOrderController extends Controller
                 ];
             }
 
+            $subtotalProducts = $totalAmount;
+            $shippingCost = 0.00;
+            $shippingZoneId = $request->validated('shipping_zone_id');
+            $shippingZoneName = null;
+
+            if ($shippingZoneId) {
+                $shippingZone = \App\Models\ShippingZone::where('id', $shippingZoneId)
+                    ->where('tenant_id', $tenantId)
+                    ->where('is_active', true)
+                    ->first();
+
+                if ($shippingZone) {
+                    $shippingZoneName = $shippingZone->name;
+                    $surchargePct = (float) $shippingZone->surcharge_percentage;
+                    $shippingCost = round($subtotalProducts * ($surchargePct / 100), 2);
+                    $totalAmount = round($subtotalProducts + $shippingCost, 2);
+                }
+            }
+
+            $paymentType = $request->input('payment_type') ?: 'cuenta_corriente';
+            $paymentMethod = $request->input('payment_method') ?: 'efectivo';
+            $paymentReference = $request->input('payment_reference');
+
+            $paidAmount = 0.00;
+            if ($paymentType === 'contado') {
+                $paidAmount = $totalAmount;
+            } elseif ($paymentType === 'parcial') {
+                $inputPaid = (float) $request->input('paid_amount', 0);
+                $paidAmount = min($totalAmount, max(0.00, round($inputPaid, 2)));
+            }
+
+            $orderDebt = round($totalAmount - $paidAmount, 2);
+            $paymentStatus = 'pendiente';
+            if ($paidAmount >= $totalAmount) {
+                $paymentStatus = 'cobrado';
+            } elseif ($paidAmount > 0) {
+                $paymentStatus = 'parcial';
+            }
+
             $order = CustomerOrder::create([
                 'tenant_id' => $tenantId,
                 'customer_id' => $customerId,
                 'warehouse_id' => $orderWarehouseId,
+                'shipping_zone_id' => $shippingZoneId,
+                'shipping_zone_name' => $shippingZoneName,
                 'order_number' => $orderNumber,
                 'customer_name' => $customerName,
                 'customer_phone' => $request->validated('customer_phone') ?: $customer?->phone,
                 'delivery_address' => $request->validated('delivery_address') ?: $customer?->address,
                 'status' => 'en_preparacion',
+                'payment_status' => $paymentStatus,
+                'debt_amount' => $orderDebt,
                 'customer_discount_percentage' => $customerDiscountPct,
                 'customer_discount_amount' => $totalDiscountAmount,
+                'subtotal_amount' => $subtotalProducts,
+                'shipping_cost' => $shippingCost,
                 'total_amount' => $totalAmount,
                 'notes' => $request->validated('notes'),
             ]);
+
+            if ($customer) {
+                $order->setRelation('customer', $customer);
+            }
+            $eventsToBroadcast[] = new CustomerOrderCreated($order);
+
+            if ($paidAmount > 0) {
+                $receiptNumber = app(TenantSequenceService::class)->nextReceiptNumber($tenantId);
+                $notesPrefix = ($paymentType === 'parcial') ? 'Pago parcial / seña' : 'Cobro de contado';
+                $receipt = \App\Models\Receipt::create([
+                    'tenant_id' => $tenantId,
+                    'customer_id' => $customerId,
+                    'receipt_number' => $receiptNumber,
+                    'created_by_user_id' => $userId,
+                    'amount' => $paidAmount,
+                    'payment_method' => $paymentMethod,
+                    'reference_number' => $paymentReference ?: $orderNumber,
+                    'notes' => "{$notesPrefix} - Pedido {$orderNumber}",
+                    'is_cancelled' => false,
+                ]);
+
+                \App\Models\CustomerOrderReceipt::create([
+                    'tenant_id' => $tenantId,
+                    'customer_order_id' => $order->id,
+                    'receipt_id' => $receipt->id,
+                    'amount_applied' => $paidAmount,
+                ]);
+
+                $eventsToBroadcast[] = new CustomerOrderPaymentReceived($order, $receipt, (float) $paidAmount);
+            }
 
             foreach ($preparedItems as $prep) {
                 CustomerOrderItem::create([
@@ -296,7 +391,7 @@ class CustomerOrderController extends Controller
                 $prod->update(['stock' => $currentStock]);
                 $prod->syncConsolidatedStock();
 
-                StockMovement::create([
+                $stockMovement = StockMovement::create([
                     'tenant_id' => $tenantId,
                     'product_id' => $prep['product_id'],
                     'warehouse_id' => $targetWhId,
@@ -308,6 +403,24 @@ class CustomerOrderController extends Controller
                     'reason' => 'pedido_cliente',
                     'notes' => "Pedido {$orderNumber} ({$prep['quantity']} {$prep['packaging_type']})",
                 ]);
+                $stockMovement->setRelation('product', $prod);
+                $targetWarehouse = Warehouse::find($targetWhId) ?: Warehouse::where('tenant_id', $tenantId)->first();
+                if ($targetWarehouse) {
+                    $stockMovement->setRelation('warehouse', $targetWarehouse);
+                }
+                $eventsToBroadcast[] = new StockMovementRecorded($stockMovement);
+
+                if ($currentStock <= ($prod->min_stock ?? 0)) {
+                    if ($targetWarehouse) {
+                        $eventsToBroadcast[] = new LowStockAlertTriggered(
+                            tenantId: $tenantId,
+                            product: $prod,
+                            warehouse: $targetWarehouse,
+                            currentStock: (float) $currentStock,
+                            minStock: (float) ($prod->min_stock ?? 0)
+                        );
+                    }
+                }
             }
 
 
@@ -320,70 +433,68 @@ class CustomerOrderController extends Controller
                     ->first();
 
                 if ($customer) {
-                    $paymentType = $request->input('payment_type') ?: 'cuenta_corriente';
-                    $paymentMethod = $request->input('payment_method');
                     $dueDays = $customer->credit_due_days ?: 30;
                     $dueDate = now()->addDays($dueDays)->toDateString();
                     $currentBalance = (float) $customer->current_balance;
 
-                    if ($paymentType === 'contado') {
-                        $method = $paymentMethod ?: 'efectivo';
-                        $tempBalance = round($currentBalance + $totalAmount, 2);
+                    $tempBalance = round($currentBalance + $totalAmount, 2);
+                    $chargeDesc = ($paidAmount >= $totalAmount)
+                        ? "Venta - Pedido {$orderNumber}"
+                        : "Venta a crédito - Pedido {$orderNumber}";
 
-                        CustomerAccountMovement::create([
-                            'tenant_id' => $tenantId,
-                            'customer_id' => $customer->id,
-                            'customer_order_id' => $order->id,
-                            'created_by_user_id' => $userId,
-                            'type' => 'charge',
-                            'description' => "Venta - Pedido {$orderNumber}",
-                            'amount' => $totalAmount,
-                            'balance_after' => $tempBalance,
-                            'due_date' => $dueDate,
-                            'payment_method' => $method,
-                            'reference_number' => $orderNumber,
-                            'notes' => $order->notes,
-                        ]);
+                    $chargeMov = CustomerAccountMovement::create([
+                        'tenant_id' => $tenantId,
+                        'customer_id' => $customer->id,
+                        'customer_order_id' => $order->id,
+                        'created_by_user_id' => $userId,
+                        'type' => 'charge',
+                        'description' => $chargeDesc,
+                        'amount' => $totalAmount,
+                        'balance_after' => $tempBalance,
+                        'due_date' => $dueDate,
+                        'payment_method' => ($paidAmount > 0) ? $paymentMethod : 'cuenta_corriente',
+                        'reference_number' => $orderNumber,
+                        'notes' => $order->notes,
+                    ]);
+                    $chargeMov->setRelation('customer', $customer);
+                    $eventsToBroadcast[] = new CustomerAccountMovementRecorded($chargeMov);
 
-                        CustomerAccountMovement::create([
+                    if ($paidAmount > 0) {
+                        $finalBalance = round($tempBalance - $paidAmount, 2);
+                        $paymentDesc = ($paidAmount >= $totalAmount)
+                            ? "Cobro de contado ({$paymentMethod}) - Pedido {$orderNumber}"
+                            : "Pago parcial / seña ({$paymentMethod}) - Pedido {$orderNumber}";
+
+                        $payMov = CustomerAccountMovement::create([
                             'tenant_id' => $tenantId,
                             'customer_id' => $customer->id,
                             'customer_order_id' => $order->id,
                             'created_by_user_id' => $userId,
                             'type' => 'payment',
-                            'description' => "Cobro de contado ({$method}) - Pedido {$orderNumber}",
-                            'amount' => $totalAmount,
-                            'balance_after' => $currentBalance,
+                            'description' => $paymentDesc,
+                            'amount' => $paidAmount,
+                            'balance_after' => $finalBalance,
                             'due_date' => null,
-                            'payment_method' => $method,
-                            'reference_number' => $orderNumber,
+                            'payment_method' => $paymentMethod,
+                            'reference_number' => $paymentReference ?: $orderNumber,
                             'notes' => $order->notes,
                         ]);
+                        $payMov->setRelation('customer', $customer);
+                        $eventsToBroadcast[] = new CustomerAccountMovementRecorded($payMov);
+
+                        $customer->update(['current_balance' => $finalBalance]);
                     } else {
-                        $newBalance = round($currentBalance + $totalAmount, 2);
-
-                        CustomerAccountMovement::create([
-                            'tenant_id' => $tenantId,
-                            'customer_id' => $customer->id,
-                            'customer_order_id' => $order->id,
-                            'created_by_user_id' => $userId,
-                            'type' => 'charge',
-                            'description' => "Venta a crédito - Pedido {$orderNumber}",
-                            'amount' => $totalAmount,
-                            'balance_after' => $newBalance,
-                            'due_date' => $dueDate,
-                            'payment_method' => 'cuenta_corriente',
-                            'reference_number' => $orderNumber,
-                            'notes' => $order->notes,
-                        ]);
-
-                        $customer->update(['current_balance' => $newBalance]);
+                        $customer->update(['current_balance' => $tempBalance]);
                     }
                 }
             }
 
             return $order;
         });
+
+        foreach ($eventsToBroadcast as $event) {
+            broadcast($event);
+        }
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($order->load('items.product'), 201);
@@ -403,8 +514,10 @@ class CustomerOrderController extends Controller
         }
 
         $newStatus = $request->validated('status');
+        $oldStatus = $customerOrder->status;
+        $eventsToBroadcast = [];
 
-        $order = DB::transaction(function () use ($customerOrder, $newStatus, $tenantId, $userId) {
+        $order = DB::transaction(function () use ($customerOrder, $newStatus, $tenantId, $userId, &$eventsToBroadcast) {
             /** @var CustomerOrder $lockedOrder */
             $lockedOrder = CustomerOrder::where('id', $customerOrder->id)
                 ->where('tenant_id', $tenantId)
@@ -438,7 +551,7 @@ class CustomerOrderController extends Controller
                         $currentStock = $previousStock + $totalUnits;
                         $product->update(['stock' => $currentStock]);
 
-                        StockMovement::create([
+                        $stockMovement = StockMovement::create([
                             'tenant_id' => $tenantId,
                             'product_id' => $item->product_id,
                             'user_id' => $userId,
@@ -449,6 +562,7 @@ class CustomerOrderController extends Controller
                             'reason' => 'cancelacion_pedido',
                             'notes' => "Cancelación {$lockedOrder->order_number}",
                         ]);
+                        $eventsToBroadcast[] = new StockMovementRecorded($stockMovement);
                     }
                 }
 
@@ -469,7 +583,7 @@ class CustomerOrderController extends Controller
                             $reversalAmount = (float) $lockedOrder->total_amount;
                             $newBalance = round((float) $customer->current_balance - $reversalAmount, 2);
 
-                            CustomerAccountMovement::create([
+                            $adjMov = CustomerAccountMovement::create([
                                 'tenant_id' => $tenantId,
                                 'customer_id' => $customer->id,
                                 'customer_order_id' => $lockedOrder->id,
@@ -482,6 +596,7 @@ class CustomerOrderController extends Controller
                                 'reference_number' => "CANCEL-{$lockedOrder->order_number}",
                                 'notes' => 'Ajuste de saldo automático por cancelación del pedido.',
                             ]);
+                            $eventsToBroadcast[] = new CustomerAccountMovementRecorded($adjMov);
 
                             $customer->update(['current_balance' => $newBalance]);
                         }
@@ -493,6 +608,11 @@ class CustomerOrderController extends Controller
 
             return $lockedOrder;
         });
+
+        broadcast(new CustomerOrderStatusUpdated($order, $oldStatus));
+        foreach ($eventsToBroadcast as $event) {
+            broadcast($event);
+        }
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($order->refresh());
@@ -511,7 +631,10 @@ class CustomerOrderController extends Controller
             abort(404);
         }
 
-        DB::transaction(function () use ($customerOrder, $tenantId, $userId) {
+        $oldStatus = $customerOrder->status;
+        $eventsToBroadcast = [];
+
+        DB::transaction(function () use ($customerOrder, $tenantId, $userId, &$eventsToBroadcast) {
             /** @var CustomerOrder $lockedOrder */
             $lockedOrder = CustomerOrder::where('id', $customerOrder->id)
                 ->where('tenant_id', $tenantId)
@@ -534,7 +657,7 @@ class CustomerOrderController extends Controller
                         $currentStock = $previousStock + $totalUnits;
                         $product->update(['stock' => $currentStock]);
 
-                        StockMovement::create([
+                        $stockMovement = StockMovement::create([
                             'tenant_id' => $tenantId,
                             'product_id' => $item->product_id,
                             'user_id' => $userId,
@@ -545,6 +668,7 @@ class CustomerOrderController extends Controller
                             'reason' => 'cancelacion_pedido',
                             'notes' => "Eliminación {$lockedOrder->order_number}",
                         ]);
+                        $eventsToBroadcast[] = new StockMovementRecorded($stockMovement);
                     }
                 }
 
@@ -556,16 +680,11 @@ class CustomerOrderController extends Controller
                         ->first();
 
                     if ($customer) {
-                        $isCashOrder = CustomerAccountMovement::where('customer_order_id', $lockedOrder->id)
-                            ->where('tenant_id', $tenantId)
-                            ->where('type', 'payment')
-                            ->exists();
-
-                        if (! $isCashOrder) {
-                            $reversalAmount = (float) $lockedOrder->total_amount;
+                        $reversalAmount = (float) $lockedOrder->debt_amount;
+                        if ($reversalAmount > 0) {
                             $newBalance = round((float) $customer->current_balance - $reversalAmount, 2);
 
-                            CustomerAccountMovement::create([
+                            $adjMov = CustomerAccountMovement::create([
                                 'tenant_id' => $tenantId,
                                 'customer_id' => $customer->id,
                                 'customer_order_id' => null,
@@ -578,6 +697,7 @@ class CustomerOrderController extends Controller
                                 'reference_number' => "DEL-{$lockedOrder->order_number}",
                                 'notes' => 'Ajuste de saldo automático por eliminación del pedido.',
                             ]);
+                            $eventsToBroadcast[] = new CustomerAccountMovementRecorded($adjMov);
 
                             $customer->update(['current_balance' => $newBalance]);
                         }
@@ -588,6 +708,11 @@ class CustomerOrderController extends Controller
             $lockedOrder->delete();
         });
 
+        broadcast(new CustomerOrderStatusUpdated($customerOrder, $oldStatus));
+        foreach ($eventsToBroadcast as $event) {
+            broadcast($event);
+        }
+
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json(['message' => 'Pedido eliminado exitosamente.']);
         }
@@ -595,4 +720,102 @@ class CustomerOrderController extends Controller
         return redirect()->route('tenant.orders.index')
             ->with('success', 'Pedido eliminado correctamente.');
     }
+
+    /**
+     * Download the customer order PDF document.
+     */
+    public function downloadPdf(Request $request, CustomerOrder $customerOrder)
+    {
+        if ($customerOrder->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        $customerOrder->load(['items.product', 'customer', 'tenant']);
+
+        return \Spatie\LaravelPdf\Facades\Pdf::view('pdf.customer-order', [
+            'order' => $customerOrder,
+        ])
+            ->format('a4')
+            ->name("pedido-{$customerOrder->order_number}.pdf")
+            ->download();
+    }
+
+    /**
+     * Preview the customer order PDF document inline.
+     */
+    public function previewPdf(Request $request, CustomerOrder $customerOrder)
+    {
+        if ($customerOrder->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        $customerOrder->load(['items.product', 'customer', 'tenant']);
+
+        return \Spatie\LaravelPdf\Facades\Pdf::view('pdf.customer-order', [
+            'order' => $customerOrder,
+        ])
+            ->format('a4')
+            ->inline("pedido-{$customerOrder->order_number}.pdf");
+    }
+
+    /**
+     * Genera un código QR dinámico/híbrido en Mercado Pago para cobro presencial
+     */
+    public function generateQr(Request $request, CustomerOrder $customerOrder, MercadoPagoService $mpService): JsonResponse
+    {
+        if ($customerOrder->tenant_id !== $request->user()->tenant_id) {
+            abort(404);
+        }
+
+        if ($customerOrder->payment_status === 'cobrado') {
+            return response()->json([
+                'success' => false,
+                'error' => "El pedido {$customerOrder->order_number} ya se encuentra totalmente cobrado.",
+            ], 422);
+        }
+
+        $amount = $request->input('amount') !== null ? (float) $request->input('amount') : null;
+        $posId = $request->input('external_pos_id');
+
+        $result = $mpService->createOrder($customerOrder, $amount, $posId);
+
+        if (! $result['success']) {
+            return response()->json([
+                'success' => false,
+                'error' => $result['error'] ?? 'No se pudo generar la orden de cobro en Mercado Pago.',
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'order_id' => $result['order_id'],
+            'qr_data' => $result['qr_data'],
+            'amount' => $result['amount'],
+            'status' => $result['status'],
+            'expires_at' => $result['expires_at'],
+        ]);
+    }
+
+    /**
+     * Consulta el estado de pago del pedido (respaldo por short polling)
+     */
+    public function paymentStatus(Request $request, CustomerOrder $customerOrder): JsonResponse
+    {
+        if ($customerOrder->tenant_id !== $request->user()->tenant_id) {
+            abort(404);
+        }
+
+        $customerOrder->refresh();
+
+        return response()->json([
+            'id' => $customerOrder->id,
+            'order_number' => $customerOrder->order_number,
+            'status' => $customerOrder->status,
+            'payment_status' => $customerOrder->payment_status,
+            'debt_amount' => (float) $customerOrder->debt_amount,
+            'total_amount' => (float) $customerOrder->total_amount,
+            'is_paid' => $customerOrder->payment_status === 'cobrado',
+        ]);
+    }
 }
+

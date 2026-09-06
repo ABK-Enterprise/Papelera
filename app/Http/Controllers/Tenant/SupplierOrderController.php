@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Events\Tenant\StockMovementRecorded;
+use App\Events\Tenant\SupplierOrderStatusUpdated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreSupplierOrderRequest;
 use App\Models\Product;
@@ -185,6 +187,8 @@ class SupplierOrderController extends Controller
             return $order;
         });
 
+        broadcast(new SupplierOrderStatusUpdated($order, null));
+
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($order->load(['supplier', 'items.product']), 201);
         }
@@ -202,7 +206,8 @@ class SupplierOrderController extends Controller
             abort(404);
         }
 
-        $order = DB::transaction(function () use ($supplierOrder, $tenantId, $userId) {
+        $eventsToBroadcast = [];
+        $order = DB::transaction(function () use ($supplierOrder, $tenantId, $userId, &$eventsToBroadcast) {
             /** @var SupplierOrder $lockedOrder */
             $lockedOrder = SupplierOrder::where('id', $supplierOrder->id)
                 ->where('tenant_id', $tenantId)
@@ -259,7 +264,7 @@ class SupplierOrderController extends Controller
                     ]);
                     $product->syncConsolidatedStock();
 
-                    StockMovement::create([
+                    $movement = StockMovement::create([
                         'tenant_id' => $tenantId,
                         'product_id' => $product->id,
                         'warehouse_id' => $targetWarehouseId,
@@ -271,6 +276,8 @@ class SupplierOrderController extends Controller
                         'reason' => 'orden_compra_proveedor',
                         'notes' => "Recepción Orden {$lockedOrder->order_number} ({$lockedOrder->supplier->name})",
                     ]);
+                    $movement->setRelation('product', $product);
+                    $eventsToBroadcast[] = new StockMovementRecorded($movement);
 
                 }
             }
@@ -279,6 +286,11 @@ class SupplierOrderController extends Controller
 
             return $lockedOrder;
         });
+
+        broadcast(new SupplierOrderStatusUpdated($order, 'solicitado'));
+        foreach ($eventsToBroadcast as $event) {
+            broadcast($event);
+        }
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($order->refresh());
@@ -312,10 +324,49 @@ class SupplierOrderController extends Controller
             return $lockedOrder;
         });
 
+        broadcast(new SupplierOrderStatusUpdated($order, 'solicitado'));
+
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($order);
         }
 
         return back()->with('success', "Orden de compra {$order->order_number} cancelada.");
+    }
+
+    /**
+     * Download the supplier order PDF document.
+     */
+    public function downloadPdf(Request $request, SupplierOrder $supplierOrder)
+    {
+        if ($supplierOrder->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        $supplierOrder->load(['items.product', 'supplier', 'tenant']);
+
+        return \Spatie\LaravelPdf\Facades\Pdf::view('pdf.supplier-order', [
+            'order' => $supplierOrder,
+        ])
+            ->format('a4')
+            ->name("orden-compra-{$supplierOrder->order_number}.pdf")
+            ->download();
+    }
+
+    /**
+     * Preview the supplier order PDF document inline.
+     */
+    public function previewPdf(Request $request, SupplierOrder $supplierOrder)
+    {
+        if ($supplierOrder->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        $supplierOrder->load(['items.product', 'supplier', 'tenant']);
+
+        return \Spatie\LaravelPdf\Facades\Pdf::view('pdf.supplier-order', [
+            'order' => $supplierOrder,
+        ])
+            ->format('a4')
+            ->inline("orden-compra-{$supplierOrder->order_number}.pdf");
     }
 }

@@ -2,7 +2,8 @@
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
-    import { router } from '@inertiajs/svelte';
+    import { router, page } from '@inertiajs/svelte';
+    import { echo } from '@/lib/echo';
     import Filter from 'lucide-svelte/icons/filter';
     import Plus from 'lucide-svelte/icons/plus';
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
@@ -75,6 +76,7 @@
         availableProducts = [],
         availableCustomers = [],
         warehouses = [],
+        shippingZones = [],
         filters = {},
     }: {
         orders: OrderData[];
@@ -82,6 +84,7 @@
         availableProducts?: ProductOption[];
         availableCustomers?: any[];
         warehouses?: any[];
+        shippingZones?: any[];
         filters?: FilterProps;
     } = $props();
 
@@ -94,6 +97,29 @@
     let isFilterModalOpen = $state(false);
     let selectedOrder = $state<OrderData | null>(null);
 
+    let tenantId = $derived(
+        Number(page.props.auth?.tenant?.id ?? page.props.auth?.user?.tenant_id ?? 1)
+    );
+
+    // Sincronización en tiempo real vía Laravel Reverb
+    $effect(() => {
+        const channelName = `tenant.${tenantId}.orders`;
+        echo.private(channelName)
+            .listen('.CustomerOrderCreated', () => {
+                router.reload({ only: ['orders', 'stats'], preserveScroll: true, preserveState: true });
+            })
+            .listen('.CustomerOrderStatusUpdated', () => {
+                router.reload({ only: ['orders', 'stats'], preserveScroll: true, preserveState: true });
+            })
+            .listen('.CustomerOrderPaymentReceived', () => {
+                router.reload({ only: ['orders', 'stats'], preserveScroll: true, preserveState: true });
+            });
+
+        return () => {
+            echo.leave(channelName);
+        };
+    });
+
     import { untrack } from 'svelte';
 
     $effect(() => {
@@ -105,6 +131,21 @@
             selectedStatus = st;
             sortBy = sb;
         });
+    });
+
+    $effect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('crear') === '1') {
+                const timer = setTimeout(() => {
+                    isCreateModalOpen = true;
+                    params.delete('crear');
+                    const newUrl = window.location.pathname + (params.toString() ? `?${params.toString()}` : '');
+                    window.history.replaceState({}, '', newUrl);
+                }, 300);
+                return () => clearTimeout(timer);
+            }
+        }
     });
 
 
@@ -321,6 +362,7 @@
     {availableProducts}
     {availableCustomers}
     {warehouses}
+    {shippingZones}
 />
 
 

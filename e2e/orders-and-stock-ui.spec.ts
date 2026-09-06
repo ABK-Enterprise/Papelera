@@ -17,7 +17,7 @@ test.describe.serial('Pedidos y Flujos de Stock UI', () => {
     });
 
     test('1. Pedidos: Modal Bento & Flujo Crear Pedido con Bulto y Autocomplete', async () => {
-        await page.goto('/tenant/orders');
+        await page.goto('/tenant/pedidos');
         await expect(page.locator('text=Pedidos de Clientes').first()).toBeVisible();
 
         // Abrir modal de nuevo pedido
@@ -37,7 +37,7 @@ test.describe.serial('Pedidos y Flujos de Stock UI', () => {
     });
 
     test('2. Catálogo de Productos: Layout 2 Columnas Stitch & Cálculo de Bulto', async () => {
-        await page.goto('/tenant/products/create');
+        await page.goto('/tenant/productos/crear');
         await expect(page.locator('text=Alta de Producto').first()).toBeVisible();
 
         // Columna Izquierda: Empaque & Multimedia

@@ -6,9 +6,11 @@ use Tests\TestCase;
 uses(TestCase::class, RefreshDatabase::class);
 
 use App\Models\Category;
+use App\Models\Customer;
 use App\Models\CustomerOrder;
 use App\Models\Module;
 use App\Models\Product;
+use App\Models\Receipt;
 use App\Models\StockMovement;
 use App\Models\Tenant;
 use App\Models\User;
@@ -383,4 +385,102 @@ test('can transition customer order directly from preparado to entregado for in-
 
     $order->refresh();
     expect($order->status)->toBe('entregado');
+});
+
+test('can create customer order with full contado payment generating receipt and zero debt', function () {
+    $customer = Customer::factory()->forTenant($this->tenant)->create([
+        'name' => 'Cliente Contado SRL',
+        'current_balance' => 0.00,
+    ]);
+
+    $product = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
+        'name' => 'Rollo Burbuja',
+        'price' => 5000.00,
+        'stock' => 20,
+        'units_per_package' => 1,
+    ]);
+
+    $response = $this->actingAs($this->user)->post(route('tenant.orders.store'), [
+        'customer_id' => $customer->id,
+        'customer_name' => $customer->name,
+        'payment_type' => 'contado',
+        'payment_method' => 'transferencia',
+        'payment_reference' => 'TRF-12345',
+        'items' => [
+            [
+                'product_id' => $product->id,
+                'packaging_type' => 'unidad',
+                'quantity' => 2,
+            ],
+        ],
+    ]);
+
+    $response->assertRedirect(route('tenant.orders.index'));
+
+    $order = CustomerOrder::where('customer_name', 'Cliente Contado SRL')->first();
+    expect($order)->not->toBeNull();
+    expect((float) $order->total_amount)->toBe(10000.00);
+    expect((float) $order->debt_amount)->toBe(0.00);
+    expect($order->payment_status)->toBe('cobrado');
+
+    // Receipt created and allocated
+    $this->assertDatabaseHas('receipts', [
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $customer->id,
+        'amount' => '10000.00',
+        'payment_method' => 'transferencia',
+        'reference_number' => 'TRF-12345',
+    ]);
+
+    $customer->refresh();
+    expect((float) $customer->current_balance)->toBe(0.00);
+});
+
+test('can create customer order with partial payment generating receipt and recording remaining debt', function () {
+    $customer = Customer::factory()->forTenant($this->tenant)->create([
+        'name' => 'Cliente Seña SA',
+        'current_balance' => 0.00,
+    ]);
+
+    $product = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
+        'name' => 'Caja Archivo',
+        'price' => 4000.00,
+        'stock' => 30,
+        'units_per_package' => 1,
+    ]);
+
+    $response = $this->actingAs($this->user)->post(route('tenant.orders.store'), [
+        'customer_id' => $customer->id,
+        'customer_name' => $customer->name,
+        'payment_type' => 'parcial',
+        'paid_amount' => 3000.00,
+        'payment_method' => 'efectivo',
+        'items' => [
+            [
+                'product_id' => $product->id,
+                'packaging_type' => 'unidad',
+                'quantity' => 2, // Total 8000.00
+            ],
+        ],
+    ]);
+
+    $response->assertRedirect(route('tenant.orders.index'));
+
+    $order = CustomerOrder::where('customer_name', 'Cliente Seña SA')->first();
+    expect($order)->not->toBeNull();
+    expect((float) $order->total_amount)->toBe(8000.00);
+    expect((float) $order->debt_amount)->toBe(5000.00);
+    expect($order->payment_status)->toBe('parcial');
+
+    // Receipt for partial amount
+    $this->assertDatabaseHas('receipts', [
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $customer->id,
+        'amount' => '3000.00',
+        'payment_method' => 'efectivo',
+    ]);
+
+    $customer->refresh();
+    // Balance should only reflect the unpaid debt (5000.00)
+    expect((float) $customer->current_balance)->toBe(5000.00);
 });

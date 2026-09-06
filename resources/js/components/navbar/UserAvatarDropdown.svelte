@@ -5,6 +5,7 @@
     import Shield from 'lucide-svelte/icons/shield';
     import Palette from 'lucide-svelte/icons/palette';
     import Building2 from 'lucide-svelte/icons/building-2';
+    import MapPin from 'lucide-svelte/icons/map-pin';
     import {
         DropdownMenu,
         DropdownMenuContent,
@@ -113,6 +114,18 @@
                             >
                                 <Building2 class="h-4 w-4 text-muted-foreground" />
                                 <span>Gestión de depósitos</span>
+                            </Link>
+                        {/snippet}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                        {#snippet children(props)}
+                            <Link
+                                class="{props.class} flex items-center gap-2 cursor-pointer py-2 text-sm font-normal"
+                                href="/tenant/configuracion/zonas"
+                                prefetch
+                            >
+                                <MapPin class="h-4 w-4 text-muted-foreground" />
+                                <span>Zonas de envío</span>
                             </Link>
                         {/snippet}
                     </DropdownMenuItem>

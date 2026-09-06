@@ -180,7 +180,7 @@
                 class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-xs sm:text-sm font-medium transition-colors {localStockStatus === 'in_stock' ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-muted text-foreground'}"
             >
                 <div class="flex flex-col">
-                    <span>Con Stock</span>
+                    <span>Con stock</span>
                     <span class="text-[11px] text-muted-foreground font-normal">Existencias mayores a 0</span>
                 </div>
                 {#if localStockStatus === 'in_stock'}
@@ -193,7 +193,7 @@
                 class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-xs sm:text-sm font-medium transition-colors {localStockStatus === 'low_stock' ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-muted text-foreground'}"
             >
                 <div class="flex flex-col">
-                    <span>Stock Bajo / Crítico</span>
+                    <span>Stock bajo</span>
                     <span class="text-[11px] text-muted-foreground font-normal">Existencias menores o iguales al mínimo</span>
                 </div>
                 {#if localStockStatus === 'low_stock'}
@@ -206,7 +206,7 @@
                 class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-xs sm:text-sm font-medium transition-colors {localStockStatus === 'out_of_stock' ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-muted text-foreground'}"
             >
                 <div class="flex flex-col">
-                    <span>Sin Stock</span>
+                    <span>Sin stock</span>
                     <span class="text-[11px] text-muted-foreground font-normal">Existencias en 0</span>
                 </div>
                 {#if localStockStatus === 'out_of_stock'}

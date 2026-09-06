@@ -29,11 +29,20 @@ use Illuminate\Support\Carbon;
     'tenant_id',
     'customer_id',
     'warehouse_id',
+    'shipping_zone_id',
+    'shipping_zone_name',
     'order_number',
     'customer_name',
     'customer_phone',
     'delivery_address',
     'status',
+    'payment_status',
+    'debt_amount',
+    'delivery_user_id',
+    'delivery_failure_reason',
+    'delivery_notes',
+    'subtotal_amount',
+    'shipping_cost',
     'total_amount',
     'customer_discount_percentage',
     'customer_discount_amount',
@@ -45,17 +54,31 @@ class CustomerOrder extends Model
     use BelongsToTenant, HasFactory;
 
     public const ALLOWED_TRANSITIONS = [
-        'en_preparacion' => ['preparado', 'cancelado'],
+        'en_preparacion' => ['preparado', 'en_camino', 'cancelado'],
         'preparado' => ['en_camino', 'entregado', 'cancelado'],
-        'en_camino' => ['entregado', 'cancelado'],
+        'en_camino' => ['entregado', 'no_entregado', 'cancelado'],
+        'no_entregado' => ['preparado', 'en_preparacion', 'cancelado'],
         'entregado' => [], // Estado terminal
         'cancelado' => [], // Estado terminal
     ];
 
+    public const DELIVERY_FAILURE_REASONS = [
+        'local_cerrado',
+        'rechazado',
+        'daniado',
+        'sin_dinero',
+        'otro',
+    ];
+
+    public const PAYMENT_STATUSES = ['pendiente', 'parcial', 'cobrado'];
+
     protected function casts(): array
     {
         return [
+            'subtotal_amount' => 'decimal:2',
+            'shipping_cost' => 'decimal:2',
             'total_amount' => 'decimal:2',
+            'debt_amount' => 'decimal:2',
             'customer_discount_percentage' => 'decimal:2',
             'customer_discount_amount' => 'decimal:2',
         ];
@@ -71,10 +94,42 @@ class CustomerOrder extends Model
         return $this->belongsTo(Warehouse::class);
     }
 
+    public function shippingZone(): BelongsTo
+    {
+        return $this->belongsTo(ShippingZone::class);
+    }
+
+    public function deliveryUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'delivery_user_id');
+    }
+
 
     public function items(): HasMany
     {
         return $this->hasMany(CustomerOrderItem::class);
+    }
+
+    public function receiptAllocations(): HasMany
+    {
+        return $this->hasMany(CustomerOrderReceipt::class, 'customer_order_id');
+    }
+
+    public function receipts(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Receipt::class, 'customer_order_receipt')
+            ->withPivot('amount_applied')
+            ->withTimestamps();
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->payment_status === 'cobrado' && (float) $this->debt_amount <= 0;
+    }
+
+    public function canBePaid(): bool
+    {
+        return $this->status !== 'cancelado' && $this->payment_status !== 'cobrado';
     }
 
     public function isTerminal(): bool
@@ -96,5 +151,10 @@ class CustomerOrder extends Model
     public function scopeStatus(Builder $query, string $status): Builder
     {
         return $query->where('status', $status);
+    }
+
+    public function scopePaymentStatus(Builder $query, string $paymentStatus): Builder
+    {
+        return $query->where('payment_status', $paymentStatus);
     }
 }

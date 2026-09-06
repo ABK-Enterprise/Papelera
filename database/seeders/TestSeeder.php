@@ -11,6 +11,7 @@ use App\Models\CustomerOrderItem;
 use App\Models\Module;
 use App\Models\Product;
 use App\Models\ProductWarehouse;
+use App\Models\ShippingZone;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Models\SupplierOrder;
@@ -36,6 +37,7 @@ class TestSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
         Role::whereNull('tenant_id')->where('name', '!=', 'superadmin')->delete();
         Role::whereIn('name', ['Administrador de Sucursal', 'Administrador'])->delete();
+        ShippingZone::query()->delete();
 
         // 2. Definición de los 4 Comercios (Tenants) con Variación Modular
         $tenantsData = [
@@ -420,13 +422,14 @@ class TestSeeder extends Seeder
                 }
 
                 setPermissionsTeamId($tenant->id);
+                $user->roles()->detach();
 
                 if ($uData['role'] === 'admin') {
-                    $user->syncRoles([$adminRole]);
+                    $user->assignRole($adminRole);
                 } elseif ($uData['role'] === 'Gestor de Stock') {
-                    $user->syncRoles([$stockRole]);
+                    $user->assignRole($stockRole);
                 } elseif ($uData['role'] === 'Vendedor / Cajero') {
-                    $user->syncRoles([$ventasRole]);
+                    $user->assignRole($ventasRole);
                 }
 
                 $createdUsers[] = $user;
@@ -465,6 +468,34 @@ class TestSeeder extends Seeder
                 'address' => 'Av. Industrial 550',
                 'is_active' => true,
                 'is_default' => false,
+            ]);
+
+            // Zonas de envío oficiales para el tenant
+            ShippingZone::firstOrCreate([
+                'tenant_id' => $tenant->id,
+                'name' => 'Radio Céntrico',
+            ], [
+                'distance_km' => 5.00,
+                'surcharge_percentage' => 0.00,
+                'is_active' => true,
+            ]);
+
+            ShippingZone::firstOrCreate([
+                'tenant_id' => $tenant->id,
+                'name' => 'Gran Buenos Aires',
+            ], [
+                'distance_km' => 20.00,
+                'surcharge_percentage' => 5.00,
+                'is_active' => true,
+            ]);
+
+            ShippingZone::firstOrCreate([
+                'tenant_id' => $tenant->id,
+                'name' => 'Periferia / Larga Distancia',
+            ], [
+                'distance_km' => 45.00,
+                'surcharge_percentage' => 12.00,
+                'is_active' => true,
             ]);
 
             // Crear Categorías y Productos para este comercio

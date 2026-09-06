@@ -3,6 +3,7 @@
     import { toUrl } from '@/lib/utils';
     import { dashboard } from '@/routes';
     import { Link, page } from '@inertiajs/svelte';
+    import { fade, slide } from 'svelte/transition';
     import Icon from '@iconify/svelte';
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import ChevronRight from 'lucide-svelte/icons/chevron-right';
@@ -151,13 +152,27 @@
 
 
 
-            // Pedidos: Enlace Directo Simple
+            // Pedidos: Acordeón con Listado y Repartos
             if (modules.includes('pedidos') && (isAdmin || permissions.includes('pedidos.ver'))) {
                 items.push({
                     title: 'Pedidos',
                     href: '/tenant/pedidos',
                     icon: 'solar:bill-list-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/pedidos'),
+                    active: currentUrl.startsWith('/tenant/pedidos') || currentUrl.startsWith('/tenant/repartos'),
+                    subItems: [
+                        {
+                            title: 'Listado de Pedidos',
+                            href: '/tenant/pedidos',
+                            icon: 'solar:bill-list-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/pedidos'),
+                        },
+                        {
+                            title: 'Repartos y Última Milla',
+                            href: '/tenant/repartos',
+                            icon: 'solar:delivery-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/repartos'),
+                        },
+                    ],
                 });
             }
 
@@ -185,13 +200,13 @@
                 });
             }
 
-            // Clientes: Acordeón
+            // Clientes: Acordeón con Cobranzas
             if (modules.includes('clientes') && (isAdmin || permissions.includes('clientes.ver'))) {
                 items.push({
                     title: 'Clientes',
                     href: '/tenant/clientes',
                     icon: 'solar:shop-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/clientes'),
+                    active: currentUrl.startsWith('/tenant/clientes') || currentUrl.startsWith('/tenant/cobranzas'),
                     subItems: [
                         {
                             title: 'Gestión de Clientes',
@@ -204,6 +219,12 @@
                             href: '/tenant/clientes/cuentas-corrientes',
                             icon: 'solar:card-bold-duotone',
                             active: currentUrl.startsWith('/tenant/clientes/cuentas-corrientes'),
+                        },
+                        {
+                            title: 'Panel de Cobranzas',
+                            href: '/tenant/cobranzas',
+                            icon: 'solar:hand-money-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/cobranzas'),
                         },
                     ],
                 });
@@ -235,7 +256,8 @@
 {#if open}
     <!-- Backdrop oscuro -->
     <div
-        class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity"
+        transition:fade={{ duration: 200 }}
+        class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
         onclick={onClose}
         onkeydown={(e) => e.key === 'Escape' && onClose?.()}
         role="button"
@@ -245,7 +267,8 @@
 
     <!-- Panel Lateral Deslizante -->
     <aside
-        class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-background shadow-2xl transition-transform border-r border-border"
+        transition:slide={{ axis: 'x', duration: 250 }}
+        class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-background shadow-2xl border-r border-border"
         aria-label="Menú principal móvil"
     >
         <!-- Header del Sidebar Móvil -->

@@ -98,6 +98,9 @@ class BaseSeeder extends Seeder
                     'clientes.crear',
                     'clientes.editar',
                     'clientes.eliminar',
+                    'cobranzas.ver',
+                    'cobranzas.crear',
+                    'cobranzas.anular',
                 ],
             ],
             [
@@ -109,6 +112,10 @@ class BaseSeeder extends Seeder
                     'pedidos.crear',
                     'pedidos.editar_estado',
                     'pedidos.cancelar',
+                    'zonas.ver',
+                    'zonas.gestionar',
+                    'repartos.ver',
+                    'repartos.gestionar',
                 ],
             ],
             [
@@ -186,7 +193,8 @@ class BaseSeeder extends Seeder
         $activePermissions = Permission::whereIn('module_id', $activeModuleIds)->get();
         $adminRole->syncPermissions($activePermissions);
 
-        $tenantUser = User::where('tenant_id', $tenant->id)->first();
+        $tenantUser = User::where('tenant_id', $tenant->id)->where('email', 'axel@axel.com')->first()
+            ?? User::where('tenant_id', $tenant->id)->orderBy('id')->first();
         if ($tenantUser) {
             $tenantUser->forceFill([
                 'password' => 'password',

@@ -20,10 +20,16 @@ use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
+        channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->validateCsrfTokens(except: [
+            'api/webhooks/*',
+        ]);
+
         $middleware->trustProxies(at: '*');
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
@@ -51,4 +57,26 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        $exceptions->respond(function (\Symfony\Component\HttpFoundation\Response $response, \Throwable $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return $response;
+            }
+
+            if ($response->getStatusCode() === 403) {
+                return \Inertia\Inertia::render('errors/403', [
+                    'status' => 403,
+                    'message' => $e->getMessage() ?: 'Acción no permitida',
+                ])->toResponse($request)->setStatusCode(403);
+            }
+
+            if ($response->getStatusCode() === 419) {
+                return \Inertia\Inertia::render('errors/419', [
+                    'status' => 419,
+                    'message' => 'Expiró la sesión en el navegador',
+                ])->toResponse($request)->setStatusCode(419);
+            }
+
+            return $response;
+        });
     })->create();

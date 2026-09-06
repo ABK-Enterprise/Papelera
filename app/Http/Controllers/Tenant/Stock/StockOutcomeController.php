@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Tenant\Stock;
 
+use App\Events\Tenant\LowStockAlertTriggered;
+use App\Events\Tenant\StockMovementRecorded;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Stock\StoreStockOutcomeRequest;
 use App\Models\Product;
@@ -127,6 +129,23 @@ class StockOutcomeController extends Controller
                 'notes' => $notes,
             ]);
         });
+
+        $movement->load(['product', 'warehouse', 'user']);
+        broadcast(new StockMovementRecorded($movement));
+
+        $product = Product::where('id', $request->validated('product_id'))->where('tenant_id', $tenantId)->first();
+        if ($product && (float) $product->stock <= (float) ($product->min_stock ?? 0)) {
+            $wh = Warehouse::where('id', $request->validated('warehouse_id'))->where('tenant_id', $tenantId)->first();
+            if ($wh) {
+                broadcast(new LowStockAlertTriggered(
+                    tenantId: $tenantId,
+                    product: $product,
+                    warehouse: $wh,
+                    currentStock: (float) $product->stock,
+                    minStock: (float) ($product->min_stock ?? 0)
+                ));
+            }
+        }
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($movement, 201);
