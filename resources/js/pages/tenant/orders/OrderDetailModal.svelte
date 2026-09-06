@@ -2,6 +2,7 @@
     import { Button } from '@/components/ui/button';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import PdfPreviewModal from '@/components/common/PdfPreviewModal.svelte';
+    import MercadoPagoQrModal from '@/components/common/MercadoPagoQrModal.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import { router } from '@inertiajs/svelte';
     import { fade, scale } from 'svelte/transition';
@@ -13,6 +14,7 @@
     import MapPin from 'lucide-svelte/icons/map-pin';
     import Phone from 'lucide-svelte/icons/phone';
     import Printer from 'lucide-svelte/icons/printer';
+    import QrCode from 'lucide-svelte/icons/qr-code';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import Truck from 'lucide-svelte/icons/truck';
@@ -42,6 +44,9 @@
         customer_phone: string | null;
         delivery_address: string | null;
         status: string;
+        payment_status?: string;
+        debt_amount?: string | number;
+        paid_amount?: string | number;
         total_amount: string | number;
         notes: string | null;
         created_at: string;
@@ -60,6 +65,7 @@
     let isConfirmModalOpen = $state(false);
     let isDeleteModalOpen = $state(false);
     let isPdfModalOpen = $state(false);
+    let isQrModalOpen = $state(false);
     let pendingStatus = $state<string | null>(null);
 
     function formatPrice(amount: string | number) {
@@ -501,6 +507,18 @@
                         <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary">{formatPrice(order.total_amount)}</span>
                     </div>
 
+                    {#if order.status !== 'cancelado' && (Number(order.debt_amount ?? order.total_amount) > 0 || order.status !== 'entregado')}
+                        <Button
+                            type="button"
+                            variant="default"
+                            class="min-h-[44px] px-3.5 sm:px-4 rounded-xl text-xs sm:text-sm font-semibold gap-2 shadow-xs bg-sky-600 hover:bg-sky-700 text-white dark:bg-sky-600 dark:hover:bg-sky-700"
+                            onclick={() => (isQrModalOpen = true)}
+                        >
+                            <QrCode class="size-4" />
+                            <span>Cobro QR MP</span>
+                        </Button>
+                    {/if}
+
                     <Button
                         type="button"
                         variant="secondary"
@@ -554,6 +572,20 @@
             orderNumber={order.order_number}
             previewUrl={`/tenant/pedidos/${order.id}/previsualizar-pdf`}
             downloadUrl={`/tenant/pedidos/${order.id}/pdf`}
+        />
+
+        <!-- Modal de Cobro QR Presencial Mercado Pago -->
+        <MercadoPagoQrModal
+            bind:open={isQrModalOpen}
+            {order}
+            onSuccess={(updatedOrder) => {
+                if (order && updatedOrder) {
+                    order.debt_amount = updatedOrder.debt_amount;
+                    order.paid_amount = updatedOrder.paid_amount;
+                    order.payment_status = updatedOrder.payment_status;
+                }
+                router.reload({ only: ['orders'] });
+            }}
         />
     {/if}
 {/if}

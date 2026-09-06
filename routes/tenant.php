@@ -115,6 +115,8 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::get('pedidos/{customerOrder}/pdf', [CustomerOrderController::class, 'downloadPdf'])->name('orders.pdf')->middleware('tenant.permission:pedidos.ver');
             Route::get('pedidos/{customerOrder}/previsualizar-pdf', [CustomerOrderController::class, 'previewPdf'])->name('orders.preview-pdf')->middleware('tenant.permission:pedidos.ver');
             Route::patch('pedidos/{customerOrder}/estado', [CustomerOrderController::class, 'updateStatus'])->name('orders.update-status')->middleware('tenant.permission:pedidos.editar_estado');
+            Route::post('pedidos/{customerOrder}/generar-qr-cobro', [CustomerOrderController::class, 'generateQr'])->name('orders.generate-qr')->middleware('tenant.permission:pedidos.ver');
+            Route::get('pedidos/{customerOrder}/estado-pago', [CustomerOrderController::class, 'paymentStatus'])->name('orders.payment-status')->middleware('tenant.permission:pedidos.ver');
             Route::delete('pedidos/{customerOrder}', [CustomerOrderController::class, 'destroy'])->name('orders.destroy')->middleware('tenant.permission:pedidos.cancelar');
 
             // Repartos y Logística de Última Milla

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant\Stock;
 
+use App\Events\Tenant\StockMovementRecorded;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Stock\StoreStockIncomeRequest;
 use App\Models\Product;
@@ -111,6 +112,9 @@ class StockIncomeController extends Controller
                 'notes' => $notes,
             ]);
         });
+
+        $movement->load(['product', 'warehouse', 'user']);
+        broadcast(new StockMovementRecorded($movement));
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($movement, 201);

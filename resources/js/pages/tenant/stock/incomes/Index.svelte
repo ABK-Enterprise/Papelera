@@ -1,6 +1,8 @@
 <script lang="ts">
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
+    import { router, page } from '@inertiajs/svelte';
+    import { echo } from '@/lib/echo';
     import CreateIncomeModal from '@/pages/tenant/stock/incomes/CreateIncomeModal.svelte';
     import IncomeListDesktop from '@/pages/tenant/stock/incomes/desktop/IncomeListDesktop.svelte';
     import IncomeListMobile from '@/pages/tenant/stock/incomes/mobile/IncomeListMobile.svelte';
@@ -58,6 +60,22 @@
                 return () => clearTimeout(timer);
             }
         }
+    });
+    let tenantId = $derived(
+        Number(page.props.auth?.tenant?.id ?? page.props.auth?.user?.tenant_id ?? 1)
+    );
+
+    // Sincronización en tiempo real vía Laravel Reverb
+    $effect(() => {
+        const channelName = `tenant.${tenantId}.stock`;
+        echo.private(channelName)
+            .listen('.StockMovementRecorded', () => {
+                router.reload({ only: ['movements'], preserveScroll: true, preserveState: true });
+            });
+
+        return () => {
+            echo.leave(channelName);
+        };
     });
 </script>
 

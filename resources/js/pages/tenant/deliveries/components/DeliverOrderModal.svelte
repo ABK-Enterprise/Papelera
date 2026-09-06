@@ -6,6 +6,7 @@
     import { Textarea } from '@/components/ui/textarea';
     import { Switch } from '@/components/ui/switch';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
+    import MercadoPagoQrModal from '@/components/common/MercadoPagoQrModal.svelte';
     import { router } from '@inertiajs/svelte';
     import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
     import Banknote from 'lucide-svelte/icons/banknote';
@@ -13,6 +14,7 @@
     import Loader2 from 'lucide-svelte/icons/loader-2';
     import Coins from 'lucide-svelte/icons/coins';
     import AlertCircle from 'lucide-svelte/icons/alert-circle';
+    import QrCode from 'lucide-svelte/icons/qr-code';
 
     export interface DeliveryOrder {
         id: number;
@@ -62,6 +64,7 @@
 
     // Modal de confirmación de saldo a favor para cuenta corriente
     let isOverpaymentConfirmOpen = $state(false);
+    let isQrModalOpen = $state(false);
 
     let debt = $derived(Number(order?.debt_amount) || 0);
     let hasAccount = $derived(Boolean(order?.customer_id));
@@ -291,6 +294,20 @@
                                 </div>
                             </div>
 
+                            {#if paymentMethod === 'mercadopago'}
+                                <div class="col-span-1 sm:col-span-2">
+                                    <Button
+                                        type="button"
+                                        variant="default"
+                                        class="w-full h-11 min-h-[44px] rounded-xl font-semibold gap-2 shadow-xs bg-sky-600 hover:bg-sky-700 text-white dark:bg-sky-600 dark:hover:bg-sky-700"
+                                        onclick={() => (isQrModalOpen = true)}
+                                    >
+                                        <QrCode class="size-4" />
+                                        <span>Mostrar Código QR de Mercado Pago</span>
+                                    </Button>
+                                </div>
+                            {/if}
+
                             <!-- Vuelto POS para Efectivo en Clientes Ocasionales -->
                             {#if !hasAccount && paymentMethod === 'efectivo' && isOverpaid}
                                 <div class="col-span-1 sm:col-span-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between">
@@ -474,5 +491,26 @@
         variant="primary"
         loading={isSubmitting}
         onconfirm={executeDelivery}
+    />
+
+    <!-- Modal de Cobro QR Presencial Mercado Pago -->
+    <MercadoPagoQrModal
+        bind:open={isQrModalOpen}
+        order={{
+            id: order.id,
+            order_number: order.order_number,
+            customer_name: order.customer_name,
+            total_amount: order.total_amount,
+            debt_amount: amountToPay > 0 ? amountToPay : order.debt_amount,
+            customer: order.customer_id ? {
+                id: order.customer_id,
+                name: order.customer_name,
+                current_balance: order.customer_current_balance
+            } : undefined
+        }}
+        onSuccess={() => {
+            referenceNumber = 'MP-QR-PAGADO';
+            executeDelivery();
+        }}
     />
 {/if}

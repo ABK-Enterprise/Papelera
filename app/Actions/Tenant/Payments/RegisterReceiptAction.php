@@ -2,6 +2,8 @@
 
 namespace App\Actions\Tenant\Payments;
 
+use App\Events\Tenant\CustomerAccountMovementRecorded;
+use App\Events\Tenant\CustomerOrderPaymentReceived;
 use App\Models\Customer;
 use App\Models\CustomerAccountMovement;
 use App\Models\CustomerOrder;
@@ -70,7 +72,10 @@ class RegisterReceiptAction
             }
         }
 
-        return DB::transaction(function () use (
+        $paymentEvents = [];
+        $accountMovementEvent = null;
+
+        $receipt = DB::transaction(function () use (
             $tenantId,
             $userId,
             $customerId,
@@ -78,7 +83,9 @@ class RegisterReceiptAction
             $paymentMethod,
             $referenceNumber,
             $notes,
-            $orderAllocations
+            $orderAllocations,
+            &$paymentEvents,
+            &$accountMovementEvent
         ) {
             // 1. Generar número correlativo atómico
             $receiptNumber = $this->sequenceService->nextReceiptNumber($tenantId);
@@ -118,6 +125,8 @@ class RegisterReceiptAction
                 $order->debt_amount = max(0.00, $newDebt);
                 $order->payment_status = ($order->debt_amount <= 0) ? 'cobrado' : 'parcial';
                 $order->save();
+
+                $paymentEvents[] = new CustomerOrderPaymentReceived($order, $receipt, $appliedAmount);
             }
 
             // 4. Si el cliente existe, impactar en el libro mayor de cuenta corriente
@@ -134,7 +143,7 @@ class RegisterReceiptAction
 
                 $associatedOrderId = count($orderAllocations) === 1 ? (int) $orderAllocations[0]['order_id'] : null;
 
-                CustomerAccountMovement::create([
+                $movement = CustomerAccountMovement::create([
                     'tenant_id' => $tenantId,
                     'customer_id' => $customer->id,
                     'customer_order_id' => $associatedOrderId,
@@ -147,9 +156,20 @@ class RegisterReceiptAction
                     'reference_number' => $referenceNumber ?: $receiptNumber,
                     'notes' => $notes,
                 ]);
+                $movement->setRelation('customer', $customer);
+                $accountMovementEvent = new CustomerAccountMovementRecorded($movement);
             }
 
             return $receipt->load(['customer', 'orderAllocations.order', 'createdByUser']);
         });
+
+        foreach ($paymentEvents as $event) {
+            broadcast($event);
+        }
+        if ($accountMovementEvent) {
+            broadcast($accountMovementEvent);
+        }
+
+        return $receipt;
     }
 }

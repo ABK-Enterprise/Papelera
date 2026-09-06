@@ -1,5 +1,7 @@
 <script lang="ts">
     import AppHead from '@/components/AppHead.svelte';
+    import { page, router } from '@inertiajs/svelte';
+    import { echo } from '@/lib/echo';
     import DeliveryDashboardDesktop, { type ShiftSummary } from './desktop/DeliveryDashboardDesktop.svelte';
     import DeliveryDashboardMobile from './mobile/DeliveryDashboardMobile.svelte';
     import DeliverOrderModal, { type DeliveryOrder } from './components/DeliverOrderModal.svelte';
@@ -64,6 +66,32 @@
         selectedOrderForNotes = order;
         isNotesModalOpen = true;
     }
+
+    let tenantId = $derived(
+        Number(page.props.auth?.tenant?.id ?? page.props.auth?.user?.tenant_id ?? 1)
+    );
+
+    // Sincronización en tiempo real vía Laravel Reverb
+    $effect(() => {
+        const channel = `tenant.${tenantId}.deliveries`;
+        echo.private(channel)
+            .listen('.OrderTakenForDelivery', () => {
+                router.reload({ only: ['availableOrders', 'myRouteOrders', 'shiftSummary'], preserveScroll: true, preserveState: true });
+            })
+            .listen('.OrderDelivered', () => {
+                router.reload({ only: ['myRouteOrders', 'shiftSummary'], preserveScroll: true, preserveState: true });
+            })
+            .listen('.OrderDeliveryFailed', () => {
+                router.reload({ only: ['myRouteOrders', 'failedOrders', 'cancelledOrders', 'shiftSummary'], preserveScroll: true, preserveState: true });
+            })
+            .listen('.OrderDeliveryRescheduled', () => {
+                router.reload({ only: ['availableOrders', 'myRouteOrders', 'failedOrders', 'cancelledOrders', 'shiftSummary'], preserveScroll: true, preserveState: true });
+            });
+
+        return () => {
+            echo.leave(channel);
+        };
+    });
 </script>
 
 <AppHead title="Repartos" />

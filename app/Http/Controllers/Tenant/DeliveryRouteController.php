@@ -3,6 +3,11 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Actions\Tenant\Payments\RegisterReceiptAction;
+use App\Events\Tenant\CustomerOrderStatusUpdated;
+use App\Events\Tenant\OrderDelivered;
+use App\Events\Tenant\OrderDeliveryFailed;
+use App\Events\Tenant\OrderRescheduled;
+use App\Events\Tenant\OrderTakenForDelivery;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\DeliverOrderRequest;
 use App\Http\Requests\Tenant\FailDeliveryRequest;
@@ -100,8 +105,9 @@ class DeliveryRouteController extends Controller
         $orderIds = $validated['order_ids'];
         $assignedCount = 0;
         $unavailableOrders = [];
+        $assignedOrders = [];
 
-        DB::transaction(function () use ($tenantId, $userId, $orderIds, &$assignedCount, &$unavailableOrders) {
+        DB::transaction(function () use ($tenantId, $userId, $orderIds, &$assignedCount, &$unavailableOrders, &$assignedOrders) {
             foreach ($orderIds as $orderId) {
                 /** @var CustomerOrder|null $order */
                 $order = CustomerOrder::where('tenant_id', $tenantId)
@@ -124,8 +130,14 @@ class DeliveryRouteController extends Controller
                 $order->delivery_user_id = $userId;
                 $order->save();
                 $assignedCount++;
+                $assignedOrders[] = clone $order;
             }
         });
+
+        foreach ($assignedOrders as $assignedOrder) {
+            broadcast(new OrderTakenForDelivery($assignedOrder));
+            broadcast(new CustomerOrderStatusUpdated($assignedOrder, 'preparado'));
+        }
 
         if (count($unavailableOrders) > 0 && $assignedCount === 0) {
             $msg = 'Los siguientes pedidos ya fueron tomados por otro repartidor o no están disponibles: ' . implode(', ', $unavailableOrders);
@@ -229,6 +241,10 @@ class DeliveryRouteController extends Controller
             $order->save();
         });
 
+        $customerOrder->refresh();
+        broadcast(new OrderDelivered($customerOrder));
+        broadcast(new CustomerOrderStatusUpdated($customerOrder, 'en_camino'));
+
         return back()->with('success', "Pedido {$customerOrder->order_number} marcado como entregado exitosamente.");
     }
 
@@ -258,6 +274,10 @@ class DeliveryRouteController extends Controller
             $order->delivery_user_id = null; // Se desasigna chofer para que depósito/admin resuelva
             $order->save();
         });
+
+        $customerOrder->refresh();
+        broadcast(new OrderDeliveryFailed($customerOrder));
+        broadcast(new CustomerOrderStatusUpdated($customerOrder, 'en_camino'));
 
         return back()->with('success', "Pedido {$customerOrder->order_number} registrado como no entregado.");
     }
@@ -371,6 +391,10 @@ class DeliveryRouteController extends Controller
                 $order->save();
             }
         });
+
+        $customerOrder->refresh();
+        broadcast(new OrderRescheduled($customerOrder, $destination));
+        broadcast(new CustomerOrderStatusUpdated($customerOrder, 'no_entregado'));
 
         $msg = ($destination === 'cancelado')
             ? "Pedido {$customerOrder->order_number} cancelado definitivamente y stock reincorporado."

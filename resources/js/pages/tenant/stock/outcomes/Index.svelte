@@ -1,6 +1,8 @@
 <script lang="ts">
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
+    import { router, page } from '@inertiajs/svelte';
+    import { echo } from '@/lib/echo';
     import CreateOutcomeModal from '@/pages/tenant/stock/outcomes/CreateOutcomeModal.svelte';
     import OutcomeListDesktop from '@/pages/tenant/stock/outcomes/desktop/OutcomeListDesktop.svelte';
     import OutcomeListMobile from '@/pages/tenant/stock/outcomes/mobile/OutcomeListMobile.svelte';
@@ -44,6 +46,23 @@
     } = $props();
 
     let isCreateModalOpen = $state(false);
+
+    let tenantId = $derived(
+        Number(page.props.auth?.tenant?.id ?? page.props.auth?.user?.tenant_id ?? 1)
+    );
+
+    // Sincronización en tiempo real vía Laravel Reverb
+    $effect(() => {
+        const channelName = `tenant.${tenantId}.stock`;
+        echo.private(channelName)
+            .listen('.StockMovementRecorded', () => {
+                router.reload({ only: ['movements'], preserveScroll: true, preserveState: true });
+            });
+
+        return () => {
+            echo.leave(channelName);
+        };
+    });
 </script>
 
 <AppHead title="Egresos de Stock - Comercio" />
