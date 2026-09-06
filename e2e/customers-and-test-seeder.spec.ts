@@ -17,7 +17,7 @@ test.describe.serial('Directorio de Clientes y Gestión', () => {
     });
 
     test('1. Directorio de Clientes: Renderizado de Wide Cards y Filtros', async () => {
-        await page.goto('/tenant/customers');
+        await page.goto('/tenant/clientes');
         await expect(page.locator('text=Directorio de Clientes').first()).toBeVisible();
 
         // Verificar Wide Cards de clientes cargados por TestSeeder
@@ -43,7 +43,7 @@ test.describe.serial('Directorio de Clientes y Gestión', () => {
     });
 
     test('2. Clientes: Alta y Modificación vía Modales Minimalistas', async () => {
-        await page.goto('/tenant/customers');
+        await page.goto('/tenant/clientes');
         await page.waitForTimeout(300);
 
         const uniqueSuffix = Date.now().toString().slice(-6);
@@ -51,7 +51,7 @@ test.describe.serial('Directorio de Clientes y Gestión', () => {
         const uniqueTaxId = `20-${uniqueSuffix}11-4`;
 
         // Abrir modal de nuevo cliente
-        await page.click('button:has-text("+ Añadir Cliente")');
+        await page.click('button:has-text("Añadir Cliente")');
         const createModal = page.locator('div[role="dialog"]');
         await expect(createModal).toBeVisible();
         await expect(createModal.locator('text=Añadir Nuevo Cliente')).toBeVisible();
@@ -98,7 +98,7 @@ test.describe.serial('Directorio de Clientes y Gestión', () => {
     });
 
     test('3. Pedidos: Autocomplete flotante de Clientes y Autocompletado reactivo', async () => {
-        await page.goto('/tenant/orders');
+        await page.goto('/tenant/pedidos');
         await page.waitForTimeout(300);
         await expect(page.locator('text=Pedidos de Clientes').first()).toBeVisible();
 

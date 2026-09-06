@@ -41,4 +41,12 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
     ],
 
+    'mercadopago' => [
+        'access_token' => env('MERCADO_PAGO_TEST_USER_TOKEN', env('MERCADO_PAGO_ACCESS_TOKEN')),
+        'user_id' => env('MERCADO_PAGO_TEST_USER_ID', env('MERCADO_PAGO_USER_ID')),
+        'webhook_secret' => env('MERCADO_PAGO_WEBHOOK_SECRET'),
+        'pos_id' => env('MERCADO_PAGO_DEFAULT_POS_ID', 'SUC01POS01'),
+        'base_url' => env('MERCADO_PAGO_BASE_URL', 'https://api.mercadopago.com'),
+    ],
+
 ];

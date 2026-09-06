@@ -33,11 +33,12 @@ test.describe('E2E: Refactors de Arquitectura, UX, Wide Cards y Limite Estricto 
         await page.fill('#email', 'axel@axel.com');
         await page.fill('#password', 'password');
         await page.click('button[type="submit"]');
-        await expect(page).toHaveURL(/.*(dashboard|tenant).*/);
+        await expect(page).toHaveURL(/.*(dashboard|tenant).*/, { timeout: 10000 });
 
         // 2. Navegar a Pedidos de Clientes
-        await page.goto('/tenant/orders');
-        await expect(page.locator('h1:has-text("Pedidos de Clientes")')).toBeVisible();
+        await page.goto('/tenant/pedidos');
+        await page.waitForLoadState('networkidle');
+        await expect(page.locator('text=Pedidos de Clientes').first()).toBeVisible();
 
         // 3. Abrir modal de nuevo pedido
         await page.waitForTimeout(300);

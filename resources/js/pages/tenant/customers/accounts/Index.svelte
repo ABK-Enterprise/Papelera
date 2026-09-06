@@ -1,6 +1,8 @@
 <script lang="ts">
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
+    import { router, page } from '@inertiajs/svelte';
+    import { echo } from '@/lib/echo';
     import ArrowLeft from 'lucide-svelte/icons/arrow-left';
     import AccountLedgerDesktop, { type CustomerAccountFull } from './desktop/AccountLedgerDesktop.svelte';
     import EditCreditSettingsModal from './EditCreditSettingsModal.svelte';
@@ -36,6 +38,23 @@
         activeCustomerForModal = cust;
         isCreditSettingsModalOpen = true;
     }
+
+    let tenantId = $derived(
+        Number(page.props.auth?.tenant?.id ?? page.props.auth?.user?.tenant_id ?? 1)
+    );
+
+    // Sincronización en tiempo real vía Laravel Reverb
+    $effect(() => {
+        const channelName = `tenant.${tenantId}.customer-accounts`;
+        echo.private(channelName)
+            .listen('.CustomerAccountMovementRecorded', () => {
+                router.reload({ preserveScroll: true, preserveState: true });
+            });
+
+        return () => {
+            echo.leave(channelName);
+        };
+    });
 </script>
 
 <AppHead title="Cuentas Corrientes - Clientes" />

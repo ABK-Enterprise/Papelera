@@ -37,5 +37,10 @@ class TenantSequenceService
     {
         return $this->nextNumber($tenantId, 'supplier_order', 'OC-', 4);
     }
+
+    public function nextReceiptNumber(int $tenantId): string
+    {
+        return $this->nextNumber($tenantId, 'receipt', 'REC-', 4);
+    }
 }
 

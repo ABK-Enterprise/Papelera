@@ -70,9 +70,19 @@ test('users can logout', function () {
 });
 
 test('users are rate limited', function () {
+    RateLimiter::for('login', function ($request) {
+        $throttleKey = \Illuminate\Support\Str::transliterate(\Illuminate\Support\Str::lower($request->input(\Laravel\Fortify\Fortify::username())).'|'.$request->ip());
+        return \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by($throttleKey);
+    });
+
     $user = User::factory()->create();
 
-    RateLimiter::increment(md5('login'.implode('|', [$user->email, '127.0.0.1'])), amount: 5);
+    foreach (range(1, 5) as $i) {
+        $this->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ]);
+    }
 
     $response = $this->post(route('login.store'), [
         'email' => $user->email,

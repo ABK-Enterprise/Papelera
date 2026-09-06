@@ -2,7 +2,8 @@
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
-    import { Link, router } from '@inertiajs/svelte';
+    import { Link, router, page } from '@inertiajs/svelte';
+    import { echo } from '@/lib/echo';
     import Plus from 'lucide-svelte/icons/plus';
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Search from 'lucide-svelte/icons/search';
@@ -95,6 +96,26 @@
     let isDetailModalOpen = $state(false);
     let isFilterModalOpen = $state(false);
     let selectedOrder = $state<SupplierOrderData | null>(null);
+
+    let tenantId = $derived(
+        Number(page.props.auth?.tenant?.id ?? page.props.auth?.user?.tenant_id ?? 1)
+    );
+
+    // Sincronización en tiempo real vía Laravel Reverb
+    $effect(() => {
+        const channelName = `tenant.${tenantId}.supplier-orders`;
+        echo.private(channelName)
+            .listen('.SupplierOrderCreated', () => {
+                router.reload({ only: ['orders', 'stats'], preserveScroll: true, preserveState: true });
+            })
+            .listen('.SupplierOrderStatusUpdated', () => {
+                router.reload({ only: ['orders', 'stats'], preserveScroll: true, preserveState: true });
+            });
+
+        return () => {
+            echo.leave(channelName);
+        };
+    });
 
     $effect(() => {
         const s = filters?.search ?? '';

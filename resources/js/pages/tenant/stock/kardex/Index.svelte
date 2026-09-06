@@ -9,6 +9,9 @@
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
+    import { router, page } from '@inertiajs/svelte';
+    import { echo } from '@/lib/echo';
+    import { toast } from 'svelte-sonner';
 
 
     interface StockMovementItem {
@@ -65,6 +68,33 @@
     $effect(() => {
         searchInput = filters?.search ?? '';
         typeFilter = filters?.type ?? '';
+    });
+
+    let tenantId = $derived(
+        Number(page.props.auth?.tenant?.id ?? page.props.auth?.user?.tenant_id ?? 1)
+    );
+
+    // Sincronización en tiempo real vía Laravel Reverb
+    $effect(() => {
+        const stockChannel = `tenant.${tenantId}.stock`;
+        const alertChannel = `tenant.${tenantId}.stock-alerts`;
+
+        echo.private(stockChannel)
+            .listen('.StockMovementRecorded', () => {
+                router.reload({ only: ['movements'], preserveScroll: true, preserveState: true });
+            });
+
+        echo.private(alertChannel)
+            .listen('.LowStockAlertTriggered', (event: any) => {
+                toast.warning(`Alerta de Stock Crítico: ${event.product_name ?? 'Producto'} (${event.current_stock} u restantes)`, {
+                    duration: 8000,
+                });
+            });
+
+        return () => {
+            echo.leave(stockChannel);
+            echo.leave(alertChannel);
+        };
     });
 
     function applyFilters() {

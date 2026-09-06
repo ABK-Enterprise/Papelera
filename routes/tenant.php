@@ -4,12 +4,15 @@ use App\Http\Controllers\Tenant\CategoryController;
 use App\Http\Controllers\Tenant\CustomerAccountController;
 use App\Http\Controllers\Tenant\CustomerController;
 use App\Http\Controllers\Tenant\CustomerOrderController;
+use App\Http\Controllers\Tenant\DeliveryRouteController;
+use App\Http\Controllers\Tenant\PaymentCollectionController;
 use App\Http\Controllers\Tenant\ProductController;
 use App\Http\Controllers\Tenant\ProductWarehouseLookupController;
 use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\Stock\StockIncomeController;
 use App\Http\Controllers\Tenant\Stock\StockKardexController;
 use App\Http\Controllers\Tenant\Stock\StockOutcomeController;
+use App\Http\Controllers\Tenant\ShippingZoneController;
 use App\Http\Controllers\Tenant\SupplierController;
 use App\Http\Controllers\Tenant\SupplierOrderController;
 use App\Http\Controllers\Tenant\UserController;
@@ -32,6 +35,14 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('configuracion/depositos', [WarehouseController::class, 'store'])->name('warehouses.store');
             Route::put('configuracion/depositos/{warehouse}', [WarehouseController::class, 'update'])->name('warehouses.update');
             Route::delete('configuracion/depositos/{warehouse}', [WarehouseController::class, 'destroy'])->name('warehouses.destroy');
+        });
+
+        // Shipping Zones Management (Configuración de Zonas de Envío - Exclusivo para el Administrador)
+        Route::middleware(['tenant.admin', 'module:pedidos'])->group(function () {
+            Route::get('configuracion/zonas', [ShippingZoneController::class, 'index'])->name('shipping-zones.index');
+            Route::post('configuracion/zonas', [ShippingZoneController::class, 'store'])->name('shipping-zones.store');
+            Route::put('configuracion/zonas/{shippingZone}', [ShippingZoneController::class, 'update'])->name('shipping-zones.update');
+            Route::delete('configuracion/zonas/{shippingZone}', [ShippingZoneController::class, 'destroy'])->name('shipping-zones.destroy');
         });
 
         // Products & Categories Management (Productos module)
@@ -70,6 +81,8 @@ Route::middleware(['auth', 'verified', 'tenant'])
             // Supplier Orders (Órdenes de Compra)
             Route::get('proveedores/ordenes', [SupplierOrderController::class, 'index'])->name('suppliers.orders.index')->middleware('tenant.permission:proveedores.pedidos.ver');
             Route::post('proveedores/ordenes', [SupplierOrderController::class, 'store'])->name('suppliers.orders.store')->middleware('tenant.permission:proveedores.pedidos.crear');
+            Route::get('proveedores/ordenes/{supplierOrder}/pdf', [SupplierOrderController::class, 'downloadPdf'])->name('suppliers.orders.pdf')->middleware('tenant.permission:proveedores.pedidos.ver');
+            Route::get('proveedores/ordenes/{supplierOrder}/previsualizar-pdf', [SupplierOrderController::class, 'previewPdf'])->name('suppliers.orders.preview-pdf')->middleware('tenant.permission:proveedores.pedidos.ver');
             Route::patch('proveedores/ordenes/{supplierOrder}/recibir', [SupplierOrderController::class, 'receive'])->name('suppliers.orders.receive')->middleware('tenant.permission:proveedores.pedidos.recibir');
             Route::patch('proveedores/ordenes/{supplierOrder}/cancelar', [SupplierOrderController::class, 'cancel'])->name('suppliers.orders.cancel')->middleware('tenant.permission:proveedores.pedidos.cancelar');
         });
@@ -87,14 +100,32 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('clientes/{customer}/cuenta-corriente/cobro', [CustomerAccountController::class, 'recordPayment'])->name('customers.accounts.payment')->middleware('tenant.permission:clientes.editar');
             Route::post('clientes/{customer}/cuenta-corriente/ajuste', [CustomerAccountController::class, 'recordAdjustment'])->name('customers.accounts.adjustment')->middleware('tenant.permission:clientes.editar');
             Route::patch('clientes/{customer}/cuenta-corriente/limite-credito', [CustomerAccountController::class, 'updateCreditSettings'])->name('customers.accounts.credit-settings')->middleware('tenant.permission:clientes.editar');
+
+            // Cobranzas y Motor de Pagos (Payment Collections)
+            Route::get('cobranzas', [PaymentCollectionController::class, 'index'])->name('payments.index')->middleware('tenant.permission:cobranzas.ver');
+            Route::post('cobranzas', [PaymentCollectionController::class, 'store'])->name('payments.store')->middleware('tenant.permission:cobranzas.crear');
+            Route::get('cobranzas/recibos', [PaymentCollectionController::class, 'receipts'])->name('payments.receipts')->middleware('tenant.permission:cobranzas.ver');
+            Route::post('cobranzas/recibos/{receipt}/anular', [PaymentCollectionController::class, 'void'])->name('payments.receipts.void')->middleware('tenant.permission:cobranzas.anular');
         });
 
         // Customer Orders (Pedidos module)
         Route::middleware('module:pedidos')->group(function () {
             Route::get('pedidos', [CustomerOrderController::class, 'index'])->name('orders.index')->middleware('tenant.permission:pedidos.ver');
             Route::post('pedidos', [CustomerOrderController::class, 'store'])->name('orders.store')->middleware('tenant.permission:pedidos.crear');
+            Route::get('pedidos/{customerOrder}/pdf', [CustomerOrderController::class, 'downloadPdf'])->name('orders.pdf')->middleware('tenant.permission:pedidos.ver');
+            Route::get('pedidos/{customerOrder}/previsualizar-pdf', [CustomerOrderController::class, 'previewPdf'])->name('orders.preview-pdf')->middleware('tenant.permission:pedidos.ver');
             Route::patch('pedidos/{customerOrder}/estado', [CustomerOrderController::class, 'updateStatus'])->name('orders.update-status')->middleware('tenant.permission:pedidos.editar_estado');
+            Route::post('pedidos/{customerOrder}/generar-qr-cobro', [CustomerOrderController::class, 'generateQr'])->name('orders.generate-qr')->middleware('tenant.permission:pedidos.ver');
+            Route::get('pedidos/{customerOrder}/estado-pago', [CustomerOrderController::class, 'paymentStatus'])->name('orders.payment-status')->middleware('tenant.permission:pedidos.ver');
             Route::delete('pedidos/{customerOrder}', [CustomerOrderController::class, 'destroy'])->name('orders.destroy')->middleware('tenant.permission:pedidos.cancelar');
+
+            // Repartos y Logística de Última Milla
+            Route::get('repartos', [DeliveryRouteController::class, 'index'])->name('deliveries.index')->middleware('tenant.permission:repartos.ver');
+            Route::post('repartos/asignar', [DeliveryRouteController::class, 'assign'])->name('deliveries.assign')->middleware('tenant.permission:repartos.gestionar');
+            Route::post('repartos/{customerOrder}/entregar', [DeliveryRouteController::class, 'deliver'])->name('deliveries.deliver')->middleware('tenant.permission:repartos.gestionar');
+            Route::post('repartos/{customerOrder}/fallar', [DeliveryRouteController::class, 'fail'])->name('deliveries.fail')->middleware('tenant.permission:repartos.gestionar');
+            Route::post('repartos/{customerOrder}/reprogramar', [DeliveryRouteController::class, 'reschedule'])->name('deliveries.reschedule')->middleware('tenant.permission:repartos.gestionar');
+            Route::get('repartos/rendicion', [DeliveryRouteController::class, 'shiftSummary'])->name('deliveries.shift-summary')->middleware('tenant.permission:repartos.ver');
         });
     });
 

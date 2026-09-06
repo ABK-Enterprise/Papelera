@@ -34,15 +34,15 @@
     let { items, warehouses, categories, filters }: Props = $props();
 
     let searchTerm = $state(filters.search || '');
-    let selectedWarehouseId = $state<string | number | null>(filters.warehouse_id || '');
-    let selectedCategoryId = $state<string | number | null>(filters.category_id || '');
-    let selectedStockStatus = $state<string | null>(filters.stock_status || '');
+    let selectedWarehouseId = $state<string>(filters.warehouse_id ? String(filters.warehouse_id) : '');
+    let selectedCategoryId = $state<string>(filters.category_id ? String(filters.category_id) : '');
+    let selectedStockStatus = $state<string>(filters.stock_status ? String(filters.stock_status) : '');
 
     $effect(() => {
         searchTerm = filters.search || '';
-        selectedWarehouseId = filters.warehouse_id || '';
-        selectedCategoryId = filters.category_id || '';
-        selectedStockStatus = filters.stock_status || '';
+        selectedWarehouseId = filters.warehouse_id ? String(filters.warehouse_id) : '';
+        selectedCategoryId = filters.category_id ? String(filters.category_id) : '';
+        selectedStockStatus = filters.stock_status ? String(filters.stock_status) : '';
     });
 
     function applyFilters() {

@@ -91,9 +91,9 @@
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
 
 
-        <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center justify-between gap-3 w-full">
             <!-- Buscador con SearchCombobox -->
-            <div class="w-[420px]">
+            <div class="w-72 xl:w-80 shrink-0">
                 <SearchCombobox
                     bind:value={searchTerm}
                     items={items.data}
@@ -128,16 +128,16 @@
             </div>
 
             <!-- Controles de Filtro -->
-            <div class="flex items-center gap-2.5 flex-wrap">
+            <div class="flex items-center gap-2 flex-1 justify-end min-w-0">
                 <!-- Filtro de Depósito -->
                 <select
                     bind:value={selectedWarehouseId}
                     onchange={onfilterchange}
-                    class="h-10 rounded-xl border border-input bg-card px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[160px] cursor-pointer"
+                    class="h-10 rounded-xl border border-input bg-card px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[110px] max-w-[190px] cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
                 >
                     <option value="">Todos los Depósitos</option>
                     {#each warehouses as wh (wh.id)}
-                        <option value={wh.id}>
+                        <option value={String(wh.id)}>
                             {wh.name} {wh.is_default ? '(Principal)' : ''}
                         </option>
                     {/each}
@@ -147,11 +147,11 @@
                 <select
                     bind:value={selectedCategoryId}
                     onchange={onfilterchange}
-                    class="h-10 rounded-xl border border-input bg-card px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[150px] cursor-pointer"
+                    class="h-10 rounded-xl border border-input bg-card px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[110px] max-w-[180px] cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
                 >
                     <option value="">Todas las Categorías</option>
                     {#each categories as cat (cat.id)}
-                        <option value={cat.id}>{cat.name}</option>
+                        <option value={String(cat.id)}>{cat.name}</option>
                     {/each}
                 </select>
 
@@ -159,12 +159,12 @@
                 <select
                     bind:value={selectedStockStatus}
                     onchange={onfilterchange}
-                    class="h-10 rounded-xl border border-input bg-card px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[150px] cursor-pointer"
+                    class="h-10 rounded-xl border border-input bg-card px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[100px] max-w-[130px] cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
                 >
                     <option value="">Todos los Estados</option>
-                    <option value="in_stock">Con Stock (> 0)</option>
-                    <option value="low_stock">Stock Bajo / Crítico</option>
-                    <option value="out_of_stock">Sin Stock (0)</option>
+                    <option value="in_stock">Con stock</option>
+                    <option value="low_stock">Stock bajo</option>
+                    <option value="out_of_stock">Sin stock</option>
                 </select>
 
                 {#if hasActiveFilters}
@@ -172,7 +172,7 @@
                         variant="ghost"
                         size="sm"
                         onclick={onreset}
-                        class="h-10 px-3 text-xs text-muted-foreground hover:text-foreground gap-1.5"
+                        class="h-10 px-3 text-xs text-muted-foreground hover:text-foreground gap-1.5 shrink-0"
                     >
                         <RotateCcw class="size-3.5" />
                         Limpiar
