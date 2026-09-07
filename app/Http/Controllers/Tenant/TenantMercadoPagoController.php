@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
@@ -44,6 +45,13 @@ class TenantMercadoPagoController extends Controller
         $clientId = config('services.mercadopago.client_id', env('MERCADO_PAGO_CLIENT_ID'));
 
         if (! $clientId) {
+            Log::warning('Mercado Pago OAuth connect aborted: Client ID is missing or empty', [
+                'tenant_id' => $request->user()?->tenant_id,
+                'has_services_config' => ! empty(config('services.mercadopago.client_id')),
+                'has_env' => ! empty(env('MERCADO_PAGO_CLIENT_ID')),
+                'is_config_cached' => app()->configurationIsCached(),
+            ]);
+
             Inertia::flash('toast', [
                 'type' => 'error',
                 'message' => 'El servicio de vinculación con Mercado Pago no se encuentra disponible temporalmente.',
@@ -52,11 +60,15 @@ class TenantMercadoPagoController extends Controller
             return back()->with('error', 'El servicio de vinculación con Mercado Pago no se encuentra disponible.');
         }
 
+        $codeVerifier = Str::random(64);
+        $codeChallenge = rtrim(strtr(base64_encode(hash('sha256', $codeVerifier, true)), '+/', '-_'), '=');
+
         $tenantId = $request->user()->tenant_id;
         $state = encrypt([
             'tenant_id' => $tenantId,
             'user_id' => $request->user()->id,
             'timestamp' => now()->timestamp,
+            'code_verifier' => $codeVerifier,
         ]);
 
         $redirectUri = route('tenant.settings.mercadopago.callback');
@@ -67,6 +79,8 @@ class TenantMercadoPagoController extends Controller
             'platform_id' => 'mp',
             'state' => $state,
             'redirect_uri' => $redirectUri,
+            'code_challenge' => $codeChallenge,
+            'code_challenge_method' => 'S256',
         ]);
 
         return Inertia::location("https://auth.mercadopago.com/authorization?{$params}");
@@ -81,6 +95,10 @@ class TenantMercadoPagoController extends Controller
         $state = $request->query('state');
 
         if (! $code) {
+            Log::warning('Mercado Pago OAuth callback received without code parameter', [
+                'query_params' => $request->query(),
+            ]);
+
             Inertia::flash('toast', [
                 'type' => 'error',
                 'message' => 'No se recibió el código de autorización de Mercado Pago.',
@@ -93,13 +111,20 @@ class TenantMercadoPagoController extends Controller
         try {
             $decrypted = decrypt($state);
             $tenantId = $decrypted['tenant_id'] ?? null;
+            $codeVerifier = $decrypted['code_verifier'] ?? null;
         } catch (\Exception $e) {
             $tenantId = $request->user()?->tenant_id;
+            $codeVerifier = null;
         }
 
         $tenant = $request->user()?->tenant;
 
         if (! $tenant || ($tenantId && $tenant->id !== (int) $tenantId)) {
+            Log::warning('Mercado Pago OAuth callback tenant security mismatch', [
+                'user_tenant_id' => $tenant?->id,
+                'state_tenant_id' => $tenantId,
+            ]);
+
             Inertia::flash('toast', [
                 'type' => 'error',
                 'message' => 'Validación de seguridad fallida durante la vinculación.',
@@ -113,14 +138,20 @@ class TenantMercadoPagoController extends Controller
         $clientSecret = config('services.mercadopago.client_secret', env('MERCADO_PAGO_CLIENT_SECRET'));
         $redirectUri = route('tenant.settings.mercadopago.callback');
 
+        $tokenPayload = [
+            'client_secret' => $clientSecret,
+            'client_id' => $clientId,
+            'grant_type' => 'authorization_code',
+            'code' => $code,
+            'redirect_uri' => $redirectUri,
+        ];
+
+        if ($codeVerifier) {
+            $tokenPayload['code_verifier'] = $codeVerifier;
+        }
+
         try {
-            $response = Http::asForm()->timeout(15)->post('https://api.mercadopago.com/oauth/token', [
-                'client_secret' => $clientSecret,
-                'client_id' => $clientId,
-                'grant_type' => 'authorization_code',
-                'code' => $code,
-                'redirect_uri' => $redirectUri,
-            ]);
+            $response = Http::asForm()->timeout(15)->post('https://api.mercadopago.com/oauth/token', $tokenPayload);
 
             if ($response->successful()) {
                 $data = $response->json();
