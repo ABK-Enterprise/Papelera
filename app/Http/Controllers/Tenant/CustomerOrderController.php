@@ -810,6 +810,7 @@ class CustomerOrderController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $result['error'] ?? 'No se pudo generar la orden de cobro en Mercado Pago.',
+                'message' => $result['error'] ?? 'No se pudo generar la orden de cobro en Mercado Pago.',
             ], 422);
         }
 

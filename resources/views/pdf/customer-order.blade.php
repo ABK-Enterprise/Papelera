@@ -242,9 +242,19 @@
                 <div class="order-title">Pedido #{{ $order->order_number }}</div>
                 <div class="order-date">Fecha: {{ $order->created_at ? $order->created_at->format('d/m/Y H:i') : now()->format('d/m/Y H:i') }}</div>
                 <div class="tenant-name">{{ $order->tenant->name ?? 'NUESTRO COMERCIO' }}</div>
-                @if(!empty($order->tenant->cuit_tax_id))
-                    <div class="tenant-meta">CUIT: {{ $order->tenant->cuit_tax_id }}</div>
+                @if(!empty($order->tenant->legal_name) && $order->tenant->legal_name !== $order->tenant->name)
+                    <div class="tenant-meta">{{ $order->tenant->legal_name }}</div>
                 @endif
+                @if(!empty($order->tenant->cuit_tax_id))
+                    <div class="tenant-meta">CUIT: {{ $order->tenant->cuit_tax_id }} &bull; {{ strtoupper(str_replace('_', ' ', $order->tenant->tax_condition ?? 'Responsable Inscripto')) }}</div>
+                @endif
+                @if(!empty($order->tenant->address))
+                    <div class="tenant-meta">{{ $order->tenant->address }}{{ !empty($order->tenant->city) ? ', '.$order->tenant->city : '' }}</div>
+                @endif
+                @if(!empty($order->tenant->phone))
+                    <div class="tenant-meta">Tel: {{ $order->tenant->phone }}</div>
+                @endif
+                <div style="display: inline-block; border: 1px dashed #94a3b8; padding: 2px 6px; font-size: 9px; font-weight: 700; color: #64748b; letter-spacing: 0.5px; border-radius: 4px; margin-top: 4px;">DOCUMENTO NO VÁLIDO COMO FACTURA</div>
             </td>
             <td style="width: 45%;">
                 <div class="client-box">

@@ -2,14 +2,17 @@
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
     import Ban from 'lucide-svelte/icons/ban';
+    import Printer from 'lucide-svelte/icons/printer';
     import type { ReceiptItem } from '../desktop/ReceiptListDesktop.svelte';
 
     let {
         receipts = [],
         onRequestVoid = undefined,
+        onPreviewPdf = undefined,
     }: {
         receipts: ReceiptItem[];
         onRequestVoid?: (receipt: ReceiptItem) => void;
+        onPreviewPdf?: (receipt: ReceiptItem) => void;
     } = $props();
 
     function formatPrice(val: number | string) {
@@ -79,18 +82,31 @@
                         {/if}
                     </div>
 
-                    {#if !rc.is_cancelled}
+                    <div class="flex items-center gap-1.5 shrink-0">
                         <Button
                             type="button"
                             variant="outline"
                             size="sm"
-                            class="h-8 px-2.5 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 gap-1 rounded-lg shrink-0"
-                            onclick={() => onRequestVoid?.(rc)}
+                            class="h-8 min-h-[32px] px-2.5 text-xs text-foreground hover:bg-muted/80 gap-1 rounded-lg cursor-pointer"
+                            onclick={() => onPreviewPdf?.(rc)}
+                            title="Ver e imprimir comprobante"
                         >
-                            <Ban class="size-3" />
-                            <span>Anular</span>
+                            <Printer class="size-3 text-muted-foreground" />
+                            <span>PDF</span>
                         </Button>
-                    {/if}
+                        {#if !rc.is_cancelled}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                class="h-8 min-h-[32px] px-2.5 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 gap-1 rounded-lg shrink-0 cursor-pointer"
+                                onclick={() => onRequestVoid?.(rc)}
+                            >
+                                <Ban class="size-3" />
+                                <span>Anular</span>
+                            </Button>
+                        {/if}
+                    </div>
                 </div>
             </div>
         {/each}

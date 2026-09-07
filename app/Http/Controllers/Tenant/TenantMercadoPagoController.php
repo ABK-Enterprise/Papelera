@@ -188,6 +188,12 @@ class TenantMercadoPagoController extends Controller
                     'mp_linked_at' => now(),
                 ]);
 
+                try {
+                    app(\App\Services\MercadoPago\MercadoPagoService::class)->ensurePosExists($tenant);
+                } catch (\Throwable $e) {
+                    Log::warning('Mercado Pago ensurePosExists on OAuth callback warning: ' . $e->getMessage());
+                }
+
                 Inertia::flash('toast', [
                     'type' => 'success',
                     'message' => '¡Cuenta de Mercado Pago vinculada exitosamente!',
