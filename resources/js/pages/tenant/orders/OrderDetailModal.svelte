@@ -16,7 +16,6 @@
     import Printer from 'lucide-svelte/icons/printer';
     import QrCode from 'lucide-svelte/icons/qr-code';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
-    import Trash2 from 'lucide-svelte/icons/trash-2';
     import Truck from 'lucide-svelte/icons/truck';
     import User from 'lucide-svelte/icons/user';
     import X from 'lucide-svelte/icons/x';
@@ -63,7 +62,6 @@
 
     let isUpdatingStatus = $state(false);
     let isConfirmModalOpen = $state(false);
-    let isDeleteModalOpen = $state(false);
     let isPdfModalOpen = $state(false);
     let isQrModalOpen = $state(false);
     let pendingStatus = $state<string | null>(null);
@@ -131,20 +129,7 @@
         );
     }
 
-    function handleDelete() {
-        if (!order || order.status === 'entregado' || order.status === 'cancelado') return;
-        isDeleteModalOpen = true;
-    }
 
-    function executeDelete() {
-        if (!order) return;
-        router.delete(`/tenant/pedidos/${order.id}`, {
-            onSuccess: () => {
-                isDeleteModalOpen = false;
-                open = false;
-            },
-        });
-    }
 
 
     // Modal Copy Generator según el estado a aplicar
@@ -485,53 +470,65 @@
                 {/if}
             </div>
 
-            <!-- Footer con Total y Acciones (shrink-0) -->
-            <div class="flex items-center justify-between pt-3.5 border-t shrink-0">
-                {#if order.status !== 'cancelado' && order.status !== 'entregado'}
-                    <Button
-                        type="button"
-                        variant="outline"
-                        class="min-h-[44px] px-4 rounded-xl text-xs font-semibold text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-2"
-                        onclick={handleDelete}
-                    >
-                        <Trash2 class="size-4" />
-                        <span>Eliminar pedido</span>
-                    </Button>
-                {:else}
-                    <div></div>
-                {/if}
+            <!-- Footer con Total (Fila 1) y Acciones (Fila 2) (shrink-0) -->
+            <div class="flex flex-col gap-2.5 pt-3 border-t shrink-0">
+                <!-- Fila 1: Total alineado a la derecha -->
+                <div class="flex items-baseline justify-end gap-1.5 pb-1.5 border-b border-border/40">
+                    <span class="text-xs text-muted-foreground font-medium">Total:</span>
+                    <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary" title={formatPrice(order.total_amount)}>
+                        {formatPrice(order.total_amount)}
+                    </span>
+                </div>
 
-                <div class="flex items-center gap-2.5">
-                    <div class="text-right mr-1">
-                        <span class="text-xs text-muted-foreground block">Total:</span>
-                        <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary">{formatPrice(order.total_amount)}</span>
+                <!-- Fila 2: Cancelar pedido a la izquierda | QR (MP), PDF y Cerrar a la derecha -->
+                <div class="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                    <div>
+                        {#if order.status !== 'cancelado' && order.status !== 'entregado'}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                class="min-h-[40px] px-3.5 rounded-xl text-xs font-semibold text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-1.5 shrink-0 cursor-pointer"
+                                onclick={() => requestStatusChange('cancelado')}
+                            >
+                                <XCircle class="size-4" />
+                                <span>Cancelar pedido</span>
+                            </Button>
+                        {/if}
                     </div>
 
-                    {#if order.status !== 'cancelado' && (Number(order.debt_amount ?? order.total_amount) > 0 || order.status !== 'entregado')}
+                    <div class="flex items-center gap-2 shrink-0">
+                        {#if order.status !== 'cancelado' && order.status !== 'entregado' && Number(order.debt_amount ?? order.total_amount) > 0}
+                            <Button
+                                type="button"
+                                variant="default"
+                                class="min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs bg-sky-600 hover:bg-sky-700 text-white dark:bg-sky-600 dark:hover:bg-sky-700 shrink-0 cursor-pointer"
+                                onclick={() => (isQrModalOpen = true)}
+                            >
+                                <QrCode class="size-4" />
+                                <span class="hidden sm:inline">Cobro QR MP</span>
+                                <span class="inline sm:hidden">QR (MP)</span>
+                            </Button>
+                        {/if}
+
                         <Button
                             type="button"
-                            variant="default"
-                            class="min-h-[44px] px-3.5 sm:px-4 rounded-xl text-xs sm:text-sm font-semibold gap-2 shadow-xs bg-sky-600 hover:bg-sky-700 text-white dark:bg-sky-600 dark:hover:bg-sky-700"
-                            onclick={() => (isQrModalOpen = true)}
+                            variant="secondary"
+                            class="min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer"
+                            onclick={() => (isPdfModalOpen = true)}
                         >
-                            <QrCode class="size-4" />
-                            <span>Cobro QR MP</span>
+                            <Printer class="size-4 text-primary" />
+                            <span>PDF</span>
                         </Button>
-                    {/if}
 
-                    <Button
-                        type="button"
-                        variant="secondary"
-                        class="min-h-[44px] px-3.5 sm:px-4 rounded-xl text-xs sm:text-sm font-semibold gap-2 shadow-xs"
-                        onclick={() => (isPdfModalOpen = true)}
-                    >
-                        <Printer class="size-4 text-primary" />
-                        <span>Generar PDF</span>
-                    </Button>
-
-                    <Button type="button" variant="outline" class="min-h-[44px] px-4 rounded-xl text-sm font-semibold" onclick={() => (open = false)}>
-                        Cerrar
-                    </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            class="min-h-[40px] px-3.5 rounded-xl text-xs sm:text-sm font-semibold shrink-0 cursor-pointer"
+                            onclick={() => (open = false)}
+                        >
+                            Cerrar
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -553,16 +550,7 @@
         }}
     />
 
-    <!-- Modal de Confirmación de Eliminación -->
-    <ConfirmActionModal
-        bind:open={isDeleteModalOpen}
-        title="¿Eliminar pedido?"
-        description={`Esta acción eliminará el registro del pedido ${order.order_number}. El stock reservado se reincorporará automáticamente.`}
-        confirmText="Eliminar Definitivamente"
-        cancelText="Conservar"
-        variant="danger"
-        onconfirm={executeDelete}
-    />
+
 
     <!-- Modal de Previsualización y Descarga de PDF -->
     {#if order}

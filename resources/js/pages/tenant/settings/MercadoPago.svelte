@@ -1,0 +1,393 @@
+<script lang="ts">
+    import AppHead from '@/components/AppHead.svelte';
+    import { Button } from '@/components/ui/button';
+    import { Card } from '@/components/ui/card';
+    import { Badge } from '@/components/ui/badge';
+    import { Input } from '@/components/ui/input';
+    import { Label } from '@/components/ui/label';
+    import IconContainer from '@/components/common/IconContainer.svelte';
+    import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
+    import {
+        Dialog,
+        DialogBody,
+        DialogContent,
+        DialogDescription,
+        DialogFooter,
+        DialogHeader,
+        DialogTitle,
+    } from '@/components/ui/dialog';
+    import { router } from '@inertiajs/svelte';
+    import CreditCard from 'lucide-svelte/icons/credit-card';
+    import QrCode from 'lucide-svelte/icons/qr-code';
+    import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
+    import Building2 from 'lucide-svelte/icons/building-2';
+    import Mail from 'lucide-svelte/icons/mail';
+    import Calendar from 'lucide-svelte/icons/calendar';
+    import ShieldCheck from 'lucide-svelte/icons/shield-check';
+    import Unlink from 'lucide-svelte/icons/unlink';
+    import ArrowRight from 'lucide-svelte/icons/arrow-right';
+    import Save from 'lucide-svelte/icons/save';
+    import Store from 'lucide-svelte/icons/store';
+    import Zap from 'lucide-svelte/icons/zap';
+    import Smartphone from 'lucide-svelte/icons/smartphone';
+    import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
+    import Terminal from 'lucide-svelte/icons/terminal';
+
+    interface MpAccount {
+        user_id: string | null;
+        nickname: string;
+        email: string | null;
+        live_mode: boolean;
+        pos_id: string;
+        linked_at: string | null;
+        cuit: string | null;
+    }
+
+    interface Props {
+        isLinked: boolean;
+        mpAccount: MpAccount | null;
+        clientId?: string | null;
+    }
+
+    let { isLinked = false, mpAccount = null, clientId = null }: Props = $props();
+
+    let isDisconnectModalOpen = $state(false);
+    let isDisconnecting = $state(false);
+    let isConfigInfoModalOpen = $state(false);
+
+    let currentPosId = $state(mpAccount?.pos_id ?? 'SUC01POS01');
+    let isUpdatingPos = $state(false);
+
+    const isConfigured = $derived(Boolean(clientId && clientId.trim() !== ''));
+
+    function handleConnect() {
+        if (!isConfigured) {
+            isConfigInfoModalOpen = true;
+            return;
+        }
+
+        router.get('/tenant/configuracion/mercadopago/vincular');
+    }
+
+    function handleDisconnect() {
+        isDisconnecting = true;
+        router.post(
+            '/tenant/configuracion/mercadopago/desvincular',
+            {},
+            {
+                onFinish: () => {
+                    isDisconnecting = false;
+                    isDisconnectModalOpen = false;
+                },
+            }
+        );
+    }
+
+    function handleUpdatePos(e: SubmitEvent) {
+        e.preventDefault();
+        isUpdatingPos = true;
+        router.put(
+            '/tenant/configuracion/mercadopago/pos',
+            { pos_id: currentPosId },
+            {
+                preserveScroll: true,
+                onFinish: () => {
+                    isUpdatingPos = false;
+                },
+            }
+        );
+    }
+
+    function formatDate(dateStr: string | null | undefined): string {
+        if (!dateStr) return 'Reciente';
+        try {
+            return new Intl.DateTimeFormat('es-AR', {
+                dateStyle: 'medium',
+                timeStyle: 'short',
+            }).format(new Date(dateStr));
+        } catch {
+            return dateStr;
+        }
+    }
+</script>
+
+<AppHead title="Mercado Pago" description="Configuración de cobros con Mercado Pago y QR dinámico" />
+
+<div class="flex flex-col gap-6 w-full">
+    <!-- Header del Módulo -->
+    <div class="flex flex-col gap-1">
+        <div class="flex items-center gap-2.5">
+            <h2 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+                <div class="flex size-9 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400">
+                    <CreditCard class="size-5" />
+                </div>
+                <span>Mercado Pago</span>
+            </h2>
+            {#if isLinked}
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                    <span class="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Conectado
+                </span>
+            {:else}
+                <span class="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                    No vinculado
+                </span>
+            {/if}
+        </div>
+        <p class="text-sm text-muted-foreground mt-0.5 max-w-prose">
+            Vinculá la cuenta de Mercado Pago de tu comercio para habilitar cobros presenciales con QR dinámico en el mostrador y en repartos.
+        </p>
+    </div>
+
+    {#if !isLinked}
+        <!-- ESTADO A: Cuenta No Vinculada (Empty State) -->
+        <Card class="rounded-2xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs">
+            <div class="max-w-2xl mx-auto text-center flex flex-col items-center gap-5">
+                <div class="flex size-16 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-600 dark:text-sky-400 shadow-inner">
+                    <QrCode class="size-8" />
+                </div>
+
+                <div class="space-y-2">
+                    <h3 class="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                        Vinculá tu cuenta de Mercado Pago
+                    </h3>
+                    <p class="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
+                        Permite cobrar pedidos en el mostrador y en repartos mediante código QR dinámico. El dinero se acreditará de forma inmediata en la cuenta bancaria de tu comercio con conciliación automática.
+                    </p>
+                </div>
+
+                <!-- Beneficios Destacados -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full my-2 text-left">
+                    <div class="p-3.5 rounded-xl border border-border/60 bg-muted/30 flex flex-col gap-1.5">
+                        <div class="flex items-center gap-2 text-primary font-semibold text-xs">
+                            <Zap class="size-4 shrink-0" />
+                            <span>Cobro Inmediato</span>
+                        </div>
+                        <p class="text-[11px] text-muted-foreground leading-snug">
+                            Los fondos se acreditan al instante en tu cuenta oficial de Mercado Pago.
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl border border-border/60 bg-muted/30 flex flex-col gap-1.5">
+                        <div class="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-semibold text-xs">
+                            <Smartphone class="size-4 shrink-0" />
+                            <span>QR en Repartos</span>
+                        </div>
+                        <p class="text-[11px] text-muted-foreground leading-snug">
+                            Tus choferes pueden generar el QR directamente desde el celular al entregar.
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl border border-border/60 bg-muted/30 flex flex-col gap-1.5">
+                        <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-semibold text-xs">
+                            <ShieldCheck class="size-4 shrink-0" />
+                            <span>OAuth 2.0 Seguro</span>
+                        </div>
+                        <p class="text-[11px] text-muted-foreground leading-snug">
+                            Conexión oficial autorizada sin necesidad de compartir contraseñas.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Call to Action -->
+                <div class="pt-2 flex flex-col sm:flex-row items-center gap-3">
+                    <Button
+                        variant="default"
+                        size="lg"
+                        class="min-h-[44px] px-6 rounded-xl font-semibold gap-2 shadow-xs bg-sky-600 hover:bg-sky-700 text-white cursor-pointer"
+                        onclick={handleConnect}
+                    >
+                        <span>Vincular cuenta de Mercado Pago</span>
+                        <ArrowRight class="size-4" />
+                    </Button>
+                </div>
+                {#if !isConfigured}
+                    <p class="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5 mt-1">
+                        <AlertTriangle class="size-3.5 shrink-0" />
+                        <span>Entorno local sin credenciales configuradas en .env. Click para ver detalles.</span>
+                    </p>
+                {/if}
+            </div>
+        </Card>
+    {:else}
+        <!-- ESTADO B: Cuenta Vinculada (Ficha Oficial) -->
+        <div class="space-y-6">
+            <!-- Hero Card de Conexión Activa -->
+            <Card class="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-border/60">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                            <CheckCircle2 class="size-6" />
+                        </div>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 class="text-base sm:text-lg font-bold text-foreground truncate">
+                                    {mpAccount?.nickname || 'Cuenta de Mercado Pago'}
+                                </h3>
+                                <Badge variant="outline" class="text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
+                                    {mpAccount?.live_mode ? 'Producción (Live)' : 'Pruebas / Sandbox'}
+                                </Badge>
+                            </div>
+                            <p class="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                                <Calendar class="size-3.5 shrink-0" />
+                                <span>Vinculada el <strong class="tabular-nums font-semibold text-foreground">{formatDate(mpAccount?.linked_at)}</strong></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <Button
+                        variant="outline"
+                        class="min-h-[40px] px-4 rounded-xl text-xs font-semibold text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-2 shrink-0 cursor-pointer"
+                        onclick={() => (isDisconnectModalOpen = true)}
+                    >
+                        <Unlink class="size-4" />
+                        <span>Desvincular cuenta</span>
+                    </Button>
+                </div>
+
+                <!-- Detalle de Datos Oficiales -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-5">
+                    <div class="p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col gap-1">
+                        <span class="text-xs text-muted-foreground flex items-center gap-1.5 font-medium">
+                            <Building2 class="size-3.5" />
+                            Titular / Razón Social
+                        </span>
+                        <span class="text-sm font-semibold text-foreground truncate">
+                            {mpAccount?.nickname || '—'}
+                        </span>
+                        {#if mpAccount?.cuit}
+                            <span class="text-[11px] text-muted-foreground font-mono tabular-nums">
+                                CUIT: {mpAccount.cuit}
+                            </span>
+                        {/if}
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col gap-1">
+                        <span class="text-xs text-muted-foreground flex items-center gap-1.5 font-medium">
+                            <Mail class="size-3.5" />
+                            Email Registrado
+                        </span>
+                        <span class="text-sm font-semibold text-foreground truncate" title={mpAccount?.email ?? ''}>
+                            {mpAccount?.email || '—'}
+                        </span>
+                        <span class="text-[11px] text-muted-foreground">
+                            Cuenta receptora de cobros
+                        </span>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col gap-1">
+                        <span class="text-xs text-muted-foreground flex items-center gap-1.5 font-medium">
+                            <QrCode class="size-3.5" />
+                            ID de Vendedor (Collector)
+                        </span>
+                        <span class="text-sm font-semibold font-mono tabular-nums text-foreground truncate">
+                            {mpAccount?.user_id || '—'}
+                        </span>
+                        <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                            Conexión OAuth activa
+                        </span>
+                    </div>
+                </div>
+            </Card>
+
+            <!-- Configuración de Punto de Venta / Caja POS -->
+            <Card class="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs">
+                <form onsubmit={handleUpdatePos} class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                    <div class="space-y-1.5 flex-1 max-w-md">
+                        <Label for="pos_id" class="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-1.5">
+                            <Store class="size-4 text-primary" />
+                            Código de Caja / Punto de Venta (POS)
+                        </Label>
+                        <p class="text-xs text-muted-foreground">
+                            Identificador asignado en Mercado Pago para la emisión del QR presencial dinámico.
+                        </p>
+                        <Input
+                            id="pos_id"
+                            bind:value={currentPosId}
+                            placeholder="Ej: SUC01POS01"
+                            class="h-10 rounded-xl font-mono text-sm uppercase bg-background"
+                            required
+                        />
+                    </div>
+
+                    <Button
+                        type="submit"
+                        variant="secondary"
+                        disabled={isUpdatingPos || currentPosId === mpAccount?.pos_id}
+                        class="min-h-[40px] px-4 rounded-xl font-semibold gap-2 shadow-xs shrink-0 cursor-pointer"
+                    >
+                        <Save class="size-4" />
+                        <span>{isUpdatingPos ? 'Guardando...' : 'Guardar Caja'}</span>
+                    </Button>
+                </form>
+            </Card>
+        </div>
+    {/if}
+</div>
+
+<!-- Modal de Confirmación para Desvincular Cuenta -->
+<ConfirmActionModal
+    bind:open={isDisconnectModalOpen}
+    variant="destructive"
+    title="¿Desvincular cuenta de Mercado Pago?"
+    description="Se revocarán los tokens de integración y ya no se podrán generar códigos QR dinámicos para cobrar pedidos hasta que vuelvas a vincular una cuenta."
+    confirmText="Desvincular Cuenta"
+    loading={isDisconnecting}
+    onconfirm={handleDisconnect}
+/>
+
+<!-- Modal Informativo: Configuración Local Requerida -->
+<Dialog bind:open={isConfigInfoModalOpen}>
+    <DialogContent class="max-w-lg p-5 sm:p-6">
+        <DialogHeader class="space-y-2">
+            <div class="flex items-center gap-3">
+                <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                    <AlertTriangle class="size-5" />
+                </div>
+                <div>
+                    <DialogTitle class="text-base sm:text-lg font-bold text-foreground">
+                        Configuración de Mercado Pago pendiente
+                    </DialogTitle>
+                    <DialogDescription class="text-xs text-muted-foreground mt-0.5">
+                        El servidor no tiene configuradas las credenciales de integración OAuth 2.0.
+                    </DialogDescription>
+                </div>
+            </div>
+        </DialogHeader>
+
+        <DialogBody class="space-y-4 py-2">
+            <div class="rounded-xl border border-border/70 bg-muted/30 p-3.5 space-y-2 text-xs">
+                <div class="flex items-center gap-2 font-semibold text-foreground">
+                    <Terminal class="size-4 text-primary" />
+                    <span>Variables requeridas en tu archivo <code class="bg-muted px-1.5 py-0.5 rounded font-mono text-[11px]">.env</code>:</span>
+                </div>
+                <div class="space-y-1 font-mono text-[11px] bg-background/80 p-2.5 rounded-lg border border-border/60 text-muted-foreground">
+                    <p class="text-foreground">MERCADO_PAGO_CLIENT_ID=<span class="text-muted-foreground">tu_client_id</span></p>
+                    <p class="text-foreground">MERCADO_PAGO_CLIENT_SECRET=<span class="text-muted-foreground">tu_client_secret</span></p>
+                </div>
+            </div>
+
+            <div class="rounded-xl border border-border/70 bg-muted/30 p-3.5 space-y-2 text-xs">
+                <div class="flex items-center gap-2 font-semibold text-foreground">
+                    <ShieldCheck class="size-4 text-emerald-600 dark:text-emerald-400" />
+                    <span>Requisitos para vincular con OAuth 2.0:</span>
+                </div>
+                <ul class="list-disc list-inside space-y-1 text-muted-foreground text-[12px] leading-relaxed">
+                    <li>Mercado Pago <strong>requiere protocolo HTTPS</strong> para la URL de redirección (callback).</li>
+                    <li>En desarrollo local se necesita un túnel HTTPS (como ngrok, expose o Cloudflare Tunnel), o bien realizar las pruebas en el entorno de Render (producción/staging).</li>
+                    <li>Registrar la URL de retorno (<code class="font-mono text-[11px]">.../tenant/configuracion/mercadopago/callback</code>) en tu aplicación de Mercado Pago Developers.</li>
+                </ul>
+            </div>
+        </DialogBody>
+
+        <DialogFooter class="pt-2 flex justify-end gap-2">
+            <Button
+                variant="default"
+                class="min-h-[40px] px-5 rounded-xl text-xs font-semibold cursor-pointer"
+                onclick={() => (isConfigInfoModalOpen = false)}
+            >
+                Entendido
+            </Button>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>

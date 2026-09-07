@@ -60,6 +60,10 @@ test('test seeder populates 4 tenants with specialized roles, products, clients 
     setPermissionsTeamId($tenantSol->id);
     $this->assertTrue($stockUser->hasRole('Gestor de Stock'));
 
+    $driverUser = User::where('email', 'chofer.sol@papelera.test')->first();
+    $this->assertNotNull($driverUser);
+    $this->assertTrue($driverUser->hasRole('Repartidor / Chofer'));
+
     // 6. Verificar Pedidos a Clientes
     $ordersSol = CustomerOrder::where('tenant_id', $tenantSol->id)->get();
     $this->assertTrue($ordersSol->count() >= 5);
@@ -82,7 +86,36 @@ test('test seeder populates 4 tenants with specialized roles, products, clients 
     $rolesResponse->assertOk();
     $rolesResponse->assertInertia(fn (AssertableInertia $page) => $page
         ->component('tenant/roles/Index')
-        ->has('roles', 2)
-        ->where('roles.0.name', fn ($name) => in_array($name, ['Gestor de Stock', 'Vendedor / Cajero']))
+        ->has('roles', 3)
+        ->where('roles.0.name', fn ($name) => in_array($name, ['Gestor de Stock', 'Vendedor / Cajero', 'Repartidor / Chofer']))
     );
+
+    // 10. Verificar Sincronización de Secuencias Atómicas por Tenant
+    $this->assertDatabaseHas('tenant_sequences', [
+        'tenant_id' => $tenantSol->id,
+        'sequence_type' => 'customer_order',
+        'current_number' => 7,
+    ]);
+    $this->assertDatabaseHas('tenant_sequences', [
+        'tenant_id' => $tenantSol->id,
+        'sequence_type' => 'supplier_order',
+        'current_number' => 3,
+    ]);
+    $this->assertDatabaseHas('tenant_sequences', [
+        'tenant_id' => $tenantSol->id,
+        'sequence_type' => 'receipt',
+        'current_number' => 3,
+    ]);
+
+    // 11. Verificar Consistencia Contable en Cuentas Corrientes
+    $ateneo = Customer::where('tenant_id', $tenantSol->id)->where('name', 'Librería El Ateneo Central')->first();
+    $this->assertEquals(0.00, (float) $ateneo->current_balance);
+    $this->assertFalse((bool) $ateneo->is_defaulter);
+
+    $grafica = Customer::where('tenant_id', $tenantSol->id)->where('name', 'Gráfica Central SRL')->first();
+    $this->assertEquals(110000.00, (float) $grafica->current_balance);
+
+    $norte = Customer::where('tenant_id', $tenantSol->id)->where('name', 'Distribuidora Mayorista Norte')->first();
+    $this->assertEquals(98500.00, (float) $norte->current_balance);
+    $this->assertTrue((bool) $norte->is_defaulter);
 });

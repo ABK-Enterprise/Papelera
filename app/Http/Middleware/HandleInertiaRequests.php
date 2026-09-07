@@ -75,6 +75,11 @@ class HandleInertiaRequests extends Middleware
                 'is_admin' => $user ? ($user->isSuperAdmin() || in_array('admin', $roles)) : false,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'flash' => [
+                'error' => $request->session()->get('error'),
+                'success' => $request->session()->get('success'),
+                'status' => $request->session()->get('status'),
+            ],
         ];
     }
 }

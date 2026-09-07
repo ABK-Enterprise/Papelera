@@ -486,6 +486,13 @@
                                         type="number"
                                         step={form.sale_type === 'weight' ? '0.001' : '1'}
                                         min="0"
+                                        max="10000"
+                                        maxlength="5"
+                                        oninput={(e) => {
+                                            const val = (e.target as HTMLInputElement).value;
+                                            if (val.length > 5) (e.target as HTMLInputElement).value = val.slice(0, 5);
+                                            if (Number(val) > 10000) form.stock = 10000;
+                                        }}
                                         bind:value={form.stock}
                                         disabled={!!product}
                                         class="h-9 text-xs rounded-xl text-center font-bold font-sans tabular-nums {product ? 'bg-muted/50 cursor-not-allowed opacity-80' : ''}"

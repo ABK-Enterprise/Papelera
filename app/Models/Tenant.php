@@ -17,10 +17,33 @@ use Laravel\Scout\Searchable;
  * @property string|null $cuit_tax_id
  * @property bool $is_active
  * @property string $default_bulk_discount_percentage
+ * @property string|null $mp_user_id
+ * @property string|null $mp_access_token
+ * @property string|null $mp_public_key
+ * @property string|null $mp_refresh_token
+ * @property bool $mp_live_mode
+ * @property string|null $mp_nickname
+ * @property string|null $mp_email
+ * @property string|null $mp_pos_id
+ * @property Carbon|null $mp_linked_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'cuit_tax_id', 'is_active', 'default_bulk_discount_percentage'])]
+#[Fillable([
+    'name',
+    'cuit_tax_id',
+    'is_active',
+    'default_bulk_discount_percentage',
+    'mp_user_id',
+    'mp_access_token',
+    'mp_public_key',
+    'mp_refresh_token',
+    'mp_live_mode',
+    'mp_nickname',
+    'mp_email',
+    'mp_pos_id',
+    'mp_linked_at',
+])]
 class Tenant extends Model
 {
     /** @use HasFactory<TenantFactory> */
@@ -47,6 +70,8 @@ class Tenant extends Model
         return [
             'is_active' => 'boolean',
             'default_bulk_discount_percentage' => 'decimal:2',
+            'mp_live_mode' => 'boolean',
+            'mp_linked_at' => 'datetime',
         ];
     }
 

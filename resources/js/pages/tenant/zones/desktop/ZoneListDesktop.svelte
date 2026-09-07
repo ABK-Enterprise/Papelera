@@ -20,7 +20,13 @@
 
 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
     {#each zones as zone (zone.id)}
-        <Card class="rounded-2xl border border-border/80 bg-card p-5 space-y-4 hover:shadow-lg hover:shadow-accent/20 transition-all duration-200">
+        <Card
+            role="button"
+            tabindex={0}
+            onclick={() => onedit(zone)}
+            onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onedit(zone)}
+            class="rounded-2xl border border-border/80 bg-card p-5 space-y-4 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-border transition-all duration-200 cursor-pointer select-none"
+        >
             <!-- Grid de 2x2 según especificación de requerimientos -->
             <div class="grid grid-cols-2 gap-3">
                 <!-- Fila 1 (Span 2): Nombre de la Zona + Badge de Estado -->
@@ -72,22 +78,28 @@
                 </div>
             </div>
 
-            <!-- Botones de Acción -->
-            <div class="flex items-center justify-end gap-2 pt-1 border-t border-border/40">
+            <!-- Botones de Acción (Separados por pt-3.5 del separador horizontal) -->
+            <div class="flex items-center justify-end gap-2 pt-3.5 border-t border-border/50">
                 <Button
                     variant="tertiary"
                     size="sm"
-                    class="h-9 px-3.5 rounded-xl text-xs font-semibold gap-1.5"
-                    onclick={() => onedit(zone)}
+                    class="h-9 px-3.5 rounded-xl text-xs font-semibold gap-1.5 min-h-[36px]"
+                    onclick={(e) => {
+                        e.stopPropagation();
+                        onedit(zone);
+                    }}
                 >
                     <Pencil class="size-3.5" />
                     Editar zona
                 </Button>
                 <Button
-                    variant="ghost"
+                    variant="destructive"
                     size="sm"
-                    class="h-9 px-3 rounded-xl text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive gap-1.5"
-                    onclick={() => ondelete(zone)}
+                    class="h-9 px-3.5 rounded-xl text-xs font-semibold gap-1.5 min-h-[36px] bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                    onclick={(e) => {
+                        e.stopPropagation();
+                        ondelete(zone);
+                    }}
                 >
                     <Trash2 class="size-3.5" />
                     Eliminar

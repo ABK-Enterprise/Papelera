@@ -193,6 +193,12 @@
                                 type="number"
                                 step="0.01"
                                 min="0.01"
+                                max="50000000"
+                                maxlength="9"
+                                oninput={(e) => {
+                                    const target = e.target as HTMLInputElement;
+                                    if (target.value.length > 9) target.value = target.value.slice(0, 9);
+                                }}
                                 bind:value={amount}
                                 class="pl-7 text-base tabular-nums font-bold"
                                 placeholder="0.00"

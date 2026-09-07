@@ -18,7 +18,7 @@ class RecordCustomerPaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'amount' => ['required', 'numeric', 'min:0.01'],
+            'amount' => ['required', 'numeric', 'min:0.01', 'max:50000000'],
             'payment_method' => ['required', 'string', 'in:efectivo,transferencia,cheque,tarjeta,otro'],
             'reference_number' => ['nullable', 'string', 'max:100'],
             'notes' => ['nullable', 'string', 'max:500'],

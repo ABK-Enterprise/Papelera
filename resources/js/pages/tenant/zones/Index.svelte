@@ -68,35 +68,40 @@
 
 <AppHead title="Zonas de Envío" description="Gestión de tarifas y zonas de distribución" />
 
-<div class="space-y-6">
-    <!-- Cabecera del Módulo (Separación de 24-30px respecto al cuerpo) -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+<div class="flex flex-col gap-6 w-full">
+    <!-- Cabecera del Módulo (Separada homogéneamente del cuerpo por gap-6 / 24-30px) -->
+    <div class="flex flex-col gap-1">
+        <div class="flex items-center gap-2.5">
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
                 <div class="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                     <MapPin class="size-5" />
                 </div>
-                Zonas de Envío
+                <span>Zonas de Envío</span>
             </h1>
-            <p class="text-sm text-muted-foreground mt-1">
-                Configura los porcentajes de recargo y distancias de referencia para la distribución logística.
-            </p>
+            <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums">
+                {zones.length} {zones.length === 1 ? 'zona' : 'zonas'}
+            </span>
         </div>
-
-        <div class="flex justify-end">
-            <Button
-                variant="default"
-                class="h-10 sm:h-11 px-4 sm:px-5 rounded-xl font-semibold gap-2 shadow-sm min-h-[40px] sm:min-h-[44px] text-xs sm:text-sm"
-                onclick={openCreateModal}
-            >
-                <Plus class="size-4" />
-                Nueva Zona de Envío
-            </Button>
-        </div>
+        <p class="text-sm text-muted-foreground mt-0.5 max-w-prose">
+            Configura los porcentajes de recargo y distancias de referencia para la distribución logística.
+        </p>
     </div>
 
-    <!-- Barra de Búsqueda -->
-    <Card class="rounded-2xl border border-border/80 bg-card p-3.5 shadow-xs">
+    <!-- Botón de Acción Principal (Por fuera y encima del contenedor del searchbar) -->
+    <div class="flex items-center justify-end w-full">
+        <Button
+            variant="default"
+            class="min-h-[40px] sm:min-h-[44px] px-4 sm:px-5 rounded-xl font-semibold gap-2 shadow-xs text-xs sm:text-sm w-auto cursor-pointer"
+            onclick={openCreateModal}
+        >
+            <Plus class="size-4" />
+            <span class="hidden sm:inline">Nueva zona de envío</span>
+            <span class="inline sm:hidden">Nueva zona</span>
+        </Button>
+    </div>
+
+    <!-- Contenedor del Buscador -->
+    <Card class="rounded-xl sm:rounded-2xl border border-border/80 bg-card p-3.5 sm:p-4 shadow-xs">
         <div class="w-full sm:max-w-md">
             <SearchCombobox
                 bind:value={searchTerm}

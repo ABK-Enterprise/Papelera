@@ -65,12 +65,18 @@ class MercadoPagoWebhookController extends Controller
 
             if (! $order) {
                 Log::warning("Mercado Pago webhook: Order {$externalRef} not found in database");
+
                 return response()->json(['status' => 'ignored', 'reason' => 'Order not found'], 200);
             }
 
             // Idempotencia: si ya está totalmente cobrado, no duplicar cobros
             if ($order->payment_status === 'cobrado') {
                 return response()->json(['status' => 'already_paid'], 200);
+            }
+
+            // Inmutabilidad: si el pedido fue cancelado, ignorar notificación de cobro
+            if ($order->status === 'cancelado') {
+                return response()->json(['status' => 'ignored', 'reason' => 'Order is cancelled'], 200);
             }
 
             $paidAmount = (float) ($data['total_paid_amount'] ?? $data['total_amount'] ?? $order->debt_amount);

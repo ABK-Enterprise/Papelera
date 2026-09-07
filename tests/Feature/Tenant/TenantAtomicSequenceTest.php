@@ -117,3 +117,53 @@ test('3. Creacion de pedidos en API utiliza secuencias atomicas y aplica bloqueo
     expect((float) $prodA->stock)->toBe(475.0)
         ->and((float) $prodB->stock)->toBe(290.0);
 });
+
+test('4. Auto-sanacion resiliente de secuencias cuando existen registros preexistentes o sembrados', function () {
+    $seqService = app(TenantSequenceService::class);
+
+    // Insertamos pedidos físicos directamente (como hace un seeder con números fijos)
+    CustomerOrder::create([
+        'tenant_id' => $this->tenant1->id,
+        'order_number' => 'PED-0001',
+        'customer_name' => 'Cliente Existente 1',
+        'status' => 'entregado',
+        'total_amount' => 1000,
+        'debt_amount' => 0,
+    ]);
+    CustomerOrder::create([
+        'tenant_id' => $this->tenant1->id,
+        'order_number' => 'PED-0002',
+        'customer_name' => 'Cliente Existente 2',
+        'status' => 'entregado',
+        'total_amount' => 2000,
+        'debt_amount' => 0,
+    ]);
+    CustomerOrder::create([
+        'tenant_id' => $this->tenant1->id,
+        'order_number' => 'PED-0003',
+        'customer_name' => 'Cliente Existente 3',
+        'status' => 'entregado',
+        'total_amount' => 3000,
+        'debt_amount' => 0,
+    ]);
+
+    // La secuencia en tenant_sequences aún no existe o está en 0.
+    // Con auto-sanación, debe detectar que 1, 2 y 3 están tomados físicamente y retornar PED-0004
+    $next = $seqService->nextCustomerOrderNumber($this->tenant1->id);
+    expect($next)->toBe('PED-0004');
+
+    // La siguiente llamada debe continuar en PED-0005
+    expect($seqService->nextCustomerOrderNumber($this->tenant1->id))->toBe('PED-0005');
+});
+
+test('5. ensureMinimum actualiza la secuencia al valor especificado si el actual es menor', function () {
+    $seqService = app(TenantSequenceService::class);
+
+    $seqService->ensureMinimum($this->tenant1->id, 'customer_order', 10);
+    expect($seqService->nextCustomerOrderNumber($this->tenant1->id))->toBe('PED-0011');
+
+    // Si llamamos con un valor menor, no debe retroceder la secuencia
+    $seqService->ensureMinimum($this->tenant1->id, 'customer_order', 5);
+    expect($seqService->nextCustomerOrderNumber($this->tenant1->id))->toBe('PED-0012');
+});
+

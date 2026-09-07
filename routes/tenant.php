@@ -15,6 +15,7 @@ use App\Http\Controllers\Tenant\Stock\StockOutcomeController;
 use App\Http\Controllers\Tenant\ShippingZoneController;
 use App\Http\Controllers\Tenant\SupplierController;
 use App\Http\Controllers\Tenant\SupplierOrderController;
+use App\Http\Controllers\Tenant\TenantMercadoPagoController;
 use App\Http\Controllers\Tenant\UserController;
 use App\Http\Controllers\Tenant\WarehouseController;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +44,15 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('configuracion/zonas', [ShippingZoneController::class, 'store'])->name('shipping-zones.store');
             Route::put('configuracion/zonas/{shippingZone}', [ShippingZoneController::class, 'update'])->name('shipping-zones.update');
             Route::delete('configuracion/zonas/{shippingZone}', [ShippingZoneController::class, 'destroy'])->name('shipping-zones.destroy');
+        });
+
+        // Mercado Pago Configuration (Restricted to Tenant Admin)
+        Route::middleware('tenant.admin')->group(function () {
+            Route::get('configuracion/mercadopago', [TenantMercadoPagoController::class, 'index'])->name('settings.mercadopago');
+            Route::get('configuracion/mercadopago/vincular', [TenantMercadoPagoController::class, 'connect'])->name('settings.mercadopago.connect');
+            Route::get('configuracion/mercadopago/callback', [TenantMercadoPagoController::class, 'callback'])->name('settings.mercadopago.callback');
+            Route::post('configuracion/mercadopago/desvincular', [TenantMercadoPagoController::class, 'disconnect'])->name('settings.mercadopago.disconnect');
+            Route::put('configuracion/mercadopago/pos', [TenantMercadoPagoController::class, 'updatePos'])->name('settings.mercadopago.pos');
         });
 
         // Products & Categories Management (Productos module)

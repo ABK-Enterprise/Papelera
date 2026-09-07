@@ -72,7 +72,7 @@
 
 <AppHead title="Gestión de Depósitos - Configuración" />
 
-<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
+<div class="flex flex-col gap-6 w-full">
     <!-- Encabezado y Acciones Principales con Botones Equilibrados -->
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>

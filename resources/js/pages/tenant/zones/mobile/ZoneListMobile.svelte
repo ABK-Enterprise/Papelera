@@ -61,8 +61,8 @@
                 </div>
             </div>
 
-            <!-- Acciones Mobile -->
-            <div class="grid grid-cols-2 gap-2 pt-1 border-t border-border/40">
+            <!-- Acciones Mobile (Separadas por pt-3.5 del separador horizontal) -->
+            <div class="grid grid-cols-2 gap-2 pt-3.5 border-t border-border/50">
                 <Button
                     variant="tertiary"
                     size="sm"
@@ -73,9 +73,9 @@
                     Editar
                 </Button>
                 <Button
-                    variant="ghost"
+                    variant="destructive"
                     size="sm"
-                    class="h-10 rounded-xl text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive gap-1.5 w-full min-h-[40px]"
+                    class="h-10 rounded-xl text-xs font-semibold gap-1.5 w-full min-h-[40px] bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-destructive-foreground transition-colors"
                     onclick={() => ondelete(zone)}
                 >
                     <Trash2 class="size-3.5" />
