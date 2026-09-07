@@ -87,30 +87,29 @@
         </p>
     </div>
 
-    <!-- Primer Elemento del Cuerpo: Toolbar con Buscador y Acción Principal -->
-    <Card class="rounded-xl sm:rounded-2xl border border-border/80 bg-card p-3.5 sm:p-4 shadow-xs">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div class="w-full sm:max-w-md">
-                <SearchCombobox
-                    bind:value={searchTerm}
-                    items={zones}
-                    searchKeys={['name']}
-                    placeholder="Buscar zona por nombre o distancia..."
-                    onclear={() => (searchTerm = '')}
-                />
-            </div>
+    <!-- Botón de Acción Principal (Por fuera y encima del contenedor del searchbar) -->
+    <div class="flex items-center justify-end w-full">
+        <Button
+            variant="default"
+            class="min-h-[40px] sm:min-h-[44px] px-4 sm:px-5 rounded-xl font-semibold gap-2 shadow-xs text-xs sm:text-sm w-auto cursor-pointer"
+            onclick={openCreateModal}
+        >
+            <Plus class="size-4" />
+            <span class="hidden sm:inline">Nueva zona de envío</span>
+            <span class="inline sm:hidden">Nueva zona</span>
+        </Button>
+    </div>
 
-            <div class="flex items-center justify-end w-full sm:w-auto">
-                <Button
-                    variant="default"
-                    class="min-h-[40px] sm:min-h-[44px] px-4 sm:px-5 rounded-xl font-semibold gap-2 shadow-xs text-xs sm:text-sm self-end sm:self-auto"
-                    onclick={openCreateModal}
-                >
-                    <Plus class="size-4" />
-                    <span class="hidden sm:inline">Nueva zona de envío</span>
-                    <span class="inline sm:hidden">Nueva zona</span>
-                </Button>
-            </div>
+    <!-- Contenedor del Buscador -->
+    <Card class="rounded-xl sm:rounded-2xl border border-border/80 bg-card p-3.5 sm:p-4 shadow-xs">
+        <div class="w-full sm:max-w-md">
+            <SearchCombobox
+                bind:value={searchTerm}
+                items={zones}
+                searchKeys={['name']}
+                placeholder="Buscar zona por nombre o distancia..."
+                onclear={() => (searchTerm = '')}
+            />
         </div>
     </Card>
 
