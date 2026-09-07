@@ -14,6 +14,7 @@
     } from '@/components/ui/dialog';
     import AppPagination from '@/components/common/AppPagination.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
+    import PdfPreviewModal from '@/components/common/PdfPreviewModal.svelte';
     import ReceiptListDesktop, { type ReceiptItem } from './desktop/ReceiptListDesktop.svelte';
     import ReceiptListMobile from './mobile/ReceiptListMobile.svelte';
     import { router } from '@inertiajs/svelte';
@@ -55,6 +56,14 @@
     let isVoidModalOpen = $state(false);
     let isSubmittingVoid = $state(false);
     let voidErrorMessage = $state<string | null>(null);
+
+    let isPdfModalOpen = $state(false);
+    let selectedReceiptForPdf = $state<ReceiptItem | null>(null);
+
+    function handlePreviewPdf(receipt: ReceiptItem) {
+        selectedReceiptForPdf = receipt;
+        isPdfModalOpen = true;
+    }
 
     const paymentMethods = [
         { value: 'all', label: 'Todos los métodos' },
@@ -265,12 +274,20 @@
 
     <!-- Lista Desktop -->
     <div class="hidden md:block">
-        <ReceiptListDesktop receipts={receipts.data} onRequestVoid={requestVoid} />
+        <ReceiptListDesktop
+            receipts={receipts.data}
+            onRequestVoid={requestVoid}
+            onPreviewPdf={handlePreviewPdf}
+        />
     </div>
 
     <!-- Lista Mobile -->
     <div class="block md:hidden">
-        <ReceiptListMobile receipts={receipts.data} onRequestVoid={requestVoid} />
+        <ReceiptListMobile
+            receipts={receipts.data}
+            onRequestVoid={requestVoid}
+            onPreviewPdf={handlePreviewPdf}
+        />
     </div>
 
     <!-- Paginación -->
@@ -280,6 +297,17 @@
         </div>
     {/if}
 </div>
+
+<!-- Modal de Previsualización y Descarga de Recibo Oficial (PDF) -->
+{#if selectedReceiptForPdf}
+    <PdfPreviewModal
+        bind:open={isPdfModalOpen}
+        title="Recibo Oficial de Cobranza (Recibo X)"
+        orderNumber={selectedReceiptForPdf.receipt_number}
+        previewUrl={`/tenant/cobranzas/recibos/${selectedReceiptForPdf.id}/previsualizar-pdf`}
+        downloadUrl={`/tenant/cobranzas/recibos/${selectedReceiptForPdf.id}/pdf`}
+    />
+{/if}
 
 <!-- Modal de Anulación de Recibo -->
 <Dialog bind:open={isVoidModalOpen}>

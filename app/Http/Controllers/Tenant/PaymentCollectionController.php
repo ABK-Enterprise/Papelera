@@ -15,6 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class PaymentCollectionController extends Controller
 {
@@ -248,5 +249,54 @@ class PaymentCollectionController extends Controller
         }
 
         return back()->with('success', "Recibo {$voidedReceipt->receipt_number} anulado correctamente.");
+    }
+
+    /**
+     * Download the receipt PDF document.
+     */
+    public function downloadPdf(Request $request, Receipt $receipt)
+    {
+        if ($receipt->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        $receipt->load([
+            'tenant',
+            'customer',
+            'createdByUser:id,name',
+            'cancelledByUser:id,name',
+            'orderAllocations.order:id,order_number,total_amount,paid_amount,debt_amount',
+        ]);
+
+        return Pdf::view('pdf.receipt', [
+            'receipt' => $receipt,
+        ])
+            ->format('a4')
+            ->name("recibo-{$receipt->receipt_number}.pdf")
+            ->download();
+    }
+
+    /**
+     * Preview the receipt PDF document inline.
+     */
+    public function previewPdf(Request $request, Receipt $receipt)
+    {
+        if ($receipt->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        $receipt->load([
+            'tenant',
+            'customer',
+            'createdByUser:id,name',
+            'cancelledByUser:id,name',
+            'orderAllocations.order:id,order_number,total_amount,paid_amount,debt_amount',
+        ]);
+
+        return Pdf::view('pdf.receipt', [
+            'receipt' => $receipt,
+        ])
+            ->format('a4')
+            ->inline("recibo-{$receipt->receipt_number}.pdf");
     }
 }

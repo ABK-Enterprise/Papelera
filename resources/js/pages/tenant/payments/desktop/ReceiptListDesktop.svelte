@@ -5,6 +5,7 @@
     import User from 'lucide-svelte/icons/user';
     import ReceiptText from 'lucide-svelte/icons/receipt-text';
     import Calendar from 'lucide-svelte/icons/calendar';
+    import Printer from 'lucide-svelte/icons/printer';
 
     export interface ReceiptItem {
         id: number;
@@ -26,9 +27,11 @@
     let {
         receipts = [],
         onRequestVoid = undefined,
+        onPreviewPdf = undefined,
     }: {
         receipts: ReceiptItem[];
         onRequestVoid?: (receipt: ReceiptItem) => void;
+        onPreviewPdf?: (receipt: ReceiptItem) => void;
     } = $props();
 
     function formatPrice(val: number | string) {
@@ -122,20 +125,31 @@
                                 {/if}
                             </td>
                             <td class="px-4 py-3 text-right">
-                                {#if !rc.is_cancelled}
+                                <div class="flex items-center justify-end gap-1.5">
                                     <Button
                                         type="button"
                                         variant="outline"
                                         size="sm"
-                                        class="h-8 px-2.5 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 gap-1 rounded-lg"
-                                        onclick={() => onRequestVoid?.(rc)}
+                                        class="h-8 min-h-[32px] px-2.5 text-xs text-foreground hover:bg-muted/80 gap-1 rounded-lg cursor-pointer"
+                                        onclick={() => onPreviewPdf?.(rc)}
+                                        title="Ver e imprimir comprobante oficial"
                                     >
-                                        <Ban class="size-3" />
-                                        <span>Anular</span>
+                                        <Printer class="size-3 text-muted-foreground" />
+                                        <span>PDF</span>
                                     </Button>
-                                {:else}
-                                    <span class="text-[10px] text-muted-foreground italic">Sin acciones</span>
-                                {/if}
+                                    {#if !rc.is_cancelled}
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            class="h-8 min-h-[32px] px-2.5 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 gap-1 rounded-lg cursor-pointer"
+                                            onclick={() => onRequestVoid?.(rc)}
+                                        >
+                                            <Ban class="size-3" />
+                                            <span>Anular</span>
+                                        </Button>
+                                    {/if}
+                                </div>
                             </td>
                         </tr>
                     {/each}
