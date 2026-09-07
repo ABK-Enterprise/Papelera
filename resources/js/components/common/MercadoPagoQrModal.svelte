@@ -275,31 +275,30 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="w-[95vw] max-w-md p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-card border-border shadow-2xl flex flex-col">
-        <DialogHeader class="border-b pb-3 shrink-0">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <IconContainer variant="primary" size="md">
-                        <QrCodeIcon class="size-5" />
-                    </IconContainer>
-                    <div>
-                        <DialogTitle class="text-base sm:text-lg font-bold text-foreground">
-                            Cobro QR Mercado Pago
-                        </DialogTitle>
-                        <DialogDescription class="text-xs text-muted-foreground">
-                            {order?.order_number ? `Pedido ${order.order_number}` : 'Cobro presencial en mostrador o entrega'}
-                        </DialogDescription>
-                    </div>
-                </div>
+    <DialogContent class="w-[95vw] max-w-md p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-card border-border shadow-2xl flex flex-col relative">
+        <!-- Botón de Cerrar en esquina con borde redondeado y fondo temático (light/dark) -->
+        <button
+            type="button"
+            onclick={handleClose}
+            class="absolute top-4 right-4 sm:top-5 sm:right-6 size-9 sm:size-10 rounded-full border border-border/80 bg-background/80 hover:bg-muted text-muted-foreground hover:text-foreground dark:bg-background-900/80 dark:border-border/80 dark:hover:bg-background-800 dark:text-muted-foreground dark:hover:text-foreground flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xs z-20"
+            aria-label="Cerrar modal"
+        >
+            <X class="size-4 sm:size-4.5" />
+        </button>
 
-                <button
-                    type="button"
-                    onclick={handleClose}
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
-                    aria-label="Cerrar modal"
-                >
-                    <X class="size-4" />
-                </button>
+        <DialogHeader class="border-b pb-3 shrink-0 pr-12">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <IconContainer variant="primary" size="md">
+                    <QrCodeIcon class="size-5" />
+                </IconContainer>
+                <div class="min-w-0">
+                    <DialogTitle class="text-base sm:text-lg font-bold text-foreground truncate">
+                        Cobro QR Mercado Pago
+                    </DialogTitle>
+                    <DialogDescription class="text-xs text-muted-foreground truncate">
+                        {order?.order_number ? `Pedido ${order.order_number}` : 'Cobro presencial en mostrador o entrega'}
+                    </DialogDescription>
+                </div>
             </div>
         </DialogHeader>
 

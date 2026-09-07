@@ -1,11 +1,9 @@
 <?php
 
 use App\Events\Tenant\CustomerOrderPaymentReceived;
-use App\Models\Category;
 use App\Models\Customer;
 use App\Models\CustomerOrder;
 use App\Models\Module;
-use App\Models\Product;
 use App\Models\Receipt;
 use App\Models\Tenant;
 use App\Models\User;
@@ -80,7 +78,9 @@ test('generating qr code sends correct payload to mercado pago orders api and re
 
     Http::assertSent(function ($request) {
         return $request->url() === 'https://api.mercadopago.com/v1/orders' &&
+               $request['type'] === 'qr' &&
                $request['total_amount'] === '1500.00' &&
+               $request['transactions']['payments'][0]['amount'] === '1500.00' &&
                $request['external_reference'] === 'PED-TEST-0001' &&
                $request['config']['qr']['mode'] === 'hybrid';
     });
@@ -107,7 +107,9 @@ test('generating qr code with custom amount sends modified amount to mercado pag
         ]);
 
     Http::assertSent(function ($request) {
-        return $request['total_amount'] === '2000.00';
+        return $request['type'] === 'qr' &&
+               $request['total_amount'] === '2000.00' &&
+               $request['transactions']['payments'][0]['amount'] === '2000.00';
     });
 });
 
@@ -187,7 +189,7 @@ test('webhook processes approved payment, creates receipt and broadcasts event',
 
     $response = $this->call(
         'POST',
-        route('api.webhooks.mercadopago') . "?data_id={$dataId}",
+        route('api.webhooks.mercadopago')."?data_id={$dataId}",
         [],
         [],
         [],
@@ -225,7 +227,7 @@ test('webhook processes approved payment, creates receipt and broadcasts event',
     // Verify idempotency on second delivery
     $responseSecond = $this->call(
         'POST',
-        route('api.webhooks.mercadopago') . "?data_id={$dataId}",
+        route('api.webhooks.mercadopago')."?data_id={$dataId}",
         [],
         [],
         [],

@@ -10,9 +10,13 @@ use Illuminate\Support\Str;
 class MercadoPagoService
 {
     protected ?string $token;
+
     protected ?string $userId;
+
     protected string $baseUrl;
+
     protected string $defaultPosId;
+
     protected ?string $webhookSecret;
 
     public function __construct()
@@ -40,6 +44,7 @@ class MercadoPagoService
         $idempotencyKey = Str::uuid()->toString();
 
         $payload = [
+            'type' => 'qr',
             'external_reference' => $order->order_number,
             'total_amount' => $formattedAmount,
             'description' => "Cobro {$order->order_number} - Papelera",
@@ -48,6 +53,13 @@ class MercadoPagoService
                 'qr' => [
                     'external_pos_id' => $posId,
                     'mode' => 'hybrid',
+                ],
+            ],
+            'transactions' => [
+                'payments' => [
+                    [
+                        'amount' => $formattedAmount,
+                    ],
                 ],
             ],
             'items' => [
@@ -72,6 +84,7 @@ class MercadoPagoService
 
             if ($response->successful()) {
                 $data = $response->json();
+
                 return [
                     'success' => true,
                     'order_id' => $data['id'] ?? null,
@@ -103,7 +116,7 @@ class MercadoPagoService
 
             return [
                 'success' => false,
-                'error' => 'No se pudo conectar con el servicio de Mercado Pago: ' . $e->getMessage(),
+                'error' => 'No se pudo conectar con el servicio de Mercado Pago: '.$e->getMessage(),
                 'status_code' => 500,
             ];
         }
@@ -121,7 +134,8 @@ class MercadoPagoService
 
             return $response->successful() ? $response->json() : null;
         } catch (\Throwable $e) {
-            Log::error('Mercado Pago getOrder exception: ' . $e->getMessage());
+            Log::error('Mercado Pago getOrder exception: '.$e->getMessage());
+
             return null;
         }
     }
@@ -159,13 +173,13 @@ class MercadoPagoService
 
         $parts = [];
         if ($dataId !== '') {
-            $parts[] = 'id:' . strtolower($dataId);
+            $parts[] = 'id:'.strtolower($dataId);
         }
         if ($xRequestId !== '') {
-            $parts[] = 'request-id:' . $xRequestId;
+            $parts[] = 'request-id:'.$xRequestId;
         }
-        $parts[] = 'ts:' . $ts;
-        $manifest = implode(';', $parts) . ';';
+        $parts[] = 'ts:'.$ts;
+        $manifest = implode(';', $parts).';';
 
         $computed = hash_hmac('sha256', $manifest, $key);
 

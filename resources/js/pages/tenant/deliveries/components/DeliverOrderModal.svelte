@@ -15,6 +15,7 @@
     import Coins from 'lucide-svelte/icons/coins';
     import AlertCircle from 'lucide-svelte/icons/alert-circle';
     import QrCode from 'lucide-svelte/icons/qr-code';
+    import ArrowRightLeft from 'lucide-svelte/icons/arrow-right-left';
 
     export interface DeliveryOrder {
         id: number;
@@ -55,6 +56,7 @@
 
     let paymentMode = $state<'paid_now' | 'on_credit'>('paid_now');
     let paymentMethod = $state<string>('efectivo');
+    let mpMode = $state<'qr' | 'transfer'>('qr');
     let amountToPay = $state<number>(0);
     let referenceNumber = $state<string>('');
     let deliveryNotes = $state<string>('');
@@ -82,6 +84,7 @@
             collectExtraBalance = false;
             paymentMode = currentDebt > 0 ? 'paid_now' : 'on_credit';
             paymentMethod = 'efectivo';
+            mpMode = 'qr';
         }
     });
 
@@ -113,6 +116,18 @@
                     return;
                 }
 
+                // Bifurcación FSM para Mercado Pago
+                if (paymentMethod === 'mercadopago') {
+                    if (mpMode === 'qr') {
+                        errorMessage = 'Para cobrar con QR en el momento, presiona "Generar y Mostrar QR". Si el cliente ya transfirió por alias, selecciona "Transfirió por Alias".';
+                        return;
+                    }
+                    if (mpMode === 'transfer' && !referenceNumber.trim()) {
+                        errorMessage = 'Por favor ingresa el número de comprobante u operación de la transferencia por Mercado Pago.';
+                        return;
+                    }
+                }
+
                 // Validaciones según si el cliente tiene o no cuenta corriente
                 if (!hasAccount) {
                     if (paymentMethod !== 'efectivo' && isOverpaid) {
@@ -138,12 +153,50 @@
                     errorMessage = 'El monto a cobrar debe ser mayor a cero.';
                     return;
                 }
+                if (paymentMethod === 'mercadopago' && mpMode === 'transfer' && !referenceNumber.trim()) {
+                    errorMessage = 'Por favor ingresa el número de comprobante u operación de la transferencia por Mercado Pago.';
+                    return;
+                }
                 isOverpaymentConfirmOpen = true;
                 return;
             }
         }
 
         executeDelivery();
+    }
+
+    function handleQrDelivered() {
+        if (!order) return;
+        isSubmitting = true;
+        errorMessage = null;
+
+        // Idempotencia FSM: El cobro ya fue acreditado por el Webhook/servicio de MP en backend.
+        // Finalizamos la entrega sin re-cobrar importe para evitar duplicar el recibo.
+        router.post(
+            `/tenant/repartos/${order.id}/entregar`,
+            {
+                payment_mode: 'on_credit',
+                payment_method: null,
+                amount: null,
+                reference_number: 'MP-QR-ACREDITADO',
+                delivery_notes: deliveryNotes.trim()
+                    ? `${deliveryNotes.trim()} (Cobrado en vivo con QR Mercado Pago)`
+                    : 'Cobrado en vivo con QR Mercado Pago',
+            },
+            {
+                onSuccess: () => {
+                    isSubmitting = false;
+                    isQrModalOpen = false;
+                    handleClose();
+                    if (onSuccess) onSuccess();
+                },
+                onError: (errors) => {
+                    isSubmitting = false;
+                    isQrModalOpen = false;
+                    errorMessage = Object.values(errors).flat().join(' ') || 'Error al registrar la finalización de entrega.';
+                },
+            }
+        );
     }
 
     function executeDelivery() {
@@ -295,16 +348,68 @@
                             </div>
 
                             {#if paymentMethod === 'mercadopago'}
-                                <div class="col-span-1 sm:col-span-2">
-                                    <Button
-                                        type="button"
-                                        variant="default"
-                                        class="w-full h-11 min-h-[44px] rounded-xl font-semibold gap-2 shadow-xs bg-sky-600 hover:bg-sky-700 text-white dark:bg-sky-600 dark:hover:bg-sky-700"
-                                        onclick={() => (isQrModalOpen = true)}
-                                    >
-                                        <QrCode class="size-4" />
-                                        <span>Mostrar Código QR de Mercado Pago</span>
-                                    </Button>
+                                <div class="col-span-1 sm:col-span-2 space-y-3 pt-1">
+                                    <div class="space-y-1.5">
+                                        <Label class="text-xs font-medium text-foreground">¿Cómo abona con Mercado Pago?</Label>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                            <button
+                                                type="button"
+                                                class="flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all min-h-[44px] cursor-pointer {mpMode === 'qr' ? 'border-sky-500 bg-sky-500/10 text-foreground font-semibold shadow-2xs' : 'border-border/80 bg-background/40 hover:bg-muted/30 text-muted-foreground'}"
+                                                onclick={() => (mpMode = 'qr')}
+                                            >
+                                                <QrCode class="size-4.5 text-sky-500 shrink-0" />
+                                                <div>
+                                                    <p class="text-xs font-semibold">QR en el acto</p>
+                                                    <p class="text-[11px] opacity-80">Escanea desde la app</p>
+                                                </div>
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                class="flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all min-h-[44px] cursor-pointer {mpMode === 'transfer' ? 'border-sky-500 bg-sky-500/10 text-foreground font-semibold shadow-2xs' : 'border-border/80 bg-background/40 hover:bg-muted/30 text-muted-foreground'}"
+                                                onclick={() => (mpMode = 'transfer')}
+                                            >
+                                                <ArrowRightLeft class="size-4.5 text-sky-500 shrink-0" />
+                                                <div>
+                                                    <p class="text-xs font-semibold">Transfirió por Alias</p>
+                                                    <p class="text-[11px] opacity-80">Muestra comprobante</p>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {#if mpMode === 'qr'}
+                                        <div class="space-y-2 p-3 rounded-xl bg-sky-500/10 border border-sky-500/20">
+                                            <Button
+                                                type="button"
+                                                variant="default"
+                                                class="w-full h-11 min-h-[44px] rounded-xl font-semibold gap-2 shadow-xs bg-sky-600 hover:bg-sky-700 text-white dark:bg-sky-600 dark:hover:bg-sky-700 cursor-pointer"
+                                                onclick={() => (isQrModalOpen = true)}
+                                            >
+                                                <QrCode class="size-4.5" />
+                                                <span>Generar y Mostrar QR</span>
+                                            </Button>
+                                            <p class="text-[11px] text-muted-foreground text-center">
+                                                Al escanear y abonar, el sistema detecta la acreditación en vivo y finaliza la entrega automáticamente.
+                                            </p>
+                                        </div>
+                                    {:else}
+                                        <div class="space-y-1.5">
+                                            <Label for="delivery-ref-mp" class="text-xs font-medium text-foreground">
+                                                Nº Comprobante / Operación de Mercado Pago <span class="text-rose-500">*</span>
+                                            </Label>
+                                            <Input
+                                                id="delivery-ref-mp"
+                                                type="text"
+                                                placeholder="Ej: 1049283741"
+                                                bind:value={referenceNumber}
+                                                class="h-11 min-h-[44px] bg-background border-border/80"
+                                            />
+                                            <p class="text-[11px] text-muted-foreground">
+                                                Ingresa el número de operación visible en la constancia provista por el cliente.
+                                            </p>
+                                        </div>
+                                    {/if}
                                 </div>
                             {/if}
 
@@ -334,7 +439,7 @@
                                 </div>
                             {/if}
 
-                            {#if paymentMethod !== 'efectivo'}
+                            {#if paymentMethod !== 'efectivo' && paymentMethod !== 'mercadopago'}
                                 <div class="col-span-1 sm:col-span-2 space-y-1.5">
                                     <Label for="delivery-ref" class="text-xs font-medium text-foreground">Nº Comprobante / Transacción (opcional)</Label>
                                     <Input
@@ -413,7 +518,23 @@
                                         </div>
                                     {/if}
 
-                                    {#if paymentMethod !== 'efectivo'}
+                                    {#if paymentMethod === 'mercadopago'}
+                                        <div class="col-span-1 sm:col-span-2 space-y-1.5">
+                                            <Label for="extra-ref-mp" class="text-xs font-medium text-foreground">
+                                                Nº Comprobante / Operación de Mercado Pago <span class="text-rose-500">*</span>
+                                            </Label>
+                                            <Input
+                                                id="extra-ref-mp"
+                                                type="text"
+                                                placeholder="Ej: 1049283741"
+                                                bind:value={referenceNumber}
+                                                class="h-11 min-h-[44px] bg-background border-border/80"
+                                            />
+                                            <p class="text-[11px] text-muted-foreground">
+                                                Ingresa el número de operación de la constancia de Mercado Pago.
+                                            </p>
+                                        </div>
+                                    {:else if paymentMethod !== 'efectivo'}
                                         <div class="col-span-1 sm:col-span-2 space-y-1.5">
                                             <Label for="extra-ref" class="text-xs font-medium text-foreground">Nº Comprobante / Transacción (opcional)</Label>
                                             <Input
@@ -508,9 +629,6 @@
                 current_balance: order.customer_current_balance
             } : undefined
         }}
-        onSuccess={() => {
-            referenceNumber = 'MP-QR-PAGADO';
-            executeDelivery();
-        }}
+        onSuccess={handleQrDelivered}
     />
 {/if}
