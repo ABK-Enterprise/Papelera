@@ -31,7 +31,17 @@ use Laravel\Scout\Searchable;
  */
 #[Fillable([
     'name',
+    'legal_name',
     'cuit_tax_id',
+    'tax_condition',
+    'address',
+    'city',
+    'state',
+    'postal_code',
+    'phone',
+    'email',
+    'gross_income_number',
+    'start_activity_date',
     'is_active',
     'default_bulk_discount_percentage',
     'mp_user_id',
@@ -61,6 +71,7 @@ class Tenant extends Model
         return [
             'id' => (int) $this->id,
             'name' => $this->name,
+            'legal_name' => $this->legal_name,
             'cuit_tax_id' => $this->cuit_tax_id,
         ];
     }
@@ -72,6 +83,7 @@ class Tenant extends Model
             'default_bulk_discount_percentage' => 'decimal:2',
             'mp_live_mode' => 'boolean',
             'mp_linked_at' => 'datetime',
+            'start_activity_date' => 'date',
         ];
     }
 

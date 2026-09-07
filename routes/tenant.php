@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Tenant\CategoryController;
+use App\Http\Controllers\Tenant\CompanySettingsController;
 use App\Http\Controllers\Tenant\CustomerAccountController;
 use App\Http\Controllers\Tenant\CustomerController;
 use App\Http\Controllers\Tenant\CustomerOrderController;
@@ -46,8 +47,10 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::delete('configuracion/zonas/{shippingZone}', [ShippingZoneController::class, 'destroy'])->name('shipping-zones.destroy');
         });
 
-        // Mercado Pago Configuration (Restricted to Tenant Admin)
+        // Company & Mercado Pago Configuration (Restricted to Tenant Admin)
         Route::middleware('tenant.admin')->group(function () {
+            Route::get('configuracion/comercio', [CompanySettingsController::class, 'edit'])->name('settings.company');
+            Route::put('configuracion/comercio', [CompanySettingsController::class, 'update'])->name('settings.company.update');
             Route::get('configuracion/mercadopago', [TenantMercadoPagoController::class, 'index'])->name('settings.mercadopago');
             Route::get('configuracion/mercadopago/vincular', [TenantMercadoPagoController::class, 'connect'])->name('settings.mercadopago.connect');
             Route::get('configuracion/mercadopago/callback', [TenantMercadoPagoController::class, 'callback'])->name('settings.mercadopago.callback');
@@ -115,6 +118,8 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::get('cobranzas', [PaymentCollectionController::class, 'index'])->name('payments.index')->middleware('tenant.permission:cobranzas.ver');
             Route::post('cobranzas', [PaymentCollectionController::class, 'store'])->name('payments.store')->middleware('tenant.permission:cobranzas.crear');
             Route::get('cobranzas/recibos', [PaymentCollectionController::class, 'receipts'])->name('payments.receipts')->middleware('tenant.permission:cobranzas.ver');
+            Route::get('cobranzas/recibos/{receipt}/pdf', [PaymentCollectionController::class, 'downloadPdf'])->name('payments.receipts.pdf')->middleware('tenant.permission:cobranzas.ver');
+            Route::get('cobranzas/recibos/{receipt}/previsualizar-pdf', [PaymentCollectionController::class, 'previewPdf'])->name('payments.receipts.preview-pdf')->middleware('tenant.permission:cobranzas.ver');
             Route::post('cobranzas/recibos/{receipt}/anular', [PaymentCollectionController::class, 'void'])->name('payments.receipts.void')->middleware('tenant.permission:cobranzas.anular');
         });
 

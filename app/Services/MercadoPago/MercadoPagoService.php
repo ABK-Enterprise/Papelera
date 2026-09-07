@@ -235,8 +235,15 @@ class MercadoPagoService
                 $storeId = (string) ($storesRes->json('results')[0]['id'] ?? '');
             }
 
-            // Si no tiene sucursal creada, se registra una sucursal default
+            // Si no tiene sucursal creada, se registra una sucursal con los datos reales del comercio
             if (! $storeId) {
+                $streetName = $tenant->address ?: 'Av. Principal';
+                $streetNumber = '100';
+                if (preg_match('/^(.*?)\s+(\d+.*)$/', (string) $tenant->address, $matches)) {
+                    $streetName = trim($matches[1]);
+                    $streetNumber = trim($matches[2]);
+                }
+
                 $storePayload = [
                     'name' => $tenant->name ?: 'Sucursal Principal',
                     'business_hours' => [
@@ -249,13 +256,13 @@ class MercadoPagoService
                     ],
                     'external_id' => 'SUC_' . ($tenant->id ?: '01'),
                     'location' => [
-                        'street_number' => '100',
-                        'street_name' => 'Av. Principal',
-                        'city_name' => 'Capital Federal',
-                        'state_name' => 'Buenos Aires',
+                        'street_number' => (string) $streetNumber,
+                        'street_name' => (string) $streetName,
+                        'city_name' => $tenant->city ?: 'Capital Federal',
+                        'state_name' => $tenant->state ?: 'Buenos Aires',
                         'latitude' => -34.6037,
                         'longitude' => -58.3816,
-                        'reference' => 'Local Comercial',
+                        'reference' => $tenant->legal_name ?: ($tenant->name ?: 'Local Comercial'),
                     ],
                 ];
 

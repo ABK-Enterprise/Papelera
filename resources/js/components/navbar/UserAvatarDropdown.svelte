@@ -4,6 +4,7 @@
     import Settings from 'lucide-svelte/icons/settings';
     import Shield from 'lucide-svelte/icons/shield';
     import Palette from 'lucide-svelte/icons/palette';
+    import Store from 'lucide-svelte/icons/store';
     import Building2 from 'lucide-svelte/icons/building-2';
     import MapPin from 'lucide-svelte/icons/map-pin';
     import CreditCard from 'lucide-svelte/icons/credit-card';
@@ -106,6 +107,18 @@
             <!-- Enlaces de Configuración -->
             <DropdownMenuGroup>
                 {#if tenant && isAdmin}
+                    <DropdownMenuItem asChild>
+                        {#snippet children(props)}
+                            <Link
+                                class="{props.class} flex items-center gap-2 cursor-pointer py-2 text-sm font-normal"
+                                href="/tenant/configuracion/comercio"
+                                prefetch
+                            >
+                                <Store class="h-4 w-4 text-muted-foreground" />
+                                <span>Datos del comercio</span>
+                            </Link>
+                        {/snippet}
+                    </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                         {#snippet children(props)}
                             <Link

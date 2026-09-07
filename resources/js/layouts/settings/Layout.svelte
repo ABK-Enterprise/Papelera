@@ -8,6 +8,7 @@
     import { edit as editAppearance } from '@/routes/appearance';
     import { edit as editProfile } from '@/routes/profile';
     import { edit as editSecurity } from '@/routes/security';
+    import Store from 'lucide-svelte/icons/store';
     import Building2 from 'lucide-svelte/icons/building-2';
     import MapPin from 'lucide-svelte/icons/map-pin';
     import CreditCard from 'lucide-svelte/icons/credit-card';
@@ -27,6 +28,11 @@
     let isAdmin = $derived(Boolean(page.props.auth?.is_admin || roles.includes('admin') || user?.is_superadmin));
 
     const commerceNavItems = [
+        {
+            title: 'Datos del Comercio',
+            href: '/tenant/configuracion/comercio',
+            icon: Store,
+        },
         {
             title: 'Depósitos',
             href: '/tenant/configuracion/depositos',
