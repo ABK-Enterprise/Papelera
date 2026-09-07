@@ -43,6 +43,8 @@ test('connect redirects with 409 X-Inertia-Location on inertia requests when cli
     $response->assertStatus(409);
     expect($response->headers->get('X-Inertia-Location'))->toContain('https://auth.mercadopago.com/authorization');
     expect($response->headers->get('X-Inertia-Location'))->toContain('client_id=TEST_CLIENT_ID_123');
+    expect($response->headers->get('X-Inertia-Location'))->toContain('code_challenge=');
+    expect($response->headers->get('X-Inertia-Location'))->toContain('code_challenge_method=S256');
 });
 
 test('connect redirects with 302 on standard browser requests when client_id is configured', function () {
@@ -53,6 +55,8 @@ test('connect redirects with 302 on standard browser requests when client_id is 
 
     $response->assertRedirect();
     expect($response->headers->get('Location'))->toContain('https://auth.mercadopago.com/authorization');
+    expect($response->headers->get('Location'))->toContain('code_challenge=');
+    expect($response->headers->get('Location'))->toContain('code_challenge_method=S256');
 });
 
 test('connect redirects back with error when client_id is not configured', function () {
