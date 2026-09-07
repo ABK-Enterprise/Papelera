@@ -44,6 +44,13 @@ class TenantMercadoPagoController extends Controller
         $clientId = config('services.mercadopago.client_id', env('MERCADO_PAGO_CLIENT_ID'));
 
         if (! $clientId) {
+            Log::warning('Mercado Pago OAuth connect aborted: Client ID is missing or empty', [
+                'tenant_id' => $request->user()?->tenant_id,
+                'has_services_config' => ! empty(config('services.mercadopago.client_id')),
+                'has_env' => ! empty(env('MERCADO_PAGO_CLIENT_ID')),
+                'is_config_cached' => app()->configurationIsCached(),
+            ]);
+
             Inertia::flash('toast', [
                 'type' => 'error',
                 'message' => 'El servicio de vinculación con Mercado Pago no se encuentra disponible temporalmente.',
@@ -81,6 +88,10 @@ class TenantMercadoPagoController extends Controller
         $state = $request->query('state');
 
         if (! $code) {
+            Log::warning('Mercado Pago OAuth callback received without code parameter', [
+                'query_params' => $request->query(),
+            ]);
+
             Inertia::flash('toast', [
                 'type' => 'error',
                 'message' => 'No se recibió el código de autorización de Mercado Pago.',
@@ -100,6 +111,11 @@ class TenantMercadoPagoController extends Controller
         $tenant = $request->user()?->tenant;
 
         if (! $tenant || ($tenantId && $tenant->id !== (int) $tenantId)) {
+            Log::warning('Mercado Pago OAuth callback tenant security mismatch', [
+                'user_tenant_id' => $tenant?->id,
+                'state_tenant_id' => $tenantId,
+            ]);
+
             Inertia::flash('toast', [
                 'type' => 'error',
                 'message' => 'Validación de seguridad fallida durante la vinculación.',
