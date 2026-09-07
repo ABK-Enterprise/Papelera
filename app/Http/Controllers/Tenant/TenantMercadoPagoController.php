@@ -46,10 +46,10 @@ class TenantMercadoPagoController extends Controller
         if (! $clientId) {
             Inertia::flash('toast', [
                 'type' => 'error',
-                'message' => 'El CLIENT_ID de Mercado Pago no está configurado en el servidor (.env).',
+                'message' => 'El servicio de vinculación con Mercado Pago no se encuentra disponible temporalmente.',
             ]);
 
-            return back()->with('error', 'El CLIENT_ID de Mercado Pago no está configurado en el servidor.');
+            return back()->with('error', 'El servicio de vinculación con Mercado Pago no se encuentra disponible.');
         }
 
         $tenantId = $request->user()->tenant_id;
