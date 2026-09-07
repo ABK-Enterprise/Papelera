@@ -7,6 +7,15 @@
     import { Label } from '@/components/ui/label';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
+    import {
+        Dialog,
+        DialogBody,
+        DialogContent,
+        DialogDescription,
+        DialogFooter,
+        DialogHeader,
+        DialogTitle,
+    } from '@/components/ui/dialog';
     import { router } from '@inertiajs/svelte';
     import CreditCard from 'lucide-svelte/icons/credit-card';
     import QrCode from 'lucide-svelte/icons/qr-code';
@@ -21,6 +30,8 @@
     import Store from 'lucide-svelte/icons/store';
     import Zap from 'lucide-svelte/icons/zap';
     import Smartphone from 'lucide-svelte/icons/smartphone';
+    import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
+    import Terminal from 'lucide-svelte/icons/terminal';
 
     interface MpAccount {
         user_id: string | null;
@@ -42,12 +53,20 @@
 
     let isDisconnectModalOpen = $state(false);
     let isDisconnecting = $state(false);
+    let isConfigInfoModalOpen = $state(false);
 
     let currentPosId = $state(mpAccount?.pos_id ?? 'SUC01POS01');
     let isUpdatingPos = $state(false);
 
+    const isConfigured = $derived(Boolean(clientId && clientId.trim() !== ''));
+
     function handleConnect() {
-        window.location.href = '/tenant/configuracion/mercadopago/vincular';
+        if (!isConfigured) {
+            isConfigInfoModalOpen = true;
+            return;
+        }
+
+        router.get('/tenant/configuracion/mercadopago/vincular');
     }
 
     function handleDisconnect() {
@@ -182,6 +201,12 @@
                         <ArrowRight class="size-4" />
                     </Button>
                 </div>
+                {#if !isConfigured}
+                    <p class="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5 mt-1">
+                        <AlertTriangle class="size-3.5 shrink-0" />
+                        <span>Entorno local sin credenciales configuradas en .env. Click para ver detalles.</span>
+                    </p>
+                {/if}
             </div>
         </Card>
     {:else}
@@ -310,3 +335,59 @@
     loading={isDisconnecting}
     onconfirm={handleDisconnect}
 />
+
+<!-- Modal Informativo: Configuración Local Requerida -->
+<Dialog bind:open={isConfigInfoModalOpen}>
+    <DialogContent class="max-w-lg p-5 sm:p-6">
+        <DialogHeader class="space-y-2">
+            <div class="flex items-center gap-3">
+                <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                    <AlertTriangle class="size-5" />
+                </div>
+                <div>
+                    <DialogTitle class="text-base sm:text-lg font-bold text-foreground">
+                        Configuración de Mercado Pago pendiente
+                    </DialogTitle>
+                    <DialogDescription class="text-xs text-muted-foreground mt-0.5">
+                        El servidor no tiene configuradas las credenciales de integración OAuth 2.0.
+                    </DialogDescription>
+                </div>
+            </div>
+        </DialogHeader>
+
+        <DialogBody class="space-y-4 py-2">
+            <div class="rounded-xl border border-border/70 bg-muted/30 p-3.5 space-y-2 text-xs">
+                <div class="flex items-center gap-2 font-semibold text-foreground">
+                    <Terminal class="size-4 text-primary" />
+                    <span>Variables requeridas en tu archivo <code class="bg-muted px-1.5 py-0.5 rounded font-mono text-[11px]">.env</code>:</span>
+                </div>
+                <div class="space-y-1 font-mono text-[11px] bg-background/80 p-2.5 rounded-lg border border-border/60 text-muted-foreground">
+                    <p class="text-foreground">MERCADO_PAGO_CLIENT_ID=<span class="text-muted-foreground">tu_client_id</span></p>
+                    <p class="text-foreground">MERCADO_PAGO_CLIENT_SECRET=<span class="text-muted-foreground">tu_client_secret</span></p>
+                </div>
+            </div>
+
+            <div class="rounded-xl border border-border/70 bg-muted/30 p-3.5 space-y-2 text-xs">
+                <div class="flex items-center gap-2 font-semibold text-foreground">
+                    <ShieldCheck class="size-4 text-emerald-600 dark:text-emerald-400" />
+                    <span>Requisitos para vincular con OAuth 2.0:</span>
+                </div>
+                <ul class="list-disc list-inside space-y-1 text-muted-foreground text-[12px] leading-relaxed">
+                    <li>Mercado Pago <strong>requiere protocolo HTTPS</strong> para la URL de redirección (callback).</li>
+                    <li>En desarrollo local se necesita un túnel HTTPS (como ngrok, expose o Cloudflare Tunnel), o bien realizar las pruebas en el entorno de Render (producción/staging).</li>
+                    <li>Registrar la URL de retorno (<code class="font-mono text-[11px]">.../tenant/configuracion/mercadopago/callback</code>) en tu aplicación de Mercado Pago Developers.</li>
+                </ul>
+            </div>
+        </DialogBody>
+
+        <DialogFooter class="pt-2 flex justify-end gap-2">
+            <Button
+                variant="default"
+                class="min-h-[40px] px-5 rounded-xl text-xs font-semibold cursor-pointer"
+                onclick={() => (isConfigInfoModalOpen = false)}
+            >
+                Entendido
+            </Button>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>

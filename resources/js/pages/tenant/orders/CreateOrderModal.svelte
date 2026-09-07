@@ -1093,16 +1093,16 @@
                                             <select
                                                 value={item.packaging_type}
                                                 onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                                class="h-8 sm:h-9 rounded-lg sm:rounded-xl border border-border/80 bg-background px-2 text-xs font-semibold text-foreground min-w-[65px] sm:min-w-[80px] max-w-[85px] sm:max-w-none focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                                                class="h-8 sm:h-9 rounded-lg sm:rounded-xl border border-border/80 bg-background px-2 text-xs font-semibold text-foreground min-w-[84px] sm:min-w-[94px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
                                             >
                                                 {#if item.sale_type === 'weight'}
-                                                    <option value="gram">G</option>
+                                                    <option value="gram">Gramos</option>
                                                     <option value="kg">Kg</option>
                                                     <option value="bulto" disabled={item.stock < (item.package_quantity || item.units_per_package || 1)}>
                                                         Bulto
                                                     </option>
                                                 {:else}
-                                                    <option value="unidad">U</option>
+                                                    <option value="unidad">Unidad</option>
                                                     <option value="bulto" disabled={item.stock < item.units_per_package}>
                                                         Bulto
                                                     </option>
@@ -1286,6 +1286,14 @@
                                                 step="0.01"
                                                 min="0.01"
                                                 max={grandTotal}
+                                                maxlength="9"
+                                                oninput={(e) => {
+                                                    const target = e.target as HTMLInputElement;
+                                                    if (target.value.length > 9) {
+                                                        target.value = target.value.slice(0, 9);
+                                                        paidAmount = target.value;
+                                                    }
+                                                }}
                                                 placeholder={`ej. ${(grandTotal / 2).toFixed(2)}`}
                                                 bind:value={paidAmount}
                                                 class="h-10 text-xs rounded-xl font-mono tabular-nums"

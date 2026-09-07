@@ -169,7 +169,14 @@
                         id="outcome-qty"
                         type="number"
                         min="1"
-                        max={selectedProduct ? selectedProduct.stock : undefined}
+                        max={selectedProduct ? Math.min(selectedProduct.stock, 10000) : 10000}
+                        maxlength="5"
+                        oninput={(e) => {
+                            const val = (e.target as HTMLInputElement).value;
+                            if (val.length > 5) (e.target as HTMLInputElement).value = val.slice(0, 5);
+                            const max = selectedProduct ? Math.min(selectedProduct.stock, 10000) : 10000;
+                            if (Number(val) > max) form.quantity = max;
+                        }}
                         bind:value={form.quantity}
                         placeholder="Ej. 1"
                         required

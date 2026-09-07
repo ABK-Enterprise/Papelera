@@ -553,9 +553,23 @@ class CustomerOrderController extends Controller
                         $currentStock = $previousStock + $totalUnits;
                         $product->update(['stock' => $currentStock]);
 
+                        $targetWhId = $item->warehouse_id ?: $lockedOrder->warehouse_id;
+                        if ($targetWhId) {
+                            $pw = ProductWarehouse::where('tenant_id', $tenantId)
+                                ->where('product_id', $product->id)
+                                ->where('warehouse_id', $targetWhId)
+                                ->first();
+                            if ($pw) {
+                                $pw->stock = round((float) $pw->stock + $totalUnits, 3);
+                                $pw->save();
+                                $product->syncConsolidatedStock();
+                            }
+                        }
+
                         $stockMovement = StockMovement::create([
                             'tenant_id' => $tenantId,
                             'product_id' => $item->product_id,
+                            'warehouse_id' => $targetWhId,
                             'user_id' => $userId,
                             'type' => 'income',
                             'quantity' => $totalUnits,
@@ -576,13 +590,9 @@ class CustomerOrderController extends Controller
                         ->first();
 
                     if ($customer) {
-                        $isCashOrder = CustomerAccountMovement::where('customer_order_id', $lockedOrder->id)
-                            ->where('tenant_id', $tenantId)
-                            ->where('type', 'payment')
-                            ->exists();
+                        $reversalAmount = (float) $lockedOrder->debt_amount;
 
-                        if (! $isCashOrder) {
-                            $reversalAmount = (float) $lockedOrder->total_amount;
+                        if ($reversalAmount > 0) {
                             $newBalance = round((float) $customer->current_balance - $reversalAmount, 2);
 
                             $adjMov = CustomerAccountMovement::create([
@@ -591,7 +601,7 @@ class CustomerOrderController extends Controller
                                 'customer_order_id' => $lockedOrder->id,
                                 'created_by_user_id' => $userId,
                                 'type' => 'adjustment',
-                                'description' => "Anulación por cancelación de Pedido {$lockedOrder->order_number}",
+                                'description' => "Anulación de deuda por cancelación de Pedido {$lockedOrder->order_number}",
                                 'amount' => $reversalAmount,
                                 'balance_after' => $newBalance,
                                 'payment_method' => 'ajuste',
@@ -606,7 +616,11 @@ class CustomerOrderController extends Controller
                 }
             }
 
-            $lockedOrder->update(['status' => $newStatus]);
+            $orderUpdates = ['status' => $newStatus];
+            if ($newStatus === 'cancelado') {
+                $orderUpdates['debt_amount'] = 0.00;
+            }
+            $lockedOrder->update($orderUpdates);
 
             return $lockedOrder;
         });

@@ -44,6 +44,11 @@ class TenantMercadoPagoController extends Controller
         $clientId = config('services.mercadopago.client_id', env('MERCADO_PAGO_CLIENT_ID'));
 
         if (! $clientId) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'El CLIENT_ID de Mercado Pago no está configurado en el servidor (.env).',
+            ]);
+
             return back()->with('error', 'El CLIENT_ID de Mercado Pago no está configurado en el servidor.');
         }
 
@@ -76,6 +81,11 @@ class TenantMercadoPagoController extends Controller
         $state = $request->query('state');
 
         if (! $code) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'No se recibió el código de autorización de Mercado Pago.',
+            ]);
+
             return redirect()->route('tenant.settings.mercadopago')
                 ->with('error', 'No se recibió el código de autorización de Mercado Pago.');
         }
@@ -90,6 +100,11 @@ class TenantMercadoPagoController extends Controller
         $tenant = $request->user()?->tenant;
 
         if (! $tenant || ($tenantId && $tenant->id !== (int) $tenantId)) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Validación de seguridad fallida durante la vinculación.',
+            ]);
+
             return redirect()->route('tenant.settings.mercadopago')
                 ->with('error', 'Validación de seguridad fallida durante la vinculación.');
         }
@@ -142,6 +157,11 @@ class TenantMercadoPagoController extends Controller
                     'mp_linked_at' => now(),
                 ]);
 
+                Inertia::flash('toast', [
+                    'type' => 'success',
+                    'message' => '¡Cuenta de Mercado Pago vinculada exitosamente!',
+                ]);
+
                 return redirect()->route('tenant.settings.mercadopago')
                     ->with('success', 'Cuenta de Mercado Pago vinculada exitosamente.');
             }
@@ -151,10 +171,20 @@ class TenantMercadoPagoController extends Controller
                 'body' => $response->body(),
             ]);
 
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Error al autorizar con Mercado Pago: ' . ($response->json('message') ?? 'Respuesta no exitosa.'),
+            ]);
+
             return redirect()->route('tenant.settings.mercadopago')
                 ->with('error', 'Error al autorizar con Mercado Pago: ' . ($response->json('message') ?? 'Respuesta no exitosa.'));
         } catch (\Exception $e) {
             Log::error('Mercado Pago OAuth exception', ['message' => $e->getMessage()]);
+
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Ocurrió un error inesperado al conectar con Mercado Pago.',
+            ]);
 
             return redirect()->route('tenant.settings.mercadopago')
                 ->with('error', 'Ocurrió un error inesperado al conectar con Mercado Pago.');
@@ -181,6 +211,11 @@ class TenantMercadoPagoController extends Controller
             ]);
         }
 
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Cuenta de Mercado Pago desvinculada correctamente.',
+        ]);
+
         return redirect()->route('tenant.settings.mercadopago')
             ->with('success', 'Cuenta de Mercado Pago desvinculada correctamente.');
     }
@@ -203,6 +238,11 @@ class TenantMercadoPagoController extends Controller
                 'mp_pos_id' => $request->input('pos_id'),
             ]);
         }
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Caja POS actualizada correctamente.',
+        ]);
 
         return redirect()->route('tenant.settings.mercadopago')
             ->with('success', 'Punto de venta (Caja POS) actualizado correctamente.');

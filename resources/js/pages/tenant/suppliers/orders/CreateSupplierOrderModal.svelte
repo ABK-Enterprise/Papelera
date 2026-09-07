@@ -507,20 +507,38 @@
                                                         <Minus class="size-3.5" />
                                                     </button>
 
-                                                    {#if isWeight}
-                                                        <input
-                                                            type="number"
-                                                            step="0.01"
-                                                            min="0.01"
-                                                            max="10000"
-                                                            bind:value={item.quantity}
-                                                            class="w-14 sm:w-16 h-full text-xs font-bold font-sans tabular-nums text-center bg-transparent border-0 focus:ring-0 focus:outline-none p-0"
-                                                        />
-                                                    {:else}
-                                                        <span class="w-10 text-xs font-bold font-sans tabular-nums text-center">
-                                                            {item.quantity}
-                                                        </span>
-                                                    {/if}
+                                                    <input
+                                                        type="number"
+                                                        step={isWeight ? '0.01' : '1'}
+                                                        min={isWeight ? '0.01' : '1'}
+                                                        max="10000"
+                                                        maxlength="5"
+                                                        bind:value={item.quantity}
+                                                        oninput={(e) => {
+                                                            const val = (e.target as HTMLInputElement).value;
+                                                            if (val.length > 5) (e.target as HTMLInputElement).value = val.slice(0, 5);
+                                                            if (Number(val) > 10000) item.quantity = 10000;
+                                                        }}
+                                                        onblur={() => {
+                                                            let val = Number(item.quantity);
+                                                            if (isNaN(val) || val < (isWeight ? 0.01 : 1)) {
+                                                                item.quantity = isWeight ? 0.01 : 1;
+                                                            } else if (val > 10000) {
+                                                                item.quantity = 10000;
+                                                            } else {
+                                                                item.quantity = isWeight ? Math.round(val * 100) / 100 : Math.floor(val);
+                                                            }
+                                                        }}
+                                                        onpaste={(e) => {
+                                                            const pasted = e.clipboardData?.getData('text') || '';
+                                                            const cleaned = parseFloat(pasted.replace(/[^0-9.]/g, ''));
+                                                            if (!isNaN(cleaned)) {
+                                                                e.preventDefault();
+                                                                item.quantity = Math.max(isWeight ? 0.01 : 1, Math.min(cleaned, 10000));
+                                                            }
+                                                        }}
+                                                        class="w-14 sm:w-16 h-full text-xs font-bold font-sans tabular-nums text-center bg-transparent border-0 focus:ring-0 focus:outline-none p-0"
+                                                    />
 
                                                     <button
                                                         type="button"

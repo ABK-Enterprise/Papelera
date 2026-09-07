@@ -73,6 +73,29 @@
     let isOverpaid = $derived(amountToPay > debt);
     let overpaidAmount = $derived(Math.max(0, Math.round((amountToPay - debt) * 100) / 100));
 
+    const MAX_FAVORABLE_BALANCE = 10_000_000;
+    let customerCurrentBalance = $derived(Number(order?.customer_current_balance) || 0);
+    let existingFavorableBalance = $derived(customerCurrentBalance < 0 ? Math.abs(customerCurrentBalance) : 0);
+    let totalResultingFavorableBalance = $derived.by(() => {
+        if (!hasAccount) return 0;
+        if (debt > 0 && isOverpaid) {
+            return existingFavorableBalance + overpaidAmount;
+        }
+        if (debt <= 0 && collectExtraBalance) {
+            return existingFavorableBalance + amountToPay;
+        }
+        return existingFavorableBalance;
+    });
+    let isFavorableBalanceExceeded = $derived(totalResultingFavorableBalance > MAX_FAVORABLE_BALANCE);
+
+    function handleAmountInput(e: Event) {
+        const target = e.target as HTMLInputElement;
+        if (target.value.length > 9) {
+            target.value = target.value.slice(0, 9);
+        }
+        amountToPay = Number(target.value) || 0;
+    }
+
     $effect(() => {
         if (open && order) {
             const currentDebt = Number(order.debt_amount) || 0;
@@ -131,6 +154,11 @@
                         return;
                     }
                 } else {
+                    if (isFavorableBalanceExceeded) {
+                        errorMessage = `El excedente supera el límite máximo permitido de saldo a favor (${formatCurrency(MAX_FAVORABLE_BALANCE)}).`;
+                        return;
+                    }
+
                     // Si tiene cuenta corriente y hay sobrecobro, solicitar confirmación explícita
                     if (isOverpaid) {
                         isOverpaymentConfirmOpen = true;
@@ -147,6 +175,10 @@
                 }
                 if (amountToPay <= 0) {
                     errorMessage = 'El monto a cobrar debe ser mayor a cero.';
+                    return;
+                }
+                if (isFavorableBalanceExceeded) {
+                    errorMessage = `El monto a cobrar supera el límite máximo permitido de saldo a favor (${formatCurrency(MAX_FAVORABLE_BALANCE)}).`;
                     return;
                 }
                 isOverpaymentConfirmOpen = true;
@@ -333,11 +365,21 @@
                                         type="number"
                                         step="0.01"
                                         min="0.01"
+                                        max="50000000"
+                                        maxlength="9"
+                                        oninput={handleAmountInput}
                                         bind:value={amountToPay}
-                                        class="pl-7 h-11 tabular-nums font-semibold min-h-[44px] bg-background border-border/80"
+                                        class="pl-7 h-11 tabular-nums font-semibold min-h-[44px] bg-background border-border/80 {isFavorableBalanceExceeded ? 'border-destructive focus-visible:ring-destructive' : ''}"
                                     />
                                 </div>
                             </div>
+
+                            {#if isFavorableBalanceExceeded}
+                                <div class="col-span-1 sm:col-span-2 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs flex items-center gap-2">
+                                    <AlertCircle class="size-4 shrink-0" />
+                                    <span>El saldo a favor acumulado no puede superar los {formatCurrency(MAX_FAVORABLE_BALANCE)}.</span>
+                                </div>
+                            {/if}
 
                             {#if paymentMethod === 'mercadopago'}
                                 <div class="col-span-1 sm:col-span-2 space-y-3 pt-1">
@@ -492,11 +534,21 @@
                                                 type="number"
                                                 step="0.01"
                                                 min="0.01"
+                                                max="50000000"
+                                                maxlength="9"
+                                                oninput={handleAmountInput}
                                                 bind:value={amountToPay}
-                                                class="pl-7 h-11 tabular-nums font-semibold min-h-[44px] bg-background border-border/80"
+                                                class="pl-7 h-11 tabular-nums font-semibold min-h-[44px] bg-background border-border/80 {isFavorableBalanceExceeded ? 'border-destructive focus-visible:ring-destructive' : ''}"
                                             />
                                         </div>
                                     </div>
+
+                                    {#if isFavorableBalanceExceeded}
+                                        <div class="col-span-1 sm:col-span-2 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs flex items-center gap-2">
+                                            <AlertCircle class="size-4 shrink-0" />
+                                            <span>El saldo a favor acumulado no puede superar los {formatCurrency(MAX_FAVORABLE_BALANCE)}.</span>
+                                        </div>
+                                    {/if}
 
                                     {#if amountToPay > 0}
                                         <div class="col-span-1 sm:col-span-2 p-3 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-between">
