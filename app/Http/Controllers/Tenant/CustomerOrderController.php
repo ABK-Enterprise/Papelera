@@ -15,7 +15,11 @@ use App\Models\Customer;
 use App\Models\CustomerAccountMovement;
 use App\Models\CustomerOrder;
 use App\Models\CustomerOrderItem;
+use App\Models\CustomerOrderReceipt;
 use App\Models\Product;
+use App\Models\ProductWarehouse;
+use App\Models\Receipt;
+use App\Models\ShippingZone;
 use App\Models\StockMovement;
 use App\Models\Warehouse;
 use App\Services\MercadoPago\MercadoPagoService;
@@ -27,6 +31,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class CustomerOrderController extends Controller
 {
@@ -77,7 +82,6 @@ class CustomerOrderController extends Controller
             ->orderBy('name')
             ->get();
 
-
         $availableCustomers = Customer::query()
             ->where('is_active', true)
             ->select('id', 'name', 'tax_id', 'tax_condition', 'phone', 'address', 'discount_percentage', 'is_defaulter')
@@ -85,14 +89,14 @@ class CustomerOrderController extends Controller
             ->get();
 
         $tenantId = auth()->user()?->tenant_id;
-        $warehouses = \App\Models\Warehouse::where('tenant_id', $tenantId)
+        $warehouses = Warehouse::where('tenant_id', $tenantId)
             ->where('is_active', true)
             ->select('id', 'name', 'code', 'is_default')
             ->orderByDesc('is_default')
             ->orderBy('name')
             ->get();
 
-        $shippingZones = \App\Models\ShippingZone::where('tenant_id', $tenantId)
+        $shippingZones = ShippingZone::where('tenant_id', $tenantId)
             ->where('is_active', true)
             ->select('id', 'name', 'distance_km', 'surcharge_percentage')
             ->orderBy('name')
@@ -143,8 +147,8 @@ class CustomerOrderController extends Controller
 
             $customerName = $request->validated('customer_name') ?: ($customer ? $customer->name : 'Cliente Ocasional');
             $orderWarehouseId = $request->validated('warehouse_id');
-            $defaultWarehouseId = \App\Models\Warehouse::where('tenant_id', $tenantId)->where('is_default', true)->value('id')
-                ?: \App\Models\Warehouse::where('tenant_id', $tenantId)->value('id');
+            $defaultWarehouseId = Warehouse::where('tenant_id', $tenantId)->where('is_default', true)->value('id')
+                ?: Warehouse::where('tenant_id', $tenantId)->value('id');
 
             $applyOrderDiscount = $request->has('apply_customer_discount') ? $request->boolean('apply_customer_discount') : true;
             $customerDiscountPct = ($customer && $applyOrderDiscount) ? (float) ($customer->discount_percentage ?? 0.00) : 0.00;
@@ -259,7 +263,7 @@ class CustomerOrderController extends Controller
             $shippingZoneName = null;
 
             if ($shippingZoneId) {
-                $shippingZone = \App\Models\ShippingZone::where('id', $shippingZoneId)
+                $shippingZone = ShippingZone::where('id', $shippingZoneId)
                     ->where('tenant_id', $tenantId)
                     ->where('is_active', true)
                     ->first();
@@ -321,7 +325,7 @@ class CustomerOrderController extends Controller
             if ($paidAmount > 0) {
                 $receiptNumber = app(TenantSequenceService::class)->nextReceiptNumber($tenantId);
                 $notesPrefix = ($paymentType === 'parcial') ? 'Pago parcial / seña' : 'Cobro de contado';
-                $receipt = \App\Models\Receipt::create([
+                $receipt = Receipt::create([
                     'tenant_id' => $tenantId,
                     'customer_id' => $customerId,
                     'receipt_number' => $receiptNumber,
@@ -333,7 +337,7 @@ class CustomerOrderController extends Controller
                     'is_cancelled' => false,
                 ]);
 
-                \App\Models\CustomerOrderReceipt::create([
+                CustomerOrderReceipt::create([
                     'tenant_id' => $tenantId,
                     'customer_order_id' => $order->id,
                     'receipt_id' => $receipt->id,
@@ -366,13 +370,13 @@ class CustomerOrderController extends Controller
 
                 $targetWhId = $prep['warehouse_id'] ?: $orderWarehouseId ?: $defaultWarehouseId;
                 if ($targetWhId) {
-                    $hasExistingWh = \App\Models\ProductWarehouse::where('tenant_id', $tenantId)
+                    $hasExistingWh = ProductWarehouse::where('tenant_id', $tenantId)
                         ->where('product_id', $prod->id)
                         ->exists();
 
                     $initialStock = $hasExistingWh ? 0 : (float) $prod->stock;
 
-                    $pw = \App\Models\ProductWarehouse::firstOrCreate([
+                    $pw = ProductWarehouse::firstOrCreate([
                         'tenant_id' => $tenantId,
                         'product_id' => $prod->id,
                         'warehouse_id' => $targetWhId,
@@ -384,7 +388,6 @@ class CustomerOrderController extends Controller
                     $pw->stock = round((float) $pw->stock - $prep['quantity_base'], 3);
                     $pw->save();
                 }
-
 
                 $previousStock = (float) $prod->stock;
                 $currentStock = $previousStock - $prep['quantity_base'];
@@ -422,7 +425,6 @@ class CustomerOrderController extends Controller
                     }
                 }
             }
-
 
             $customerId = $request->validated('customer_id');
             if ($customerId) {
@@ -641,66 +643,70 @@ class CustomerOrderController extends Controller
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            // Solo reincorporar stock si el pedido estaba ACTIVO (no entregado ni previamente cancelado)
-            if (! in_array($lockedOrder->status, ['cancelado', 'entregado'], true)) {
-                $lockedOrder->load('items.product');
-                $sortedItems = $lockedOrder->items->sortBy('product_id');
-                foreach ($sortedItems as $item) {
-                    $product = Product::where('id', $item->product_id)
-                        ->where('tenant_id', $tenantId)
-                        ->lockForUpdate()
-                        ->first();
+            if ($lockedOrder->isTerminal()) {
+                throw ValidationException::withMessages([
+                    'order' => ["El pedido {$lockedOrder->order_number} se encuentra en estado definitivo ({$lockedOrder->status}) y no puede eliminarse ni modificarse."],
+                ]);
+            }
 
-                    if ($product) {
-                        $totalUnits = (float) $item->total_units;
-                        $previousStock = (float) $product->stock;
-                        $currentStock = $previousStock + $totalUnits;
-                        $product->update(['stock' => $currentStock]);
+            // Reincorporar stock si el pedido estaba activo
+            $lockedOrder->load('items.product');
+            $sortedItems = $lockedOrder->items->sortBy('product_id');
+            foreach ($sortedItems as $item) {
+                $product = Product::where('id', $item->product_id)
+                    ->where('tenant_id', $tenantId)
+                    ->lockForUpdate()
+                    ->first();
 
-                        $stockMovement = StockMovement::create([
-                            'tenant_id' => $tenantId,
-                            'product_id' => $item->product_id,
-                            'user_id' => $userId,
-                            'type' => 'income',
-                            'quantity' => $totalUnits,
-                            'previous_stock' => $previousStock,
-                            'current_stock' => $currentStock,
-                            'reason' => 'cancelacion_pedido',
-                            'notes' => "Eliminación {$lockedOrder->order_number}",
-                        ]);
-                        $eventsToBroadcast[] = new StockMovementRecorded($stockMovement);
-                    }
+                if ($product) {
+                    $totalUnits = (float) $item->total_units;
+                    $previousStock = (float) $product->stock;
+                    $currentStock = $previousStock + $totalUnits;
+                    $product->update(['stock' => $currentStock]);
+
+                    $stockMovement = StockMovement::create([
+                        'tenant_id' => $tenantId,
+                        'product_id' => $item->product_id,
+                        'user_id' => $userId,
+                        'type' => 'income',
+                        'quantity' => $totalUnits,
+                        'previous_stock' => $previousStock,
+                        'current_stock' => $currentStock,
+                        'reason' => 'cancelacion_pedido',
+                        'notes' => "Eliminación {$lockedOrder->order_number}",
+                    ]);
+                    $eventsToBroadcast[] = new StockMovementRecorded($stockMovement);
                 }
+            }
 
-                if ($lockedOrder->customer_id) {
-                    /** @var Customer|null $customer */
-                    $customer = Customer::where('id', $lockedOrder->customer_id)
-                        ->where('tenant_id', $tenantId)
-                        ->lockForUpdate()
-                        ->first();
+            if ($lockedOrder->customer_id) {
+                /** @var Customer|null $customer */
+                $customer = Customer::where('id', $lockedOrder->customer_id)
+                    ->where('tenant_id', $tenantId)
+                    ->lockForUpdate()
+                    ->first();
 
-                    if ($customer) {
-                        $reversalAmount = (float) $lockedOrder->debt_amount;
-                        if ($reversalAmount > 0) {
-                            $newBalance = round((float) $customer->current_balance - $reversalAmount, 2);
+                if ($customer) {
+                    $reversalAmount = (float) $lockedOrder->debt_amount;
+                    if ($reversalAmount > 0) {
+                        $newBalance = round((float) $customer->current_balance - $reversalAmount, 2);
 
-                            $adjMov = CustomerAccountMovement::create([
-                                'tenant_id' => $tenantId,
-                                'customer_id' => $customer->id,
-                                'customer_order_id' => null,
-                                'created_by_user_id' => $userId,
-                                'type' => 'adjustment',
-                                'description' => "Anulación por eliminación de Pedido {$lockedOrder->order_number}",
-                                'amount' => $reversalAmount,
-                                'balance_after' => $newBalance,
-                                'payment_method' => 'ajuste',
-                                'reference_number' => "DEL-{$lockedOrder->order_number}",
-                                'notes' => 'Ajuste de saldo automático por eliminación del pedido.',
-                            ]);
-                            $eventsToBroadcast[] = new CustomerAccountMovementRecorded($adjMov);
+                        $adjMov = CustomerAccountMovement::create([
+                            'tenant_id' => $tenantId,
+                            'customer_id' => $customer->id,
+                            'customer_order_id' => null,
+                            'created_by_user_id' => $userId,
+                            'type' => 'adjustment',
+                            'description' => "Anulación por eliminación de Pedido {$lockedOrder->order_number}",
+                            'amount' => $reversalAmount,
+                            'balance_after' => $newBalance,
+                            'payment_method' => 'ajuste',
+                            'reference_number' => "DEL-{$lockedOrder->order_number}",
+                            'notes' => 'Ajuste de saldo automático por eliminación del pedido.',
+                        ]);
+                        $eventsToBroadcast[] = new CustomerAccountMovementRecorded($adjMov);
 
-                            $customer->update(['current_balance' => $newBalance]);
-                        }
+                        $customer->update(['current_balance' => $newBalance]);
                     }
                 }
             }
@@ -732,7 +738,7 @@ class CustomerOrderController extends Controller
 
         $customerOrder->load(['items.product', 'customer', 'tenant']);
 
-        return \Spatie\LaravelPdf\Facades\Pdf::view('pdf.customer-order', [
+        return Pdf::view('pdf.customer-order', [
             'order' => $customerOrder,
         ])
             ->format('a4')
@@ -751,7 +757,7 @@ class CustomerOrderController extends Controller
 
         $customerOrder->load(['items.product', 'customer', 'tenant']);
 
-        return \Spatie\LaravelPdf\Facades\Pdf::view('pdf.customer-order', [
+        return Pdf::view('pdf.customer-order', [
             'order' => $customerOrder,
         ])
             ->format('a4')
@@ -765,6 +771,13 @@ class CustomerOrderController extends Controller
     {
         if ($customerOrder->tenant_id !== $request->user()->tenant_id) {
             abort(404);
+        }
+
+        if ($customerOrder->isTerminal()) {
+            return response()->json([
+                'success' => false,
+                'error' => "El pedido {$customerOrder->order_number} se encuentra en estado definitivo ({$customerOrder->status}) y no admite cobros ni modificaciones.",
+            ], 422);
         }
 
         if ($customerOrder->payment_status === 'cobrado') {
@@ -818,4 +831,3 @@ class CustomerOrderController extends Controller
         ]);
     }
 }
-

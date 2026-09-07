@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Category;
 use App\Models\Customer;
 use App\Models\CustomerOrder;
 use App\Models\Product;
@@ -19,7 +20,7 @@ beforeEach(function () {
     $this->adminUser = User::where('tenant_id', $this->tenant->id)->first();
     $this->defaultWarehouse = $this->tenant->warehouses()->where('is_default', true)->first();
 
-    $this->category = \App\Models\Category::create([
+    $this->category = Category::create([
         'tenant_id' => $this->tenant->id,
         'name' => 'Embalaje',
         'slug' => 'embalaje',
@@ -626,4 +627,77 @@ test('driver can deliver already paid order and collect extra payment towards cu
     // Saldo del cliente se reduce de 5000 a 3000
     $this->customer->refresh();
     expect((float) $this->customer->current_balance)->toBe(3000.00);
+});
+
+test('driver can deliver with mercadopago without reference number because it is optional', function () {
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->defaultWarehouse->id,
+        'order_number' => 'PED-MP-OPTIONAL-REF',
+        'customer_name' => $this->customer->name,
+        'status' => 'en_camino',
+        'payment_status' => 'pendiente',
+        'total_amount' => 3000.00,
+        'debt_amount' => 3000.00,
+        'delivery_user_id' => $this->adminUser->id,
+    ]);
+
+    $response = $this->actingAs($this->adminUser)
+        ->post(route('tenant.deliveries.deliver', $order), [
+            'payment_mode' => 'paid_now',
+            'payment_method' => 'mercadopago',
+            'amount' => 3000.00,
+            'reference_number' => null, // Opcional
+            'delivery_notes' => 'Abonó por transferencia Mercado Pago sin comprobante manual',
+        ]);
+
+    $response->assertRedirect();
+    $response->assertSessionHas('success');
+
+    $order->refresh();
+    expect($order->status)->toBe('entregado')
+        ->and($order->payment_status)->toBe('cobrado')
+        ->and((float) $order->debt_amount)->toBe(0.0);
+
+    $receipt = Receipt::where('tenant_id', $this->tenant->id)->latest()->first();
+    expect($receipt)->not->toBeNull()
+        ->and($receipt->payment_method)->toBe('mercadopago')
+        ->and($receipt->reference_number)->toBeNull();
+});
+
+test('terminal delivered or cancelled order cannot be delivered, failed or rescheduled in delivery routes', function () {
+    $deliveredOrder = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->defaultWarehouse->id,
+        'order_number' => 'PED-IMMUTABLE-DELIVERED',
+        'customer_name' => $this->customer->name,
+        'status' => 'entregado',
+        'payment_status' => 'cobrado',
+        'total_amount' => 1000.00,
+        'debt_amount' => 0.00,
+        'delivery_user_id' => $this->adminUser->id,
+    ]);
+
+    // Intentar re-entregar
+    $resDeliver = $this->actingAs($this->adminUser)
+        ->post(route('tenant.deliveries.deliver', $deliveredOrder), [
+            'payment_mode' => 'on_credit',
+        ]);
+    $resDeliver->assertSessionHasErrors('order');
+
+    // Intentar marcar como fallido
+    $resFail = $this->actingAs($this->adminUser)
+        ->post(route('tenant.deliveries.fail', $deliveredOrder), [
+            'failure_reason' => 'local_cerrado',
+        ]);
+    $resFail->assertSessionHasErrors('order');
+
+    // Intentar reprogramar
+    $resReschedule = $this->actingAs($this->adminUser)
+        ->post(route('tenant.deliveries.reschedule', $deliveredOrder), [
+            'destination' => 'en_preparacion',
+        ]);
+    $resReschedule->assertSessionHasErrors('order');
 });

@@ -117,12 +117,14 @@ class DeliveryRouteController extends Controller
 
                 if (! $order) {
                     $unavailableOrders[] = "#{$orderId} (no encontrado)";
+
                     continue;
                 }
 
                 // Control estricto de concurrencia: debe estar en preparación o preparado y sin chofer
                 if (! in_array($order->status, ['en_preparacion', 'preparado']) || $order->delivery_user_id !== null) {
                     $unavailableOrders[] = $order->order_number;
+
                     continue;
                 }
 
@@ -140,13 +142,14 @@ class DeliveryRouteController extends Controller
         }
 
         if (count($unavailableOrders) > 0 && $assignedCount === 0) {
-            $msg = 'Los siguientes pedidos ya fueron tomados por otro repartidor o no están disponibles: ' . implode(', ', $unavailableOrders);
+            $msg = 'Los siguientes pedidos ya fueron tomados por otro repartidor o no están disponibles: '.implode(', ', $unavailableOrders);
+
             return back()->withErrors(['order_ids' => $msg]);
         }
 
         $message = "{$assignedCount} pedido(s) asignado(s) a tu ruta exitosamente.";
         if (count($unavailableOrders) > 0) {
-            $message .= ' (Algunos pedidos no pudieron asignarse por ser tomados previamente: ' . implode(', ', $unavailableOrders) . ')';
+            $message .= ' (Algunos pedidos no pudieron asignarse por ser tomados previamente: '.implode(', ', $unavailableOrders).')';
         }
 
         return back()->with('success', $message);
@@ -170,9 +173,9 @@ class DeliveryRouteController extends Controller
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if ($order->status !== 'en_camino') {
+            if ($order->isTerminal() || $order->status !== 'en_camino') {
                 throw ValidationException::withMessages([
-                    'order' => "El pedido {$order->order_number} no se encuentra en camino.",
+                    'order' => "El pedido {$order->order_number} se encuentra en estado definitivo ({$order->status}) o no está en camino.",
                 ]);
             }
 
@@ -195,7 +198,7 @@ class DeliveryRouteController extends Controller
                         // En medios electrónicos, no se permite sobrecobro sin cuenta corriente
                         if ($amount > $orderDebt) {
                             throw ValidationException::withMessages([
-                                'amount' => 'En cobros electrónicos para clientes sin cuenta corriente, el importe no puede superar el total adeudado ($' . number_format($orderDebt, 2, ',', '.') . ').',
+                                'amount' => 'En cobros electrónicos para clientes sin cuenta corriente, el importe no puede superar el total adeudado ($'.number_format($orderDebt, 2, ',', '.').').',
                             ]);
                         }
                     }
@@ -210,7 +213,7 @@ class DeliveryRouteController extends Controller
                     amount: $amount,
                     paymentMethod: $paymentMethod,
                     referenceNumber: $request->validated('reference_number'),
-                    notes: 'Cobro contra entrega. Observaciones: ' . ($request->validated('delivery_notes') ?? 'Sin notas'),
+                    notes: 'Cobro contra entrega. Observaciones: '.($request->validated('delivery_notes') ?? 'Sin notas'),
                     orderAllocations: [
                         [
                             'order_id' => $order->id,
@@ -229,7 +232,7 @@ class DeliveryRouteController extends Controller
                     amount: $amount,
                     paymentMethod: $paymentMethod,
                     referenceNumber: $request->validated('reference_number'),
-                    notes: "Cobro a cuenta corriente en entrega de pedido {$order->order_number}. Observaciones: " . ($request->validated('delivery_notes') ?? 'Sin notas'),
+                    notes: "Cobro a cuenta corriente en entrega de pedido {$order->order_number}. Observaciones: ".($request->validated('delivery_notes') ?? 'Sin notas'),
                     orderAllocations: [], // No imputa a este pedido porque ya tiene deuda 0
                     allowSurplus: true,
                 );
@@ -262,9 +265,9 @@ class DeliveryRouteController extends Controller
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if ($order->status !== 'en_camino') {
+            if ($order->isTerminal() || $order->status !== 'en_camino') {
                 throw ValidationException::withMessages([
-                    'order' => "El pedido {$order->order_number} no se encuentra en camino.",
+                    'order' => "El pedido {$order->order_number} se encuentra en estado definitivo ({$order->status}) o no está en camino.",
                 ]);
             }
 
@@ -303,17 +306,19 @@ class DeliveryRouteController extends Controller
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if ($order->status !== 'no_entregado') {
+            if ($order->isTerminal() || $order->status !== 'no_entregado') {
                 throw ValidationException::withMessages([
-                    'order' => "El pedido no se encuentra en estado 'no entregado'.",
+                    'order' => "El pedido {$order->order_number} se encuentra en estado definitivo ({$order->status}) y no puede reprogramarse.",
                 ]);
             }
 
             if ($destination === 'cancelado') {
+                $reversalAmount = (float) $order->debt_amount;
                 $order->status = 'cancelado';
+                $order->debt_amount = 0.00;
                 $order->delivery_user_id = null;
                 $notePrefix = $reason ? "Cancelado tras visita fallida: {$reason}" : 'Cancelado tras visita fallida.';
-                $order->delivery_notes = trim(($order->delivery_notes ? $order->delivery_notes . ' | ' : '') . $notePrefix);
+                $order->delivery_notes = trim(($order->delivery_notes ? $order->delivery_notes.' | ' : '').$notePrefix);
                 $order->save();
 
                 // Reincorporar stock físico a depósito
@@ -354,7 +359,6 @@ class DeliveryRouteController extends Controller
                         ->first();
 
                     if ($customer) {
-                        $reversalAmount = (float) $order->debt_amount;
                         if ($reversalAmount > 0) {
                             $newBalance = round((float) $customer->current_balance - $reversalAmount, 2);
 
@@ -376,9 +380,6 @@ class DeliveryRouteController extends Controller
                         }
                     }
                 }
-
-                $order->debt_amount = 0.00;
-                $order->save();
             } else {
                 // destination === 'en_preparacion'
                 $order->status = 'en_preparacion';
@@ -386,7 +387,7 @@ class DeliveryRouteController extends Controller
                 $order->delivery_user_id = null;
                 if ($reason) {
                     $notePrefix = "Devuelto a preparación: {$reason}";
-                    $order->delivery_notes = trim(($order->delivery_notes ? $order->delivery_notes . ' | ' : '') . $notePrefix);
+                    $order->delivery_notes = trim(($order->delivery_notes ? $order->delivery_notes.' | ' : '').$notePrefix);
                 }
                 $order->save();
             }

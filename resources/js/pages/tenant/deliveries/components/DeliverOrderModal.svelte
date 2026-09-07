@@ -122,10 +122,6 @@
                         errorMessage = 'Para cobrar con QR en el momento, presiona "Generar y Mostrar QR". Si el cliente ya transfirió por alias, selecciona "Transfirió por Alias".';
                         return;
                     }
-                    if (mpMode === 'transfer' && !referenceNumber.trim()) {
-                        errorMessage = 'Por favor ingresa el número de comprobante u operación de la transferencia por Mercado Pago.';
-                        return;
-                    }
                 }
 
                 // Validaciones según si el cliente tiene o no cuenta corriente
@@ -151,10 +147,6 @@
                 }
                 if (amountToPay <= 0) {
                     errorMessage = 'El monto a cobrar debe ser mayor a cero.';
-                    return;
-                }
-                if (paymentMethod === 'mercadopago' && mpMode === 'transfer' && !referenceNumber.trim()) {
-                    errorMessage = 'Por favor ingresa el número de comprobante u operación de la transferencia por Mercado Pago.';
                     return;
                 }
                 isOverpaymentConfirmOpen = true;
@@ -396,7 +388,7 @@
                                     {:else}
                                         <div class="space-y-1.5">
                                             <Label for="delivery-ref-mp" class="text-xs font-medium text-foreground">
-                                                Nº Comprobante / Operación de Mercado Pago <span class="text-rose-500">*</span>
+                                                Nº Comprobante / Transacción (opcional)
                                             </Label>
                                             <Input
                                                 id="delivery-ref-mp"
@@ -406,7 +398,7 @@
                                                 class="h-11 min-h-[44px] bg-background border-border/80"
                                             />
                                             <p class="text-[11px] text-muted-foreground">
-                                                Ingresa el número de operación visible en la constancia provista por el cliente.
+                                                Opcional. Puedes anotar el número de operación o comprobante provisto por el cliente.
                                             </p>
                                         </div>
                                     {/if}
@@ -521,7 +513,7 @@
                                     {#if paymentMethod === 'mercadopago'}
                                         <div class="col-span-1 sm:col-span-2 space-y-1.5">
                                             <Label for="extra-ref-mp" class="text-xs font-medium text-foreground">
-                                                Nº Comprobante / Operación de Mercado Pago <span class="text-rose-500">*</span>
+                                                Nº Comprobante / Transacción (opcional)
                                             </Label>
                                             <Input
                                                 id="extra-ref-mp"
@@ -531,7 +523,7 @@
                                                 class="h-11 min-h-[44px] bg-background border-border/80"
                                             />
                                             <p class="text-[11px] text-muted-foreground">
-                                                Ingresa el número de operación de la constancia de Mercado Pago.
+                                                Opcional. Puedes anotar el número de operación o comprobante si deseas dejar constancia.
                                             </p>
                                         </div>
                                     {:else if paymentMethod !== 'efectivo'}

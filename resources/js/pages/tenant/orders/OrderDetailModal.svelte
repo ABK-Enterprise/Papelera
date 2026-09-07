@@ -507,7 +507,7 @@
                         <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary">{formatPrice(order.total_amount)}</span>
                     </div>
 
-                    {#if order.status !== 'cancelado' && (Number(order.debt_amount ?? order.total_amount) > 0 || order.status !== 'entregado')}
+                    {#if order.status !== 'cancelado' && order.status !== 'entregado' && Number(order.debt_amount ?? order.total_amount) > 0}
                         <Button
                             type="button"
                             variant="default"
