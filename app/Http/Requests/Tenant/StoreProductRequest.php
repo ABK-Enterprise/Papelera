@@ -61,7 +61,7 @@ class StoreProductRequest extends FormRequest
             'price' => ['required', 'numeric', 'min:0'],
             'cost_price' => ['nullable', 'numeric', 'min:0'],
             'iva_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'stock' => ['nullable', 'numeric', 'min:0'],
+            'stock' => ['nullable', 'numeric', 'min:0', 'max:10000'],
             'min_stock' => ['nullable', 'numeric', 'min:0'],
             'units_per_package' => ['nullable', 'numeric', 'min:0.001'],
             'package_quantity' => ['nullable', 'numeric', 'min:0.001'],

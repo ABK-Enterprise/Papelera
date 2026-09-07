@@ -160,6 +160,13 @@
                         id="income-qty"
                         type="number"
                         min="1"
+                        max="10000"
+                        maxlength="5"
+                        oninput={(e) => {
+                            const val = (e.target as HTMLInputElement).value;
+                            if (val.length > 5) (e.target as HTMLInputElement).value = val.slice(0, 5);
+                            if (Number(val) > 10000) form.quantity = 10000;
+                        }}
                         bind:value={form.quantity}
                         placeholder="Ej. 10"
                         required

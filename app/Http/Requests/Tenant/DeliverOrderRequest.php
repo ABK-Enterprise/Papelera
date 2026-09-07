@@ -54,6 +54,7 @@ class DeliverOrderRequest extends FormRequest
                 'nullable',
                 'numeric',
                 'min:0.01',
+                'max:50000000',
             ];
         }
 
@@ -80,6 +81,20 @@ class DeliverOrderRequest extends FormRequest
             // Bloquear cobro extra si el pedido ya está pagado pero el cliente NO tiene cuenta corriente
             if ($orderDebt <= 0 && $hasExtraAmount && ! $hasAccount) {
                 $v->errors()->add('amount', 'No se puede registrar cobro extra en un pedido ya pagado para un cliente sin cuenta corriente.');
+            }
+
+            // Validar límite máximo de saldo a favor (tope de $10.000.000)
+            if ($hasAccount && $hasExtraAmount) {
+                $order->loadMissing('customer');
+                if ($order->customer) {
+                    $extraPayment = max(0.0, (float) $this->input('amount') - max(0.0, $orderDebt));
+                    $currentBalance = (float) $order->customer->current_balance;
+                    $existingCredit = $currentBalance < 0 ? abs($currentBalance) : 0.0;
+                    $resultingCredit = $existingCredit + $extraPayment;
+                    if ($resultingCredit > 10000000.00) {
+                        $v->errors()->add('amount', 'El monto ingresado excede el límite máximo permitido de saldo a favor ($10.000.000,00).');
+                    }
+                }
             }
 
             // Validar entrega a crédito solo si el cliente tiene cuenta habilitada

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
@@ -104,7 +105,6 @@ class CustomerOrder extends Model
         return $this->belongsTo(User::class, 'delivery_user_id');
     }
 
-
     public function items(): HasMany
     {
         return $this->hasMany(CustomerOrderItem::class);
@@ -115,11 +115,53 @@ class CustomerOrder extends Model
         return $this->hasMany(CustomerOrderReceipt::class, 'customer_order_id');
     }
 
-    public function receipts(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function receipts(): BelongsToMany
     {
         return $this->belongsToMany(Receipt::class, 'customer_order_receipt')
             ->withPivot('amount_applied')
             ->withTimestamps();
+    }
+
+    protected static function booted(): void
+    {
+        static::updating(function (CustomerOrder $order) {
+            $originalStatus = $order->getOriginal('status');
+            if ($originalStatus === 'cancelado') {
+                throw new \DomainException("El pedido {$order->order_number} se encuentra en estado definitivo ({$originalStatus}) y es inmutable.");
+            }
+
+            if ($originalStatus === 'entregado') {
+                if ($order->isDirty('status')) {
+                    throw new \DomainException("El pedido {$order->order_number} se encuentra en estado definitivo ({$originalStatus}) y su estado no puede alterarse.");
+                }
+
+                $forbiddenFields = [
+                    'order_number',
+                    'customer_id',
+                    'warehouse_id',
+                    'shipping_zone_id',
+                    'shipping_zone_name',
+                    'customer_name',
+                    'customer_phone',
+                    'delivery_address',
+                    'delivery_user_id',
+                    'subtotal_amount',
+                    'shipping_cost',
+                    'total_amount',
+                ];
+
+                if ($order->isDirty($forbiddenFields)) {
+                    throw new \DomainException("El pedido {$order->order_number} ya fue entregado y sus datos operativos son inmutables.");
+                }
+            }
+        });
+
+        static::deleting(function (CustomerOrder $order) {
+            $originalStatus = $order->getOriginal('status') ?? $order->status;
+            if (in_array($originalStatus, ['entregado', 'cancelado'], true)) {
+                throw new \DomainException("El pedido {$order->order_number} se encuentra en estado definitivo ({$originalStatus}) y no puede ser eliminado.");
+            }
+        });
     }
 
     public function isPaid(): bool
@@ -135,6 +177,11 @@ class CustomerOrder extends Model
     public function isTerminal(): bool
     {
         return in_array($this->status, ['entregado', 'cancelado'], true);
+    }
+
+    public function isImmutable(): bool
+    {
+        return $this->isTerminal();
     }
 
     public function canTransitionTo(string $targetStatus): bool

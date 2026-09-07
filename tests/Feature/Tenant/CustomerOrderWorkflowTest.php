@@ -484,3 +484,117 @@ test('can create customer order with partial payment generating receipt and reco
     // Balance should only reflect the unpaid debt (5000.00)
     expect((float) $customer->current_balance)->toBe(5000.00);
 });
+
+test('terminal delivered order cannot be modified, deleted or charged via QR', function () {
+    $order = CustomerOrder::factory()->forTenant($this->tenant)->create([
+        'status' => 'entregado',
+        'payment_status' => 'cobrado',
+        'debt_amount' => 0.00,
+        'total_amount' => 5000.00,
+    ]);
+
+    // 1. Cannot update status
+    $resStatus = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
+        'status' => 'cancelado',
+    ]);
+    $resStatus->assertStatus(422)
+        ->assertJsonValidationErrors(['status']);
+
+    // 2. Cannot delete
+    $resDelete = $this->actingAs($this->user)->deleteJson(route('tenant.orders.destroy', $order));
+    $resDelete->assertStatus(422)
+        ->assertJsonValidationErrors(['order']);
+
+    // 3. Cannot generate QR
+    $resQr = $this->actingAs($this->user)->postJson(route('tenant.orders.generate-qr', $order));
+    $resQr->assertStatus(422)
+        ->assertJson(['success' => false]);
+});
+
+test('terminal cancelled order cannot be modified, deleted or charged via QR', function () {
+    $order = CustomerOrder::factory()->forTenant($this->tenant)->create([
+        'status' => 'cancelado',
+        'payment_status' => 'pendiente',
+        'debt_amount' => 0.00,
+        'total_amount' => 5000.00,
+    ]);
+
+    // 1. Cannot update status
+    $resStatus = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
+        'status' => 'en_preparacion',
+    ]);
+    $resStatus->assertStatus(422)
+        ->assertJsonValidationErrors(['status']);
+
+    // 2. Cannot delete
+    $resDelete = $this->actingAs($this->user)->deleteJson(route('tenant.orders.destroy', $order));
+    $resDelete->assertStatus(422)
+        ->assertJsonValidationErrors(['order']);
+
+    // 3. Cannot generate QR
+    $resQr = $this->actingAs($this->user)->postJson(route('tenant.orders.generate-qr', $order));
+    $resQr->assertStatus(422)
+        ->assertJson(['success' => false]);
+});
+
+test('order model throws DomainException on direct update or delete when in terminal status', function () {
+    $order = CustomerOrder::factory()->forTenant($this->tenant)->create([
+        'status' => 'entregado',
+    ]);
+
+    expect(fn () => $order->update(['status' => 'cancelado']))
+        ->toThrow(DomainException::class);
+
+    expect(fn () => $order->update(['customer_name' => 'Otro Cliente']))
+        ->toThrow(DomainException::class);
+
+    expect(fn () => $order->delete())
+        ->toThrow(DomainException::class);
+
+    $cancelledOrder = CustomerOrder::factory()->forTenant($this->tenant)->create([
+        'status' => 'cancelado',
+    ]);
+
+    expect(fn () => $cancelledOrder->update(['notes' => 'Intento de modificar cancelado']))
+        ->toThrow(DomainException::class);
+
+    expect(fn () => $cancelledOrder->delete())
+        ->toThrow(DomainException::class);
+});
+
+test('can create customer order with contado and mercadopago generating receipt without payment reference', function () {
+    $product = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
+        'name' => 'Bolsas Kraft 20x30',
+        'price' => 1000.00,
+        'stock' => 100,
+        'units_per_package' => 1,
+    ]);
+
+    $response = $this->actingAs($this->user)->post(route('tenant.orders.store'), [
+        'customer_name' => 'Cliente Mostrador MP',
+        'payment_type' => 'contado',
+        'payment_method' => 'mercadopago',
+        'items' => [
+            [
+                'product_id' => $product->id,
+                'packaging_type' => 'unidad',
+                'quantity' => 2,
+            ],
+        ],
+    ]);
+
+    $response->assertRedirect(route('tenant.orders.index'));
+
+    $order = CustomerOrder::where('tenant_id', $this->tenant->id)->first();
+    expect($order)->not->toBeNull()
+        ->and($order->payment_status)->toBe('cobrado')
+        ->and((float) $order->debt_amount)->toBe(0.0)
+        ->and((float) $order->total_amount)->toBe(2000.0);
+
+    $receipt = Receipt::where('tenant_id', $this->tenant->id)->first();
+    expect($receipt)->not->toBeNull()
+        ->and($receipt->payment_method)->toBe('mercadopago')
+        ->and((float) $receipt->amount)->toBe(2000.0)
+        ->and($receipt->reference_number)->toBe($order->order_number);
+});
+
