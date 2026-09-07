@@ -245,3 +245,120 @@ test('webhook processes approved payment, creates receipt and broadcasts event',
     // Ensure no second receipt was created
     expect(Receipt::where('tenant_id', $this->tenant->id)->count())->toBe(1);
 });
+
+test('ensurePosExists resolves existing active POS for oauth linked merchant', function () {
+    $this->tenant->update([
+        'mp_access_token' => 'APP_USR-TEST-MERCHANT-TOKEN',
+        'mp_user_id' => '12345678',
+        'mp_pos_id' => 'CAJA_CUSTOM_01',
+    ]);
+
+    Http::fake([
+        'https://api.mercadopago.com/pos' => Http::response([
+            'paging' => ['total' => 1],
+            'results' => [
+                [
+                    'id' => 999,
+                    'name' => 'Caja Central',
+                    'external_id' => 'CAJA_CUSTOM_01',
+                    'status' => 'active',
+                ],
+            ],
+        ], 200),
+    ]);
+
+    $service = app(\App\Services\MercadoPago\MercadoPagoService::class);
+    $resolvedPos = $service->ensurePosExists($this->tenant);
+
+    expect($resolvedPos)->toBe('CAJA_CUSTOM_01');
+    expect($this->tenant->fresh()->mp_pos_id)->toBe('CAJA_CUSTOM_01');
+});
+
+test('ensurePosExists auto-provisions store and POS when merchant has none registered', function () {
+    $this->tenant->update([
+        'mp_access_token' => 'APP_USR-NEW-MERCHANT-TOKEN',
+        'mp_user_id' => '98765432',
+        'mp_pos_id' => 'SUC01POS01',
+    ]);
+
+    Http::fake([
+        'https://api.mercadopago.com/pos' => Http::response([
+            'results' => [],
+        ], 200),
+        'https://api.mercadopago.com/users/98765432/stores/search' => Http::response([
+            'results' => [],
+        ], 200),
+        'https://api.mercadopago.com/users/98765432/stores' => Http::response([
+            'id' => 55555,
+            'name' => 'Sucursal Principal',
+        ], 201),
+        'https://api.mercadopago.com/v2/pos' => Http::response([
+            'id' => 77777,
+            'external_id' => 'SUC01POS01',
+            'status' => 'active',
+        ], 201),
+    ]);
+
+    $service = app(\App\Services\MercadoPago\MercadoPagoService::class);
+    $resolvedPos = $service->ensurePosExists($this->tenant);
+
+    expect($resolvedPos)->toBe('SUC01POS01');
+    expect($this->tenant->fresh()->mp_pos_id)->toBe('SUC01POS01');
+
+    Http::assertSent(function ($request) {
+        return $request->url() === 'https://api.mercadopago.com/users/98765432/stores' &&
+               $request->method() === 'POST';
+    });
+    Http::assertSent(function ($request) {
+        return $request->url() === 'https://api.mercadopago.com/v2/pos' &&
+               $request->method() === 'POST';
+    });
+});
+
+test('createOrder auto-recovers when mercado pago returns pos not found error', function () {
+    $this->tenant->update([
+        'mp_access_token' => 'APP_USR-RECOVERY-TOKEN',
+        'mp_user_id' => '44455566',
+        'mp_pos_id' => 'POS_UNREGISTERED',
+    ]);
+
+    $callCount = 0;
+
+    Http::fake([
+        'https://api.mercadopago.com/pos' => Http::response([
+            'results' => [],
+        ], 200),
+        'https://api.mercadopago.com/users/44455566/stores/search' => Http::response([
+            'results' => [['id' => 112233]],
+        ], 200),
+        'https://api.mercadopago.com/v2/pos' => Http::response([
+            'id' => 888999,
+            'external_id' => 'POS_RECOVERED',
+            'status' => 'active',
+        ], 201),
+        'https://api.mercadopago.com/v1/orders' => function ($request) use (&$callCount) {
+            $callCount++;
+            if ($callCount === 1) {
+                return Http::response([
+                    'message' => 'pos not found with external_pos_id: POS_UNREGISTERED',
+                    'error' => 'not_found',
+                    'status' => 404,
+                ], 404);
+            }
+
+            return Http::response([
+                'id' => 'ORD-RECOVERED-001',
+                'status' => 'created',
+                'type_response' => ['qr_data' => '00020101RECOVERED_QR_DATA'],
+            ], 200);
+        },
+    ]);
+
+    $service = app(\App\Services\MercadoPago\MercadoPagoService::class);
+    $result = $service->createOrder($this->order);
+
+    expect($result['success'])->toBeTrue();
+    expect($result['order_id'])->toBe('ORD-RECOVERED-001');
+    expect($result['qr_data'])->toBe('00020101RECOVERED_QR_DATA');
+    expect($callCount)->toBe(2);
+});

@@ -16,7 +16,6 @@
     import ReceiptText from 'lucide-svelte/icons/receipt-text';
     import X from 'lucide-svelte/icons/x';
     import User from 'lucide-svelte/icons/user';
-    import ShieldAlert from 'lucide-svelte/icons/shield-alert';
 
     export interface OrderData {
         id: number;
@@ -169,7 +168,7 @@
 
             if (!response.ok || !data.success) {
                 currentStep = 'error';
-                errorMessage = data.message || 'No fue posible generar el código QR de cobro.';
+                errorMessage = data.error || data.message || 'No fue posible generar el código QR de cobro.';
                 return;
             }
 
@@ -276,14 +275,14 @@
 
 <Dialog bind:open>
     <DialogContent class="w-[95vw] max-w-md p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-card border-border shadow-2xl flex flex-col relative">
-        <!-- Botón de Cerrar en esquina con borde redondeado y fondo temático (light/dark) -->
+        <!-- Botón de Cerrar con token semántico acorde a dark y light mode -->
         <button
             type="button"
             onclick={handleClose}
-            class="absolute top-4 right-4 sm:top-5 sm:right-6 size-9 sm:size-10 rounded-full border border-border/80 bg-background/80 hover:bg-muted text-muted-foreground hover:text-foreground dark:bg-background-900/80 dark:border-border/80 dark:hover:bg-background-800 dark:text-muted-foreground dark:hover:text-foreground flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xs z-20"
+            class="absolute top-4 right-4 sm:top-5 sm:right-6 size-9 sm:size-10 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer z-20"
             aria-label="Cerrar modal"
         >
-            <X class="size-4 sm:size-4.5" />
+            <X class="size-4.5" />
         </button>
 
         <DialogHeader class="border-b pb-3 shrink-0 pr-12">
@@ -303,11 +302,6 @@
         </DialogHeader>
 
         <DialogBody class="space-y-4 py-3 flex-1 overflow-y-auto">
-            <!-- Banner de Modo Sandbox / Pruebas -->
-            <div class="px-3 py-2 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center gap-2 text-sky-700 dark:text-sky-300 text-xs">
-                <ShieldAlert class="size-4 shrink-0 text-sky-600 dark:text-sky-400" />
-                <span class="font-medium">Modo Sandbox Activo: Cobro de prueba en entorno integrado.</span>
-            </div>
 
             <!-- Paso: Configuración de Monto a Cobrar -->
             {#if currentStep === 'amount_setup' || currentStep === 'generating'}
