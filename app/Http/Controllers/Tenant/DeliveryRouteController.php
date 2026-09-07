@@ -471,7 +471,7 @@ class DeliveryRouteController extends Controller
             'customer_id' => $order->customer_id,
             'customer_name' => $order->customer_name,
             'customer_phone' => $order->customer_phone,
-            'customer_has_credit' => (bool) ($order->customer?->has_credit_account),
+            'customer_has_credit' => $order->customer_id !== null,
             'customer_credit_limit' => $order->customer ? (float) $order->customer->credit_limit : 0.0,
             'customer_current_balance' => $order->customer ? (float) $order->customer->current_balance : 0.0,
             'delivery_address' => $order->delivery_address,

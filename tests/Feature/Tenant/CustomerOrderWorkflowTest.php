@@ -561,3 +561,40 @@ test('order model throws DomainException on direct update or delete when in term
     expect(fn () => $cancelledOrder->delete())
         ->toThrow(DomainException::class);
 });
+
+test('can create customer order with contado and mercadopago generating receipt without payment reference', function () {
+    $product = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
+        'name' => 'Bolsas Kraft 20x30',
+        'price' => 1000.00,
+        'stock' => 100,
+        'units_per_package' => 1,
+    ]);
+
+    $response = $this->actingAs($this->user)->post(route('tenant.orders.store'), [
+        'customer_name' => 'Cliente Mostrador MP',
+        'payment_type' => 'contado',
+        'payment_method' => 'mercadopago',
+        'items' => [
+            [
+                'product_id' => $product->id,
+                'packaging_type' => 'unidad',
+                'quantity' => 2,
+            ],
+        ],
+    ]);
+
+    $response->assertRedirect(route('tenant.orders.index'));
+
+    $order = CustomerOrder::where('tenant_id', $this->tenant->id)->first();
+    expect($order)->not->toBeNull()
+        ->and($order->payment_status)->toBe('cobrado')
+        ->and((float) $order->debt_amount)->toBe(0.0)
+        ->and((float) $order->total_amount)->toBe(2000.0);
+
+    $receipt = Receipt::where('tenant_id', $this->tenant->id)->first();
+    expect($receipt)->not->toBeNull()
+        ->and($receipt->payment_method)->toBe('mercadopago')
+        ->and((float) $receipt->amount)->toBe(2000.0)
+        ->and($receipt->reference_number)->toBe($order->order_number);
+});
+

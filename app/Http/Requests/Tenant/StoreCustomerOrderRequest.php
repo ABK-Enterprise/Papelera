@@ -38,7 +38,7 @@ class StoreCustomerOrderRequest extends FormRequest
             'delivery_address' => ['nullable', 'string', 'max:500'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'payment_type' => ['nullable', 'string', 'in:contado,cuenta_corriente,parcial'],
-            'payment_method' => ['nullable', 'string', 'in:efectivo,transferencia,cheque,debito,credito,otro'],
+            'payment_method' => ['nullable', 'string', 'in:efectivo,transferencia,mercadopago,cheque,debito,credito,otro'],
             'paid_amount' => ['nullable', 'numeric', 'min:0'],
             'payment_reference' => ['nullable', 'string', 'max:255'],
             'apply_customer_discount' => ['nullable', 'boolean'],

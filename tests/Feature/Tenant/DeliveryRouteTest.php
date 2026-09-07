@@ -137,6 +137,7 @@ test('user can view deliveries index with available and my route orders', functi
         ->has('availableOrders', 2)
         ->has('myRouteOrders', 1)
         ->where('myRouteOrders.0.order_number', 'PED-MYROUTE-001')
+        ->where('myRouteOrders.0.customer_has_credit', true)
         ->has('shiftSummary')
     );
 });

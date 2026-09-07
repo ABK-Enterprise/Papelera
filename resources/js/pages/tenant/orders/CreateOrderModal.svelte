@@ -118,9 +118,8 @@
     let deliveryAddress = $state('');
     let notes = $state('');
     let paymentType = $state<'cuenta_corriente' | 'contado' | 'parcial'>('cuenta_corriente');
-    let paymentMethod = $state<'efectivo' | 'transferencia' | 'debito' | 'credito' | 'otro'>('efectivo');
+    let paymentMethod = $state<'efectivo' | 'transferencia' | 'mercadopago' | 'debito' | 'credito' | 'otro'>('efectivo');
     let paidAmount = $state<number | string>('');
-    let paymentReference = $state('');
     let isSubmitting = $state(false);
     let errorMessage = $state<string | null>(null);
 
@@ -464,7 +463,6 @@
         paymentType = 'cuenta_corriente';
         paymentMethod = 'efectivo';
         paidAmount = '';
-        paymentReference = '';
         errorMessage = null;
         searchQuery = '';
         selectedProductToAdd = null;
@@ -572,7 +570,7 @@
                 payment_type: paymentType,
                 payment_method: (paymentType === 'contado' || paymentType === 'parcial') ? paymentMethod : null,
                 paid_amount: numericPaidAmount,
-                payment_reference: (paymentType === 'contado' || paymentType === 'parcial') ? (paymentReference.trim() || null) : null,
+                payment_reference: null,
                 apply_customer_discount: applyCustomerDiscount,
                 items: payloadItems,
             },
@@ -1139,7 +1137,7 @@
                     </div>
 
                     {#if paymentType === 'contado' || paymentType === 'parcial'}
-                        <div class="pt-2.5 mt-1 border-t border-border/50 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="pt-2.5 mt-1 border-t border-border/50 space-y-3">
                             <div class="space-y-1.5">
                                 <Label for="order-payment-method" class="text-xs font-semibold text-foreground">
                                     Medio de Pago
@@ -1151,27 +1149,15 @@
                                 >
                                     <option value="efectivo">Efectivo</option>
                                     <option value="transferencia">Transferencia Bancaria</option>
+                                    <option value="mercadopago">Mercado Pago</option>
                                     <option value="debito">Tarjeta de Débito</option>
                                     <option value="credito">Tarjeta de Crédito</option>
                                     <option value="otro">Otro medio de pago</option>
                                 </select>
                             </div>
 
-                            <div class="space-y-1.5">
-                                <Label for="order-payment-reference" class="text-xs font-semibold text-foreground">
-                                    Nro. Comprobante / Referencia (Opcional)
-                                </Label>
-                                <Input
-                                    id="order-payment-reference"
-                                    type="text"
-                                    placeholder="ej. TRF-889911, Recibo provisorio..."
-                                    bind:value={paymentReference}
-                                    class="h-10 text-xs rounded-xl"
-                                />
-                            </div>
-
                             {#if paymentType === 'parcial'}
-                                <div class="space-y-1.5 sm:col-span-2 bg-background/80 p-3 rounded-xl border border-border/80">
+                                <div class="space-y-1.5 bg-background/80 p-3 rounded-xl border border-border/80">
                                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                                         <div>
                                             <Label for="order-paid-amount" class="text-xs font-semibold text-foreground">

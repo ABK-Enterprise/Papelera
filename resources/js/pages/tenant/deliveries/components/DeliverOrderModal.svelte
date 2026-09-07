@@ -82,7 +82,7 @@
             errorMessage = null;
             isOverpaymentConfirmOpen = false;
             collectExtraBalance = false;
-            paymentMode = currentDebt > 0 ? 'paid_now' : 'on_credit';
+            paymentMode = (order.customer_has_credit || Boolean(order.customer_id)) ? 'on_credit' : 'paid_now';
             paymentMethod = 'efectivo';
             mpMode = 'qr';
         }
