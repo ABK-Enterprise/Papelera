@@ -2,7 +2,7 @@ packages:
   - '.'
 
 allowBuilds:
-  puppeteer: set this to true or false
+  puppeteer: false
   unrs-resolver: true
 
 publicHoistPattern:
