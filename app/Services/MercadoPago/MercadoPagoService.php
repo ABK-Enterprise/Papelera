@@ -39,7 +39,8 @@ class MercadoPagoService
             ? max(0.01, round($amountToCollect, 2))
             : (float) ($order->debt_amount > 0 ? $order->debt_amount : $order->total_amount);
 
-        $posId = $externalPosId ?: $this->defaultPosId;
+        $token = $order->tenant?->mp_access_token ?: $this->token;
+        $posId = $externalPosId ?: ($order->tenant?->mp_pos_id ?: $this->defaultPosId);
         $formattedAmount = number_format($amount, 2, '.', '');
         $idempotencyKey = Str::uuid()->toString();
 
@@ -76,7 +77,7 @@ class MercadoPagoService
         try {
             $response = Http::timeout(10)
                 ->withHeaders([
-                    'Authorization' => "Bearer {$this->token}",
+                    'Authorization' => "Bearer {$token}",
                     'X-Idempotency-Key' => $idempotencyKey,
                     'Content-Type' => 'application/json',
                 ])

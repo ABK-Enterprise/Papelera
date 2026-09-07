@@ -42,6 +42,8 @@ return [
     ],
 
     'mercadopago' => [
+        'client_id' => env('MERCADO_PAGO_CLIENT_ID'),
+        'client_secret' => env('MERCADO_PAGO_CLIENT_SECRET'),
         'access_token' => env('MERCADO_PAGO_TEST_USER_TOKEN', env('MERCADO_PAGO_ACCESS_TOKEN')),
         'user_id' => env('MERCADO_PAGO_TEST_USER_ID', env('MERCADO_PAGO_USER_ID')),
         'webhook_secret' => env('MERCADO_PAGO_WEBHOOK_SECRET'),

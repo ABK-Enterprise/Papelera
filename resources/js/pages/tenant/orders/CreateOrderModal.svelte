@@ -298,20 +298,78 @@
         const totalStock = prod ? prod.stock : targetItem.stock;
         const freeStock = Math.max(0, totalStock - consumedByOthers);
 
+        let calculatedMax = 1;
         if (targetItem.sale_type === 'weight') {
             if (targetItem.packaging_type === 'gram') {
-                return Math.floor(freeStock * 1000);
-            }
-            if (targetItem.packaging_type === 'bulto') {
+                calculatedMax = Math.floor(freeStock * 1000);
+            } else if (targetItem.packaging_type === 'bulto') {
                 const pkgSize = targetItem.package_quantity || targetItem.units_per_package || 1;
-                return Math.max(1, Math.floor(freeStock / pkgSize));
+                calculatedMax = Math.max(1, Math.floor(freeStock / pkgSize));
+            } else {
+                calculatedMax = freeStock;
             }
-            return freeStock;
         } else {
             const ratio = targetItem.packaging_type === 'bulto' ? (targetItem.units_per_package || 1) : 1;
-            return Math.max(1, Math.floor(freeStock / ratio));
+            calculatedMax = Math.max(1, Math.floor(freeStock / ratio));
+        }
+
+        return Math.min(calculatedMax, 10000);
+    }
+
+    function getMinAllowedQuantityForItem(item: OrderItemLine): number {
+        if (item.sale_type === 'weight') {
+            if (item.packaging_type === 'gram') return 50;
+            if (item.packaging_type === 'kg') return 0.1;
+            return 1;
+        }
+        return 1;
+    }
+
+    function handleQuantityBlur(index: number) {
+        const item = items[index];
+        if (!item) return;
+        const minVal = getMinAllowedQuantityForItem(item);
+        const maxVal = getMaxAllowedQuantityForItem(index);
+        let val = Number(item.quantity);
+        if (isNaN(val) || val < minVal) {
+            item.quantity = minVal;
+        } else if (val > maxVal) {
+            item.quantity = maxVal;
+        } else {
+            if (item.packaging_type === 'kg') {
+                item.quantity = Math.round(val * 1000) / 1000;
+            } else if (item.packaging_type === 'gram' || item.packaging_type === 'bulto' || item.packaging_type === 'unidad') {
+                item.quantity = Math.floor(val);
+            }
         }
     }
+
+    function handleQuantityPaste(index: number, e: ClipboardEvent) {
+        const pastedText = e.clipboardData?.getData('text') || '';
+        const cleaned = pastedText.replace(/[^0-9.]/g, '');
+        if (!cleaned) {
+            e.preventDefault();
+            return;
+        }
+        const num = parseFloat(cleaned);
+        if (isNaN(num)) {
+            e.preventDefault();
+            return;
+        }
+        e.preventDefault();
+        const item = items[index];
+        if (!item) return;
+        const minVal = getMinAllowedQuantityForItem(item);
+        const maxVal = getMaxAllowedQuantityForItem(index);
+        item.quantity = Math.max(minVal, Math.min(num, maxVal));
+    }
+
+    let hasQuantityOverflow = $derived.by(() => {
+        return items.some((it, idx) => {
+            const max = getMaxAllowedQuantityForItem(idx);
+            return Number(it.quantity) > max || Number(it.quantity) > 10000;
+        });
+    });
 
     function incrementQuantity(index: number) {
         const item = items[index];
@@ -405,11 +463,30 @@
         }
     }
 
-    function formatPrice(amount: number) {
+    function formatPrice(amount: number, compact: boolean = false) {
+        const val = Number(amount) || 0;
+        if (compact || Math.abs(val) >= 1_000_000_000) {
+            return new Intl.NumberFormat('es-AR', {
+                style: 'currency',
+                currency: 'ARS',
+                notation: 'compact',
+                maximumFractionDigits: 2,
+            }).format(val);
+        }
         return new Intl.NumberFormat('es-AR', {
             style: 'currency',
             currency: 'ARS',
             minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(val);
+    }
+
+    function formatExactPrice(amount: number) {
+        return new Intl.NumberFormat('es-AR', {
+            style: 'currency',
+            currency: 'ARS',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
         }).format(amount);
     }
 
@@ -978,90 +1055,122 @@
                                 </div>
 
                                 <!-- Fila 2: Metadatos (precio base y stock) abajo a la izquierda | Selector, Stepper y Subtotal a la derecha -->
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1.5 border-t border-border/50">
-                                    <div class="flex items-center gap-2 text-xs text-muted-foreground">
-                                        <span>precio: <strong class="font-sans tabular-nums text-foreground">{formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}</strong></span>
-                                        <span>|</span>
-                                        <span>stock: <strong class="font-sans tabular-nums text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-border/50">
+                                    <!-- Metadatos Desktop (>= sm: vertical stack de 2 líneas) -->
+                                    <div class="hidden sm:flex flex-col gap-0.5 min-w-0">
+                                        <span class="text-sm font-semibold text-foreground whitespace-nowrap" title={formatExactPrice(item.unit_price)}>
+                                            {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
+                                        </span>
+                                        <div class="flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap">
+                                            <span>Stock: <strong class="font-sans tabular-nums text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
+                                            {#if isAtStockLimit}
+                                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                                                    Tope
+                                                </span>
+                                            {/if}
+                                        </div>
+                                    </div>
+
+                                    <!-- Metadatos Mobile (< sm: formato minimalista inline) -->
+                                    <div class="flex sm:hidden items-center gap-1.5 text-xs text-muted-foreground flex-wrap">
+                                        <span class="font-semibold text-foreground" title={formatExactPrice(item.unit_price)}>
+                                            {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
+                                        </span>
+                                        <span>•</span>
+                                        <span>Stock: <strong class="font-sans tabular-nums text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
                                         {#if isAtStockLimit}
-                                            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                                            <span class="inline-flex items-center text-[10px] font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
                                                 Tope
                                             </span>
                                         {/if}
                                     </div>
 
-                                    <div class="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 w-full sm:w-auto shrink-0">
-                                        <!-- Selector de Presentación -->
-                                        <select
-                                            value={item.packaging_type}
-                                            onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                            class="h-9 sm:h-10 rounded-xl border border-border/80 bg-background px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
-                                        >
-
-
-                                            {#if item.sale_type === 'weight'}
-                                                <option value="gram">Gramos (g)</option>
-                                                <option value="kg">Kilogramos (Kg)</option>
-                                                <option value="bulto" disabled={item.stock < (item.package_quantity || item.units_per_package || 1)}>
-                                                    Bulto ({item.package_quantity || item.units_per_package || 1} Kg)
-                                                </option>
-                                            {:else}
-                                                <option value="unidad">Unidad</option>
-                                                <option value="bulto" disabled={item.stock < item.units_per_package}>
-                                                    Bulto (x{item.units_per_package}u)
-                                                </option>
-                                            {/if}
-                                        </select>
-
-                                        <!-- Stepper Táctil / Input Cantidad -->
-                                        <div class="flex items-center border rounded-lg bg-background shadow-2xs">
-                                            <button
-                                                type="button"
-                                                class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                                                onclick={() => decrementQuantity(index)}
-                                                disabled={item.packaging_type === 'gram' ? item.quantity <= 50 : item.packaging_type === 'kg' ? item.quantity <= 0.1 : item.quantity <= 1}
-                                                aria-label="Disminuir cantidad"
+                                    <!-- Controles y Subtotal a la derecha -->
+                                    <div class="flex items-end justify-between sm:justify-end gap-3 w-full sm:w-auto shrink-0">
+                                        <!-- Selector de Presentación y Stepper -->
+                                        <div class="flex items-center gap-2">
+                                            <!-- Selector de Presentación (Abreviado) -->
+                                            <select
+                                                value={item.packaging_type}
+                                                onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
+                                                class="h-8 sm:h-9 rounded-lg sm:rounded-xl border border-border/80 bg-background px-2 text-xs font-semibold text-foreground min-w-[65px] sm:min-w-[80px] max-w-[85px] sm:max-w-none focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
                                             >
-                                                <Minus class="size-3.5" />
-                                            </button>
+                                                {#if item.sale_type === 'weight'}
+                                                    <option value="gram">G</option>
+                                                    <option value="kg">Kg</option>
+                                                    <option value="bulto" disabled={item.stock < (item.package_quantity || item.units_per_package || 1)}>
+                                                        Bulto
+                                                    </option>
+                                                {:else}
+                                                    <option value="unidad">U</option>
+                                                    <option value="bulto" disabled={item.stock < item.units_per_package}>
+                                                        Bulto
+                                                    </option>
+                                                {/if}
+                                            </select>
 
-                                            <input
-                                                type="number"
-                                                step={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.001' : '1'}
-                                                min={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.001' : '1'}
-                                                max={maxAllowed}
-                                                bind:value={item.quantity}
-                                                class="w-12 sm:w-16 h-8 sm:h-9 text-xs sm:text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0"
-                                            />
+                                            <!-- Stepper Táctil con w-14 y sin flechas nativas -->
+                                            <div class="flex items-center border rounded-lg bg-background shadow-2xs">
+                                                <button
+                                                    type="button"
+                                                    class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                                    onclick={() => decrementQuantity(index)}
+                                                    disabled={item.packaging_type === 'gram' ? item.quantity <= 50 : item.packaging_type === 'kg' ? item.quantity <= 0.1 : item.quantity <= 1}
+                                                    aria-label="Disminuir cantidad"
+                                                >
+                                                    <Minus class="size-3.5" />
+                                                </button>
 
-                                            <button
-                                                type="button"
-                                                class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                                                onclick={() => incrementQuantity(index)}
-                                                disabled={isAtStockLimit}
-                                                title={isAtStockLimit ? 'Se alcanzó el stock máximo disponible' : 'Aumentar'}
-                                                aria-label="Aumentar cantidad"
-                                            >
-                                                <Plus class="size-3.5" />
-                                            </button>
+                                                <input
+                                                    type="number"
+                                                    step={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.001' : '1'}
+                                                    min={item.packaging_type === 'gram' ? 50 : item.packaging_type === 'kg' ? 0.001 : 1}
+                                                    max={maxAllowed}
+                                                    maxlength="5"
+                                                    bind:value={item.quantity}
+                                                    onblur={() => handleQuantityBlur(index)}
+                                                    onpaste={(e) => handleQuantityPaste(index, e)}
+                                                    class="w-14 sm:w-16 h-8 sm:h-9 text-xs sm:text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none {item.quantity > maxAllowed ? 'text-amber-600 dark:text-amber-400 font-extrabold' : ''}"
+                                                />
+
+                                                <button
+                                                    type="button"
+                                                    class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                                    onclick={() => incrementQuantity(index)}
+                                                    disabled={isAtStockLimit}
+                                                    title={isAtStockLimit ? 'Se alcanzó el stock máximo disponible' : 'Aumentar'}
+                                                    aria-label="Aumentar cantidad"
+                                                >
+                                                    <Plus class="size-3.5" />
+                                                </button>
+                                            </div>
                                         </div>
 
-                                        <div class="flex flex-col items-end shrink-0 w-20 sm:w-28 text-right">
+                                        <!-- Subtotal en la esquina inferior derecha -->
+                                        <div class="flex flex-col items-end shrink-0 min-w-[85px] sm:min-w-[100px] text-right whitespace-nowrap">
                                             {#if isDiscountActive}
-                                                <span class="line-through text-[11px] text-muted-foreground font-sans tabular-nums">
+                                                <span class="line-through text-[11px] text-muted-foreground font-sans tabular-nums" title={formatExactPrice(baseSubtotal)}>
                                                     {formatPrice(baseSubtotal)}
                                                 </span>
-                                                <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-primary">
+                                                <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-primary" title={formatExactPrice(finalSubtotal)}>
                                                     {formatPrice(finalSubtotal)}
                                                 </span>
                                             {:else}
-                                                <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground">
+                                                <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground" title={formatExactPrice(baseSubtotal)}>
                                                     {formatPrice(baseSubtotal)}
                                                 </span>
                                             {/if}
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Advertencia de exceso temporal durante el tipeo -->
+                                {#if item.quantity > maxAllowed}
+                                    <div class="flex items-center gap-1.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
+                                        <AlertTriangle class="size-3.5 shrink-0" />
+                                        <span>La cantidad supera el stock disponible (máximo {maxAllowed} {item.sale_type === 'weight' ? (item.packaging_type === 'gram' ? 'g' : 'Kg') : 'u'}).</span>
+                                    </div>
+                                {/if}
                             </div>
                         {/each}
 
@@ -1246,6 +1355,14 @@
                     </div>
                 </div>
 
+                <!-- Alerta si hay cantidades que exceden el stock disponible -->
+                {#if hasQuantityOverflow}
+                    <div class="flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400 justify-end w-full">
+                        <AlertTriangle class="size-4 shrink-0" />
+                        <span>Ajustá las cantidades que superan el stock máximo para poder crear el pedido.</span>
+                    </div>
+                {/if}
+
                 <!-- Fila Inferior: Botones de Acción (ambos simétricos, min-h-[44px], sin text-wrap) -->
                 <div class="flex items-center justify-end gap-3 w-full">
                     <Button
@@ -1260,7 +1377,7 @@
                         type="submit"
                         form="create-order-form"
                         class="min-h-[44px] min-w-[150px] px-6 rounded-xl text-xs sm:text-sm font-semibold gap-2 whitespace-nowrap flex-1 sm:flex-initial shadow-xs"
-                        disabled={isSubmitting || items.length === 0}
+                        disabled={isSubmitting || items.length === 0 || hasQuantityOverflow}
                     >
                         {#if isSubmitting}
                             <span>Guardando...</span>

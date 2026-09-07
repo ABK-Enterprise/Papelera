@@ -68,7 +68,7 @@
 
 <AppHead title="Zonas de Envío" description="Gestión de tarifas y zonas de distribución" />
 
-<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
+<div class="flex flex-col gap-6 w-full">
     <!-- Cabecera del Módulo (Separada homogéneamente del cuerpo por gap-6 / 24-30px) -->
     <div class="flex flex-col gap-1">
         <div class="flex items-center gap-2.5">
