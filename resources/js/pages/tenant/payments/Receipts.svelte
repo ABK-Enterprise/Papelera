@@ -15,6 +15,7 @@
     import AppPagination from '@/components/common/AppPagination.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import PdfPreviewModal from '@/components/common/PdfPreviewModal.svelte';
+    import ReceiptDetailModal from './ReceiptDetailModal.svelte';
     import ReceiptListDesktop, { type ReceiptItem } from './desktop/ReceiptListDesktop.svelte';
     import ReceiptListMobile from './mobile/ReceiptListMobile.svelte';
     import { router } from '@inertiajs/svelte';
@@ -63,6 +64,14 @@
     function handlePreviewPdf(receipt: ReceiptItem) {
         selectedReceiptForPdf = receipt;
         isPdfModalOpen = true;
+    }
+
+    let isDetailModalOpen = $state(false);
+    let selectedReceiptForDetail = $state<ReceiptItem | null>(null);
+
+    function handleViewDetail(receipt: ReceiptItem) {
+        selectedReceiptForDetail = receipt;
+        isDetailModalOpen = true;
     }
 
     const paymentMethods = [
@@ -276,6 +285,7 @@
     <div class="hidden md:block">
         <ReceiptListDesktop
             receipts={receipts.data}
+            onViewDetail={handleViewDetail}
             onRequestVoid={requestVoid}
             onPreviewPdf={handlePreviewPdf}
         />
@@ -285,6 +295,7 @@
     <div class="block md:hidden">
         <ReceiptListMobile
             receipts={receipts.data}
+            onViewDetail={handleViewDetail}
             onRequestVoid={requestVoid}
             onPreviewPdf={handlePreviewPdf}
         />
@@ -297,6 +308,14 @@
         </div>
     {/if}
 </div>
+
+<!-- Modal de Detalle Completo de Recibo (Progressive Disclosure) -->
+<ReceiptDetailModal
+    bind:open={isDetailModalOpen}
+    receipt={selectedReceiptForDetail}
+    onPreviewPdf={handlePreviewPdf}
+    onRequestVoid={requestVoid}
+/>
 
 <!-- Modal de Previsualización y Descarga de Recibo Oficial (PDF) -->
 {#if selectedReceiptForPdf}

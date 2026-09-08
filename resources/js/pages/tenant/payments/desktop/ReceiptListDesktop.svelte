@@ -1,11 +1,16 @@
 <script lang="ts">
-    import { Button } from '@/components/ui/button';
-    import { Card } from '@/components/ui/card';
-    import Ban from 'lucide-svelte/icons/ban';
-    import User from 'lucide-svelte/icons/user';
+    import {
+        DropdownMenu,
+        DropdownMenuContent,
+        DropdownMenuItem,
+        DropdownMenuSeparator,
+        DropdownMenuTrigger,
+    } from '@/components/ui/dropdown-menu';
     import ReceiptText from 'lucide-svelte/icons/receipt-text';
-    import Calendar from 'lucide-svelte/icons/calendar';
+    import MoreVertical from 'lucide-svelte/icons/more-vertical';
+    import Eye from 'lucide-svelte/icons/eye';
     import Printer from 'lucide-svelte/icons/printer';
+    import Ban from 'lucide-svelte/icons/ban';
 
     export interface ReceiptItem {
         id: number;
@@ -26,10 +31,12 @@
 
     let {
         receipts = [],
+        onViewDetail = undefined,
         onRequestVoid = undefined,
         onPreviewPdf = undefined,
     }: {
         receipts: ReceiptItem[];
+        onViewDetail?: (receipt: ReceiptItem) => void;
         onRequestVoid?: (receipt: ReceiptItem) => void;
         onPreviewPdf?: (receipt: ReceiptItem) => void;
     } = $props();
@@ -42,119 +49,138 @@
         }).format(Number(val) || 0);
     }
 
-    function formatDate(val: string) {
-        if (!val) return '';
-        return new Intl.DateTimeFormat('es-AR', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        }).format(new Date(val));
+    function truncateRef(ref: string | null | undefined, maxLen = 14): string {
+        if (!ref) return '';
+        return ref.length > maxLen ? ref.slice(0, maxLen) + '...' : ref;
     }
 </script>
 
-<Card class="rounded-2xl border border-border/80 bg-card overflow-hidden shadow-xs">
-    <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-            <thead class="bg-muted/40 border-b border-border/70 text-muted-foreground uppercase font-bold text-[11px] tracking-wider">
-                <tr>
-                    <th class="px-4 py-3.5">Nº Recibo</th>
-                    <th class="px-4 py-3.5">Fecha</th>
-                    <th class="px-4 py-3.5">Cliente</th>
-                    <th class="px-4 py-3.5 text-right">Monto</th>
-                    <th class="px-4 py-3.5 text-center">Método</th>
-                    <th class="px-4 py-3.5">Referencia</th>
-                    <th class="px-4 py-3.5">Cajero</th>
-                    <th class="px-4 py-3.5 text-center">Estado</th>
-                    <th class="px-4 py-3.5 text-right">Acciones</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-border/50">
-                {#if receipts.length === 0}
-                    <tr>
-                        <td colspan="9" class="p-8 text-center text-muted-foreground text-xs">
-                            No se encontraron recibos que coincidan con los criterios seleccionados.
-                        </td>
-                    </tr>
-                {:else}
-                    {#each receipts as rc}
-                        <tr class="hover:bg-muted/30 transition-colors {rc.is_cancelled ? 'opacity-60 bg-muted/10' : ''}">
-                            <td class="px-4 py-3 font-bold font-sans text-foreground">
-                                {rc.receipt_number}
-                            </td>
-                            <td class="px-4 py-3 text-muted-foreground whitespace-nowrap">
-                                {formatDate(rc.created_at)}
-                            </td>
-                            <td class="px-4 py-3 max-w-[180px]">
-                                {#if rc.customer}
-                                    <span class="font-semibold text-foreground block truncate">{rc.customer.name}</span>
-                                    {#if rc.customer.tax_id}
-                                        <span class="text-[10px] text-muted-foreground block">{rc.customer.tax_id}</span>
-                                    {/if}
-                                {:else}
-                                    <span class="text-muted-foreground italic">Cliente Ocasional</span>
-                                {/if}
-                            </td>
-                            <td class="px-4 py-3 text-right font-bold font-sans tabular-nums text-foreground">
-                                {formatPrice(rc.amount)}
-                            </td>
-                            <td class="px-4 py-3 text-center">
-                                <span class="inline-block text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20 uppercase">
-                                    {rc.payment_method}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 text-muted-foreground font-sans tabular-nums text-[11px]">
-                                {rc.reference_number || '—'}
-                            </td>
-                            <td class="px-4 py-3 text-muted-foreground">
-                                {rc.created_by_user?.name || 'Sistema'}
-                            </td>
-                            <td class="px-4 py-3 text-center">
-                                {#if rc.is_cancelled}
-                                    <span
-                                        title={rc.cancellation_reason ? `Motivo: ${rc.cancellation_reason}` : undefined}
-                                        class="inline-block text-[10px] font-bold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full border border-destructive/20 line-through"
-                                    >
-                                        Anulado
-                                    </span>
-                                {:else}
-                                    <span class="inline-block text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                                        Válido
-                                    </span>
-                                {/if}
-                            </td>
-                            <td class="px-4 py-3 text-right">
-                                <div class="flex items-center justify-end gap-1.5">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        class="h-8 min-h-[32px] px-2.5 text-xs text-foreground hover:bg-muted/80 gap-1 rounded-lg cursor-pointer"
-                                        onclick={() => onPreviewPdf?.(rc)}
-                                        title="Ver e imprimir comprobante oficial"
-                                    >
-                                        <Printer class="size-3 text-muted-foreground" />
-                                        <span>PDF</span>
-                                    </Button>
-                                    {#if !rc.is_cancelled}
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            class="h-8 min-h-[32px] px-2.5 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 gap-1 rounded-lg cursor-pointer"
-                                            onclick={() => onRequestVoid?.(rc)}
-                                        >
-                                            <Ban class="size-3" />
-                                            <span>Anular</span>
-                                        </Button>
-                                    {/if}
-                                </div>
-                            </td>
-                        </tr>
-                    {/each}
-                {/if}
-            </tbody>
-        </table>
-    </div>
-</Card>
+<div class="flex flex-col gap-3">
+    {#if receipts.length === 0}
+        <div class="p-8 rounded-2xl border border-border/70 bg-card text-center text-sm text-muted-foreground shadow-xs">
+            No se encontraron recibos que coincidan con los criterios seleccionados.
+        </div>
+    {:else}
+        {#each receipts as rc (rc.id)}
+            <div
+                class="flex items-center justify-between p-4.5 rounded-2xl border border-border/70 bg-card shadow-xs hover:border-border transition-all duration-200 gap-4 select-none {rc.is_cancelled ? 'opacity-70 bg-muted/10' : ''}"
+            >
+                <!-- Lado Izquierdo: Icono temático + Nº de Recibo y Método -->
+                <div class="flex items-center gap-3.5 min-w-[200px] shrink-0">
+                    <div class="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                        <ReceiptText class="size-5 text-primary" />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <span class="font-bold text-base text-foreground tabular-nums font-sans">
+                            {rc.receipt_number}
+                        </span>
+                        <div>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full border border-primary/20 bg-primary/10 text-primary uppercase inline-block">
+                                {rc.payment_method}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cliente: Nombre y CUIT -->
+                <div class="flex flex-col min-w-[180px] max-w-[240px]">
+                    {#if rc.customer}
+                        <span class="font-semibold text-sm text-foreground truncate max-w-[200px] sm:max-w-[240px] block" title={rc.customer.name}>
+                            {rc.customer.name}
+                        </span>
+                        {#if rc.customer.tax_id}
+                            <span class="text-xs text-muted-foreground block tabular-nums">
+                                {rc.customer.tax_id}
+                            </span>
+                        {/if}
+                    {:else}
+                        <span class="text-xs text-muted-foreground italic">
+                            Cliente Ocasional
+                        </span>
+                    {/if}
+                </div>
+
+                <!-- Referencia truncada -->
+                <div class="min-w-[130px] max-w-[160px]">
+                    {#if rc.reference_number}
+                        <span
+                            class="text-xs font-mono text-muted-foreground bg-muted/50 px-2 py-1 rounded-lg border border-border/50 max-w-[140px] truncate inline-block"
+                            title={rc.reference_number}
+                        >
+                            {truncateRef(rc.reference_number, 14)}
+                        </span>
+                    {:else}
+                        <span class="text-xs text-muted-foreground/60">—</span>
+                    {/if}
+                </div>
+
+                <!-- Estado: Badge Válido / Anulado -->
+                <div class="min-w-[90px] flex items-center justify-center">
+                    {#if rc.is_cancelled}
+                        <span
+                            title={rc.cancellation_reason ? `Motivo: ${rc.cancellation_reason}` : undefined}
+                            class="bg-destructive/10 text-destructive border border-destructive/20 text-xs font-bold px-2.5 py-1 rounded-full line-through"
+                        >
+                            Anulado
+                        </span>
+                    {:else}
+                        <span class="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-semibold px-2.5 py-1 rounded-full">
+                            Válido
+                        </span>
+                    {/if}
+                </div>
+
+                <!-- Lado Derecho: Monto y Menú '...' -->
+                <div class="flex items-center gap-4 shrink-0">
+                    <div class="text-right">
+                        <span class="font-bold text-base sm:text-lg text-foreground tabular-nums text-right font-sans block">
+                            {formatPrice(rc.amount)}
+                        </span>
+                    </div>
+
+                    <!-- Menú Desplegable '...' -->
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            {#snippet children(props)}
+                                <button
+                                    {...props}
+                                    type="button"
+                                    class="size-10 min-h-[40px] min-w-[40px] rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shadow-2xs flex items-center justify-center cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
+                                    aria-label={`Opciones para recibo ${rc.receipt_number}`}
+                                >
+                                    <MoreVertical class="size-4" />
+                                </button>
+                            {/snippet}
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" class="w-48 shadow-lg">
+                            <DropdownMenuItem
+                                class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2"
+                                onclick={() => onViewDetail?.(rc)}
+                            >
+                                <Eye class="size-4 text-muted-foreground" />
+                                <span>Ver detalle</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2"
+                                onclick={() => onPreviewPdf?.(rc)}
+                            >
+                                <Printer class="size-4 text-muted-foreground" />
+                                <span>Ver e Imprimir PDF</span>
+                            </DropdownMenuItem>
+                            {#if !rc.is_cancelled}
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    class="flex items-center gap-2 text-xs font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2"
+                                    onclick={() => onRequestVoid?.(rc)}
+                                >
+                                    <Ban class="size-4 text-destructive" />
+                                    <span>Anular recibo</span>
+                                </DropdownMenuItem>
+                            {/if}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            </div>
+        {/each}
+    {/if}
+</div>
