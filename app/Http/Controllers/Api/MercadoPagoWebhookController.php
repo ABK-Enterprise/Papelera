@@ -24,6 +24,13 @@ class MercadoPagoWebhookController extends Controller
      */
     public function handle(Request $request): JsonResponse
     {
+        if ($request->isMethod('GET') || $request->isMethod('HEAD')) {
+            return response()->json([
+                'status' => 'ok',
+                'message' => 'Mercado Pago webhook endpoint is active.',
+            ], 200);
+        }
+
         $xSignature = (string) $request->header('x-signature', '');
         $xRequestId = (string) $request->header('x-request-id', '');
         $dataId = (string) ($request->query('data_id') ?: $request->query('data.id') ?: $request->input('data.id', ''));

@@ -32,27 +32,54 @@ function createNullEcho(): Echo<any> {
 }
 
 function initEcho(): Echo<any> {
-    const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
-    const reverbKey = import.meta.env.VITE_REVERB_APP_KEY;
-    const broadcaster = import.meta.env.VITE_BROADCASTER || (pusherKey ? 'pusher' : (reverbKey ? 'reverb' : 'null'));
-
     const csrfToken = typeof document !== 'undefined'
         ? (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '')
         : '';
 
+    const metaBroadcaster = typeof document !== 'undefined'
+        ? document.querySelector('meta[name="broadcaster"]')?.getAttribute('content')
+        : null;
+
+    const metaPusherKey = typeof document !== 'undefined'
+        ? document.querySelector('meta[name="pusher-key"]')?.getAttribute('content')
+        : null;
+
+    const metaPusherCluster = typeof document !== 'undefined'
+        ? document.querySelector('meta[name="pusher-cluster"]')?.getAttribute('content')
+        : null;
+
+    const metaReverbKey = typeof document !== 'undefined'
+        ? document.querySelector('meta[name="reverb-key"]')?.getAttribute('content')
+        : null;
+
+    const metaReverbHost = typeof document !== 'undefined'
+        ? document.querySelector('meta[name="reverb-host"]')?.getAttribute('content')
+        : null;
+
+    const metaReverbPort = typeof document !== 'undefined'
+        ? document.querySelector('meta[name="reverb-port"]')?.getAttribute('content')
+        : null;
+
+    const metaReverbScheme = typeof document !== 'undefined'
+        ? document.querySelector('meta[name="reverb-scheme"]')?.getAttribute('content')
+        : null;
+
+    const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY || metaPusherKey;
+    const pusherCluster = import.meta.env.VITE_PUSHER_APP_CLUSTER || metaPusherCluster || 'sa1';
+    const reverbKey = import.meta.env.VITE_REVERB_APP_KEY || metaReverbKey;
+    const broadcaster = import.meta.env.VITE_BROADCASTER || metaBroadcaster || (pusherKey ? 'pusher' : (reverbKey ? 'reverb' : 'null'));
+
     if (broadcaster === 'pusher') {
         if (!pusherKey) {
-            if (import.meta.env.DEV) {
-                console.warn('[Echo] VITE_PUSHER_APP_KEY no configurada. WebSockets en modo fallback silencioso.');
-            }
+            console.warn('[Echo] Pusher App Key no configurada (ni en compilación ni en meta tag). WebSockets en modo fallback silencioso.');
             return createNullEcho();
         }
 
         try {
-            return new Echo({
+            const echoInstance = new Echo({
                 broadcaster: 'pusher',
                 key: pusherKey,
-                cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER ?? 'sa1',
+                cluster: pusherCluster,
                 forceTLS: true,
                 authEndpoint: '/broadcasting/auth',
                 auth: {
@@ -61,6 +88,9 @@ function initEcho(): Echo<any> {
                     },
                 },
             });
+
+            console.info(`[Echo] Conectando a Pusher (cluster: ${pusherCluster})`);
+            return echoInstance;
         } catch (err) {
             console.warn('[Echo] Error al instanciar Laravel Echo con Pusher:', err);
             return createNullEcho();
@@ -68,22 +98,23 @@ function initEcho(): Echo<any> {
     }
 
     if (broadcaster === 'reverb') {
-        const host = import.meta.env.VITE_REVERB_HOST;
+        const host = import.meta.env.VITE_REVERB_HOST || metaReverbHost;
+        const port = Number(import.meta.env.VITE_REVERB_PORT || metaReverbPort || 80);
+        const scheme = import.meta.env.VITE_REVERB_SCHEME || metaReverbScheme || 'https';
+
         if (!reverbKey || !host) {
-            if (import.meta.env.DEV) {
-                console.warn('[Echo] VITE_REVERB_APP_KEY o VITE_REVERB_HOST no configurados. WebSockets en modo fallback silencioso.');
-            }
+            console.warn('[Echo] Reverb Key o Host no configurados. WebSockets en modo fallback silencioso.');
             return createNullEcho();
         }
 
         try {
-            return new Echo({
+            const echoInstance = new Echo({
                 broadcaster: 'reverb',
                 key: reverbKey,
                 wsHost: host,
-                wsPort: Number(import.meta.env.VITE_REVERB_PORT ?? 80),
-                wssPort: Number(import.meta.env.VITE_REVERB_PORT ?? 443),
-                forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
+                wsPort: port,
+                wssPort: Number(import.meta.env.VITE_REVERB_PORT || metaReverbPort || 443),
+                forceTLS: scheme === 'https',
                 enabledTransports: ['ws', 'wss'],
                 authEndpoint: '/broadcasting/auth',
                 auth: {
@@ -92,15 +123,16 @@ function initEcho(): Echo<any> {
                     },
                 },
             });
+
+            console.info(`[Echo] Conectando a Reverb (${host}:${port})`);
+            return echoInstance;
         } catch (err) {
             console.warn('[Echo] Error al instanciar Laravel Echo con Reverb:', err);
             return createNullEcho();
         }
     }
 
-    if (import.meta.env.DEV) {
-        console.warn('[Echo] Sin configuración de WebSockets. Modo fallback silencioso.');
-    }
+    console.warn('[Echo] Sin configuración de WebSockets activa. Modo fallback silencioso.');
     return createNullEcho();
 }
 
