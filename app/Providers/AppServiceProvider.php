@@ -70,8 +70,12 @@ class AppServiceProvider extends ServiceProvider
     {
         Date::use(CarbonImmutable::class);
 
+        $allowDestructive = config('database.allow_destructive_commands')
+            || filter_var(env('MIGRATE_FRESH', false), FILTER_VALIDATE_BOOLEAN)
+            || filter_var(env('ALLOW_DESTRUCTIVE_COMMANDS', false), FILTER_VALIDATE_BOOLEAN);
+
         DB::prohibitDestructiveCommands(
-            app()->isProduction(),
+            app()->isProduction() && ! $allowDestructive,
         );
 
         Password::defaults(fn (): ?Password => app()->isProduction()
