@@ -142,53 +142,53 @@
             {/if}
         </div>
 
-        <!-- Footer del Modal con Acciones Simétricas -->
-        <div class="px-5 py-3.5 sm:px-6 border-t border-border/80 flex items-center justify-between shrink-0 bg-card">
-            <div>
-                {#if isGenerated}
+        <!-- Footer del Modal con Acciones Simétricas y Layout Responsive Mobile / Desktop -->
+        <div class="px-5 py-3.5 sm:px-6 border-t border-border/80 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between shrink-0 bg-card">
+            {#if isGenerated}
+                <div class="w-full sm:w-auto flex justify-center sm:justify-start order-1">
                     <Button
                         type="button"
                         variant="ghost"
                         size="sm"
                         onclick={handleReload}
-                        class="min-h-[40px] px-3 text-xs text-muted-foreground hover:text-foreground gap-1.5 rounded-xl"
+                        class="min-h-[38px] w-full sm:w-auto px-3 text-xs text-muted-foreground hover:text-foreground gap-1.5 rounded-xl justify-center"
                         title="Recargar documento"
                     >
                         <RefreshCw class="size-3.5" />
-                        <span>Recargar</span>
+                        <span>Recargar documento</span>
                     </Button>
-                {/if}
-            </div>
+                </div>
+            {/if}
 
-            <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto order-2">
                 <Button
                     type="button"
                     variant="outline"
-                    class="min-h-[44px] px-4 rounded-xl text-sm font-semibold"
+                    class="flex-1 sm:flex-initial min-h-[44px] px-3 sm:px-4 rounded-xl text-sm font-semibold justify-center"
                     onclick={() => (open = false)}
                 >
                     Cerrar
                 </Button>
 
                 {#if isGenerated}
-                    <a href={previewUrl} target="_blank" rel="noreferrer">
+                    <a href={previewUrl} target="_blank" rel="noreferrer" class="flex-1 sm:flex-initial">
                         <Button
                             type="button"
                             variant="secondary"
-                            class="min-h-[44px] px-4 gap-2 rounded-xl text-sm font-semibold"
+                            class="w-full min-h-[44px] px-2.5 sm:px-4 gap-1.5 sm:gap-2 rounded-xl text-xs sm:text-sm font-semibold justify-center"
                         >
-                            <ExternalLink class="size-4 text-primary" />
-                            <span>Abrir pestaña</span>
+                            <ExternalLink class="size-4 text-primary shrink-0" />
+                            <span>Abrir<span class="hidden sm:inline"> pestaña</span></span>
                         </Button>
                     </a>
 
-                    <a href={downloadUrl} download>
+                    <a href={downloadUrl} download class="flex-1 sm:flex-initial">
                         <Button
                             type="button"
-                            class="min-h-[44px] px-5 gap-2 rounded-xl text-sm font-semibold shadow-xs"
+                            class="w-full min-h-[44px] px-2.5 sm:px-5 gap-1.5 sm:gap-2 rounded-xl text-xs sm:text-sm font-semibold shadow-xs justify-center"
                         >
-                            <Download class="size-4" />
-                            <span>Descargar PDF</span>
+                            <Download class="size-4 shrink-0" />
+                            <span>Descargar<span class="hidden sm:inline"> PDF</span></span>
                         </Button>
                     </a>
                 {/if}
