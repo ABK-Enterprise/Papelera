@@ -81,6 +81,7 @@ class TenantMercadoPagoController extends Controller
             'redirect_uri' => $redirectUri,
             'code_challenge' => $codeChallenge,
             'code_challenge_method' => 'S256',
+            'scope' => 'offline_access read write',
         ]);
 
         return Inertia::location("https://auth.mercadopago.com/authorization?{$params}");
@@ -245,6 +246,7 @@ class TenantMercadoPagoController extends Controller
                 'mp_nickname' => null,
                 'mp_email' => null,
                 'mp_linked_at' => null,
+                'mp_pos_id' => null,
             ]);
         }
 
