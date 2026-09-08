@@ -77,6 +77,7 @@ class CustomerOrderController extends Controller
 
         $availableProducts = Product::active()
             ->complete()
+            ->with('tenant:id,default_bulk_discount_percentage')
             ->where('stock', '>', 0)
             ->select('id', 'tenant_id', 'name', 'sku', 'sale_type', 'price', 'stock', 'units_per_package', 'package_quantity', 'bulk_discount_type', 'custom_bulk_discount_percentage')
             ->orderBy('name')

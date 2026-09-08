@@ -598,3 +598,87 @@ test('can create customer order with contado and mercadopago generating receipt 
         ->and($receipt->reference_number)->toBe($order->order_number);
 });
 
+test('can create customer order with bulk discounts for inherited, custom, and none types', function () {
+    $this->tenant->update(['default_bulk_discount_percentage' => 15.00]);
+
+    // Product 1: Inherited discount (15%)
+    // Base price = $1000, package_quantity = 10, unit price with discount = $850.
+    // 1 bulto = 10 units => 10 * $850 = $8,500.
+    $productInherited = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
+        'name' => 'Producto Descuento Heredado',
+        'price' => 1000.00,
+        'stock' => 100,
+        'units_per_package' => 10,
+        'package_quantity' => 10,
+        'bulk_discount_type' => 'inherited',
+    ]);
+
+    // Product 2: Custom discount (25%)
+    // Base price = $2000, package_quantity = 5, unit price with discount = $1500.
+    // 2 bultos = 10 units => 10 * $1500 = $15,000.
+    $productCustom = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
+        'name' => 'Producto Descuento Personalizado',
+        'price' => 2000.00,
+        'stock' => 50,
+        'units_per_package' => 5,
+        'package_quantity' => 5,
+        'bulk_discount_type' => 'custom',
+        'custom_bulk_discount_percentage' => 25.00,
+    ]);
+
+    // Product 3: None discount (0%)
+    // Base price = $500, package_quantity = 20, unit price with discount = $500.
+    // 1 bulto = 20 units => 20 * $500 = $10,000.
+    $productNone = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
+        'name' => 'Producto Sin Descuento',
+        'price' => 500.00,
+        'stock' => 100,
+        'units_per_package' => 20,
+        'package_quantity' => 20,
+        'bulk_discount_type' => 'none',
+    ]);
+
+    $response = $this->actingAs($this->user)->post(route('tenant.orders.store'), [
+        'customer_name' => 'Cliente Mayorista',
+        'payment_type' => 'contado',
+        'payment_method' => 'efectivo',
+        'items' => [
+            [
+                'product_id' => $productInherited->id,
+                'packaging_type' => 'bulto',
+                'quantity' => 1,
+            ],
+            [
+                'product_id' => $productCustom->id,
+                'packaging_type' => 'bulto',
+                'quantity' => 2,
+            ],
+            [
+                'product_id' => $productNone->id,
+                'packaging_type' => 'bulto',
+                'quantity' => 1,
+            ],
+        ],
+    ]);
+
+    $response->assertRedirect(route('tenant.orders.index'));
+
+    $order = CustomerOrder::where('tenant_id', $this->tenant->id)->with('items')->latest()->first();
+    expect($order)->not->toBeNull();
+
+    // 8,500 + 15,000 + 10,000 = 33,500
+    expect((float) $order->total_amount)->toBe(33500.0);
+
+    $itemInherited = $order->items->firstWhere('product_id', $productInherited->id);
+    expect((float) $itemInherited->unit_price)->toBe(850.0)
+        ->and((float) $itemInherited->subtotal)->toBe(8500.0);
+
+    $itemCustom = $order->items->firstWhere('product_id', $productCustom->id);
+    expect((float) $itemCustom->unit_price)->toBe(1500.0)
+        ->and((float) $itemCustom->subtotal)->toBe(15000.0);
+
+    $itemNone = $order->items->firstWhere('product_id', $productNone->id);
+    expect((float) $itemNone->unit_price)->toBe(500.0)
+        ->and((float) $itemNone->subtotal)->toBe(10000.0);
+});
+

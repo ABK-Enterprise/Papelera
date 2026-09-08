@@ -6,19 +6,11 @@
     import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
 
-    import {
-
-        DropdownMenu,
-        DropdownMenuContent,
-        DropdownMenuItem,
-        DropdownMenuTrigger,
-    } from '@/components/ui/dropdown-menu';
     import { Link, router } from '@inertiajs/svelte';
     import { fade, scale } from 'svelte/transition';
     import Check from 'lucide-svelte/icons/check';
     import Layers from 'lucide-svelte/icons/layers';
     import Minus from 'lucide-svelte/icons/minus';
-    import MoreVertical from 'lucide-svelte/icons/more-vertical';
     import Package from 'lucide-svelte/icons/package';
     import Plus from 'lucide-svelte/icons/plus';
     import Scale from 'lucide-svelte/icons/scale';
@@ -45,6 +37,10 @@
         stock: number;
         units_per_package: number;
         package_quantity?: number;
+        bulk_discount_type?: 'inherited' | 'custom' | 'none';
+        custom_bulk_discount_percentage?: number | string | null;
+        effective_bulk_discount_percentage?: number;
+        bulk_discount_price?: number;
     }
 
     export interface CustomerOption {
@@ -83,6 +79,10 @@
         packaging_type: 'unidad' | 'bulto' | 'gram' | 'kg';
         quantity: number;
         unit_price: number;
+        regular_price: number;
+        bulk_discount_price: number;
+        bulk_discount_percentage: number;
+        bulk_discount_type: 'inherited' | 'custom' | 'none';
         units_per_package: number;
         package_quantity: number;
         apply_customer_discount: boolean;
@@ -240,6 +240,10 @@
         const defaultPackaging = isWeighable ? 'kg' : 'unidad';
         const defaultQuantity = isWeighable ? (remainingStock >= 1 ? 1 : Math.round(remainingStock * 1000) / 1000) : 1;
         const isBulk = defaultPackaging === 'bulto';
+        const regularPrice = Number(prod.price) || 0;
+        const bulkDiscountPrice = Number(prod.bulk_discount_price ?? prod.price) || regularPrice;
+        const bulkDiscountPct = Number(prod.effective_bulk_discount_percentage) || 0;
+        const bulkDiscountType = (prod.bulk_discount_type as any) || 'inherited';
 
         const existingIndex = items.findIndex(
             (it) => it.product_id === prod.id && it.packaging_type === defaultPackaging
@@ -260,7 +264,11 @@
                     stock: prod.stock,
                     packaging_type: defaultPackaging,
                     quantity: defaultQuantity,
-                    unit_price: Number(prod.price),
+                    unit_price: isBulk ? bulkDiscountPrice : regularPrice,
+                    regular_price: regularPrice,
+                    bulk_discount_price: bulkDiscountPrice,
+                    bulk_discount_percentage: bulkDiscountPct,
+                    bulk_discount_type: bulkDiscountType,
                     units_per_package: prod.units_per_package || 1,
                     package_quantity: prod.package_quantity || prod.units_per_package || 1,
                     apply_customer_discount: !isBulk,
@@ -441,19 +449,24 @@
 
     function handlePackagingChange(index: number, newType: 'unidad' | 'bulto' | 'gram' | 'kg') {
         const item = items[index];
+        if (!item) return;
         item.packaging_type = newType;
 
         if (newType === 'gram') {
             item.quantity = 500;
+            item.unit_price = item.regular_price;
             item.apply_customer_discount = true;
         } else if (newType === 'kg') {
             item.quantity = 1;
+            item.unit_price = item.regular_price;
             item.apply_customer_discount = true;
         } else if (newType === 'bulto') {
             item.quantity = 1;
+            item.unit_price = item.bulk_discount_price;
             item.apply_customer_discount = false;
         } else {
             item.quantity = 1;
+            item.unit_price = item.regular_price;
             item.apply_customer_discount = true;
         }
 
@@ -991,10 +1004,15 @@
                             {@const maxAllowed = getMaxAllowedQuantityForItem(index)}
                             {@const isAtStockLimit = item.quantity >= maxAllowed}
                             {@const { discountAmount, finalSubtotal, baseSubtotal } = getItemLineDiscount(item)}
-                            {@const isDiscountActive = applyCustomerDiscount && item.apply_customer_discount && customerDiscountPercentage > 0}
+                            {@const isCustomerDiscountActive = applyCustomerDiscount && item.apply_customer_discount && customerDiscountPercentage > 0}
+                            {@const isBulk = item.packaging_type === 'bulto'}
+                            {@const hasBulkDiscount = isBulk && item.bulk_discount_type !== 'none' && (item.bulk_discount_percentage > 0)}
+                            {@const regularSubtotal = getItemQuantityBase(item) * item.regular_price}
+                            {@const isDiscountActive = isCustomerDiscountActive || hasBulkDiscount}
+                            {@const strikethroughSubtotal = hasBulkDiscount ? regularSubtotal : baseSubtotal}
 
                             <div class="flex flex-col gap-2.5 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
-                                <!-- Fila 1: Nombre + SKU a la izquierda, DropdownMenu (...) a la derecha -->
+                                <!-- Fila 1: Nombre + SKU a la izquierda, Botón Quitar directo a la derecha -->
                                 <div class="flex items-start justify-between gap-3">
                                     <div class="flex items-center gap-2 min-w-0 flex-1">
                                         <IconContainer
@@ -1014,6 +1032,18 @@
                                                     Pesaje
                                                 </span>
                                             {/if}
+                                            {#if isBulk}
+                                                {#if item.bulk_discount_type !== 'none' && item.bulk_discount_percentage > 0}
+                                                    <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
+                                                        <Percent class="size-2.5" />
+                                                        Desc. Bulto {item.bulk_discount_percentage}% ({item.bulk_discount_type === 'custom' ? 'Personalizado' : 'Heredado'})
+                                                    </span>
+                                                {:else}
+                                                    <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-muted text-muted-foreground border-border">
+                                                        Sin Descuento por Bulto
+                                                    </span>
+                                                {/if}
+                                            {/if}
                                             {#if customerDiscountPercentage > 0 && applyCustomerDiscount}
                                                 <button
                                                     type="button"
@@ -1028,39 +1058,35 @@
                                         </div>
                                     </div>
 
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            {#snippet children(props)}
-                                                <Button
-                                                    {...props}
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    class="size-8 text-muted-foreground hover:text-foreground shrink-0 rounded-lg"
-                                                    aria-label="Opciones del producto"
-                                                >
-                                                    <MoreVertical class="size-4" />
-                                                </Button>
-                                            {/snippet}
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" class="w-44">
-                                            <DropdownMenuItem
-                                                class="text-destructive focus:text-destructive gap-2 cursor-pointer text-xs"
-                                                onclick={() => removeItem(index)}
-                                            >
-                                                <Trash2 class="size-3.5" />
-                                                <span>Quitar de la lista</span>
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                                    <button
+                                        type="button"
+                                        class="size-8 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors cursor-pointer shrink-0"
+                                        onclick={() => removeItem(index)}
+                                        title="Quitar de la lista"
+                                        aria-label="Quitar producto de la lista"
+                                    >
+                                        <Trash2 class="size-4" />
+                                    </button>
                                 </div>
 
                                 <!-- Fila 2: Metadatos (precio base y stock) abajo a la izquierda | Selector, Stepper y Subtotal a la derecha -->
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-border/50">
                                     <!-- Metadatos Desktop (>= sm: vertical stack de 2 líneas) -->
                                     <div class="hidden sm:flex flex-col gap-0.5 min-w-0">
-                                        <span class="text-sm font-semibold text-foreground whitespace-nowrap" title={formatExactPrice(item.unit_price)}>
-                                            {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
-                                        </span>
+                                        {#if hasBulkDiscount}
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-xs line-through text-muted-foreground" title={formatExactPrice(item.regular_price)}>
+                                                    {formatPrice(item.regular_price)}
+                                                </span>
+                                                <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap" title={formatExactPrice(item.unit_price)}>
+                                                    {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
+                                                </span>
+                                            </div>
+                                        {:else}
+                                            <span class="text-sm font-semibold text-foreground whitespace-nowrap" title={formatExactPrice(item.unit_price)}>
+                                                {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
+                                            </span>
+                                        {/if}
                                         <div class="flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap">
                                             <span>Stock: <strong class="font-sans tabular-nums text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
                                             {#if isAtStockLimit}
@@ -1073,9 +1099,18 @@
 
                                     <!-- Metadatos Mobile (< sm: formato minimalista inline) -->
                                     <div class="flex sm:hidden items-center gap-1.5 text-xs text-muted-foreground flex-wrap">
-                                        <span class="font-semibold text-foreground" title={formatExactPrice(item.unit_price)}>
-                                            {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
-                                        </span>
+                                        {#if hasBulkDiscount}
+                                            <span class="line-through text-[11px]" title={formatExactPrice(item.regular_price)}>
+                                                {formatPrice(item.regular_price)}
+                                            </span>
+                                            <span class="font-bold text-emerald-600 dark:text-emerald-400" title={formatExactPrice(item.unit_price)}>
+                                                {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
+                                            </span>
+                                        {:else}
+                                            <span class="font-semibold text-foreground" title={formatExactPrice(item.unit_price)}>
+                                                {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
+                                            </span>
+                                        {/if}
                                         <span>•</span>
                                         <span>Stock: <strong class="font-sans tabular-nums text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
                                         {#if isAtStockLimit}
@@ -1149,8 +1184,8 @@
                                         <!-- Subtotal en la esquina inferior derecha -->
                                         <div class="flex flex-col items-end shrink-0 min-w-[85px] sm:min-w-[100px] text-right whitespace-nowrap">
                                             {#if isDiscountActive}
-                                                <span class="line-through text-[11px] text-muted-foreground font-sans tabular-nums" title={formatExactPrice(baseSubtotal)}>
-                                                    {formatPrice(baseSubtotal)}
+                                                <span class="line-through text-[11px] text-muted-foreground font-sans tabular-nums" title={formatExactPrice(strikethroughSubtotal)}>
+                                                    {formatPrice(strikethroughSubtotal)}
                                                 </span>
                                                 <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-primary" title={formatExactPrice(finalSubtotal)}>
                                                     {formatPrice(finalSubtotal)}
