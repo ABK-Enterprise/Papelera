@@ -153,6 +153,10 @@ class MercadoPagoService
                 ?? ($response->json('error')
                 ?? ($response->json('errors')[0]['message'] ?? null));
 
+            if ($apiError === 'An error occurred when creating a Merchant Order' || str_contains($rawBody, 'merchant_order_creation_error')) {
+                $apiError = 'Mercado Pago no pudo crear la orden de cobro (merchant_order_creation_error). Esto ocurre cuando la cuenta vinculada fue creada como "Comprador" en vez de "Vendedor", o carece de habilitación fiscal/comercial para recibir cobros presenciales con QR en Argentina.';
+            }
+
             return [
                 'success' => false,
                 'error' => $apiError ?: 'Error al comunicarse con Mercado Pago',
