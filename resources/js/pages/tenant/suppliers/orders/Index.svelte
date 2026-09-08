@@ -10,6 +10,7 @@
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import Truck from 'lucide-svelte/icons/truck';
     import Users from 'lucide-svelte/icons/users';
+    import SortSelect from '@/components/common/SortSelect.svelte';
     import CreateSupplierOrderModal from './CreateSupplierOrderModal.svelte';
     import SupplierOrderDetailModal from './SupplierOrderDetailModal.svelte';
     import SupplierOrderFilterModalMobile from './mobile/SupplierOrderFilterModalMobile.svelte';
@@ -72,6 +73,7 @@
     interface FilterProps {
         search?: string | null;
         status?: string | null;
+        sort_by?: string | null;
     }
 
     let {
@@ -90,8 +92,20 @@
 
     import { untrack } from 'svelte';
 
+    const sortOptions = [
+        { value: 'latest', label: 'Más recientes primero' },
+        { value: 'oldest', label: 'Más antiguos primero' },
+        { value: 'total_high', label: 'Mayor costo total' },
+        { value: 'total_low', label: 'Menor costo total' },
+        { value: 'supplier_asc', label: 'Proveedor (A-Z)' },
+        { value: 'supplier_desc', label: 'Proveedor (Z-A)' },
+        { value: 'order_number_asc', label: '# Orden ascendente' },
+        { value: 'order_number_desc', label: '# Orden descendente' },
+    ];
+
     let searchTerm = $state('');
     let selectedStatus = $state('all');
+    let sortBy = $state('latest');
     let isCreateModalOpen = $state(false);
     let isDetailModalOpen = $state(false);
     let isFilterModalOpen = $state(false);
@@ -120,9 +134,11 @@
     $effect(() => {
         const s = filters?.search ?? '';
         const st = filters?.status ?? 'all';
+        const sb = filters?.sort_by ?? 'latest';
         untrack(() => {
             searchTerm = s;
             selectedStatus = st;
+            sortBy = sb;
         });
     });
 
@@ -133,6 +149,7 @@
             {
                 search: searchTerm || undefined,
                 status: selectedStatus !== 'all' ? selectedStatus : undefined,
+                sort_by: sortBy !== 'latest' ? sortBy : undefined,
             },
             {
                 preserveState: true,
@@ -144,6 +161,7 @@
     function resetFilters() {
         searchTerm = '';
         selectedStatus = 'all';
+        sortBy = 'latest';
         router.get('/tenant/proveedores/ordenes');
     }
 
@@ -161,8 +179,8 @@
         }
     });
 
-    let hasActiveFilters = $derived(Boolean(searchTerm || (selectedStatus && selectedStatus !== 'all')));
-    let activeFiltersCount = $derived(selectedStatus && selectedStatus !== 'all' ? 1 : 0);
+    let hasActiveFilters = $derived(Boolean(searchTerm || (selectedStatus && selectedStatus !== 'all') || (sortBy && sortBy !== 'latest')));
+    let activeFiltersCount = $derived((selectedStatus && selectedStatus !== 'all' ? 1 : 0) + (sortBy && sortBy !== 'latest' ? 1 : 0));
 </script>
 
 <AppHead title="Órdenes de Compra a Proveedores - Comercio" />
@@ -242,6 +260,16 @@
 
             <!-- Filtros Desktop -->
             <div class="hidden md:flex items-center gap-2.5 w-auto flex-wrap">
+                <!-- Selector de Ordenamiento -->
+                <SortSelect
+                    value={sortBy}
+                    options={sortOptions}
+                    onchange={(val) => {
+                        sortBy = val;
+                        applyFilters();
+                    }}
+                />
+
                 <select
                     bind:value={selectedStatus}
                     onchange={applyFilters}
@@ -291,9 +319,12 @@
 <SupplierOrderFilterModalMobile
     bind:open={isFilterModalOpen}
     {selectedStatus}
+    {sortBy}
+    {sortOptions}
     {stats}
     onapply={(f) => {
         selectedStatus = f.status;
+        sortBy = f.sort_by;
         applyFilters();
     }}
     onreset={resetFilters}
