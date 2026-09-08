@@ -16,6 +16,7 @@
     import ReceiptText from 'lucide-svelte/icons/receipt-text';
     import X from 'lucide-svelte/icons/x';
     import User from 'lucide-svelte/icons/user';
+    import Loader2 from 'lucide-svelte/icons/loader-2';
 
     export interface OrderData {
         id: number;
@@ -46,7 +47,7 @@
         onclose = undefined,
     }: Props = $props();
 
-    type ModalStep = 'amount_setup' | 'generating' | 'waiting_payment' | 'paid_success' | 'expired' | 'error';
+    type ModalStep = 'amount_setup' | 'generating' | 'waiting_payment' | 'processing' | 'paid_success' | 'expired' | 'error';
 
     let currentStep = $state<ModalStep>('amount_setup');
     let amountToCharge = $state<number>(0);
@@ -229,6 +230,9 @@
         }
     }
 
+    let isPolling = false;
+    let isReconciling = $state(false);
+
     function startEchoRealtimeListener() {
         if (!order) return;
         const channelName = `tenant.${tenantId}.orders.${order.id}`;
@@ -236,10 +240,10 @@
 
         echo.private(channelName)
             .listen('.CustomerOrderPaymentReceived', (event: any) => {
-                handlePaymentSuccess({
+                triggerProcessingThenSuccess({
                     receipt_number: event.receipt_number ?? 'REC-MP',
-                    amount: event.amount ?? amountToCharge,
-                    payment_method: 'Mercado Pago QR',
+                    amount: event.amount_paid ?? event.amount ?? amountToCharge,
+                    payment_method: event.payment_method ?? 'Mercado Pago QR',
                 });
             });
     }
@@ -247,10 +251,10 @@
     function startBackupPolling() {
         if (!order) return;
         pollInterval = setInterval(async () => {
+            if (isPolling || currentStep === 'processing' || currentStep === 'paid_success') return;
+            isPolling = true;
             try {
-                const url = mpOrderId
-                    ? `/tenant/pedidos/${order.id}/estado-pago?mp_order_id=${encodeURIComponent(mpOrderId)}`
-                    : `/tenant/pedidos/${order.id}/estado-pago`;
+                const url = `/tenant/pedidos/${order.id}/estado-pago`;
                 const res = await fetch(url, {
                     headers: { 'Accept': 'application/json' },
                 });
@@ -261,9 +265,9 @@
                     statusData.is_paid ||
                     statusData.paid ||
                     statusData.payment_status === 'cobrado' ||
-                    (statusData.order && Number(statusData.order.debt_amount) <= 0)
+                    (statusData.order && Number(statusData.order.debt_amount) < orderDebt)
                 ) {
-                    handlePaymentSuccess({
+                    triggerProcessingThenSuccess({
                         receipt_number: statusData.receipt_number ?? 'REC-AUTO',
                         amount: amountToCharge,
                         payment_method: 'Mercado Pago QR',
@@ -271,12 +275,67 @@
                 }
             } catch {
                 // Silencioso en caso de error de red puntual
+            } finally {
+                isPolling = false;
             }
-        }, 3000);
+        }, 3500);
+    }
+
+    async function handleManualReconcile() {
+        if (!order || isReconciling || currentStep === 'processing' || currentStep === 'paid_success') return;
+        isReconciling = true;
+        try {
+            const url = mpOrderId
+                ? `/tenant/pedidos/${order.id}/reconciliar-pago?mp_order_id=${encodeURIComponent(mpOrderId)}`
+                : `/tenant/pedidos/${order.id}/reconciliar-pago`;
+
+            const csrfToken = typeof document !== 'undefined'
+                ? (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '')
+                : '';
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+            });
+
+            if (res.ok) {
+                const statusData = await res.json();
+                if (
+                    statusData.is_paid ||
+                    statusData.paid ||
+                    statusData.payment_status === 'cobrado' ||
+                    (statusData.order && Number(statusData.order.debt_amount) < orderDebt)
+                ) {
+                    triggerProcessingThenSuccess({
+                        receipt_number: statusData.receipt_number ?? 'REC-AUTO',
+                        amount: amountToCharge,
+                        payment_method: 'Mercado Pago QR',
+                    });
+                }
+            }
+        } catch {
+            // Silencioso
+        } finally {
+            isReconciling = false;
+        }
+    }
+
+    function triggerProcessingThenSuccess(receiptData: any) {
+        if (currentStep === 'processing' || currentStep === 'paid_success') return;
+        cleanupSubscriptions();
+        currentStep = 'processing';
+
+        // Pequeña pausa deliberada para mostrar la animación del spinner y feedback visual
+        setTimeout(() => {
+            handlePaymentSuccess(receiptData);
+        }, 850);
     }
 
     function handlePaymentSuccess(receiptData: any) {
-        cleanupSubscriptions();
         paidReceipt = receiptData;
         currentStep = 'paid_success';
 
@@ -430,6 +489,29 @@
                 </div>
             {/if}
 
+            <!-- Paso: Procesando Pago Detectado (Spinner Animado) -->
+            {#if currentStep === 'processing'}
+                <div class="py-8 flex flex-col items-center text-center space-y-4">
+                    <div class="size-16 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center justify-center shadow-sm">
+                        <Loader2 class="size-8 animate-spin" />
+                    </div>
+
+                    <div class="space-y-1">
+                        <h3 class="text-lg font-bold text-foreground">
+                            Pago Detectado
+                        </h3>
+                        <p class="text-xs text-muted-foreground max-w-xs leading-relaxed">
+                            Conciliando la transacción con Mercado Pago y emitiendo el comprobante contable...
+                        </p>
+                    </div>
+
+                    <div class="px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-xs font-semibold flex items-center gap-2">
+                        <span class="size-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        <span>Confirmando acreditación</span>
+                    </div>
+                </div>
+            {/if}
+
             <!-- Paso: Cobro Acreditado Exitosamente -->
             {#if currentStep === 'paid_success'}
                 <div class="py-4 flex flex-col items-center text-center space-y-4">
@@ -518,7 +600,7 @@
                 <Button
                     type="button"
                     variant="outline"
-                    class="h-11 px-5 rounded-xl font-semibold w-full sm:w-auto min-h-[44px]"
+                    class="h-11 px-4 rounded-xl font-semibold w-full sm:w-auto min-h-[44px]"
                     onclick={handleClose}
                 >
                     Cancelar Cobro
@@ -526,11 +608,31 @@
                 <Button
                     type="button"
                     variant="secondary"
-                    class="h-11 px-5 rounded-xl font-semibold w-full sm:w-auto min-h-[44px] gap-2"
+                    class="h-11 px-4 rounded-xl font-semibold w-full sm:w-auto min-h-[44px] gap-2"
+                    onclick={handleManualReconcile}
+                    disabled={isReconciling}
+                >
+                    <RefreshCw class="size-4 {isReconciling ? 'animate-spin' : ''}" />
+                    <span>{isReconciling ? 'Consultando...' : 'Verificar Pago'}</span>
+                </Button>
+                <Button
+                    type="button"
+                    variant="default"
+                    class="h-11 px-4 rounded-xl font-semibold w-full sm:w-auto min-h-[44px] gap-2"
                     onclick={generateQrOrder}
                 >
-                    <RefreshCw class="size-4" />
+                    <QrCodeIcon class="size-4" />
                     <span>Regenerar QR</span>
+                </Button>
+            {:else if currentStep === 'processing'}
+                <Button
+                    type="button"
+                    variant="outline"
+                    class="h-11 px-6 rounded-xl font-semibold w-full sm:w-auto min-h-[44px] gap-2 opacity-70 cursor-not-allowed"
+                    disabled={true}
+                >
+                    <Loader2 class="size-4 animate-spin" />
+                    <span>Procesando acreditación...</span>
                 </Button>
             {:else if currentStep === 'expired' || currentStep === 'error'}
                 <Button

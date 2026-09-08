@@ -28,6 +28,7 @@ use App\Services\TenantSequenceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -831,7 +832,7 @@ class CustomerOrderController extends Controller
     }
 
     /**
-     * Consulta el estado de pago del pedido (con reconciliación activa contra Mercado Pago)
+     * Consulta el estado de pago del pedido con auto-reconciliación segura si existe orden de MP pendiente
      */
     public function paymentStatus(
         Request $request,
@@ -845,34 +846,79 @@ class CustomerOrderController extends Controller
 
         $customerOrder->refresh();
 
-        // Si ya está cobrado o cancelado, retornar de inmediato
-        if ($customerOrder->payment_status === 'cobrado' || $customerOrder->status === 'cancelado') {
-            return response()->json([
-                'id' => $customerOrder->id,
-                'order_number' => $customerOrder->order_number,
-                'status' => $customerOrder->status,
-                'payment_status' => $customerOrder->payment_status,
-                'debt_amount' => (float) $customerOrder->debt_amount,
-                'total_amount' => (float) $customerOrder->total_amount,
-                'is_paid' => $customerOrder->payment_status === 'cobrado',
-                'paid' => $customerOrder->payment_status === 'cobrado',
-                'order' => [
-                    'id' => $customerOrder->id,
-                    'payment_status' => $customerOrder->payment_status,
-                    'debt_amount' => (float) $customerOrder->debt_amount,
-                    'status' => $customerOrder->status,
-                ],
-            ]);
+        // Auto-reconciliación activa segura si la orden de MP existe y aún no fue cobrada ni cancelada
+        if ($customerOrder->payment_status !== 'cobrado' && $customerOrder->status !== 'cancelado' && $customerOrder->mp_order_id) {
+            $this->performReconciliation(
+                customerOrder: $customerOrder,
+                mpOrderId: $customerOrder->mp_order_id,
+                userId: $request->user()?->id,
+                mpService: $mpService,
+                registerReceiptAction: $registerReceiptAction
+            );
         }
 
-        // Si se envió un mp_order_id por parámetro y no estaba guardado en la orden, asociarlo
+        return $this->formatPaymentStatusResponse($customerOrder);
+    }
+
+    /**
+     * Reconciliación bajo demanda controlada con Mercado Pago (acción manual o fallback explícito)
+     */
+    public function reconcilePayment(
+        Request $request,
+        CustomerOrder $customerOrder,
+        MercadoPagoService $mpService,
+        RegisterReceiptAction $registerReceiptAction
+    ): JsonResponse {
+        if ($customerOrder->tenant_id !== $request->user()->tenant_id) {
+            abort(404);
+        }
+
+        $customerOrder->refresh();
+
+        if ($customerOrder->payment_status === 'cobrado' || $customerOrder->status === 'cancelado') {
+            return $this->formatPaymentStatusResponse($customerOrder);
+        }
+
         $mpOrderId = $request->input('mp_order_id', $customerOrder->mp_order_id);
-        if ($mpOrderId && $customerOrder->mp_order_id !== $mpOrderId) {
+        if (! $mpOrderId) {
+            return response()->json([
+                'message' => 'No hay orden de Mercado Pago asociada para reconciliar.',
+                'order' => $customerOrder,
+            ], 422);
+        }
+
+        if ($customerOrder->mp_order_id !== $mpOrderId) {
             $customerOrder->update(['mp_order_id' => $mpOrderId]);
         }
 
-        // Reconciliación activa: si hay orden de MP, consultar estado real en Mercado Pago
-        if ($mpOrderId) {
+        $this->performReconciliation(
+            customerOrder: $customerOrder,
+            mpOrderId: $mpOrderId,
+            userId: $request->user()?->id,
+            mpService: $mpService,
+            registerReceiptAction: $registerReceiptAction
+        );
+
+        return $this->formatPaymentStatusResponse($customerOrder);
+    }
+
+    /**
+     * Ejecuta la reconciliación atómica idempotente contra la API de Mercado Pago
+     */
+    private function performReconciliation(
+        CustomerOrder $customerOrder,
+        string $mpOrderId,
+        ?int $userId,
+        MercadoPagoService $mpService,
+        RegisterReceiptAction $registerReceiptAction
+    ): void {
+        // Bloqueo atómico distribuido para evitar carreras entre reconciliaciones concurrentes o webhooks
+        $lock = Cache::lock("mp_reconcile:{$customerOrder->id}", 10);
+        if (! $lock->get()) {
+            return;
+        }
+
+        try {
             $tenantToken = $customerOrder->tenant?->mp_access_token;
             $mpOrderData = $mpService->getOrder($mpOrderId, $tenantToken);
 
@@ -904,10 +950,9 @@ class CustomerOrderController extends Controller
                         $paymentRef = (string) ($mpOrderData['id'] ?? "MP-{$customerOrder->order_number}");
                     }
 
-                    // Idempotencia dentro de lock pesimista
                     DB::transaction(function () use (
                         $customerOrder,
-                        $request,
+                        $userId,
                         $allocationAmount,
                         $paymentRef,
                         $mpOrderId,
@@ -921,7 +966,7 @@ class CustomerOrderController extends Controller
                         if ($lockedOrder && $lockedOrder->payment_status !== 'cobrado' && $lockedOrder->status !== 'cancelado') {
                             $registerReceiptAction->execute(
                                 tenantId: $lockedOrder->tenant_id,
-                                userId: $request->user()->id,
+                                userId: $userId ?? $lockedOrder->created_by_user_id,
                                 customerId: $lockedOrder->customer_id,
                                 amount: $allocationAmount,
                                 paymentMethod: 'mercadopago',
@@ -941,7 +986,21 @@ class CustomerOrderController extends Controller
                     $customerOrder->refresh();
                 }
             }
+        } finally {
+            $lock->release();
         }
+    }
+
+    /**
+     * Construye la respuesta JSON estandarizada para el estado de pago del pedido
+     */
+    private function formatPaymentStatusResponse(CustomerOrder $customerOrder): JsonResponse
+    {
+        $customerOrder->refresh();
+
+        $lastReceipt = $customerOrder->receipts()
+            ->latest('receipts.id')
+            ->first();
 
         return response()->json([
             'id' => $customerOrder->id,
@@ -950,8 +1009,10 @@ class CustomerOrderController extends Controller
             'payment_status' => $customerOrder->payment_status,
             'debt_amount' => (float) $customerOrder->debt_amount,
             'total_amount' => (float) $customerOrder->total_amount,
+            'paid_amount' => (float) $customerOrder->paid_amount,
             'is_paid' => $customerOrder->payment_status === 'cobrado',
             'paid' => $customerOrder->payment_status === 'cobrado',
+            'receipt_number' => $lastReceipt?->receipt_number,
             'order' => [
                 'id' => $customerOrder->id,
                 'payment_status' => $customerOrder->payment_status,
