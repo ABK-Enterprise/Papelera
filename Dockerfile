@@ -56,7 +56,13 @@ COPY . .
 # 8. Generar autoloader optimizado de Composer
 RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
 
-# 9. Compilar los assets con Vite + Svelte
+# 9. Compilar los assets con Vite + Svelte (inyectando build args desde Render)
+ARG VITE_BROADCASTER=pusher
+ARG VITE_PUSHER_APP_KEY
+ARG VITE_PUSHER_APP_CLUSTER=sa1
+ENV VITE_BROADCASTER=$VITE_BROADCASTER \
+    VITE_PUSHER_APP_KEY=$VITE_PUSHER_APP_KEY \
+    VITE_PUSHER_APP_CLUSTER=$VITE_PUSHER_APP_CLUSTER
 RUN pnpm run build
 
 # 10. Permisos para storage y bootstrap/cache

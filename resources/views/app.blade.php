@@ -4,26 +4,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        @php
-            $broadcaster = config('broadcasting.default');
-            if ($broadcaster === 'null' || empty($broadcaster)) {
-                if (config('broadcasting.connections.pusher.key')) {
-                    $broadcaster = 'pusher';
-                } elseif (config('broadcasting.connections.reverb.key')) {
-                    $broadcaster = 'reverb';
-                }
-            }
-        @endphp
-        <meta name="broadcaster" content="{{ $broadcaster }}">
-        @if($broadcaster === 'pusher')
-            <meta name="pusher-key" content="{{ config('broadcasting.connections.pusher.key') }}">
-            <meta name="pusher-cluster" content="{{ config('broadcasting.connections.pusher.options.cluster') ?: 'sa1' }}">
-        @elseif($broadcaster === 'reverb')
-            <meta name="reverb-key" content="{{ config('broadcasting.connections.reverb.key') }}">
-            <meta name="reverb-host" content="{{ config('broadcasting.connections.reverb.options.host') }}">
-            <meta name="reverb-port" content="{{ config('broadcasting.connections.reverb.options.port') }}">
-            <meta name="reverb-scheme" content="{{ config('broadcasting.connections.reverb.options.scheme') }}">
-        @endif
+        <meta name="broadcaster" content="pusher">
+        <meta name="pusher-key" content="{{ config('broadcasting.connections.pusher.key') }}">
+        <meta name="pusher-cluster" content="{{ config('broadcasting.connections.pusher.options.cluster') ?: 'sa1' }}">
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
