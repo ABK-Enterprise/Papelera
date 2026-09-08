@@ -56,7 +56,7 @@
                     placeholder="nombre@empresa.com"
                     class="h-11 rounded-lg border-input/60 bg-muted/40 px-3.5 transition-colors focus:bg-background"
                 />
-                <InputError message={errors.email} />
+                <InputError message={errors.email === 'auth.failed' ? 'El correo electrónico o la contraseña son incorrectos.' : errors.email} />
             </div>
 
 
