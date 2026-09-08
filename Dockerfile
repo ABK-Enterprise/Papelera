@@ -1,11 +1,16 @@
 FROM php:8.4-cli-bookworm
 
-# Variables de entorno para Node y Composer
+# Variables de entorno para Node, Composer y Chromium/PDF
 ENV DEBIAN_FRONTEND=noninteractive \
     COMPOSER_ALLOW_SUPERUSER=1 \
-    NODE_VERSION=22
+    NODE_VERSION=22 \
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    LARAVEL_PDF_CHROME_PATH=/usr/bin/chromium \
+    LARAVEL_PDF_NO_SANDBOX=true \
+    LARAVEL_PDF_NODE_MODULES_PATH=/var/www/html/node_modules
 
-# 1. Instalar dependencias del sistema y extensiones de PHP necesarias (PostgreSQL, SOAP, ZIP, etc.)
+# 1. Instalar dependencias del sistema, extensiones de PHP y Chromium para PDFs
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
@@ -17,6 +22,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxml2-dev \
     openssl \
     ca-certificates \
+    chromium \
+    fonts-liberation \
+    fonts-noto-color-emoji \
     && docker-php-ext-install -j$(nproc) \
     pdo \
     pdo_pgsql \

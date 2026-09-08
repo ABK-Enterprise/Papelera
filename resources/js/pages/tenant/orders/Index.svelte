@@ -111,6 +111,9 @@
             .listen('.CustomerOrderStatusUpdated', () => {
                 router.reload({ only: ['orders', 'stats'], preserveScroll: true, preserveState: true });
             })
+            .listen('.OrderRescheduled', () => {
+                router.reload({ only: ['orders', 'stats'], preserveScroll: true, preserveState: true });
+            })
             .listen('.CustomerOrderPaymentReceived', () => {
                 router.reload({ only: ['orders', 'stats'], preserveScroll: true, preserveState: true });
             });

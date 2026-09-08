@@ -45,11 +45,15 @@ class MercadoPagoService
         $formattedAmount = number_format($amount, 2, '.', '');
         $idempotencyKey = Str::uuid()->toString();
 
+        $tenantName = $order->tenant?->name ?: 'Papelera del Sol';
+        $orderTitle = "{$tenantName} - Pedido {$order->order_number}";
+        $orderDescription = "Pago de pedido {$order->order_number} en {$tenantName}";
+
         $payload = [
             'type' => 'qr',
             'external_reference' => $order->order_number,
             'total_amount' => $formattedAmount,
-            'description' => "Cobro {$order->order_number} - Papelera",
+            'description' => $orderTitle,
             'expiration_time' => 'PT15M',
             'config' => [
                 'qr' => [
@@ -66,7 +70,8 @@ class MercadoPagoService
             ],
             'items' => [
                 [
-                    'title' => "Cobro Pedido {$order->order_number}",
+                    'title' => $orderTitle,
+                    'description' => $orderDescription,
                     'unit_price' => $formattedAmount,
                     'quantity' => 1,
                     'unit_measure' => 'unit',
