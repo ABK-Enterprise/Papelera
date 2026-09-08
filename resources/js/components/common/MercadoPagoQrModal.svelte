@@ -6,7 +6,7 @@
     import { Label } from '@/components/ui/label';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import { echo } from '@/lib/echo';
-    import { page } from '@inertiajs/svelte';
+    import { router, page } from '@inertiajs/svelte';
     import QRCode from 'qrcode';
     import QrCodeIcon from 'lucide-svelte/icons/qr-code';
     import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
@@ -248,15 +248,23 @@
         if (!order) return;
         pollInterval = setInterval(async () => {
             try {
-                const res = await fetch(`/tenant/pedidos/${order.id}/estado-pago`, {
+                const url = mpOrderId
+                    ? `/tenant/pedidos/${order.id}/estado-pago?mp_order_id=${encodeURIComponent(mpOrderId)}`
+                    : `/tenant/pedidos/${order.id}/estado-pago`;
+                const res = await fetch(url, {
                     headers: { 'Accept': 'application/json' },
                 });
                 if (!res.ok) return;
                 const statusData = await res.json();
 
-                if (statusData.paid || (statusData.order && Number(statusData.order.debt_amount) <= 0)) {
+                if (
+                    statusData.is_paid ||
+                    statusData.paid ||
+                    statusData.payment_status === 'cobrado' ||
+                    (statusData.order && Number(statusData.order.debt_amount) <= 0)
+                ) {
                     handlePaymentSuccess({
-                        receipt_number: 'REC-AUTO',
+                        receipt_number: statusData.receipt_number ?? 'REC-AUTO',
                         amount: amountToCharge,
                         payment_method: 'Mercado Pago QR',
                     });
@@ -264,7 +272,7 @@
             } catch {
                 // Silencioso en caso de error de red puntual
             }
-        }, 3500);
+        }, 3000);
     }
 
     function handlePaymentSuccess(receiptData: any) {
@@ -276,7 +284,7 @@
             order.debt_amount = Math.max(0, Number(order.debt_amount ?? 0) - amountToCharge);
             order.paid_amount = Number(order.paid_amount ?? 0) + amountToCharge;
             if (order.debt_amount <= 0) {
-                order.payment_status = 'pagado';
+                order.payment_status = 'cobrado';
             } else {
                 order.payment_status = 'parcial';
             }
@@ -287,6 +295,8 @@
         open = false;
         if (onSuccess) {
             onSuccess(order);
+        } else {
+            router.reload({ only: ['orders'] });
         }
     }
 </script>

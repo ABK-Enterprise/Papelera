@@ -537,4 +537,121 @@ test('provisionStoreAndPos resolves province accents and auto-corrects city via 
     expect($storePostCount)->toBe(2);
 });
 
+test('generateQr persists mp_order_id in customer_orders', function () {
+    Http::fake([
+        'https://api.mercadopago.com/v1/orders' => Http::response([
+            'id' => 'ORD-PERSIST-999',
+            'status' => 'created',
+            'type_response' => [
+                'qr_data' => '000201010212PERSISTQR',
+            ],
+            'total_amount' => '1500.00',
+        ], 200),
+    ]);
+
+    $response = $this->actingAs($this->user)->postJson(route('tenant.orders.generate-qr', $this->order));
+
+    $response->assertOk()
+        ->assertJson([
+            'success' => true,
+            'order_id' => 'ORD-PERSIST-999',
+        ]);
+
+    expect($this->order->fresh()->mp_order_id)->toBe('ORD-PERSIST-999');
+});
+
+test('active self-healing polling reconciles paid mp order, settles receipt and customer balance', function () {
+    Event::fake([CustomerOrderPaymentReceived::class]);
+
+    $this->customer->update(['current_balance' => 1500.00]);
+    $this->order->update([
+        'mp_order_id' => 'ORD-RECONCILE-123',
+        'debt_amount' => 1500.00,
+        'payment_status' => 'pendiente',
+    ]);
+
+    Http::fake([
+        'https://api.mercadopago.com/v1/orders/ORD-RECONCILE-123' => Http::response([
+            'id' => 'ORD-RECONCILE-123',
+            'status' => 'processed',
+            'total_amount' => '1500.00',
+            'total_paid_amount' => '1500.00',
+            'transactions' => [
+                'payments' => [
+                    [
+                        'id' => 'PAY-REC-001',
+                        'status' => 'approved',
+                        'amount' => '1500.00',
+                    ],
+                ],
+            ],
+        ], 200),
+    ]);
+
+    $response = $this->actingAs($this->user)->getJson(route('tenant.orders.payment-status', $this->order));
+
+    $response->assertOk()
+        ->assertJson([
+            'is_paid' => true,
+            'paid' => true,
+            'payment_status' => 'cobrado',
+            'debt_amount' => 0.0,
+        ]);
+
+    $this->order->refresh();
+    expect($this->order->payment_status)->toBe('cobrado');
+    expect((float) $this->order->debt_amount)->toBe(0.0);
+
+    // Customer balance credited
+    expect((float) $this->customer->fresh()->current_balance)->toBe(0.0);
+
+    // Receipt created
+    $receipt = Receipt::where('tenant_id', $this->tenant->id)
+        ->where('reference_number', 'PAY-REC-001')
+        ->first();
+    expect($receipt)->not->toBeNull();
+    expect((float) $receipt->amount)->toBe(1500.0);
+
+    // Event broadcast
+    Event::assertDispatched(CustomerOrderPaymentReceived::class);
+});
+
+test('active self-healing polling is idempotent and does not create duplicate receipts', function () {
+    $this->order->update([
+        'mp_order_id' => 'ORD-IDEMPOTENT-456',
+        'debt_amount' => 1500.00,
+        'payment_status' => 'pendiente',
+    ]);
+
+    Http::fake([
+        'https://api.mercadopago.com/v1/orders/ORD-IDEMPOTENT-456' => Http::response([
+            'id' => 'ORD-IDEMPOTENT-456',
+            'status' => 'closed',
+            'total_amount' => '1500.00',
+            'total_paid_amount' => '1500.00',
+            'transactions' => [
+                'payments' => [
+                    [
+                        'id' => 'PAY-IDEM-001',
+                        'status' => 'approved',
+                        'amount' => '1500.00',
+                    ],
+                ],
+            ],
+        ], 200),
+    ]);
+
+    // First polling call
+    $response1 = $this->actingAs($this->user)->getJson(route('tenant.orders.payment-status', $this->order));
+    $response1->assertOk()->assertJson(['is_paid' => true]);
+
+    // Second polling call
+    $response2 = $this->actingAs($this->user)->getJson(route('tenant.orders.payment-status', $this->order));
+    $response2->assertOk()->assertJson(['is_paid' => true]);
+
+    // Exactly one receipt exists
+    expect(Receipt::where('tenant_id', $this->tenant->id)->count())->toBe(1);
+});
+
+
 

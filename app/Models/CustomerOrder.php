@@ -38,6 +38,7 @@ use Illuminate\Support\Carbon;
     'delivery_address',
     'status',
     'payment_status',
+    'mp_order_id',
     'debt_amount',
     'delivery_user_id',
     'delivery_failure_reason',

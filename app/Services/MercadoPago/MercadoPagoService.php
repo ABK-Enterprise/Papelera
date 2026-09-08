@@ -443,11 +443,16 @@ class MercadoPagoService
     /**
      * Consulta el estado de una orden en Mercado Pago
      */
-    public function getOrder(string $orderId): ?array
+    public function getOrder(string $orderId, ?string $token = null): ?array
     {
+        $accessToken = $token ?: $this->token;
+        if (! $accessToken) {
+            return null;
+        }
+
         try {
             $response = Http::timeout(10)
-                ->withToken($this->token)
+                ->withToken($accessToken)
                 ->get("{$this->baseUrl}/v1/orders/{$orderId}");
 
             return $response->successful() ? $response->json() : null;
@@ -491,7 +496,7 @@ class MercadoPagoService
 
         $parts = [];
         if ($dataId !== '') {
-            $parts[] = 'id:'.strtolower($dataId);
+            $parts[] = 'id:'.$dataId;
         }
         if ($xRequestId !== '') {
             $parts[] = 'request-id:'.$xRequestId;
@@ -500,8 +505,21 @@ class MercadoPagoService
         $manifest = implode(';', $parts).';';
 
         $computed = hash_hmac('sha256', $manifest, $key);
+        if (hash_equals($computed, $hash)) {
+            return true;
+        }
 
-        return hash_equals($computed, $hash);
+        // Fallback: lowercase data_id if different
+        if ($dataId !== '' && strtolower($dataId) !== $dataId) {
+            $parts[0] = 'id:'.strtolower($dataId);
+            $manifestLower = implode(';', $parts).';';
+            $computedLower = hash_hmac('sha256', $manifestLower, $key);
+            if (hash_equals($computedLower, $hash)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public const AR_PROVINCES = [
