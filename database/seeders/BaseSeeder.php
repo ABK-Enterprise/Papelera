@@ -161,10 +161,11 @@ class BaseSeeder extends Seeder
         $tenant = Tenant::firstOrCreate([
             'cuit_tax_id' => '30000000001',
         ], [
-            'name' => 'Papelera del Sol',
+            'name' => 'Papelera Bahía',
             'is_active' => true,
             'default_bulk_discount_percentage' => 10.00,
         ]);
+        $tenant->name = 'Papelera Bahía';
         $tenant->default_bulk_discount_percentage = 10.00;
         $tenant->save();
 
