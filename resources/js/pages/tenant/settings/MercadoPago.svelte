@@ -170,6 +170,19 @@
                     </div>
                 </div>
 
+                <!-- Alerta de Requisito: Datos Comerciales y Dirección -->
+                <div class="w-full text-left p-4 rounded-xl border border-amber-500/25 bg-amber-500/10 text-amber-950 dark:text-amber-200 flex items-start gap-3 text-xs leading-relaxed">
+                    <Building2 class="size-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                    <div class="space-y-1">
+                        <strong class="font-semibold text-foreground block">
+                            Importante: Completá los datos comerciales de tu negocio
+                        </strong>
+                        <p class="text-muted-foreground">
+                            Para que Mercado Pago pueda aprovisionar y registrar correctamente la sucursal y la caja de cobro, es fundamental que en <a href="/tenant/configuracion/comercio" class="text-primary font-semibold underline hover:opacity-80">Configuración > Comercio</a> ingreses la dirección, ciudad y provincia reales de tu comercio. Si estos datos están vacíos o son incompatibles, Mercado Pago rechazará la creación de las órdenes de cobro con código QR.
+                        </p>
+                    </div>
+                </div>
+
                 <!-- Call to Action -->
                 <div class="pt-2 flex flex-col sm:flex-row items-center gap-3">
                     <Button
