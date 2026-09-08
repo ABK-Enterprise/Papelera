@@ -79,14 +79,14 @@
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
     <!-- Pestañas de Navegación del Módulo Proveedores -->
     <div class="flex items-center gap-2 border-b pb-3">
-        <Link href="/tenant/proveedores">
-            <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs">
+        <Link href="/tenant/proveedores" class="inline-flex">
+            <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
                 <Users class="size-4" />
                 Directorio de Proveedores ({totalCount})
             </Button>
         </Link>
-        <Link href="/tenant/proveedores/ordenes">
-            <Button variant="ghost" size="sm" class="gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground">
+        <Link href="/tenant/proveedores/ordenes" class="inline-flex">
+            <Button variant="ghost" size="sm" class="gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
                 <Truck class="size-4" />
                 Órdenes de Compra
             </Button>
