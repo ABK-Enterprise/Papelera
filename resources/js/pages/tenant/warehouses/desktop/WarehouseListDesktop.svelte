@@ -61,7 +61,7 @@
                                     </Badge>
                                 {/if}
                             </div>
-                            <CardDescription class="text-xs font-mono text-muted-foreground mt-0.5">
+                            <CardDescription class="text-xs font-sans tabular-nums text-muted-foreground mt-0.5">
                                 {wh.code}
                             </CardDescription>
                         </div>

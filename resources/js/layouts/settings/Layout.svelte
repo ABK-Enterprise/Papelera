@@ -71,7 +71,7 @@
     const url = currentUrlState();
 </script>
 
-<div class="px-4 py-6 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+<div class="px-4 py-6 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full font-sans">
     <!-- Encabezado Unificado del Módulo -->
     <div class="mb-6 flex flex-col gap-1">
         <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">

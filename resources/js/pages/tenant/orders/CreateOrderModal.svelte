@@ -1331,7 +1331,7 @@
                                                 }}
                                                 placeholder={`ej. ${(grandTotal / 2).toFixed(2)}`}
                                                 bind:value={paidAmount}
-                                                class="h-10 text-xs rounded-xl font-mono tabular-nums"
+                                                class="h-10 text-xs rounded-xl font-sans tabular-nums"
                                             />
                                         </div>
                                     </div>

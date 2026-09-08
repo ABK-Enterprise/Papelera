@@ -186,7 +186,7 @@
         >
             <Truck class="size-4" />
             <span>Mis pedidos</span>
-            <Badge variant="secondary" class="ml-1 px-1.5 py-0.5 text-xs font-mono">
+            <Badge variant="secondary" class="ml-1 px-1.5 py-0.5 text-xs font-sans tabular-nums">
                 {myRouteOrders.length}
             </Badge>
         </button>
@@ -198,7 +198,7 @@
         >
             <PackageCheck class="size-4" />
             <span>Pedidos Disponibles</span>
-            <Badge variant="secondary" class="ml-1 px-1.5 py-0.5 text-xs font-mono">
+            <Badge variant="secondary" class="ml-1 px-1.5 py-0.5 text-xs font-sans tabular-nums">
                 {availableOrders.length}
             </Badge>
         </button>
@@ -210,7 +210,7 @@
         >
             <AlertTriangle class="size-4" />
             <span>Pedidos no entregados</span>
-            <Badge variant="secondary" class="ml-1 px-1.5 py-0.5 text-xs font-mono">
+            <Badge variant="secondary" class="ml-1 px-1.5 py-0.5 text-xs font-sans tabular-nums">
                 {failedOrders.length}
             </Badge>
         </button>

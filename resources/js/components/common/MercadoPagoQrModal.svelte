@@ -459,7 +459,7 @@
                         </div>
                         <div class="flex justify-between">
                             <span class="text-muted-foreground">Comprobante:</span>
-                            <span class="font-mono text-foreground font-bold">{paidReceipt?.receipt_number ?? 'REC-MP'}</span>
+                            <span class="font-sans tabular-nums text-foreground font-bold">{paidReceipt?.receipt_number ?? 'REC-MP'}</span>
                         </div>
                     </div>
                 </div>

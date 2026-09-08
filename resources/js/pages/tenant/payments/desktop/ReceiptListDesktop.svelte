@@ -104,7 +104,7 @@
                                     {rc.payment_method}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-muted-foreground font-mono text-[11px]">
+                            <td class="px-4 py-3 text-muted-foreground font-sans tabular-nums text-[11px]">
                                 {rc.reference_number || '—'}
                             </td>
                             <td class="px-4 py-3 text-muted-foreground">
