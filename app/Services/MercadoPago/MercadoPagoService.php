@@ -47,7 +47,6 @@ class MercadoPagoService
 
         $tenantName = $order->tenant?->name ?: 'Papelera del Sol';
         $orderTitle = "{$tenantName} - Pedido {$order->order_number}";
-        $orderDescription = "Pago de pedido {$order->order_number} en {$tenantName}";
 
         $payload = [
             'type' => 'qr',
@@ -71,7 +70,6 @@ class MercadoPagoService
             'items' => [
                 [
                     'title' => $orderTitle,
-                    'description' => $orderDescription,
                     'unit_price' => $formattedAmount,
                     'quantity' => 1,
                     'unit_measure' => 'unit',
