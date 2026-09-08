@@ -13,6 +13,7 @@
     import ArrowUpDown from 'lucide-svelte/icons/arrow-up-down';
     import Tag from 'lucide-svelte/icons/tag';
     import Boxes from 'lucide-svelte/icons/boxes';
+    import Percent from 'lucide-svelte/icons/percent';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Check from 'lucide-svelte/icons/check';
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
@@ -44,6 +45,7 @@
         selectedCategoryId = null,
         selectedStockStatus = '',
         selectedInfoStatus = '',
+        selectedDiscount = 'all',
         sortBy = 'latest',
         sortOptions = [],
         onapply,
@@ -56,12 +58,14 @@
         selectedCategoryId?: number | null;
         selectedStockStatus?: string;
         selectedInfoStatus?: string;
+        selectedDiscount?: string;
         sortBy?: string;
         sortOptions?: SortOption[];
         onapply: (filters: {
             category_id: number | null;
             stock_status: string;
             info_status: string;
+            discount: string;
             sort_by: string;
         }) => void;
         onreset: () => void;
@@ -70,14 +74,16 @@
     let localCategoryId = $state<number | null>(null);
     let localStockStatus = $state('');
     let localInfoStatus = $state('');
+    let localDiscount = $state('all');
     let localSortBy = $state('latest');
-    let activeTab = $state<'sort' | 'category' | 'stock' | 'info'>('sort');
+    let activeTab = $state<'sort' | 'category' | 'stock' | 'info' | 'discount'>('sort');
 
     $effect(() => {
         if (open) {
             localCategoryId = selectedCategoryId;
             localStockStatus = selectedStockStatus;
             localInfoStatus = selectedInfoStatus;
+            localDiscount = selectedDiscount;
             localSortBy = sortBy;
         }
     });
@@ -86,6 +92,7 @@
         (localCategoryId !== null ? 1 : 0) +
         (localStockStatus ? 1 : 0) +
         (localInfoStatus ? 1 : 0) +
+        (localDiscount && localDiscount !== 'all' ? 1 : 0) +
         (localSortBy && localSortBy !== 'latest' ? 1 : 0)
     );
 
@@ -94,6 +101,7 @@
             category_id: localCategoryId,
             stock_status: localStockStatus,
             info_status: localInfoStatus,
+            discount: localDiscount,
             sort_by: localSortBy,
         });
         open = false;
@@ -103,6 +111,7 @@
         localCategoryId = null;
         localStockStatus = '';
         localInfoStatus = '';
+        localDiscount = 'all';
         localSortBy = 'latest';
         onreset();
         open = false;
@@ -197,6 +206,23 @@
                         <span class="truncate">Datos</span>
                     </div>
                     {#if localInfoStatus !== ''}
+                        <span class="h-1.5 w-1.5 rounded-full bg-primary shrink-0"></span>
+                    {/if}
+                </button>
+
+                <!-- Tab Descuento -->
+                <button
+                    type="button"
+                    onclick={() => (activeTab = 'discount')}
+                    class="w-full flex items-center justify-between gap-1.5 px-2.5 py-3 rounded-xl text-left text-xs font-medium transition-all {activeTab === 'discount'
+                        ? 'bg-card text-foreground shadow-xs font-semibold border border-border/60'
+                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}"
+                >
+                    <div class="flex items-center gap-2 min-w-0">
+                        <Percent class="h-4 w-4 shrink-0 {activeTab === 'discount' ? 'text-primary' : 'text-muted-foreground'}" />
+                        <span class="truncate">Descuento</span>
+                    </div>
+                    {#if localDiscount && localDiscount !== 'all'}
                         <span class="h-1.5 w-1.5 rounded-full bg-primary shrink-0"></span>
                     {/if}
                 </button>
@@ -410,6 +436,63 @@
                                     <Check class="h-4 w-4 text-primary shrink-0 stroke-[2.5]" />
                                 {/if}
                             </div>
+                        </button>
+                    </div>
+                {/if}
+
+                <!-- Panel 5: Opciones de Descuento por Bulto -->
+                {#if activeTab === 'discount'}
+                    <div class="space-y-1.5">
+                        <h4 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-2 pb-1">
+                            Descuento por bulto
+                        </h4>
+
+                        <!-- Todos -->
+                        <button
+                            type="button"
+                            onclick={() => (localDiscount = 'all')}
+                            class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localDiscount === 'all'
+                                ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
+                                : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                        >
+                            <span>Todos los productos</span>
+                            {#if localDiscount === 'all'}
+                                <Check class="h-4 w-4 text-primary shrink-0 stroke-[2.5]" />
+                            {/if}
+                        </button>
+
+                        <!-- Con descuento -->
+                        <button
+                            type="button"
+                            onclick={() => (localDiscount = 'with_discount')}
+                            class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localDiscount === 'with_discount'
+                                ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
+                                : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                        >
+                            <div class="flex items-center gap-2">
+                                <span class="h-2 w-2 rounded-full bg-emerald-500 shrink-0"></span>
+                                <span>Con descuento</span>
+                            </div>
+                            {#if localDiscount === 'with_discount'}
+                                <Check class="h-4 w-4 text-primary shrink-0 stroke-[2.5]" />
+                            {/if}
+                        </button>
+
+                        <!-- Sin descuento -->
+                        <button
+                            type="button"
+                            onclick={() => (localDiscount = 'without_discount')}
+                            class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localDiscount === 'without_discount'
+                                ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
+                                : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                        >
+                            <div class="flex items-center gap-2">
+                                <span class="h-2 w-2 rounded-full bg-muted-foreground/50 shrink-0"></span>
+                                <span>Sin descuento</span>
+                            </div>
+                            {#if localDiscount === 'without_discount'}
+                                <Check class="h-4 w-4 text-primary shrink-0 stroke-[2.5]" />
+                            {/if}
                         </button>
                     </div>
                 {/if}

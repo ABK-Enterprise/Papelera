@@ -23,7 +23,10 @@ class ProductController extends Controller
         $categoryId = $request->input('category_id');
         $stockStatus = $request->input('stock_status');
         $infoStatus = $request->input('info_status');
+        $discount = $request->input('discount', 'all');
         $sortBy = $request->input('sort_by', 'latest');
+
+        $tenantDefaultBulkDiscount = (float) ($request->user()->tenant?->default_bulk_discount_percentage ?? 0.00);
 
         $query = Product::with('category:id,name,slug,icon')
             ->withCount('warehouses as warehouses_count')
@@ -54,6 +57,8 @@ class ProductController extends Controller
                     $q->complete();
                 }
             })
+            ->when($discount === 'with_discount', fn ($q) => $q->withDiscount($tenantDefaultBulkDiscount))
+            ->when($discount === 'without_discount', fn ($q) => $q->withoutDiscount($tenantDefaultBulkDiscount))
             ->when($sortBy === 'oldest', fn ($q) => $q->oldest())
             ->when($sortBy === 'name_asc', fn ($q) => $q->orderBy('name', 'asc'))
             ->when($sortBy === 'name_desc', fn ($q) => $q->orderBy('name', 'desc'))
@@ -86,8 +91,6 @@ class ProductController extends Controller
             'incomplete' => $incompleteCount,
         ];
 
-        $tenantDefaultBulkDiscount = (float) ($request->user()->tenant?->default_bulk_discount_percentage ?? 0.00);
-
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
                 'products' => $products,
@@ -111,6 +114,7 @@ class ProductController extends Controller
                 'category_id' => $categoryId ? (int) $categoryId : null,
                 'stock_status' => $stockStatus,
                 'info_status' => $infoStatus,
+                'discount' => $discount,
                 'sort_by' => $sortBy,
             ],
         ]);

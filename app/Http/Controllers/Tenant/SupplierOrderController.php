@@ -45,11 +45,27 @@ class SupplierOrderController extends Controller
                 $q->where('status', $status);
             })
             ->when($sortBy === 'oldest', fn ($q) => $q->oldest())
-            ->when($sortBy === 'cost_high', fn ($q) => $q->orderBy('total_cost', 'desc'))
-            ->when($sortBy === 'cost_low', fn ($q) => $q->orderBy('total_cost', 'asc'))
+            ->when($sortBy === 'cost_high' || $sortBy === 'total_high', fn ($q) => $q->orderBy('total_cost', 'desc'))
+            ->when($sortBy === 'cost_low' || $sortBy === 'total_low', fn ($q) => $q->orderBy('total_cost', 'asc'))
+            ->when($sortBy === 'supplier_asc', function ($q) {
+                $q->orderBy(
+                    Supplier::select('name')
+                        ->whereColumn('suppliers.id', 'supplier_orders.supplier_id')
+                        ->limit(1),
+                    'asc'
+                );
+            })
+            ->when($sortBy === 'supplier_desc', function ($q) {
+                $q->orderBy(
+                    Supplier::select('name')
+                        ->whereColumn('suppliers.id', 'supplier_orders.supplier_id')
+                        ->limit(1),
+                    'desc'
+                );
+            })
             ->when($sortBy === 'order_number_asc', fn ($q) => $q->orderBy('order_number', 'asc'))
             ->when($sortBy === 'order_number_desc', fn ($q) => $q->orderBy('order_number', 'desc'))
-            ->when(! in_array($sortBy, ['oldest', 'cost_high', 'cost_low', 'order_number_asc', 'order_number_desc'], true), fn ($q) => $q->latest());
+            ->when(! in_array($sortBy, ['oldest', 'cost_high', 'cost_low', 'total_high', 'total_low', 'supplier_asc', 'supplier_desc', 'order_number_asc', 'order_number_desc'], true), fn ($q) => $q->latest());
 
         $orders = $query->get();
 

@@ -268,7 +268,7 @@
                             {mpAccount?.nickname || '—'}
                         </span>
                         {#if mpAccount?.cuit}
-                            <span class="text-[11px] text-muted-foreground font-mono tabular-nums">
+                            <span class="text-[11px] text-muted-foreground font-sans tabular-nums">
                                 CUIT: {mpAccount.cuit}
                             </span>
                         {/if}
@@ -292,7 +292,7 @@
                             <QrCode class="size-3.5" />
                             ID de Vendedor (Collector)
                         </span>
-                        <span class="text-sm font-semibold font-mono tabular-nums text-foreground truncate">
+                        <span class="text-sm font-semibold font-sans tabular-nums text-foreground truncate">
                             {mpAccount?.user_id || '—'}
                         </span>
                         <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
@@ -317,7 +317,7 @@
                             id="pos_id"
                             bind:value={currentPosId}
                             placeholder="Ej: SUC01POS01"
-                            class="h-10 rounded-xl font-mono text-sm uppercase bg-background"
+                            class="h-10 rounded-xl font-sans text-sm uppercase bg-background"
                             required
                         />
                     </div>

@@ -551,7 +551,7 @@
                                                     </button>
                                                 </div>
                                                 <span class="text-[11px] font-medium text-muted-foreground whitespace-nowrap">
-                                                    {isWeight ? 'cant. gramos' : 'cant. unid.'}
+                                                    {isWeight ? 'cant. kg' : 'cant. unid.'}
                                                 </span>
                                             </div>
 

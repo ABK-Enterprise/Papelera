@@ -98,3 +98,48 @@ test('products index calculates incomplete count and filters correctly', functio
             ->where('products.0.id', $completeProduct->id)
         );
 });
+
+test('products index filters by with_discount and without_discount correctly', function () {
+    $category = Category::factory()->forTenant($this->tenant)->create();
+    $this->tenant->update(['default_bulk_discount_percentage' => 10.00]);
+
+    // Product 1: Custom discount 15% -> with_discount
+    $p1 = Product::factory()->forTenant($this->tenant)->forCategory($category)->create([
+        'name' => 'Producto Descuento Custom',
+        'price' => 1000.00,
+        'bulk_discount_type' => 'custom',
+        'custom_bulk_discount_percentage' => 15.00,
+    ]);
+
+    // Product 2: Inherited discount (tenant has 10%) -> with_discount
+    $p2 = Product::factory()->forTenant($this->tenant)->forCategory($category)->create([
+        'name' => 'Producto Descuento Heredado',
+        'price' => 1000.00,
+        'bulk_discount_type' => 'inherited',
+    ]);
+
+    // Product 3: None -> without_discount
+    $p3 = Product::factory()->forTenant($this->tenant)->forCategory($category)->create([
+        'name' => 'Producto Sin Descuento',
+        'price' => 1000.00,
+        'bulk_discount_type' => 'none',
+    ]);
+
+    // Filter with_discount
+    $responseWith = $this->actingAs($this->user)->get(route('tenant.products.index', ['discount' => 'with_discount']));
+    $responseWith->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/products/Index')
+            ->has('products', 2)
+        );
+
+    // Filter without_discount
+    $responseWithout = $this->actingAs($this->user)->get(route('tenant.products.index', ['discount' => 'without_discount']));
+    $responseWithout->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/products/Index')
+            ->has('products', 1)
+            ->where('products.0.id', $p3->id)
+        );
+});
+

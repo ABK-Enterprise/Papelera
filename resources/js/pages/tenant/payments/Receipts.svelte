@@ -215,14 +215,14 @@
                     {#snippet itemSnippet(item)}
                         <div class="flex items-center justify-between w-full py-0.5">
                             <div class="flex flex-col min-w-0">
-                                <span class="font-mono font-bold text-xs text-foreground tabular-nums">
+                                <span class="font-sans font-bold text-xs text-foreground tabular-nums">
                                     {item.receipt_number}
                                 </span>
                                 <span class="text-xs text-muted-foreground truncate">
                                     {item.customer?.name || 'Consumidor Final'}
                                 </span>
                             </div>
-                            <span class="font-mono font-semibold text-xs text-primary tabular-nums shrink-0 ml-2">
+                            <span class="font-sans font-semibold text-xs text-primary tabular-nums shrink-0 ml-2">
                                 {formatPrice(item.amount)}
                             </span>
                         </div>

@@ -72,6 +72,7 @@
         category_id?: number | null;
         stock_status?: string | null;
         info_status?: string | null;
+        discount?: string | null;
         sort_by?: string | null;
     }
 
@@ -101,6 +102,7 @@
     let selectedCategoryId = $state<number | null>(null);
     let selectedStockStatus = $state('');
     let selectedInfoStatus = $state('');
+    let selectedDiscount = $state('all');
     let sortBy = $state('latest');
     let isBulkDiscountModalOpen = $state(false);
     let isFilterModalOpen = $state(false);
@@ -112,12 +114,14 @@
         const cid = filters?.category_id ?? null;
         const ss = filters?.stock_status ?? '';
         const is = filters?.info_status ?? '';
+        const d = filters?.discount ?? 'all';
         const sb = filters?.sort_by ?? 'latest';
         untrack(() => {
             searchTerm = s;
             selectedCategoryId = cid;
             selectedStockStatus = ss;
             selectedInfoStatus = is;
+            selectedDiscount = d;
             sortBy = sb;
         });
     });
@@ -155,6 +159,7 @@
                 category_id: selectedCategoryId ?? undefined,
                 stock_status: selectedStockStatus || undefined,
                 info_status: selectedInfoStatus || undefined,
+                discount: selectedDiscount !== 'all' ? selectedDiscount : undefined,
                 sort_by: sortBy !== 'latest' ? sortBy : undefined,
             },
             {
@@ -178,11 +183,13 @@
         category_id: number | null;
         stock_status: string;
         info_status: string;
+        discount: string;
         sort_by: string;
     }) {
         selectedCategoryId = f.category_id;
         selectedStockStatus = f.stock_status;
         selectedInfoStatus = f.info_status;
+        selectedDiscount = f.discount;
         sortBy = f.sort_by;
         applyFilters();
     }
@@ -192,18 +199,20 @@
         selectedCategoryId = null;
         selectedStockStatus = '';
         selectedInfoStatus = '';
+        selectedDiscount = 'all';
         sortBy = 'latest';
         router.get('/tenant/productos', {}, { preserveState: true, preserveScroll: true });
     }
 
     let hasActiveFilters = $derived(
-        Boolean(searchTerm || selectedCategoryId !== null || selectedStockStatus || selectedInfoStatus || (sortBy && sortBy !== 'latest'))
+        Boolean(searchTerm || selectedCategoryId !== null || selectedStockStatus || selectedInfoStatus || (selectedDiscount && selectedDiscount !== 'all') || (sortBy && sortBy !== 'latest'))
     );
 
     let activeFiltersCount = $derived(
         (selectedCategoryId !== null ? 1 : 0) +
         (selectedStockStatus ? 1 : 0) +
         (selectedInfoStatus ? 1 : 0) +
+        (selectedDiscount && selectedDiscount !== 'all' ? 1 : 0) +
         (sortBy && sortBy !== 'latest' ? 1 : 0)
     );
 </script>
@@ -367,6 +376,17 @@
                     <option value="incomplete">Incompletos ({incompleteCount})</option>
                 </select>
 
+                <!-- Filtro Descuento por Bulto -->
+                <select
+                    bind:value={selectedDiscount}
+                    onchange={applyFilters}
+                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[120px] max-w-[150px]"
+                >
+                    <option value="all">Descuento: Todos</option>
+                    <option value="with_discount">Con descuento</option>
+                    <option value="without_discount">Sin descuento</option>
+                </select>
+
                 {#if hasActiveFilters}
                     <Button variant="ghost" size="sm" class="h-10 px-2 text-xs text-muted-foreground hover:text-foreground gap-1 shrink-0" onclick={resetFilters}>
                         <X class="size-3.5" />
@@ -464,6 +484,7 @@
         {selectedCategoryId}
         {selectedStockStatus}
         {selectedInfoStatus}
+        {selectedDiscount}
         {sortBy}
         {sortOptions}
         onapply={handleApplyMobileFilters}

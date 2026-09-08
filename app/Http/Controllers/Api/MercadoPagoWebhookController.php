@@ -56,17 +56,48 @@ class MercadoPagoWebhookController extends Controller
         // 2. Procesar únicamente eventos de orden acreditada / procesada
         if ($action === 'order.processed' || ($type === 'order' && ($data['status'] ?? '') === 'processed')) {
             $externalRef = $data['external_reference'] ?? null;
-            if (! $externalRef) {
-                return response()->json(['status' => 'ignored', 'reason' => 'Missing external_reference'], 200);
+            if (! $externalRef && ! empty($dataId)) {
+                $mpOrderData = $this->mercadoPagoService->getOrder($dataId);
+                if ($mpOrderData) {
+                    $externalRef = $mpOrderData['external_reference'] ?? null;
+                    $data = array_merge($mpOrderData, $data);
+                }
             }
 
             /** @var CustomerOrder|null $order */
-            $order = CustomerOrder::where('order_number', $externalRef)->first();
+            $order = null;
+            if ($externalRef) {
+                $tenantId = null;
+                $orderNumber = $externalRef;
+                if (str_contains($externalRef, ':')) {
+                    [$tId, $oNum] = explode(':', $externalRef, 2);
+                    $tenantId = (int) $tId;
+                    $orderNumber = $oNum;
+                }
+
+                $query = CustomerOrder::where('order_number', $orderNumber);
+                if ($tenantId) {
+                    $query->where('tenant_id', $tenantId);
+                }
+                $order = $query->first();
+            }
+
+            if (! $order && ! empty($dataId)) {
+                $order = CustomerOrder::where('mp_order_id', $dataId)->first();
+            }
 
             if (! $order) {
-                Log::warning("Mercado Pago webhook: Order {$externalRef} not found in database");
+                Log::warning('Mercado Pago webhook: Order not found in database', [
+                    'external_reference' => $externalRef,
+                    'data_id' => $dataId,
+                ]);
 
                 return response()->json(['status' => 'ignored', 'reason' => 'Order not found'], 200);
+            }
+
+            // Asociar mp_order_id si no estaba guardado
+            if (! empty($dataId) && empty($order->mp_order_id)) {
+                $order->update(['mp_order_id' => $dataId]);
             }
 
             // Idempotencia: si ya está totalmente cobrado, no duplicar cobros
@@ -80,20 +111,23 @@ class MercadoPagoWebhookController extends Controller
             }
 
             $paidAmount = (float) ($data['total_paid_amount'] ?? $data['total_amount'] ?? $order->debt_amount);
-            $paymentRef = $data['transactions']['payments'][0]['id'] ?? $data['id'] ?? "MP-{$order->order_number}";
+            $payments = $data['transactions']['payments'] ?? ($data['payments'] ?? []);
+            $firstPaymentId = $payments[0]['id'] ?? null;
+            $paymentRef = (string) ($firstPaymentId ?: ($data['id'] ?? $dataId ?: "MP-{$order->order_number}"));
 
             $systemUserId = $order->delivery_user_id ?: ($order->tenant->users()->first()?->id ?? 1);
             $orderDebt = (float) $order->debt_amount;
-            $allocationAmount = min($paidAmount, $orderDebt);
+            $allocationAmount = min($paidAmount, $orderDebt > 0 ? $orderDebt : (float) $order->total_amount);
+            $receiptAmount = $order->customer_id ? $paidAmount : $allocationAmount;
 
             $this->registerReceiptAction->execute(
                 tenantId: $order->tenant_id,
                 userId: $systemUserId,
                 customerId: $order->customer_id,
-                amount: $paidAmount,
+                amount: $receiptAmount,
                 paymentMethod: 'mercadopago',
                 referenceNumber: $paymentRef,
-                notes: "Cobro presencial acreditado vía Mercado Pago QR (Orden {$data['id']})",
+                notes: "Cobro presencial acreditado vía Mercado Pago QR (Orden {$dataId})",
                 orderAllocations: [
                     [
                         'order_id' => $order->id,

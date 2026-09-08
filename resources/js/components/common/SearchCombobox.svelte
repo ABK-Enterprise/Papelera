@@ -239,7 +239,7 @@
                                         <HighlightMatch text={item.name ?? item.title ?? item.product_name ?? item.code ?? JSON.stringify(item)} query={value} />
                                     </span>
                                     {#if item.sku ?? item.product_sku}
-                                        <span class="text-[10px] text-muted-foreground font-mono">
+                                        <span class="text-[10px] text-muted-foreground font-sans tabular-nums">
                                             SKU: <HighlightMatch text={item.sku ?? item.product_sku} query={value} />
                                         </span>
                                     {/if}

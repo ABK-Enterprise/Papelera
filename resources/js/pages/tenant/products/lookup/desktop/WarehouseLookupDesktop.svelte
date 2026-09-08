@@ -219,7 +219,7 @@
                                 </h3>
                                 <div class="flex items-center gap-2 mt-1 flex-wrap">
                                     {#if item.product_sku}
-                                        <Badge variant="outline" class="text-[11px] font-mono px-1.5 py-0">
+                                        <Badge variant="outline" class="text-[11px] font-sans tabular-nums px-1.5 py-0">
                                             <HighlightMatch text={item.product_sku} query={searchTerm} />
                                         </Badge>
                                     {/if}
@@ -255,7 +255,7 @@
                                 <span class="truncate">{item.warehouse_name}</span>
                             </div>
                             {#if item.aisle_location}
-                                <div class="flex items-center gap-1 text-[11px] bg-muted/60 px-2 py-0.5 rounded-md font-mono">
+                                <div class="flex items-center gap-1 text-[11px] bg-muted/60 px-2 py-0.5 rounded-md font-sans tabular-nums">
                                     <MapPin class="size-3 text-muted-foreground" />
                                     <span>{item.aisle_location}</span>
                                 </div>

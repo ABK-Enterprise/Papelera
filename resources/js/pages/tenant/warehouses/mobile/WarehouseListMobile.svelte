@@ -42,7 +42,7 @@
                                     </Badge>
                                 {/if}
                             </div>
-                            <span class="text-xs font-mono text-muted-foreground mt-0.5 block">
+                            <span class="text-xs font-sans tabular-nums text-muted-foreground mt-0.5 block">
                                 {wh.code}
                             </span>
                         </div>
