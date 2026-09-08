@@ -170,16 +170,30 @@
                     </div>
                 </div>
 
-                <!-- Alerta de Requisito: Datos Comerciales y Dirección -->
-                <div class="w-full text-left p-4 rounded-xl border border-amber-500/25 bg-amber-500/10 text-amber-950 dark:text-amber-200 flex items-start gap-3 text-xs leading-relaxed">
+                <!-- Alerta de Requisito: Datos Comerciales y Geográficos -->
+                <div class="w-full text-left p-4 sm:p-5 rounded-2xl border border-amber-500/25 bg-amber-500/10 text-amber-950 dark:text-amber-200 flex items-start gap-3.5 text-xs leading-relaxed">
                     <Building2 class="size-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
-                    <div class="space-y-1">
-                        <strong class="font-semibold text-foreground block">
-                            Importante: Completá los datos comerciales de tu negocio
+                    <div class="space-y-1.5 w-full">
+                        <strong class="font-semibold text-foreground text-xs sm:text-sm block">
+                            Requisito: Correspondencia geográfica estricta de tu comercio
                         </strong>
                         <p class="text-muted-foreground">
-                            Para que Mercado Pago pueda aprovisionar y registrar correctamente la sucursal y la caja de cobro, es fundamental que en <a href="/tenant/configuracion/comercio" class="text-primary font-semibold underline hover:opacity-80">Configuración > Comercio</a> ingreses la dirección, ciudad y provincia reales de tu comercio. Si estos datos están vacíos o son incompatibles, Mercado Pago rechazará la creación de las órdenes de cobro con código QR.
+                            Para dar de alta la sucursal y la caja de cobro, la API de Mercado Pago valida de forma estricta la relación entre la provincia y la ciudad configuradas en <a href="/tenant/configuracion/comercio" class="text-primary font-semibold underline hover:opacity-80">Configuración > Comercio</a>. Si los datos son incompatibles, Mercado Pago rechazará la creación de las órdenes de cobro con código QR.
                         </p>
+                        <div class="p-3 rounded-xl bg-background/70 border border-border/60 text-[11px] text-muted-foreground space-y-1.5">
+                            <span class="font-semibold text-foreground block">Ejemplos de compatibilidad requeridos por Mercado Pago:</span>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>
+                                    <strong>Provincia de Buenos Aires:</strong> La ciudad debe ser un partido de la provincia (ej. <em>San Isidro, Vicente López, La Plata, Morón</em>), <u>nunca</u> "Capital Federal".
+                                </li>
+                                <li>
+                                    <strong>Capital Federal (CABA):</strong> La provincia debe ser <em>Capital Federal</em> y la ciudad su barrio (ej. <em>Monserrat, Palermo, Caballito, Recoleta</em>).
+                                </li>
+                                <li>
+                                    <strong>Otras provincias:</strong> La provincia debe coincidir con su nombre oficial y la ciudad con su municipio (ej. Provincia: <em>Entre Ríos</em>, Ciudad: <em>Paraná</em>).
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
@@ -200,6 +214,16 @@
     {:else}
         <!-- ESTADO B: Cuenta Vinculada (Ficha Oficial) -->
         <div class="space-y-6">
+            <!-- Recordatorio Geográfico en Estado Vinculado -->
+            <div class="p-4 rounded-xl border border-border/80 bg-muted/30 flex items-start gap-3 text-xs leading-relaxed">
+                <Building2 class="size-4 shrink-0 text-primary mt-0.5" />
+                <div class="space-y-1">
+                    <span class="font-semibold text-foreground block">Datos Geográficos del Comercio</span>
+                    <p class="text-muted-foreground">
+                        Mercado Pago exige estricta correspondencia entre la provincia y la ciudad configuradas en <a href="/tenant/configuracion/comercio" class="text-primary font-medium underline hover:opacity-80">Configuración > Comercio</a>. Para la <strong>Provincia de Buenos Aires</strong> la ciudad debe ser un partido (ej. <em>San Isidro, Vicente López</em>), mientras que para <strong>Capital Federal</strong> la ciudad debe ser un barrio porteño (ej. <em>Monserrat, Palermo</em>).
+                    </p>
+                </div>
+            </div>
             <!-- Hero Card de Conexión Activa -->
             <Card class="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-border/60">

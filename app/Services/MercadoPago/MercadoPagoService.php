@@ -98,16 +98,18 @@ class MercadoPagoService
                 ];
             }
 
-            // Reintento con auto-aprovisionamiento si el error es por caja POS no registrada
+            // Reintento con auto-aprovisionamiento si el error es por caja POS no registrada o error de Merchant Order
             $rawBody = json_encode($response->json() ?? []);
             $isPosNotFound = str_contains(strtolower($response->json('message') ?? ''), 'pos') ||
                 str_contains(strtolower($rawBody), 'pos_not_found') ||
-                str_contains(strtolower($rawBody), 'pos not found');
+                str_contains(strtolower($rawBody), 'pos not found') ||
+                str_contains(strtolower($rawBody), 'merchant_order_creation_error');
 
             if ($isPosNotFound && $order->tenant?->mp_access_token) {
-                Log::warning('Mercado Pago createOrder POS not found, retrying with force provisioning', [
+                Log::warning('Mercado Pago createOrder POS not found or merchant order error, retrying with force provisioning', [
                     'order_number' => $order->order_number,
                     'current_pos' => $posId,
+                    'error_response' => $response->json(),
                 ]);
 
                 $newPosId = $this->ensurePosExists($order->tenant, true, true);
@@ -143,6 +145,8 @@ class MercadoPagoService
                 'status' => $response->status(),
                 'response' => $response->json(),
                 'order_number' => $order->order_number,
+                'pos_id' => $posId,
+                'payload' => $payload,
             ]);
 
             return [
