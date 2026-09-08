@@ -361,7 +361,7 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="w-[95vw] max-w-md p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-card border-border shadow-2xl flex flex-col relative">
+    <DialogContent class="w-[95vw] max-w-md sm:max-w-lg p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-card border-border shadow-2xl flex flex-col relative">
         <!-- Botón de Cerrar con token semántico acorde a dark y light mode -->
         <button
             type="button"
@@ -576,7 +576,7 @@
             {/if}
         </DialogBody>
 
-        <DialogFooter class="border-t pt-3.5 flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 shrink-0">
+        <DialogFooter class="border-t pt-3.5 flex flex-col-reverse sm:flex-row items-center justify-end gap-2 sm:gap-2.5 shrink-0 w-full">
             {#if currentStep === 'amount_setup'}
                 <Button
                     type="button"
@@ -593,35 +593,35 @@
                     onclick={generateQrOrder}
                     disabled={amountToCharge <= 0}
                 >
-                    <QrCodeIcon class="size-4" />
+                    <QrCodeIcon class="size-4 shrink-0" />
                     <span>Generar QR ({formatCurrency(amountToCharge)})</span>
                 </Button>
             {:else if currentStep === 'waiting_payment'}
                 <Button
                     type="button"
                     variant="outline"
-                    class="h-11 px-4 rounded-xl font-semibold w-full sm:w-auto min-h-[44px]"
+                    class="h-11 px-4 rounded-xl font-semibold w-full sm:w-auto sm:flex-1 min-h-[44px] justify-center text-xs sm:text-sm whitespace-nowrap"
                     onclick={handleClose}
                 >
-                    Cancelar Cobro
+                    Cancelar
                 </Button>
                 <Button
                     type="button"
                     variant="secondary"
-                    class="h-11 px-4 rounded-xl font-semibold w-full sm:w-auto min-h-[44px] gap-2"
+                    class="h-11 px-3 sm:px-4 rounded-xl font-semibold w-full sm:w-auto sm:flex-1 min-h-[44px] justify-center text-xs sm:text-sm gap-2 whitespace-nowrap"
                     onclick={handleManualReconcile}
                     disabled={isReconciling}
                 >
-                    <RefreshCw class="size-4 {isReconciling ? 'animate-spin' : ''}" />
-                    <span>{isReconciling ? 'Consultando...' : 'Verificar Pago'}</span>
+                    <RefreshCw class="size-4 shrink-0 {isReconciling ? 'animate-spin' : ''}" />
+                    <span>{isReconciling ? 'Verificando...' : 'Verificar'}</span>
                 </Button>
                 <Button
                     type="button"
                     variant="default"
-                    class="h-11 px-4 rounded-xl font-semibold w-full sm:w-auto min-h-[44px] gap-2"
+                    class="h-11 px-3 sm:px-4 rounded-xl font-semibold w-full sm:w-auto sm:flex-1 min-h-[44px] justify-center text-xs sm:text-sm gap-2 whitespace-nowrap"
                     onclick={generateQrOrder}
                 >
-                    <QrCodeIcon class="size-4" />
+                    <QrCodeIcon class="size-4 shrink-0" />
                     <span>Regenerar QR</span>
                 </Button>
             {:else if currentStep === 'processing'}
