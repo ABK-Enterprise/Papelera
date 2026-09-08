@@ -363,6 +363,57 @@ test('createOrder auto-recovers when mercado pago returns pos not found error', 
     expect($callCount)->toBe(2);
 });
 
+test('createOrder auto-recovers when mercado pago returns merchant_order_creation_error', function () {
+    $this->tenant->update([
+        'mp_access_token' => 'APP_USR-RECOVERY-TOKEN-2',
+        'mp_user_id' => '99887766',
+        'mp_pos_id' => 'CAJA_OLD_BROKEN',
+    ]);
+
+    $callCount = 0;
+
+    Http::fake([
+        'https://api.mercadopago.com/pos' => Http::response([
+            'results' => [],
+        ], 200),
+        'https://api.mercadopago.com/users/99887766/stores/search' => Http::response([
+            'results' => [['id' => 991122]],
+        ], 200),
+        'https://api.mercadopago.com/v2/pos' => Http::response([
+            'id' => 554433,
+            'external_id' => 'POS_RECOVERED_2',
+            'status' => 'active',
+        ], 201),
+        'https://api.mercadopago.com/v1/orders' => function ($request) use (&$callCount) {
+            $callCount++;
+            if ($callCount === 1) {
+                return Http::response([
+                    'errors' => [
+                        [
+                            'code' => 'merchant_order_creation_error',
+                            'message' => 'An error occurred when creating a Merchant Order',
+                        ],
+                    ],
+                ], 400);
+            }
+
+            return Http::response([
+                'id' => 'ORD-RECOVERED-002',
+                'status' => 'created',
+                'type_response' => ['qr_data' => '00020101RECOVERED_QR_DATA_2'],
+            ], 200);
+        },
+    ]);
+
+    $service = app(\App\Services\MercadoPago\MercadoPagoService::class);
+    $result = $service->createOrder($this->order);
+
+    expect($result['success'])->toBeTrue();
+    expect($result['order_id'])->toBe('ORD-RECOVERED-002');
+    expect($result['qr_data'])->toBe('00020101RECOVERED_QR_DATA_2');
+    expect($callCount)->toBe(2);
+});
+
 test('ensurePosExists adopts orphan POS via PATCH when external_id is missing', function () {
     $this->tenant->update([
         'mp_access_token' => 'APP_USR-ORPHAN-TOKEN',

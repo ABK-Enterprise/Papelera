@@ -54,6 +54,14 @@ class CompanySettingsController extends Controller
 
         $tenant->update($request->validated());
 
+        if ($tenant->mp_access_token) {
+            try {
+                app(\App\Services\MercadoPago\MercadoPagoService::class)->ensurePosExists($tenant, true, true);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('MercadoPago sync store after company update warning: ' . $e->getMessage());
+            }
+        }
+
         Inertia::flash('toast', [
             'type' => 'success',
             'message' => 'Datos del comercio actualizados correctamente.',
