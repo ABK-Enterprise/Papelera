@@ -72,6 +72,19 @@ class RegisterReceiptAction
             }
         }
 
+        // Idempotencia: si ya existe un recibo registrado con esta referencia única para el tenant,
+        // retornarlo de inmediato para evitar duplicar imputaciones, secuencias y asientos contables.
+        if ($paymentMethod === 'mercadopago' && ! empty($referenceNumber)) {
+            $existingReceipt = Receipt::where('tenant_id', $tenantId)
+                ->where('payment_method', 'mercadopago')
+                ->where('reference_number', $referenceNumber)
+                ->first();
+
+            if ($existingReceipt) {
+                return $existingReceipt->load(['customer', 'orderAllocations.order', 'createdByUser']);
+            }
+        }
+
         $paymentEvents = [];
         $accountMovementEvent = null;
 
@@ -87,6 +100,19 @@ class RegisterReceiptAction
             &$paymentEvents,
             &$accountMovementEvent
         ) {
+            // Verificación dentro de la transacción para proteger ante concurrencia extrema
+            if ($paymentMethod === 'mercadopago' && ! empty($referenceNumber)) {
+                $lockedExistingReceipt = Receipt::where('tenant_id', $tenantId)
+                    ->where('payment_method', 'mercadopago')
+                    ->where('reference_number', $referenceNumber)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($lockedExistingReceipt) {
+                    return $lockedExistingReceipt;
+                }
+            }
+
             // 1. Generar número correlativo atómico
             $receiptNumber = $this->sequenceService->nextReceiptNumber($tenantId);
 
