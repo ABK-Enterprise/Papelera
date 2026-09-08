@@ -201,9 +201,36 @@
                     <Input
                         id="company-state"
                         bind:value={form.state}
-                        placeholder="ej. Santa Fe"
+                        placeholder="ej. Entre Ríos"
+                        list="argentine-provinces"
                         class="h-10 text-sm font-medium"
                     />
+                    <datalist id="argentine-provinces">
+                        <option value="Buenos Aires"></option>
+                        <option value="Capital Federal"></option>
+                        <option value="Catamarca"></option>
+                        <option value="Chaco"></option>
+                        <option value="Chubut"></option>
+                        <option value="Corrientes"></option>
+                        <option value="Córdoba"></option>
+                        <option value="Entre Ríos"></option>
+                        <option value="Formosa"></option>
+                        <option value="Jujuy"></option>
+                        <option value="La Pampa"></option>
+                        <option value="La Rioja"></option>
+                        <option value="Mendoza"></option>
+                        <option value="Misiones"></option>
+                        <option value="Neuquén"></option>
+                        <option value="Río Negro"></option>
+                        <option value="Salta"></option>
+                        <option value="San Juan"></option>
+                        <option value="San Luis"></option>
+                        <option value="Santa Cruz"></option>
+                        <option value="Santa Fe"></option>
+                        <option value="Santiago del Estero"></option>
+                        <option value="Tierra del Fuego"></option>
+                        <option value="Tucumán"></option>
+                    </datalist>
                     {#if form.errors.state}
                         <p class="text-xs text-destructive">{form.errors.state}</p>
                     {/if}
