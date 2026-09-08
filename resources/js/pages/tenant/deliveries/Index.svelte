@@ -86,6 +86,9 @@
             })
             .listen('.OrderDeliveryRescheduled', () => {
                 router.reload({ only: ['availableOrders', 'myRouteOrders', 'failedOrders', 'cancelledOrders', 'shiftSummary'], preserveScroll: true, preserveState: true });
+            })
+            .listen('.CustomerOrderPaymentReceived', () => {
+                router.reload({ only: ['myRouteOrders', 'availableOrders', 'shiftSummary'], preserveScroll: true, preserveState: true });
             });
 
         return () => {

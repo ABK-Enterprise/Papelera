@@ -25,6 +25,7 @@ class CustomerOrderPaymentReceived implements ShouldBroadcastNow
         return [
             new PrivateChannel("tenant.{$this->order->tenant_id}.orders"),
             new PrivateChannel("tenant.{$this->order->tenant_id}.orders.{$this->order->id}"),
+            new PrivateChannel("tenant.{$this->order->tenant_id}.deliveries"),
         ];
     }
 
