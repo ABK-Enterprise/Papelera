@@ -437,3 +437,53 @@ test('provisionStoreAndPos normalizes valid geographic pairing for Mercado Pago 
     });
 });
 
+test('provisionStoreAndPos resolves province accents and auto-corrects city via self-healing retry', function () {
+    $this->tenant->update([
+        'mp_access_token' => 'APP_USR-PARANA-TOKEN',
+        'mp_user_id' => '33221100',
+        'address' => 'Salustiano Zavalia 1667',
+        'city' => 'PARANA',
+        'state' => 'ENTRE RIOS',
+    ]);
+
+    $storePostCount = 0;
+
+    Http::fake([
+        'https://api.mercadopago.com/users/33221100/stores/search' => Http::response(['results' => []], 200),
+        'https://api.mercadopago.com/users/33221100/stores' => function ($request) use (&$storePostCount) {
+            $storePostCount++;
+            if ($storePostCount === 1) {
+                // First call sends raw PARANA -> MP rejects with valid values list
+                return Http::response([
+                    'error' => 'validation_error',
+                    'message' => 'location.city_name was invalid.',
+                    'status' => 400,
+                    'causes' => [
+                        [
+                            'code' => 400,
+                            'description' => 'location.city_name was invalid. Valid values are: Colón, Concordia, Crespo, Diamante, Gualeguaychú, Paraná, Victoria',
+                        ],
+                    ],
+                ], 400);
+            }
+
+            // Second call has self-healed Paraná
+            expect($request['location']['state_name'])->toBe('Entre Ríos');
+            expect($request['location']['city_name'])->toBe('Paraná');
+
+            return Http::response(['id' => '87108424'], 201);
+        },
+        'https://api.mercadopago.com/v2/pos' => Http::response([
+            'id' => 137739838,
+            'external_id' => 'CAJAPARANA',
+        ], 201),
+    ]);
+
+    $service = app(\App\Services\MercadoPago\MercadoPagoService::class);
+    $createdPos = $service->provisionStoreAndPos($this->tenant);
+
+    expect($createdPos)->toBe('CAJAPARANA');
+    expect($storePostCount)->toBe(2);
+});
+
+
