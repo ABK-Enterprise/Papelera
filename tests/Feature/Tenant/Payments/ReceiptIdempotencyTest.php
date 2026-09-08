@@ -195,12 +195,15 @@ test('mercadopago webhook controller validates signature and processes payment i
         ],
     ];
 
-    // 1. Despacho sin firma criptográfica válida (debe ser rechazado con 401 si secret está configurado)
+    // 1. Configurar secret de prueba para ejecución hermética
+    $secret = 'test_webhook_secret_123';
+    config(['services.mercadopago.webhook_secret' => $secret]);
+
+    // 2. Despacho sin firma criptográfica válida (debe ser rechazado con 401 si secret está configurado)
     $responseUnsigned = $this->postJson('/api/webhooks/mercadopago?data_id='.$dataId, $payload);
     $responseUnsigned->assertStatus(401);
 
-    // 2. Generar firma HMAC-SHA256 válida según especificación de Mercado Pago
-    $secret = config('services.mercadopago.webhook_secret');
+    // 3. Generar firma HMAC-SHA256 válida según especificación de Mercado Pago
     $ts = (string) time();
     $xRequestId = 'req-test-uuid-123';
     $manifest = "id:{$dataId};request-id:{$xRequestId};ts:{$ts};";
