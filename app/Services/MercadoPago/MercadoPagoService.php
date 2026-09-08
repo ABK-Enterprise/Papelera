@@ -193,11 +193,29 @@ class MercadoPagoService
                         }
 
                         foreach ($results as $pos) {
-                            if (! empty($pos['external_id']) && ($pos['status'] ?? 'active') === 'active') {
-                                $foundPosId = (string) $pos['external_id'];
-                                $tenant->update(['mp_pos_id' => $foundPosId]);
+                            if (($pos['status'] ?? 'active') === 'active') {
+                                if (! empty($pos['external_id'])) {
+                                    $foundPosId = (string) $pos['external_id'];
+                                    $tenant->update(['mp_pos_id' => $foundPosId]);
 
-                                return $foundPosId;
+                                    return $foundPosId;
+                                }
+
+                                // Auto-adopción vía PATCH si la caja existe en MP pero no tiene external_id
+                                if (! empty($pos['id'])) {
+                                    $assignedPosId = 'CAJA' . $pos['id'];
+                                    $patchRes = Http::withToken($tenant->mp_access_token)
+                                        ->timeout(10)
+                                        ->patch("{$this->baseUrl}/v2/pos/{$pos['id']}", [
+                                            'external_id' => $assignedPosId,
+                                        ]);
+
+                                    if ($patchRes->successful()) {
+                                        $tenant->update(['mp_pos_id' => $assignedPosId]);
+
+                                        return $assignedPosId;
+                                    }
+                                }
                             }
                         }
                     }
@@ -237,11 +255,32 @@ class MercadoPagoService
 
             // Si no tiene sucursal creada, se registra una sucursal con los datos reales del comercio
             if (! $storeId) {
-                $streetName = $tenant->address ?: 'Av. Principal';
-                $streetNumber = '100';
+                $streetName = $tenant->address ?: 'Av. Libertador';
+                $streetNumber = '1234';
                 if (preg_match('/^(.*?)\s+(\d+.*)$/', (string) $tenant->address, $matches)) {
                     $streetName = trim($matches[1]);
                     $streetNumber = trim($matches[2]);
+                }
+
+                $rawState = trim((string) ($tenant->state ?: ''));
+                $rawCity = trim((string) ($tenant->city ?: ''));
+
+                // Normalización geográfica estricta requerida por la API de Mercado Pago Argentina
+                $isCaba = in_array(mb_strtolower($rawState), ['capital federal', 'caba', 'ciudad autonoma de buenos aires', 'ciudad autónoma de buenos aires']) ||
+                    in_array(mb_strtolower($rawCity), ['capital federal', 'caba', 'ciudad autonoma de buenos aires', 'ciudad autónoma de buenos aires']);
+
+                if ($isCaba) {
+                    $stateName = 'Capital Federal';
+                    $cityName = (! empty($rawCity) && ! in_array(mb_strtolower($rawCity), ['capital federal', 'caba', 'ciudad autonoma de buenos aires', 'ciudad autónoma de buenos aires']))
+                        ? $rawCity
+                        : 'Monserrat';
+                    $lat = -34.6037;
+                    $lng = -58.3816;
+                } else {
+                    $stateName = 'Buenos Aires';
+                    $cityName = ! empty($rawCity) ? $rawCity : 'San Isidro';
+                    $lat = -34.4718607;
+                    $lng = -58.5275525;
                 }
 
                 $storePayload = [
@@ -254,14 +293,14 @@ class MercadoPagoService
                         'friday' => [['open' => '08:00', 'close' => '20:00']],
                         'saturday' => [['open' => '08:00', 'close' => '13:00']],
                     ],
-                    'external_id' => 'SUC_' . ($tenant->id ?: '01'),
+                    'external_id' => 'SUC' . str_pad((string) ($tenant->id ?: 1), 4, '0', STR_PAD_LEFT),
                     'location' => [
                         'street_number' => (string) $streetNumber,
                         'street_name' => (string) $streetName,
-                        'city_name' => $tenant->city ?: 'Capital Federal',
-                        'state_name' => $tenant->state ?: 'Buenos Aires',
-                        'latitude' => -34.6037,
-                        'longitude' => -58.3816,
+                        'city_name' => $cityName,
+                        'state_name' => $stateName,
+                        'latitude' => $lat,
+                        'longitude' => $lng,
                         'reference' => $tenant->legal_name ?: ($tenant->name ?: 'Local Comercial'),
                     ],
                 ];
@@ -284,10 +323,11 @@ class MercadoPagoService
                 return null;
             }
 
-            // 2. Crear la caja POS asociada a la sucursal
-            $targetPosId = ($freshId || empty($tenant->mp_pos_id))
-                ? ('POS_' . strtoupper(Str::random(6)))
-                : $tenant->mp_pos_id;
+            // 2. Crear la caja POS asociada a la sucursal (identificador alfanumérico estricto)
+            $cleanPosId = preg_replace('/[^A-Za-z0-9]/', '', (string) $tenant->mp_pos_id);
+            $targetPosId = ($freshId || empty($cleanPosId))
+                ? ('CAJA' . strtoupper(Str::random(6)))
+                : substr($cleanPosId, 0, 40);
 
             $posPayload = [
                 'name' => 'Caja 1 Mostrador',
