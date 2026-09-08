@@ -45,7 +45,7 @@ class MercadoPagoService
         $formattedAmount = number_format($amount, 2, '.', '');
         $idempotencyKey = Str::uuid()->toString();
 
-        $tenantName = $order->tenant?->name ?: 'Papelera del Sol';
+        $tenantName = $order->tenant?->name ?: 'Papelera Bahía';
         $orderTitle = "{$tenantName} - Pedido {$order->order_number}";
 
         $payload = [
