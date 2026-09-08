@@ -149,9 +149,13 @@ class MercadoPagoService
                 'payload' => $payload,
             ]);
 
+            $apiError = $response->json('message')
+                ?? ($response->json('error')
+                ?? ($response->json('errors')[0]['message'] ?? null));
+
             return [
                 'success' => false,
-                'error' => $response->json('message') ?? ($response->json('error') ?? 'Error al comunicarse con Mercado Pago'),
+                'error' => $apiError ?: 'Error al comunicarse con Mercado Pago',
                 'status_code' => $response->status(),
                 'raw' => $response->json() ?? [],
             ];
@@ -257,58 +261,88 @@ class MercadoPagoService
                 $storeId = (string) ($storesRes->json('results')[0]['id'] ?? '');
             }
 
-            // Si no tiene sucursal creada, se registra una sucursal con los datos reales del comercio
-            if (! $storeId) {
-                $streetName = $tenant->address ?: 'Av. Libertador';
-                $streetNumber = '1234';
-                if (preg_match('/^(.*?)\s+(\d+.*)$/', (string) $tenant->address, $matches)) {
-                    $streetName = trim($matches[1]);
-                    $streetNumber = trim($matches[2]);
+            $streetName = $tenant->address ?: 'Av. Libertador';
+            $streetNumber = '1234';
+            if (preg_match('/^(.*?)\s+(\d+.*)$/', (string) $tenant->address, $matches)) {
+                $streetName = trim($matches[1]);
+                $streetNumber = trim($matches[2]);
+            }
+
+            $rawState = trim((string) ($tenant->state ?: ''));
+            $rawCity = trim((string) ($tenant->city ?: ''));
+
+            $stateName = $this->resolveArgentineProvince($rawState);
+            if ($stateName === 'Capital Federal') {
+                $cleanCity = Str::ascii(mb_strtolower($rawCity));
+                $cityName = (! empty($rawCity) && ! in_array($cleanCity, ['caba', 'capital federal', 'ciudad autonoma de buenos aires']))
+                    ? $rawCity
+                    : 'Monserrat';
+                $lat = -34.6037;
+                $lng = -58.3816;
+            } elseif ($stateName === 'Buenos Aires') {
+                $cityName = ! empty($rawCity) ? $rawCity : 'San Isidro';
+                $lat = -34.4718607;
+                $lng = -58.5275525;
+            } else {
+                $cityName = ! empty($rawCity) ? $rawCity : 'Capital';
+                $lat = -31.7333;
+                $lng = -60.5333;
+            }
+
+            $storePayload = [
+                'name' => $tenant->name ?: 'Sucursal Principal',
+                'business_hours' => [
+                    'monday' => [['open' => '08:00', 'close' => '20:00']],
+                    'tuesday' => [['open' => '08:00', 'close' => '20:00']],
+                    'wednesday' => [['open' => '08:00', 'close' => '20:00']],
+                    'thursday' => [['open' => '08:00', 'close' => '20:00']],
+                    'friday' => [['open' => '08:00', 'close' => '20:00']],
+                    'saturday' => [['open' => '08:00', 'close' => '13:00']],
+                ],
+                'external_id' => 'SUC' . str_pad((string) ($tenant->id ?: 1), 4, '0', STR_PAD_LEFT),
+                'location' => [
+                    'street_number' => (string) $streetNumber,
+                    'street_name' => (string) $streetName,
+                    'city_name' => $cityName,
+                    'state_name' => $stateName,
+                    'latitude' => $lat,
+                    'longitude' => $lng,
+                    'reference' => $tenant->legal_name ?: ($tenant->name ?: 'Local Comercial'),
+                ],
+            ];
+
+            if ($storeId) {
+                // Sincronizar ubicación en la sucursal existente en Mercado Pago
+                $updateStoreRes = Http::withToken($token)
+                    ->timeout(10)
+                    ->put("{$this->baseUrl}/users/{$userId}/stores/{$storeId}", $storePayload);
+
+                if (! $updateStoreRes->successful()) {
+                    $errorBody = $updateStoreRes->json();
+                    $causeDesc = $errorBody['causes'][0]['description'] ?? ($errorBody['message'] ?? '');
+                    if (str_contains($causeDesc, 'Valid values are:')) {
+                        $validListStr = substr($causeDesc, strpos($causeDesc, 'Valid values are:') + 17);
+                        $validCities = array_map('trim', explode(',', $validListStr));
+                        $targetCleanCity = Str::ascii(mb_strtolower($cityName));
+
+                        $matchedCity = null;
+                        foreach ($validCities as $validCity) {
+                            if (Str::ascii(mb_strtolower($validCity)) === $targetCleanCity) {
+                                $matchedCity = $validCity;
+                                break;
+                            }
+                        }
+
+                        $resolvedCity = $matchedCity ?: ($validCities[0] ?? $cityName);
+                        $storePayload['location']['city_name'] = $resolvedCity;
+
+                        Http::withToken($token)
+                            ->timeout(10)
+                            ->put("{$this->baseUrl}/users/{$userId}/stores/{$storeId}", $storePayload);
+                    }
                 }
-
-                $rawState = trim((string) ($tenant->state ?: ''));
-                $rawCity = trim((string) ($tenant->city ?: ''));
-
-                $stateName = $this->resolveArgentineProvince($rawState);
-                if ($stateName === 'Capital Federal') {
-                    $cleanCity = Str::ascii(mb_strtolower($rawCity));
-                    $cityName = (! empty($rawCity) && ! in_array($cleanCity, ['caba', 'capital federal', 'ciudad autonoma de buenos aires']))
-                        ? $rawCity
-                        : 'Monserrat';
-                    $lat = -34.6037;
-                    $lng = -58.3816;
-                } elseif ($stateName === 'Buenos Aires') {
-                    $cityName = ! empty($rawCity) ? $rawCity : 'San Isidro';
-                    $lat = -34.4718607;
-                    $lng = -58.5275525;
-                } else {
-                    $cityName = ! empty($rawCity) ? $rawCity : 'Capital';
-                    $lat = -31.7333;
-                    $lng = -60.5333;
-                }
-
-                $storePayload = [
-                    'name' => $tenant->name ?: 'Sucursal Principal',
-                    'business_hours' => [
-                        'monday' => [['open' => '08:00', 'close' => '20:00']],
-                        'tuesday' => [['open' => '08:00', 'close' => '20:00']],
-                        'wednesday' => [['open' => '08:00', 'close' => '20:00']],
-                        'thursday' => [['open' => '08:00', 'close' => '20:00']],
-                        'friday' => [['open' => '08:00', 'close' => '20:00']],
-                        'saturday' => [['open' => '08:00', 'close' => '13:00']],
-                    ],
-                    'external_id' => 'SUC' . str_pad((string) ($tenant->id ?: 1), 4, '0', STR_PAD_LEFT),
-                    'location' => [
-                        'street_number' => (string) $streetNumber,
-                        'street_name' => (string) $streetName,
-                        'city_name' => $cityName,
-                        'state_name' => $stateName,
-                        'latitude' => $lat,
-                        'longitude' => $lng,
-                        'reference' => $tenant->legal_name ?: ($tenant->name ?: 'Local Comercial'),
-                    ],
-                ];
-
+            } else {
+                // Crear nueva sucursal si no existe
                 $createStoreRes = Http::withToken($token)
                     ->timeout(10)
                     ->post("{$this->baseUrl}/users/{$userId}/stores", $storePayload);

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onDestroy } from 'svelte';
+    import { onDestroy, untrack } from 'svelte';
     import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogBody } from '@/components/ui/dialog';
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
@@ -56,6 +56,8 @@
     let errorMessage = $state<string | null>(null);
     let timeRemainingSeconds = $state<number>(900); // 15 minutos por defecto
     let paidReceipt = $state<{ receipt_number?: string; amount?: number; payment_method?: string } | null>(null);
+    let lastOpenedOrderId = $state<number | null>(null);
+    let isRequestInProgress = false;
 
     // Timers y suscripciones
     let countdownInterval: any = null;
@@ -84,18 +86,29 @@
         }).format(Number(val) || 0);
     }
 
-    // Inicialización y limpieza al cambiar 'open'
+    // Inicialización idempotente y limpieza al cambiar 'open'
     $effect(() => {
-        if (open && order) {
-            resetModalState();
-            const initialDebt = Number(order.debt_amount ?? 0);
-            amountToCharge = initialDebt > 0 ? initialDebt : Number(order.total_amount || 0);
-            // Generar inmediatamente el QR si el monto es válido
-            if (amountToCharge > 0) {
-                generateQrOrder();
-            }
-        } else {
-            cleanupSubscriptions();
+        const isOpen = open;
+        const currentOrderId = order?.id;
+
+        if (isOpen && currentOrderId) {
+            untrack(() => {
+                if (lastOpenedOrderId !== currentOrderId) {
+                    lastOpenedOrderId = currentOrderId;
+                    resetModalState();
+                    const initialDebt = Number(order?.debt_amount ?? 0);
+                    amountToCharge = initialDebt > 0 ? initialDebt : Number(order?.total_amount || 0);
+                    // Generar inmediatamente el QR si el monto es válido
+                    if (amountToCharge > 0) {
+                        generateQrOrder();
+                    }
+                }
+            });
+        } else if (!isOpen) {
+            untrack(() => {
+                lastOpenedOrderId = null;
+                cleanupSubscriptions();
+            });
         }
     });
 
@@ -140,11 +153,14 @@
     }
 
     async function generateQrOrder() {
-        if (!order || amountToCharge <= 0) {
-            errorMessage = 'El monto a cobrar debe ser mayor a cero.';
+        if (isRequestInProgress || !order || amountToCharge <= 0) {
+            if (!order || amountToCharge <= 0) {
+                errorMessage = 'El monto a cobrar debe ser mayor a cero.';
+            }
             return;
         }
 
+        isRequestInProgress = true;
         currentStep = 'generating';
         errorMessage = null;
         cleanupSubscriptions();
@@ -208,6 +224,8 @@
         } catch (err: any) {
             currentStep = 'error';
             errorMessage = err.message || 'Error de comunicación al conectar con Mercado Pago.';
+        } finally {
+            isRequestInProgress = false;
         }
     }
 
