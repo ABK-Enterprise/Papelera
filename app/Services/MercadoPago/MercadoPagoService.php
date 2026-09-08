@@ -265,22 +265,22 @@ class MercadoPagoService
                 $rawState = trim((string) ($tenant->state ?: ''));
                 $rawCity = trim((string) ($tenant->city ?: ''));
 
-                // Normalización geográfica estricta requerida por la API de Mercado Pago Argentina
-                $isCaba = in_array(mb_strtolower($rawState), ['capital federal', 'caba', 'ciudad autonoma de buenos aires', 'ciudad autónoma de buenos aires']) ||
-                    in_array(mb_strtolower($rawCity), ['capital federal', 'caba', 'ciudad autonoma de buenos aires', 'ciudad autónoma de buenos aires']);
-
-                if ($isCaba) {
-                    $stateName = 'Capital Federal';
-                    $cityName = (! empty($rawCity) && ! in_array(mb_strtolower($rawCity), ['capital federal', 'caba', 'ciudad autonoma de buenos aires', 'ciudad autónoma de buenos aires']))
+                $stateName = $this->resolveArgentineProvince($rawState);
+                if ($stateName === 'Capital Federal') {
+                    $cleanCity = Str::ascii(mb_strtolower($rawCity));
+                    $cityName = (! empty($rawCity) && ! in_array($cleanCity, ['caba', 'capital federal', 'ciudad autonoma de buenos aires']))
                         ? $rawCity
                         : 'Monserrat';
                     $lat = -34.6037;
                     $lng = -58.3816;
-                } else {
-                    $stateName = 'Buenos Aires';
+                } elseif ($stateName === 'Buenos Aires') {
                     $cityName = ! empty($rawCity) ? $rawCity : 'San Isidro';
                     $lat = -34.4718607;
                     $lng = -58.5275525;
+                } else {
+                    $cityName = ! empty($rawCity) ? $rawCity : 'Capital';
+                    $lat = -31.7333;
+                    $lng = -60.5333;
                 }
 
                 $storePayload = [
@@ -308,6 +308,36 @@ class MercadoPagoService
                 $createStoreRes = Http::withToken($token)
                     ->timeout(10)
                     ->post("{$this->baseUrl}/users/{$userId}/stores", $storePayload);
+
+                // Auto-corrección resiliente: si MP rechaza la ciudad indicando la lista de valores válidos
+                if (! $createStoreRes->successful()) {
+                    $errorBody = $createStoreRes->json();
+                    $causeDesc = $errorBody['causes'][0]['description'] ?? ($errorBody['message'] ?? '');
+                    if (str_contains($causeDesc, 'Valid values are:')) {
+                        $validListStr = substr($causeDesc, strpos($causeDesc, 'Valid values are:') + 17);
+                        $validCities = array_map('trim', explode(',', $validListStr));
+                        $targetCleanCity = Str::ascii(mb_strtolower($cityName));
+
+                        $matchedCity = null;
+                        foreach ($validCities as $validCity) {
+                            if (Str::ascii(mb_strtolower($validCity)) === $targetCleanCity) {
+                                $matchedCity = $validCity;
+                                break;
+                            }
+                        }
+
+                        $resolvedCity = $matchedCity ?: ($validCities[0] ?? $cityName);
+                        $storePayload['location']['city_name'] = $resolvedCity;
+
+                        $retryStoreRes = Http::withToken($token)
+                            ->timeout(10)
+                            ->post("{$this->baseUrl}/users/{$userId}/stores", $storePayload);
+
+                        if ($retryStoreRes->successful()) {
+                            $createStoreRes = $retryStoreRes;
+                        }
+                    }
+                }
 
                 if ($createStoreRes->successful()) {
                     $storeId = (string) ($createStoreRes->json('id') ?? '');
@@ -430,5 +460,51 @@ class MercadoPagoService
         $computed = hash_hmac('sha256', $manifest, $key);
 
         return hash_equals($computed, $hash);
+    }
+
+    public const AR_PROVINCES = [
+        'Buenos Aires',
+        'Capital Federal',
+        'Catamarca',
+        'Chaco',
+        'Chubut',
+        'Corrientes',
+        'Córdoba',
+        'Entre Ríos',
+        'Formosa',
+        'Jujuy',
+        'La Pampa',
+        'La Rioja',
+        'Mendoza',
+        'Misiones',
+        'Neuquén',
+        'Río Negro',
+        'Salta',
+        'San Juan',
+        'San Luis',
+        'Santa Cruz',
+        'Santa Fe',
+        'Santiago del Estero',
+        'Tierra del Fuego',
+        'Tucumán',
+    ];
+
+    /**
+     * Resuelve y normaliza el nombre oficial de provincia para la API de Mercado Pago Argentina.
+     */
+    public function resolveArgentineProvince(string $input): string
+    {
+        $clean = Str::ascii(mb_strtolower(trim($input)));
+        if (in_array($clean, ['caba', 'capital federal', 'ciudad autonoma de buenos aires', 'ciudad de buenos aires'])) {
+            return 'Capital Federal';
+        }
+
+        foreach (self::AR_PROVINCES as $province) {
+            if (Str::ascii(mb_strtolower($province)) === $clean) {
+                return $province;
+            }
+        }
+
+        return 'Buenos Aires';
     }
 }
