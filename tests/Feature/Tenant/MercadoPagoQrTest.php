@@ -362,3 +362,78 @@ test('createOrder auto-recovers when mercado pago returns pos not found error', 
     expect($result['qr_data'])->toBe('00020101RECOVERED_QR_DATA');
     expect($callCount)->toBe(2);
 });
+
+test('ensurePosExists adopts orphan POS via PATCH when external_id is missing', function () {
+    $this->tenant->update([
+        'mp_access_token' => 'APP_USR-ORPHAN-TOKEN',
+        'mp_user_id' => '12345999',
+        'mp_pos_id' => null,
+    ]);
+
+    Http::fake([
+        'https://api.mercadopago.com/pos' => Http::response([
+            'results' => [
+                [
+                    'id' => 777123,
+                    'name' => 'Caja Móvil',
+                    'external_id' => null,
+                    'status' => 'active',
+                ],
+            ],
+        ], 200),
+        'https://api.mercadopago.com/v2/pos/777123' => Http::response([
+            'id' => 777123,
+            'external_id' => 'CAJA777123',
+            'status' => 'active',
+        ], 200),
+    ]);
+
+    $service = app(\App\Services\MercadoPago\MercadoPagoService::class);
+    $resolvedPos = $service->ensurePosExists($this->tenant);
+
+    expect($resolvedPos)->toBe('CAJA777123');
+    expect($this->tenant->fresh()->mp_pos_id)->toBe('CAJA777123');
+
+    Http::assertSent(function ($request) {
+        return $request->url() === 'https://api.mercadopago.com/v2/pos/777123' &&
+               $request->method() === 'PATCH' &&
+               $request['external_id'] === 'CAJA777123';
+    });
+});
+
+test('provisionStoreAndPos normalizes valid geographic pairing for Mercado Pago Argentina', function () {
+    // Tenant without explicit city/state
+    $this->tenant->update([
+        'mp_access_token' => 'APP_USR-GEO-TOKEN',
+        'mp_user_id' => '99887766',
+        'address' => 'Belgrano 450',
+        'city' => null,
+        'state' => null,
+    ]);
+
+    Http::fake([
+        'https://api.mercadopago.com/users/99887766/stores/search' => Http::response(['results' => []], 200),
+        'https://api.mercadopago.com/users/99887766/stores' => Http::response(['id' => '990011'], 201),
+        'https://api.mercadopago.com/v2/pos' => Http::response([
+            'id' => 554433,
+            'external_id' => 'CAJATEST',
+        ], 201),
+    ]);
+
+    $service = app(\App\Services\MercadoPago\MercadoPagoService::class);
+    $createdPos = $service->provisionStoreAndPos($this->tenant);
+
+    expect($createdPos)->toBe('CAJATEST');
+
+    Http::assertSent(function ($request) {
+        if ($request->url() === 'https://api.mercadopago.com/users/99887766/stores') {
+            $location = $request['location'];
+            // Ensures valid pair for Buenos Aires: city must be San Isidro when not specified
+            return $location['state_name'] === 'Buenos Aires' &&
+                   $location['city_name'] === 'San Isidro' &&
+                   str_starts_with($request['external_id'], 'SUC');
+        }
+        return false;
+    });
+});
+
