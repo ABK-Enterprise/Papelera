@@ -47,6 +47,18 @@ class AppServiceProvider extends ServiceProvider
 
             return route('dashboard');
         });
+
+        if (PHP_OS_FAMILY !== 'Windows') {
+            \Spatie\LaravelPdf\Facades\Pdf::default()
+                ->withBrowsershot(function (\Spatie\Browsershot\Browsershot $browsershot) {
+                    $browsershot->addChromiumArguments([
+                        'disable-dev-shm-usage',
+                        'disable-gpu',
+                        'disable-setuid-sandbox',
+                        'no-sandbox',
+                    ]);
+                });
+        }
     }
 
 
