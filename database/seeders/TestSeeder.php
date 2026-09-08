@@ -42,11 +42,11 @@ class TestSeeder extends Seeder
         Role::whereNull('tenant_id')->where('name', '!=', 'superadmin')->delete();
         Role::whereIn('name', ['Administrador de Sucursal', 'Administrador'])->delete();
 
-        // 2. Definición de los 4 Comercios (Tenants) con Variación Modular
+        // 2. Definición de los Comercios (Tenants) con Variación Modular
         $tenantsData = [
             [
                 'cuit' => '30000000001',
-                'name' => 'Papelera del Sol (Demo)',
+                'name' => 'Papelera Bahía',
                 'modules' => [
                     SystemModule::Productos->value,
                     SystemModule::Stock->value,
@@ -74,6 +74,44 @@ class TestSeeder extends Seeder
                     [
                         'name' => 'Carlos Logística',
                         'email' => 'chofer.sol@papelera.test',
+                        'role' => 'Repartidor / Chofer',
+                    ],
+                ],
+            ],
+            [
+                'cuit' => '30444444445',
+                'name' => 'Papelera Testing',
+                'modules' => [
+                    SystemModule::Productos->value,
+                    SystemModule::Stock->value,
+                    SystemModule::Proveedores->value,
+                    SystemModule::Clientes->value,
+                    SystemModule::Pedidos->value,
+                    SystemModule::FacturacionArca->value,
+                ],
+                'users' => [
+                    [
+                        'name' => 'Mariano Administrador',
+                        'email' => 'mariano@admin.com',
+                        'password' => 'mariano13#',
+                        'role' => 'admin',
+                    ],
+                    [
+                        'name' => 'Mariano Stock',
+                        'email' => 'stock.mariano@papelera.test',
+                        'password' => 'mariano13#',
+                        'role' => 'Gestor de Stock',
+                    ],
+                    [
+                        'name' => 'Mariano Ventas',
+                        'email' => 'ventas.mariano@papelera.test',
+                        'password' => 'mariano13#',
+                        'role' => 'Vendedor / Cajero',
+                    ],
+                    [
+                        'name' => 'Mariano Repartidor',
+                        'email' => 'chofer.mariano@papelera.test',
+                        'password' => 'mariano13#',
                         'role' => 'Repartidor / Chofer',
                     ],
                 ],
@@ -403,6 +441,7 @@ class TestSeeder extends Seeder
                 'is_active' => true,
                 'default_bulk_discount_percentage' => 10.00,
             ]);
+            $tenant->name = $tData['name'];
             $tenant->default_bulk_discount_percentage = 10.00;
             $tenant->save();
 
@@ -470,12 +509,13 @@ class TestSeeder extends Seeder
             // Crear / Actualizar Usuarios del Tenant
             $createdUsers = [];
             foreach ($tData['users'] as $uData) {
+                $userPassword = $uData['password'] ?? 'password';
                 $user = User::where('email', $uData['email'])->first();
                 if (! $user) {
                     $user = new User([
                         'name' => $uData['name'],
                         'email' => $uData['email'],
-                        'password' => 'password',
+                        'password' => $userPassword,
                     ]);
                     $user->forceFill([
                         'tenant_id' => $tenant->id,
@@ -485,7 +525,7 @@ class TestSeeder extends Seeder
                 } else {
                     $user->forceFill([
                         'name' => $uData['name'],
-                        'password' => 'password',
+                        'password' => $userPassword,
                         'tenant_id' => $tenant->id,
                         'email_verified_at' => $user->email_verified_at ?? now(),
                     ])->save();

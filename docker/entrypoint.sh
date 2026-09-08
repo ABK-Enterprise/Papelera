@@ -6,12 +6,19 @@ php artisan config:cache || true
 php artisan route:cache || true
 php artisan view:cache || true
 
-echo "Ejecutando migraciones de base de datos..."
-php artisan migrate --force || true
+if [ "$MIGRATE_FRESH" = "true" ]; then
+    echo "⚠️ MIGRATE_FRESH=true detectado: Reseteando base de datos completa con seeders..."
+    php artisan migrate:fresh --force || true
+    php artisan db:seed --class=BaseSeeder --force || true
+    php artisan db:seed --class=TestSeeder --force || true
+else
+    echo "Ejecutando migraciones de base de datos..."
+    php artisan migrate --force || true
 
-echo "Ejecutando seeders de base de datos..."
-php artisan db:seed --class=BaseSeeder --force || true
-php artisan db:seed --class=TestSeeder --force || true
+    echo "Ejecutando seeders de base de datos..."
+    php artisan db:seed --class=BaseSeeder --force || true
+    php artisan db:seed --class=TestSeeder --force || true
+fi
 
 echo "Creando symlink de storage..."
 php artisan storage:link || true

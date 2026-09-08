@@ -165,6 +165,11 @@ class CustomerOrder extends Model
         });
     }
 
+    public function getPaidAmountAttribute(): float
+    {
+        return max(0.0, round((float) $this->total_amount - (float) $this->debt_amount, 2));
+    }
+
     public function isPaid(): bool
     {
         return $this->payment_status === 'cobrado' && (float) $this->debt_amount <= 0;

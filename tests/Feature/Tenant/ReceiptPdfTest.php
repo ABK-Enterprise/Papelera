@@ -52,7 +52,6 @@ beforeEach(function () {
         'customer_name' => $this->customer->name,
         'status' => 'entregado',
         'total_amount' => 15000.00,
-        'paid_amount' => 15000.00,
         'debt_amount' => 0.00,
         'payment_status' => 'pagado',
     ]);
