@@ -1,16 +1,27 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
-    import Ban from 'lucide-svelte/icons/ban';
+    import {
+        DropdownMenu,
+        DropdownMenuContent,
+        DropdownMenuItem,
+        DropdownMenuSeparator,
+        DropdownMenuTrigger,
+    } from '@/components/ui/dropdown-menu';
+    import MoreVertical from 'lucide-svelte/icons/more-vertical';
+    import Eye from 'lucide-svelte/icons/eye';
     import Printer from 'lucide-svelte/icons/printer';
+    import Ban from 'lucide-svelte/icons/ban';
     import type { ReceiptItem } from '../desktop/ReceiptListDesktop.svelte';
 
     let {
         receipts = [],
+        onViewDetail = undefined,
         onRequestVoid = undefined,
         onPreviewPdf = undefined,
     }: {
         receipts: ReceiptItem[];
+        onViewDetail?: (receipt: ReceiptItem) => void;
         onRequestVoid?: (receipt: ReceiptItem) => void;
         onPreviewPdf?: (receipt: ReceiptItem) => void;
     } = $props();
@@ -23,90 +34,143 @@
         }).format(Number(val) || 0);
     }
 
-    function formatDate(val: string) {
-        if (!val) return '';
-        return new Intl.DateTimeFormat('es-AR', {
-            day: '2-digit',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-        }).format(new Date(val));
+    function truncateRef(ref: string | null | undefined, maxLen = 14): string {
+        if (!ref) return '';
+        return ref.length > maxLen ? ref.slice(0, maxLen) + '...' : ref;
     }
 </script>
 
-<div class="space-y-2.5">
+<div class="space-y-3">
     {#if receipts.length === 0}
-        <Card class="p-8 text-center text-xs text-muted-foreground">
+        <Card class="p-8 text-center text-sm text-muted-foreground rounded-2xl border border-border/70 shadow-xs">
             No se encontraron recibos coincidentes.
         </Card>
     {:else}
-        {#each receipts as rc}
-            <div class="p-3.5 rounded-xl border bg-card border-border/80 shadow-2xs space-y-2.5 {rc.is_cancelled ? 'opacity-60 bg-muted/20' : ''}">
-                <div class="flex items-start justify-between gap-2">
-                    <div class="space-y-0.5">
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-xs sm:text-sm text-foreground font-sans">
-                                {rc.receipt_number}
+        {#each receipts as rc (rc.id)}
+            <div
+                class="p-4 rounded-2xl border border-border/70 bg-card shadow-xs space-y-3 {rc.is_cancelled ? 'opacity-70 bg-muted/10' : ''}"
+            >
+                <!-- Fila Superior: Nº Recibo + Estado + Menú '...' -->
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2 min-w-0 flex-wrap">
+                        <span class="font-bold text-base text-foreground font-sans tabular-nums">
+                            {rc.receipt_number}
+                        </span>
+                        {#if rc.is_cancelled}
+                            <span
+                                title={rc.cancellation_reason ? `Motivo: ${rc.cancellation_reason}` : undefined}
+                                class="bg-destructive/10 text-destructive border border-destructive/20 text-xs font-bold px-2 py-0.5 rounded-full line-through shrink-0"
+                            >
+                                Anulado
                             </span>
-                            {#if rc.is_cancelled}
-                                <span class="text-[9px] font-bold text-destructive bg-destructive/10 px-1.5 py-0.2 rounded line-through">
-                                    ANULADO
+                        {:else}
+                            <span class="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
+                                Válido
+                            </span>
+                        {/if}
+                    </div>
+
+                    <!-- Botón '...' con DropdownMenu (Touch Target >= 44px) -->
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            {#snippet children(props)}
+                                <button
+                                    {...props}
+                                    type="button"
+                                    class="min-h-[44px] min-w-[44px] size-11 rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shadow-2xs flex items-center justify-center cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
+                                    aria-label={`Opciones para recibo ${rc.receipt_number}`}
+                                >
+                                    <MoreVertical class="size-4" />
+                                </button>
+                            {/snippet}
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" class="w-48 shadow-lg">
+                            <DropdownMenuItem
+                                class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
+                                onclick={() => onViewDetail?.(rc)}
+                            >
+                                <Eye class="size-4 text-muted-foreground" />
+                                <span>Ver detalle</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
+                                onclick={() => onPreviewPdf?.(rc)}
+                            >
+                                <Printer class="size-4 text-muted-foreground" />
+                                <span>Ver e Imprimir PDF</span>
+                            </DropdownMenuItem>
+                            {#if !rc.is_cancelled}
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    class="flex items-center gap-2 text-xs font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5"
+                                    onclick={() => onRequestVoid?.(rc)}
+                                >
+                                    <Ban class="size-4 text-destructive" />
+                                    <span>Anular recibo</span>
+                                </DropdownMenuItem>
+                            {/if}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+
+                <!-- Fila Media: Cliente + Método + Referencia -->
+                <div class="space-y-1.5 pt-0.5">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0 flex-1">
+                            {#if rc.customer}
+                                <span class="text-sm font-semibold text-foreground truncate block" title={rc.customer.name}>
+                                    {rc.customer.name}
                                 </span>
+                                {#if rc.customer.tax_id}
+                                    <span class="text-xs text-muted-foreground block tabular-nums">
+                                        {rc.customer.tax_id}
+                                    </span>
+                                {/if}
                             {:else}
-                                <span class="text-[9px] font-semibold text-emerald-600 bg-emerald-500/10 px-1.5 py-0.2 rounded border border-emerald-500/20">
-                                    VÁLIDO
+                                <span class="text-xs text-muted-foreground italic block">
+                                    Cliente Ocasional
                                 </span>
                             {/if}
                         </div>
-                        <span class="text-[11px] text-muted-foreground block">
-                            {formatDate(rc.created_at)}
-                        </span>
+
+                        <div class="shrink-0">
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full border border-primary/20 bg-primary/10 text-primary uppercase inline-block">
+                                {rc.payment_method}
+                            </span>
+                        </div>
                     </div>
 
-                    <div class="text-right shrink-0">
-                        <span class="text-xs sm:text-sm font-bold font-sans tabular-nums text-foreground block">
-                            {formatPrice(rc.amount)}
-                        </span>
-                        <span class="text-[10px] uppercase font-semibold text-primary">
-                            {rc.payment_method}
-                        </span>
-                    </div>
+                    {#if rc.reference_number}
+                        <div class="flex items-center gap-1.5 pt-0.5">
+                            <span class="text-xs text-muted-foreground">Ref:</span>
+                            <span
+                                class="text-xs font-mono text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md border border-border/50 truncate max-w-[200px] inline-block"
+                                title={rc.reference_number}
+                            >
+                                {truncateRef(rc.reference_number, 14)}
+                            </span>
+                        </div>
+                    {/if}
                 </div>
 
-                <div class="pt-2 border-t border-border/50 flex items-center justify-between gap-2 text-xs">
-                    <div class="min-w-0">
-                        {#if rc.customer}
-                            <span class="font-medium text-foreground truncate block">{rc.customer.name}</span>
-                        {:else}
-                            <span class="text-muted-foreground italic">Cliente Ocasional</span>
-                        {/if}
+                <!-- Fila Inferior: Monto Destacado + Botón Ver detalle (Touch Target >= 44px) -->
+                <div class="pt-2.5 border-t border-border/60 flex items-center justify-between gap-3">
+                    <div>
+                        <span class="text-xs text-muted-foreground block">Monto total</span>
+                        <span class="text-lg font-bold font-sans tabular-nums text-foreground block">
+                            {formatPrice(rc.amount)}
+                        </span>
                     </div>
 
-                    <div class="flex items-center gap-1.5 shrink-0">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            class="h-8 min-h-[32px] px-2.5 text-xs text-foreground hover:bg-muted/80 gap-1 rounded-lg cursor-pointer"
-                            onclick={() => onPreviewPdf?.(rc)}
-                            title="Ver e imprimir comprobante"
-                        >
-                            <Printer class="size-3 text-muted-foreground" />
-                            <span>PDF</span>
-                        </Button>
-                        {#if !rc.is_cancelled}
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                class="h-8 min-h-[32px] px-2.5 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 gap-1 rounded-lg shrink-0 cursor-pointer"
-                                onclick={() => onRequestVoid?.(rc)}
-                            >
-                                <Ban class="size-3" />
-                                <span>Anular</span>
-                            </Button>
-                        {/if}
-                    </div>
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        class="h-11 min-h-[44px] px-4 text-xs font-semibold rounded-xl gap-1.5 cursor-pointer shrink-0"
+                        onclick={() => onViewDetail?.(rc)}
+                    >
+                        <Eye class="size-4 text-muted-foreground" />
+                        <span>Ver detalle</span>
+                    </Button>
                 </div>
             </div>
         {/each}
