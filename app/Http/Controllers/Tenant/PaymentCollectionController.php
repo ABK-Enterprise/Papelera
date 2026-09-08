@@ -265,7 +265,7 @@ class PaymentCollectionController extends Controller
             'customer',
             'createdByUser:id,name',
             'cancelledByUser:id,name',
-            'orderAllocations.order:id,order_number,total_amount,paid_amount,debt_amount',
+            'orderAllocations.order:id,order_number,total_amount,debt_amount',
         ]);
 
         return Pdf::view('pdf.receipt', [
@@ -290,7 +290,7 @@ class PaymentCollectionController extends Controller
             'customer',
             'createdByUser:id,name',
             'cancelledByUser:id,name',
-            'orderAllocations.order:id,order_number,total_amount,paid_amount,debt_amount',
+            'orderAllocations.order:id,order_number,total_amount,debt_amount',
         ]);
 
         return Pdf::view('pdf.receipt', [
