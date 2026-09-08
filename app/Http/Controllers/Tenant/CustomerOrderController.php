@@ -22,6 +22,7 @@ use App\Models\Receipt;
 use App\Models\ShippingZone;
 use App\Models\StockMovement;
 use App\Models\Warehouse;
+use App\Actions\Tenant\Payments\RegisterReceiptAction;
 use App\Services\MercadoPago\MercadoPagoService;
 use App\Services\TenantSequenceService;
 use Illuminate\Http\JsonResponse;
@@ -77,6 +78,7 @@ class CustomerOrderController extends Controller
 
         $availableProducts = Product::active()
             ->complete()
+            ->with('tenant:id,default_bulk_discount_percentage')
             ->where('stock', '>', 0)
             ->select('id', 'tenant_id', 'name', 'sku', 'sale_type', 'price', 'stock', 'units_per_package', 'package_quantity', 'bulk_discount_type', 'custom_bulk_discount_percentage')
             ->orderBy('name')
@@ -814,6 +816,10 @@ class CustomerOrderController extends Controller
             ], 422);
         }
 
+        if (! empty($result['order_id'])) {
+            $customerOrder->update(['mp_order_id' => $result['order_id']]);
+        }
+
         return response()->json([
             'success' => true,
             'order_id' => $result['order_id'],
@@ -825,15 +831,117 @@ class CustomerOrderController extends Controller
     }
 
     /**
-     * Consulta el estado de pago del pedido (respaldo por short polling)
+     * Consulta el estado de pago del pedido (con reconciliación activa contra Mercado Pago)
      */
-    public function paymentStatus(Request $request, CustomerOrder $customerOrder): JsonResponse
-    {
+    public function paymentStatus(
+        Request $request,
+        CustomerOrder $customerOrder,
+        MercadoPagoService $mpService,
+        RegisterReceiptAction $registerReceiptAction
+    ): JsonResponse {
         if ($customerOrder->tenant_id !== $request->user()->tenant_id) {
             abort(404);
         }
 
         $customerOrder->refresh();
+
+        // Si ya está cobrado o cancelado, retornar de inmediato
+        if ($customerOrder->payment_status === 'cobrado' || $customerOrder->status === 'cancelado') {
+            return response()->json([
+                'id' => $customerOrder->id,
+                'order_number' => $customerOrder->order_number,
+                'status' => $customerOrder->status,
+                'payment_status' => $customerOrder->payment_status,
+                'debt_amount' => (float) $customerOrder->debt_amount,
+                'total_amount' => (float) $customerOrder->total_amount,
+                'is_paid' => $customerOrder->payment_status === 'cobrado',
+                'paid' => $customerOrder->payment_status === 'cobrado',
+                'order' => [
+                    'id' => $customerOrder->id,
+                    'payment_status' => $customerOrder->payment_status,
+                    'debt_amount' => (float) $customerOrder->debt_amount,
+                    'status' => $customerOrder->status,
+                ],
+            ]);
+        }
+
+        // Si se envió un mp_order_id por parámetro y no estaba guardado en la orden, asociarlo
+        $mpOrderId = $request->input('mp_order_id', $customerOrder->mp_order_id);
+        if ($mpOrderId && $customerOrder->mp_order_id !== $mpOrderId) {
+            $customerOrder->update(['mp_order_id' => $mpOrderId]);
+        }
+
+        // Reconciliación activa: si hay orden de MP, consultar estado real en Mercado Pago
+        if ($mpOrderId) {
+            $tenantToken = $customerOrder->tenant?->mp_access_token;
+            $mpOrderData = $mpService->getOrder($mpOrderId, $tenantToken);
+
+            if ($mpOrderData) {
+                $mpStatus = strtolower($mpOrderData['status'] ?? '');
+                $payments = $mpOrderData['transactions']['payments'] ?? ($mpOrderData['payments'] ?? []);
+                $hasApprovedPayment = false;
+                $totalPaidInPayments = 0.0;
+                $paymentRef = null;
+
+                foreach ($payments as $payment) {
+                    if (($payment['status'] ?? '') === 'approved') {
+                        $hasApprovedPayment = true;
+                        $totalPaidInPayments += (float) ($payment['amount'] ?? $payment['transaction_amount'] ?? 0);
+                        if (! $paymentRef && ! empty($payment['id'])) {
+                            $paymentRef = (string) $payment['id'];
+                        }
+                    }
+                }
+
+                if (in_array($mpStatus, ['closed', 'processed', 'paid']) || $hasApprovedPayment) {
+                    $orderDebt = (float) $customerOrder->debt_amount;
+                    $paidAmount = $totalPaidInPayments > 0
+                        ? $totalPaidInPayments
+                        : (float) ($mpOrderData['total_paid_amount'] ?? $mpOrderData['total_amount'] ?? $orderDebt);
+                    $allocationAmount = min($paidAmount, $orderDebt > 0 ? $orderDebt : (float) $customerOrder->total_amount);
+
+                    if (! $paymentRef) {
+                        $paymentRef = (string) ($mpOrderData['id'] ?? "MP-{$customerOrder->order_number}");
+                    }
+
+                    // Idempotencia dentro de lock pesimista
+                    DB::transaction(function () use (
+                        $customerOrder,
+                        $request,
+                        $allocationAmount,
+                        $paymentRef,
+                        $mpOrderId,
+                        $registerReceiptAction
+                    ) {
+                        /** @var CustomerOrder $lockedOrder */
+                        $lockedOrder = CustomerOrder::where('id', $customerOrder->id)
+                            ->lockForUpdate()
+                            ->first();
+
+                        if ($lockedOrder && $lockedOrder->payment_status !== 'cobrado' && $lockedOrder->status !== 'cancelado') {
+                            $registerReceiptAction->execute(
+                                tenantId: $lockedOrder->tenant_id,
+                                userId: $request->user()->id,
+                                customerId: $lockedOrder->customer_id,
+                                amount: $allocationAmount,
+                                paymentMethod: 'mercadopago',
+                                referenceNumber: $paymentRef,
+                                notes: "Cobro presencial acreditado vía Mercado Pago QR (Orden {$mpOrderId})",
+                                orderAllocations: [
+                                    [
+                                        'order_id' => $lockedOrder->id,
+                                        'amount' => $allocationAmount,
+                                    ],
+                                ],
+                                allowSurplus: false,
+                            );
+                        }
+                    });
+
+                    $customerOrder->refresh();
+                }
+            }
+        }
 
         return response()->json([
             'id' => $customerOrder->id,
@@ -843,6 +951,13 @@ class CustomerOrderController extends Controller
             'debt_amount' => (float) $customerOrder->debt_amount,
             'total_amount' => (float) $customerOrder->total_amount,
             'is_paid' => $customerOrder->payment_status === 'cobrado',
+            'paid' => $customerOrder->payment_status === 'cobrado',
+            'order' => [
+                'id' => $customerOrder->id,
+                'payment_status' => $customerOrder->payment_status,
+                'debt_amount' => (float) $customerOrder->debt_amount,
+                'status' => $customerOrder->status,
+            ],
         ]);
     }
 }

@@ -275,3 +275,41 @@ test('can list supplier orders and search by order number or supplier name', fun
             ->where('orders.0.order_number', '#OC-00010')
         );
 });
+
+test('can sort supplier orders by supplier name and total cost', function () {
+    $supA = Supplier::factory()->forTenant($this->tenant)->create(['name' => 'Alfa Papelera']);
+    $supZ = Supplier::factory()->forTenant($this->tenant)->create(['name' => 'Zeta Distribuciones']);
+
+    $order1 = SupplierOrder::factory()->forTenant($this->tenant)->create([
+        'supplier_id' => $supZ->id,
+        'order_number' => '#OC-001',
+        'total_cost' => 5000.00,
+    ]);
+
+    $order2 = SupplierOrder::factory()->forTenant($this->tenant)->create([
+        'supplier_id' => $supA->id,
+        'order_number' => '#OC-002',
+        'total_cost' => 1000.00,
+    ]);
+
+    // Sort by supplier_asc -> Alfa Papelera first
+    $responseSupplierAsc = $this->actingAs($this->user)->get(route('tenant.suppliers.orders.index', ['sort_by' => 'supplier_asc']));
+    $responseSupplierAsc->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/suppliers/orders/Index')
+            ->has('orders', 2)
+            ->where('orders.0.id', $order2->id)
+            ->where('orders.1.id', $order1->id)
+        );
+
+    // Sort by total_high -> order1 (5000) first
+    $responseTotalHigh = $this->actingAs($this->user)->get(route('tenant.suppliers.orders.index', ['sort_by' => 'total_high']));
+    $responseTotalHigh->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/suppliers/orders/Index')
+            ->has('orders', 2)
+            ->where('orders.0.id', $order1->id)
+            ->where('orders.1.id', $order2->id)
+        );
+});
+

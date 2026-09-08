@@ -158,7 +158,7 @@
             onclick={() => (activeTab = 'my_route')}
         >
             <span>Mis pedidos</span>
-            <span class="text-[11px] font-mono opacity-80">({myRouteOrders.length})</span>
+            <span class="text-[11px] font-sans tabular-nums opacity-80">({myRouteOrders.length})</span>
         </button>
 
         <button
@@ -167,7 +167,7 @@
             onclick={() => (activeTab = 'available')}
         >
             <span>Disponibles</span>
-            <span class="text-[11px] font-mono opacity-80">({availableOrders.length})</span>
+            <span class="text-[11px] font-sans tabular-nums opacity-80">({availableOrders.length})</span>
         </button>
 
         <button
@@ -176,7 +176,7 @@
             onclick={() => (activeTab = 'failed')}
         >
             <span>No entregados</span>
-            <span class="text-[11px] font-mono opacity-80">({failedOrders.length})</span>
+            <span class="text-[11px] font-sans tabular-nums opacity-80">({failedOrders.length})</span>
         </button>
     </div>
 

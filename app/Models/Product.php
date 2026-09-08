@@ -229,6 +229,44 @@ class Product extends Model
             ->where('price', '>', 0);
     }
 
+    public function scopeWithDiscount(Builder $query, float $defaultTenantDiscount = 0.0): Builder
+    {
+        return $query->where(function (Builder $q) use ($defaultTenantDiscount) {
+            $q->where(function ($sub) {
+                $sub->where('bulk_discount_type', 'custom')
+                    ->where('custom_bulk_discount_percentage', '>', 0);
+            });
+
+            if ($defaultTenantDiscount > 0) {
+                $q->orWhere(function ($sub) {
+                    $sub->where('bulk_discount_type', 'inherited')
+                        ->orWhereNull('bulk_discount_type');
+                });
+            }
+        });
+    }
+
+    public function scopeWithoutDiscount(Builder $query, float $defaultTenantDiscount = 0.0): Builder
+    {
+        return $query->where(function (Builder $q) use ($defaultTenantDiscount) {
+            $q->where('bulk_discount_type', 'none')
+                ->orWhere(function ($sub) {
+                    $sub->where('bulk_discount_type', 'custom')
+                        ->where(function ($inner) {
+                            $inner->whereNull('custom_bulk_discount_percentage')
+                                ->orWhere('custom_bulk_discount_percentage', '<=', 0);
+                        });
+                });
+
+            if ($defaultTenantDiscount <= 0) {
+                $q->orWhere(function ($sub) {
+                    $sub->where('bulk_discount_type', 'inherited')
+                        ->orWhereNull('bulk_discount_type');
+                });
+            }
+        });
+    }
+
     public function getIsIncompleteAttribute(): bool
     {
         return is_null($this->category_id) || (float) $this->price <= 0.00;

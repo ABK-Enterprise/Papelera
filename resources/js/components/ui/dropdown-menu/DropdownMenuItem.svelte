@@ -6,23 +6,30 @@
 
     type AsChildProps = {
         class?: string;
-        onClick?: () => void;
+        onClick?: (e: MouseEvent) => void;
         [key: string]: any;
     };
 
     let {
         asChild = false,
         class: className = '',
+        onclick,
         children,
+        ...restProps
     }: {
         asChild?: boolean;
         class?: string;
+        onclick?: (e: MouseEvent) => void;
         children?: Snippet<[AsChildProps]>;
+        [key: string]: any;
     } = $props();
 
     const { setOpen } = getContext<DropdownMenuContext>(DROPDOWN_MENU_CONTEXT);
 
-    const handleClick = () => setOpen(false);
+    const handleClick = (e: MouseEvent) => {
+        onclick?.(e);
+        setOpen(false);
+    };
 
     const classes = () =>
         cn(
@@ -32,9 +39,9 @@
 </script>
 
 {#if asChild}
-    {@render children?.({ class: classes(), onClick: handleClick })}
+    {@render children?.({ class: classes(), onClick: handleClick, ...restProps })}
 {:else}
-    <button type="button" class={classes()} onclick={handleClick}>
+    <button type="button" class={classes()} onclick={handleClick} {...restProps}>
         {@render children?.({})}
     </button>
 {/if}

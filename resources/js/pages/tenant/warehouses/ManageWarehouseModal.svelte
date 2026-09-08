@@ -153,7 +153,7 @@
                         bind:value={form.code}
                         placeholder="Ej: DEP-01, DEP-NORTE"
                         required
-                        class="h-10 text-sm font-mono uppercase rounded-xl"
+                        class="h-10 text-sm font-sans tabular-nums uppercase rounded-xl"
                     />
                     {#if form.errors.code}
                         <p class="text-[11px] font-medium text-destructive">{form.errors.code}</p>
