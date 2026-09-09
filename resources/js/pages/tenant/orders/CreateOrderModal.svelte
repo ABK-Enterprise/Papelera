@@ -1091,8 +1091,11 @@
                                     </div>
                                 </div>
 
+                                <!-- Separador Horizontal entre Información y Resultado (2px margen) -->
+                                <div class="border-t border-border/50 my-[2px]"></div>
+
                                 <!-- Nivel 2: Resultado (Subtotal alineado a la derecha) -->
-                                <div class="flex justify-end items-baseline gap-2 pt-1">
+                                <div class="flex justify-end items-baseline gap-2 py-0.5">
                                     {#if isDiscountActive}
                                         <span class="line-through text-xs text-muted-foreground font-sans tabular-nums" title={formatExactPrice(strikethroughSubtotal)}>
                                             {formatPrice(strikethroughSubtotal)}
@@ -1107,11 +1110,11 @@
                                     {/if}
                                 </div>
 
-                                <!-- Separador Horizontal -->
-                                <div class="border-t border-border/50"></div>
+                                <!-- Separador Horizontal entre Resultado y Acciones (2px margen) -->
+                                <div class="border-t border-border/50 my-[2px]"></div>
 
                                 <!-- Nivel 3: Acciones [trash, tipo unidad, cantidad] -->
-                                <div class="flex flex-wrap items-center justify-between gap-2.5 w-full pt-1">
+                                <div class="flex flex-wrap items-center justify-between gap-2.5 w-full pt-0.5">
                                     <!-- Grupo Izquierdo: Trash + Selector de unidad -->
                                     <div class="flex items-center gap-2 shrink-0">
                                         <button
@@ -1144,8 +1147,8 @@
                                         </select>
                                     </div>
 
-                                    <!-- Stepper Táctil con ml-auto sm:ml-0 -->
-                                    <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden shrink-0 ml-auto sm:ml-0">
+                                    <!-- Stepper Táctil Elástico (se comprime antes de quebrar y ocupa ancho completo al quebrar) -->
+                                    <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden w-full sm:w-auto flex-1 sm:flex-initial min-w-[130px] justify-between ml-auto sm:ml-0">
                                         <button
                                             type="button"
                                             class="size-9 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
@@ -1165,7 +1168,7 @@
                                             bind:value={item.quantity}
                                             onblur={() => handleQuantityBlur(index)}
                                             onpaste={(e) => handleQuantityPaste(index, e)}
-                                            class="w-14 sm:w-16 h-8 sm:h-9 text-xs sm:text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none {item.quantity > maxAllowed ? 'text-amber-600 dark:text-amber-400 font-extrabold' : ''}"
+                                            class="w-10 sm:w-16 min-w-[36px] flex-1 sm:flex-initial h-8 sm:h-9 text-xs sm:text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none {item.quantity > maxAllowed ? 'text-amber-600 dark:text-amber-400 font-extrabold' : ''}"
                                         />
 
                                         <button
