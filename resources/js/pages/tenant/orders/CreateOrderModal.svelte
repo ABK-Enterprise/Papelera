@@ -979,7 +979,7 @@
                             type="button"
                             size="sm"
                             variant="secondary"
-                            class="w-full sm:w-auto min-h-[44px] sm:h-9 px-5 rounded-xl text-xs gap-2 font-semibold shrink-0 justify-center shadow-2xs"
+                            class="w-full sm:w-auto min-h-[44px] sm:h-9 px-5 rounded-xl text-xs gap-2 font-semibold shrink-0 justify-center shadow-2xs bg-primary-500 hover:bg-primary-600 text-white border-transparent dark:bg-secondary dark:text-secondary-foreground dark:hover:bg-secondary/80 dark:border-secondary/40"
                             onclick={() => {
                                 if (selectedProductToAdd) {
                                     addSelectedProduct();
@@ -1010,12 +1010,11 @@
                             <div class="flex flex-col gap-2.5 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
                                 <!-- Nivel 1: Información (Nombre, SKU, Badges, Precio Base y Stock) -->
                                 <div class="flex flex-col gap-2">
-                                    <div class="flex items-start gap-2.5 min-w-0">
+                                    <div class="flex items-center gap-2.5 min-w-0">
                                         <IconContainer
                                             size="sm"
                                             variant={item.is_on_the_fly ? 'neutral' : (item.sale_type === 'weight' ? 'info' : 'primary')}
                                             icon={item.is_on_the_fly ? 'solar:question-mark-bold-duotone' : (item.sale_type === 'weight' ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone')}
-                                            class="mt-0.5"
                                         />
                                         <div class="flex flex-wrap items-center gap-2 min-w-0 flex-1">
                                             <h4 class="text-base font-bold text-foreground line-clamp-2 break-words">{item.product_name}</h4>
