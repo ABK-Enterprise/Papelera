@@ -1014,7 +1014,7 @@
                                         <IconContainer
                                             size="sm"
                                             variant={item.is_on_the_fly ? 'neutral' : (item.sale_type === 'weight' ? 'info' : 'primary')}
-                                            icon={item.is_on_the_fly ? 'solar:question-circle-bold-duotone' : (item.sale_type === 'weight' ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone')}
+                                            icon={item.is_on_the_fly ? 'solar:question-mark-bold-duotone' : (item.sale_type === 'weight' ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone')}
                                             class="mt-0.5"
                                         />
                                         <div class="flex flex-wrap items-center gap-2 min-w-0 flex-1">
