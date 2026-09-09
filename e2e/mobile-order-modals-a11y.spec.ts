@@ -1,4 +1,4 @@
-﻿import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 test.describe.serial('Mobile UI/UX y Accesibilidad en Modales de Pedidos', () => {
     let page: Page;
@@ -100,7 +100,7 @@ test.describe.serial('Mobile UI/UX y Accesibilidad en Modales de Pedidos', () =>
         }
         await page.waitForTimeout(200);
 
-        const costLabel = page.locator('text=Costo Unit:').first();
+        const costLabel = page.locator('text=Costo:').first();
         await expect(costLabel).toBeVisible();
 
         const mobileSubtotal = page.locator('text=Subtotal Estimado:').first();

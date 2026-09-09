@@ -2,6 +2,12 @@
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import {
+        DropdownMenu,
+        DropdownMenuContent,
+        DropdownMenuItem,
+        DropdownMenuTrigger,
+    } from '@/components/ui/dropdown-menu';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
@@ -12,6 +18,7 @@
     import Check from 'lucide-svelte/icons/check';
     import Layers from 'lucide-svelte/icons/layers';
     import Minus from 'lucide-svelte/icons/minus';
+    import MoreVertical from 'lucide-svelte/icons/more-vertical';
     import Package from 'lucide-svelte/icons/package';
     import Plus from 'lucide-svelte/icons/plus';
     import Trash2 from 'lucide-svelte/icons/trash-2';
@@ -431,30 +438,45 @@
                                                 icon={isWeight ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone'}
                                             />
                                             <div class="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
-                                                <span class="font-semibold text-foreground text-xs sm:text-sm leading-snug line-clamp-2 break-words">
+                                                <span class="text-base font-bold text-foreground leading-snug line-clamp-2 break-words">
                                                     {item.product_name}
                                                 </span>
                                                 {#if item.sku}
-                                                    <span class="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded text-muted-foreground shrink-0">
+                                                    <span class="text-sm font-mono tabular-nums bg-muted px-2 py-0.5 rounded text-muted-foreground shrink-0">
                                                         {item.sku}
                                                     </span>
                                                 {/if}
                                                 {#if isWeight}
-                                                    <span class="text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded shrink-0">
+                                                    <span class="text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded shrink-0">
                                                         Kg
                                                     </span>
                                                 {/if}
                                             </div>
                                         </div>
 
-                                        <button
-                                            type="button"
-                                            class="size-9 min-h-[36px] min-w-[36px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0 cursor-pointer"
-                                            onclick={() => removeItem(index)}
-                                            aria-label="Eliminar producto"
-                                        >
-                                            <Trash2 class="size-4" />
-                                        </button>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                {#snippet children(props)}
+                                                    <button
+                                                        {...props}
+                                                        type="button"
+                                                        class="size-9 min-h-[36px] min-w-[36px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
+                                                        aria-label="Opciones de producto"
+                                                    >
+                                                        <MoreVertical class="size-4" />
+                                                    </button>
+                                                {/snippet}
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" class="w-44 shadow-lg">
+                                                <DropdownMenuItem
+                                                    class="flex items-center gap-2 text-xs font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5"
+                                                    onclick={() => removeItem(index)}
+                                                >
+                                                    <Trash2 class="size-3.5 shrink-0" />
+                                                    <span>Quitar de la lista</span>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </div>
 
                                     <!-- Separador Sutil -->
@@ -464,9 +486,7 @@
                                     <div class="grid grid-cols-2 gap-3 w-full">
                                         <!-- Columna 1: Costo Unitario -->
                                         <div class="flex flex-col gap-1 w-full">
-                                            <Label for={`prod-cost-${index}`} class="text-[11px] font-semibold text-muted-foreground">
-                                                Costo Unit:
-                                            </Label>
+                                            <Label for={`prod-cost-${index}`} class="text-sm font-semibold text-muted-foreground">Costo:</Label>
                                             <div class="relative w-full">
                                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-sans tabular-nums font-medium">$</span>
                                                 <Input
@@ -485,9 +505,8 @@
 
                                         <!-- Columna 2: Cantidad con stepper táctil -->
                                         <div class="flex flex-col gap-1 w-full">
-                                            <div class="flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
-                                                <Label for={`prod-qty-${index}`}>Cant:</Label>
-                                                <span class="text-[10px] lowercase text-muted-foreground">{isWeight ? 'cant. kg' : 'unid.'}</span>
+                                            <div class="flex items-center justify-between">
+                                                <Label for={`prod-qty-${index}`} class="text-sm font-semibold text-muted-foreground">Cantidad:</Label>
                                             </div>
                                             <div class="flex items-center border rounded-xl bg-background shadow-2xs h-10 w-full overflow-hidden justify-between">
                                                 <button
@@ -547,8 +566,8 @@
 
                                     <!-- Fila inferior: Subtotal Estimado -->
                                     <div class="w-full flex items-center justify-between pt-2 border-t border-border/40 text-xs">
-                                        <span class="text-muted-foreground font-medium">Subtotal Estimado:</span>
-                                        <span class="font-sans tabular-nums text-sm font-bold text-foreground">{formatPrice(lineSubtotal)}</span>
+                                        <span class="text-xs sm:text-sm text-muted-foreground font-medium">Subtotal Estimado:</span>
+                                        <span class="font-sans tabular-nums text-sm sm:text-base font-bold text-foreground">{formatPrice(lineSubtotal)}</span>
                                     </div>
                                 </div>
                             {/each}

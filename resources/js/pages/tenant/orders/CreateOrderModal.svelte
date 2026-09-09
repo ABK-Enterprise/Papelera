@@ -1014,34 +1014,35 @@
                             {@const strikethroughSubtotal = hasBulkDiscount ? regularSubtotal : baseSubtotal}
 
                             <div class="flex flex-col gap-2.5 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
-                                <!-- Fila 1: Nombre + SKU a la izquierda, Botón Quitar directo a la derecha -->
-                                <div class="flex items-start justify-between gap-3">
-                                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                                <!-- Nivel 1: Información (Nombre, SKU, Badges, Precio Base y Stock) -->
+                                <div class="flex flex-col gap-2">
+                                    <div class="flex items-start gap-2.5 min-w-0">
                                         <IconContainer
                                             size="sm"
                                             variant={item.sale_type === 'weight' ? 'info' : 'primary'}
                                             icon={item.sale_type === 'weight' ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone'}
+                                            class="mt-0.5"
                                         />
-                                        <div class="flex items-center gap-2 min-w-0 flex-wrap">
-                                            <h4 class="font-bold text-xs sm:text-sm text-foreground truncate">{item.product_name}</h4>
+                                        <div class="flex flex-wrap items-center gap-2 min-w-0 flex-1">
+                                            <h4 class="text-base font-bold text-foreground line-clamp-2 break-words">{item.product_name}</h4>
                                             {#if item.sku}
-                                                <span class="text-[10px] font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                                <span class="text-sm font-sans tabular-nums bg-muted px-2 py-0.5 rounded text-muted-foreground shrink-0">
                                                     {item.sku}
                                                 </span>
                                             {/if}
                                             {#if item.sale_type === 'weight'}
-                                                <span class="text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 px-1 rounded">
+                                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                                                     Pesaje
                                                 </span>
                                             {/if}
                                             {#if isBulk}
                                                 {#if item.bulk_discount_type !== 'none' && item.bulk_discount_percentage > 0}
-                                                    <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
-                                                        <Percent class="size-2.5" />
+                                                    <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
+                                                        <Percent class="size-3" />
                                                         Desc. Bulto {item.bulk_discount_percentage}% ({item.bulk_discount_type === 'custom' ? 'Personalizado' : 'Heredado'})
                                                     </span>
                                                 {:else}
-                                                    <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-muted text-muted-foreground border-border">
+                                                    <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-muted text-muted-foreground border-border">
                                                         Sin Descuento por Bulto
                                                     </span>
                                                 {/if}
@@ -1050,64 +1051,83 @@
                                                 <button
                                                     type="button"
                                                     onclick={() => toggleItemCustomerDiscount(index)}
-                                                    class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border transition-colors cursor-pointer {item.apply_customer_discount ? 'bg-primary/15 text-primary border-primary/30' : 'bg-muted text-muted-foreground border-border line-through'}"
+                                                    class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border transition-colors cursor-pointer {item.apply_customer_discount ? 'bg-primary/15 text-primary border-primary/30' : 'bg-muted text-muted-foreground border-border line-through'}"
                                                     title="Click para alternar descuento de cliente en este producto"
                                                 >
-                                                    <Percent class="size-2.5" />
+                                                    <Percent class="size-3" />
                                                     Desc. {customerDiscountPercentage}% {item.apply_customer_discount ? 'Aplicado' : 'Excluido'}
                                                 </button>
                                             {/if}
                                         </div>
                                     </div>
 
-                                    <button
-                                        type="button"
-                                        class="size-9 min-h-[36px] min-w-[36px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer shrink-0"
-                                        onclick={() => removeItem(index)}
-                                        title="Quitar de la lista"
-                                        aria-label="Quitar producto de la lista"
-                                    >
-                                        <Trash2 class="size-4" />
-                                    </button>
-                                </div>
+                                    <!-- Metadatos de precio base y stock -->
+                                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm min-w-0">
+                                        <!-- Bloque Precio Base -->
+                                        <div class="flex items-center gap-1.5 shrink-0">
+                                            {#if hasBulkDiscount}
+                                                <span class="text-xs line-through text-muted-foreground font-sans tabular-nums" title={formatExactPrice(item.regular_price)}>
+                                                    {formatPrice(item.regular_price)}
+                                                </span>
+                                                <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap font-sans tabular-nums" title={formatExactPrice(item.unit_price)}>
+                                                    {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
+                                                </span>
+                                            {:else}
+                                                <span class="text-sm font-semibold text-foreground whitespace-nowrap font-sans tabular-nums" title={formatExactPrice(item.unit_price)}>
+                                                    {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
+                                                </span>
+                                            {/if}
+                                        </div>
 
-                                <!-- Fila 2: Metadatos accesibles (Precio Base y Stock) -->
-                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm min-w-0 pt-2 border-t border-border/50">
-                                    <!-- Bloque Precio Base -->
-                                    <div class="flex items-center gap-1.5 shrink-0">
-                                        {#if hasBulkDiscount}
-                                            <span class="text-xs line-through text-muted-foreground" title={formatExactPrice(item.regular_price)}>
-                                                {formatPrice(item.regular_price)}
-                                            </span>
-                                            <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap" title={formatExactPrice(item.unit_price)}>
-                                                {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
-                                            </span>
-                                        {:else}
-                                            <span class="text-sm font-semibold text-foreground whitespace-nowrap" title={formatExactPrice(item.unit_price)}>
-                                                {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
-                                            </span>
-                                        {/if}
-                                    </div>
-
-                                    <!-- Bloque Stock -->
-                                    <div class="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground shrink-0">
-                                        <span>Stock: <strong class="font-sans tabular-nums text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
-                                        {#if isAtStockLimit}
-                                            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 shrink-0">
-                                                Tope
-                                            </span>
-                                        {/if}
+                                        <!-- Bloque Stock -->
+                                        <div class="flex items-center gap-1.5 text-sm text-muted-foreground shrink-0">
+                                            <span>Stock: <strong class="font-sans tabular-nums text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
+                                            {#if isAtStockLimit}
+                                                <span class="inline-flex items-center gap-1 text-xs font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 shrink-0">
+                                                    Tope
+                                                </span>
+                                            {/if}
+                                        </div>
                                     </div>
                                 </div>
 
-                                <!-- Fila 3: Fila inferior de Controles (Edición a la izquierda, Resultado a la derecha) -->
-                                <div class="flex flex-wrap justify-between items-center w-full gap-3 pt-1">
-                                    <!-- Grupo Izquierdo (Edición): Selector de unidad + Stepper táctil -->
-                                    <div class="flex flex-wrap items-center gap-2">
+                                <!-- Nivel 2: Resultado (Subtotal alineado a la derecha) -->
+                                <div class="flex justify-end items-baseline gap-2 pt-1">
+                                    {#if isDiscountActive}
+                                        <span class="line-through text-xs text-muted-foreground font-sans tabular-nums" title={formatExactPrice(strikethroughSubtotal)}>
+                                            {formatPrice(strikethroughSubtotal)}
+                                        </span>
+                                        <span class="font-sans tabular-nums text-base sm:text-lg font-bold text-primary" title={formatExactPrice(finalSubtotal)}>
+                                            {formatPrice(finalSubtotal)}
+                                        </span>
+                                    {:else}
+                                        <span class="font-sans tabular-nums text-base sm:text-lg font-bold text-foreground" title={formatExactPrice(baseSubtotal)}>
+                                            {formatPrice(baseSubtotal)}
+                                        </span>
+                                    {/if}
+                                </div>
+
+                                <!-- Separador Horizontal -->
+                                <div class="border-t border-border/50"></div>
+
+                                <!-- Nivel 3: Acciones [trash, tipo unidad, cantidad] -->
+                                <div class="flex flex-wrap items-center justify-between gap-2.5 w-full pt-1">
+                                    <!-- Grupo Izquierdo: Trash + Selector de unidad -->
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        <button
+                                            type="button"
+                                            class="size-9 min-h-[36px] min-w-[36px] rounded-xl flex items-center justify-center bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-colors cursor-pointer shrink-0"
+                                            onclick={() => removeItem(index)}
+                                            title="Quitar de la lista"
+                                            aria-label="Quitar producto de la lista"
+                                        >
+                                            <Trash2 class="size-4" />
+                                        </button>
+
                                         <select
                                             value={item.packaging_type}
                                             onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                            class="h-9 sm:h-9 rounded-xl border border-border/80 bg-background px-2.5 text-xs font-semibold text-foreground min-w-[88px] sm:min-w-[94px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer shrink-0"
+                                            class="h-9 rounded-xl border border-border/80 bg-background px-2.5 text-xs font-semibold text-foreground min-w-[88px] sm:min-w-[94px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer shrink-0"
                                         >
                                             {#if item.sale_type === 'weight'}
                                                 <option value="gram">Gramos</option>
@@ -1122,58 +1142,42 @@
                                                 </option>
                                             {/if}
                                         </select>
-
-                                        <!-- Stepper Táctil con w-14 y sin flechas nativas -->
-                                        <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden shrink-0">
-                                            <button
-                                                type="button"
-                                                class="size-9 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                                                onclick={() => decrementQuantity(index)}
-                                                disabled={item.packaging_type === 'gram' ? item.quantity <= 50 : item.packaging_type === 'kg' ? item.quantity <= 0.1 : item.quantity <= 1}
-                                                aria-label="Disminuir cantidad"
-                                            >
-                                                <Minus class="size-3.5" />
-                                            </button>
-
-                                            <input
-                                                type="number"
-                                                step={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.001' : '1'}
-                                                min={item.packaging_type === 'gram' ? 50 : item.packaging_type === 'kg' ? 0.001 : 1}
-                                                max={maxAllowed}
-                                                maxlength="5"
-                                                bind:value={item.quantity}
-                                                onblur={() => handleQuantityBlur(index)}
-                                                onpaste={(e) => handleQuantityPaste(index, e)}
-                                                class="w-14 sm:w-16 h-8 sm:h-9 text-xs sm:text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none {item.quantity > maxAllowed ? 'text-amber-600 dark:text-amber-400 font-extrabold' : ''}"
-                                            />
-
-                                            <button
-                                                type="button"
-                                                class="size-9 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                                                onclick={() => incrementQuantity(index)}
-                                                disabled={isAtStockLimit}
-                                                title={isAtStockLimit ? 'Se alcanzó el stock máximo disponible' : 'Aumentar'}
-                                                aria-label="Aumentar cantidad"
-                                            >
-                                                <Plus class="size-3.5" />
-                                            </button>
-                                        </div>
                                     </div>
 
-                                    <!-- Grupo Derecho (Resultado): Subtotal -->
-                                    <div class="flex flex-col items-end ml-auto text-right shrink-0 whitespace-nowrap min-w-[76px] sm:min-w-[85px]">
-                                        {#if isDiscountActive}
-                                            <span class="line-through text-[11px] text-muted-foreground font-sans tabular-nums" title={formatExactPrice(strikethroughSubtotal)}>
-                                                {formatPrice(strikethroughSubtotal)}
-                                            </span>
-                                            <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-primary" title={formatExactPrice(finalSubtotal)}>
-                                                {formatPrice(finalSubtotal)}
-                                            </span>
-                                        {:else}
-                                            <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground" title={formatExactPrice(baseSubtotal)}>
-                                                {formatPrice(baseSubtotal)}
-                                            </span>
-                                        {/if}
+                                    <!-- Stepper Táctil con ml-auto sm:ml-0 -->
+                                    <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden shrink-0 ml-auto sm:ml-0">
+                                        <button
+                                            type="button"
+                                            class="size-9 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                            onclick={() => decrementQuantity(index)}
+                                            disabled={item.packaging_type === 'gram' ? item.quantity <= 50 : item.packaging_type === 'kg' ? item.quantity <= 0.1 : item.quantity <= 1}
+                                            aria-label="Disminuir cantidad"
+                                        >
+                                            <Minus class="size-3.5" />
+                                        </button>
+
+                                        <input
+                                            type="number"
+                                            step={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.001' : '1'}
+                                            min={item.packaging_type === 'gram' ? 50 : item.packaging_type === 'kg' ? 0.001 : 1}
+                                            max={maxAllowed}
+                                            maxlength="5"
+                                            bind:value={item.quantity}
+                                            onblur={() => handleQuantityBlur(index)}
+                                            onpaste={(e) => handleQuantityPaste(index, e)}
+                                            class="w-14 sm:w-16 h-8 sm:h-9 text-xs sm:text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none {item.quantity > maxAllowed ? 'text-amber-600 dark:text-amber-400 font-extrabold' : ''}"
+                                        />
+
+                                        <button
+                                            type="button"
+                                            class="size-9 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                            onclick={() => incrementQuantity(index)}
+                                            disabled={isAtStockLimit}
+                                            title={isAtStockLimit ? 'Se alcanzó el stock máximo disponible' : 'Aumentar'}
+                                            aria-label="Aumentar cantidad"
+                                        >
+                                            <Plus class="size-3.5" />
+                                        </button>
                                     </div>
                                 </div>
 
