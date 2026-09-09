@@ -1148,10 +1148,10 @@
                                     </div>
 
                                     <!-- Stepper Táctil Elástico (se comprime antes de quebrar y ocupa ancho completo al quebrar) -->
-                                    <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden w-full sm:w-auto flex-1 sm:flex-initial min-w-[130px] justify-between ml-auto sm:ml-0">
+                                    <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden w-full sm:w-auto flex-1 sm:flex-initial min-w-[88px] justify-between ml-auto sm:ml-0">
                                         <button
                                             type="button"
-                                            class="size-9 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                            class="w-8 sm:w-9 h-full flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                                             onclick={() => decrementQuantity(index)}
                                             disabled={item.packaging_type === 'gram' ? item.quantity <= 50 : item.packaging_type === 'kg' ? item.quantity <= 0.1 : item.quantity <= 1}
                                             aria-label="Disminuir cantidad"
@@ -1168,12 +1168,12 @@
                                             bind:value={item.quantity}
                                             onblur={() => handleQuantityBlur(index)}
                                             onpaste={(e) => handleQuantityPaste(index, e)}
-                                            class="w-10 sm:w-16 min-w-[36px] flex-1 sm:flex-initial h-8 sm:h-9 text-xs sm:text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none {item.quantity > maxAllowed ? 'text-amber-600 dark:text-amber-400 font-extrabold' : ''}"
+                                            class="w-7 sm:w-16 min-w-[28px] flex-1 sm:flex-initial h-8 sm:h-9 text-xs sm:text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none {item.quantity > maxAllowed ? 'text-amber-600 dark:text-amber-400 font-extrabold' : ''}"
                                         />
 
                                         <button
                                             type="button"
-                                            class="size-9 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                            class="w-8 sm:w-9 h-full flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                                             onclick={() => incrementQuantity(index)}
                                             disabled={isAtStockLimit}
                                             title={isAtStockLimit ? 'Se alcanzó el stock máximo disponible' : 'Aumentar'}
