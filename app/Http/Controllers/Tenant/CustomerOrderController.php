@@ -47,6 +47,7 @@ class CustomerOrderController extends Controller
             'items.product:id,name,sku,sale_type,units_per_package,price',
             'customer:id,name,tax_id,tax_condition,phone,address,is_defaulter',
             'shippingZone:id,name,distance_km,surcharge_percentage',
+            'returns.items.product:id,name,sku',
         ])
             ->when($search, function ($q, $search) {
                 $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
@@ -78,9 +79,7 @@ class CustomerOrderController extends Controller
         ];
 
         $availableProducts = Product::active()
-            ->complete()
             ->with('tenant:id,default_bulk_discount_percentage')
-            ->where('stock', '>', 0)
             ->select('id', 'tenant_id', 'name', 'sku', 'sale_type', 'price', 'stock', 'units_per_package', 'package_quantity', 'bulk_discount_type', 'custom_bulk_discount_percentage')
             ->orderBy('name')
             ->get();
@@ -161,7 +160,34 @@ class CustomerOrderController extends Controller
             $totalDiscountAmount = 0.00;
             $preparedItems = [];
 
-            $productIds = collect($itemsData)->pluck('product_id')->unique()->sort()->values();
+            // 1. Resolver o instanciar productos creados on-the-fly
+            foreach ($itemsData as $idx => $item) {
+                if (empty($item['product_id']) && ! empty($item['product_name'])) {
+                    $pName = trim((string) $item['product_name']);
+                    $existing = Product::where('tenant_id', $tenantId)
+                        ->where('name', $pName)
+                        ->first();
+
+                    if (! $existing) {
+                        $unitPrice = isset($item['unit_price']) ? max(0.01, (float) $item['unit_price']) : 0.00;
+                        $existing = Product::create([
+                            'tenant_id' => $tenantId,
+                            'name' => $pName,
+                            'category_id' => null,
+                            'price' => $unitPrice,
+                            'cost_price' => null,
+                            'stock' => 0,
+                            'min_stock' => 5,
+                            'units_per_package' => 1,
+                            'sale_type' => 'unit',
+                            'is_active' => true,
+                        ]);
+                    }
+                    $itemsData[$idx]['product_id'] = $existing->id;
+                }
+            }
+
+            $productIds = collect($itemsData)->pluck('product_id')->filter()->unique()->sort()->values();
             $lockedProducts = Product::whereIn('id', $productIds)
                 ->where('tenant_id', $tenantId)
                 ->orderBy('id', 'asc')
@@ -175,11 +201,7 @@ class CustomerOrderController extends Controller
                     abort(404, 'Producto no encontrado');
                 }
                 $product = $lockedProducts[$pId];
-                if ($product->is_incomplete) {
-                    throw ValidationException::withMessages([
-                        'items' => ["El producto '{$product->name}' tiene datos incompletos y no puede venderse."],
-                    ]);
-                }
+                // Permitir la venta de productos on-the-fly o catalogados con datos incompletos
                 $runningStock[$pId] = [
                     'model' => $product,
                     'current_stock' => (float) $product->stock,
@@ -215,17 +237,16 @@ class CustomerOrderController extends Controller
                     }
                 }
 
-                if ($availableStock < $quantityBase) {
-                    $unitLabel = $product->isWeighable() ? 'kg' : 'unidades';
-                    throw ValidationException::withMessages([
-                        'items' => ["Stock insuficiente para '{$product->name}'. Requerido: {$quantityBase} {$unitLabel}, disponible: {$availableStock} {$unitLabel}."],
-                    ]);
-                }
-
+                // Se permite stock negativo según regla de negocio (productos críticos)
                 $runningStock[$productId]['current_stock'] -= $quantityBase;
 
                 $isBulk = ($packagingType === 'bulto' || $packagingType === 'bolson' || $packagingType === 'package');
-                $unitPrice = $isBulk ? (float) $product->bulk_discount_price : (float) $product->price;
+                $basePrice = (float) $product->price;
+                if ($basePrice <= 0 && ! empty($item['unit_price'])) {
+                    $basePrice = (float) $item['unit_price'];
+                    $product->update(['price' => $basePrice]);
+                }
+                $unitPrice = $isBulk ? (float) $product->bulk_discount_price : $basePrice;
 
                 $applyItemDiscount = isset($item['apply_customer_discount'])
                     ? (bool) $item['apply_customer_discount']

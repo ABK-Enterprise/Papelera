@@ -44,9 +44,11 @@ class StoreCustomerOrderRequest extends FormRequest
             'apply_customer_discount' => ['nullable', 'boolean'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => [
-                'required',
+                'nullable',
                 Rule::exists('products', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)),
             ],
+            'items.*.product_name' => ['nullable', 'string', 'max:255'],
+            'items.*.unit_price' => ['nullable', 'numeric', 'min:0.01'],
             'items.*.warehouse_id' => [
                 'nullable',
                 Rule::exists('warehouses', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)),

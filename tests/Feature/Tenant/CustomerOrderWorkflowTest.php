@@ -120,11 +120,11 @@ test('can create customer order with packages and bolsones deducting stock and r
     expect($movements[1]->quantity)->toBe(5);
 });
 
-test('cannot create customer order with incomplete product', function () {
+test('can create customer order with incomplete product', function () {
     $incompleteProduct = Product::factory()->forTenant($this->tenant)->create([
         'name' => 'Bobina Sulfito Sin Categoria',
         'category_id' => null,
-        'price' => 0.00,
+        'price' => 1500.00,
         'stock' => 50,
     ]);
 
@@ -139,11 +139,14 @@ test('cannot create customer order with incomplete product', function () {
         ],
     ]);
 
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors(['items']);
+    $response->assertStatus(201);
+    $order = CustomerOrder::where('customer_name', 'Comercio Invalido')->first();
+    expect($order)->not->toBeNull();
+    $incompleteProduct->refresh();
+    expect($incompleteProduct->stock)->toBe(48);
 });
 
-test('cannot create customer order exceeding product stock', function () {
+test('can create customer order exceeding product stock and allowing negative stock', function () {
     $product = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
         'name' => 'Cajas de Carton',
         'price' => 2000.00,
@@ -157,13 +160,16 @@ test('cannot create customer order exceeding product stock', function () {
             [
                 'product_id' => $product->id,
                 'packaging_type' => 'bolson',
-                'quantity' => 1, // requires 10 units, but only 5 in stock
+                'quantity' => 1, // requires 10 units, but only 5 in stock -> results in -5
             ],
         ],
     ]);
 
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors(['items']);
+    $response->assertStatus(201);
+    $order = CustomerOrder::where('customer_name', 'Cliente Mayorista')->first();
+    expect($order)->not->toBeNull();
+    $product->refresh();
+    expect((float) $product->stock)->toBe(-5.0);
 });
 
 test('cancelling order restores stock and creates income movement in kardex', function () {
@@ -680,5 +686,52 @@ test('can create customer order with bulk discounts for inherited, custom, and n
     $itemNone = $order->items->firstWhere('product_id', $productNone->id);
     expect((float) $itemNone->unit_price)->toBe(500.0)
         ->and((float) $itemNone->subtotal)->toBe(10000.0);
+});
+
+test('can create customer order with on-the-fly product and instantiate with incomplete data and negative stock', function () {
+    $response = $this->actingAs($this->user)->postJson(route('tenant.orders.store'), [
+        'customer_name' => 'Cliente Al Vuelo',
+        'items' => [
+            [
+                'product_id' => null,
+                'product_name' => 'Bolsa Plastica Especial',
+                'unit_price' => 1250.00,
+                'packaging_type' => 'unidad',
+                'quantity' => 15,
+            ],
+        ],
+    ]);
+
+    $response->assertStatus(201);
+
+    $product = Product::where('tenant_id', $this->tenant->id)
+        ->where('name', 'Bolsa Plastica Especial')
+        ->first();
+
+    expect($product)->not->toBeNull()
+        ->and($product->is_incomplete)->toBeTrue()
+        ->and((float) $product->stock)->toBe(-15.0);
+
+    $order = CustomerOrder::where('customer_name', 'Cliente Al Vuelo')->first();
+    expect($order)->not->toBeNull()
+        ->and((float) $order->total_amount)->toBe(18750.00);
+});
+
+test('cannot create on-the-fly product without valid positive unit price', function () {
+    $response = $this->actingAs($this->user)->postJson(route('tenant.orders.store'), [
+        'customer_name' => 'Cliente Invalido',
+        'items' => [
+            [
+                'product_id' => null,
+                'product_name' => 'Producto Sin Precio',
+                'unit_price' => 0,
+                'packaging_type' => 'unidad',
+                'quantity' => 2,
+            ],
+        ],
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['items.0.unit_price']);
 });
 

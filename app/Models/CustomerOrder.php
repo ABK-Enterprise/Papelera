@@ -48,6 +48,7 @@ use Illuminate\Support\Carbon;
     'total_amount',
     'customer_discount_percentage',
     'customer_discount_amount',
+    'return_status',
     'notes',
 ])]
 class CustomerOrder extends Model
@@ -121,6 +122,11 @@ class CustomerOrder extends Model
         return $this->belongsToMany(Receipt::class, 'customer_order_receipt')
             ->withPivot('amount_applied')
             ->withTimestamps();
+    }
+
+    public function returns(): HasMany
+    {
+        return $this->hasMany(CustomerOrderReturn::class, 'customer_order_id');
     }
 
     protected static function booted(): void

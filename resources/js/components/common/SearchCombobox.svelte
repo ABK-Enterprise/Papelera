@@ -19,6 +19,7 @@
         searchKeys,
         itemSnippet,
         emptySnippet,
+        footerSnippet,
         onsearch,
         onselect,
         onclear,
@@ -35,6 +36,7 @@
         searchKeys?: (keyof T | string)[];
         itemSnippet?: Snippet<[T, number]>;
         emptySnippet?: Snippet;
+        footerSnippet?: Snippet;
         onsearch?: (query: string) => void;
         onselect?: (item: T) => void;
         onclear?: () => void;
@@ -168,7 +170,7 @@
 
 
     function handleFocusOrClick() {
-        if (showDropdown && (displayItems.length > 0 || emptySnippet)) {
+        if (showDropdown && (displayItems.length > 0 || emptySnippet || footerSnippet)) {
             isOpen = true;
         }
     }
@@ -201,9 +203,6 @@
             aria-controls={isOpen ? listboxId : undefined}
             class="h-10 w-full rounded-xl border border-border/80 bg-background pl-9 pr-9 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground shadow-2xs focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary transition-all disabled:cursor-not-allowed disabled:bg-transparent disabled:border-dashed disabled:text-muted-foreground/60 {inputClass}"
         />
-
-
-
 
         {#if loading}
             <Loader2 class="absolute right-3 top-1/2 -translate-y-1/2 size-4 animate-spin text-muted-foreground" />
@@ -245,14 +244,25 @@
                                     {/if}
                                 </div>
                             {/if}
-
                         </button>
                     {/each}
                 </div>
+                {#if footerSnippet}
+                    <div class="mt-1 pt-1 border-t border-border/60">
+                        {@render footerSnippet()}
+                    </div>
+                {/if}
             </div>
-        {:else if emptySnippet}
+        {:else if emptySnippet || footerSnippet}
             <div class="absolute left-0 right-0 top-full mt-1.5 bg-popover text-popover-foreground rounded-2xl border border-border/90 shadow-2xl shadow-accent/15 z-50 overflow-hidden animate-in fade-in duration-150 p-3">
-                {@render emptySnippet()}
+                {#if emptySnippet}
+                    {@render emptySnippet()}
+                {/if}
+                {#if footerSnippet}
+                    <div class={emptySnippet ? 'mt-2 pt-2 border-t border-border/60' : ''}>
+                        {@render footerSnippet()}
+                    </div>
+                {/if}
             </div>
         {/if}
     {/if}

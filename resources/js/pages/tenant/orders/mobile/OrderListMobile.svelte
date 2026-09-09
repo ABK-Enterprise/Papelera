@@ -31,6 +31,7 @@
         customer_phone: string | null;
         delivery_address: string | null;
         status: string;
+        return_status?: string;
         total_amount: string | number;
         notes: string | null;
         created_at: string;
@@ -120,6 +121,16 @@
                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                             <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
                             Cancelado
+                        </span>
+                    {/if}
+
+                    {#if order.return_status === 'total'}
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-600 border border-rose-500/20">
+                            Devuelto
+                        </span>
+                    {:else if order.return_status === 'parcial'}
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                            Dev. Parcial
                         </span>
                     {/if}
                 </div>

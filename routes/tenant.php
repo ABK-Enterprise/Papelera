@@ -5,6 +5,7 @@ use App\Http\Controllers\Tenant\CompanySettingsController;
 use App\Http\Controllers\Tenant\CustomerAccountController;
 use App\Http\Controllers\Tenant\CustomerController;
 use App\Http\Controllers\Tenant\CustomerOrderController;
+use App\Http\Controllers\Tenant\CustomerOrderReturnController;
 use App\Http\Controllers\Tenant\DeliveryRouteController;
 use App\Http\Controllers\Tenant\PaymentCollectionController;
 use App\Http\Controllers\Tenant\ProductController;
@@ -133,6 +134,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('pedidos/{customerOrder}/generar-qr-cobro', [CustomerOrderController::class, 'generateQr'])->name('orders.generate-qr')->middleware('tenant.permission:pedidos.ver');
             Route::get('pedidos/{customerOrder}/estado-pago', [CustomerOrderController::class, 'paymentStatus'])->name('orders.payment-status')->middleware('tenant.permission:pedidos.ver');
             Route::post('pedidos/{customerOrder}/reconciliar-pago', [CustomerOrderController::class, 'reconcilePayment'])->name('orders.reconcile-payment')->middleware('tenant.permission:pedidos.ver');
+            Route::post('pedidos/{customerOrder}/devolucion', [CustomerOrderReturnController::class, 'store'])->name('orders.return')->middleware('tenant.permission:pedidos.crear');
             Route::delete('pedidos/{customerOrder}', [CustomerOrderController::class, 'destroy'])->name('orders.destroy')->middleware('tenant.permission:pedidos.cancelar');
 
             // Repartos y Logística de Última Milla

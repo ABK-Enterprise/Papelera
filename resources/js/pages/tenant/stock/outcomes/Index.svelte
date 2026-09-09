@@ -9,6 +9,13 @@
     import StockNavigationTabs from '@/pages/tenant/stock/StockNavigationTabs.svelte';
     import Minus from 'lucide-svelte/icons/minus';
 
+    interface WarehouseItem {
+        id: number;
+        name: string;
+        code?: string | null;
+        is_default?: boolean;
+    }
+
     interface StockMovementItem {
         id: number;
         type: string;
@@ -18,6 +25,11 @@
         current_stock: number;
         notes: string | null;
         created_at: string;
+        warehouse?: {
+            id: number;
+            name: string;
+            code: string | null;
+        } | null;
         product?: {
             id: number;
             name: string;
@@ -40,9 +52,11 @@
     let {
         movements = [],
         products = [],
+        warehouses = [],
     }: {
         movements: StockMovementItem[];
         products: ProductItem[];
+        warehouses?: WarehouseItem[];
     } = $props();
 
     let isCreateModalOpen = $state(false);
@@ -100,4 +114,5 @@
 <CreateOutcomeModal
     bind:open={isCreateModalOpen}
     {products}
+    {warehouses}
 />

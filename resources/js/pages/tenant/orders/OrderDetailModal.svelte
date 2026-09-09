@@ -4,6 +4,7 @@
     import PdfPreviewModal from '@/components/common/PdfPreviewModal.svelte';
     import MercadoPagoQrModal from '@/components/common/MercadoPagoQrModal.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import CustomerOrderReturnModal from './CustomerOrderReturnModal.svelte';
     import { router } from '@inertiajs/svelte';
     import { fade, scale } from 'svelte/transition';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
@@ -15,6 +16,7 @@
     import Phone from 'lucide-svelte/icons/phone';
     import Printer from 'lucide-svelte/icons/printer';
     import QrCode from 'lucide-svelte/icons/qr-code';
+    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import Truck from 'lucide-svelte/icons/truck';
     import User from 'lucide-svelte/icons/user';
@@ -27,6 +29,7 @@
         packaging_type: string;
         units_per_package: number;
         quantity: number;
+        returned_quantity?: number;
         unit_price: string | number;
         subtotal: string | number;
         product?: {
@@ -39,10 +42,12 @@
     interface OrderData {
         id: number;
         order_number: string;
+        customer_id?: number | null;
         customer_name: string;
         customer_phone: string | null;
         delivery_address: string | null;
         status: string;
+        return_status?: string;
         payment_status?: string;
         debt_amount?: string | number;
         paid_amount?: string | number;
@@ -62,6 +67,8 @@
 
     let isUpdatingStatus = $state(false);
     let isConfirmModalOpen = $state(false);
+    let isConfirmReturnOpen = $state(false);
+    let isReturnModalOpen = $state(false);
     let isPdfModalOpen = $state(false);
     let isQrModalOpen = $state(false);
     let pendingStatus = $state<string | null>(null);
@@ -218,6 +225,16 @@
                             {:else if order.status === 'cancelado'}
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                                     Cancelado
+                                </span>
+                            {/if}
+
+                            {#if order.return_status === 'total'}
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20">
+                                    Devolución Total
+                                </span>
+                            {:else if order.return_status === 'parcial'}
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                                    Devolución Parcial
                                 </span>
                             {/if}
                         </div>
@@ -493,6 +510,16 @@
                                 <XCircle class="size-4" />
                                 <span>Cancelar pedido</span>
                             </Button>
+                        {:else if order.status === 'entregado' && order.return_status !== 'total'}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                class="min-h-[40px] px-3.5 rounded-xl text-xs font-semibold text-amber-600 border-amber-500/30 hover:bg-amber-500/10 hover:border-amber-500/50 gap-1.5 shrink-0 cursor-pointer"
+                                onclick={() => (isConfirmReturnOpen = true)}
+                            >
+                                <RotateCcw class="size-4" />
+                                <span>Devolución</span>
+                            </Button>
                         {/if}
                     </div>
 
@@ -572,6 +599,29 @@
                     order.paid_amount = updatedOrder.paid_amount;
                     order.payment_status = updatedOrder.payment_status;
                 }
+                router.reload({ only: ['orders'] });
+            }}
+        />
+
+        <!-- Modal de Confirmación para Devolución de Pedido -->
+        <ConfirmActionModal
+            bind:open={isConfirmReturnOpen}
+            title="¿Registrar Devolución de Pedido?"
+            description="Se abrirá el asistente para seleccionar los ítems a devolver, indicando reingreso a stock o merma/dañado, y acreditando el saldo correspondiente en cuenta corriente."
+            confirmText="Continuar a Devolución"
+            cancelText="Volver"
+            variant="warning"
+            onconfirm={() => {
+                isConfirmReturnOpen = false;
+                isReturnModalOpen = true;
+            }}
+        />
+
+        <!-- Modal de Asistente de Devolución de Productos -->
+        <CustomerOrderReturnModal
+            bind:open={isReturnModalOpen}
+            order={order as any}
+            onSuccess={() => {
                 router.reload({ only: ['orders'] });
             }}
         />

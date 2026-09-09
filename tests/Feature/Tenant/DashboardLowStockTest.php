@@ -185,3 +185,34 @@ test('exhausted products with stock zero are included in dashboard low stock ale
             ->where('lowStockProducts.0.stock', 0)
         );
 });
+
+test('critical negative stock alerts are prioritized on dashboard with warehouse details', function () {
+    $category = Category::factory()->forTenant($this->tenant)->create();
+
+    // Normal low stock product
+    Product::factory()->forCategory($category)->create([
+        'name' => 'Producto Bajo Stock Normal',
+        'stock' => 2,
+        'min_stock' => 5,
+    ]);
+
+    // Critical negative stock product
+    Product::factory()->forCategory($category)->create([
+        'name' => 'Producto Stock Negativo Crítico',
+        'stock' => -3,
+        'min_stock' => 5,
+    ]);
+
+    $response = $this->actingAs($this->user)->get(route('dashboard'));
+
+    $response->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Dashboard')
+            ->has('lowStockProducts', 2)
+            ->where('lowStockProducts.0.name', 'Producto Stock Negativo Crítico')
+            ->where('lowStockProducts.0.is_critical', true)
+            ->where('lowStockProducts.0.stock', -3)
+            ->where('lowStockProducts.1.name', 'Producto Bajo Stock Normal')
+            ->where('lowStockProducts.1.is_critical', false)
+        );
+});
