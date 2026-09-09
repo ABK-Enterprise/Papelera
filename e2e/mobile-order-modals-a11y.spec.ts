@@ -20,7 +20,7 @@ test.describe.serial('Mobile UI/UX y Accesibilidad en Modales de Pedidos', () =>
         await page?.close();
     });
 
-    test('1. Modal de Pedido a Cliente (Mobile): Buscador apilado, botones 44px y header resiliente', async () => {
+    test('1. Modal de Pedido a Cliente (Mobile): Buscador apilado, botones 44px, alineacion accion-resultado', async () => {
         await page.goto('/tenant/pedidos');
         await expect(page.getByRole('button', { name: /Nuevo Pedido/i })).toBeVisible();
 
@@ -37,6 +37,30 @@ test.describe.serial('Mobile UI/UX y Accesibilidad en Modales de Pedidos', () =>
         await expect(addBtn).toHaveClass(/w-full/);
         await expect(addBtn).toHaveClass(/min-h-\[44px\]/);
 
+        // Product search input
+        const productSearchInput = page.locator('input[placeholder*="Escribe el nombre o SKU"]').first();
+        await expect(productSearchInput).toBeVisible();
+        await productSearchInput.fill('a');
+        await page.waitForTimeout(400);
+
+        const productOption = page.locator('[role="option"]').last();
+        if (await productOption.isVisible()) {
+            await productOption.click();
+            await page.waitForTimeout(200);
+            if (await addBtn.isEnabled()) {
+                await addBtn.click();
+                await page.waitForTimeout(200);
+
+                // Verify left block: select presentation
+                const selectEl = page.locator('select').last();
+                await expect(selectEl).toBeVisible();
+
+                // Verify right block: stepper and subtotal adjacent
+                const rightControls = page.locator('.ml-auto').first();
+                await expect(rightControls).toBeVisible();
+            }
+        }
+
         const cancelBtn = page.locator('button:has-text("Cancelar")').first();
         const submitBtn = page.locator('button:has-text("Crear Pedido")').first();
         await expect(cancelBtn).toBeVisible();
@@ -48,7 +72,7 @@ test.describe.serial('Mobile UI/UX y Accesibilidad en Modales de Pedidos', () =>
         await expect(modalTitle).not.toBeVisible();
     });
 
-    test('2. Modal de Ordenes a Proveedor (Mobile): Grid 2 cols para Costo/Cantidad, Subtotal dedicado y Footer apilado', async () => {
+    test('2. Modal de Ordenes a Proveedor (Mobile): Buscador global superior, Grid 2 cols y Subtotal dedicado', async () => {
         await page.goto('/tenant/proveedores/ordenes');
         await expect(page.getByRole('button', { name: /Hacer Pedido a Proveedor/i })).toBeVisible();
 
@@ -61,6 +85,20 @@ test.describe.serial('Mobile UI/UX y Accesibilidad en Modales de Pedidos', () =>
         const addProductBtn = page.getByRole('button', { name: /Añadir producto/i });
         await expect(addProductBtn).toBeVisible();
         await expect(addProductBtn).toHaveClass(/w-full/);
+
+        // Interact with global search combobox
+        const searchInput = page.locator('#create-supplier-order-form input[placeholder*="Buscar producto"]').first();
+        await expect(searchInput).toBeVisible();
+        await searchInput.fill('a');
+        await page.waitForTimeout(400);
+
+        const option = page.locator('[role="option"]').first();
+        if (await option.isVisible()) {
+            await option.click();
+        } else {
+            await addProductBtn.click();
+        }
+        await page.waitForTimeout(200);
 
         const costLabel = page.locator('text=Costo Unit:').first();
         await expect(costLabel).toBeVisible();

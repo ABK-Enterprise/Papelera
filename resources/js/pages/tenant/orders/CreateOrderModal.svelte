@@ -1122,11 +1122,10 @@
                                         {/if}
                                     </div>
 
-                                    <!-- Controles y Subtotal a la derecha -->
-                                    <div class="flex flex-wrap items-center justify-between gap-3 w-full sm:w-auto">
-                                        <!-- Selector de Presentación y Stepper -->
-                                        <div class="flex items-center gap-2 shrink-0">
-                                            <!-- Selector de Presentación (Abreviado) -->
+                                    <!-- Controles y Subtotal a la derecha (Alineación Acción-Resultado) -->
+                                    <div class="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 w-full pt-0.5">
+                                        <!-- Bloque Izquierdo: Selector de Presentación / Unidad -->
+                                        <div class="shrink-0">
                                             <select
                                                 value={item.packaging_type}
                                                 onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
@@ -1145,7 +1144,10 @@
                                                     </option>
                                                 {/if}
                                             </select>
+                                        </div>
 
+                                        <!-- Bloque Derecho: Stepper Táctil y Subtotal adyacentes -->
+                                        <div class="flex items-center gap-2.5 sm:gap-3 shrink-0 ml-auto">
                                             <!-- Stepper Táctil con w-14 y sin flechas nativas -->
                                             <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden">
                                                 <button
@@ -1181,22 +1183,22 @@
                                                     <Plus class="size-3.5" />
                                                 </button>
                                             </div>
-                                        </div>
 
-                                        <!-- Subtotal en la esquina inferior derecha -->
-                                        <div class="flex flex-col items-end shrink-0 text-right whitespace-nowrap ml-auto sm:ml-0 min-w-[85px]">
-                                            {#if isDiscountActive}
-                                                <span class="line-through text-[11px] text-muted-foreground font-sans tabular-nums" title={formatExactPrice(strikethroughSubtotal)}>
-                                                    {formatPrice(strikethroughSubtotal)}
-                                                </span>
-                                                <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-primary" title={formatExactPrice(finalSubtotal)}>
-                                                    {formatPrice(finalSubtotal)}
-                                                </span>
-                                            {:else}
-                                                <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground" title={formatExactPrice(baseSubtotal)}>
-                                                    {formatPrice(baseSubtotal)}
-                                                </span>
-                                            {/if}
+                                            <!-- Subtotal adyacente a la acción -->
+                                            <div class="flex flex-col items-end shrink-0 text-right whitespace-nowrap min-w-[76px] sm:min-w-[85px]">
+                                                {#if isDiscountActive}
+                                                    <span class="line-through text-[11px] text-muted-foreground font-sans tabular-nums" title={formatExactPrice(strikethroughSubtotal)}>
+                                                        {formatPrice(strikethroughSubtotal)}
+                                                    </span>
+                                                    <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-primary" title={formatExactPrice(finalSubtotal)}>
+                                                        {formatPrice(finalSubtotal)}
+                                                    </span>
+                                                {:else}
+                                                    <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground" title={formatExactPrice(baseSubtotal)}>
+                                                        {formatPrice(baseSubtotal)}
+                                                    </span>
+                                                {/if}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
