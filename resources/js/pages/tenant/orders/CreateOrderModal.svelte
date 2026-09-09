@@ -700,11 +700,13 @@
             aria-labelledby="modal-title"
         >
             <!-- Header Bento -->
-            <div class="flex items-center justify-between border-b pb-3.5 sm:pb-4 shrink-0">
-                <div class="flex items-center gap-2.5">
-                    <IconContainer size="md" variant="primary" icon="solar:bill-list-bold-duotone" />
+            <div class="flex items-start justify-between gap-3 border-b pb-3.5 sm:pb-4 shrink-0">
+                <div class="min-w-0 flex-1 flex items-start gap-2.5">
+                    <div class="shrink-0 mt-0.5">
+                        <IconContainer size="md" variant="primary" icon="solar:bill-list-bold-duotone" />
+                    </div>
                     <div>
-                        <h2 id="modal-title" class="text-base font-bold text-foreground">
+                        <h2 id="modal-title" class="text-base sm:text-lg font-bold text-foreground leading-snug line-clamp-2 break-words">
                             Nuevo Pedido de Cliente
                         </h2>
                     </div>
@@ -713,7 +715,7 @@
                 <button
                     type="button"
                     onclick={closeModal}
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
+                    class="size-10 min-h-[40px] min-w-[40px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar modal"
                 >
                     <X class="size-4" />
@@ -733,9 +735,9 @@
             <form id="create-order-form" onsubmit={submitOrder} class="space-y-4 overflow-y-auto flex-1 min-h-0 pr-1">
                 <!-- Bento Card 1: Cliente & Destino con Autocomplete -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                            <User class="size-3.5 text-primary" />
+                    <div class="flex items-start justify-between gap-2.5">
+                        <h3 class="min-w-0 flex-1 break-words text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                            <User class="size-3.5 text-primary shrink-0" />
                             Datos del Cliente
                         </h3>
 
@@ -918,16 +920,16 @@
 
                 <!-- Bento Card 2: Productos del Pedido -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3.5">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                            <Layers class="size-3.5 text-primary" />
+                    <div class="flex items-start justify-between gap-2.5">
+                        <h3 class="min-w-0 flex-1 break-words text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                            <Layers class="size-3.5 text-primary shrink-0" />
                             Productos del Pedido
                         </h3>
                     </div>
 
                     <!-- Buscador Flotante de Productos con SearchCombobox -->
-                    <div class="flex gap-2 items-start">
-                        <div class="flex-1">
+                    <div class="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-start w-full">
+                        <div class="w-full flex-1 min-w-0">
                             <SearchCombobox
                                 bind:value={searchQuery}
                                 items={searchResults}
@@ -939,17 +941,17 @@
                                     searchQuery = '';
                                     selectedProductToAdd = null;
                                 }}
-                                inputClass="h-9 text-xs font-medium"
+                                inputClass="h-10 sm:h-9 text-xs font-medium w-full"
                             >
                                 {#snippet itemSnippet(prod)}
-                                    <div class="flex items-center justify-between gap-3 w-full">
-                                        <div class="min-w-0 flex-1 text-left">
+                                    <div class="flex items-start justify-between gap-2.5 w-full text-left py-0.5">
+                                        <div class="min-w-0 flex-1 space-y-1">
                                             <div class="flex items-center gap-2">
-                                                <span class="font-semibold text-foreground truncate">
+                                                <span class="font-semibold text-foreground text-xs leading-snug line-clamp-2 break-words">
                                                     <HighlightMatch text={prod.name} query={searchQuery} />
                                                 </span>
                                                 {#if prod.sale_type === 'weight'}
-                                                    <span class="inline-flex items-center gap-0.5 text-[10px] font-medium text-sky-600 bg-sky-500/10 px-1.5 py-0.2 rounded border border-sky-500/20">
+                                                    <span class="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-medium text-sky-600 bg-sky-500/10 px-1.5 py-0.2 rounded border border-sky-500/20">
                                                         <Scale class="size-2.5" />
                                                         Pesaje
                                                     </span>
@@ -963,15 +965,15 @@
                                         </div>
 
 
-                                        <div class="text-right shrink-0">
-                                            <span class="font-bold font-sans tabular-nums text-primary text-xs block">
+                                        <div class="text-right shrink-0 min-w-[76px] pl-1">
+                                            <span class="font-bold font-sans tabular-nums text-primary text-xs sm:text-sm block">
                                                 {formatPrice(Number(prod.price))}
                                             </span>
-                                            <span class="text-[10px] font-sans tabular-nums text-muted-foreground block mt-0.5">
+                                            <span class="text-[10px] font-sans tabular-nums text-muted-foreground block mt-0.5 whitespace-nowrap">
                                                 {#if prod.sale_type === 'weight'}
-                                                    Stock: {prod.stock} Kg • Bulto: {prod.package_quantity || prod.units_per_package || 1} Kg
+                                                    Stock: {prod.stock} Kg
                                                 {:else}
-                                                    Stock: {prod.stock} u • Bulto: x{prod.units_per_package} u
+                                                    Stock: {prod.stock} u
                                                 {/if}
                                             </span>
                                         </div>
@@ -989,12 +991,12 @@
                             type="button"
                             size="sm"
                             variant="secondary"
-                            class="h-10 text-xs gap-1.5 font-semibold shrink-0"
+                            class="w-full sm:w-auto min-h-[44px] sm:h-9 px-5 rounded-xl text-xs gap-2 font-semibold shrink-0 justify-center shadow-2xs"
                             onclick={addSelectedProduct}
                             disabled={!selectedProductToAdd}
                         >
-                            <Plus class="size-3.5" />
-                            Agregar
+                            <Plus class="size-4 shrink-0" />
+                            <span>Agregar</span>
                         </Button>
                     </div>
 
@@ -1060,7 +1062,7 @@
 
                                     <button
                                         type="button"
-                                        class="size-8 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors cursor-pointer shrink-0"
+                                        class="size-9 min-h-[36px] min-w-[36px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer shrink-0"
                                         onclick={() => removeItem(index)}
                                         title="Quitar de la lista"
                                         aria-label="Quitar producto de la lista"
@@ -1121,14 +1123,14 @@
                                     </div>
 
                                     <!-- Controles y Subtotal a la derecha -->
-                                    <div class="flex items-end justify-between sm:justify-end gap-3 w-full sm:w-auto shrink-0">
+                                    <div class="flex flex-wrap items-center justify-between gap-3 w-full sm:w-auto">
                                         <!-- Selector de Presentación y Stepper -->
-                                        <div class="flex items-center gap-2">
+                                        <div class="flex items-center gap-2 shrink-0">
                                             <!-- Selector de Presentación (Abreviado) -->
                                             <select
                                                 value={item.packaging_type}
                                                 onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                                class="h-8 sm:h-9 rounded-lg sm:rounded-xl border border-border/80 bg-background px-2 text-xs font-semibold text-foreground min-w-[84px] sm:min-w-[94px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                                                class="h-9 sm:h-9 rounded-xl border border-border/80 bg-background px-2.5 text-xs font-semibold text-foreground min-w-[88px] sm:min-w-[94px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
                                             >
                                                 {#if item.sale_type === 'weight'}
                                                     <option value="gram">Gramos</option>
@@ -1145,10 +1147,10 @@
                                             </select>
 
                                             <!-- Stepper Táctil con w-14 y sin flechas nativas -->
-                                            <div class="flex items-center border rounded-lg bg-background shadow-2xs">
+                                            <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden">
                                                 <button
                                                     type="button"
-                                                    class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                                    class="size-9 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                                                     onclick={() => decrementQuantity(index)}
                                                     disabled={item.packaging_type === 'gram' ? item.quantity <= 50 : item.packaging_type === 'kg' ? item.quantity <= 0.1 : item.quantity <= 1}
                                                     aria-label="Disminuir cantidad"
@@ -1170,7 +1172,7 @@
 
                                                 <button
                                                     type="button"
-                                                    class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-r-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                                    class="size-9 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                                                     onclick={() => incrementQuantity(index)}
                                                     disabled={isAtStockLimit}
                                                     title={isAtStockLimit ? 'Se alcanzó el stock máximo disponible' : 'Aumentar'}
@@ -1182,7 +1184,7 @@
                                         </div>
 
                                         <!-- Subtotal en la esquina inferior derecha -->
-                                        <div class="flex flex-col items-end shrink-0 min-w-[85px] sm:min-w-[100px] text-right whitespace-nowrap">
+                                        <div class="flex flex-col items-end shrink-0 text-right whitespace-nowrap ml-auto sm:ml-0 min-w-[85px]">
                                             {#if isDiscountActive}
                                                 <span class="line-through text-[11px] text-muted-foreground font-sans tabular-nums" title={formatExactPrice(strikethroughSubtotal)}>
                                                     {formatPrice(strikethroughSubtotal)}
@@ -1223,9 +1225,9 @@
 
                 <!-- Bento Card 3: Condición y Medio de Pago -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                            <CreditCard class="size-3.5 text-primary" />
+                    <div class="flex items-start justify-between gap-2.5">
+                        <h3 class="min-w-0 flex-1 break-words text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                            <CreditCard class="size-3.5 text-primary shrink-0" />
                             Condición de Pago
                         </h3>
                     </div>
@@ -1390,9 +1392,9 @@
                         </div>
                     {/if}
 
-                    <div class="flex items-center justify-between border-t border-border/60 pt-2 mt-1">
+                    <div class="flex flex-wrap items-baseline justify-between gap-2 border-t border-border/60 pt-2 mt-1 w-full">
                         <span class="text-xs sm:text-sm font-bold text-foreground">Total a Pagar:</span>
-                        <span class="text-base sm:text-xl font-bold font-sans tabular-nums text-primary">
+                        <span class="text-lg sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
                             {formatPrice(grandTotal)}
                         </span>
                     </div>
@@ -1407,11 +1409,11 @@
                 {/if}
 
                 <!-- Fila Inferior: Botones de Acción (ambos simétricos, min-h-[44px], sin text-wrap) -->
-                <div class="flex items-center justify-end gap-3 w-full">
+                <div class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:items-center sm:justify-end sm:w-auto">
                     <Button
                         type="button"
                         variant="outline"
-                        class="min-h-[44px] px-5 rounded-xl text-xs sm:text-sm font-semibold flex-1 sm:flex-initial"
+                        class="min-h-[44px] px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto whitespace-nowrap"
                         onclick={closeModal}
                     >
                         Cancelar
@@ -1419,7 +1421,7 @@
                     <Button
                         type="submit"
                         form="create-order-form"
-                        class="min-h-[44px] min-w-[150px] px-6 rounded-xl text-xs sm:text-sm font-semibold gap-2 whitespace-nowrap flex-1 sm:flex-initial shadow-xs"
+                        class="min-h-[44px] px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto whitespace-nowrap gap-2 shadow-xs"
                         disabled={isSubmitting || items.length === 0 || hasQuantityOverflow}
                     >
                         {#if isSubmitting}

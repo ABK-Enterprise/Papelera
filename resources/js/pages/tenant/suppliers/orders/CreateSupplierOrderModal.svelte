@@ -322,20 +322,20 @@
             aria-labelledby="supplier-order-modal-title"
         >
             <!-- Header Bento (shrink-0) -->
-            <div class="flex items-center justify-between border-b pb-3.5 sm:pb-4 shrink-0">
-                <div class="flex items-center gap-2.5">
-                    <IconContainer size="md" variant="primary" icon="solar:clipboard-list-bold-duotone" />
-                    <div>
-                        <h2 id="supplier-order-modal-title" class="text-base font-bold text-foreground">
-                            Nueva Orden de Compra a Proveedor
-                        </h2>
+            <div class="flex items-start justify-between gap-3 border-b pb-3.5 sm:pb-4 shrink-0">
+                <div class="min-w-0 flex-1 flex items-start gap-2.5">
+                    <div class="shrink-0 mt-0.5">
+                        <IconContainer size="md" variant="primary" icon="solar:clipboard-list-bold-duotone" />
                     </div>
+                    <h2 id="supplier-order-modal-title" class="text-base sm:text-lg font-bold text-foreground leading-snug line-clamp-2 break-words">
+                        Nueva Orden de Compra a Proveedor
+                    </h2>
                 </div>
 
                 <button
                     type="button"
                     onclick={closeModal}
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
+                    class="size-10 min-h-[40px] min-w-[40px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar modal"
                 >
                     <X class="size-4" />
@@ -354,9 +354,9 @@
             <form id="create-supplier-order-form" onsubmit={submitOrder} class="space-y-4 overflow-y-auto flex-1 min-h-0 pr-1">
                 <!-- Bento Card 1: Proveedor -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                        <Truck class="size-3.5 text-primary" />
-                        Proveedor Destino
+                    <h3 class="min-w-0 flex-1 flex items-start gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground break-words">
+                        <Truck class="size-3.5 text-primary shrink-0 mt-0.5" />
+                        <span>Proveedor Destino</span>
                     </h3>
 
                     <div class="space-y-1">
@@ -381,22 +381,22 @@
 
                 <!-- Bento Card 2: Productos -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3.5">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                            <Layers class="size-3.5 text-primary" />
-                            Productos a Solicitar
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                        <h3 class="min-w-0 flex-1 text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                            <Layers class="size-3.5 text-primary shrink-0" />
+                            <span class="truncate">Productos a Solicitar</span>
                         </h3>
 
                         <Button
                             type="button"
                             size="sm"
                             variant="secondary"
-                            class="h-8 text-xs gap-1 font-semibold"
+                            class="w-full sm:w-auto min-h-[40px] sm:h-8 text-xs gap-1.5 font-semibold shrink-0 justify-center shadow-2xs"
                             onclick={addItem}
                             disabled={hasEmptyProductRow()}
                         >
-                            <Plus class="size-3.5" />
-                            Añadir producto
+                            <Plus class="size-3.5 shrink-0" />
+                            <span>Añadir producto</span>
                         </Button>
                     </div>
 
@@ -430,20 +430,22 @@
                                             inputClass="h-9 sm:h-10 text-xs font-medium"
                                         >
                                             {#snippet itemSnippet(prod)}
-                                                <div class="flex items-center justify-between gap-2 w-full text-left">
-                                                    <div class="flex items-center gap-1.5 truncate">
-                                                        <span class="font-medium truncate">
-                                                            <HighlightMatch text={prod.name} query={item.search_query} />
-                                                        </span>
-                                                        {#if prod.sale_type === 'weight'}
-                                                            <span class="text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 px-1 rounded">Kg</span>
-                                                        {/if}
+                                                <div class="flex items-start justify-between gap-2.5 w-full text-left py-0.5">
+                                                    <div class="min-w-0 flex-1 space-y-0.5">
+                                                        <div class="flex items-start gap-1.5 flex-wrap">
+                                                            <span class="font-semibold text-foreground text-xs leading-snug line-clamp-2 break-words">
+                                                                <HighlightMatch text={prod.name} query={item.search_query} />
+                                                            </span>
+                                                            {#if prod.sale_type === 'weight'}
+                                                                <span class="text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded shrink-0">Kg</span>
+                                                            {/if}
+                                                        </div>
                                                     </div>
-                                                    <div class="text-[11px] text-muted-foreground font-sans tabular-nums shrink-0">
+                                                    <div class="text-[11px] text-muted-foreground font-sans tabular-nums shrink-0 text-right min-w-[70px] pl-1">
                                                         {#if prod.cost_price}
-                                                            <span>Costo: {formatPrice(Number(prod.cost_price))}</span>
+                                                            <span class="font-bold text-foreground block">{formatPrice(Number(prod.cost_price))}</span>
                                                         {:else}
-                                                            <span>Stock: {prod.stock ?? 0}</span>
+                                                            <span class="block">Stock: {prod.stock ?? 0}</span>
                                                         {/if}
                                                     </div>
                                                 </div>
@@ -454,7 +456,7 @@
 
                                     <button
                                         type="button"
-                                        class="size-9 sm:size-10 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors shrink-0"
+                                        class="size-10 min-h-[40px] min-w-[40px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
                                         onclick={() => removeItem(index)}
                                         aria-label="Eliminar producto"
                                     >
@@ -466,47 +468,136 @@
                                 <div class="border-t border-border/50"></div>
 
                                 <!-- Fila 2: Costo Unitario, Stepper Cantidad y Subtotal -->
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                                    <div class="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-4">
-                                        <!-- Costo Unitario -->
-                                        <div class="flex items-center gap-2">
-                                            <Label for={`prod-cost-${index}`} class="text-[11px] font-semibold text-muted-foreground shrink-0">
+                                <!-- SECCIÓN CONTROLES: MOBILE (< sm) -->
+                                <div class="flex flex-col gap-2.5 sm:hidden w-full pt-1">
+                                    <div class="grid grid-cols-2 gap-3 w-full">
+                                        <!-- Costo Unitario Mobile -->
+                                        <div class="flex flex-col gap-1 w-full">
+                                            <Label for={`prod-cost-mob-${index}`} class="text-[11px] font-semibold text-muted-foreground">
                                                 Costo Unit:
                                             </Label>
-                                            <div class="relative w-28 sm:w-32">
+                                            <div class="relative w-full">
                                                 <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-sans tabular-nums">$</span>
                                                 <Input
-                                                    id={`prod-cost-${index}`}
+                                                    id={`prod-cost-mob-${index}`}
                                                     type="number"
                                                     step="0.01"
                                                     min="0.01"
                                                     max="100000000"
                                                     bind:value={item.unit_cost}
                                                     placeholder="0.00"
-                                                    class="h-8 sm:h-9 text-xs pl-6 font-sans tabular-nums text-right"
+                                                    class="h-10 text-xs pl-6 font-sans tabular-nums text-right rounded-xl w-full"
                                                     required
                                                 />
                                             </div>
                                         </div>
 
-                                        <!-- Cantidad y Subtotal en Mobile (misma fila a la misma altura) -->
-                                        <div class="flex items-center justify-between sm:justify-start gap-2 sm:gap-4">
-                                            <!-- Stepper / Input de Cantidad -->
+                                        <!-- Cantidad Mobile -->
+                                        <div class="flex flex-col gap-1 w-full">
+                                            <div class="flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
+                                                <Label>Cant:</Label>
+                                                <span>{isWeight ? 'kg' : 'unid.'}</span>
+                                            </div>
+                                            <div class="flex items-center border rounded-xl bg-background shadow-2xs h-10 w-full overflow-hidden justify-between">
+                                                <button
+                                                    type="button"
+                                                    class="size-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                                                    onclick={() => decrementQuantity(index)}
+                                                    disabled={item.quantity <= (isWeight ? 0.01 : 1)}
+                                                    aria-label="Disminuir cantidad"
+                                                >
+                                                    <Minus class="size-3.5" />
+                                                </button>
+                                                <input
+                                                    type="number"
+                                                    step={isWeight ? '0.01' : '1'}
+                                                    min={isWeight ? '0.01' : '1'}
+                                                    max="10000"
+                                                    maxlength="5"
+                                                    bind:value={item.quantity}
+                                                    oninput={(e) => {
+                                                        const val = (e.target as HTMLInputElement).value;
+                                                        if (val.length > 5) (e.target as HTMLInputElement).value = val.slice(0, 5);
+                                                        if (Number(val) > 10000) item.quantity = 10000;
+                                                    }}
+                                                    onblur={() => {
+                                                        let val = Number(item.quantity);
+                                                        if (isNaN(val) || val < (isWeight ? 0.01 : 1)) {
+                                                            item.quantity = isWeight ? 0.01 : 1;
+                                                        } else if (val > 10000) {
+                                                            item.quantity = 10000;
+                                                        } else {
+                                                            item.quantity = isWeight ? Math.round(val * 100) / 100 : Math.floor(val);
+                                                        }
+                                                    }}
+                                                    onpaste={(e) => {
+                                                        const pasted = e.clipboardData?.getData('text') || '';
+                                                        const cleaned = parseFloat(pasted.replace(/[^0-9.]/g, ''));
+                                                        if (!isNaN(cleaned)) {
+                                                            e.preventDefault();
+                                                            item.quantity = Math.max(isWeight ? 0.01 : 1, Math.min(cleaned, 10000));
+                                                        }
+                                                    }}
+                                                    class="w-14 h-full text-xs font-bold font-sans tabular-nums text-center bg-transparent border-0 focus:ring-0 focus:outline-none p-0 flex-1 min-w-0"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    class="size-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 shrink-0"
+                                                    onclick={() => incrementQuantity(index)}
+                                                    disabled={item.quantity >= 10000}
+                                                    aria-label="Aumentar cantidad"
+                                                >
+                                                    <Plus class="size-3.5" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="w-full flex items-center justify-between pt-2 border-t border-border/40 text-xs">
+                                        <span class="text-muted-foreground font-medium">Subtotal Estimado:</span>
+                                        <span class="font-sans tabular-nums text-sm font-bold text-foreground">{formatPrice(lineSubtotal)}</span>
+                                    </div>
+                                </div>
+
+                                <!-- SECCIÓN CONTROLES: DESKTOP (>= sm) -->
+                                <div class="hidden sm:flex sm:items-center justify-between gap-4 w-full pt-1">
+                                    <div class="flex items-center gap-4">
+                                        <!-- Costo Unitario Desktop -->
+                                        <div class="flex items-center gap-2">
+                                            <Label for={`prod-cost-desk-${index}`} class="text-[11px] font-semibold text-muted-foreground shrink-0">
+                                                Costo Unit:
+                                            </Label>
+                                            <div class="relative w-32">
+                                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-sans tabular-nums">$</span>
+                                                <Input
+                                                    id={`prod-cost-desk-${index}`}
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0.01"
+                                                    max="100000000"
+                                                    bind:value={item.unit_cost}
+                                                    placeholder="0.00"
+                                                    class="h-9 text-xs pl-6 font-sans tabular-nums text-right"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <!-- Cantidad Desktop -->
+                                        <div class="flex items-center gap-2">
                                             <div class="flex items-center gap-1.5">
                                                 <Label class="text-[11px] font-semibold text-muted-foreground shrink-0">
                                                     Cant:
                                                 </Label>
-                                                <div class="flex items-center border rounded-lg bg-background shadow-2xs h-8 sm:h-9 overflow-hidden">
+                                                <div class="flex items-center border rounded-lg bg-background shadow-2xs h-9 overflow-hidden">
                                                     <button
                                                         type="button"
-                                                        class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                                                        class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                                                         onclick={() => decrementQuantity(index)}
                                                         disabled={item.quantity <= (isWeight ? 0.01 : 1)}
                                                         aria-label="Disminuir cantidad"
                                                     >
                                                         <Minus class="size-3.5" />
                                                     </button>
-
                                                     <input
                                                         type="number"
                                                         step={isWeight ? '0.01' : '1'}
@@ -537,12 +628,11 @@
                                                                 item.quantity = Math.max(isWeight ? 0.01 : 1, Math.min(cleaned, 10000));
                                                             }
                                                         }}
-                                                        class="w-14 sm:w-16 h-full text-xs font-bold font-sans tabular-nums text-center bg-transparent border-0 focus:ring-0 focus:outline-none p-0"
+                                                        class="w-16 h-full text-xs font-bold font-sans tabular-nums text-center bg-transparent border-0 focus:ring-0 focus:outline-none p-0"
                                                     />
-
                                                     <button
                                                         type="button"
-                                                        class="size-8 sm:size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 shrink-0"
+                                                        class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 shrink-0"
                                                         onclick={() => incrementQuantity(index)}
                                                         disabled={item.quantity >= 10000}
                                                         aria-label="Aumentar cantidad"
@@ -554,21 +644,12 @@
                                                     {isWeight ? 'cant. kg' : 'cant. unid.'}
                                                 </span>
                                             </div>
-
-                                            <!-- Subtotal en Mobile (visible solo en < sm) -->
-                                            <div class="flex sm:hidden items-center gap-1.5 shrink-0">
-                                                <span class="text-[11px] text-muted-foreground">Subtotal:</span>
-                                                <span class="font-sans tabular-nums text-xs font-bold text-foreground">
-                                                    {formatPrice(lineSubtotal)}
-                                                </span>
-                                            </div>
                                         </div>
                                     </div>
-
-                                    <!-- Subtotal en Desktop (visible en sm+) -->
-                                    <div class="hidden sm:flex items-center gap-1.5 ml-auto shrink-0">
+                                    <!-- Subtotal Desktop -->
+                                    <div class="flex items-center gap-1.5 ml-auto shrink-0">
                                         <span class="text-[11px] text-muted-foreground">Subtotal:</span>
-                                        <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground">
+                                        <span class="font-sans tabular-nums text-sm font-bold text-foreground">
                                             {formatPrice(lineSubtotal)}
                                         </span>
                                     </div>
@@ -581,8 +662,8 @@
 
                 <!-- Bento Card 3: Observaciones -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-2">
-                    <Label for="supplier-order-notes" class="text-xs font-semibold text-foreground">
-                        Observaciones / Notas de Entrega <span class="text-muted-foreground font-normal">(Opcional)</span>
+                    <Label for="supplier-order-notes" class="text-xs font-semibold text-foreground break-words">
+                        Observaciones / Notas de Entrega <span class="text-muted-foreground font-normal whitespace-nowrap">(Opcional)</span>
                     </Label>
                     <textarea
                         id="supplier-order-notes"
@@ -596,26 +677,26 @@
             </form>
 
             <!-- Footer Bento: Total Estimado & Botones (shrink-0) -->
-            <div class="flex items-center justify-between border-t pt-3.5 shrink-0">
-                <div class="flex items-baseline gap-2">
-                    <span class="text-xs text-muted-foreground">Total Estimado:</span>
-                    <span class="text-lg sm:text-xl font-bold font-sans tabular-nums text-primary">{formatPrice(computedTotal)}</span>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 border-t border-border/70 pt-4 shrink-0 w-full">
+                <div class="flex flex-wrap items-baseline justify-between sm:justify-start gap-2 w-full sm:w-auto">
+                    <span class="text-xs font-semibold text-muted-foreground">Total Estimado:</span>
+                    <span class="text-xl sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">{formatPrice(computedTotal)}</span>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <Button type="button" variant="outline" class="min-h-[44px] px-4 rounded-xl text-sm font-semibold" onclick={closeModal}>
+                <div class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:w-auto sm:items-center">
+                    <Button type="button" variant="outline" class="min-h-[44px] px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto whitespace-nowrap shadow-xs" onclick={closeModal}>
                         Cancelar
                     </Button>
                     <Button
                         type="submit"
                         form="create-supplier-order-form"
-                        class="min-h-[44px] px-4 rounded-xl text-sm font-semibold gap-1.5"
+                        class="min-h-[44px] px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto whitespace-nowrap shadow-xs gap-1.5"
                         disabled={isSubmitting}
                     >
                         {#if isSubmitting}
                             <span>Guardando...</span>
                         {:else}
-                            <Check class="size-4" />
+                            <Check class="size-4 shrink-0" />
                             <span>Crear Orden</span>
                         {/if}
                     </Button>
