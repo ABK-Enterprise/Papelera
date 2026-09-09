@@ -580,13 +580,18 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:w-auto sm:items-center">
-                    <Button type="button" variant="outline" class="min-h-[44px] px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto whitespace-nowrap shadow-xs" onclick={closeModal}>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        class="min-h-[44px] h-auto py-3 px-4 sm:px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto shadow-xs leading-snug text-center"
+                        onclick={closeModal}
+                    >
                         Cancelar
                     </Button>
                     <Button
                         type="submit"
                         form="create-supplier-order-form"
-                        class="min-h-[44px] px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto whitespace-nowrap shadow-xs gap-1.5"
+                        class="min-h-[44px] h-auto py-3 px-4 sm:px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto shadow-xs leading-snug text-center gap-1.5"
                         disabled={isSubmitting}
                     >
                         {#if isSubmitting}

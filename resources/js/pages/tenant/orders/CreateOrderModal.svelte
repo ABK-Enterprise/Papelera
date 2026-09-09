@@ -1071,135 +1071,109 @@
                                     </button>
                                 </div>
 
-                                <!-- Fila 2: Metadatos (precio base y stock) abajo a la izquierda | Selector, Stepper y Subtotal a la derecha -->
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-border/50">
-                                    <!-- Metadatos Desktop (>= sm: vertical stack de 2 líneas) -->
-                                    <div class="hidden sm:flex flex-col gap-0.5 min-w-0">
+                                <!-- Fila 2: Metadatos accesibles (Precio Base y Stock) -->
+                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm min-w-0 pt-2 border-t border-border/50">
+                                    <!-- Bloque Precio Base -->
+                                    <div class="flex items-center gap-1.5 shrink-0">
                                         {#if hasBulkDiscount}
-                                            <div class="flex items-center gap-1.5">
-                                                <span class="text-xs line-through text-muted-foreground" title={formatExactPrice(item.regular_price)}>
-                                                    {formatPrice(item.regular_price)}
-                                                </span>
-                                                <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap" title={formatExactPrice(item.unit_price)}>
-                                                    {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
-                                                </span>
-                                            </div>
+                                            <span class="text-xs line-through text-muted-foreground" title={formatExactPrice(item.regular_price)}>
+                                                {formatPrice(item.regular_price)}
+                                            </span>
+                                            <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap" title={formatExactPrice(item.unit_price)}>
+                                                {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
+                                            </span>
                                         {:else}
                                             <span class="text-sm font-semibold text-foreground whitespace-nowrap" title={formatExactPrice(item.unit_price)}>
                                                 {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
                                             </span>
                                         {/if}
-                                        <div class="flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap">
-                                            <span>Stock: <strong class="font-sans tabular-nums text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
-                                            {#if isAtStockLimit}
-                                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
-                                                    Tope
-                                                </span>
-                                            {/if}
-                                        </div>
                                     </div>
 
-                                    <!-- Metadatos Mobile (< sm: formato minimalista inline) -->
-                                    <div class="flex sm:hidden items-center gap-1.5 text-xs text-muted-foreground flex-wrap">
-                                        {#if hasBulkDiscount}
-                                            <span class="line-through text-[11px]" title={formatExactPrice(item.regular_price)}>
-                                                {formatPrice(item.regular_price)}
-                                            </span>
-                                            <span class="font-bold text-emerald-600 dark:text-emerald-400" title={formatExactPrice(item.unit_price)}>
-                                                {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
-                                            </span>
-                                        {:else}
-                                            <span class="font-semibold text-foreground" title={formatExactPrice(item.unit_price)}>
-                                                {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
-                                            </span>
-                                        {/if}
-                                        <span>•</span>
+                                    <!-- Bloque Stock -->
+                                    <div class="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground shrink-0">
                                         <span>Stock: <strong class="font-sans tabular-nums text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
                                         {#if isAtStockLimit}
-                                            <span class="inline-flex items-center text-[10px] font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                                            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 shrink-0">
                                                 Tope
                                             </span>
                                         {/if}
                                     </div>
+                                </div>
 
-                                    <!-- Controles y Subtotal a la derecha (Alineación Acción-Resultado) -->
-                                    <div class="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 w-full pt-0.5">
-                                        <!-- Bloque Izquierdo: Selector de Presentación / Unidad -->
-                                        <div class="shrink-0">
-                                            <select
-                                                value={item.packaging_type}
-                                                onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                                class="h-9 sm:h-9 rounded-xl border border-border/80 bg-background px-2.5 text-xs font-semibold text-foreground min-w-[88px] sm:min-w-[94px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                                <!-- Fila 3: Fila inferior de Controles (Edición a la izquierda, Resultado a la derecha) -->
+                                <div class="flex flex-wrap justify-between items-center w-full gap-3 pt-1">
+                                    <!-- Grupo Izquierdo (Edición): Selector de unidad + Stepper táctil -->
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <select
+                                            value={item.packaging_type}
+                                            onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
+                                            class="h-9 sm:h-9 rounded-xl border border-border/80 bg-background px-2.5 text-xs font-semibold text-foreground min-w-[88px] sm:min-w-[94px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer shrink-0"
+                                        >
+                                            {#if item.sale_type === 'weight'}
+                                                <option value="gram">Gramos</option>
+                                                <option value="kg">Kg</option>
+                                                <option value="bulto" disabled={item.stock < (item.package_quantity || item.units_per_package || 1)}>
+                                                    Bulto
+                                                </option>
+                                            {:else}
+                                                <option value="unidad">Unidad</option>
+                                                <option value="bulto" disabled={item.stock < item.units_per_package}>
+                                                    Bulto
+                                                </option>
+                                            {/if}
+                                        </select>
+
+                                        <!-- Stepper Táctil con w-14 y sin flechas nativas -->
+                                        <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden shrink-0">
+                                            <button
+                                                type="button"
+                                                class="size-9 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                                onclick={() => decrementQuantity(index)}
+                                                disabled={item.packaging_type === 'gram' ? item.quantity <= 50 : item.packaging_type === 'kg' ? item.quantity <= 0.1 : item.quantity <= 1}
+                                                aria-label="Disminuir cantidad"
                                             >
-                                                {#if item.sale_type === 'weight'}
-                                                    <option value="gram">Gramos</option>
-                                                    <option value="kg">Kg</option>
-                                                    <option value="bulto" disabled={item.stock < (item.package_quantity || item.units_per_package || 1)}>
-                                                        Bulto
-                                                    </option>
-                                                {:else}
-                                                    <option value="unidad">Unidad</option>
-                                                    <option value="bulto" disabled={item.stock < item.units_per_package}>
-                                                        Bulto
-                                                    </option>
-                                                {/if}
-                                            </select>
+                                                <Minus class="size-3.5" />
+                                            </button>
+
+                                            <input
+                                                type="number"
+                                                step={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.001' : '1'}
+                                                min={item.packaging_type === 'gram' ? 50 : item.packaging_type === 'kg' ? 0.001 : 1}
+                                                max={maxAllowed}
+                                                maxlength="5"
+                                                bind:value={item.quantity}
+                                                onblur={() => handleQuantityBlur(index)}
+                                                onpaste={(e) => handleQuantityPaste(index, e)}
+                                                class="w-14 sm:w-16 h-8 sm:h-9 text-xs sm:text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none {item.quantity > maxAllowed ? 'text-amber-600 dark:text-amber-400 font-extrabold' : ''}"
+                                            />
+
+                                            <button
+                                                type="button"
+                                                class="size-9 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                                onclick={() => incrementQuantity(index)}
+                                                disabled={isAtStockLimit}
+                                                title={isAtStockLimit ? 'Se alcanzó el stock máximo disponible' : 'Aumentar'}
+                                                aria-label="Aumentar cantidad"
+                                            >
+                                                <Plus class="size-3.5" />
+                                            </button>
                                         </div>
+                                    </div>
 
-                                        <!-- Bloque Derecho: Stepper Táctil y Subtotal adyacentes -->
-                                        <div class="flex items-center gap-2.5 sm:gap-3 shrink-0 ml-auto">
-                                            <!-- Stepper Táctil con w-14 y sin flechas nativas -->
-                                            <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden">
-                                                <button
-                                                    type="button"
-                                                    class="size-9 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                                                    onclick={() => decrementQuantity(index)}
-                                                    disabled={item.packaging_type === 'gram' ? item.quantity <= 50 : item.packaging_type === 'kg' ? item.quantity <= 0.1 : item.quantity <= 1}
-                                                    aria-label="Disminuir cantidad"
-                                                >
-                                                    <Minus class="size-3.5" />
-                                                </button>
-
-                                                <input
-                                                    type="number"
-                                                    step={item.packaging_type === 'gram' ? '50' : item.packaging_type === 'kg' ? '0.001' : '1'}
-                                                    min={item.packaging_type === 'gram' ? 50 : item.packaging_type === 'kg' ? 0.001 : 1}
-                                                    max={maxAllowed}
-                                                    maxlength="5"
-                                                    bind:value={item.quantity}
-                                                    onblur={() => handleQuantityBlur(index)}
-                                                    onpaste={(e) => handleQuantityPaste(index, e)}
-                                                    class="w-14 sm:w-16 h-8 sm:h-9 text-xs sm:text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none {item.quantity > maxAllowed ? 'text-amber-600 dark:text-amber-400 font-extrabold' : ''}"
-                                                />
-
-                                                <button
-                                                    type="button"
-                                                    class="size-9 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                                                    onclick={() => incrementQuantity(index)}
-                                                    disabled={isAtStockLimit}
-                                                    title={isAtStockLimit ? 'Se alcanzó el stock máximo disponible' : 'Aumentar'}
-                                                    aria-label="Aumentar cantidad"
-                                                >
-                                                    <Plus class="size-3.5" />
-                                                </button>
-                                            </div>
-
-                                            <!-- Subtotal adyacente a la acción -->
-                                            <div class="flex flex-col items-end shrink-0 text-right whitespace-nowrap min-w-[76px] sm:min-w-[85px]">
-                                                {#if isDiscountActive}
-                                                    <span class="line-through text-[11px] text-muted-foreground font-sans tabular-nums" title={formatExactPrice(strikethroughSubtotal)}>
-                                                        {formatPrice(strikethroughSubtotal)}
-                                                    </span>
-                                                    <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-primary" title={formatExactPrice(finalSubtotal)}>
-                                                        {formatPrice(finalSubtotal)}
-                                                    </span>
-                                                {:else}
-                                                    <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground" title={formatExactPrice(baseSubtotal)}>
-                                                        {formatPrice(baseSubtotal)}
-                                                    </span>
-                                                {/if}
-                                            </div>
-                                        </div>
+                                    <!-- Grupo Derecho (Resultado): Subtotal -->
+                                    <div class="flex flex-col items-end ml-auto text-right shrink-0 whitespace-nowrap min-w-[76px] sm:min-w-[85px]">
+                                        {#if isDiscountActive}
+                                            <span class="line-through text-[11px] text-muted-foreground font-sans tabular-nums" title={formatExactPrice(strikethroughSubtotal)}>
+                                                {formatPrice(strikethroughSubtotal)}
+                                            </span>
+                                            <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-primary" title={formatExactPrice(finalSubtotal)}>
+                                                {formatPrice(finalSubtotal)}
+                                            </span>
+                                        {:else}
+                                            <span class="font-sans tabular-nums text-xs sm:text-sm font-bold text-foreground" title={formatExactPrice(baseSubtotal)}>
+                                                {formatPrice(baseSubtotal)}
+                                            </span>
+                                        {/if}
                                     </div>
                                 </div>
 
@@ -1415,7 +1389,7 @@
                     <Button
                         type="button"
                         variant="outline"
-                        class="min-h-[44px] px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto whitespace-nowrap"
+                        class="min-h-[44px] h-auto py-3 px-4 sm:px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto shadow-xs leading-snug text-center"
                         onclick={closeModal}
                     >
                         Cancelar
@@ -1423,13 +1397,13 @@
                     <Button
                         type="submit"
                         form="create-order-form"
-                        class="min-h-[44px] px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto whitespace-nowrap gap-2 shadow-xs"
+                        class="min-h-[44px] h-auto py-3 px-4 sm:px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto shadow-xs leading-snug text-center gap-2"
                         disabled={isSubmitting || items.length === 0 || hasQuantityOverflow}
                     >
                         {#if isSubmitting}
                             <span>Guardando...</span>
                         {:else}
-                            <Check class="size-4" />
+                            <Check class="size-4 shrink-0" />
                             <span>Crear Pedido</span>
                         {/if}
                     </Button>
