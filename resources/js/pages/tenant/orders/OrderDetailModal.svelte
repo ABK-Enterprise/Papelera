@@ -227,18 +227,11 @@
                                     Cancelado
                                 </span>
                             {/if}
-
-                            {#if order.return_status === 'total'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20">
-                                    Devolución Total
-                                </span>
-                            {:else if order.return_status === 'parcial'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20">
-                                    Devolución Parcial
-                                </span>
-                            {/if}
                         </div>
-                        <p class="text-xs text-muted-foreground">Fecha: {formatDate(order.created_at)}</p>
+                        <p class="text-xs text-muted-foreground flex flex-wrap items-center gap-1 break-words leading-relaxed">
+                            <span>Fecha:</span>
+                            <span class="break-words font-sans tabular-nums">{formatDate(order.created_at)}</span>
+                        </p>
                     </div>
                 </div>
 
@@ -499,7 +492,17 @@
 
                 <!-- Fila 2: Cancelar pedido a la izquierda | QR (MP), PDF y Cerrar a la derecha -->
                 <div class="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
-                    <div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        {#if order.return_status === 'total'}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 shrink-0">
+                                Devolución Total
+                            </span>
+                        {:else if order.return_status === 'parcial'}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 shrink-0">
+                                Devolución Parcial
+                            </span>
+                        {/if}
+
                         {#if order.status !== 'cancelado' && order.status !== 'entregado'}
                             <Button
                                 type="button"

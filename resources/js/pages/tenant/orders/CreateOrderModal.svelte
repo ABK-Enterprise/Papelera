@@ -669,12 +669,12 @@
             aria-labelledby="modal-title"
         >
             <!-- Header Bento -->
-            <div class="flex items-start justify-between gap-3 border-b pb-3.5 sm:pb-4 shrink-0">
-                <div class="min-w-0 flex-1 flex items-start gap-2.5">
-                    <div class="shrink-0 mt-0.5">
+            <div class="flex items-center justify-between gap-3 border-b pb-3.5 sm:pb-4 shrink-0">
+                <div class="min-w-0 flex-1 flex items-center gap-2.5">
+                    <div class="shrink-0">
                         <IconContainer size="md" variant="primary" icon="solar:bill-list-bold-duotone" />
                     </div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <h2 id="modal-title" class="text-base sm:text-lg font-bold text-foreground leading-snug line-clamp-2 break-words">
                             Nuevo Pedido de Cliente
                         </h2>
@@ -1013,14 +1013,14 @@
                                     <div class="flex items-start gap-2.5 min-w-0">
                                         <IconContainer
                                             size="sm"
-                                            variant={item.is_on_the_fly ? 'warning' : (item.sale_type === 'weight' ? 'info' : 'primary')}
-                                            icon={item.is_on_the_fly ? 'solar:bolt-bold-duotone' : (item.sale_type === 'weight' ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone')}
+                                            variant={item.is_on_the_fly ? 'neutral' : (item.sale_type === 'weight' ? 'info' : 'primary')}
+                                            icon={item.is_on_the_fly ? 'solar:question-circle-bold-duotone' : (item.sale_type === 'weight' ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone')}
                                             class="mt-0.5"
                                         />
                                         <div class="flex flex-wrap items-center gap-2 min-w-0 flex-1">
                                             <h4 class="text-base font-bold text-foreground line-clamp-2 break-words">{item.product_name}</h4>
                                             {#if item.is_on_the_fly}
-                                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 shrink-0">
+                                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/80 shrink-0">
                                                     Al Vuelo (Incompleto)
                                                 </span>
                                             {/if}
@@ -1142,12 +1142,12 @@
                                     <div class="flex items-center gap-2 shrink-0">
                                         <button
                                             type="button"
-                                            class="size-9 min-h-[36px] min-w-[36px] rounded-xl flex items-center justify-center bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-colors cursor-pointer shrink-0"
+                                            class="size-8 rounded-lg flex items-center justify-center bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-colors cursor-pointer shrink-0"
                                             onclick={() => removeItem(index)}
                                             title="Quitar de la lista"
                                             aria-label="Quitar producto de la lista"
                                         >
-                                            <Trash2 class="size-4" />
+                                            <Trash2 class="size-3.5" />
                                         </button>
 
                                         <select
