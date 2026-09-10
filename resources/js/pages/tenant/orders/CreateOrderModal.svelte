@@ -738,32 +738,37 @@
                             inputClass="h-9 text-xs font-medium"
                         >
                             {#snippet itemSnippet(cust)}
-                                <div class="flex items-center justify-between gap-3 w-full">
-                                    <div class="min-w-0 flex-1">
-                                        <div class="flex items-center gap-2">
-                                            <span class="font-bold text-foreground truncate">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-3 w-full py-0.5">
+                                    <!-- Main data block -->
+                                    <div class="min-w-0 flex-1 space-y-1">
+                                        <!-- Row 1: Name + Moroso badge -->
+                                        <div class="flex items-start justify-between gap-2 w-full">
+                                            <span class="min-w-0 flex-1 font-bold text-foreground line-clamp-2 break-words text-sm leading-snug">
                                                 <HighlightMatch text={cust.name} query={customerSearchQuery} />
                                             </span>
-                                            {#if cust.tax_id}
-                                                <span class="text-[10px] font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                                                    <HighlightMatch text={cust.tax_id} query={customerSearchQuery} />
-                                                </span>
-                                            {/if}
                                             {#if cust.is_defaulter}
-                                                <span class="inline-flex items-center gap-0.5 text-[9px] font-bold text-rose-600 bg-rose-500/10 px-1 py-0.2 rounded border border-rose-500/20">
+                                                <span class="shrink-0 inline-flex items-center gap-0.5 text-[9px] font-bold text-rose-600 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20 mt-0.5">
                                                     Moroso
                                                 </span>
                                             {/if}
                                         </div>
-                                        <p class="text-[11px] text-muted-foreground mt-0.5 truncate">
+
+                                        <!-- Row 2: Tax ID + Tax condition -->
+                                        <div class="flex flex-wrap items-center gap-1.5">
+                                            {#if cust.tax_id}
+                                                <span class="text-[10px] font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground shrink-0">
+                                                    <HighlightMatch text={cust.tax_id} query={customerSearchQuery} />
+                                                </span>
+                                            {/if}
+                                            <span class="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                                {cust.tax_condition.replace('_', ' ')}
+                                            </span>
+                                        </div>
+
+                                        <!-- Row 3: Contact -->
+                                        <p class="text-[11px] text-muted-foreground line-clamp-1 break-words">
                                             {cust.phone || 'Sin teléfono'} • {cust.address || 'Sin dirección'}
                                         </p>
-                                    </div>
-
-                                    <div class="text-right shrink-0">
-                                        <span class="text-[10px] font-semibold text-muted-foreground uppercase">
-                                            {cust.tax_condition.replace('_', ' ')}
-                                        </span>
                                     </div>
                                 </div>
                             {/snippet}
@@ -1019,7 +1024,7 @@
                                         <div class="flex flex-wrap items-center gap-2 min-w-0 flex-1">
                                             <h4 class="text-base font-bold text-foreground line-clamp-2 break-words">{item.product_name}</h4>
                                             {#if item.is_on_the_fly}
-                                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/80 shrink-0">
+                                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/80 break-words max-w-full">
                                                     Al Vuelo (Incompleto)
                                                 </span>
                                             {/if}
