@@ -897,7 +897,7 @@
                     </div>
 
                     <!-- Buscador Flotante de Productos con SearchCombobox -->
-                    <div class="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-start w-full">
+                    <div class="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center w-full">
                         <div class="w-full flex-1 min-w-0">
                             <SearchCombobox
                                 bind:value={searchQuery}
@@ -910,7 +910,7 @@
                                     searchQuery = '';
                                     selectedProductToAdd = null;
                                 }}
-                                inputClass="h-10 sm:h-9 text-xs font-medium w-full"
+                                inputClass="h-11 sm:h-10 min-h-[44px] sm:min-h-[40px] text-xs sm:text-sm font-medium w-full"
                             >
                                 {#snippet itemSnippet(prod)}
                                     <div class="flex items-start justify-between gap-2.5 w-full text-left py-0.5">
@@ -979,7 +979,7 @@
                             type="button"
                             size="sm"
                             variant="secondary"
-                            class="w-full sm:w-auto min-h-[44px] sm:h-9 px-5 rounded-xl text-xs gap-2 font-semibold shrink-0 justify-center shadow-2xs bg-primary-500 hover:bg-primary-600 text-white border-transparent dark:bg-secondary dark:text-secondary-foreground dark:hover:bg-secondary/80 dark:border-secondary/40"
+                            class="w-full sm:w-auto min-h-[44px] sm:min-h-[40px] sm:h-10 px-5 rounded-xl text-xs sm:text-sm gap-2 font-semibold shrink-0 justify-center shadow-2xs bg-primary-500 hover:bg-primary-600 text-white border-transparent dark:bg-secondary dark:text-secondary-foreground dark:hover:bg-secondary/80 dark:border-secondary/40"
                             onclick={() => {
                                 if (selectedProductToAdd) {
                                     addSelectedProduct();
@@ -1062,10 +1062,10 @@
                                     <!-- Metadatos de precio base y stock -->
                                     <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm min-w-0">
                                         <!-- Bloque Precio Base -->
-                                        <div class="flex items-center gap-1.5 shrink-0">
+                                        <div class="flex items-center gap-1.5 {item.is_on_the_fly ? 'w-full sm:w-auto min-w-0' : 'shrink-0'}">
                                             {#if item.is_on_the_fly}
-                                                <div class="flex items-center gap-1.5">
-                                                    <label for="otf_price_{index}" class="text-xs font-semibold text-muted-foreground">Precio Unitario ($):</label>
+                                                <div class="flex flex-wrap items-center gap-1.5 w-full sm:w-auto min-w-0">
+                                                    <label for="otf_price_{index}" class="text-xs font-semibold text-muted-foreground whitespace-nowrap">Precio Unitario ($):</label>
                                                     <input
                                                         id="otf_price_{index}"
                                                         type="number"
@@ -1074,7 +1074,7 @@
                                                         bind:value={item.unit_price}
                                                         oninput={() => { item.regular_price = Number(item.unit_price) || 0; }}
                                                         placeholder="0.00"
-                                                        class="h-8 w-24 rounded-lg border border-border/80 bg-background px-2 text-xs font-bold font-sans tabular-nums text-foreground focus:outline-none focus:border-primary-500"
+                                                        class="h-8 w-full sm:w-28 min-w-[70px] max-w-[140px] rounded-lg border border-border/80 bg-background px-2 text-xs font-bold font-sans tabular-nums text-foreground focus:outline-none focus:border-primary-500"
                                                     />
                                                 </div>
                                             {:else if hasBulkDiscount}
@@ -1093,7 +1093,7 @@
 
                                         <!-- Bloque Stock -->
                                         {#if item.is_on_the_fly}
-                                            <div class="flex items-center gap-1.5 text-sm text-muted-foreground shrink-0">
+                                            <div class="flex items-center gap-1.5 text-sm text-muted-foreground min-w-0">
                                                 <span>Stock: <strong class="text-muted-foreground italic font-normal">No catalogado (0)</strong></span>
                                             </div>
                                         {:else}
@@ -1138,7 +1138,7 @@
                                 <!-- Nivel 3: Acciones [trash, tipo unidad, cantidad] -->
                                 <div class="flex flex-wrap items-center justify-between gap-2.5 w-full pt-0.5">
                                     <!-- Grupo Izquierdo: Trash + Selector de unidad -->
-                                    <div class="flex items-center gap-2 shrink-0">
+                                    <div class="flex items-center gap-2 flex-1 sm:flex-initial min-w-[120px]">
                                         <button
                                             type="button"
                                             class="size-8 rounded-lg flex items-center justify-center bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-colors cursor-pointer shrink-0"
@@ -1152,7 +1152,7 @@
                                         <select
                                             value={item.packaging_type}
                                             onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                            class="h-9 rounded-xl border border-border/80 bg-background px-2.5 text-xs font-semibold text-foreground min-w-[88px] sm:min-w-[94px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer shrink-0"
+                                            class="h-9 rounded-xl border border-border/80 bg-background px-2.5 text-xs font-semibold text-foreground w-full flex-1 sm:w-auto sm:flex-initial min-w-[88px] sm:min-w-[94px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
                                         >
                                             {#if item.sale_type === 'weight'}
                                                 <option value="gram">Gramos</option>
