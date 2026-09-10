@@ -490,7 +490,7 @@
                     </span>
                 </div>
 
-                <!-- Fila 2: Cancelar pedido a la izquierda | QR (MP), PDF y Cerrar a la derecha -->
+                <!-- Fila 2: Estado de devolución a la izquierda | QR (MP), PDF y Cerrar a la derecha -->
                 <div class="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
                     <div class="flex flex-wrap items-center gap-2">
                         {#if order.return_status === 'total'}
@@ -503,17 +503,7 @@
                             </span>
                         {/if}
 
-                        {#if order.status !== 'cancelado' && order.status !== 'entregado'}
-                            <Button
-                                type="button"
-                                variant="outline"
-                                class="min-h-[40px] px-3.5 rounded-xl text-xs font-semibold text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-1.5 shrink-0 cursor-pointer"
-                                onclick={() => requestStatusChange('cancelado')}
-                            >
-                                <XCircle class="size-4" />
-                                <span>Cancelar pedido</span>
-                            </Button>
-                        {:else if order.status === 'entregado' && order.return_status !== 'total'}
+                        {#if order.status === 'entregado' && order.return_status !== 'total'}
                             <Button
                                 type="button"
                                 variant="outline"
