@@ -98,7 +98,7 @@ class PaymentCollectionController extends Controller
         } else {
             // Recibos generales más recientes del comercio
             $recentReceipts = Receipt::where('tenant_id', $tenantId)
-                ->with(['customer:id,name', 'createdByUser:id,name'])
+                ->with(['customer:id,name', 'createdByUser:id,name', 'orderAllocations.order:id,order_number'])
                 ->latest()
                 ->take(10)
                 ->get();
