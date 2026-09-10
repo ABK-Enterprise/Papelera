@@ -45,6 +45,7 @@
         created_at: string;
         customer?: { id: number; name: string } | null;
         created_by_user?: { id: number; name: string } | null;
+        order_allocations?: { order: { id: number; order_number: string } }[] | null;
     }
 
     let {
@@ -344,6 +345,16 @@
                             <span class="text-[11px] text-muted-foreground block truncate">
                                 Cliente: <strong class="text-foreground">{rc.customer.name}</strong>
                             </span>
+                        {/if}
+
+                        {#if rc.order_allocations && rc.order_allocations.length > 0}
+                            <div class="flex flex-wrap gap-1 mt-0.5">
+                                {#each rc.order_allocations as alloc}
+                                    <span class="text-[10px] font-mono font-semibold tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground border border-border/50">
+                                        {alloc.order.order_number}
+                                    </span>
+                                {/each}
+                            </div>
                         {/if}
 
                         <div class="flex items-center justify-between text-xs pt-1 border-t border-border/40">

@@ -339,6 +339,16 @@
                                 </span>
                             {/if}
 
+                            {#if rc.order_allocations && rc.order_allocations.length > 0}
+                                <div class="flex flex-wrap gap-1 mt-0.5">
+                                    {#each rc.order_allocations as alloc}
+                                        <span class="text-[10px] font-mono font-semibold tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground border border-border/50">
+                                            {alloc.order.order_number}
+                                        </span>
+                                    {/each}
+                                </div>
+                            {/if}
+
                             <div class="flex items-center justify-between text-xs pt-1 border-t border-border/40">
                                 <span class="text-[10px] text-muted-foreground">{formatDate(rc.created_at)}</span>
                                 <span class="font-bold font-sans tabular-nums text-foreground">
