@@ -227,7 +227,7 @@
                             type="button"
                             role="option"
                             aria-selected={activeIndex === i}
-                            class="w-full px-3 py-2 rounded-xl text-left text-xs transition-all flex items-center justify-between gap-2 cursor-pointer {activeIndex === i ? 'bg-accent text-accent-foreground font-semibold shadow-2xs' : 'text-foreground hover:bg-accent/40 hover:text-accent-foreground'}"
+                            class="w-full px-3 py-2 rounded-xl text-left text-xs transition-all flex items-center justify-between gap-2 cursor-pointer max-sm:border-b max-sm:border-border/50 max-sm:last:border-b-0 max-sm:rounded-none max-sm:first:rounded-t-xl max-sm:last:rounded-b-xl {activeIndex === i ? 'bg-accent text-accent-foreground font-semibold shadow-2xs' : 'text-foreground hover:bg-accent/40 hover:text-accent-foreground'}"
                             onclick={() => selectItem(item)}
                         >
                             {#if itemSnippet}

@@ -84,7 +84,6 @@
     function selectProductFromSearch(prod: ProductOption) {
         selectedProductToAdd = prod;
         searchQuery = prod.name;
-        addSelectedProduct(prod);
     }
 
     function addSelectedProduct(prod?: ProductOption) {
@@ -482,13 +481,13 @@
                                     <!-- Separador Sutil -->
                                     <div class="border-t border-border/50"></div>
 
-                                    <!-- Fila 2: Inputs numéricos en grid grid-cols-2 gap-3 w-full -->
-                                    <div class="grid grid-cols-2 gap-3 w-full">
-                                        <!-- Columna 1: Costo Unitario -->
-                                        <div class="flex flex-col gap-1 w-full">
-                                            <Label for={`prod-cost-${index}`} class="text-sm font-semibold text-muted-foreground">Costo:</Label>
-                                            <div class="relative w-full">
-                                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-sans tabular-nums font-medium">$</span>
+                                    <!-- Fila 2: Inputs inline (Costo, Cantidad, Subtotal) -->
+                                    <div class="flex flex-wrap items-center gap-3 pt-1">
+                                        <!-- Costo Unitario -->
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <Label for={`prod-cost-${index}`} class="text-xs font-semibold text-muted-foreground whitespace-nowrap shrink-0">Costo:</Label>
+                                            <div class="relative">
+                                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-sans tabular-nums font-medium pointer-events-none">$</span>
                                                 <Input
                                                     id={`prod-cost-${index}`}
                                                     type="number"
@@ -497,21 +496,22 @@
                                                     max="100000000"
                                                     bind:value={item.unit_cost}
                                                     placeholder="0.00"
-                                                    class="h-10 text-xs pl-7 font-sans tabular-nums text-right rounded-xl w-full"
+                                                    class="h-9 text-xs pl-6 font-sans tabular-nums text-right rounded-xl w-28 min-w-[96px]"
                                                     required
                                                 />
                                             </div>
                                         </div>
 
-                                        <!-- Columna 2: Cantidad con stepper táctil -->
-                                        <div class="flex flex-col gap-1 w-full">
-                                            <div class="flex items-center justify-between">
-                                                <Label for={`prod-qty-${index}`} class="text-sm font-semibold text-muted-foreground">Cantidad:</Label>
-                                            </div>
-                                            <div class="flex items-center border rounded-xl bg-background shadow-2xs h-10 w-full overflow-hidden justify-between">
+                                        <!-- Separador -->
+                                        <div class="h-6 w-px bg-border/60 shrink-0 hidden sm:block"></div>
+
+                                        <!-- Cantidad con stepper -->
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <Label for={`prod-qty-${index}`} class="text-xs font-semibold text-muted-foreground whitespace-nowrap shrink-0">Cant.:</Label>
+                                            <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden">
                                                 <button
                                                     type="button"
-                                                    class="size-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer"
+                                                    class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer"
                                                     onclick={() => decrementQuantity(index)}
                                                     disabled={item.quantity <= (isWeight ? 0.01 : 1)}
                                                     aria-label="Disminuir cantidad"
@@ -549,11 +549,11 @@
                                                             item.quantity = Math.max(isWeight ? 0.01 : 1, Math.min(cleaned, 10000));
                                                         }
                                                     }}
-                                                    class="w-14 h-full text-xs font-bold font-sans tabular-nums text-center bg-transparent border-0 focus:ring-0 focus:outline-none p-0 flex-1 min-w-0"
+                                                    class="w-12 h-full text-xs font-bold font-sans tabular-nums text-center bg-transparent border-0 focus:ring-0 focus:outline-none p-0"
                                                 />
                                                 <button
                                                     type="button"
-                                                    class="size-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 shrink-0 cursor-pointer"
+                                                    class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 shrink-0 cursor-pointer"
                                                     onclick={() => incrementQuantity(index)}
                                                     disabled={item.quantity >= 10000}
                                                     aria-label="Aumentar cantidad"
@@ -562,12 +562,12 @@
                                                 </button>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- Fila inferior: Subtotal Estimado -->
-                                    <div class="w-full flex items-center justify-between pt-2 border-t border-border/40 text-xs">
-                                        <span class="text-xs sm:text-sm text-muted-foreground font-medium">Subtotal Estimado:</span>
-                                        <span class="font-sans tabular-nums text-sm sm:text-base font-bold text-foreground">{formatPrice(lineSubtotal)}</span>
+                                        <!-- Subtotal inline a la derecha -->
+                                        <div class="flex items-center gap-2 ml-auto shrink-0">
+                                            <span class="text-xs text-muted-foreground font-medium whitespace-nowrap">Subtotal:</span>
+                                            <span class="font-sans tabular-nums text-sm font-bold text-foreground">{formatPrice(lineSubtotal)}</span>
+                                        </div>
                                     </div>
                                 </div>
                             {/each}
