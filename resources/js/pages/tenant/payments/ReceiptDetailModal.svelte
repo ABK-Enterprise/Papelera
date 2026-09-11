@@ -173,7 +173,7 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-xl w-[calc(100%-2rem)] mx-auto p-0 rounded-2xl sm:rounded-3xl border border-border bg-card shadow-2xl overflow-hidden">
+    <DialogContent class="max-w-xl sm:max-w-2xl w-[calc(100%-2rem)] mx-auto p-0 rounded-2xl sm:rounded-3xl border border-border bg-card shadow-2xl overflow-hidden">
         {#if receipt}
             <DialogHeader class="p-5 sm:p-6 pb-4 border-b border-border/70 flex flex-row items-center justify-between gap-3 bg-card shrink-0">
                 <div class="flex items-center gap-3 min-w-0">
@@ -181,32 +181,38 @@
                         <ReceiptText class="size-5" />
                     </div>
                     <div class="min-w-0">
-                        <div class="flex flex-wrap items-center gap-2">
-                            <DialogTitle class="text-lg sm:text-xl font-bold font-sans text-foreground leading-snug">
+                        <div class="flex items-center gap-2">
+                            <DialogTitle class="text-base sm:text-lg font-bold font-sans text-foreground truncate">
                                 Recibo {receipt.receipt_number}
                             </DialogTitle>
                             {#if receipt.is_cancelled}
-                                <span
-                                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold text-destructive bg-destructive/10 border border-destructive/20 line-through"
-                                    title={receipt.cancellation_reason ? `Motivo: ${receipt.cancellation_reason}` : undefined}
-                                >
+                                <span class="bg-destructive/10 text-destructive border border-destructive/20 text-xs font-bold px-2 py-0.5 rounded-full line-through shrink-0">
                                     Anulado
                                 </span>
                             {:else}
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">
-                                    <span class="size-1.5 rounded-full bg-emerald-500"></span>
+                                <span class="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
                                     Válido
                                 </span>
                             {/if}
                         </div>
-                        <DialogDescription class="text-xs text-muted-foreground mt-0.5">
-                            Detalle del comprobante de cobro emitido
+                        <DialogDescription class="text-xs text-muted-foreground mt-0.5 font-sans">
+                            Comprobante oficial de cobro e imputación de cuenta corriente.
                         </DialogDescription>
                     </div>
                 </div>
 
-                <DialogClose class="size-9 rounded-xl inline-flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0" aria-label="Cerrar modal">
-                    <X class="size-4" />
+                <DialogClose asChild>
+                    {#snippet children(props)}
+                        <Button
+                            {...props}
+                            variant="ghost"
+                            size="icon"
+                            class="size-9 rounded-xl text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
+                        >
+                            <X class="size-4" />
+                            <span class="sr-only">Cerrar</span>
+                        </Button>
+                    {/snippet}
                 </DialogClose>
             </DialogHeader>
 
@@ -214,7 +220,7 @@
                 <!-- Bloque de Monto Destacado -->
                 <div class="p-4 sm:p-5 rounded-2xl bg-muted/40 border border-border/70 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div class="space-y-0.5">
-                        <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">
+                        <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider block font-sans">
                             Monto Percibido
                         </span>
                         <div class="text-2xl sm:text-3xl font-bold font-sans tabular-nums text-foreground tracking-tight">
@@ -222,7 +228,7 @@
                         </div>
                     </div>
                     <div class="flex items-center">
-                        <span class={cn('inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border uppercase tracking-wider', methodBadge.classes)}>
+                        <span class={cn('inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border uppercase tracking-wider font-sans', methodBadge.classes)}>
                             <span class="size-1.5 rounded-full bg-current"></span>
                             {methodBadge.label}
                         </span>
@@ -232,55 +238,55 @@
                 <!-- Grid de Metadatos -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <!-- Fecha de emisión -->
-                    <div class="p-3.5 rounded-xl bg-card border border-border/70 space-y-1">
-                        <div class="flex items-center gap-1.5 text-muted-foreground text-xs">
-                            <Calendar class="size-3.5" />
-                            <span class="font-medium text-[11px] uppercase tracking-wider">Fecha de emisión</span>
+                    <div class="p-3.5 sm:p-4 rounded-xl bg-card border border-border/70 space-y-1">
+                        <div class="flex items-center gap-1.5 text-muted-foreground text-xs font-semibold">
+                            <Calendar class="size-4 text-primary shrink-0" />
+                            <span class="uppercase tracking-wider">Fecha de emisión</span>
                         </div>
-                        <p class="text-xs sm:text-sm font-semibold text-foreground tabular-nums">
+                        <p class="text-sm sm:text-base font-semibold text-foreground tabular-nums font-sans">
                             {formatDate(receipt.created_at)}
                         </p>
                     </div>
 
                     <!-- Cajero / Operador -->
-                    <div class="p-3.5 rounded-xl bg-card border border-border/70 space-y-1">
-                        <div class="flex items-center gap-1.5 text-muted-foreground text-xs">
-                            <User class="size-3.5" />
-                            <span class="font-medium text-[11px] uppercase tracking-wider">Cajero / Operador</span>
+                    <div class="p-3.5 sm:p-4 rounded-xl bg-card border border-border/70 space-y-1">
+                        <div class="flex items-center gap-1.5 text-muted-foreground text-xs font-semibold">
+                            <User class="size-4 text-primary shrink-0" />
+                            <span class="uppercase tracking-wider">Cajero / Operador</span>
                         </div>
-                        <p class="text-xs sm:text-sm font-semibold text-foreground truncate">
+                        <p class="text-sm sm:text-base font-semibold text-foreground truncate font-sans">
                             {receipt.created_by_user?.name || 'Sistema'}
                         </p>
                     </div>
 
                     <!-- Cliente -->
-                    <div class="p-3.5 rounded-xl bg-card border border-border/70 space-y-1">
-                        <div class="flex items-center gap-1.5 text-muted-foreground text-xs">
-                            <User class="size-3.5" />
-                            <span class="font-medium text-[11px] uppercase tracking-wider">Cliente</span>
+                    <div class="p-3.5 sm:p-4 rounded-xl bg-card border border-border/70 space-y-1">
+                        <div class="flex items-center gap-1.5 text-muted-foreground text-xs font-semibold">
+                            <User class="size-4 text-primary shrink-0" />
+                            <span class="uppercase tracking-wider">Cliente</span>
                         </div>
                         {#if receipt.customer}
-                            <p class="text-xs sm:text-sm font-semibold text-foreground truncate" title={receipt.customer.name}>
+                            <p class="text-sm sm:text-base font-semibold text-foreground truncate font-sans" title={receipt.customer.name}>
                                 {receipt.customer.name}
                             </p>
                             {#if receipt.customer.tax_id}
-                                <p class="text-[11px] text-muted-foreground font-sans tabular-nums">
+                                <p class="text-xs sm:text-sm text-muted-foreground font-sans tabular-nums">
                                     CUIT/DNI: {receipt.customer.tax_id}
                                 </p>
                             {/if}
                         {:else}
-                            <p class="text-xs sm:text-sm font-medium text-muted-foreground italic">
+                            <p class="text-sm sm:text-base font-medium text-muted-foreground italic font-sans">
                                 Cliente Ocasional
                             </p>
                         {/if}
                     </div>
 
                     <!-- Referencia / Transacción -->
-                    <div class="p-3.5 rounded-xl bg-card border border-border/70 space-y-1">
-                        <div class="flex items-center justify-between gap-1.5 text-muted-foreground text-xs">
+                    <div class="p-3.5 sm:p-4 rounded-xl bg-card border border-border/70 space-y-1">
+                        <div class="flex items-center justify-between gap-1.5 text-muted-foreground text-xs font-semibold">
                             <div class="flex items-center gap-1.5">
-                                <Hash class="size-3.5" />
-                                <span class="font-medium text-[11px] uppercase tracking-wider">Referencia / Transacción</span>
+                                <Hash class="size-4 text-primary shrink-0" />
+                                <span class="uppercase tracking-wider">Referencia / Transacción</span>
                             </div>
                             {#if receipt.reference_number}
                                 <button
@@ -291,19 +297,19 @@
                                     aria-label="Copiar referencia al portapapeles"
                                 >
                                     {#if copiedReference}
-                                        <Check class="size-3 text-emerald-600 dark:text-emerald-400" />
+                                        <Check class="size-3.5 text-emerald-600 dark:text-emerald-400" />
                                     {:else}
-                                        <Copy class="size-3" />
+                                        <Copy class="size-3.5" />
                                     {/if}
                                 </button>
                             {/if}
                         </div>
                         {#if receipt.reference_number}
-                            <p class="text-xs font-mono text-foreground break-all select-all pt-0.5">
+                            <p class="text-xs sm:text-sm font-mono font-semibold text-foreground break-all select-all pt-0.5">
                                 {receipt.reference_number}
                             </p>
                         {:else}
-                            <p class="text-xs text-muted-foreground italic pt-0.5">
+                            <p class="text-xs sm:text-sm text-muted-foreground italic pt-0.5 font-sans">
                                 Sin referencia registrada
                             </p>
                         {/if}
@@ -313,28 +319,28 @@
                 <!-- Sección de Auditoría (si está anulado) -->
                 {#if receipt.is_cancelled}
                     <div class="p-4 rounded-2xl bg-destructive/10 border border-destructive/25 space-y-2.5">
-                        <div class="flex items-center gap-2 text-destructive font-bold text-xs">
+                        <div class="flex items-center gap-2 text-destructive font-bold text-xs sm:text-sm">
                             <Ban class="size-4 shrink-0" />
                             <span>Comprobante Anulado</span>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs sm:text-sm">
                             <div>
-                                <span class="block text-[11px] font-medium text-destructive/80">Fecha de anulación:</span>
-                                <span class="font-semibold text-foreground tabular-nums">
+                                <span class="block text-xs font-semibold text-destructive/80">Fecha de anulación:</span>
+                                <span class="font-semibold text-foreground tabular-nums font-sans">
                                     {formatDate(receipt.cancelled_at)}
                                 </span>
                             </div>
                             <div>
-                                <span class="block text-[11px] font-medium text-destructive/80">Anulado por:</span>
-                                <span class="font-semibold text-foreground">
+                                <span class="block text-xs font-semibold text-destructive/80">Anulado por:</span>
+                                <span class="font-semibold text-foreground font-sans">
                                     {receipt.cancelled_by_user?.name || 'Sistema'}
                                 </span>
                             </div>
                         </div>
                         {#if receipt.cancellation_reason}
-                            <div class="pt-2 border-t border-destructive/20 text-xs">
-                                <span class="block text-[11px] font-medium text-destructive/80">Motivo de anulación:</span>
-                                <p class="text-foreground font-medium mt-0.5 whitespace-pre-wrap leading-relaxed">
+                            <div class="pt-2 border-t border-destructive/20 text-xs sm:text-sm">
+                                <span class="block text-xs font-semibold text-destructive/80">Motivo de anulación:</span>
+                                <p class="text-foreground font-medium mt-0.5 whitespace-pre-wrap leading-relaxed font-sans">
                                     {receipt.cancellation_reason}
                                 </p>
                             </div>
@@ -345,27 +351,27 @@
                 <!-- Pedidos Imputados (si existen) -->
                 {#if receipt.orders && receipt.orders.length > 0}
                     <div class="space-y-2">
-                        <div class="flex items-center justify-between text-xs">
-                            <h3 class="font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 text-[11px]">
-                                <ShoppingBag class="size-3.5" />
+                        <div class="flex items-center justify-between text-xs sm:text-sm">
+                            <h3 class="font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 text-xs sm:text-sm font-sans">
+                                <ShoppingBag class="size-4 text-primary shrink-0" />
                                 <span>Pedidos Imputados</span>
                             </h3>
-                            <span class="text-[11px] font-semibold text-muted-foreground tabular-nums">
+                            <span class="text-xs sm:text-sm font-semibold text-muted-foreground tabular-nums font-sans">
                                 {receipt.orders.length} {receipt.orders.length === 1 ? 'pedido' : 'pedidos'}
                             </span>
                         </div>
 
                         <div class="divide-y divide-border/60 rounded-xl border border-border/70 bg-card overflow-hidden">
                             {#each receipt.orders as order (order.id)}
-                                <div class="p-3 flex items-center justify-between gap-3 text-xs hover:bg-muted/20 transition-colors">
-                                    <div class="flex items-center gap-2 min-w-0">
-                                        <span class="size-2 rounded-full bg-primary/60 shrink-0"></span>
-                                        <span class="font-bold font-sans text-foreground tabular-nums truncate">
+                                <div class="p-3 sm:p-3.5 flex items-center justify-between gap-3 text-xs sm:text-sm hover:bg-muted/20 transition-colors">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="size-2 rounded-full bg-primary shrink-0"></span>
+                                        <span class="font-bold font-sans text-sm sm:text-base text-foreground tabular-nums truncate">
                                             Pedido {order.order_number}
                                         </span>
                                     </div>
                                     <div class="text-right shrink-0">
-                                        <span class="font-bold font-sans tabular-nums text-foreground">
+                                        <span class="font-bold font-sans text-sm sm:text-base tabular-nums text-foreground">
                                             {formatPrice(order.total_amount)}
                                         </span>
                                     </div>

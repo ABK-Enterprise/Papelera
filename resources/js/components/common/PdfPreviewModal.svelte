@@ -178,7 +178,8 @@
                             class="w-full min-h-[44px] px-2.5 sm:px-4 gap-1.5 sm:gap-2 rounded-xl text-xs sm:text-sm font-semibold justify-center"
                         >
                             <ExternalLink class="size-4 text-primary shrink-0" />
-                            <span>Abrir<span class="hidden sm:inline"> pestaña</span></span>
+                            <span class="sm:hidden">Abrir</span>
+                            <span class="hidden sm:inline">Abrir en pestaña</span>
                         </Button>
                     </a>
 
@@ -188,7 +189,8 @@
                             class="w-full min-h-[44px] px-2.5 sm:px-5 gap-1.5 sm:gap-2 rounded-xl text-xs sm:text-sm font-semibold shadow-xs justify-center"
                         >
                             <Download class="size-4 shrink-0" />
-                            <span>Descargar<span class="hidden sm:inline"> PDF</span></span>
+                            <span class="sm:hidden">Descargar</span>
+                            <span class="hidden sm:inline">Descargar pdf</span>
                         </Button>
                     </a>
                 {/if}

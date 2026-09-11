@@ -140,9 +140,29 @@
                         </div>
                     </div>
 
-                    {#if rc.reference_number}
+                    <!-- Pedidos Imputados (Máx 1 en Mobile + indicador '+ X') / Referencia -->
+                    {#if rc.orders && rc.orders.length > 0}
+                        <div class="flex items-center gap-1.5 flex-wrap pt-0.5">
+                            <span class="text-xs font-semibold font-sans tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
+                                {rc.orders[0].order_number}
+                            </span>
+                            {#if rc.orders.length > 1}
+                                <span
+                                    class="size-5 inline-flex items-center justify-center rounded-full bg-primary/10 text-primary border border-primary/25 text-xs font-bold font-sans tabular-nums shrink-0"
+                                    title={rc.orders.slice(1).map((o) => o.order_number).join(', ')}
+                                >
+                                    +{rc.orders.length - 1}
+                                </span>
+                            {/if}
+                            {#if rc.reference_number}
+                                <span class="text-[11px] font-mono text-muted-foreground truncate max-w-[150px]" title={rc.reference_number}>
+                                    • Ref: {truncateRef(rc.reference_number, 10)}
+                                </span>
+                            {/if}
+                        </div>
+                    {:else if rc.reference_number}
                         <div class="flex items-center gap-1.5 pt-0.5">
-                            <span class="text-xs text-muted-foreground">Ref:</span>
+                            <span class="text-xs font-medium text-muted-foreground">Ref:</span>
                             <span
                                 class="text-xs font-mono text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md border border-border/50 truncate max-w-[200px] inline-block"
                                 title={rc.reference_number}

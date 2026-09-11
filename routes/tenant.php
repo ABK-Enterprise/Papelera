@@ -114,8 +114,10 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('clientes/{customer}/cuenta-corriente/cobro', [CustomerAccountController::class, 'recordPayment'])->name('customers.accounts.payment')->middleware('tenant.permission:clientes.editar');
             Route::post('clientes/{customer}/cuenta-corriente/ajuste', [CustomerAccountController::class, 'recordAdjustment'])->name('customers.accounts.adjustment')->middleware('tenant.permission:clientes.editar');
             Route::patch('clientes/{customer}/cuenta-corriente/limite-credito', [CustomerAccountController::class, 'updateCreditSettings'])->name('customers.accounts.credit-settings')->middleware('tenant.permission:clientes.editar');
+        });
 
-            // Cobranzas y Motor de Pagos (Payment Collections)
+        // Cobranzas y Motor de Pagos (Módulo Independiente de Cobranzas)
+        Route::middleware('module:clientes')->group(function () {
             Route::get('cobranzas', [PaymentCollectionController::class, 'index'])->name('payments.index')->middleware('tenant.permission:cobranzas.ver');
             Route::post('cobranzas', [PaymentCollectionController::class, 'store'])->name('payments.store')->middleware('tenant.permission:cobranzas.crear');
             Route::get('cobranzas/recibos', [PaymentCollectionController::class, 'receipts'])->name('payments.receipts')->middleware('tenant.permission:cobranzas.ver');

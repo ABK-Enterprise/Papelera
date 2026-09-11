@@ -38,6 +38,8 @@
                 openModule = 'Proveedores';
             } else if (currentUrl.startsWith('/tenant/clientes')) {
                 openModule = 'Clientes';
+            } else if (currentUrl.startsWith('/tenant/cobranzas')) {
+                openModule = 'Cobranza';
             } else {
                 openModule = null;
             }
@@ -200,13 +202,13 @@
                 });
             }
 
-            // Clientes: Acordeón con Cobranzas
+            // Clientes: Acordeón sin Cobranzas
             if (modules.includes('clientes') && (isAdmin || permissions.includes('clientes.ver'))) {
                 items.push({
                     title: 'Clientes',
                     href: '/tenant/clientes',
                     icon: 'solar:shop-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/clientes') || currentUrl.startsWith('/tenant/cobranzas'),
+                    active: currentUrl.startsWith('/tenant/clientes'),
                     subItems: [
                         {
                             title: 'Gestión de Clientes',
@@ -220,11 +222,29 @@
                             icon: 'solar:card-bold-duotone',
                             active: currentUrl.startsWith('/tenant/clientes/cuentas-corrientes'),
                         },
+                    ],
+                });
+            }
+
+            // Cobranza: Acordeón Independiente de Cobros y Recibos
+            if (modules.includes('clientes') && (isAdmin || permissions.includes('cobranzas.ver') || permissions.includes('clientes.ver'))) {
+                items.push({
+                    title: 'Cobranza',
+                    href: '/tenant/cobranzas',
+                    icon: 'solar:hand-money-bold-duotone',
+                    active: currentUrl.startsWith('/tenant/cobranzas'),
+                    subItems: [
                         {
                             title: 'Panel de Cobranzas',
                             href: '/tenant/cobranzas',
                             icon: 'solar:hand-money-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/cobranzas'),
+                            active: currentUrl === '/tenant/cobranzas' || currentUrl.startsWith('/tenant/cobranzas?'),
+                        },
+                        {
+                            title: 'Historial de Recibos',
+                            href: '/tenant/cobranzas/recibos',
+                            icon: 'solar:receipt-text-bold-duotone',
+                            active: currentUrl.startsWith('/tenant/cobranzas/recibos'),
                         },
                     ],
                 });
