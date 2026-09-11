@@ -128,13 +128,6 @@
                                 {/if}
                             </div>
                         {/if}
-
-                        <!-- Referencia complementaria opcional si existe -->
-                        {#if rc.reference_number}
-                            <span class="text-[11px] font-mono text-muted-foreground truncate" title={rc.reference_number}>
-                                Ref: {truncateRef(rc.reference_number, 12)}
-                            </span>
-                        {/if}
                     {:else if rc.reference_number}
                         <span
                             class="text-xs font-mono text-muted-foreground bg-muted/50 px-2 py-1 rounded-lg border border-border/50 max-w-[150px] truncate inline-block"

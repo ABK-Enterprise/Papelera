@@ -154,11 +154,6 @@
                                     +{rc.orders.length - 1}
                                 </span>
                             {/if}
-                            {#if rc.reference_number}
-                                <span class="text-[11px] font-mono text-muted-foreground truncate max-w-[150px]" title={rc.reference_number}>
-                                    • Ref: {truncateRef(rc.reference_number, 10)}
-                                </span>
-                            {/if}
                         </div>
                     {:else if rc.reference_number}
                         <div class="flex items-center gap-1.5 pt-0.5">
