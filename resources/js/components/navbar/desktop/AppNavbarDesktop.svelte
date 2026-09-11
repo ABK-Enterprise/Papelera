@@ -224,7 +224,7 @@
                             title: 'Historial de Recibos',
                             description: 'Comprobantes oficiales emitidos y auditoría',
                             href: '/tenant/cobranzas/recibos',
-                            icon: 'solar:receipt-text-bold-duotone',
+                            icon: 'solar:bill-check-bold-duotone',
                             active: currentUrl.startsWith('/tenant/cobranzas/recibos'),
                         },
                     ],
