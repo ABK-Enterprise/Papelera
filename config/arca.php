@@ -77,6 +77,10 @@ return [
         'anonymous_consumer_electronic_limit' => (float) env('ARCA_ANONYMOUS_ELECTRONIC_LIMIT', 383248.00),
     ],
 
+    'consumer_final_thresholds' => [
+        'cash' => (float) env('ARCA_CONSUMER_FINAL_CASH_THRESHOLD', 10000000.00),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Official QR Configuration (RG 4892/2020)

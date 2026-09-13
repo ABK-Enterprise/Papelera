@@ -5,16 +5,17 @@ use App\Http\Controllers\Tenant\CompanySettingsController;
 use App\Http\Controllers\Tenant\CustomerAccountController;
 use App\Http\Controllers\Tenant\CustomerController;
 use App\Http\Controllers\Tenant\CustomerOrderController;
+use App\Http\Controllers\Tenant\CustomerOrderFiscalController;
 use App\Http\Controllers\Tenant\CustomerOrderReturnController;
 use App\Http\Controllers\Tenant\DeliveryRouteController;
 use App\Http\Controllers\Tenant\PaymentCollectionController;
 use App\Http\Controllers\Tenant\ProductController;
 use App\Http\Controllers\Tenant\ProductWarehouseLookupController;
 use App\Http\Controllers\Tenant\RoleController;
+use App\Http\Controllers\Tenant\ShippingZoneController;
 use App\Http\Controllers\Tenant\Stock\StockIncomeController;
 use App\Http\Controllers\Tenant\Stock\StockKardexController;
 use App\Http\Controllers\Tenant\Stock\StockOutcomeController;
-use App\Http\Controllers\Tenant\ShippingZoneController;
 use App\Http\Controllers\Tenant\SupplierController;
 use App\Http\Controllers\Tenant\SupplierOrderController;
 use App\Http\Controllers\Tenant\TenantMercadoPagoController;
@@ -137,6 +138,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::get('pedidos/{customerOrder}/estado-pago', [CustomerOrderController::class, 'paymentStatus'])->name('orders.payment-status')->middleware('tenant.permission:pedidos.ver');
             Route::post('pedidos/{customerOrder}/reconciliar-pago', [CustomerOrderController::class, 'reconcilePayment'])->name('orders.reconcile-payment')->middleware('tenant.permission:pedidos.ver');
             Route::post('pedidos/{customerOrder}/devolucion', [CustomerOrderReturnController::class, 'store'])->name('orders.return')->middleware('tenant.permission:pedidos.crear');
+            Route::post('pedidos/{order}/facturar', [CustomerOrderFiscalController::class, 'emit'])->name('customer-orders.fiscal-invoice.emit');
             Route::delete('pedidos/{customerOrder}', [CustomerOrderController::class, 'destroy'])->name('orders.destroy')->middleware('tenant.permission:pedidos.cancelar');
 
             // Repartos y Logística de Última Milla
@@ -148,4 +150,3 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::get('repartos/rendicion', [DeliveryRouteController::class, 'shiftSummary'])->name('deliveries.shift-summary')->middleware('tenant.permission:repartos.ver');
         });
     });
-
