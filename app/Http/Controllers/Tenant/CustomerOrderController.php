@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Actions\Tenant\Fiscal\EmitCreditNoteAction;
+use App\Exceptions\ArcaException;
 use App\Events\Tenant\CustomerAccountMovementRecorded;
 use App\Events\Tenant\CustomerOrderCreated;
 use App\Events\Tenant\CustomerOrderPaymentReceived;
@@ -534,6 +536,7 @@ class CustomerOrderController extends Controller
     {
         $tenantId = $request->user()->tenant_id;
         $userId = $request->user()->id;
+        $user = $request->user();
 
         if ($customerOrder->tenant_id !== $tenantId) {
             abort(404);
@@ -543,7 +546,7 @@ class CustomerOrderController extends Controller
         $oldStatus = $customerOrder->status;
         $eventsToBroadcast = [];
 
-        $order = DB::transaction(function () use ($customerOrder, $newStatus, $tenantId, $userId, &$eventsToBroadcast) {
+        $order = DB::transaction(function () use ($customerOrder, $newStatus, $tenantId, $userId, $user, &$eventsToBroadcast) {
             /** @var CustomerOrder $lockedOrder */
             $lockedOrder = CustomerOrder::where('id', $customerOrder->id)
                 ->where('tenant_id', $tenantId)
@@ -563,6 +566,17 @@ class CustomerOrderController extends Controller
             }
 
             if ($newStatus === 'cancelado') {
+                if ($lockedOrder->isFiscalInvoiced()) {
+                    try {
+                        $creditNoteAction = app(EmitCreditNoteAction::class);
+                        $creditNoteAction->execute($lockedOrder, $user);
+                    } catch (ArcaException $e) {
+                        throw ValidationException::withMessages([
+                            'order' => ["No se pudo anular la factura en ARCA. El pedido no fue cancelado: " . $e->getMessage()],
+                        ]);
+                    }
+                }
+
                 $lockedOrder->load('items.product');
                 $sortedItems = $lockedOrder->items->sortBy('product_id');
                 foreach ($sortedItems as $item) {
