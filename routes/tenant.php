@@ -139,6 +139,8 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('pedidos/{customerOrder}/reconciliar-pago', [CustomerOrderController::class, 'reconcilePayment'])->name('orders.reconcile-payment')->middleware('tenant.permission:pedidos.ver');
             Route::post('pedidos/{customerOrder}/devolucion', [CustomerOrderReturnController::class, 'store'])->name('orders.return')->middleware('tenant.permission:pedidos.crear');
             Route::post('pedidos/{order}/facturar', [CustomerOrderFiscalController::class, 'emit'])->name('customer-orders.fiscal-invoice.emit');
+            Route::get('pedidos/{order}/factura-pdf', [CustomerOrderFiscalController::class, 'downloadPdf'])->name('customer-orders.fiscal-invoice.pdf')->middleware('tenant.permission:pedidos.ver');
+            Route::get('pedidos/{order}/factura-previsualizar', [CustomerOrderFiscalController::class, 'previewPdf'])->name('customer-orders.fiscal-invoice.preview')->middleware('tenant.permission:pedidos.ver');
             Route::delete('pedidos/{customerOrder}', [CustomerOrderController::class, 'destroy'])->name('orders.destroy')->middleware('tenant.permission:pedidos.cancelar');
 
             // Repartos y Logística de Última Milla
