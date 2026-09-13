@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -21,6 +22,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $customer_phone
  * @property string|null $delivery_address
  * @property string $status
+ * @property string $fiscal_status
+ * @property string|null $fiscal_error_message
  * @property string $total_amount
  * @property string|null $notes
  * @property Carbon|null $created_at
@@ -49,6 +52,8 @@ use Illuminate\Support\Carbon;
     'customer_discount_percentage',
     'customer_discount_amount',
     'return_status',
+    'fiscal_status',
+    'fiscal_error_message',
     'notes',
 ])]
 class CustomerOrder extends Model
@@ -74,6 +79,15 @@ class CustomerOrder extends Model
     ];
 
     public const PAYMENT_STATUSES = ['pendiente', 'parcial', 'cobrado'];
+
+    public const FISCAL_STATUSES = ['sin_facturar', 'facturado', 'anulado_fiscal', 'error_fiscal'];
+
+    public const ALLOWED_FISCAL_TRANSITIONS = [
+        'sin_facturar' => ['facturado', 'error_fiscal'],
+        'error_fiscal' => ['facturado', 'sin_facturar'],
+        'facturado' => ['anulado_fiscal'],
+        'anulado_fiscal' => [],
+    ];
 
     protected function casts(): array
     {
@@ -127,6 +141,18 @@ class CustomerOrder extends Model
     public function returns(): HasMany
     {
         return $this->hasMany(CustomerOrderReturn::class, 'customer_order_id');
+    }
+
+    public function fiscalInvoices(): HasMany
+    {
+        return $this->hasMany(FiscalInvoice::class);
+    }
+
+    public function activeFiscalInvoice(): HasOne
+    {
+        return $this->hasOne(FiscalInvoice::class)
+            ->where('status', 'aprobado')
+            ->whereIn('cbte_tipo', [1, 6, 11]);
     }
 
     protected static function booted(): void
@@ -205,6 +231,27 @@ class CustomerOrder extends Model
         $allowed = self::ALLOWED_TRANSITIONS[$this->status] ?? [];
 
         return in_array($targetStatus, $allowed, true);
+    }
+
+    public function canTransitionFiscalTo(string $targetStatus): bool
+    {
+        if ($this->fiscal_status === $targetStatus) {
+            return false;
+        }
+
+        $allowed = self::ALLOWED_FISCAL_TRANSITIONS[$this->fiscal_status] ?? [];
+
+        return in_array($targetStatus, $allowed, true);
+    }
+
+    public function isFiscalInvoiced(): bool
+    {
+        return $this->fiscal_status === 'facturado';
+    }
+
+    public function canBeFiscalInvoiced(): bool
+    {
+        return $this->status !== 'cancelado' && in_array($this->fiscal_status, ['sin_facturar', 'error_fiscal'], true);
     }
 
     public function scopeStatus(Builder $query, string $status): Builder
