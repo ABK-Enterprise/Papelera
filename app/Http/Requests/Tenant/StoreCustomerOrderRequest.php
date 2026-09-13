@@ -58,5 +58,20 @@ class StoreCustomerOrderRequest extends FormRequest
             'items.*.apply_customer_discount' => ['nullable', 'boolean'],
         ];
     }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            if (empty($this->customer_id) && $this->payment_type === 'cuenta_corriente') {
+                $validator->errors()->add(
+                    'payment_type',
+                    'Los clientes ocasionales o no registrados no pueden operar con cuenta corriente. Debe seleccionarse Cobro Total o Pago Parcial.'
+                );
+            }
+        });
+    }
 }
 

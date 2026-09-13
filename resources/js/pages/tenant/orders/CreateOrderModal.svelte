@@ -124,6 +124,12 @@
     let isSubmitting = $state(false);
     let errorMessage = $state<string | null>(null);
 
+    $effect(() => {
+        if (!selectedCustomerId && paymentType === 'cuenta_corriente') {
+            paymentType = 'contado';
+        }
+    });
+
     let customerDiscountPercentage = $derived(Number(selectedCustomer?.discount_percentage) || 0);
 
     // Search / Autocomplete state
@@ -541,7 +547,7 @@
         customerPhone = '';
         deliveryAddress = '';
         notes = '';
-        paymentType = 'cuenta_corriente';
+        paymentType = selectedCustomerId ? 'cuenta_corriente' : 'contado';
         paymentMethod = 'efectivo';
         paidAmount = '';
         errorMessage = null;
@@ -1248,18 +1254,21 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         <label
-                            class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {paymentType === 'cuenta_corriente' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground'}"
+                            class="flex items-start gap-3 p-3 rounded-xl border transition-all {!selectedCustomerId ? 'opacity-50 cursor-not-allowed bg-muted/20 border-border/50' : (paymentType === 'cuenta_corriente' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs cursor-pointer' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground cursor-pointer')}"
                         >
                             <input
                                 type="radio"
                                 name="order_payment_type"
                                 value="cuenta_corriente"
                                 bind:group={paymentType}
-                                class="mt-0.5 size-4 text-primary focus:ring-primary"
+                                disabled={!selectedCustomerId}
+                                class="mt-0.5 size-4 text-primary focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                             />
                             <div class="min-w-0">
                                 <span class="text-xs font-medium block">Cuenta Corriente</span>
-                                <span class="text-[11px] text-muted-foreground block font-normal">Se suma al saldo deudor del cliente</span>
+                                <span class="text-[11px] text-muted-foreground block font-normal">
+                                    {!selectedCustomerId ? 'Disponible solo para clientes registrados' : 'Se suma al saldo deudor del cliente'}
+                                </span>
                             </div>
                         </label>
 

@@ -48,6 +48,7 @@ class HandleInertiaRequests extends Middleware
                     'id' => $user->tenant->id,
                     'name' => $user->tenant->name,
                     'cuit_tax_id' => $user->tenant->cuit_tax_id,
+                    'tax_condition' => $user->tenant->tax_condition,
                     'is_active' => $user->tenant->is_active,
                 ];
                 $modules = $user->tenant->modules()

@@ -228,6 +228,7 @@ class EmitFiscalInvoiceAction
                     'ImpTrib' => 0.00,
                     'MonId' => 'PES',
                     'MonCotiz' => 1,
+                    'CondicionIVAReceptorId' => $receptorCondicionIvaId,
                 ];
 
                 if (! empty($ivaArray)) {

@@ -123,7 +123,8 @@ test('it emits Factura A when issuer is Resp Inscripto and receptor is Resp Insc
                 && $det['DocNro'] == 30712345678
                 && $det['ImpTotal'] == 1210.00
                 && $det['ImpNeto'] == 1000.00
-                && $det['ImpIVA'] == 210.00;
+                && $det['ImpIVA'] == 210.00
+                && $det['CondicionIVAReceptorId'] === 1;
         }))
         ->andReturn((object) [
             'FECAESolicitarResult' => (object) [
@@ -224,7 +225,8 @@ test('it emits Factura B to Consumidor Final with backwards IVA breakdown across
                 && $det['DocTipo'] === 99
                 && $det['DocNro'] == 0
                 && $det['ImpTotal'] == 2315.00
-                && count($det['Iva']['AlicIva']) === 2;
+                && count($det['Iva']['AlicIva']) === 2
+                && $det['CondicionIVAReceptorId'] === 5;
         }))
         ->andReturn((object) [
             'FECAESolicitarResult' => (object) [
@@ -574,3 +576,80 @@ test('it returns 422 JSON error on HTTP endpoint when emission fails', function 
             'error' => 'El pedido no se encuentra en un estado apto para facturación.',
         ]);
 });
+
+test('it includes CondicionIVAReceptorId in payload according to RG 5616 for Monotributo receptor', function () {
+    $customer = Customer::factory()->forTenant($this->tenant)->create([
+        'tax_condition' => 'monotributo',
+        'tax_id' => '20301234567',
+        'name' => 'Monotributista Cliente',
+    ]);
+
+    $order = CustomerOrder::factory()->forTenant($this->tenant)->create([
+        'customer_id' => $customer->id,
+        'customer_name' => $customer->name,
+        'status' => 'preparado',
+        'fiscal_status' => 'sin_facturar',
+        'total_amount' => 1210.00,
+        'subtotal_amount' => 1210.00,
+    ]);
+
+    $product = Product::factory()->forTenant($this->tenant)->create([
+        'price' => 1210.00,
+        'iva_rate' => 21.00,
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $product->id,
+        'quantity' => 1,
+        'unit_price' => 1210.00,
+        'subtotal' => 1210.00,
+        'packaging_type' => 'unidad',
+    ]);
+
+    $mockSoap = Mockery::mock(SoapClient::class);
+    $mockSoap->shouldReceive('FECompUltimoAutorizado')
+        ->once()
+        ->andReturn((object) [
+            'FECompUltimoAutorizadoResult' => (object) ['CbteNro' => 50],
+        ]);
+
+    $mockSoap->shouldReceive('FECAESolicitar')
+        ->once()
+        ->with(Mockery::on(function ($args) {
+            $det = $args['FeCAEReq']['FeDetReq']['FECAEDetRequest'];
+
+            return $det['CondicionIVAReceptorId'] === 6; // Monotributo = 6
+        }))
+        ->andReturn((object) [
+            'FECAESolicitarResult' => (object) [
+                'FeCabResp' => (object) ['Resultado' => 'A'],
+                'FeDetResp' => (object) [
+                    'FECAEDetResponse' => [
+                        (object) [
+                            'CAE' => '74123456789066',
+                            'CAEFchVto' => '20260923',
+                            'CbteDesde' => 51,
+                            'CbteHasta' => 51,
+                            'Resultado' => 'A',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+    $wsfeService = app(ArcaWsfeService::class);
+    $wsfeService->setSoapClient($mockSoap);
+    app()->instance(ArcaWsfeService::class, $wsfeService);
+
+    $action = app(EmitFiscalInvoiceAction::class);
+    $invoice = $action->execute($order, $this->user);
+
+    expect($invoice->receptor_condicion_iva_id)->toBe(6);
+});
+
+test('it translates ARCA error 10246 to human-readable RG 5616 message', function () {
+    $translated = \App\Services\Arca\ArcaErrorTranslator::translate(10246, 'Campo Condicion Frente al IVA del receptor es obligatorio');
+    expect($translated)->toBe('La condición frente al IVA del receptor es obligatoria conforme a la RG 5616 de ARCA.');
+});
+

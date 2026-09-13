@@ -735,3 +735,63 @@ test('cannot create on-the-fly product without valid positive unit price', funct
         ->assertJsonValidationErrors(['items.0.unit_price']);
 });
 
+test('cannot create order with cuenta_corriente for occasional or non-registered customer', function () {
+    $product = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
+        'price' => 1000.00,
+        'stock' => 50,
+    ]);
+
+    $response = $this->actingAs($this->user)->postJson(route('tenant.orders.store'), [
+        'customer_id' => null,
+        'customer_name' => 'Cliente Ocasional Mostrador',
+        'payment_type' => 'cuenta_corriente',
+        'items' => [
+            [
+                'product_id' => $product->id,
+                'packaging_type' => 'unidad',
+                'quantity' => 1,
+            ],
+        ],
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['payment_type']);
+
+    expect($response->json('errors.payment_type.0'))
+        ->toContain('Los clientes ocasionales o no registrados no pueden operar con cuenta corriente');
+});
+
+test('can create order with cuenta_corriente for registered customer', function () {
+    $customer = Customer::factory()->forTenant($this->tenant)->create([
+        'name' => 'Cliente Habitual Registrado',
+        'credit_limit' => 50000.00,
+        'current_balance' => 0.00,
+    ]);
+
+    $product = Product::factory()->forTenant($this->tenant)->forCategory($this->category)->create([
+        'price' => 1500.00,
+        'stock' => 50,
+    ]);
+
+    $response = $this->actingAs($this->user)->post(route('tenant.orders.store'), [
+        'customer_id' => $customer->id,
+        'payment_type' => 'cuenta_corriente',
+        'items' => [
+            [
+                'product_id' => $product->id,
+                'packaging_type' => 'unidad',
+                'quantity' => 2,
+            ],
+        ],
+    ]);
+
+    $response->assertRedirect();
+
+    $order = CustomerOrder::where('customer_id', $customer->id)->first();
+    expect($order)->not->toBeNull()
+        ->and($order->payment_status)->toBe('pendiente')
+        ->and((float) $order->debt_amount)->toBe(3000.00)
+        ->and((float) $order->total_amount)->toBe(3000.00);
+});
+
+

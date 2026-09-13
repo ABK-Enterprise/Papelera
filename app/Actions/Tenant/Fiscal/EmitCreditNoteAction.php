@@ -174,6 +174,7 @@ class EmitCreditNoteAction
                 'ImpTrib' => $importeTributos,
                 'MonId' => 'PES',
                 'MonCotiz' => 1,
+                'CondicionIVAReceptorId' => (int) ($invoice->receptor_condicion_iva_id ?: 5),
                 'CbtesAsoc' => [
                     'CbteAsoc' => $cbtesAsoc,
                 ],

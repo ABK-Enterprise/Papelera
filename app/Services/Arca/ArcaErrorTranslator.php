@@ -30,6 +30,7 @@ class ArcaErrorTranslator
             10016, '10016' => 'Para ventas a Consumidor Final superiores al límite legal, es obligatorio ingresar el DNI o CUIT del cliente.',
             10043, '10043' => 'No se encontró el comprobante original asociado en ARCA para emitir la Nota de Crédito.',
             10013, '10013' => 'Los datos del concepto o período de facturación son incompatibles con la venta de productos.',
+            10246, '10246' => 'La condición frente al IVA del receptor es obligatoria conforme a la RG 5616 de ARCA.',
             602, '602' => 'El comprobante consultado no fue emitido previamente en ARCA.',
             default => ! empty($originalMessage)
                 ? "Error fiscal de ARCA (Código {$code}): {$originalMessage}"

@@ -12,7 +12,7 @@
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
-    import { router } from '@inertiajs/svelte';
+    import { page, router } from '@inertiajs/svelte';
     import Receipt from 'lucide-svelte/icons/receipt';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Loader2 from 'lucide-svelte/icons/loader-2';
@@ -49,10 +49,12 @@
     let {
         open = $bindable(false),
         order = null,
+        tenantTaxCondition = undefined,
         onSuccess = undefined,
     }: {
         open: boolean;
         order: OrderData | null;
+        tenantTaxCondition?: string | null;
         onSuccess?: ((invoice?: any) => void) | undefined;
     } = $props();
 
@@ -74,15 +76,30 @@
 
     const totalAmount = $derived(Number(order?.total_amount ?? 0));
 
-    // Determinar condición fiscal y tipo de comprobante
-    const isResponsableInscripto = $derived(
+    // Determinar condición fiscal del emisor y tipo de comprobante
+    const currentTenantTaxCondition = $derived(
+        tenantTaxCondition ?? (page.props as any)?.auth?.tenant?.tax_condition ?? 'responsable_inscripto'
+    );
+    const isMonotributoIssuer = $derived(
+        currentTenantTaxCondition === 'monotributo' || currentTenantTaxCondition === 'responsable_monotributo'
+    );
+
+    const isCustomerResponsableInscripto = $derived(
         order?.customer?.tax_condition === 'responsable_inscripto'
     );
     const invoiceTypeName = $derived(
-        isResponsableInscripto ? 'Factura A' : 'Factura B'
+        isMonotributoIssuer
+            ? 'Factura C'
+            : (isCustomerResponsableInscripto ? 'Factura A' : 'Factura B')
     );
     const taxConditionLabel = $derived(
-        isResponsableInscripto ? 'Responsable Inscripto' : 'Consumidor Final'
+        order?.customer?.tax_condition === 'responsable_inscripto'
+            ? 'Responsable Inscripto'
+            : (order?.customer?.tax_condition === 'monotributo'
+                ? 'Monotributista'
+                : (order?.customer?.tax_condition === 'exento'
+                    ? 'Exento'
+                    : 'Consumidor Final'))
     );
 
     // Cálculos de IVA para Factura A (desglose neto e IVA 21%)
@@ -100,7 +117,7 @@
     // Umbral de consumidor final sin identificar: $500.000
     const LEGAL_THRESHOLD = 500000;
     const requiresDocIdentification = $derived(
-        totalAmount >= LEGAL_THRESHOLD && !hasRegisteredDoc && !isResponsableInscripto
+        totalAmount >= LEGAL_THRESHOLD && !hasRegisteredDoc && !(isCustomerResponsableInscripto && !isMonotributoIssuer)
     );
 
     function validateDoc(): boolean {
@@ -243,7 +260,7 @@
 
                     <div class="flex items-center justify-between">
                         <span class="text-muted-foreground">Condición Fiscal:</span>
-                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold {isResponsableInscripto ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-muted text-muted-foreground border border-border'}">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold {isCustomerResponsableInscripto ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-muted text-muted-foreground border border-border'}">
                             {taxConditionLabel} ({invoiceTypeName})
                         </span>
                     </div>
@@ -265,7 +282,7 @@
                         <span class="text-foreground font-semibold">{invoiceTypeName}</span>
                     </div>
 
-                    {#if isResponsableInscripto}
+                    {#if isCustomerResponsableInscripto && !isMonotributoIssuer}
                         <div class="flex items-center justify-between text-muted-foreground">
                             <span>Neto Gravado (Estimado):</span>
                             <span class="font-sans tabular-nums text-foreground">
