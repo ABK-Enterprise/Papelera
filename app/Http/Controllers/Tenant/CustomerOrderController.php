@@ -50,6 +50,7 @@ class CustomerOrderController extends Controller
             'customer:id,name,tax_id,tax_condition,phone,address,is_defaulter',
             'shippingZone:id,name,distance_km,surcharge_percentage',
             'returns.items.product:id,name,sku',
+            'activeFiscalInvoice:id,customer_order_id,cbte_tipo,punto_venta,numero_comprobante,cae,cae_due_date,issue_date,status',
         ])
             ->when($search, function ($q, $search) {
                 $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';

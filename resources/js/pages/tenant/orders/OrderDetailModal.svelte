@@ -5,17 +5,20 @@
     import MercadoPagoQrModal from '@/components/common/MercadoPagoQrModal.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import CustomerOrderReturnModal from './CustomerOrderReturnModal.svelte';
+    import EmitFiscalInvoiceModal from './EmitFiscalInvoiceModal.svelte';
     import { router } from '@inertiajs/svelte';
     import { fade, scale } from 'svelte/transition';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Calendar from 'lucide-svelte/icons/calendar';
     import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
     import Clock from 'lucide-svelte/icons/clock';
+    import FileText from 'lucide-svelte/icons/file-text';
     import Info from 'lucide-svelte/icons/info';
     import MapPin from 'lucide-svelte/icons/map-pin';
     import Phone from 'lucide-svelte/icons/phone';
     import Printer from 'lucide-svelte/icons/printer';
     import QrCode from 'lucide-svelte/icons/qr-code';
+    import ReceiptText from 'lucide-svelte/icons/receipt-text';
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import Truck from 'lucide-svelte/icons/truck';
@@ -39,6 +42,16 @@
         };
     }
 
+    interface CustomerInfo {
+        id: number;
+        name: string;
+        tax_id?: string | null;
+        tax_condition?: string | null;
+        phone?: string | null;
+        address?: string | null;
+        is_defaulter?: boolean;
+    }
+
     interface OrderData {
         id: number;
         order_number: string;
@@ -47,6 +60,9 @@
         customer_phone: string | null;
         delivery_address: string | null;
         status: string;
+        fiscal_status?: string;
+        fiscal_error_message?: string | null;
+        active_fiscal_invoice?: any;
         return_status?: string;
         payment_status?: string;
         debt_amount?: string | number;
@@ -54,6 +70,7 @@
         total_amount: string | number;
         notes: string | null;
         created_at: string;
+        customer?: CustomerInfo | null;
         items?: OrderItem[];
     }
 
@@ -70,6 +87,8 @@
     let isConfirmReturnOpen = $state(false);
     let isReturnModalOpen = $state(false);
     let isPdfModalOpen = $state(false);
+    let isFiscalModalOpen = $state(false);
+    let isFiscalPdfModalOpen = $state(false);
     let isQrModalOpen = $state(false);
     let pendingStatus = $state<string | null>(null);
 
@@ -88,6 +107,19 @@
                 dateStyle: 'medium',
                 timeStyle: 'short',
             });
+        } catch {
+            return dateStr;
+        }
+    }
+
+    function formatDateOnly(dateStr: string | null | undefined): string {
+        if (!dateStr) return '-';
+        try {
+            const parts = dateStr.split('T')[0].split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return new Date(dateStr).toLocaleDateString('es-AR');
         } catch {
             return dateStr;
         }
@@ -142,9 +174,13 @@
     // Modal Copy Generator según el estado a aplicar
     let confirmModalConfig = $derived.by(() => {
         if (pendingStatus === 'cancelado') {
+            const description = order?.fiscal_status === 'facturado'
+                ? '¡Atención! Este pedido se encuentra facturado ante ARCA. Al cancelarlo, el sistema emitirá automáticamente una Nota de Crédito oficial para anular la factura. El stock será reincorporado al inventario. ¿Deseas continuar?'
+                : `¿Estás seguro de cancelar el pedido ${order?.order_number}? El stock de los artículos se reincorporará automáticamente al inventario. Esta acción es definitiva y no podrá revertirse.`;
+
             return {
                 title: '¿Cancelar pedido de venta?',
-                description: `¿Estás seguro de cancelar el pedido ${order?.order_number}? El stock de los artículos se reincorporará automáticamente al inventario. Esta acción es definitiva y no podrá revertirse.`,
+                description,
                 confirmText: 'Sí, Cancelar Pedido',
                 variant: 'danger' as const,
             };
@@ -204,7 +240,7 @@
                 <div class="flex items-center gap-2.5">
                     <IconContainer size="md" variant="primary" icon="solar:bill-list-bold-duotone" />
                     <div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
                             <h2 class="text-base sm:text-lg font-bold text-foreground font-sans tabular-nums">{order.order_number}</h2>
                             {#if order.status === 'en_preparacion'}
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
@@ -225,6 +261,27 @@
                             {:else if order.status === 'cancelado'}
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                                     Cancelado
+                                </span>
+                            {/if}
+
+                            <!-- Badge de Estado Fiscal ARCA -->
+                            {#if order.fiscal_status === 'facturado'}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                                    <ReceiptText class="size-3.5" />
+                                    <span>Facturado ARCA</span>
+                                </span>
+                            {:else if order.fiscal_status === 'anulado_fiscal'}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 line-through">
+                                    <span>Anulado Fiscal (NC)</span>
+                                </span>
+                            {:else if order.fiscal_status === 'error_fiscal'}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                                    <AlertTriangle class="size-3.5" />
+                                    <span>Error Fiscal</span>
+                                </span>
+                            {:else}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border/70">
+                                    <span>Sin Facturar</span>
                                 </span>
                             {/if}
                         </div>
@@ -248,6 +305,55 @@
 
             <!-- Scrollable Content Body -->
             <div class="flex-1 min-h-0 overflow-y-auto space-y-4 sm:space-y-5 py-2 pr-1">
+                <!-- Banner de Inconveniente Fiscal en caso de error previo -->
+                {#if order.fiscal_status === 'error_fiscal' && order.fiscal_error_message}
+                    <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-xs text-amber-800 dark:text-amber-300">
+                        <AlertTriangle class="size-5 text-amber-600 shrink-0 mt-0.5" />
+                        <div class="space-y-0.5">
+                            <strong class="font-bold block">Inconveniente de facturación ARCA:</strong>
+                            <p class="leading-relaxed">{order.fiscal_error_message}</p>
+                            <p class="text-[11px] text-muted-foreground pt-1">
+                                Puedes reintentar la emisión con el botón «Facturar ARCA» al pie de la ventana.
+                            </p>
+                        </div>
+                    </div>
+                {/if}
+
+                <!-- Bloque Informativo de Factura Oficial Aprobada en ARCA -->
+                {#if order.fiscal_status === 'facturado' && order.active_fiscal_invoice}
+                    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                        <div class="flex items-center gap-2.5">
+                            <div class="size-8 rounded-lg bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                                <ReceiptText class="size-4.5" />
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <strong class="font-bold text-foreground text-sm font-sans tabular-nums">
+                                        {order.active_fiscal_invoice.formatted_number || `Comprobante Nº ${order.active_fiscal_invoice.numero_comprobante}`}
+                                    </strong>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+                                        CAE Oficial
+                                    </span>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground mt-0.5 font-sans tabular-nums text-[11px]">
+                                    <span>CAE: <strong class="text-foreground">{order.active_fiscal_invoice.cae}</strong></span>
+                                    <span>Vencimiento CAE: <strong class="text-foreground">{formatDateOnly(order.active_fiscal_invoice.cae_due_date)}</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            class="min-h-[36px] px-3 rounded-lg text-xs font-semibold text-emerald-700 dark:text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/15 gap-1.5 cursor-pointer shrink-0"
+                            onclick={() => (isFiscalPdfModalOpen = true)}
+                        >
+                            <FileText class="size-3.5" />
+                            <span>Ver Factura</span>
+                        </Button>
+                    </div>
+                {/if}
+
                 <!-- Cartel Informativo de Estado Terminal -->
                 {#if order.status === 'cancelado'}
                     <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-xs text-rose-700 dark:text-rose-300">
@@ -530,6 +636,30 @@
                             </Button>
                         {/if}
 
+                        {#if order.status !== 'cancelado' && (order.fiscal_status === 'sin_facturar' || order.fiscal_status === 'error_fiscal' || !order.fiscal_status)}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                class="min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer text-foreground hover:text-primary hover:border-primary/50"
+                                onclick={() => (isFiscalModalOpen = true)}
+                            >
+                                <ReceiptText class="size-4 text-primary" />
+                                <span>Facturar ARCA</span>
+                            </Button>
+                        {/if}
+
+                        {#if order.fiscal_status === 'facturado' || order.active_fiscal_invoice}
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                class="min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer"
+                                onclick={() => (isFiscalPdfModalOpen = true)}
+                            >
+                                <FileText class="size-4 text-primary" />
+                                <span>Factura PDF</span>
+                            </Button>
+                        {/if}
+
                         <Button
                             type="button"
                             variant="secondary"
@@ -580,6 +710,24 @@
             orderNumber={order.order_number}
             previewUrl={`/tenant/pedidos/${order.id}/previsualizar-pdf`}
             downloadUrl={`/tenant/pedidos/${order.id}/pdf`}
+        />
+
+        <!-- Modal de Facturación Electrónica ARCA -->
+        <EmitFiscalInvoiceModal
+            bind:open={isFiscalModalOpen}
+            {order}
+            onSuccess={() => {
+                router.reload({ only: ['orders'] });
+            }}
+        />
+
+        <!-- Modal de Previsualización y Descarga de Factura Fiscal Oficial ARCA -->
+        <PdfPreviewModal
+            bind:open={isFiscalPdfModalOpen}
+            title="Factura Electrónica ARCA"
+            orderNumber={order.order_number}
+            previewUrl={`/tenant/pedidos/${order.id}/factura-previsualizar`}
+            downloadUrl={`/tenant/pedidos/${order.id}/factura-pdf`}
         />
 
         <!-- Modal de Cobro QR Presencial Mercado Pago -->

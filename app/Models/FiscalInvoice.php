@@ -77,6 +77,11 @@ class FiscalInvoice extends Model
     /** @use HasFactory<FiscalInvoiceFactory> */
     use BelongsToTenant, HasFactory;
 
+    protected $appends = [
+        'cbte_letter',
+        'formatted_number',
+    ];
+
     public const CBTE_TIPO_FACTURA_A = 1;
     public const CBTE_TIPO_NOTA_DEBITO_A = 2;
     public const CBTE_TIPO_NOTA_CREDITO_A = 3;

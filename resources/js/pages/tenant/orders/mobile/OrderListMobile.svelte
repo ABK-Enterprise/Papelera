@@ -31,6 +31,7 @@
         customer_phone: string | null;
         delivery_address: string | null;
         status: string;
+        fiscal_status?: string;
         return_status?: string;
         total_amount: string | number;
         notes: string | null;
@@ -131,6 +132,26 @@
                     {:else if order.return_status === 'parcial'}
                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                             Dev. Parcial
+                        </span>
+                    {/if}
+
+                    <!-- Badge Fiscal ARCA -->
+                    {#if order.fiscal_status === 'facturado'}
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium tracking-wide bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                            Facturado
+                        </span>
+                    {:else if order.fiscal_status === 'anulado_fiscal'}
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium tracking-wide bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 line-through">
+                            Anulado
+                        </span>
+                    {:else if order.fiscal_status === 'error_fiscal'}
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium tracking-wide bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                            Error Fiscal
+                        </span>
+                    {:else}
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium tracking-wide bg-muted text-muted-foreground border border-border/60">
+                            Sin Facturar
                         </span>
                     {/if}
                 </div>

@@ -40,6 +40,10 @@
         customer_phone: string | null;
         delivery_address: string | null;
         status: string;
+        fiscal_status?: string;
+        fiscal_error_message?: string | null;
+        active_fiscal_invoice?: any;
+        customer?: any;
         total_amount: string | number;
         notes: string | null;
         created_at: string;
