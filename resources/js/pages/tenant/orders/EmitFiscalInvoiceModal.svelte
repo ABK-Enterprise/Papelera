@@ -14,6 +14,7 @@
     import { Label } from '@/components/ui/label';
     import { page, router } from '@inertiajs/svelte';
     import Receipt from 'lucide-svelte/icons/receipt';
+    import Printer from 'lucide-svelte/icons/printer';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Loader2 from 'lucide-svelte/icons/loader-2';
     import User from 'lucide-svelte/icons/user';
@@ -208,23 +209,30 @@
 <Dialog bind:open>
     <DialogContent class="w-[95vw] max-w-lg p-0 rounded-2xl sm:rounded-3xl bg-card border-border shadow-2xl overflow-hidden flex flex-col">
         <!-- Header -->
-        <DialogHeader class="p-5 sm:p-6 border-b border-border bg-card">
-            <div class="flex items-center gap-3">
-                <div class="bg-primary/10 text-primary size-10 rounded-2xl flex items-center justify-center shrink-0">
-                    <Receipt class="size-5" />
-                </div>
-                <div class="min-w-0 flex-1">
-                    <DialogTitle class="text-base sm:text-lg font-bold text-foreground">
-                        Facturación Electrónica ARCA (ex-AFIP)
+        <DialogHeader class="flex-col items-start p-4 sm:p-6 border-b border-border bg-card gap-1">
+            <!-- Fila 1: Icono impresora + Título (wrap) a la izquierda | 'X' a la derecha -->
+            <div class="flex items-start justify-between gap-2.5 w-full">
+                <div class="flex items-center flex-wrap gap-2.5 min-w-0 flex-1">
+                    <div class="bg-primary/10 text-primary size-9 sm:size-10 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0">
+                        <Printer class="size-4.5 sm:size-5" />
+                    </div>
+                    <DialogTitle class="text-base sm:text-lg font-bold text-foreground flex-wrap break-words leading-snug">
+                        Factura electrónica ARCA
                     </DialogTitle>
-                    <DialogDescription class="text-xs text-muted-foreground">
-                        Emisión oficial de comprobante fiscal con CAE en línea
-                    </DialogDescription>
                 </div>
+                <DialogClose class="size-9 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0 mt-0.5">
+                    <X class="size-4" />
+                </DialogClose>
             </div>
-            <DialogClose class="size-9 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                <X class="size-4" />
-            </DialogClose>
+
+            <!-- Fila 2: Debajo del icono de la impresora con un par de pixeles de margen vertical, el id del pedido -->
+            {#if order}
+                <div class="flex items-center mt-1 pl-0.5">
+                    <span class="inline-flex items-center font-bold font-sans tabular-nums text-xs px-2.5 py-0.5 rounded-lg bg-muted text-foreground border border-border/70">
+                        {order.order_number}
+                    </span>
+                </div>
+            {/if}
         </DialogHeader>
 
         <!-- Body -->

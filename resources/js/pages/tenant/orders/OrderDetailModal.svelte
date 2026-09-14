@@ -216,6 +216,25 @@
             variant: 'default' as const,
         };
     });
+
+    const canReturn = $derived(
+        order?.status === 'entregado' && order?.return_status !== 'total'
+    );
+    const canEmitFiscal = $derived(
+        order?.status !== 'cancelado' &&
+        (order?.fiscal_status === 'sin_facturar' ||
+            order?.fiscal_status === 'error_fiscal' ||
+            !order?.fiscal_status)
+    );
+    const hasFiscalPdf = $derived(
+        order?.fiscal_status === 'facturado' || !!order?.active_fiscal_invoice
+    );
+    const hasFiscalAction = $derived(canEmitFiscal || hasFiscalPdf);
+    const hasQrPayment = $derived(
+        order?.status !== 'cancelado' &&
+        order?.status !== 'entregado' &&
+        Number(order?.debt_amount ?? order?.total_amount) > 0
+    );
 </script>
 
 {#if open && order}
@@ -586,6 +605,83 @@
                 {/if}
             </div>
 
+            <!-- Snippets de Botones de Acción (Reutilizados para Desktop y Mobile) -->
+            {#snippet btnDevolucion(extraClass = '')}
+                {#if canReturn}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        class="min-h-[42px] sm:min-h-[40px] px-3.5 rounded-xl text-xs font-semibold text-amber-600 border-amber-500/30 hover:bg-amber-500/10 hover:border-amber-500/50 gap-1.5 shrink-0 cursor-pointer {extraClass}"
+                        onclick={() => (isConfirmReturnOpen = true)}
+                    >
+                        <RotateCcw class="size-4 shrink-0" />
+                        <span class="truncate">Devolución</span>
+                    </Button>
+                {/if}
+            {/snippet}
+
+            {#snippet btnFiscal(extraClass = '')}
+                {#if canEmitFiscal}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer text-foreground hover:text-primary hover:border-primary/50 {extraClass}"
+                        onclick={() => (isFiscalModalOpen = true)}
+                    >
+                        <ReceiptText class="size-4 text-primary shrink-0" />
+                        <span class="truncate">Facturar ARCA</span>
+                    </Button>
+                {:else if hasFiscalPdf}
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer {extraClass}"
+                        onclick={() => (isFiscalPdfModalOpen = true)}
+                    >
+                        <FileText class="size-4 text-primary shrink-0" />
+                        <span class="truncate">Factura PDF</span>
+                    </Button>
+                {/if}
+            {/snippet}
+
+            {#snippet btnQr(extraClass = '')}
+                {#if hasQrPayment}
+                    <Button
+                        type="button"
+                        variant="default"
+                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs bg-sky-600 hover:bg-sky-700 text-white dark:bg-sky-600 dark:hover:bg-sky-700 shrink-0 cursor-pointer {extraClass}"
+                        onclick={() => (isQrModalOpen = true)}
+                    >
+                        <QrCode class="size-4 shrink-0" />
+                        <span class="hidden sm:inline">Cobro QR MP</span>
+                        <span class="inline sm:hidden">QR (MP)</span>
+                    </Button>
+                {/if}
+            {/snippet}
+
+            {#snippet btnRemito(extraClass = '')}
+                <Button
+                    type="button"
+                    variant="secondary"
+                    class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer {extraClass}"
+                    onclick={() => (isPdfModalOpen = true)}
+                >
+                    <Printer class="size-4 text-primary shrink-0" />
+                    <span>Remito</span>
+                </Button>
+            {/snippet}
+
+            {#snippet btnCerrar(extraClass = '')}
+                <Button
+                    type="button"
+                    variant="outline"
+                    class="min-h-[42px] sm:min-h-[40px] px-3.5 rounded-xl text-xs sm:text-sm font-semibold shrink-0 cursor-pointer {extraClass}"
+                    onclick={() => (open = false)}
+                >
+                    Cerrar
+                </Button>
+            {/snippet}
+
             <!-- Footer con Total (Fila 1) y Acciones (Fila 2) (shrink-0) -->
             <div class="flex flex-col gap-2.5 pt-3 border-t shrink-0">
                 <!-- Fila 1: Total alineado a la derecha -->
@@ -596,8 +692,8 @@
                     </span>
                 </div>
 
-                <!-- Fila 2: Estado de devolución a la izquierda | QR (MP), PDF y Cerrar a la derecha -->
-                <div class="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                <!-- VISTA DESKTOP (sm:) -->
+                <div class="hidden sm:flex sm:items-center sm:justify-between sm:gap-2 sm:w-full">
                     <div class="flex flex-wrap items-center gap-2">
                         {#if order.return_status === 'total'}
                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 shrink-0">
@@ -609,76 +705,101 @@
                             </span>
                         {/if}
 
-                        {#if order.status === 'entregado' && order.return_status !== 'total'}
-                            <Button
-                                type="button"
-                                variant="outline"
-                                class="min-h-[40px] px-3.5 rounded-xl text-xs font-semibold text-amber-600 border-amber-500/30 hover:bg-amber-500/10 hover:border-amber-500/50 gap-1.5 shrink-0 cursor-pointer"
-                                onclick={() => (isConfirmReturnOpen = true)}
-                            >
-                                <RotateCcw class="size-4" />
-                                <span>Devolución</span>
-                            </Button>
-                        {/if}
+                        {@render btnDevolucion()}
                     </div>
 
                     <div class="flex items-center gap-2 shrink-0">
-                        {#if order.status !== 'cancelado' && order.status !== 'entregado' && Number(order.debt_amount ?? order.total_amount) > 0}
-                            <Button
-                                type="button"
-                                variant="default"
-                                class="min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs bg-sky-600 hover:bg-sky-700 text-white dark:bg-sky-600 dark:hover:bg-sky-700 shrink-0 cursor-pointer"
-                                onclick={() => (isQrModalOpen = true)}
-                            >
-                                <QrCode class="size-4" />
-                                <span class="hidden sm:inline">Cobro QR MP</span>
-                                <span class="inline sm:hidden">QR (MP)</span>
-                            </Button>
-                        {/if}
-
-                        {#if order.status !== 'cancelado' && (order.fiscal_status === 'sin_facturar' || order.fiscal_status === 'error_fiscal' || !order.fiscal_status)}
-                            <Button
-                                type="button"
-                                variant="outline"
-                                class="min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer text-foreground hover:text-primary hover:border-primary/50"
-                                onclick={() => (isFiscalModalOpen = true)}
-                            >
-                                <ReceiptText class="size-4 text-primary" />
-                                <span>Facturar ARCA</span>
-                            </Button>
-                        {/if}
-
-                        {#if order.fiscal_status === 'facturado' || order.active_fiscal_invoice}
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                class="min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer"
-                                onclick={() => (isFiscalPdfModalOpen = true)}
-                            >
-                                <FileText class="size-4 text-primary" />
-                                <span>Factura PDF</span>
-                            </Button>
-                        {/if}
-
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            class="min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer"
-                            onclick={() => (isPdfModalOpen = true)}
-                        >
-                            <Printer class="size-4 text-primary" />
-                            <span>PDF</span>
-                        </Button>
-
-                        <Button
-                            type="button"
-                            variant="outline"
-                            class="min-h-[40px] px-3.5 rounded-xl text-xs sm:text-sm font-semibold shrink-0 cursor-pointer"
-                            onclick={() => (open = false)}
-                        >
-                            Cerrar
-                        </Button>
+                        {@render btnQr()}
+                        {@render btnFiscal()}
+                        {@render btnRemito()}
+                        {@render btnCerrar()}
                     </div>
+                </div>
+
+                <!-- VISTA MOBILE (< sm) -->
+                <div class="sm:hidden flex flex-col gap-2 w-full">
+                    <!-- Badge de devolución si aplica -->
+                    {#if order.return_status === 'total'}
+                        <div class="flex items-center justify-start pb-0.5">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                                Devolución Total
+                            </span>
+                        </div>
+                    {:else if order.return_status === 'parcial'}
+                        <div class="flex items-center justify-start pb-0.5">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                                Devolución Parcial
+                            </span>
+                        </div>
+                    {/if}
+
+                    {#if order.status === 'entregado'}
+                        {#if canReturn && hasFiscalAction}
+                            <!-- Grid 2x2: Fila 1 (Facturar ARCA + Remito), Fila 2 (Devolución + Cerrar) -->
+                            <div class="grid grid-cols-[1.35fr_1fr] gap-2 w-full">
+                                {@render btnFiscal('w-full justify-center')}
+                                {@render btnRemito('w-full justify-center')}
+                            </div>
+                            <div class="grid grid-cols-[1.35fr_1fr] gap-2 w-full">
+                                {@render btnDevolucion('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {:else if canReturn}
+                            <!-- Devolución + Remito + Cerrar -->
+                            {@render btnDevolucion('w-full justify-center')}
+                            <div class="grid grid-cols-2 gap-2 w-full">
+                                {@render btnRemito('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {:else if hasFiscalAction}
+                            <!-- Facturar ARCA + Remito + Cerrar -->
+                            {@render btnFiscal('w-full justify-center')}
+                            <div class="grid grid-cols-2 gap-2 w-full">
+                                {@render btnRemito('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {:else}
+                            <div class="grid grid-cols-2 gap-2 w-full">
+                                {@render btnRemito('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {/if}
+                    {:else if order.status !== 'cancelado'}
+                        {#if hasQrPayment && hasFiscalAction}
+                            <!-- Grid 2x2: Fila 1 (Facturar ARCA + QR MP), Fila 2 (Remito + Cerrar) -->
+                            <div class="grid grid-cols-[1.35fr_1fr] gap-2 w-full">
+                                {@render btnFiscal('w-full justify-center')}
+                                {@render btnQr('w-full justify-center')}
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 w-full">
+                                {@render btnRemito('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {:else if hasQrPayment}
+                            {@render btnQr('w-full justify-center')}
+                            <div class="grid grid-cols-2 gap-2 w-full">
+                                {@render btnRemito('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {:else if hasFiscalAction}
+                            {@render btnFiscal('w-full justify-center')}
+                            <div class="grid grid-cols-2 gap-2 w-full">
+                                {@render btnRemito('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {:else}
+                            <div class="grid grid-cols-2 gap-2 w-full">
+                                {@render btnRemito('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {/if}
+                    {:else}
+                        <!-- Cancelado: Remito y Cerrar -->
+                        <div class="grid grid-cols-2 gap-2 w-full">
+                            {@render btnRemito('w-full justify-center')}
+                            {@render btnCerrar('w-full justify-center')}
+                        </div>
+                    {/if}
                 </div>
             </div>
 
