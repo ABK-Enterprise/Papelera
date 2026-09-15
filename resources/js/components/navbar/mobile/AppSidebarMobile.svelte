@@ -123,33 +123,42 @@
             }
 
             // Stock & Kardex: Acordeón
-            if (modules.includes('stock') && (isAdmin || permissions.some((p: string) => p.startsWith('stock_')))) {
-                items.push({
-                    title: 'Stock',
-                    href: '/tenant/stock/ingresos',
-                    icon: 'solar:archive-minimalistic-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/stock'),
-                    subItems: [
-                        {
-                            title: 'Ingresos de Stock',
-                            href: '/tenant/stock/ingresos',
-                            icon: 'solar:archive-down-minimalistic-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/stock/ingresos'),
-                        },
-                        {
-                            title: 'Egresos de Stock',
-                            href: '/tenant/stock/egresos',
-                            icon: 'solar:archive-up-minimalistic-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/stock/egresos'),
-                        },
-                        {
-                            title: 'Kardex y Auditoría',
-                            href: '/tenant/stock/kardex',
-                            icon: 'solar:history-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/stock/kardex'),
-                        },
-                    ],
-                });
+            if (modules.includes('stock')) {
+                const stockSubItems: SubItem[] = [];
+                if (isAdmin || permissions.includes('stock_ingreso.ver')) {
+                    stockSubItems.push({
+                        title: 'Ingresos de Stock',
+                        href: '/tenant/stock/ingresos',
+                        icon: 'solar:archive-down-minimalistic-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/stock/ingresos'),
+                    });
+                }
+                if (isAdmin || permissions.includes('stock_egreso.ver')) {
+                    stockSubItems.push({
+                        title: 'Egresos de Stock',
+                        href: '/tenant/stock/egresos',
+                        icon: 'solar:archive-up-minimalistic-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/stock/egresos'),
+                    });
+                }
+                if (isAdmin || permissions.includes('stock_historial.ver')) {
+                    stockSubItems.push({
+                        title: 'Kardex y Auditoría',
+                        href: '/tenant/stock/kardex',
+                        icon: 'solar:history-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/stock/kardex'),
+                    });
+                }
+
+                if (stockSubItems.length > 0) {
+                    items.push({
+                        title: 'Stock',
+                        href: stockSubItems[0].href,
+                        icon: 'solar:archive-minimalistic-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/stock'),
+                        subItems: stockSubItems,
+                    });
+                }
             }
 
 

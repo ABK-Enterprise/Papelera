@@ -105,13 +105,15 @@
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">Ingresos de Stock</h1>
         </div>
         <div class="flex items-center gap-3">
-            <Button
-                onclick={() => (isCreateModalOpen = true)}
-                class="flex items-center gap-2 font-semibold shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white sm:hover:shadow-lg sm:hover:shadow-emerald-600/25 cursor-pointer"
-            >
-                <Plus class="size-4" />
-                <span>Registrar ingreso</span>
-            </Button>
+            {#if page.props.auth?.is_admin || page.props.auth?.roles?.includes('admin') || page.props.auth?.permissions?.includes('stock_ingreso.crear')}
+                <Button
+                    onclick={() => (isCreateModalOpen = true)}
+                    class="flex items-center gap-2 font-semibold shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white sm:hover:shadow-lg sm:hover:shadow-emerald-600/25 cursor-pointer"
+                >
+                    <Plus class="size-4" />
+                    <span>Registrar ingreso</span>
+                </Button>
+            {/if}
         </div>
     </div>
 

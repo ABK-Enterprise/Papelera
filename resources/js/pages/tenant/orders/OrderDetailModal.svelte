@@ -6,7 +6,7 @@
     import IconContainer from '@/components/common/IconContainer.svelte';
     import CustomerOrderReturnModal from './CustomerOrderReturnModal.svelte';
     import EmitFiscalInvoiceModal from './EmitFiscalInvoiceModal.svelte';
-    import { router } from '@inertiajs/svelte';
+    import { router, page } from '@inertiajs/svelte';
     import { fade, scale } from 'svelte/transition';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Calendar from 'lucide-svelte/icons/calendar';
@@ -220,14 +220,24 @@
     const canReturn = $derived(
         order?.status === 'entregado' && order?.return_status !== 'total'
     );
+    const hasArcaModule = $derived(page.props.auth?.modules?.includes('facturacion_arca') ?? false);
+    const canEmitFiscalPermission = $derived(
+        Boolean(page.props.auth?.is_admin || page.props.auth?.roles?.includes('admin') || page.props.auth?.permissions?.includes('facturas.emitir'))
+    );
     const canEmitFiscal = $derived(
+        hasArcaModule &&
+        canEmitFiscalPermission &&
         order?.status !== 'cancelado' &&
         (order?.fiscal_status === 'sin_facturar' ||
             order?.fiscal_status === 'error_fiscal' ||
             !order?.fiscal_status)
     );
     const hasFiscalPdf = $derived(
-        order?.fiscal_status === 'facturado' || !!order?.active_fiscal_invoice
+        (order?.fiscal_status === 'facturado' || !!order?.active_fiscal_invoice) &&
+        (page.props.auth?.is_admin ||
+            page.props.auth?.roles?.includes('admin') ||
+            page.props.auth?.permissions?.includes('facturas.consultar') ||
+            page.props.auth?.permissions?.includes('pedidos.ver'))
     );
     const hasFiscalAction = $derived(canEmitFiscal || hasFiscalPdf);
     const hasQrPayment = $derived(

@@ -34,7 +34,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
         });
 
         // Warehouses Management (Configuración de Depósitos - Restricted to Tenant Admin with deposito.gestion)
-        Route::middleware(['tenant.admin', 'tenant.permission:deposito.gestion'])->group(function () {
+        Route::middleware(['tenant.admin', 'module:stock', 'tenant.permission:deposito.gestion'])->group(function () {
             Route::get('configuracion/depositos', [WarehouseController::class, 'index'])->name('warehouses.index');
             Route::post('configuracion/depositos', [WarehouseController::class, 'store'])->name('warehouses.store');
             Route::put('configuracion/depositos/{warehouse}', [WarehouseController::class, 'update'])->name('warehouses.update');
@@ -138,7 +138,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::get('pedidos/{customerOrder}/estado-pago', [CustomerOrderController::class, 'paymentStatus'])->name('orders.payment-status')->middleware('tenant.permission:pedidos.ver');
             Route::post('pedidos/{customerOrder}/reconciliar-pago', [CustomerOrderController::class, 'reconcilePayment'])->name('orders.reconcile-payment')->middleware('tenant.permission:pedidos.ver');
             Route::post('pedidos/{customerOrder}/devolucion', [CustomerOrderReturnController::class, 'store'])->name('orders.return')->middleware('tenant.permission:pedidos.crear');
-            Route::post('pedidos/{order}/facturar', [CustomerOrderFiscalController::class, 'emit'])->name('customer-orders.fiscal-invoice.emit');
+            Route::post('pedidos/{order}/facturar', [CustomerOrderFiscalController::class, 'emit'])->name('customer-orders.fiscal-invoice.emit')->middleware(['module:facturacion_arca', 'tenant.permission:facturas.emitir']);
             Route::get('pedidos/{order}/factura-pdf', [CustomerOrderFiscalController::class, 'downloadPdf'])->name('customer-orders.fiscal-invoice.pdf')->middleware('tenant.permission:pedidos.ver');
             Route::get('pedidos/{order}/factura-previsualizar', [CustomerOrderFiscalController::class, 'previewPdf'])->name('customer-orders.fiscal-invoice.preview')->middleware('tenant.permission:pedidos.ver');
             Route::delete('pedidos/{customerOrder}', [CustomerOrderController::class, 'destroy'])->name('orders.destroy')->middleware('tenant.permission:pedidos.cancelar');

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Events\Tenant\TenantModulesUpdated;
+use App\Models\Module;
 use App\Models\Tenant;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -57,5 +59,11 @@ class TenantModuleSynchronizer
 
         // 4. Reset permission cache
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        $detachedModuleCodes = Module::whereIn('id', $detachedModuleIds)->pluck('code')->all();
+        $attachedModuleCodes = Module::whereIn('id', $attachedModuleIds)->pluck('code')->all();
+        $activeModuleCodes = Module::whereIn('id', $newModuleIds)->where('is_active', true)->pluck('code')->all();
+
+        broadcast(new TenantModulesUpdated($tenant->id, $activeModuleCodes, $detachedModuleCodes, $attachedModuleCodes));
     }
 }
