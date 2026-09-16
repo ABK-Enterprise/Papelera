@@ -80,6 +80,11 @@ class CustomerOrderFiscalController extends Controller
 
         return Pdf::view('pdf.fiscal-invoice', compact('order', 'invoice', 'qrBase64', 'tenant'))
             ->format('a4')
+            ->meta(
+                title: ($invoice->isCreditNote() ? 'Nota de Crédito' : 'Factura') . " - {$invoice->formatted_number}",
+                author: $tenant?->name ?? 'Papelera',
+                creator: config('app.name', 'Papelera'),
+            )
             ->name("factura-{$invoice->formatted_number}.pdf")
             ->download();
     }
@@ -109,6 +114,11 @@ class CustomerOrderFiscalController extends Controller
 
         return Pdf::view('pdf.fiscal-invoice', compact('order', 'invoice', 'qrBase64', 'tenant'))
             ->format('a4')
+            ->meta(
+                title: ($invoice->isCreditNote() ? 'Nota de Crédito' : 'Factura') . " - {$invoice->formatted_number}",
+                author: $tenant?->name ?? 'Papelera',
+                creator: config('app.name', 'Papelera'),
+            )
             ->inline("factura-{$invoice->formatted_number}.pdf");
     }
 }

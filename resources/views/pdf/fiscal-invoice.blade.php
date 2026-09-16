@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ $invoice->isCreditNote() ? 'Nota de Crédito' : 'Factura' }} - {{ $invoice->formatted_number }}</title>
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" href="{{ asset('logo-provisorio-papelera.png') }}" type="image/png">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     <style>
         @page {
             size: a4 portrait;

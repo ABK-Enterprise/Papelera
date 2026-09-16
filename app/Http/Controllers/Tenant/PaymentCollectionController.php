@@ -272,6 +272,11 @@ class PaymentCollectionController extends Controller
             'receipt' => $receipt,
         ])
             ->format('a4')
+            ->meta(
+                title: "Recibo de Cobro - {$receipt->receipt_number}",
+                author: $receipt->tenant?->name ?? 'Papelera',
+                creator: config('app.name', 'Papelera'),
+            )
             ->name("recibo-{$receipt->receipt_number}.pdf")
             ->download();
     }
@@ -297,6 +302,11 @@ class PaymentCollectionController extends Controller
             'receipt' => $receipt,
         ])
             ->format('a4')
+            ->meta(
+                title: "Recibo de Cobro - {$receipt->receipt_number}",
+                author: $receipt->tenant?->name ?? 'Papelera',
+                creator: config('app.name', 'Papelera'),
+            )
             ->inline("recibo-{$receipt->receipt_number}.pdf");
     }
 }

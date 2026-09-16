@@ -795,6 +795,11 @@ class CustomerOrderController extends Controller
             'order' => $customerOrder,
         ])
             ->format('a4')
+            ->meta(
+                title: "Comprobante de Pedido - {$customerOrder->order_number}",
+                author: $customerOrder->tenant?->name ?? 'Papelera',
+                creator: config('app.name', 'Papelera'),
+            )
             ->name("pedido-{$customerOrder->order_number}.pdf")
             ->download();
     }
@@ -814,6 +819,11 @@ class CustomerOrderController extends Controller
             'order' => $customerOrder,
         ])
             ->format('a4')
+            ->meta(
+                title: "Comprobante de Pedido - {$customerOrder->order_number}",
+                author: $customerOrder->tenant?->name ?? 'Papelera',
+                creator: config('app.name', 'Papelera'),
+            )
             ->inline("pedido-{$customerOrder->order_number}.pdf");
     }
 

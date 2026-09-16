@@ -360,10 +360,19 @@ class SupplierOrderController extends Controller
 
         $supplierOrder->load(['items.product', 'supplier', 'tenant']);
 
+        $tenant = $supplierOrder->tenant ?? $request->user()?->tenant;
+
         return \Spatie\LaravelPdf\Facades\Pdf::view('pdf.supplier-order', [
             'order' => $supplierOrder,
+            'supplier' => $supplierOrder->supplier,
+            'tenant' => $tenant,
         ])
             ->format('a4')
+            ->meta(
+                title: "Orden de Compra - {$supplierOrder->order_number}",
+                author: $tenant?->name ?? 'Papelera',
+                creator: config('app.name', 'Papelera'),
+            )
             ->name("orden-compra-{$supplierOrder->order_number}.pdf")
             ->download();
     }
@@ -378,11 +387,19 @@ class SupplierOrderController extends Controller
         }
 
         $supplierOrder->load(['items.product', 'supplier', 'tenant']);
+        $tenant = $supplierOrder->tenant ?? $request->user()?->tenant;
 
         return \Spatie\LaravelPdf\Facades\Pdf::view('pdf.supplier-order', [
             'order' => $supplierOrder,
+            'supplier' => $supplierOrder->supplier,
+            'tenant' => $tenant,
         ])
             ->format('a4')
+            ->meta(
+                title: "Orden de Compra - {$supplierOrder->order_number}",
+                author: $tenant?->name ?? 'Papelera',
+                creator: config('app.name', 'Papelera'),
+            )
             ->inline("orden-compra-{$supplierOrder->order_number}.pdf");
     }
 }
