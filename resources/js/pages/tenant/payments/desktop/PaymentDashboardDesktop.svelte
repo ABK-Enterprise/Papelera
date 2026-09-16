@@ -199,11 +199,11 @@
                 <button
                     type="button"
                     onclick={() => onDeselectCustomer?.()}
-                    class="text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1.5 font-sans transition-colors cursor-pointer py-1 px-2.5 rounded-xl hover:bg-muted border border-border/70 shadow-2xs bg-card"
-                    title="Deseleccionar cliente y ver histórico de cobros"
+                    class="text-xs sm:text-sm font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground flex items-center gap-1.5 font-sans transition-colors cursor-pointer py-1 px-2.5 rounded-xl hover:bg-muted border border-border/70 shadow-2xs bg-card"
+                    title="Quitar cliente y ver histórico de cobros"
                 >
                     <X class="size-3.5 text-muted-foreground shrink-0" />
-                    <span>Deseleccionar cliente</span>
+                    <span>Quitar cliente</span>
                 </button>
             {/if}
         </div>
@@ -248,18 +248,6 @@
                             {/if}
                         </Button>
                     {/if}
-
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        class="h-8.5 px-2.5 text-xs gap-1.5 rounded-xl font-semibold font-sans text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                        onclick={() => onDeselectCustomer?.()}
-                        title="Deseleccionar cliente"
-                    >
-                        <X class="size-3.5" />
-                        <span>Deseleccionar</span>
-                    </Button>
                 </div>
             </div>
 
@@ -342,11 +330,11 @@
                     <Button
                         type="button"
                         variant="default"
-                        class="h-11 px-5 rounded-xl font-bold min-h-[44px] text-xs sm:text-sm font-sans shadow-sm gap-2"
+                        class="min-h-[46px] h-auto py-3 px-5 rounded-xl font-bold text-xs sm:text-sm font-sans shadow-sm gap-2 leading-snug text-center flex items-center justify-center"
                         disabled={selectedOrderIds.length === 0}
                         onclick={() => onOpenPaymentModal?.()}
                     >
-                        <ReceiptText class="size-4" />
+                        <ReceiptText class="size-4 shrink-0" />
                         <span>Cobrar Seleccionados ({formatPrice(selectedOrdersTotalDebt)})</span>
                     </Button>
                 </div>

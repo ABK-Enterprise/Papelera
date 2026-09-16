@@ -123,9 +123,6 @@
                 <HandCoins class="size-7 text-primary" />
                 Panel de Cobranzas
             </h1>
-            <p class="text-xs sm:text-sm text-muted-foreground mt-1">
-                Gestión de cobros centralizados, imputación de recibos con algoritmo FIFO y saldos de clientes.
-            </p>
         </div>
 
         <div class="flex items-center gap-3">

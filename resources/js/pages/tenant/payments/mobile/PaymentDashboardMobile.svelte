@@ -283,11 +283,11 @@
                         <Button
                             type="button"
                             variant="default"
-                            class="h-11 px-5 rounded-xl font-bold min-h-[44px] shadow-sm gap-2"
+                            class="min-h-[46px] h-auto py-3 px-5 rounded-xl font-bold text-xs sm:text-sm shadow-sm gap-2 leading-snug text-center flex items-center justify-center"
                             disabled={selectedOrderIds.length === 0}
                             onclick={() => onOpenPaymentModal?.()}
                         >
-                            <ReceiptText class="size-4" />
+                            <ReceiptText class="size-4 shrink-0" />
                             <span>Cobrar ({formatPrice(selectedOrdersTotalDebt)})</span>
                         </Button>
                     </div>

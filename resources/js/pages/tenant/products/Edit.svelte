@@ -127,8 +127,8 @@
             </h1>
         </div>
         <Link href="/tenant/productos">
-            <Button class="gap-2 text-sm rounded-xl font-medium min-h-[40px] px-4 shadow-2xs">
-                <ArrowLeft class="size-4" />
+            <Button class="gap-2 text-sm rounded-xl font-medium min-h-[42px] h-auto py-2.5 px-4 shadow-2xs leading-snug text-center flex items-center justify-center">
+                <ArrowLeft class="size-4 shrink-0" />
                 <span>Volver al catálogo</span>
             </Button>
         </Link>
