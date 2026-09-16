@@ -193,34 +193,52 @@ test('authenticated user can preview supplier order pdf inline', function () {
     });
 });
 
-test('customer order pdf blade view renders correct columns and 3-row totals structure', function () {
+test('customer order pdf blade view renders modern A4 structure with header, customer card and sticky footer', function () {
+    $this->customerOrder->customer->update([
+        'province' => 'Buenos Aires',
+        'city' => 'San Nicolás',
+    ]);
     $this->customerOrder->load(['items.product', 'customer', 'tenant']);
 
     $html = view('pdf.customer-order', ['order' => $this->customerOrder])->render();
 
-    // Verification of fixed layout and symmetric alignments
+    // 1. Cabecera en 3 secciones con recuadro central X
+    expect($html)->toContain('header-table')
+        ->toContain('letter-box')
+        ->toContain('class="letter-char">X</div>')
+        ->toContain('DOCUMENTO NO VÁLIDO COMO FACTURA')
+        ->toContain('COMPROBANTE DE PEDIDO')
+        ->toContain('PED-0001');
+
+    // 2. Ficha de cliente con 4 filas y borde completo
+    expect($html)->toContain('customer-card')
+        ->toContain('Cliente:')
+        ->toContain('Librería Central')
+        ->toContain('Condición IVA:')
+        ->toContain('Localidad:')
+        ->toContain('San Nicolás')
+        ->toContain('Provincia:')
+        ->toContain('Buenos Aires')
+        ->toContain('Condición de Pago:')
+        ->toContain('Observaciones:');
+
+    // 3. Tabla de ítems fija
     expect($html)->toContain('col-product text-left')
         ->toContain('col-quantity text-center')
         ->toContain('col-price text-right')
         ->toContain('col-subtotal text-right');
 
-    // Verification of 3-row totals breakdown
-    expect($html)->toContain('Descuento por cliente:')
-        ->toContain('%0,0')
-        ->toContain('Descuento por bulto:')
-        ->toContain('$0,00')
-        ->toContain('TOTAL DEL PEDIDO:')
-        ->toContain('$15.000,00');
-
-    // Subtotal text must NOT be present in totals table
-    expect($html)->not->toContain('Suma total de productos:');
-
-    // 40/60 distribution present
-    expect($html)->toContain('width: 40%;')
-        ->toContain('width: 60%;');
+    // 4. Sticky Footer con recuadro derecho de totales y marca de agua
+    expect($html)->toContain('page-footer')
+        ->toContain('totals-box')
+        ->toContain('SUBTOTAL:')
+        ->toContain('TOTAL:')
+        ->toContain('$15.000,00')
+        ->toContain('watermark-footer')
+        ->toContain('Generado por');
 });
 
-test('customer order pdf calculates bulk discounts and customer discounts correctly', function () {
+test('customer order pdf calculates bulk discounts and customer discounts correctly in totals box', function () {
     $bulkProduct = Product::create([
         'tenant_id' => $this->tenant->id,
         'name' => 'Cuaderno A4 Pack',
@@ -265,7 +283,10 @@ test('customer order pdf calculates bulk discounts and customer discounts correc
     expect($html)->toContain('%5,0');
 
     // Bulk discount savings: (1000 - 850) * 10 = $1.500,00
-    expect($html)->toContain('$1.500,00');
+    expect($html)->toContain('$1.500,00')
+        ->toContain('Descuento por bulto:')
+        ->toContain('SUBTOTAL:')
+        ->toContain('TOTAL:');
 });
 
 test('authenticated user can access customer order html viewer shell with favicon', function () {

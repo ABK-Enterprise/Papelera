@@ -143,6 +143,22 @@ class CustomerOrder extends Model
         return $this->hasMany(CustomerOrderReturn::class, 'customer_order_id');
     }
 
+    /**
+     * Infer the commercial payment condition from payment status and debt.
+     */
+    public function getDerivedPaymentConditionAttribute(): string
+    {
+        if ($this->payment_status === 'cobrado') {
+            return 'Contado';
+        }
+
+        if ($this->payment_status === 'parcial') {
+            return 'Pago Parcial (Saldo en Cta. Cte.)';
+        }
+
+        return 'Cuenta Corriente';
+    }
+
     public function fiscalInvoices(): HasMany
     {
         return $this->hasMany(FiscalInvoice::class);

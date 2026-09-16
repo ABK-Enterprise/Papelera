@@ -21,6 +21,8 @@
         email: string | null;
         phone: string | null;
         address: string | null;
+        province?: string | null;
+        city?: string | null;
         credit_limit: number | string;
         is_defaulter: boolean;
         is_active: boolean;
