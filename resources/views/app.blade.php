@@ -8,9 +8,9 @@
         <meta name="pusher-key" content="{{ config('broadcasting.connections.pusher.key') }}">
         <meta name="pusher-cluster" content="{{ config('broadcasting.connections.pusher.options.cluster') ?: 'sa1' }}">
 
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/logo-provisorio-papelera.png" type="image/png">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <link rel="icon" href="/favicon.ico?v=2" sizes="any">
+        <link rel="icon" href="/logo-provisorio-papelera.png?v=2" type="image/png">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
 
         @fonts
 

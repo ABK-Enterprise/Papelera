@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Comprobante de Pedido - {{ $order->order_number }}</title>
-    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
-    <link rel="icon" href="{{ asset('logo-provisorio-papelera.png') }}" type="image/png">
-    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="icon" href="{{ asset('favicon.ico') }}?v=2" sizes="any">
+    <link rel="icon" href="{{ asset('logo-provisorio-papelera.png') }}?v=2" type="image/png">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}?v=2">
     <style>
         @page {
             size: a4 portrait;
