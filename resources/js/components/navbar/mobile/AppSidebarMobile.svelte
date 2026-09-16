@@ -1,5 +1,4 @@
 <script lang="ts">
-    import AppLogoIcon from '@/components/AppLogoIcon.svelte';
     import { toUrl } from '@/lib/utils';
     import { dashboard } from '@/routes';
     import { Link, page } from '@inertiajs/svelte';
@@ -302,8 +301,7 @@
     >
         <!-- Header del Sidebar Móvil -->
         <div class="flex h-16 items-center justify-between border-b border-border px-4">
-            <div class="flex items-center gap-2">
-                <AppLogoIcon class="h-7 w-7 text-primary fill-current" />
+            <div class="flex items-center">
                 <span class="font-bold text-base tracking-tight">Menú Principal</span>
             </div>
             <button

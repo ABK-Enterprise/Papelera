@@ -9,14 +9,14 @@
         <meta name="pusher-cluster" content="{{ config('broadcasting.connections.pusher.options.cluster') ?: 'sa1' }}">
 
         <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        <link rel="icon" href="/logo-provisorio-papelera.png" type="image/png">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
         @fonts
 
         @vite(['resources/css/app.css', 'resources/js/app.ts'])
         <x-inertia::head>
-            <title>{{ config('app.name', 'Laravel') }}</title>
+            <title>{{ config('app.name', 'Papelera') }}</title>
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">

@@ -2,7 +2,6 @@
     import { Link, page } from '@inertiajs/svelte';
     import Icon from '@iconify/svelte';
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
-    import AppLogoIcon from '@/components/AppLogoIcon.svelte';
     import UserAvatarDropdown from '@/components/navbar/UserAvatarDropdown.svelte';
     import { toUrl } from '@/lib/utils';
     import { dashboard } from '@/routes';
@@ -266,16 +265,8 @@
 
 <header class="w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-[0px_4px_20px_rgba(0,0,0,0.02)]">
     <div class="w-full flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        <!-- Extremo Izquierdo: Solo Isotipo de la Aplicación -->
-        <div class="flex items-center">
-            <Link
-                href={toUrl(dashboard())}
-                class="flex items-center gap-2 rounded-lg p-1.5 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary"
-                aria-label="Ir al Dashboard"
-            >
-                <AppLogoIcon class="h-8 w-8 text-primary fill-current" />
-            </Link>
-        </div>
+        <!-- Extremo Izquierdo: Mantener balance de distribución flex -->
+        <div class="flex items-center"></div>
 
         <!-- Centro: Navigation Menu con soporte On-Hover Dropdown -->
         <nav class="flex items-center justify-center gap-1 sm:gap-2">
