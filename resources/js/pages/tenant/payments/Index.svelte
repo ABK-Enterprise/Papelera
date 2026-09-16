@@ -56,11 +56,29 @@
         );
     }
 
-    function handleSelectCustomer(customer: CustomerSummary) {
+    function handleSelectCustomer(customer: CustomerSummary | null) {
+        if (!customer || customer.id === selectedCustomer?.id) {
+            handleDeselectCustomer();
+            return;
+        }
+
         router.get(
             '/tenant/cobranzas',
             {
                 customer_id: customer.id,
+                search: searchTerm || undefined,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            }
+        );
+    }
+
+    function handleDeselectCustomer() {
+        router.get(
+            '/tenant/cobranzas',
+            {
                 search: searchTerm || undefined,
             },
             {
@@ -133,6 +151,7 @@
             {selectedOrderIds}
             onSearch={handleSearch}
             onSelectCustomer={handleSelectCustomer}
+            onDeselectCustomer={handleDeselectCustomer}
             onToggleOrderSelection={toggleOrderSelection}
             onToggleSelectAllOrders={toggleSelectAllOrders}
             onOpenPaymentModal={() => (isPaymentModalOpen = true)}

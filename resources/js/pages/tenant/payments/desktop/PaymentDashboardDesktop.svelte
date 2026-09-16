@@ -11,6 +11,8 @@
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import ArrowRight from 'lucide-svelte/icons/arrow-right';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
+    import X from 'lucide-svelte/icons/x';
+    import Check from 'lucide-svelte/icons/check';
     import { Link } from '@inertiajs/svelte';
 
     export interface CustomerSummary {
@@ -57,6 +59,7 @@
         selectedOrderIds = [],
         onSearch = undefined,
         onSelectCustomer = undefined,
+        onDeselectCustomer = undefined,
         onToggleOrderSelection = undefined,
         onToggleSelectAllOrders = undefined,
         onOpenPaymentModal = undefined,
@@ -69,6 +72,7 @@
         selectedOrderIds: number[];
         onSearch?: (term: string) => void;
         onSelectCustomer?: (customer: CustomerSummary) => void;
+        onDeselectCustomer?: () => void;
         onToggleOrderSelection?: (orderId: number) => void;
         onToggleSelectAllOrders?: () => void;
         onOpenPaymentModal?: () => void;
@@ -106,7 +110,7 @@
 <div class="grid grid-cols-12 gap-5 lg:gap-6 items-start font-sans">
     <!-- COLUMNA 1: Cuentas por Cobrar (33.3% / 4 cols) -->
     <div class="col-span-12 lg:col-span-4 xl:col-span-4 space-y-3 font-sans">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between min-h-[30px]">
             <h2 class="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2 font-sans">
                 <User class="size-4 text-primary shrink-0" />
                 <span>Cuentas por Cobrar</span>
@@ -148,13 +152,18 @@
                                 <span class="font-semibold text-sm sm:text-base text-foreground block truncate font-sans">
                                     {cust.name}
                                 </span>
-                                <div class="flex items-center gap-2 text-xs text-muted-foreground font-sans">
+                                <div class="flex items-center gap-2 text-xs text-muted-foreground font-sans flex-wrap">
                                     {#if cust.tax_id}
                                         <span>CUIT: {cust.tax_id}</span>
                                     {/if}
                                     {#if cust.unpaid_orders_count && cust.unpaid_orders_count > 0}
                                         <span class="inline-flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md font-sans">
                                             {cust.unpaid_orders_count} {cust.unpaid_orders_count === 1 ? 'pedido' : 'pedidos'}
+                                        </span>
+                                    {/if}
+                                    {#if selectedCustomer?.id === cust.id}
+                                        <span class="inline-flex items-center gap-1 font-semibold text-primary bg-primary/15 px-1.5 py-0.5 rounded-md font-sans text-[11px]">
+                                            <Check class="size-3" /> Seleccionado
                                         </span>
                                     {/if}
                                 </div>
@@ -174,6 +183,31 @@
 
     <!-- COLUMNA 2: Pedidos Impagos del Cliente Seleccionado (33.3% / 4 cols) -->
     <div class="col-span-12 lg:col-span-4 xl:col-span-4 space-y-3 font-sans">
+        <!-- Header de Columna 2: Altura y alineación nivelada con Columna 1 y Columna 3 -->
+        <div class="flex items-center justify-between min-h-[30px]">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2 font-sans">
+                <ShoppingBag class="size-4 text-primary shrink-0" />
+                <span>Pedidos a Cobrar</span>
+                {#if selectedCustomer && unpaidOrders.length > 0}
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-sans tabular-nums">
+                        {unpaidOrders.length} {unpaidOrders.length === 1 ? 'pedido' : 'pedidos'}
+                    </span>
+                {/if}
+            </h2>
+
+            {#if selectedCustomer}
+                <button
+                    type="button"
+                    onclick={() => onDeselectCustomer?.()}
+                    class="text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1.5 font-sans transition-colors cursor-pointer py-1 px-2.5 rounded-xl hover:bg-muted border border-border/70 shadow-2xs bg-card"
+                    title="Deseleccionar cliente y ver histórico de cobros"
+                >
+                    <X class="size-3.5 text-muted-foreground shrink-0" />
+                    <span>Deseleccionar cliente</span>
+                </button>
+            {/if}
+        </div>
+
         {#if !selectedCustomer}
             <Card class="p-8 text-center rounded-2xl border border-dashed border-border bg-card/60 flex flex-col items-center justify-center min-h-[380px] font-sans">
                 <div class="size-12 rounded-2xl bg-muted/60 text-muted-foreground flex items-center justify-center mb-3">
@@ -196,23 +230,37 @@
                     </span>
                 </div>
 
-                {#if unpaidOrders.length > 0}
+                <div class="flex items-center gap-2">
+                    {#if unpaidOrders.length > 0}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            class="h-8.5 px-3 text-xs gap-1.5 rounded-xl font-semibold font-sans"
+                            onclick={() => onToggleSelectAllOrders?.()}
+                        >
+                            {#if isAllSelected}
+                                <CheckSquare class="size-3.5 text-primary" />
+                                <span>Deseleccionar</span>
+                            {:else}
+                                <Square class="size-3.5 text-muted-foreground" />
+                                <span>Seleccionar Todos</span>
+                            {/if}
+                        </Button>
+                    {/if}
+
                     <Button
                         type="button"
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
-                        class="h-8.5 px-3 text-xs gap-1.5 rounded-xl font-semibold font-sans"
-                        onclick={() => onToggleSelectAllOrders?.()}
+                        class="h-8.5 px-2.5 text-xs gap-1.5 rounded-xl font-semibold font-sans text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                        onclick={() => onDeselectCustomer?.()}
+                        title="Deseleccionar cliente"
                     >
-                        {#if isAllSelected}
-                            <CheckSquare class="size-3.5 text-primary" />
-                            <span>Deseleccionar</span>
-                        {:else}
-                            <Square class="size-3.5 text-muted-foreground" />
-                            <span>Seleccionar Todos</span>
-                        {/if}
+                        <X class="size-3.5" />
+                        <span>Deseleccionar</span>
                     </Button>
-                {/if}
+                </div>
             </div>
 
             <!-- Listado de Cards de Pedidos Impagos -->
@@ -308,7 +356,7 @@
 
     <!-- COLUMNA 3: Cobros Realizados Recientes (33.3% / 4 cols con Google Sans y cards accesibles) -->
     <div class="col-span-12 lg:col-span-4 xl:col-span-4 space-y-3 font-sans">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between min-h-[30px]">
             <h2 class="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2 font-sans">
                 <ReceiptText class="size-4 text-primary shrink-0" />
                 <span>Cobros Realizados</span>
