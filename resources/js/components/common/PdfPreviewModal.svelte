@@ -68,22 +68,17 @@
     <DialogContent class="max-w-4xl max-h-[90vh] sm:max-w-4xl p-0 flex flex-col font-sans overflow-hidden">
         <!-- Header del Modal -->
         <div class="px-5 py-4 sm:px-6 border-b border-border/80 flex items-center justify-between shrink-0 bg-card">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 min-w-0">
                 <div class="size-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
                     <Printer class="size-4.5" />
                 </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h2 class="text-base sm:text-lg font-bold tracking-tight text-foreground">{title}</h2>
-                        {#if orderNumber}
-                            <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary tabular-nums">
-                                {orderNumber}
-                            </span>
-                        {/if}
-                    </div>
-                    <p class="text-xs text-muted-foreground mt-0.5">
-                        Previsualización del comprobante y descarga directa del documento.
-                    </p>
+                <div class="flex items-center gap-2 min-w-0 flex-wrap">
+                    <h2 class="text-base sm:text-lg font-bold tracking-tight text-foreground">{title}</h2>
+                    {#if orderNumber}
+                        <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary tabular-nums font-sans shrink-0">
+                            {orderNumber}
+                        </span>
+                    {/if}
                 </div>
             </div>
 

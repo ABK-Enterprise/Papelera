@@ -97,7 +97,7 @@
 
 <AppHead title="Panel de Cobranzas y Recibos" />
 
-<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1440px] mx-auto w-full">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1680px] mx-auto w-full font-sans">
     <!-- Header del Módulo con separación estándar mb-6 / gap-6 -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

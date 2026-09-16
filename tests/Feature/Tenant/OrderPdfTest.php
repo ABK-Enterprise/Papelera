@@ -206,7 +206,8 @@ test('customer order pdf blade view renders modern A4 structure with header, cus
     expect($html)->toContain('header-table')
         ->toContain('letter-box')
         ->toContain('class="letter-char">X</div>')
-        ->toContain('DOCUMENTO NO VÁLIDO COMO FACTURA')
+        ->not->toContain('DOCUMENTO NO VÁLIDO COMO FACTURA')
+        ->not->toContain('letter-code')
         ->toContain('COMPROBANTE DE PEDIDO')
         ->toContain('PED-0001');
 

@@ -35,35 +35,21 @@
         /* Letra X Central */
         .type-box {
             text-align: center;
-            width: 80px;
+            width: 48px;
+            height: 48px;
             border: 2px solid #0f172a;
             border-radius: 6px;
-            padding: 4px 6px;
             margin: 0 auto;
             background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .type-letter {
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 900;
-            line-height: 1;
+            line-height: 44px;
             color: #0f172a;
-        }
-        .type-label {
-            font-size: 8px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #475569;
-            margin-top: 2px;
-        }
-        .not-invoice-banner {
-            font-size: 8px;
-            font-weight: 700;
-            color: #64748b;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 4px;
         }
 
         .tenant-title {
@@ -277,9 +263,7 @@
             <td style="width: 16%; text-align: center;">
                 <div class="type-box">
                     <div class="type-letter">X</div>
-                    <div class="type-label">RECIBO</div>
                 </div>
-                <div class="not-invoice-banner">Doc. No Válido Como Factura</div>
             </td>
 
             <td style="width: 40%;">

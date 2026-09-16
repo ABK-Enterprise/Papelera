@@ -88,36 +88,22 @@
 
         /* Recuadro Central con Letra X */
         .letter-box {
-            width: 48px;
+            width: 46px;
+            height: 46px;
             margin: 0 auto;
             background: #ffffff;
             border: 2px solid #0f172a;
             border-radius: 4px;
-            padding: 2px 0 4px 0;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .letter-char {
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 900;
-            line-height: 1;
+            line-height: 42px;
             color: #0f172a;
-        }
-        .letter-code {
-            font-size: 8px;
-            font-weight: 800;
-            color: #475569;
-            margin-top: 1px;
-            letter-spacing: 0.5px;
-        }
-        .not-fiscal-banner {
-            font-size: 7.5px;
-            font-weight: 700;
-            color: #64748b;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            margin-top: 3px;
-            line-height: 1.1;
         }
 
         /* Metadatos Derecha */
@@ -362,9 +348,7 @@
                     <td class="header-center">
                         <div class="letter-box">
                             <div class="letter-char">X</div>
-                            <div class="letter-code">REMITO</div>
                         </div>
-                        <div class="not-fiscal-banner">DOCUMENTO NO VÁLIDO COMO FACTURA</div>
                     </td>
 
                     <!-- Derecha: Tipo de Documento, Correlativo y Datos Fiscales -->
@@ -533,7 +517,7 @@
 
             <!-- Marca de Agua y Pie Institucional del Sistema -->
             <div class="watermark-footer">
-                Generado por {{ config('app.name', 'Papelera ERP') }} &bull; Documento no válido como factura
+                Generado por {{ config('app.name', 'Papelera ERP') }}
             </div>
         </div>
     </div>

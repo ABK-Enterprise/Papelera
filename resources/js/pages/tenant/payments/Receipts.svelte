@@ -321,7 +321,7 @@
 {#if selectedReceiptForPdf}
     <PdfPreviewModal
         bind:open={isPdfModalOpen}
-        title="Recibo Oficial de Cobranza (Recibo X)"
+        title="Recibo de Cobro"
         orderNumber={selectedReceiptForPdf.receipt_number}
         previewUrl={`/tenant/cobranzas/recibos/${selectedReceiptForPdf.id}/previsualizar-pdf`}
         viewerUrl={`/tenant/cobranzas/recibos/${selectedReceiptForPdf.id}/visor`}
