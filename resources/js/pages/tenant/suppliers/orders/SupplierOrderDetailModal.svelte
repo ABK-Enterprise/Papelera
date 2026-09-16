@@ -390,6 +390,7 @@
             title="Orden de Compra"
             orderNumber={order.order_number}
             previewUrl={`/tenant/proveedores/ordenes/${order.id}/previsualizar-pdf`}
+            viewerUrl={`/tenant/proveedores/ordenes/${order.id}/visor`}
             downloadUrl={`/tenant/proveedores/ordenes/${order.id}/pdf`}
         />
     {/if}

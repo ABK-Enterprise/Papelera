@@ -402,4 +402,19 @@ class SupplierOrderController extends Controller
             )
             ->inline("orden-compra-{$supplierOrder->order_number}.pdf");
     }
+
+    /**
+     * Display the supplier order in an HTML viewer shell with brand metadata and favicon.
+     */
+    public function viewer(Request $request, SupplierOrder $supplierOrder)
+    {
+        if ($supplierOrder->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        return view('pdf.viewer', [
+            'title' => "Orden de Compra - {$supplierOrder->order_number}",
+            'streamUrl' => route('tenant.suppliers.orders.preview-pdf', $supplierOrder),
+        ]);
+    }
 }

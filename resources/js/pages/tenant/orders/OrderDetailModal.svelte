@@ -840,6 +840,7 @@
             title="Comprobante de Pedido"
             orderNumber={order.order_number}
             previewUrl={`/tenant/pedidos/${order.id}/previsualizar-pdf`}
+            viewerUrl={`/tenant/pedidos/${order.id}/visor`}
             downloadUrl={`/tenant/pedidos/${order.id}/pdf`}
         />
 
@@ -858,6 +859,7 @@
             title="Factura Electrónica ARCA"
             orderNumber={order.order_number}
             previewUrl={`/tenant/pedidos/${order.id}/factura-previsualizar`}
+            viewerUrl={`/tenant/pedidos/${order.id}/factura-visor`}
             downloadUrl={`/tenant/pedidos/${order.id}/factura-pdf`}
         />
 

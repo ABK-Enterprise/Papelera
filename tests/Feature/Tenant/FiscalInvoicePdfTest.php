@@ -279,3 +279,15 @@ test('credit note renders associated invoice box in blade view', function () {
         ->toContain('Comprobante Asociado:')
         ->toContain('Factura A 0001-00000001');
 });
+
+test('authenticated user can access fiscal invoice html viewer shell with favicon', function () {
+    $response = $this->actingAs($this->user)
+        ->get(route('tenant.customer-orders.fiscal-invoice.viewer', $this->order));
+
+    $response->assertOk();
+    $response->assertViewIs('pdf.viewer');
+    $response->assertSee('favicon.ico?v=2', false);
+    $response->assertSee('logo-provisorio-papelera.png?v=2', false);
+    $response->assertSee(route('tenant.customer-orders.fiscal-invoice.preview', $this->order), false);
+});
+

@@ -828,6 +828,21 @@ class CustomerOrderController extends Controller
     }
 
     /**
+     * Display the customer order in an HTML viewer shell with brand metadata and favicon.
+     */
+    public function viewer(Request $request, CustomerOrder $customerOrder)
+    {
+        if ($customerOrder->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        return view('pdf.viewer', [
+            'title' => "Comprobante de Pedido - {$customerOrder->order_number}",
+            'streamUrl' => route('tenant.orders.preview-pdf', $customerOrder),
+        ]);
+    }
+
+    /**
      * Genera un código QR dinámico/híbrido en Mercado Pago para cobro presencial
      */
     public function generateQr(Request $request, CustomerOrder $customerOrder, MercadoPagoService $mpService): JsonResponse

@@ -268,3 +268,26 @@ test('customer order pdf calculates bulk discounts and customer discounts correc
     expect($html)->toContain('$1.500,00');
 });
 
+test('authenticated user can access customer order html viewer shell with favicon', function () {
+    $response = $this->actingAs($this->user)
+        ->get(route('tenant.orders.viewer', $this->customerOrder));
+
+    $response->assertOk();
+    $response->assertViewIs('pdf.viewer');
+    $response->assertSee('favicon.ico?v=2', false);
+    $response->assertSee('logo-provisorio-papelera.png?v=2', false);
+    $response->assertSee(route('tenant.orders.preview-pdf', $this->customerOrder), false);
+});
+
+test('authenticated user can access supplier order html viewer shell with favicon', function () {
+    $response = $this->actingAs($this->user)
+        ->get(route('tenant.suppliers.orders.viewer', $this->supplierOrder));
+
+    $response->assertOk();
+    $response->assertViewIs('pdf.viewer');
+    $response->assertSee('favicon.ico?v=2', false);
+    $response->assertSee('logo-provisorio-papelera.png?v=2', false);
+    $response->assertSee(route('tenant.suppliers.orders.preview-pdf', $this->supplierOrder), false);
+});
+
+

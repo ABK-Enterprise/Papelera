@@ -98,6 +98,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('proveedores/ordenes', [SupplierOrderController::class, 'store'])->name('suppliers.orders.store')->middleware('tenant.permission:proveedores.pedidos.crear');
             Route::get('proveedores/ordenes/{supplierOrder}/pdf', [SupplierOrderController::class, 'downloadPdf'])->name('suppliers.orders.pdf')->middleware('tenant.permission:proveedores.pedidos.ver');
             Route::get('proveedores/ordenes/{supplierOrder}/previsualizar-pdf', [SupplierOrderController::class, 'previewPdf'])->name('suppliers.orders.preview-pdf')->middleware('tenant.permission:proveedores.pedidos.ver');
+            Route::get('proveedores/ordenes/{supplierOrder}/visor', [SupplierOrderController::class, 'viewer'])->name('suppliers.orders.viewer')->middleware('tenant.permission:proveedores.pedidos.ver');
             Route::patch('proveedores/ordenes/{supplierOrder}/recibir', [SupplierOrderController::class, 'receive'])->name('suppliers.orders.receive')->middleware('tenant.permission:proveedores.pedidos.recibir');
             Route::patch('proveedores/ordenes/{supplierOrder}/cancelar', [SupplierOrderController::class, 'cancel'])->name('suppliers.orders.cancel')->middleware('tenant.permission:proveedores.pedidos.cancelar');
         });
@@ -124,6 +125,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::get('cobranzas/recibos', [PaymentCollectionController::class, 'receipts'])->name('payments.receipts')->middleware('tenant.permission:cobranzas.ver');
             Route::get('cobranzas/recibos/{receipt}/pdf', [PaymentCollectionController::class, 'downloadPdf'])->name('payments.receipts.pdf')->middleware('tenant.permission:cobranzas.ver');
             Route::get('cobranzas/recibos/{receipt}/previsualizar-pdf', [PaymentCollectionController::class, 'previewPdf'])->name('payments.receipts.preview-pdf')->middleware('tenant.permission:cobranzas.ver');
+            Route::get('cobranzas/recibos/{receipt}/visor', [PaymentCollectionController::class, 'viewer'])->name('payments.receipts.viewer')->middleware('tenant.permission:cobranzas.ver');
             Route::post('cobranzas/recibos/{receipt}/anular', [PaymentCollectionController::class, 'void'])->name('payments.receipts.void')->middleware('tenant.permission:cobranzas.anular');
         });
 
@@ -133,6 +135,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('pedidos', [CustomerOrderController::class, 'store'])->name('orders.store')->middleware('tenant.permission:pedidos.crear');
             Route::get('pedidos/{customerOrder}/pdf', [CustomerOrderController::class, 'downloadPdf'])->name('orders.pdf')->middleware('tenant.permission:pedidos.ver');
             Route::get('pedidos/{customerOrder}/previsualizar-pdf', [CustomerOrderController::class, 'previewPdf'])->name('orders.preview-pdf')->middleware('tenant.permission:pedidos.ver');
+            Route::get('pedidos/{customerOrder}/visor', [CustomerOrderController::class, 'viewer'])->name('orders.viewer')->middleware('tenant.permission:pedidos.ver');
             Route::patch('pedidos/{customerOrder}/estado', [CustomerOrderController::class, 'updateStatus'])->name('orders.update-status')->middleware('tenant.permission:pedidos.editar_estado');
             Route::post('pedidos/{customerOrder}/generar-qr-cobro', [CustomerOrderController::class, 'generateQr'])->name('orders.generate-qr')->middleware('tenant.permission:pedidos.ver');
             Route::get('pedidos/{customerOrder}/estado-pago', [CustomerOrderController::class, 'paymentStatus'])->name('orders.payment-status')->middleware('tenant.permission:pedidos.ver');
@@ -141,6 +144,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('pedidos/{order}/facturar', [CustomerOrderFiscalController::class, 'emit'])->name('customer-orders.fiscal-invoice.emit')->middleware(['module:facturacion_arca', 'tenant.permission:facturas.emitir']);
             Route::get('pedidos/{order}/factura-pdf', [CustomerOrderFiscalController::class, 'downloadPdf'])->name('customer-orders.fiscal-invoice.pdf')->middleware('tenant.permission:pedidos.ver');
             Route::get('pedidos/{order}/factura-previsualizar', [CustomerOrderFiscalController::class, 'previewPdf'])->name('customer-orders.fiscal-invoice.preview')->middleware('tenant.permission:pedidos.ver');
+            Route::get('pedidos/{order}/factura-visor', [CustomerOrderFiscalController::class, 'viewer'])->name('customer-orders.fiscal-invoice.viewer')->middleware('tenant.permission:pedidos.ver');
             Route::delete('pedidos/{customerOrder}', [CustomerOrderController::class, 'destroy'])->name('orders.destroy')->middleware('tenant.permission:pedidos.cancelar');
 
             // Repartos y Logística de Última Milla

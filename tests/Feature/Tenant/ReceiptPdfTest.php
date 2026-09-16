@@ -126,3 +126,15 @@ test('unauthenticated user is redirected when trying to download receipt pdf', f
 
     $response->assertRedirect(route('login'));
 });
+
+test('authenticated user can access payment receipt html viewer shell with favicon', function () {
+    $response = $this->actingAs($this->adminUser)
+        ->get(route('tenant.payments.receipts.viewer', $this->receipt));
+
+    $response->assertOk();
+    $response->assertViewIs('pdf.viewer');
+    $response->assertSee('favicon.ico?v=2', false);
+    $response->assertSee('logo-provisorio-papelera.png?v=2', false);
+    $response->assertSee(route('tenant.payments.receipts.preview-pdf', $this->receipt), false);
+});
+

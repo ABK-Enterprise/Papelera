@@ -324,6 +324,7 @@
         title="Recibo Oficial de Cobranza (Recibo X)"
         orderNumber={selectedReceiptForPdf.receipt_number}
         previewUrl={`/tenant/cobranzas/recibos/${selectedReceiptForPdf.id}/previsualizar-pdf`}
+        viewerUrl={`/tenant/cobranzas/recibos/${selectedReceiptForPdf.id}/visor`}
         downloadUrl={`/tenant/cobranzas/recibos/${selectedReceiptForPdf.id}/pdf`}
     />
 {/if}

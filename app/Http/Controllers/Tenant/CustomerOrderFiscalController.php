@@ -121,4 +121,27 @@ class CustomerOrderFiscalController extends Controller
             )
             ->inline("factura-{$invoice->formatted_number}.pdf");
     }
+
+    /**
+     * Display the official ARCA fiscal invoice in an HTML viewer shell with brand metadata and favicon.
+     */
+    public function viewer(Request $request, CustomerOrder $order)
+    {
+        if ($order->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        /** @var FiscalInvoice|null $invoice */
+        $invoice = $order->activeFiscalInvoice()->first()
+            ?? $order->fiscalInvoices()->where('status', FiscalInvoice::STATUS_APROBADO)->latest()->first();
+
+        if (! $invoice) {
+            abort(404, 'El pedido no cuenta con una factura fiscal aprobada.');
+        }
+
+        return view('pdf.viewer', [
+            'title' => ($invoice->isCreditNote() ? 'Nota de Crédito' : 'Factura') . " - {$invoice->formatted_number}",
+            'streamUrl' => route('tenant.customer-orders.fiscal-invoice.preview', $order),
+        ]);
+    }
 }

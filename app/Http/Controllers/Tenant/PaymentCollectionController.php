@@ -309,4 +309,19 @@ class PaymentCollectionController extends Controller
             )
             ->inline("recibo-{$receipt->receipt_number}.pdf");
     }
+
+    /**
+     * Display the payment receipt in an HTML viewer shell with brand metadata and favicon.
+     */
+    public function viewer(Request $request, Receipt $receipt)
+    {
+        if ($receipt->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        return view('pdf.viewer', [
+            'title' => "Recibo de Cobro - {$receipt->receipt_number}",
+            'streamUrl' => route('tenant.payments.receipts.preview-pdf', $receipt),
+        ]);
+    }
 }

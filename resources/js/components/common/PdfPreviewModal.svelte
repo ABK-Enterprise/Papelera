@@ -21,12 +21,14 @@
         title = 'Comprobante de Pedido',
         orderNumber = '',
         previewUrl = '',
+        viewerUrl = '',
         downloadUrl = '',
     }: {
         open: boolean;
         title?: string;
         orderNumber?: string;
         previewUrl: string;
+        viewerUrl?: string;
         downloadUrl: string;
     } = $props();
 
@@ -171,7 +173,7 @@
                 </Button>
 
                 {#if isGenerated}
-                    <a href={previewUrl} target="_blank" rel="noreferrer" class="flex-1 sm:flex-initial">
+                    <a href={viewerUrl || previewUrl} target="_blank" rel="noreferrer" class="flex-1 sm:flex-initial">
                         <Button
                             type="button"
                             variant="secondary"
