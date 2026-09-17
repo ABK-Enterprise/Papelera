@@ -8,6 +8,7 @@
     import ReceiptText from 'lucide-svelte/icons/receipt-text';
     import History from 'lucide-svelte/icons/history';
     import HandCoins from 'lucide-svelte/icons/hand-coins';
+    import FileText from 'lucide-svelte/icons/file-text';
 
     interface Props {
         customers?: CustomerSummary[];
@@ -126,6 +127,15 @@
         </div>
 
         <div class="flex items-center gap-3">
+            <Button
+                variant="secondary"
+                class="h-11 px-4 rounded-xl font-semibold gap-2 shadow-xs min-h-[44px]"
+                onclick={() => router.get('/tenant/cobranzas/facturas')}
+            >
+                <FileText class="size-4" />
+                <span>Historial de Facturas</span>
+            </Button>
+
             <Button
                 variant="secondary"
                 class="h-11 px-4 rounded-xl font-semibold gap-2 shadow-xs min-h-[44px]"

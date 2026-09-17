@@ -9,7 +9,9 @@ use App\Http\Requests\Tenant\StoreReceiptRequest;
 use App\Http\Requests\Tenant\VoidReceiptRequest;
 use App\Models\Customer;
 use App\Models\CustomerOrder;
+use App\Models\FiscalInvoice;
 use App\Models\Receipt;
+use App\Services\Arca\ArcaQrService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -322,6 +324,157 @@ class PaymentCollectionController extends Controller
         return view('pdf.viewer', [
             'title' => "Recibo de Cobro - {$receipt->receipt_number}",
             'streamUrl' => route('tenant.payments.receipts.preview-pdf', $receipt),
+        ]);
+    }
+
+    /**
+     * Historial de Facturas Electrónicas y Notas de Crédito de ARCA.
+     */
+    public function invoices(Request $request): Response|JsonResponse
+    {
+        $tenantId = $request->user()->tenant_id;
+        $search = $request->query('search');
+        $cbteTipo = $request->query('cbte_tipo');
+        $dateFrom = $request->query('date_from');
+        $dateTo = $request->query('date_to');
+        $sortBy = $request->query('sort_by', 'latest');
+
+        $query = FiscalInvoice::where('tenant_id', $tenantId)
+            ->with([
+                'customerOrder.customer',
+                'customerOrder.items.product',
+                'createdByUser:id,name',
+                'associatedInvoice',
+            ]);
+
+        // Búsqueda por receptor, documento, CAE, número de comprobante o número de pedido
+        if ($search) {
+            $term = '%' . mb_strtolower(trim((string) $search), 'UTF-8') . '%';
+            $query->where(function ($q) use ($term, $search) {
+                $q->whereRaw('LOWER(receptor_name) LIKE ?', [$term])
+                    ->orWhere('doc_nro', 'like', "%{$search}%")
+                    ->orWhere('cae', 'like', "%{$search}%")
+                    ->orWhere('numero_comprobante', 'like', "%{$search}%")
+                    ->orWhereHas('customerOrder', function ($oq) use ($search) {
+                        $oq->where('order_number', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // Filtro por Tipo de Comprobante
+        if ($cbteTipo && $cbteTipo !== 'all') {
+            $query->where('cbte_tipo', (int) $cbteTipo);
+        }
+
+        // Rango de fechas
+        if ($dateFrom) {
+            $query->whereDate('issue_date', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $query->whereDate('issue_date', '<=', $dateTo);
+        }
+
+        // Ordenamiento
+        match ($sortBy) {
+            'oldest' => $query->orderBy('issue_date', 'asc')->orderBy('id', 'asc'),
+            'amount_desc' => $query->orderByDesc('importe_total')->orderByDesc('id'),
+            'amount_asc' => $query->orderBy('importe_total', 'asc')->orderBy('id', 'asc'),
+            default => $query->orderBy('issue_date', 'desc')->orderBy('id', 'desc'),
+        };
+
+        $invoices = $query->paginate(20)->withQueryString();
+
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
+            return response()->json($invoices);
+        }
+
+        return Inertia::render('tenant/payments/Invoices', [
+            'invoices' => $invoices,
+            'filters' => [
+                'search' => $search,
+                'cbte_tipo' => $cbteTipo ?: 'all',
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
+                'sort_by' => $sortBy,
+            ],
+        ]);
+    }
+
+    /**
+     * Download the ARCA fiscal invoice PDF document directly from invoice.
+     */
+    public function downloadInvoicePdf(Request $request, FiscalInvoice $fiscalInvoice, ArcaQrService $qrService)
+    {
+        if ($fiscalInvoice->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        $order = $fiscalInvoice->customerOrder;
+        if (! $order) {
+            abort(404, 'Pedido asociado a la factura no encontrado.');
+        }
+
+        $qrBase64 = $qrService->generateForInvoice($fiscalInvoice);
+
+        $order->loadMissing(['items.product', 'customer', 'tenant']);
+        $fiscalInvoice->loadMissing(['associatedInvoice']);
+        $tenant = $order->tenant;
+        $invoice = $fiscalInvoice;
+
+        return Pdf::view('pdf.fiscal-invoice', compact('order', 'invoice', 'qrBase64', 'tenant'))
+            ->format('a4')
+            ->meta(
+                title: ($invoice->isCreditNote() ? 'Nota de Crédito' : 'Factura') . " - {$invoice->formatted_number}",
+                author: $tenant?->name ?? 'Papelera',
+                creator: config('app.name', 'Papelera'),
+            )
+            ->name("factura-{$invoice->formatted_number}.pdf")
+            ->download();
+    }
+
+    /**
+     * Preview the ARCA fiscal invoice PDF document inline directly from invoice.
+     */
+    public function previewInvoicePdf(Request $request, FiscalInvoice $fiscalInvoice, ArcaQrService $qrService)
+    {
+        if ($fiscalInvoice->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        $order = $fiscalInvoice->customerOrder;
+        if (! $order) {
+            abort(404, 'Pedido asociado a la factura no encontrado.');
+        }
+
+        $qrBase64 = $qrService->generateForInvoice($fiscalInvoice);
+
+        $order->loadMissing(['items.product', 'customer', 'tenant']);
+        $fiscalInvoice->loadMissing(['associatedInvoice']);
+        $tenant = $order->tenant;
+        $invoice = $fiscalInvoice;
+
+        return Pdf::view('pdf.fiscal-invoice', compact('order', 'invoice', 'qrBase64', 'tenant'))
+            ->format('a4')
+            ->meta(
+                title: ($invoice->isCreditNote() ? 'Nota de Crédito' : 'Factura') . " - {$invoice->formatted_number}",
+                author: $tenant?->name ?? 'Papelera',
+                creator: config('app.name', 'Papelera'),
+            )
+            ->inline("factura-{$invoice->formatted_number}.pdf");
+    }
+
+    /**
+     * Display the ARCA fiscal invoice in an HTML viewer shell with brand metadata and favicon.
+     */
+    public function invoiceViewer(Request $request, FiscalInvoice $fiscalInvoice)
+    {
+        if ($fiscalInvoice->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        return view('pdf.viewer', [
+            'title' => ($fiscalInvoice->isCreditNote() ? 'Nota de Crédito' : 'Factura') . " - {$fiscalInvoice->formatted_number}",
+            'streamUrl' => route('tenant.payments.invoices.preview-pdf', $fiscalInvoice),
         ]);
     }
 }

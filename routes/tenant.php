@@ -127,6 +127,14 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::get('cobranzas/recibos/{receipt}/previsualizar-pdf', [PaymentCollectionController::class, 'previewPdf'])->name('payments.receipts.preview-pdf')->middleware('tenant.permission:cobranzas.ver');
             Route::get('cobranzas/recibos/{receipt}/visor', [PaymentCollectionController::class, 'viewer'])->name('payments.receipts.viewer')->middleware('tenant.permission:cobranzas.ver');
             Route::post('cobranzas/recibos/{receipt}/anular', [PaymentCollectionController::class, 'void'])->name('payments.receipts.void')->middleware('tenant.permission:cobranzas.anular');
+
+            // Historial de Facturas ARCA
+            Route::middleware('module:facturacion_arca')->group(function () {
+                Route::get('cobranzas/facturas', [PaymentCollectionController::class, 'invoices'])->name('payments.invoices')->middleware('tenant.permission:cobranzas.ver');
+                Route::get('cobranzas/facturas/{fiscalInvoice}/pdf', [PaymentCollectionController::class, 'downloadInvoicePdf'])->name('payments.invoices.pdf')->middleware('tenant.permission:cobranzas.ver');
+                Route::get('cobranzas/facturas/{fiscalInvoice}/previsualizar-pdf', [PaymentCollectionController::class, 'previewInvoicePdf'])->name('payments.invoices.preview-pdf')->middleware('tenant.permission:cobranzas.ver');
+                Route::get('cobranzas/facturas/{fiscalInvoice}/visor', [PaymentCollectionController::class, 'invoiceViewer'])->name('payments.invoices.viewer')->middleware('tenant.permission:cobranzas.ver');
+            });
         });
 
         // Customer Orders (Pedidos module)
