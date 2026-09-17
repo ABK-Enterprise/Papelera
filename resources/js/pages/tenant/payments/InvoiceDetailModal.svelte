@@ -13,7 +13,6 @@
     import { Card } from '@/components/ui/card';
     import FileText from 'lucide-svelte/icons/file-text';
     import Printer from 'lucide-svelte/icons/printer';
-    import Download from 'lucide-svelte/icons/download';
     import Copy from 'lucide-svelte/icons/copy';
     import Check from 'lucide-svelte/icons/check';
     import Calendar from 'lucide-svelte/icons/calendar';
@@ -278,28 +277,7 @@
                 </Card>
             </DialogBody>
 
-            <DialogFooter class="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border/60 pt-4">
-                <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <Button
-                        type="button"
-                        variant="default"
-                        class="min-h-[44px] h-11 px-4 rounded-xl text-xs font-semibold gap-2 shadow-xs w-full sm:w-auto"
-                        onclick={() => onPreviewPdf?.(invoice)}
-                    >
-                        <Printer class="size-4" />
-                        <span>Ver e Imprimir PDF</span>
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        class="min-h-[44px] h-11 px-4 rounded-xl text-xs font-semibold gap-2 shadow-xs w-full sm:w-auto"
-                        onclick={() => window.open(`/tenant/cobranzas/facturas/${invoice.id}/pdf`, '_blank')}
-                    >
-                        <Download class="size-4" />
-                        <span>Descargar PDF</span>
-                    </Button>
-                </div>
-
+            <DialogFooter class="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 border-t border-border/60 pt-4">
                 <DialogClose asChild>
                     {#snippet children(props)}
                         <Button
@@ -312,6 +290,18 @@
                         </Button>
                     {/snippet}
                 </DialogClose>
+
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <Button
+                        type="button"
+                        variant="default"
+                        class="min-h-[44px] h-11 px-4 rounded-xl text-xs font-semibold gap-2 shadow-xs w-full sm:w-auto justify-center"
+                        onclick={() => onPreviewPdf?.(invoice)}
+                    >
+                        <Printer class="size-4" />
+                        <span>Ver e Imprimir PDF</span>
+                    </Button>
+                </div>
             </DialogFooter>
         {/if}
     </DialogContent>
