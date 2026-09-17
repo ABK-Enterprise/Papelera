@@ -215,27 +215,39 @@
 
             // Cobranza (Módulo Independiente de Cobros y Recibos)
             if (modules.includes('clientes') && (isAdmin || permissions.includes('cobranzas.ver') || permissions.includes('clientes.ver'))) {
+                const cobranzasSubItems: SubItem[] = [
+                    {
+                        title: 'Panel de Cobranzas',
+                        description: 'Gestión de cobros e imputación de recibos',
+                        href: '/tenant/cobranzas',
+                        icon: 'solar:hand-money-bold-duotone',
+                        active: currentUrl === '/tenant/cobranzas' || currentUrl.startsWith('/tenant/cobranzas?'),
+                    },
+                    {
+                        title: 'Historial de Recibos',
+                        description: 'Comprobantes oficiales emitidos y auditoría',
+                        href: '/tenant/cobranzas/recibos',
+                        icon: 'solar:bill-check-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/cobranzas/recibos'),
+                    },
+                ];
+
+                if (modules.includes('facturacion_arca')) {
+                    cobranzasSubItems.push({
+                        title: 'Historial de Facturas',
+                        description: 'Facturas electrónicas y notas de crédito ARCA',
+                        href: '/tenant/cobranzas/facturas',
+                        icon: 'solar:document-text-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/cobranzas/facturas'),
+                    });
+                }
+
                 items.push({
                     title: 'Cobranza',
                     href: '/tenant/cobranzas',
                     icon: 'solar:hand-money-bold-duotone',
                     active: currentUrl.startsWith('/tenant/cobranzas'),
-                    subItems: [
-                        {
-                            title: 'Panel de Cobranzas',
-                            description: 'Gestión de cobros e imputación de recibos',
-                            href: '/tenant/cobranzas',
-                            icon: 'solar:hand-money-bold-duotone',
-                            active: currentUrl === '/tenant/cobranzas' || currentUrl.startsWith('/tenant/cobranzas?'),
-                        },
-                        {
-                            title: 'Historial de Recibos',
-                            description: 'Comprobantes oficiales emitidos y auditoría',
-                            href: '/tenant/cobranzas/recibos',
-                            icon: 'solar:bill-check-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/cobranzas/recibos'),
-                        },
-                    ],
+                    subItems: cobranzasSubItems,
                 });
             }
 

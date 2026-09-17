@@ -7,12 +7,14 @@
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import PdfPreviewModal from '@/components/common/PdfPreviewModal.svelte';
     import InvoiceDetailModal from './InvoiceDetailModal.svelte';
+    import InvoiceFilterModalMobile from './mobile/InvoiceFilterModalMobile.svelte';
     import InvoiceListDesktop, { type FiscalInvoiceItem } from './desktop/InvoiceListDesktop.svelte';
     import InvoiceListMobile from './mobile/InvoiceListMobile.svelte';
     import { router } from '@inertiajs/svelte';
     import ArrowLeft from 'lucide-svelte/icons/arrow-left';
     import FileText from 'lucide-svelte/icons/file-text';
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
+    import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
 
     interface Props {
         invoices: {
@@ -41,6 +43,8 @@
     let dateFrom = $state(filters.date_from || '');
     let dateTo = $state(filters.date_to || '');
     let sortBy = $state(filters.sort_by || 'latest');
+
+    let isFilterModalOpen = $state(false);
 
     let isPdfModalOpen = $state(false);
     let selectedInvoiceForPdf = $state<FiscalInvoiceItem | null>(null);
@@ -92,6 +96,14 @@
         );
     }
 
+    function handleApplyMobileFilters(f: { cbte_tipo: string; date_from: string; date_to: string; sort_by: string }) {
+        selectedCbteTipo = f.cbte_tipo;
+        dateFrom = f.date_from;
+        dateTo = f.date_to;
+        sortBy = f.sort_by;
+        applyFilters();
+    }
+
     function formatPrice(val: number | string) {
         return new Intl.NumberFormat('es-AR', {
             style: 'currency',
@@ -109,13 +121,17 @@
         router.get('/tenant/cobranzas/facturas', {}, { preserveState: true, preserveScroll: true });
     }
 
+    let activeFiltersCount = $derived(
+        (selectedCbteTipo && selectedCbteTipo !== 'all' ? 1 : 0) +
+        (dateFrom ? 1 : 0) +
+        (dateTo ? 1 : 0) +
+        (sortBy && sortBy !== 'latest' ? 1 : 0)
+    );
+
     let hasActiveFilters = $derived(
         Boolean(
             searchTerm ||
-            (selectedCbteTipo && selectedCbteTipo !== 'all') ||
-            dateFrom ||
-            dateTo ||
-            (sortBy && sortBy !== 'latest')
+            activeFiltersCount > 0
         )
     );
 </script>
@@ -147,11 +163,67 @@
         </div>
     </div>
 
-    <!-- Barra de Filtros y Búsqueda -->
-    <Card class="rounded-2xl border border-border/80 bg-card p-4 shadow-xs space-y-3">
-        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+    <!-- Barra de Filtros Mobile: SearchCombobox + Botón SlidersHorizontal -->
+    <div class="flex items-center gap-2.5 w-full md:hidden">
+        <div class="flex-1 min-w-0">
+            <SearchCombobox
+                value={searchTerm}
+                items={invoices.data}
+                searchKeys={['formatted_number', 'receptor_name', 'cae', 'doc_nro']}
+                placeholder="Buscar comprobante, receptor, CAE..."
+                onsearch={(q) => {
+                    searchTerm = q;
+                    applyFilters();
+                }}
+                onselect={(item) => {
+                    searchTerm = item.formatted_number;
+                    applyFilters();
+                }}
+                onclear={() => {
+                    searchTerm = '';
+                    applyFilters();
+                }}
+            >
+                {#snippet itemSnippet(item)}
+                    <div class="flex items-center justify-between w-full py-0.5">
+                        <div class="flex flex-col min-w-0">
+                            <span class="font-sans font-bold text-xs text-foreground tabular-nums">
+                                {item.formatted_number}
+                            </span>
+                            <span class="text-xs text-muted-foreground truncate">
+                                {item.receptor_name}
+                            </span>
+                        </div>
+                        <span class="font-sans font-semibold text-xs text-primary tabular-nums shrink-0 ml-2">
+                            {formatPrice(item.importe_total)}
+                        </span>
+                    </div>
+                {/snippet}
+            </SearchCombobox>
+        </div>
+
+        <Button
+            type="button"
+            variant={activeFiltersCount > 0 ? 'secondary' : 'outline'}
+            size="icon"
+            onclick={() => (isFilterModalOpen = true)}
+            class="relative h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 rounded-xl border border-border/70 shadow-2xs"
+            aria-label="Abrir filtros avanzados"
+        >
+            <SlidersHorizontal class="size-4 text-foreground" />
+            {#if activeFiltersCount > 0}
+                <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums shadow-xs">
+                    {activeFiltersCount}
+                </span>
+            {/if}
+        </Button>
+    </div>
+
+    <!-- Barra de Filtros Desktop -->
+    <Card class="hidden md:block rounded-2xl border border-border/80 bg-card p-4 shadow-xs space-y-3">
+        <div class="grid grid-cols-12 gap-3">
             <!-- Buscador -->
-            <div class="sm:col-span-4">
+            <div class="col-span-4">
                 <SearchCombobox
                     value={searchTerm}
                     items={invoices.data}
@@ -189,7 +261,7 @@
             </div>
 
             <!-- Tipo de Comprobante -->
-            <div class="sm:col-span-3">
+            <div class="col-span-3">
                 <select
                     bind:value={selectedCbteTipo}
                     onchange={applyFilters}
@@ -202,7 +274,7 @@
             </div>
 
             <!-- Rango Desde -->
-            <div class="sm:col-span-2">
+            <div class="col-span-2">
                 <Input
                     type="date"
                     bind:value={dateFrom}
@@ -213,7 +285,7 @@
             </div>
 
             <!-- Rango Hasta -->
-            <div class="sm:col-span-2">
+            <div class="col-span-2">
                 <Input
                     type="date"
                     bind:value={dateTo}
@@ -224,7 +296,7 @@
             </div>
 
             <!-- Ordenamiento / Reset -->
-            <div class="sm:col-span-1 flex items-center gap-1.5">
+            <div class="col-span-1 flex items-center gap-1.5">
                 <select
                     bind:value={sortBy}
                     onchange={applyFilters}
@@ -276,6 +348,17 @@
         </div>
     {/if}
 </div>
+
+<!-- Modal de Filtros Avanzados Mobile -->
+<InvoiceFilterModalMobile
+    bind:open={isFilterModalOpen}
+    selectedCbteTipo={selectedCbteTipo}
+    dateFrom={dateFrom}
+    dateTo={dateTo}
+    sortBy={sortBy}
+    onapply={handleApplyMobileFilters}
+    onreset={resetFilters}
+/>
 
 <!-- Modal de Detalle de Factura (Solo Lectura) -->
 <InvoiceDetailModal
