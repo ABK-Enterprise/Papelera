@@ -40,6 +40,7 @@
         units_per_package?: number;
         package_quantity?: number;
         image_url: string | null;
+        thumbnail_url?: string | null;
         is_incomplete?: boolean;
         warehouses_count?: number;
         category?: CategorySummary | null;
@@ -100,12 +101,13 @@
 
             <!-- Lado Izquierdo: Imagen / Avatar Placeholder + Info Principal -->
             <div class="flex items-center gap-4 min-w-0 flex-1">
-                {#if product.image_url}
+                {#if product.thumbnail_url || product.image_url}
                     <div class="relative size-12 rounded-xl border border-border/80 overflow-hidden shrink-0">
                         <img
-                            src={product.image_url}
+                            src={product.thumbnail_url || product.image_url}
                             alt={product.name}
                             class="h-full w-full object-cover"
+                            loading="lazy"
                         />
                         {#if isWeighable}
                             <span class="absolute bottom-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-1 py-0.5 rounded-tl tabular-nums">

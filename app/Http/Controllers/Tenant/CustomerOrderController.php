@@ -251,23 +251,30 @@ class CustomerOrderController extends Controller
                 }
                 $unitPrice = $isBulk ? (float) $product->bulk_discount_price : $basePrice;
 
+                // 1. Descuento puntual de ítem (autónomo de línea)
+                $itemDiscountPct = isset($item['discount_percentage'])
+                    ? max(0.0, min(99.0, (float) $item['discount_percentage']))
+                    : 0.00;
+
+                $baseSubtotal = round($quantityBase * $unitPrice, 2);
+                $itemLineDiscountAmount = round($baseSubtotal * ($itemDiscountPct / 100), 2);
+                $netLineSubtotal = round($baseSubtotal - $itemLineDiscountAmount, 2);
+
+                // 2. Elegibilidad para descuento de cliente
                 $applyItemDiscount = isset($item['apply_customer_discount'])
                     ? (bool) $item['apply_customer_discount']
                     : (! $isBulk && $customerDiscountPct > 0);
 
+                $itemCustomerDiscountAmount = 0.00;
                 if ($applyItemDiscount && $customerDiscountPct > 0) {
-                    $itemDiscountPct = $customerDiscountPct;
-                    $baseSubtotal = round($quantityBase * $unitPrice, 2);
-                    $itemDiscountAmount = round($baseSubtotal * ($itemDiscountPct / 100), 2);
-                    $itemSubtotal = round($baseSubtotal - $itemDiscountAmount, 2);
-                } else {
-                    $itemDiscountPct = 0.00;
-                    $itemDiscountAmount = 0.00;
-                    $itemSubtotal = round($quantityBase * $unitPrice, 2);
+                    $itemCustomerDiscountAmount = round($netLineSubtotal * ($customerDiscountPct / 100), 2);
                 }
 
-                $totalAmount += $itemSubtotal;
-                $totalDiscountAmount += $itemDiscountAmount;
+                $finalItemSubtotal = round($netLineSubtotal - $itemCustomerDiscountAmount, 2);
+                $totalItemDiscount = round($itemLineDiscountAmount + $itemCustomerDiscountAmount, 2);
+
+                $totalAmount += $finalItemSubtotal;
+                $totalDiscountAmount += $itemCustomerDiscountAmount;
 
                 $preparedItems[] = [
                     'product_id' => $product->id,
@@ -278,13 +285,16 @@ class CustomerOrderController extends Controller
                     'quantity_base' => $quantityBase,
                     'unit_price' => $unitPrice,
                     'apply_customer_discount' => $applyItemDiscount,
-                    'discount_percentage' => $itemDiscountPct,
-                    'discount_amount' => $itemDiscountAmount,
-                    'subtotal' => $itemSubtotal,
+                    'discount_percentage' => $itemDiscountPct > 0 ? $itemDiscountPct : ($applyItemDiscount ? $customerDiscountPct : 0.00),
+                    'discount_amount' => $totalItemDiscount,
+                    'subtotal' => $finalItemSubtotal,
                 ];
             }
 
-            $subtotalProducts = $totalAmount;
+            $subtotalProducts = round($totalAmount + $totalDiscountAmount, 2);
+            $customerDiscountAmount = $totalDiscountAmount;
+            $netProductsAmount = $totalAmount;
+
             $shippingCost = 0.00;
             $shippingZoneId = $request->validated('shipping_zone_id');
             $shippingZoneName = null;
@@ -298,10 +308,11 @@ class CustomerOrderController extends Controller
                 if ($shippingZone) {
                     $shippingZoneName = $shippingZone->name;
                     $surchargePct = (float) $shippingZone->surcharge_percentage;
-                    $shippingCost = round($subtotalProducts * ($surchargePct / 100), 2);
-                    $totalAmount = round($subtotalProducts + $shippingCost, 2);
+                    $shippingCost = round($netProductsAmount * ($surchargePct / 100), 2);
                 }
             }
+
+            $totalAmount = round($netProductsAmount + $shippingCost, 2);
 
             $paymentType = $request->input('payment_type') ?: 'cuenta_corriente';
             $paymentMethod = $request->input('payment_method') ?: 'efectivo';
@@ -337,7 +348,7 @@ class CustomerOrderController extends Controller
                 'payment_status' => $paymentStatus,
                 'debt_amount' => $orderDebt,
                 'customer_discount_percentage' => $customerDiscountPct,
-                'customer_discount_amount' => $totalDiscountAmount,
+                'customer_discount_amount' => $customerDiscountAmount,
                 'subtotal_amount' => $subtotalProducts,
                 'shipping_cost' => $shippingCost,
                 'total_amount' => $totalAmount,

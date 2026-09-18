@@ -67,7 +67,9 @@ class StoreProductRequest extends FormRequest
             'package_quantity' => ['nullable', 'numeric', 'min:0.001'],
             'bulk_discount_type' => ['nullable', 'string', 'in:inherited,custom,none'],
             'custom_bulk_discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'image' => ['nullable', 'file', 'mimes:jpeg,png,webp', 'max:5120', 'dimensions:max_width=4000,max_height=4000'],
             'image_url' => ['nullable', 'string', 'max:1000'],
+            'thumbnail_url' => ['nullable', 'string', 'max:1000'],
             'is_active' => ['boolean'],
         ];
     }
@@ -83,6 +85,9 @@ class StoreProductRequest extends FormRequest
             'name.unique' => 'Ya existe un producto con este nombre para la modalidad de venta seleccionada (unidad/pesaje).',
             'sku.unique' => 'El código SKU ingresado ya está asignado a otro producto en esta misma modalidad de venta.',
             'barcode.unique' => 'El código de barras ya pertenece a otro producto en tu catálogo.',
+            'image.mimes' => 'El formato de imagen debe ser JPEG, PNG o WebP. Los archivos vectoriales SVG no están permitidos por motivos de seguridad.',
+            'image.max' => 'La imagen no debe superar los 5 MB.',
+            'image.dimensions' => 'Las dimensiones de la imagen no deben superar los 4000x4000 píxeles.',
         ];
     }
 }

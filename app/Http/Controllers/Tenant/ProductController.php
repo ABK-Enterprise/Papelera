@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductWarehouse;
 use App\Models\Warehouse;
+use App\Services\ProductImageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -172,8 +173,21 @@ class ProductController extends Controller
         $packageQuantity = $request->validated('package_quantity') ?? $request->validated('units_per_package', 1) ?: 1;
         $initialStock = (float) ($request->validated('stock', 0) ?? 0);
 
+        $tenantId = $request->user()->tenant_id;
+        $imageUrl = $request->validated('image_url');
+        $thumbnailUrl = $request->validated('thumbnail_url');
+
+        if ($request->hasFile('image')) {
+            $imageResult = app(ProductImageService::class)->storeAndOptimize(
+                $request->file('image'),
+                $tenantId
+            );
+            $imageUrl = $imageResult['image_url'];
+            $thumbnailUrl = $imageResult['thumbnail_url'];
+        }
+
         $product = Product::create([
-            'tenant_id' => $request->user()->tenant_id,
+            'tenant_id' => $tenantId,
             'category_id' => $request->validated('category_id'),
             'name' => $request->validated('name'),
             'sale_type' => $request->validated('sale_type', 'unit'),
@@ -189,11 +203,11 @@ class ProductController extends Controller
             'package_quantity' => $packageQuantity,
             'bulk_discount_type' => $request->validated('bulk_discount_type', 'inherited'),
             'custom_bulk_discount_percentage' => $request->validated('custom_bulk_discount_percentage'),
-            'image_url' => $request->validated('image_url'),
+            'image_url' => $imageUrl,
+            'thumbnail_url' => $thumbnailUrl,
             'is_active' => $request->boolean('is_active', true),
         ]);
 
-        $tenantId = $request->user()->tenant_id;
         $targetWarehouseId = $request->validated('warehouse_id')
             ?? Warehouse::where('tenant_id', $tenantId)->where('is_default', true)->value('id')
             ?? Warehouse::where('tenant_id', $tenantId)->value('id');
@@ -252,6 +266,19 @@ class ProductController extends Controller
         }
 
         $packageQuantity = $request->validated('package_quantity') ?? $request->validated('units_per_package', $product->package_quantity) ?: 1;
+        $imageUrl = $request->validated('image_url', $product->image_url);
+        $thumbnailUrl = $request->validated('thumbnail_url', $product->thumbnail_url);
+
+        if ($request->hasFile('image')) {
+            app(ProductImageService::class)->deleteImages($product->image_url, $product->thumbnail_url);
+
+            $imageResult = app(ProductImageService::class)->storeAndOptimize(
+                $request->file('image'),
+                $product->tenant_id
+            );
+            $imageUrl = $imageResult['image_url'];
+            $thumbnailUrl = $imageResult['thumbnail_url'];
+        }
 
         $product->update([
             'category_id' => $request->validated('category_id'),
@@ -268,7 +295,8 @@ class ProductController extends Controller
             'package_quantity' => $packageQuantity,
             'bulk_discount_type' => $request->validated('bulk_discount_type', $product->bulk_discount_type ?? 'inherited'),
             'custom_bulk_discount_percentage' => $request->validated('custom_bulk_discount_percentage'),
-            'image_url' => $request->validated('image_url'),
+            'image_url' => $imageUrl,
+            'thumbnail_url' => $thumbnailUrl,
             'is_active' => $request->boolean('is_active', true),
         ]);
 
@@ -285,6 +313,8 @@ class ProductController extends Controller
         if ($product->tenant_id !== $request->user()->tenant_id) {
             abort(404);
         }
+
+        app(ProductImageService::class)->deleteImages($product->image_url, $product->thumbnail_url);
 
         $product->delete();
 

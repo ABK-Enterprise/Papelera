@@ -29,6 +29,7 @@
         units_per_package?: number;
         package_quantity?: number;
         image_url: string | null;
+        thumbnail_url?: string | null;
         is_incomplete?: boolean;
         warehouses_count?: number;
         category?: CategorySummary | null;
@@ -83,9 +84,9 @@
         {@const isWeighable = product.sale_type === 'weight'}
         <div class="flex items-center gap-3.5 rounded-2xl border transition-all duration-200 hover:shadow-lg hover:shadow-accent/20 {isIncomplete ? 'border-amber-500/40 bg-amber-500/5' : 'border-border/70 bg-card'} p-3.5 shadow-2xs">
 
-            {#if product.image_url}
+            {#if product.thumbnail_url || product.image_url}
                 <div class="size-12 shrink-0 rounded-xl border border-border/80 overflow-hidden">
-                    <img src={product.image_url} alt={product.name} class="h-full w-full object-cover" />
+                    <img src={product.thumbnail_url || product.image_url} alt={product.name} class="h-full w-full object-cover" loading="lazy" />
                 </div>
             {:else}
                 <IconContainer

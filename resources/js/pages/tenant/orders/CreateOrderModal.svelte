@@ -27,6 +27,23 @@
     import Percent from 'lucide-svelte/icons/percent';
     import Warehouse from 'lucide-svelte/icons/warehouse';
     import MapPin from 'lucide-svelte/icons/map-pin';
+    import MoreVertical from 'lucide-svelte/icons/more-vertical';
+    import {
+        DropdownMenu,
+        DropdownMenuContent,
+        DropdownMenuItem,
+        DropdownMenuSeparator,
+        DropdownMenuTrigger,
+    } from '@/components/ui/dropdown-menu';
+    import {
+        Dialog,
+        DialogBody,
+        DialogContent,
+        DialogFooter,
+        DialogHeader,
+        DialogTitle,
+        DialogDescription,
+    } from '@/components/ui/dialog';
 
     export interface ProductOption {
         id: number;
@@ -58,14 +75,13 @@
         id: number;
         name: string;
         code: string;
-        is_default: boolean;
+        is_default?: boolean;
     }
 
     export interface ShippingZoneOption {
         id: number;
         name: string;
-        distance_km: number | string;
-        surcharge_percentage: number | string;
+        surcharge_percentage: number;
     }
 
     export interface OrderItemLine {
@@ -86,6 +102,8 @@
         bulk_discount_type: 'inherited' | 'custom' | 'none';
         units_per_package: number;
         package_quantity: number;
+        discount_percentage?: number;
+        is_custom_discount?: boolean;
         apply_customer_discount: boolean;
     }
 
@@ -273,6 +291,8 @@
                     bulk_discount_type: bulkDiscountType,
                     units_per_package: prod.units_per_package || 1,
                     package_quantity: prod.package_quantity || prod.units_per_package || 1,
+                    discount_percentage: 0,
+                    is_custom_discount: false,
                     apply_customer_discount: !isBulk,
                 },
             ];
@@ -309,6 +329,8 @@
                 bulk_discount_type: 'none',
                 units_per_package: 1,
                 package_quantity: 1,
+                discount_percentage: 0,
+                is_custom_discount: false,
                 apply_customer_discount: false,
             },
         ];
@@ -500,31 +522,101 @@
         }).format(amount);
     }
 
-    function getItemLineDiscount(it: OrderItemLine): { discountAmount: number; finalSubtotal: number; baseSubtotal: number } {
+    function getItemLineDiscount(it: OrderItemLine): {
+        discountAmount: number;
+        finalSubtotal: number;
+        baseSubtotal: number;
+        itemDiscountAmount: number;
+        customerDiscountAmount: number;
+        netLineSubtotal: number;
+    } {
         const baseQty = getItemQuantityBase(it);
         const baseSubtotal = baseQty * it.unit_price;
+
+        const itemDiscountPct = Number(it.discount_percentage) || 0;
+        const itemDiscountAmount = Math.round(baseSubtotal * (itemDiscountPct / 100) * 100) / 100;
+        const netLineSubtotal = Math.round((baseSubtotal - itemDiscountAmount) * 100) / 100;
+
         const isEligible = applyCustomerDiscount && it.apply_customer_discount && customerDiscountPercentage > 0;
-        const discountAmount = isEligible ? Math.round(baseSubtotal * (customerDiscountPercentage / 100) * 100) / 100 : 0;
-        const finalSubtotal = Math.round((baseSubtotal - discountAmount) * 100) / 100;
-        return { discountAmount, finalSubtotal, baseSubtotal };
+        const customerDiscountAmount = isEligible
+            ? Math.round(netLineSubtotal * (customerDiscountPercentage / 100) * 100) / 100
+            : 0;
+
+        const finalSubtotal = Math.round((netLineSubtotal - customerDiscountAmount) * 100) / 100;
+        const totalDiscountAmount = Math.round((itemDiscountAmount + customerDiscountAmount) * 100) / 100;
+
+        return {
+            discountAmount: totalDiscountAmount,
+            finalSubtotal,
+            baseSubtotal,
+            itemDiscountAmount,
+            customerDiscountAmount,
+            netLineSubtotal,
+        };
     }
 
     let computedTotals = $derived.by(() => {
         let baseTotal = 0;
-        let discountTotal = 0;
+        let itemDiscountTotal = 0;
+        let customerDiscountTotal = 0;
         let finalTotal = 0;
+
         for (const it of items) {
-            const { discountAmount, finalSubtotal, baseSubtotal } = getItemLineDiscount(it);
+            const { baseSubtotal, itemDiscountAmount, customerDiscountAmount, finalSubtotal } = getItemLineDiscount(it);
             baseTotal += baseSubtotal;
-            discountTotal += discountAmount;
+            itemDiscountTotal += itemDiscountAmount;
+            customerDiscountTotal += customerDiscountAmount;
             finalTotal += finalSubtotal;
         }
+
         return {
             baseTotal: Math.round(baseTotal * 100) / 100,
-            discountTotal: Math.round(discountTotal * 100) / 100,
+            itemDiscountTotal: Math.round(itemDiscountTotal * 100) / 100,
+            customerDiscountTotal: Math.round(customerDiscountTotal * 100) / 100,
+            discountTotal: Math.round((itemDiscountTotal + customerDiscountTotal) * 100) / 100,
+            subtotalProducts: Math.round((baseTotal - itemDiscountTotal) * 100) / 100,
             finalTotal: Math.round(finalTotal * 100) / 100,
         };
     });
+
+    // Mobile discount dialog state
+    let mobileDiscountItemIndex = $state<number | null>(null);
+    let mobileDiscountPreset = $state<number | string>(0);
+    let isMobileDiscountCustom = $state(false);
+    let mobileDiscountCustomVal = $state<number | string>('');
+    let isMobileDiscountModalOpen = $state(false);
+
+    function openMobileDiscountDialog(index: number) {
+        mobileDiscountItemIndex = index;
+        const currentPct = items[index]?.discount_percentage || 0;
+        const commonPresets = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
+        if (commonPresets.includes(currentPct)) {
+            mobileDiscountPreset = currentPct;
+            isMobileDiscountCustom = false;
+            mobileDiscountCustomVal = '';
+        } else {
+            mobileDiscountPreset = 'custom';
+            isMobileDiscountCustom = true;
+            mobileDiscountCustomVal = currentPct;
+        }
+        isMobileDiscountModalOpen = true;
+    }
+
+    function applyMobileDiscount() {
+        if (mobileDiscountItemIndex !== null && items[mobileDiscountItemIndex]) {
+            let pct = 0;
+            if (isMobileDiscountCustom || mobileDiscountPreset === 'custom') {
+                pct = Math.max(0, Math.min(99, Number(mobileDiscountCustomVal) || 0));
+                items[mobileDiscountItemIndex].is_custom_discount = true;
+            } else {
+                pct = Number(mobileDiscountPreset) || 0;
+                items[mobileDiscountItemIndex].is_custom_discount = false;
+            }
+            items[mobileDiscountItemIndex].discount_percentage = pct;
+        }
+        isMobileDiscountModalOpen = false;
+        mobileDiscountItemIndex = null;
+    }
 
     let shippingCost = $derived.by(() => {
         if (!selectedShippingZone) return 0;
@@ -591,6 +683,7 @@
             warehouse_id?: number | null;
             packaging_type: 'unidad' | 'bulto' | 'gram' | 'kg';
             quantity: number;
+            discount_percentage?: number;
             apply_customer_discount: boolean;
         }[] = [];
 
@@ -602,6 +695,7 @@
                 warehouse_id: it.warehouse_id || selectedWarehouseId,
                 packaging_type: it.packaging_type,
                 quantity: it.quantity,
+                discount_percentage: Number(it.discount_percentage) || 0,
                 apply_customer_discount: it.apply_customer_discount,
             });
         }
@@ -1056,6 +1150,12 @@
                                                     </span>
                                                 {/if}
                                             {/if}
+                                            {#if (item.discount_percentage || 0) > 0}
+                                                <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 shrink-0">
+                                                    <Percent class="size-3" />
+                                                    Desc. Ítem {item.discount_percentage}%
+                                                </span>
+                                            {/if}
                                             {#if customerDiscountPercentage > 0 && applyCustomerDiscount}
                                                 <button
                                                     type="button"
@@ -1129,7 +1229,7 @@
 
                                 <!-- Nivel 2: Resultado (Subtotal alineado a la derecha) -->
                                 <div class="flex justify-end items-baseline gap-2 py-0.5">
-                                    {#if isDiscountActive}
+                                    {#if isDiscountActive || (item.discount_percentage || 0) > 0}
                                         <span class="line-through text-xs text-muted-foreground font-sans tabular-nums" title={formatExactPrice(strikethroughSubtotal)}>
                                             {formatPrice(strikethroughSubtotal)}
                                         </span>
@@ -1146,13 +1246,49 @@
                                 <!-- Separador Horizontal entre Resultado y Acciones (2px margen) -->
                                 <div class="border-t border-border/50 my-[2px]"></div>
 
-                                <!-- Nivel 3: Acciones [trash, tipo unidad, cantidad] -->
+                                <!-- Nivel 3: Acciones [trash/menu, tipo unidad, descuento (desktop), cantidad] -->
                                 <div class="flex flex-wrap items-center justify-between gap-2.5 w-full pt-0.5">
-                                    <!-- Grupo Izquierdo: Trash + Selector de unidad -->
-                                    <div class="flex items-center gap-2 flex-1 sm:flex-initial min-w-[120px]">
+                                    <!-- Grupo Izquierdo: Acciones & Configuración -->
+                                    <div class="flex flex-wrap items-center gap-2 flex-1 sm:flex-initial min-w-[120px]">
+                                        <!-- Mobile: Menú Contextual (...) -->
+                                        <div class="sm:hidden">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    {#snippet children(props)}
+                                                        <button
+                                                            {...props}
+                                                            type="button"
+                                                            class="size-8 rounded-lg flex items-center justify-center bg-muted/60 text-foreground hover:bg-muted border border-border/60 transition-colors cursor-pointer"
+                                                            aria-label="Opciones del producto"
+                                                        >
+                                                            <MoreVertical class="size-4" />
+                                                        </button>
+                                                    {/snippet}
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="start" class="w-48 shadow-lg">
+                                                    <DropdownMenuItem
+                                                        class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
+                                                        onclick={() => openMobileDiscountDialog(index)}
+                                                    >
+                                                        <Percent class="size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                                        <span>{(item.discount_percentage || 0) > 0 ? 'Modificar descuento' : 'Aplicar descuento'}</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem
+                                                        class="flex items-center gap-2 text-xs font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5"
+                                                        onclick={() => removeItem(index)}
+                                                    >
+                                                        <Trash2 class="size-3.5 shrink-0" />
+                                                        <span>Quitar de la lista</span>
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
+
+                                        <!-- Desktop: Trash Button -->
                                         <button
                                             type="button"
-                                            class="size-8 rounded-lg flex items-center justify-center bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-colors cursor-pointer shrink-0"
+                                            class="hidden sm:flex size-8 rounded-lg items-center justify-center bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-colors cursor-pointer shrink-0"
                                             onclick={() => removeItem(index)}
                                             title="Quitar de la lista"
                                             aria-label="Quitar producto de la lista"
@@ -1160,10 +1296,11 @@
                                             <Trash2 class="size-3.5" />
                                         </button>
 
+                                        <!-- Selector de empaque / unidad -->
                                         <select
                                             value={item.packaging_type}
                                             onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                            class="h-9 rounded-xl border border-border/80 bg-background px-2.5 text-xs font-semibold text-foreground w-full flex-1 sm:w-auto sm:flex-initial min-w-[88px] sm:min-w-[94px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                                            class="h-9 rounded-xl border border-border/80 bg-background px-2.5 text-xs font-semibold text-foreground flex-1 sm:flex-initial min-w-[88px] sm:min-w-[94px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
                                         >
                                             {#if item.sale_type === 'weight'}
                                                 <option value="gram">Gramos</option>
@@ -1174,6 +1311,53 @@
                                                 <option value="bulto">Bulto</option>
                                             {/if}
                                         </select>
+
+                                        <!-- Desktop: Selector de Descuento por Ítem -->
+                                        <div class="hidden sm:flex items-center gap-1.5">
+                                            <select
+                                                value={item.is_custom_discount ? 'custom' : (item.discount_percentage || 0)}
+                                                onchange={(e) => {
+                                                    const val = (e.target as HTMLSelectElement).value;
+                                                    if (val === 'custom') {
+                                                        item.is_custom_discount = true;
+                                                    } else {
+                                                        item.is_custom_discount = false;
+                                                        item.discount_percentage = Number(val) || 0;
+                                                    }
+                                                }}
+                                                class="h-9 rounded-xl border border-border/80 bg-background px-2 text-xs font-semibold text-foreground min-w-[90px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                                                title="Descuento individual por producto"
+                                            >
+                                                <option value={0}>Desc. 0%</option>
+                                                <option value={5}>Desc. 5%</option>
+                                                <option value={10}>Desc. 10%</option>
+                                                <option value={15}>Desc. 15%</option>
+                                                <option value={20}>Desc. 20%</option>
+                                                <option value={25}>Desc. 25%</option>
+                                                <option value={30}>Desc. 30%</option>
+                                                <option value={35}>Desc. 35%</option>
+                                                <option value={40}>Desc. 40%</option>
+                                                <option value={45}>Desc. 45%</option>
+                                                <option value={50}>Desc. 50%</option>
+                                                <option value="custom">Personalizado...</option>
+                                            </select>
+
+                                            {#if item.is_custom_discount}
+                                                <div class="flex items-center gap-1">
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        max="99"
+                                                        step="1"
+                                                        bind:value={item.discount_percentage}
+                                                        placeholder="%"
+                                                        class="h-9 w-14 rounded-xl border border-border/80 bg-background px-2 text-xs font-bold font-sans tabular-nums text-foreground focus:outline-none focus:border-primary-500 text-center"
+                                                        title="Porcentaje de descuento personalizado (0-99%)"
+                                                    />
+                                                    <span class="text-xs font-bold text-muted-foreground">%</span>
+                                                </div>
+                                            {/if}
+                                        </div>
                                     </div>
 
                                     <!-- Stepper Táctil Elástico (se comprime antes de quebrar y ocupa ancho completo al quebrar) -->
@@ -1385,18 +1569,25 @@
                 <!-- Contenedor Superior: Resumen de Totales y Descuentos -->
                 <div class="rounded-xl bg-card border border-border/70 p-3 sm:p-3.5 space-y-1.5 shadow-2xs">
                     <div class="flex items-center justify-between text-xs sm:text-sm font-medium text-muted-foreground">
-                        <span>Subtotal Productos:</span>
-                        <div class="flex items-baseline gap-2">
-                            {#if computedTotals.discountTotal > 0}
-                                <span class="line-through text-xs text-muted-foreground font-sans tabular-nums">
-                                    {formatPrice(computedTotals.baseTotal)}
-                                </span>
-                            {/if}
-                            <span class="font-bold font-sans tabular-nums text-foreground">
-                                {formatPrice(computedTotals.finalTotal)}
-                            </span>
-                        </div>
+                        <span>Subtotal Base:</span>
+                        <span class="font-bold font-sans tabular-nums text-foreground">
+                            {formatPrice(computedTotals.baseTotal)}
+                        </span>
                     </div>
+
+                    {#if computedTotals.itemDiscountTotal > 0}
+                        <div class="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
+                            <span>Descuentos en productos:</span>
+                            <span>-{formatPrice(computedTotals.itemDiscountTotal)}</span>
+                        </div>
+                    {/if}
+
+                    {#if computedTotals.customerDiscountTotal > 0}
+                        <div class="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
+                            <span>Descuento de cliente ({customerDiscountPercentage}%):</span>
+                            <span>-{formatPrice(computedTotals.customerDiscountTotal)}</span>
+                        </div>
+                    {/if}
 
                     {#if selectedShippingZone && shippingCost > 0}
                         <div class="flex items-center justify-between text-xs text-primary font-semibold border-t border-border/40 pt-1.5">
@@ -1405,13 +1596,6 @@
                                 Envío ({selectedShippingZone.name} - +{selectedShippingZone.surcharge_percentage}%):
                             </span>
                             <span class="font-sans tabular-nums">+{formatPrice(shippingCost)}</span>
-                        </div>
-                    {/if}
-
-                    {#if computedTotals.discountTotal > 0}
-                        <div class="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
-                            <span>Ahorro por descuento ({customerDiscountPercentage}%):</span>
-                            <span>-{formatPrice(computedTotals.discountTotal)}</span>
                         </div>
                     {/if}
 
@@ -1459,3 +1643,93 @@
         </div>
     </div>
 {/if}
+
+<!-- Diálogo Táctil Accesible de Descuento por Ítem en Mobile -->
+<Dialog bind:open={isMobileDiscountModalOpen}>
+    <DialogContent class="sm:max-w-[420px] p-5 sm:p-6 space-y-4 rounded-2xl bg-card border-border shadow-2xl">
+        <DialogHeader class="space-y-1">
+            <div class="flex items-center gap-2.5">
+                <IconContainer size="sm" variant="primary" icon="solar:tag-price-bold-duotone" />
+                <div>
+                    <DialogTitle class="text-base font-bold text-foreground">Descuento de Producto</DialogTitle>
+                    <DialogDescription class="text-xs text-muted-foreground line-clamp-1">
+                        {mobileDiscountItemIndex !== null && items[mobileDiscountItemIndex] ? items[mobileDiscountItemIndex].product_name : 'Seleccionar porcentaje a aplicar'}
+                    </DialogDescription>
+                </div>
+            </div>
+        </DialogHeader>
+
+        <DialogBody class="space-y-4 py-1">
+            <!-- Grid de presets rápidos (touch targets mínimos de 44px) -->
+            <div class="space-y-1.5">
+                <Label class="text-xs font-semibold text-foreground">Porcentajes Predefinidos</Label>
+                <div class="grid grid-cols-4 gap-2">
+                    {#each [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50] as preset}
+                        <button
+                            type="button"
+                            onclick={() => {
+                                mobileDiscountPreset = preset;
+                                isMobileDiscountCustom = false;
+                            }}
+                            class="min-h-[44px] rounded-xl text-xs font-bold border transition-colors flex items-center justify-center cursor-pointer {(!isMobileDiscountCustom && mobileDiscountPreset === preset)
+                                ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                                : 'bg-muted/40 text-foreground border-border/80 hover:bg-muted'}"
+                        >
+                            {preset}%
+                        </button>
+                    {/each}
+                    <button
+                        type="button"
+                        onclick={() => {
+                            isMobileDiscountCustom = true;
+                            mobileDiscountPreset = 'custom';
+                        }}
+                        class="min-h-[44px] rounded-xl text-xs font-bold border transition-colors flex items-center justify-center cursor-pointer {(isMobileDiscountCustom || mobileDiscountPreset === 'custom')
+                            ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                            : 'bg-muted/40 text-foreground border-border/80 hover:bg-muted'}"
+                    >
+                        Otro...
+                    </button>
+                </div>
+            </div>
+
+            <!-- Input de porcentaje personalizado -->
+            {#if isMobileDiscountCustom || mobileDiscountPreset === 'custom'}
+                <div class="space-y-1.5 p-3 rounded-xl bg-muted/30 border border-border/70">
+                    <Label for="custom-discount-input" class="text-xs font-semibold text-foreground">Porcentaje Personalizado (0% a 99%)</Label>
+                    <div class="flex items-center gap-2">
+                        <Input
+                            id="custom-discount-input"
+                            type="number"
+                            min="0"
+                            max="99"
+                            step="1"
+                            bind:value={mobileDiscountCustomVal}
+                            placeholder="ej. 12"
+                            class="h-10 text-sm font-bold font-sans tabular-nums"
+                        />
+                        <span class="text-sm font-bold text-muted-foreground">%</span>
+                    </div>
+                </div>
+            {/if}
+        </DialogBody>
+
+        <DialogFooter class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:justify-end">
+            <Button
+                type="button"
+                variant="outline"
+                class="min-h-[44px] w-full rounded-xl text-xs font-semibold"
+                onclick={() => (isMobileDiscountModalOpen = false)}
+            >
+                Cancelar
+            </Button>
+            <Button
+                type="button"
+                class="min-h-[44px] w-full rounded-xl text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+                onclick={applyMobileDiscount}
+            >
+                Aplicar Descuento
+            </Button>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>
