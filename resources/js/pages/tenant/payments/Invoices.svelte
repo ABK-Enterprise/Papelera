@@ -220,10 +220,10 @@
     </div>
 
     <!-- Barra de Filtros Desktop -->
-    <Card class="hidden md:block rounded-2xl border border-border/80 bg-card p-4 shadow-xs space-y-3">
-        <div class="grid grid-cols-12 gap-3">
-            <!-- Buscador -->
-            <div class="col-span-4">
+    <Card class="hidden md:block rounded-2xl border border-border/80 bg-card p-4 shadow-xs">
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Buscador Elástico -->
+            <div class="flex-1 min-w-[280px]">
                 <SearchCombobox
                     value={searchTerm}
                     items={invoices.data}
@@ -261,7 +261,7 @@
             </div>
 
             <!-- Tipo de Comprobante -->
-            <div class="col-span-3">
+            <div class="w-auto min-w-[170px]">
                 <select
                     bind:value={selectedCbteTipo}
                     onchange={applyFilters}
@@ -273,53 +273,56 @@
                 </select>
             </div>
 
-            <!-- Rango Desde -->
-            <div class="col-span-2">
-                <Input
+            <!-- Rango Fecha Desde con Label Explícito -->
+            <div class="flex items-center gap-1.5 bg-background border border-border/80 rounded-xl px-3 h-11 shadow-2xs">
+                <span class="text-xs font-semibold text-muted-foreground whitespace-nowrap">Desde:</span>
+                <input
                     type="date"
                     bind:value={dateFrom}
                     onchange={applyFilters}
-                    placeholder="Desde"
-                    class="h-11 rounded-xl text-xs"
+                    class="bg-transparent border-0 p-0 text-xs font-medium text-foreground focus:outline-none focus:ring-0 cursor-pointer"
+                    aria-label="Fecha desde"
                 />
             </div>
 
-            <!-- Rango Hasta -->
-            <div class="col-span-2">
-                <Input
+            <!-- Rango Fecha Hasta con Label Explícito -->
+            <div class="flex items-center gap-1.5 bg-background border border-border/80 rounded-xl px-3 h-11 shadow-2xs">
+                <span class="text-xs font-semibold text-muted-foreground whitespace-nowrap">Hasta:</span>
+                <input
                     type="date"
                     bind:value={dateTo}
                     onchange={applyFilters}
-                    placeholder="Hasta"
-                    class="h-11 rounded-xl text-xs"
+                    class="bg-transparent border-0 p-0 text-xs font-medium text-foreground focus:outline-none focus:ring-0 cursor-pointer"
+                    aria-label="Fecha hasta"
                 />
             </div>
 
-            <!-- Ordenamiento / Reset -->
-            <div class="col-span-1 flex items-center gap-1.5">
+            <!-- Criterio de Ordenamiento -->
+            <div class="w-auto min-w-[145px]">
                 <select
                     bind:value={sortBy}
                     onchange={applyFilters}
-                    class="h-11 w-full rounded-xl border border-border/80 bg-background px-2 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                    class="h-11 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
                     title="Criterio de Ordenamiento"
                 >
                     {#each sortOptions as s}
                         <option value={s.value}>{s.label}</option>
                     {/each}
                 </select>
-
-                {#if hasActiveFilters}
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        class="size-11 rounded-xl text-muted-foreground hover:text-foreground shrink-0 min-h-[44px] min-w-[44px]"
-                        onclick={resetFilters}
-                        title="Limpiar filtros"
-                    >
-                        <RotateCcw class="size-4" />
-                    </Button>
-                {/if}
             </div>
+
+            <!-- Botón Limpiar con Recuadro Indicativo (Verde en Light / Azul en Dark) -->
+            {#if hasActiveFilters}
+                <Button
+                    variant="outline"
+                    class="h-11 px-3.5 rounded-xl gap-2 text-xs font-semibold shrink-0 min-h-[44px] transition-colors border shadow-2xs bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25"
+                    onclick={resetFilters}
+                    title="Limpiar filtros activos"
+                >
+                    <RotateCcw class="size-3.5 shrink-0" />
+                    <span>Limpiar</span>
+                </Button>
+            {/if}
         </div>
     </Card>
 

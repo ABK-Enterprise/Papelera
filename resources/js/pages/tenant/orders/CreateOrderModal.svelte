@@ -1115,58 +1115,97 @@
                             <div class="flex flex-col gap-2.5 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
                                 <!-- Nivel 1: Información (Nombre, SKU, Badges, Precio Base y Stock) -->
                                 <div class="flex flex-col gap-2">
-                                    <div class="flex items-center gap-2.5 min-w-0">
-                                        <IconContainer
-                                            size="sm"
-                                            variant={item.is_on_the_fly ? 'neutral' : (item.sale_type === 'weight' ? 'info' : 'primary')}
-                                            icon={item.is_on_the_fly ? 'solar:question-mark-bold-duotone' : (item.sale_type === 'weight' ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone')}
-                                        />
-                                        <div class="flex flex-wrap items-center gap-2 min-w-0 flex-1">
-                                            <h4 class="text-base font-bold text-foreground line-clamp-2 break-words">{item.product_name}</h4>
-                                            {#if item.is_on_the_fly}
-                                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/80 break-words max-w-full">
-                                                    Al Vuelo (Incompleto)
-                                                </span>
-                                            {/if}
-                                            {#if item.sku}
-                                                <span class="text-sm font-sans tabular-nums bg-muted px-2 py-0.5 rounded text-muted-foreground shrink-0">
-                                                    {item.sku}
-                                                </span>
-                                            {/if}
-                                            {#if item.sale_type === 'weight'}
-                                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                                                    Pesaje
-                                                </span>
-                                            {/if}
-                                            {#if isBulk}
-                                                {#if item.bulk_discount_type !== 'none' && item.bulk_discount_percentage > 0}
-                                                    <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
-                                                        <Percent class="size-3" />
-                                                        Desc. Bulto {item.bulk_discount_percentage}% ({item.bulk_discount_type === 'custom' ? 'Personalizado' : 'Heredado'})
-                                                    </span>
-                                                {:else}
-                                                    <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-muted text-muted-foreground border-border">
-                                                        Sin Descuento por Bulto
+                                    <div class="flex items-start justify-between gap-2.5 min-w-0">
+                                        <div class="flex items-start gap-2.5 min-w-0 flex-1">
+                                            <div class="shrink-0 mt-0.5">
+                                                <IconContainer
+                                                    size="sm"
+                                                    variant={item.is_on_the_fly ? 'neutral' : (item.sale_type === 'weight' ? 'info' : 'primary')}
+                                                    icon={item.is_on_the_fly ? 'solar:question-mark-bold-duotone' : (item.sale_type === 'weight' ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone')}
+                                                />
+                                            </div>
+                                            <div class="flex flex-wrap items-center gap-2 min-w-0 flex-1">
+                                                <h4 class="text-base font-bold text-foreground line-clamp-2 break-words">{item.product_name}</h4>
+                                                {#if item.is_on_the_fly}
+                                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/80 break-words max-w-full">
+                                                        Al Vuelo (Incompleto)
                                                     </span>
                                                 {/if}
-                                            {/if}
-                                            {#if (item.discount_percentage || 0) > 0}
-                                                <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 shrink-0">
-                                                    <Percent class="size-3" />
-                                                    Desc. Ítem {item.discount_percentage}%
-                                                </span>
-                                            {/if}
-                                            {#if customerDiscountPercentage > 0 && applyCustomerDiscount}
-                                                <button
-                                                    type="button"
-                                                    onclick={() => toggleItemCustomerDiscount(index)}
-                                                    class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border transition-colors cursor-pointer {item.apply_customer_discount ? 'bg-primary/15 text-primary border-primary/30' : 'bg-muted text-muted-foreground border-border line-through'}"
-                                                    title="Click para alternar descuento de cliente en este producto"
-                                                >
-                                                    <Percent class="size-3" />
-                                                    Desc. {customerDiscountPercentage}% {item.apply_customer_discount ? 'Aplicado' : 'Excluido'}
-                                                </button>
-                                            {/if}
+                                                {#if item.sku}
+                                                    <span class="text-sm font-sans tabular-nums bg-muted px-2 py-0.5 rounded text-muted-foreground shrink-0">
+                                                        {item.sku}
+                                                    </span>
+                                                {/if}
+                                                {#if item.sale_type === 'weight'}
+                                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                                        Pesaje
+                                                    </span>
+                                                {/if}
+                                                {#if isBulk}
+                                                    {#if item.bulk_discount_type !== 'none' && item.bulk_discount_percentage > 0}
+                                                        <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
+                                                            <Percent class="size-3" />
+                                                            Desc. Bulto {item.bulk_discount_percentage}% ({item.bulk_discount_type === 'custom' ? 'Personalizado' : 'Heredado'})
+                                                        </span>
+                                                    {:else}
+                                                        <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-muted text-muted-foreground border-border">
+                                                            Sin Descuento por Bulto
+                                                        </span>
+                                                    {/if}
+                                                {/if}
+                                                {#if (item.discount_percentage || 0) > 0}
+                                                    <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 shrink-0">
+                                                        <Percent class="size-3" />
+                                                        Desc. Ítem {item.discount_percentage}%
+                                                    </span>
+                                                {/if}
+                                                {#if customerDiscountPercentage > 0 && applyCustomerDiscount}
+                                                    <button
+                                                        type="button"
+                                                        onclick={() => toggleItemCustomerDiscount(index)}
+                                                        class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border transition-colors cursor-pointer {item.apply_customer_discount ? 'bg-primary/15 text-primary border-primary/30' : 'bg-muted text-muted-foreground border-border line-through'}"
+                                                        title="Click para alternar descuento de cliente en este producto"
+                                                    >
+                                                        <Percent class="size-3" />
+                                                        Desc. {customerDiscountPercentage}% {item.apply_customer_discount ? 'Aplicado' : 'Excluido'}
+                                                    </button>
+                                                {/if}
+                                            </div>
+                                        </div>
+
+                                        <!-- Mobile: Menú Contextual (...) en la esquina superior derecha -->
+                                        <div class="sm:hidden shrink-0">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    {#snippet children(props)}
+                                                        <button
+                                                            {...props}
+                                                            type="button"
+                                                            class="size-8 rounded-lg flex items-center justify-center bg-muted/60 text-foreground hover:bg-muted border border-border/60 transition-colors cursor-pointer"
+                                                            aria-label="Opciones del producto"
+                                                        >
+                                                            <MoreVertical class="size-4" />
+                                                        </button>
+                                                    {/snippet}
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" class="w-48 shadow-lg">
+                                                    <DropdownMenuItem
+                                                        class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
+                                                        onclick={() => openMobileDiscountDialog(index)}
+                                                    >
+                                                        <Percent class="size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                                        <span>{(item.discount_percentage || 0) > 0 ? 'Modificar descuento' : 'Aplicar descuento'}</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem
+                                                        class="flex items-center gap-2 text-xs font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5"
+                                                        onclick={() => removeItem(index)}
+                                                    >
+                                                        <Trash2 class="size-3.5 shrink-0" />
+                                                        <span>Quitar de la lista</span>
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         </div>
                                     </div>
 
@@ -1246,45 +1285,10 @@
                                 <!-- Separador Horizontal entre Resultado y Acciones (2px margen) -->
                                 <div class="border-t border-border/50 my-[2px]"></div>
 
-                                <!-- Nivel 3: Acciones [trash/menu, tipo unidad, descuento (desktop), cantidad] -->
+                                <!-- Nivel 3: Acciones [trash (desktop), tipo unidad, descuento (desktop), cantidad] -->
                                 <div class="flex flex-wrap items-center justify-between gap-2.5 w-full pt-0.5">
                                     <!-- Grupo Izquierdo: Acciones & Configuración -->
                                     <div class="flex flex-wrap items-center gap-2 flex-1 sm:flex-initial min-w-[120px]">
-                                        <!-- Mobile: Menú Contextual (...) -->
-                                        <div class="sm:hidden">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    {#snippet children(props)}
-                                                        <button
-                                                            {...props}
-                                                            type="button"
-                                                            class="size-8 rounded-lg flex items-center justify-center bg-muted/60 text-foreground hover:bg-muted border border-border/60 transition-colors cursor-pointer"
-                                                            aria-label="Opciones del producto"
-                                                        >
-                                                            <MoreVertical class="size-4" />
-                                                        </button>
-                                                    {/snippet}
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="start" class="w-48 shadow-lg">
-                                                    <DropdownMenuItem
-                                                        class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
-                                                        onclick={() => openMobileDiscountDialog(index)}
-                                                    >
-                                                        <Percent class="size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                                                        <span>{(item.discount_percentage || 0) > 0 ? 'Modificar descuento' : 'Aplicar descuento'}</span>
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem
-                                                        class="flex items-center gap-2 text-xs font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5"
-                                                        onclick={() => removeItem(index)}
-                                                    >
-                                                        <Trash2 class="size-3.5 shrink-0" />
-                                                        <span>Quitar de la lista</span>
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </div>
-
                                         <!-- Desktop: Trash Button -->
                                         <button
                                             type="button"
