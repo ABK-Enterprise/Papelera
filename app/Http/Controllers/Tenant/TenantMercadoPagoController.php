@@ -64,21 +64,14 @@ class TenantMercadoPagoController extends Controller
         $codeChallenge = rtrim(strtr(base64_encode(hash('sha256', $codeVerifier, true)), '+/', '-_'), '=');
 
         $tenantId = $request->user()->tenant_id;
-        $state = Str::random(32);
-
-        \Illuminate\Support\Facades\Cache::put("mp_oauth_{$state}", [
+        $state = encrypt([
             'tenant_id' => $tenantId,
             'user_id' => $request->user()->id,
+            'timestamp' => now()->timestamp,
             'code_verifier' => $codeVerifier,
-        ], now()->addMinutes(15));
+        ]);
 
         $redirectUri = route('tenant.settings.mercadopago.callback');
-
-        Log::info('Mercado Pago OAuth connect initiated', [
-            'tenant_id' => $tenantId,
-            'redirect_uri' => $redirectUri,
-            'client_id' => $clientId,
-        ]);
 
         $params = http_build_query([
             'client_id' => $clientId,
@@ -108,13 +101,6 @@ class TenantMercadoPagoController extends Controller
         $code = $request->query('code');
         $state = $request->query('state');
 
-        Log::info('Mercado Pago OAuth callback hit', [
-            'has_code' => ! empty($code),
-            'has_state' => ! empty($state),
-            'user_id' => $request->user()?->id,
-            'tenant_id' => $request->user()?->tenant_id,
-        ]);
-
         if (! $code) {
             Log::error('Mercado Pago OAuth callback received without code parameter', [
                 'query_params' => $request->query(),
@@ -129,21 +115,14 @@ class TenantMercadoPagoController extends Controller
                 ->with('error', 'No se recibió el código de autorización de Mercado Pago.');
         }
 
-        $oauthContext = null;
-        if ($state) {
-            $oauthContext = \Illuminate\Support\Facades\Cache::pull("mp_oauth_{$state}");
-
-            if (! $oauthContext) {
-                try {
-                    $oauthContext = decrypt($state);
-                } catch (\Throwable $e) {
-                    Log::warning('Mercado Pago OAuth state decrypt fallback failed: ' . $e->getMessage());
-                }
-            }
+        try {
+            $decrypted = decrypt($state);
+            $tenantId = $decrypted['tenant_id'] ?? null;
+            $codeVerifier = $decrypted['code_verifier'] ?? null;
+        } catch (\Exception $e) {
+            $tenantId = $request->user()?->tenant_id;
+            $codeVerifier = null;
         }
-
-        $tenantId = $oauthContext['tenant_id'] ?? null;
-        $codeVerifier = $oauthContext['code_verifier'] ?? null;
 
         $tenant = $request->user()?->tenant;
 
@@ -233,9 +212,7 @@ class TenantMercadoPagoController extends Controller
 
             Log::error('Mercado Pago OAuth token exchange failed', [
                 'status' => $response->status(),
-                'body' => $response->json() ?? $response->body(),
-                'redirect_uri' => $redirectUri,
-                'has_verifier' => ! empty($codeVerifier),
+                'body' => $response->body(),
             ]);
 
             Inertia::flash('toast', [
