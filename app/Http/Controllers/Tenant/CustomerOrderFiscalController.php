@@ -22,6 +22,10 @@ class CustomerOrderFiscalController extends Controller
      */
     public function emit(Request $request, CustomerOrder $order, EmitFiscalInvoiceAction $action): RedirectResponse|JsonResponse
     {
+        if ($order->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
         if ((float) $order->total_amount <= 0.00) {
             $errorMessage = 'WSFEv1 (ARCA) requiere comprobantes con importe total mayor a cero ($0.00). Los pedidos bonificados al 100% sin cargo deben canalizarse mediante remito interno de traslado.';
 

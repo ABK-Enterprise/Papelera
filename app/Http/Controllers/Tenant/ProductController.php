@@ -269,8 +269,12 @@ class ProductController extends Controller
         $imageUrl = $request->validated('image_url', $product->image_url);
         $thumbnailUrl = $request->validated('thumbnail_url', $product->thumbnail_url);
 
-        if ($request->hasFile('image')) {
-            app(ProductImageService::class)->deleteImages($product->image_url, $product->thumbnail_url);
+        if ($request->boolean('remove_image')) {
+            app(ProductImageService::class)->deleteImages($product->image_url, $product->thumbnail_url, $product->tenant_id);
+            $imageUrl = null;
+            $thumbnailUrl = null;
+        } elseif ($request->hasFile('image')) {
+            app(ProductImageService::class)->deleteImages($product->image_url, $product->thumbnail_url, $product->tenant_id);
 
             $imageResult = app(ProductImageService::class)->storeAndOptimize(
                 $request->file('image'),
@@ -314,7 +318,7 @@ class ProductController extends Controller
             abort(404);
         }
 
-        app(ProductImageService::class)->deleteImages($product->image_url, $product->thumbnail_url);
+        app(ProductImageService::class)->deleteImages($product->image_url, $product->thumbnail_url, $product->tenant_id);
 
         $product->delete();
 

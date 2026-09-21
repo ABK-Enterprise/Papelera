@@ -67,6 +67,7 @@ class UpdateProductRequest extends FormRequest
             'bulk_discount_type' => ['nullable', 'string', 'in:inherited,custom,none'],
             'custom_bulk_discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'image' => ['nullable', 'file', 'mimes:jpeg,png,webp', 'max:5120', 'dimensions:max_width=4000,max_height=4000'],
+            'remove_image' => ['nullable', 'boolean'],
             'image_url' => ['nullable', 'string', 'max:1000'],
             'thumbnail_url' => ['nullable', 'string', 'max:1000'],
             'is_active' => ['boolean'],

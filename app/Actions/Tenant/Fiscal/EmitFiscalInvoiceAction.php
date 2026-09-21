@@ -53,11 +53,12 @@ class EmitFiscalInvoiceAction
                     throw new ArcaException('El pedido no se encuentra en un estado apto para facturación.');
                 }
 
-                // Tenant & Issuer Configuration
+                // Tenant & Issuer Configuration (Strictly derived from tenant context)
                 /** @var Tenant|null $tenant */
                 $tenant = $lockedOrder->tenant ?? Tenant::find($lockedOrder->tenant_id);
-                $ptoVta = (int) ($overrides['punto_venta'] ?? config('arca.testing.punto_venta', 1));
-                $cuit = (string) ($overrides['cuit'] ?? $tenant?->cuit_tax_id ?? config('arca.testing.cuit'));
+                $branchPtoVta = $lockedOrder->warehouse?->branch?->point_of_sale;
+                $ptoVta = (int) ($branchPtoVta ?: config('arca.testing.punto_venta', 1));
+                $cuit = (string) ($tenant?->cuit_tax_id ?: config('arca.testing.cuit'));
                 $cleanCuit = (float) preg_replace('/\D/', '', $cuit);
 
                 // Customer & Receptor Identification

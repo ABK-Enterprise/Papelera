@@ -30,10 +30,6 @@ class EnsureTenantPermission
             setPermissionsTeamId($user->tenant_id);
         }
 
-        if ($user->hasRole('admin')) {
-            return $next($request);
-        }
-
         foreach ($permissions as $permission) {
             try {
                 if ($user->hasPermissionTo($permission)) {

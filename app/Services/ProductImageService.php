@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -118,23 +119,35 @@ class ProductImageService
     }
 
     /**
-     * Remove physical files associated with a product image from disk.
+     * Remove physical files associated with a product image from disk with strict tenant path validation.
      */
-    public function deleteImages(?string $imageUrl, ?string $thumbnailUrl): void
+    public function deleteImages(?string $imageUrl, ?string $thumbnailUrl, ?int $tenantId = null): void
     {
         $disk = Storage::disk('public');
+        $expectedPrefix = $tenantId ? "products/{$tenantId}/" : 'products/';
 
-        if ($imageUrl) {
-            $path = $this->extractRelativePath($imageUrl);
-            if ($path && $disk->exists($path)) {
-                $disk->delete($path);
+        foreach ([$imageUrl, $thumbnailUrl] as $url) {
+            if (! $url) {
+                continue;
             }
-        }
 
-        if ($thumbnailUrl) {
-            $thumbPath = $this->extractRelativePath($thumbnailUrl);
-            if ($thumbPath && $disk->exists($thumbPath)) {
-                $disk->delete($thumbPath);
+            $path = $this->extractRelativePath($url);
+            if (! $path) {
+                continue;
+            }
+
+            if ($tenantId && ! str_starts_with($path, $expectedPrefix)) {
+                Log::warning('Security alert: Attempted unauthorized image deletion across tenants or invalid path', [
+                    'tenant_id' => $tenantId,
+                    'path' => $path,
+                    'url' => $url,
+                ]);
+
+                continue;
+            }
+
+            if ($disk->exists($path)) {
+                $disk->delete($path);
             }
         }
     }

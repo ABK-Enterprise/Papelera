@@ -1003,6 +1003,24 @@ class CustomerOrderController extends Controller
             $mpOrderData = $mpService->getOrder($mpOrderId, $tenantToken);
 
             if ($mpOrderData) {
+                // Validación estricta anti-replay: el external_reference en MP debe coincidir con el pedido local
+                $mpExternalRef = (string) ($mpOrderData['external_reference'] ?? '');
+                $expectedRefs = [
+                    $customerOrder->order_number,
+                    "{$customerOrder->tenant_id}:{$customerOrder->order_number}",
+                ];
+
+                if (! in_array($mpExternalRef, $expectedRefs, true)) {
+                    Log::warning('Mercado Pago reconciliation rejected: external_reference mismatch (replay attempt)', [
+                        'order_id' => $customerOrder->id,
+                        'order_number' => $customerOrder->order_number,
+                        'mp_order_id' => $mpOrderId,
+                        'mp_external_reference' => $mpExternalRef,
+                    ]);
+
+                    return;
+                }
+
                 $mpStatus = strtolower($mpOrderData['status'] ?? '');
                 $payments = $mpOrderData['transactions']['payments'] ?? ($mpOrderData['payments'] ?? []);
                 $hasApprovedPayment = false;

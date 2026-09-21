@@ -6,7 +6,7 @@ use App\Models\CustomerOrderReceipt;
 use App\Models\Receipt;
 use App\Models\Tenant;
 use App\Models\User;
-use Database\Seeders\BaseSeeder;
+use Database\Seeders\TestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Tests\TestCase;
@@ -14,7 +14,7 @@ use Tests\TestCase;
 uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seed(BaseSeeder::class);
+    $this->seed(TestSeeder::class);
     $this->tenant = Tenant::first();
     $this->adminUser = User::where('tenant_id', $this->tenant->id)->first();
     $this->defaultWarehouse = $this->tenant->warehouses()->where('is_default', true)->first();
