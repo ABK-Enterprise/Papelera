@@ -1322,9 +1322,9 @@
                                 <div class="border-t border-border/50 my-[2px]"></div>
 
                                 <!-- Nivel 3: Acciones [trash (desktop), tipo unidad, descuento (desktop), cantidad] -->
-                                <div class="flex flex-wrap items-center justify-between gap-2.5 w-full pt-0.5">
+                                <div class="flex flex-wrap items-center justify-between gap-2 w-full pt-0.5">
                                     <!-- Grupo Izquierdo: Acciones & Configuración -->
-                                    <div class="flex flex-wrap items-center gap-2 flex-1 sm:flex-initial min-w-[120px]">
+                                    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
                                         <!-- Desktop: Trash Button -->
                                         <button
                                             type="button"
@@ -1340,7 +1340,7 @@
                                         <select
                                             value={item.packaging_type}
                                             onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                            class="h-9 rounded-xl border border-border/80 bg-background px-2.5 text-xs font-semibold text-foreground flex-1 sm:flex-initial min-w-[88px] sm:min-w-[94px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                                            class="h-9 rounded-xl border border-border/80 bg-background px-1.5 sm:px-2.5 text-xs font-semibold text-foreground w-auto min-w-[70px] sm:min-w-[94px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer shrink-0"
                                         >
                                             {#if item.sale_type === 'weight'}
                                                 <option value="gram">Gramos</option>
@@ -1357,7 +1357,7 @@
                                             <button
                                                 type="button"
                                                 onclick={() => openUnitsPerPackageDialog(index)}
-                                                class="h-9 px-2.5 rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 transition-colors inline-flex items-center gap-1.5 text-xs font-semibold cursor-pointer shrink-0"
+                                                class="h-9 px-2 rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 transition-colors inline-flex items-center gap-1 text-xs font-semibold cursor-pointer shrink-0"
                                                 title="Modificar unidades por bulto para esta fila ({item.units_per_package || 1} u/bulto)"
                                                 aria-label="Modificar unidades por bulto"
                                             >
@@ -1415,8 +1415,8 @@
                                         </div>
                                     </div>
 
-                                    <!-- Stepper Táctil Elástico (se comprime antes de quebrar y ocupa ancho completo al quebrar) -->
-                                    <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden w-full sm:w-auto flex-1 sm:flex-initial min-w-[88px] justify-between ml-auto sm:ml-0">
+                                    <!-- Stepper Táctil Elástico (coexiste en fila 1 previa al wrap; ocupa ancho completo tras el wrap) -->
+                                    <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden flex-1 sm:flex-initial min-w-[104px] sm:min-w-[120px] sm:w-auto justify-between ml-auto sm:ml-0">
                                         <button
                                             type="button"
                                             class="w-8 sm:w-9 h-full flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
