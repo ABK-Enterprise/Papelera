@@ -44,7 +44,7 @@
     let isUpdatingPos = $state(false);
 
     function handleConnect() {
-        router.get('/tenant/configuracion/mercadopago/vincular');
+        window.location.href = '/tenant/configuracion/mercadopago/vincular';
     }
 
     function handleDisconnect() {

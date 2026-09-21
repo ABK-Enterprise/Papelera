@@ -84,7 +84,13 @@ class TenantMercadoPagoController extends Controller
             'scope' => 'offline_access read write',
         ]);
 
-        return Inertia::location("https://auth.mercadopago.com/authorization?{$params}");
+        $targetUrl = "https://auth.mercadopago.com/authorization?{$params}";
+
+        if ($request->header('X-Inertia')) {
+            return Inertia::location($targetUrl);
+        }
+
+        return redirect()->away($targetUrl);
     }
 
     /**
@@ -96,7 +102,7 @@ class TenantMercadoPagoController extends Controller
         $state = $request->query('state');
 
         if (! $code) {
-            Log::warning('Mercado Pago OAuth callback received without code parameter', [
+            Log::error('Mercado Pago OAuth callback received without code parameter', [
                 'query_params' => $request->query(),
             ]);
 
@@ -121,7 +127,7 @@ class TenantMercadoPagoController extends Controller
         $tenant = $request->user()?->tenant;
 
         if (! $tenant || ($tenantId && $tenant->id !== (int) $tenantId)) {
-            Log::warning('Mercado Pago OAuth callback tenant security mismatch', [
+            Log::error('Mercado Pago OAuth callback tenant security mismatch', [
                 'user_tenant_id' => $tenant?->id,
                 'state_tenant_id' => $tenantId,
             ]);
@@ -152,7 +158,7 @@ class TenantMercadoPagoController extends Controller
         }
 
         try {
-            $response = Http::asForm()->timeout(15)->post('https://api.mercadopago.com/oauth/token', $tokenPayload);
+            $response = Http::acceptJson()->asJson()->timeout(15)->post('https://api.mercadopago.com/oauth/token', $tokenPayload);
 
             if ($response->successful()) {
                 $data = $response->json();
