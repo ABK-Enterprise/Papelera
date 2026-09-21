@@ -68,6 +68,10 @@
     let errorMessage = $state<string | null>(null);
     let isConfirmAlertOpen = $state<boolean>(false);
 
+    // Idempotency guard: tracks the set of order IDs currently being processed
+    // to prevent duplicate submissions when the dialog stays open unexpectedly.
+    let processingKey = $state<string | null>(null);
+
     let allocations = $state<AllocationItem[]>([]);
 
     const paymentMethods = [
@@ -133,6 +137,8 @@
             referenceNumber = '';
             notes = '';
             paymentMethod = 'efectivo';
+            isSubmitting = false;
+            processingKey = null;
 
             const initialAmount = suggestedAmount > 0 ? suggestedAmount : totalOrdersDebt;
             amount = initialAmount > 0 ? String(initialAmount) : '';
@@ -169,7 +175,19 @@
     }
 
     function handleConfirmedPayment() {
+        // Idempotency guard: build a stable key from current order IDs + amount.
+        // If the same key is already processing, silently reject the second press.
+        const currentKey = [
+            ...allocations.map((a) => `${a.order_id}:${a.amount}`),
+            parsedAmount,
+            paymentMethod,
+        ].join('|');
+
+        if (processingKey !== null) return; // already in-flight
+        processingKey = currentKey;
+
         isSubmitting = true;
+        isConfirmAlertOpen = false; // close the confirm dialog immediately
         errorMessage = null;
 
         const payloadAllocations = allocations.map((a) => ({
@@ -191,11 +209,13 @@
                 preserveScroll: true,
                 onSuccess: (page) => {
                     isSubmitting = false;
+                    processingKey = null;
                     open = false;
                     onSuccess?.(page);
                 },
                 onError: (errors) => {
                     isSubmitting = false;
+                    processingKey = null;
                     const first = Object.values(errors)[0];
                     errorMessage = typeof first === 'string' ? first : 'Error al registrar el cobro.';
                 },
@@ -449,5 +469,6 @@
     description="Se emitirá un recibo oficial por {formatPrice(parsedAmount)} mediante {paymentMethods.find(m => m.value === paymentMethod)?.label}. Esta operación actualizará el libro mayor de cuenta corriente y el saldo deudor de los pedidos imputados."
     confirmText="Registrar Cobro"
     confirmVariant="default"
+    loading={isSubmitting}
     onconfirm={handleConfirmedPayment}
 />

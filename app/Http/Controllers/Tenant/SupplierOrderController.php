@@ -360,10 +360,19 @@ class SupplierOrderController extends Controller
 
         $supplierOrder->load(['items.product', 'supplier', 'tenant']);
 
+        $tenant = $supplierOrder->tenant ?? $request->user()?->tenant;
+
         return \Spatie\LaravelPdf\Facades\Pdf::view('pdf.supplier-order', [
             'order' => $supplierOrder,
+            'supplier' => $supplierOrder->supplier,
+            'tenant' => $tenant,
         ])
             ->format('a4')
+            ->meta(
+                title: "Orden de Compra - {$supplierOrder->order_number}",
+                author: $tenant?->name ?? 'Papelera',
+                creator: config('app.name', 'Papelera'),
+            )
             ->name("orden-compra-{$supplierOrder->order_number}.pdf")
             ->download();
     }
@@ -378,11 +387,34 @@ class SupplierOrderController extends Controller
         }
 
         $supplierOrder->load(['items.product', 'supplier', 'tenant']);
+        $tenant = $supplierOrder->tenant ?? $request->user()?->tenant;
 
         return \Spatie\LaravelPdf\Facades\Pdf::view('pdf.supplier-order', [
             'order' => $supplierOrder,
+            'supplier' => $supplierOrder->supplier,
+            'tenant' => $tenant,
         ])
             ->format('a4')
+            ->meta(
+                title: "Orden de Compra - {$supplierOrder->order_number}",
+                author: $tenant?->name ?? 'Papelera',
+                creator: config('app.name', 'Papelera'),
+            )
             ->inline("orden-compra-{$supplierOrder->order_number}.pdf");
+    }
+
+    /**
+     * Display the supplier order in an HTML viewer shell with brand metadata and favicon.
+     */
+    public function viewer(Request $request, SupplierOrder $supplierOrder)
+    {
+        if ($supplierOrder->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        return view('pdf.viewer', [
+            'title' => "Orden de Compra - {$supplierOrder->order_number}",
+            'streamUrl' => route('tenant.suppliers.orders.preview-pdf', $supplierOrder),
+        ]);
     }
 }

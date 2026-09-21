@@ -12,6 +12,7 @@
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
+    import { hasPermission } from '@/lib/permissions';
     import CreateOrderModal from './CreateOrderModal.svelte';
     import OrderDetailModal from './OrderDetailModal.svelte';
     import OrderFilterModalMobile from './mobile/OrderFilterModalMobile.svelte';
@@ -40,6 +41,10 @@
         customer_phone: string | null;
         delivery_address: string | null;
         status: string;
+        fiscal_status?: string;
+        fiscal_error_message?: string | null;
+        active_fiscal_invoice?: any;
+        customer?: any;
         total_amount: string | number;
         notes: string | null;
         created_at: string;
@@ -243,14 +248,16 @@
         </div>
 
         <div class="flex items-center justify-end gap-2.5">
-            <Button
-                onclick={() => (isCreateModalOpen = true)}
-                class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-medium shadow-xs"
-                data-test="create-order-button"
-            >
-                <Plus class="size-4" />
-                <span>Nuevo Pedido</span>
-            </Button>
+            {#if hasPermission('pedidos.crear')}
+                <Button
+                    onclick={() => (isCreateModalOpen = true)}
+                    class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-medium shadow-xs"
+                    data-test="create-order-button"
+                >
+                    <Plus class="size-4" />
+                    <span>Nuevo Pedido</span>
+                </Button>
+            {/if}
         </div>
     </div>
 

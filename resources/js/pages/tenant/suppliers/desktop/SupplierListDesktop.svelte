@@ -10,6 +10,7 @@
     import ChevronRight from 'lucide-svelte/icons/chevron-right';
     import Plus from 'lucide-svelte/icons/plus';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import { hasPermission } from '@/lib/permissions';
 
     export interface SupplierItem {
         id: number;
@@ -155,10 +156,12 @@
             <p class="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
                 No hay proveedores que coincidan con la búsqueda o aún no has añadido ninguno a tu comercio.
             </p>
-            <Button class="mt-4 gap-2 font-semibold" onclick={onOpenCreate}>
-                <Plus class="h-4 w-4" />
-                Añadir Primer Proveedor
-            </Button>
+            {#if hasPermission('proveedores.crear')}
+                <Button class="mt-4 gap-2 font-semibold" onclick={onOpenCreate}>
+                    <Plus class="h-4 w-4" />
+                    Añadir Primer Proveedor
+                </Button>
+            {/if}
         </div>
     {/if}
 

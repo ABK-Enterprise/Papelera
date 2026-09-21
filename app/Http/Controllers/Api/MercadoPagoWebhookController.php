@@ -35,9 +35,15 @@ class MercadoPagoWebhookController extends Controller
         $xRequestId = (string) $request->header('x-request-id', '');
         $dataId = (string) ($request->query('data_id') ?: $request->query('data.id') ?: $request->input('data.id', ''));
 
-        // 1. Validar firma criptográfica HMAC si el secret está configurado
+        // 1. Validar firma criptográfica HMAC
         $secret = config('services.mercadopago.webhook_secret');
-        if ($secret) {
+        if (empty($secret)) {
+            if (app()->isProduction()) {
+                Log::critical('Mercado Pago webhook secret not configured in production environment.');
+
+                return response()->json(['error' => 'Webhook service misconfigured'], 500);
+            }
+        } else {
             $isValid = $this->mercadoPagoService->validateSignature($xSignature, $xRequestId, $dataId, $secret);
             if (! $isValid) {
                 Log::warning('Mercado Pago webhook rejected: Invalid signature', [
@@ -74,10 +80,20 @@ class MercadoPagoWebhookController extends Controller
 
             try {
                 $externalRef = $data['external_reference'] ?? null;
-                if (! $externalRef && ! empty($dataId)) {
+                if (! empty($dataId)) {
                     $mpOrderData = $this->mercadoPagoService->getOrder($dataId);
                     if ($mpOrderData) {
-                        $externalRef = $mpOrderData['external_reference'] ?? null;
+                        $mpExternalRef = $mpOrderData['external_reference'] ?? null;
+                        if ($externalRef && $mpExternalRef && $mpExternalRef !== $externalRef) {
+                            Log::warning('Mercado Pago webhook: external_reference mismatch between payload and API', [
+                                'payload_ref' => $externalRef,
+                                'api_ref' => $mpExternalRef,
+                                'data_id' => $dataId,
+                            ]);
+
+                            return response()->json(['error' => 'External reference mismatch'], 422);
+                        }
+                        $externalRef = $mpExternalRef ?: $externalRef;
                         $data = array_merge($mpOrderData, $data);
                     }
                 }

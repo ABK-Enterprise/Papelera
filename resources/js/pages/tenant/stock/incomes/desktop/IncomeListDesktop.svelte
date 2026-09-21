@@ -10,6 +10,7 @@
     import Tag from 'lucide-svelte/icons/tag';
     import User from 'lucide-svelte/icons/user';
     import X from 'lucide-svelte/icons/x';
+    import Building2 from 'lucide-svelte/icons/building-2';
 
     interface StockMovementItem {
         id: number;
@@ -20,6 +21,11 @@
         current_stock: number;
         notes: string | null;
         created_at: string;
+        warehouse?: {
+            id: number;
+            name: string;
+            code?: string | null;
+        } | null;
         product?: {
             id: number;
             name: string;
@@ -185,6 +191,13 @@
                                 <Tag class="size-3" />
                                 {formatReason(mov.reason)}
                             </span>
+
+                            {#if mov.warehouse}
+                                <span class="inline-flex items-center gap-1 rounded-md bg-muted/80 px-2 py-0.5 text-xs font-semibold text-foreground border border-border/70 shadow-2xs">
+                                    <Building2 class="size-3 text-muted-foreground shrink-0" />
+                                    {mov.warehouse.name}
+                                </span>
+                            {/if}
                         </div>
 
                         <!-- Fila 2: Notas y Detalles -->

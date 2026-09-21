@@ -14,6 +14,7 @@ use App\Models\Tenant;
 use App\Models\User;
 use App\Services\TenantSequenceService;
 use Database\Seeders\BaseSeeder;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
@@ -29,6 +30,7 @@ beforeEach(function () {
 
     setPermissionsTeamId($this->tenant1->id);
     $adminRole1 = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web', 'tenant_id' => $this->tenant1->id]);
+    $adminRole1->syncPermissions(Permission::all());
     $this->user1 = User::factory()->create(['tenant_id' => $this->tenant1->id]);
     $this->user1->assignRole($adminRole1);
 
@@ -42,6 +44,7 @@ beforeEach(function () {
 
     setPermissionsTeamId($this->tenant2->id);
     $adminRole2 = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web', 'tenant_id' => $this->tenant2->id]);
+    $adminRole2->syncPermissions(Permission::all());
     $this->user2 = User::factory()->create(['tenant_id' => $this->tenant2->id]);
     $this->user2->assignRole($adminRole2);
 });

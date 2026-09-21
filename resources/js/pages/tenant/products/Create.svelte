@@ -3,6 +3,7 @@
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import ProductImageUploader from '@/components/tenant/products/ProductImageUploader.svelte';
     import { Link, useForm } from '@inertiajs/svelte';
     import ArrowLeft from 'lucide-svelte/icons/arrow-left';
     import Check from 'lucide-svelte/icons/check';
@@ -50,6 +51,7 @@
         package_quantity: 1,
         bulk_discount_type: 'inherited',
         custom_bulk_discount_percentage: '',
+        image: null as File | null,
         image_url: '',
         is_active: true,
     });
@@ -98,8 +100,8 @@
             </h1>
         </div>
         <Link href="/tenant/productos">
-            <Button class="gap-2 text-sm rounded-xl font-medium min-h-[40px] px-4 shadow-2xs">
-                <ArrowLeft class="size-4" />
+            <Button class="gap-2 text-sm rounded-xl font-medium min-h-[42px] h-auto py-2.5 px-4 shadow-2xs leading-snug text-center flex items-center justify-center">
+                <ArrowLeft class="size-4 shrink-0" />
                 <span>Volver al catálogo</span>
             </Button>
         </Link>
@@ -118,34 +120,12 @@
                 </h2>
             </div>
 
-            <!-- Preview Card -->
-            <div class="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-border rounded-2xl bg-card hover:bg-muted/40 transition-colors p-6 min-h-[220px] relative overflow-hidden group">
-                {#if form.image_url}
-                    <img
-                        src={form.image_url}
-                        alt={form.name || 'Producto'}
-                        class="w-full h-48 object-contain rounded-xl"
-                        onerror={() => (form.image_url = '')}
-                    />
-                {:else}
-                    <div class="size-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3 group-hover:scale-105 transition-transform border border-primary/20">
-                        <UploadCloud class="size-8" />
-                    </div>
-                    <p class="text-xs font-semibold text-foreground text-center">URL de imagen o foto</p>
-                    <p class="text-[11px] text-muted-foreground text-center mt-0.5">JPG, PNG, WebP o enlace web</p>
-                {/if}
-            </div>
-
-            <!-- Input URL -->
-            <div class="mt-4 space-y-1">
-                <Label for="prod-image-url" class="text-xs font-semibold text-muted-foreground">Enlace de Imagen</Label>
-                <Input
-                    id="prod-image-url"
-                    bind:value={form.image_url}
-                    placeholder="https://ejemplo.com/foto.jpg"
-                    class="h-9 text-xs rounded-xl bg-background"
-                />
-            </div>
+            <!-- Product Image Uploader -->
+            <ProductImageUploader
+                bind:file={form.image}
+                error={form.errors.image}
+                disabled={form.processing}
+            />
 
             <!-- Resumen de Bulto -->
             <div class="mt-5 p-4 rounded-2xl bg-primary/5 border border-primary/20 space-y-2.5">

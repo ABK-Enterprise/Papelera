@@ -299,14 +299,17 @@ class DeliveryRouteController extends Controller
         }
         $reason = $request->input('reason');
 
-        DB::transaction(function () use ($tenantId, $userId, $customerOrder, $destination, $reason) {
+        $previousStatus = 'no_entregado';
+        DB::transaction(function () use ($tenantId, $userId, $customerOrder, $destination, $reason, &$previousStatus) {
             /** @var CustomerOrder $order */
             $order = CustomerOrder::where('tenant_id', $tenantId)
                 ->where('id', $customerOrder->id)
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if ($order->isTerminal() || $order->status !== 'no_entregado') {
+            $previousStatus = $order->status;
+
+            if ($order->isTerminal() || ! in_array($order->status, ['no_entregado', 'en_camino'], true)) {
                 throw ValidationException::withMessages([
                     'order' => "El pedido {$order->order_number} se encuentra en estado definitivo ({$order->status}) y no puede reprogramarse.",
                 ]);
@@ -395,13 +398,19 @@ class DeliveryRouteController extends Controller
 
         $customerOrder->refresh();
         broadcast(new OrderRescheduled($customerOrder, $destination));
-        broadcast(new CustomerOrderStatusUpdated($customerOrder, 'no_entregado'));
+        broadcast(new CustomerOrderStatusUpdated($customerOrder, $previousStatus));
 
         $msg = ($destination === 'cancelado')
             ? "Pedido {$customerOrder->order_number} cancelado definitivamente y stock reincorporado."
             : "Pedido {$customerOrder->order_number} devuelto a preparación para su posterior revisión.";
 
-        return back()->with('success', $msg);
+        $redirect = back()->with('success', $msg);
+
+        if ($destination === 'cancelado' && $customerOrder->hasPendingCreditNote()) {
+            $redirect->with('warning', "El pedido {$customerOrder->order_number} fue cancelado, pero mantiene una factura fiscal activa en ARCA pendiente de emisión de Nota de Crédito.");
+        }
+
+        return $redirect;
     }
 
     /**

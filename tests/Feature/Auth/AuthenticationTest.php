@@ -99,8 +99,8 @@ test('superadmin created in BaseSeeder can authenticate with admin credentials v
     $this->seed(BaseSeeder::class);
 
     $response = $this->post(route('login.store'), [
-        'email' => 'admin@admin.com',
-        'password' => 'admin',
+        'email' => 'mariano@control.com',
+        'password' => 'admincontrol',
     ]);
 
     $this->assertAuthenticated();

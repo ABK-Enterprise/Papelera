@@ -37,6 +37,8 @@ use Illuminate\Support\Carbon;
     'email',
     'phone',
     'address',
+    'province',
+    'city',
     'credit_limit',
     'discount_percentage',
     'current_balance',

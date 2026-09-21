@@ -55,15 +55,16 @@ test('password can be updated', function () {
         ->from(route('security.edit'))
         ->put(route('user-password.update'), [
             'current_password' => 'password',
-            'password' => 'new-password',
-            'password_confirmation' => 'new-password',
+            'password' => 'N3w-P@ssword!',
+            'password_confirmation' => 'N3w-P@ssword!',
         ]);
 
     $response
         ->assertSessionHasNoErrors()
         ->assertRedirect(route('security.edit'));
 
-    expect(Hash::check('new-password', $user->refresh()->password))->toBeTrue();
+    expect(Hash::check('N3w-P@ssword!', $user->refresh()->password))->toBeTrue();
+    expect(\Inertia\Inertia::getFlashed()['toast'] ?? null)->toBe(['type' => 'success', 'message' => 'Contraseña actualizada correctamente.']);
 });
 
 test('correct password must be provided to update password', function () {
@@ -74,13 +75,41 @@ test('correct password must be provided to update password', function () {
         ->from(route('security.edit'))
         ->put(route('user-password.update'), [
             'current_password' => 'wrong-password',
-            'password' => 'new-password',
-            'password_confirmation' => 'new-password',
+            'password' => 'N3w-P@ssword!',
+            'password_confirmation' => 'N3w-P@ssword!',
         ]);
 
     $response
         ->assertSessionHasErrors('current_password')
         ->assertRedirect(route('security.edit'));
+});
+
+test('password must meet security requirements', function () {
+    $user = User::factory()->create();
+
+    // Missing symbols and numbers
+    $response = $this
+        ->actingAs($user)
+        ->from(route('security.edit'))
+        ->put(route('user-password.update'), [
+            'current_password' => 'password',
+            'password' => 'short',
+            'password_confirmation' => 'short',
+        ]);
+
+    $response->assertSessionHasErrors('password');
+
+    // Exceeds 64 characters
+    $response = $this
+        ->actingAs($user)
+        ->from(route('security.edit'))
+        ->put(route('user-password.update'), [
+            'current_password' => 'password',
+            'password' => str_repeat('A1!a', 17), // 68 chars
+            'password_confirmation' => str_repeat('A1!a', 17),
+        ]);
+
+    $response->assertSessionHasErrors('password');
 });
 
 test('user without password can set a new password without providing current password', function () {
@@ -100,8 +129,8 @@ test('user without password can set a new password without providing current pas
         ->actingAs($user)
         ->from(route('security.edit'))
         ->put(route('user-password.update'), [
-            'password' => 'new-secure-password',
-            'password_confirmation' => 'new-secure-password',
+            'password' => 'N3w-P@ssword!',
+            'password_confirmation' => 'N3w-P@ssword!',
         ]);
 
     $response
@@ -110,5 +139,6 @@ test('user without password can set a new password without providing current pas
 
     $user->refresh();
     expect($user->hasPassword())->toBeTrue()
-        ->and(Hash::check('new-secure-password', $user->password))->toBeTrue();
+        ->and(Hash::check('N3w-P@ssword!', $user->password))->toBeTrue();
+    expect(\Inertia\Inertia::getFlashed()['toast'] ?? null)->toBe(['type' => 'success', 'message' => 'Contraseña actualizada correctamente.']);
 });

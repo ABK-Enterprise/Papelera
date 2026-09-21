@@ -28,7 +28,13 @@ trait ProfileValidationRules
      */
     protected function nameRules(): array
     {
-        return ['required', 'string', 'max:255'];
+        return [
+            'required',
+            'string',
+            'min:2',
+            'max:50',
+            'regex:/^[\pL\s\.\'\-]+$/u',
+        ];
     }
 
     /**
@@ -41,8 +47,8 @@ trait ProfileValidationRules
         return [
             'required',
             'string',
-            'email',
-            'max:255',
+            'email:rfc',
+            'max:100',
             $userId === null
                 ? Rule::unique(User::class)
                 : Rule::unique(User::class)->ignore($userId),

@@ -31,6 +31,8 @@
         customer_phone: string | null;
         delivery_address: string | null;
         status: string;
+        fiscal_status?: string;
+        return_status?: string;
         total_amount: string | number;
         notes: string | null;
         created_at: string;
@@ -81,21 +83,21 @@
             role="button"
             tabindex="0"
         >
-            <!-- Header Card Mobile -->
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
+            <!-- Header Card Mobile (Alineación dinámica y +4px eje-y de padding) -->
+            <div class="flex {order.return_status ? 'items-start' : 'items-center'} justify-between py-0.5 gap-2">
+                <div class="flex items-center gap-3 min-w-0">
                     <IconContainer size="lg" variant="primary" icon="solar:bill-list-bold-duotone" />
-                    <div>
-                        <span class="font-semibold text-sm text-foreground tabular-nums">{order.order_number}</span>
-                        <span class="text-xs text-muted-foreground flex items-center gap-1 tabular-nums">
-                            <Calendar class="h-3 w-3" />
+                    <div class="min-w-0">
+                        <span class="font-semibold text-sm text-foreground tabular-nums block truncate">{order.order_number}</span>
+                        <span class="text-xs text-muted-foreground flex items-center gap-1 tabular-nums mt-0.5">
+                            <Calendar class="h-3 w-3 shrink-0" />
                             {formatDate(order.created_at)}
                         </span>
                     </div>
                 </div>
 
-                <!-- Estado -->
-                <div>
+                <!-- Estado y Devolución en Stack Vertical -->
+                <div class="flex flex-col items-end gap-1 shrink-0">
                     {#if order.status === 'en_preparacion'}
                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                             <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
@@ -120,6 +122,36 @@
                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                             <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
                             Cancelado
+                        </span>
+                    {/if}
+
+                    {#if order.return_status === 'total'}
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                            Devuelto
+                        </span>
+                    {:else if order.return_status === 'parcial'}
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                            Dev. Parcial
+                        </span>
+                    {/if}
+
+                    <!-- Badge Fiscal ARCA -->
+                    {#if order.fiscal_status === 'facturado'}
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium tracking-wide bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                            Facturado
+                        </span>
+                    {:else if order.fiscal_status === 'anulado_fiscal'}
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium tracking-wide bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 line-through">
+                            Anulado
+                        </span>
+                    {:else if order.fiscal_status === 'error_fiscal'}
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium tracking-wide bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                            Error Fiscal
+                        </span>
+                    {:else}
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium tracking-wide bg-muted text-muted-foreground border border-border/60">
+                            Sin Facturar
                         </span>
                     {/if}
                 </div>

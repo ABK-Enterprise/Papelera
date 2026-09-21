@@ -9,6 +9,7 @@
     import Tag from 'lucide-svelte/icons/tag';
     import User from 'lucide-svelte/icons/user';
     import X from 'lucide-svelte/icons/x';
+    import Building2 from 'lucide-svelte/icons/building-2';
 
     interface StockMovementItem {
         id: number;
@@ -19,6 +20,11 @@
         current_stock: number;
         notes: string | null;
         created_at: string;
+        warehouse?: {
+            id: number;
+            name: string;
+            code?: string | null;
+        } | null;
         product?: {
             id: number;
             name: string;
@@ -73,6 +79,8 @@
                 return 'Mercadería Vencida';
             case 'uso_interno':
                 return 'Consumo / Uso Interno';
+            case 'merma_devolucion_cliente':
+                return 'Merma (Devolución Cliente)';
             default:
                 return reason ? reason.replace(/_/g, ' ') : 'Egreso Manual';
         }
@@ -181,10 +189,21 @@
                                 </span>
                             {/if}
 
-                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200/50">
+                            <span class={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium border ${
+                                mov.reason === 'merma_devolucion_cliente'
+                                    ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30'
+                                    : 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200/50'
+                            }`}>
                                 <Tag class="size-3" />
                                 {formatReason(mov.reason)}
                             </span>
+
+                            {#if mov.warehouse}
+                                <span class="inline-flex items-center gap-1 rounded-md bg-muted/80 px-2 py-0.5 text-xs font-semibold text-foreground border border-border/70 shadow-2xs">
+                                    <Building2 class="size-3 text-muted-foreground shrink-0" />
+                                    {mov.warehouse.name}
+                                </span>
+                            {/if}
                         </div>
 
                         <!-- Fila 2: Notas y Detalles -->

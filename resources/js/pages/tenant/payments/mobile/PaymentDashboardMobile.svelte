@@ -10,6 +10,7 @@
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import ArrowRight from 'lucide-svelte/icons/arrow-right';
     import { Link } from '@inertiajs/svelte';
+    import { hasPermission } from '@/lib/permissions';
     import type { CustomerSummary, OrderSummary, ReceiptSummary } from '../desktop/PaymentDashboardDesktop.svelte';
 
     let {
@@ -280,16 +281,18 @@
                             </span>
                         </div>
 
-                        <Button
-                            type="button"
-                            variant="default"
-                            class="h-11 px-5 rounded-xl font-bold min-h-[44px] shadow-sm gap-2"
-                            disabled={selectedOrderIds.length === 0}
-                            onclick={() => onOpenPaymentModal?.()}
-                        >
-                            <ReceiptText class="size-4" />
-                            <span>Cobrar ({formatPrice(selectedOrdersTotalDebt)})</span>
-                        </Button>
+                        {#if hasPermission('cobranzas.crear')}
+                            <Button
+                                type="button"
+                                variant="default"
+                                class="min-h-[46px] h-auto py-3 px-5 rounded-xl font-bold text-xs sm:text-sm shadow-sm gap-2 leading-snug text-center flex items-center justify-center"
+                                disabled={selectedOrderIds.length === 0}
+                                onclick={() => onOpenPaymentModal?.()}
+                            >
+                                <ReceiptText class="size-4 shrink-0" />
+                                <span>Cobrar ({formatPrice(selectedOrdersTotalDebt)})</span>
+                            </Button>
+                        {/if}
                     </div>
                 {/if}
             {/if}
@@ -337,6 +340,16 @@
                                 <span class="text-[11px] text-muted-foreground block truncate">
                                     Cliente: <strong class="text-foreground">{rc.customer.name}</strong>
                                 </span>
+                            {/if}
+
+                            {#if rc.order_allocations && rc.order_allocations.length > 0}
+                                <div class="flex flex-wrap gap-1 mt-0.5">
+                                    {#each rc.order_allocations as alloc}
+                                        <span class="text-[10px] font-mono font-semibold tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground border border-border/50">
+                                            {alloc.order.order_number}
+                                        </span>
+                                    {/each}
+                                </div>
                             {/if}
 
                             <div class="flex items-center justify-between text-xs pt-1 border-t border-border/40">

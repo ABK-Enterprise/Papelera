@@ -4,14 +4,22 @@
     import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
     import Package from 'lucide-svelte/icons/package';
     import Edit2 from 'lucide-svelte/icons/edit-2';
+    import Building2 from 'lucide-svelte/icons/building-2';
 
     interface CategorySummary {
         id: number;
         name: string;
     }
 
+    interface WarehouseSummary {
+        id: number;
+        name: string;
+        code?: string | null;
+    }
+
     interface LowStockProduct {
         id: number;
+        product_warehouse_id?: number | null;
         name: string;
         sku?: string | null;
         barcode?: string | null;
@@ -19,6 +27,8 @@
         min_stock: number;
         image_url?: string | null;
         category?: CategorySummary | null;
+        warehouse?: WarehouseSummary | null;
+        is_critical?: boolean;
     }
 
     let {
@@ -26,6 +36,8 @@
     }: {
         products?: LowStockProduct[];
     } = $props();
+
+    let criticalCount = $derived(products.filter((p) => p.is_critical || p.stock < 0).length);
 </script>
 
 <div class="flex flex-col gap-3">
@@ -34,21 +46,33 @@
             <div class="flex size-7 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
                 <AlertTriangle class="size-3.5" />
             </div>
-            <h2 class="text-sm font-semibold tracking-tight text-foreground">Alertas de stock mínimo</h2>
+            <h2 class="text-sm font-semibold tracking-tight text-foreground">Alertas de stock mínimo y crítico</h2>
         </div>
 
         {#if products.length > 0}
-            <span class="inline-flex items-center gap-1 rounded-full border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-xs font-semibold tracking-wide tabular-nums text-rose-600 dark:text-rose-400">
-                <span class="size-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-                {products.length}
-            </span>
+            <div class="flex items-center gap-1.5">
+                {#if criticalCount > 0}
+                    <span class="inline-flex items-center gap-1 rounded-full border border-rose-600/30 bg-rose-600/15 px-2 py-0.5 text-xs font-bold tracking-wide tabular-nums text-rose-700 dark:text-rose-300">
+                        <span class="size-1.5 rounded-full bg-rose-600 animate-pulse"></span>
+                        {criticalCount} {criticalCount === 1 ? 'crítico' : 'críticos'}
+                    </span>
+                {/if}
+                <span class="inline-flex items-center gap-1 rounded-full border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-xs font-semibold tracking-wide tabular-nums text-rose-600 dark:text-rose-400">
+                    {products.length}
+                </span>
+            </div>
         {/if}
     </div>
 
     {#if products.length > 0}
         <div class="flex flex-col gap-2.5">
-            {#each products as product (product.id)}
-                <div class="flex flex-col gap-2.5 rounded-xl border border-rose-500/20 bg-rose-500/10 p-3.5 shadow-xs">
+            {#each products as product (product.product_warehouse_id ?? product.id)}
+                {@const isCrit = product.is_critical || product.stock < 0}
+                <div class={`flex flex-col gap-2.5 rounded-xl border p-3.5 shadow-xs ${
+                    isCrit
+                        ? 'border-rose-600/30 bg-rose-600/15 text-rose-700 dark:text-rose-300'
+                        : 'border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                }`}>
                     <div class="flex items-start justify-between gap-2">
                         <div class="flex items-center gap-2.5 min-w-0">
                             <div class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/50 bg-background/60">
@@ -59,8 +83,15 @@
                                 {/if}
                             </div>
                             <div class="min-w-0 flex-1">
-                                <h4 class="font-semibold text-xs text-foreground truncate">{product.name}</h4>
-                                <div class="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <h4 class="font-semibold text-xs text-foreground truncate">{product.name}</h4>
+                                    {#if isCrit}
+                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-600 text-white uppercase tracking-wider">
+                                            Crítico
+                                        </span>
+                                    {/if}
+                                </div>
+                                <div class="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5 flex-wrap">
                                     {#if product.category}
                                         <span class="rounded bg-background/80 px-1.5 py-0.5 font-medium text-foreground">
                                             {product.category.name}
@@ -78,21 +109,38 @@
                             class="flex size-7 items-center justify-center rounded-lg bg-background/60 text-muted-foreground hover:text-foreground border border-border/40"
                             title="Editar producto"
                         >
-
                             <Edit2 class="size-3" />
                         </Link>
                     </div>
 
-                    <!-- Métricas de Stock: Actual vs Mínimo -->
-                    <div class="grid grid-cols-2 gap-2 rounded-lg bg-background/50 p-2 border border-rose-500/15 text-xs">
+                    <!-- Fila de Depósito y Métricas de Stock -->
+                    <div class="flex items-center justify-between gap-2 pt-0.5">
+                        {#if product.warehouse}
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-background/80 text-foreground border border-border/80 shadow-2xs">
+                                <Building2 class="size-3 text-muted-foreground shrink-0" />
+                                {product.warehouse.name}
+                            </span>
+                        {:else}
+                            <span class="text-[11px] text-muted-foreground italic">General</span>
+                        {/if}
+                    </div>
+
+                    <div class={`grid grid-cols-2 gap-2 rounded-lg bg-background/50 p-2 border text-xs ${
+                        isCrit ? 'border-rose-600/25' : 'border-rose-500/15'
+                    }`}>
                         <div class="flex flex-col">
-                            <span class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Stock actual</span>
-                            <span class="font-bold tabular-nums text-rose-600 dark:text-rose-400">
+                            <span class="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">Stock actual</span>
+                            <span class={`font-bold tabular-nums ${
+                                isCrit ? 'text-rose-700 dark:text-rose-300 font-extrabold' : 'text-rose-600 dark:text-rose-400'
+                            }`}>
+                                {#if isCrit}
+                                    <span class="inline-block size-1.5 rounded-full bg-rose-600 animate-pulse mr-1 align-middle"></span>
+                                {/if}
                                 {product.stock} {product.stock === 1 ? 'ud.' : 'uds.'}
                             </span>
                         </div>
                         <div class="flex flex-col text-right">
-                            <span class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Stock mínimo</span>
+                            <span class="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">Stock mínimo</span>
                             <span class="font-semibold tabular-nums text-foreground">
                                 {product.min_stock} {product.min_stock === 1 ? 'ud.' : 'uds.'}
                             </span>

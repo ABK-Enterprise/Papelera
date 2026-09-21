@@ -26,6 +26,8 @@
         customer_phone?: string | null;
         customer_email?: string | null;
         status: string;
+        fiscal_status?: string | null;
+        return_status?: string | null;
         payment_method?: string | null;
         total_amount: number | string;
         created_at: string;
@@ -117,7 +119,7 @@
             </div>
 
             <!-- Estado Logístico -->
-            <div class="min-w-[130px]">
+            <div class="min-w-[130px] flex flex-col items-start gap-1">
                 {#if order.status === 'en_preparacion'}
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium tracking-wide bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                         <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
@@ -142,6 +144,36 @@
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium tracking-wide bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                         <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
                         Cancelado
+                    </span>
+                {/if}
+
+                {#if order.return_status === 'total'}
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                        Devolución Total
+                    </span>
+                {:else if order.return_status === 'parcial'}
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                        Devolución Parcial
+                    </span>
+                {/if}
+
+                <!-- Badge Fiscal ARCA -->
+                {#if order.fiscal_status === 'facturado'}
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        Facturado ARCA
+                    </span>
+                {:else if order.fiscal_status === 'anulado_fiscal'}
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 line-through">
+                        Anulado (NC)
+                    </span>
+                {:else if order.fiscal_status === 'error_fiscal'}
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                        Error Fiscal
+                    </span>
+                {:else}
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium tracking-wide bg-muted text-muted-foreground border border-border/60">
+                        Sin Facturar
                     </span>
                 {/if}
             </div>

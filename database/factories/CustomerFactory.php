@@ -30,6 +30,8 @@ class CustomerFactory extends Factory
             'email' => fake()->safeEmail(),
             'phone' => fake()->phoneNumber(),
             'address' => fake()->address(),
+            'province' => 'Buenos Aires',
+            'city' => 'La Plata',
             'credit_limit' => fake()->randomFloat(2, 10000, 200000),
             'current_balance' => 0.00,
             'credit_due_days' => 30,

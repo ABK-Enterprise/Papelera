@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Events\Tenant\TenantPermissionsUpdated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreRoleRequest;
 use App\Http\Requests\Tenant\UpdateRoleRequest;
@@ -156,6 +157,8 @@ class RoleController extends Controller
             $role->syncPermissions($request->validated('permissions', []));
         });
 
+        broadcast(new TenantPermissionsUpdated($tenant->id));
+
         return redirect()->route('tenant.roles.index')
             ->with('success', 'Rol actualizado exitosamente.');
     }
@@ -173,6 +176,8 @@ class RoleController extends Controller
         }
 
         $role->delete();
+
+        broadcast(new TenantPermissionsUpdated($tenant->id));
 
         return redirect()->route('tenant.roles.index')
             ->with('success', 'Rol eliminado exitosamente.');

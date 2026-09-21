@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'quantity_base',
     'unit_price',
     'subtotal',
+    'returned_quantity',
     'apply_customer_discount',
     'discount_percentage',
     'discount_amount',
@@ -44,12 +45,23 @@ class CustomerOrderItem extends Model
             'units_per_package' => FlexibleDecimal::class,
             'quantity' => FlexibleDecimal::class,
             'quantity_base' => FlexibleDecimal::class,
+            'returned_quantity' => FlexibleDecimal::class,
             'unit_price' => 'decimal:2',
             'subtotal' => 'decimal:2',
             'apply_customer_discount' => 'boolean',
             'discount_percentage' => 'decimal:2',
             'discount_amount' => 'decimal:2',
         ];
+    }
+
+    public function getAvailableForReturnAttribute(): float
+    {
+        return max(0.0, round((float) $this->quantity - (float) ($this->returned_quantity ?? 0), 3));
+    }
+
+    public function returnItems(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CustomerOrderReturnItem::class, 'customer_order_item_id');
     }
 
     public function order(): BelongsTo

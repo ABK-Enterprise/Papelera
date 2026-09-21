@@ -11,6 +11,7 @@
     import Eye from 'lucide-svelte/icons/eye';
     import Printer from 'lucide-svelte/icons/printer';
     import Ban from 'lucide-svelte/icons/ban';
+    import { hasPermission } from '@/lib/permissions';
 
     export interface ReceiptItem {
         id: number;
@@ -83,48 +84,74 @@
                 </div>
 
                 <!-- Cliente: Nombre y CUIT -->
-                <div class="flex flex-col min-w-[180px] max-w-[240px]">
+                <div class="flex flex-col min-w-[190px] max-w-[250px]">
                     {#if rc.customer}
-                        <span class="font-semibold text-sm text-foreground truncate max-w-[200px] sm:max-w-[240px] block" title={rc.customer.name}>
+                        <span class="font-semibold text-sm sm:text-base text-foreground leading-snug truncate max-w-[210px] sm:max-w-[250px] block font-sans" title={rc.customer.name}>
                             {rc.customer.name}
                         </span>
                         {#if rc.customer.tax_id}
-                            <span class="text-xs text-muted-foreground block tabular-nums">
+                            <span class="text-xs text-muted-foreground block tabular-nums font-sans">
                                 {rc.customer.tax_id}
                             </span>
                         {/if}
                     {:else}
-                        <span class="text-xs text-muted-foreground italic">
+                        <span class="text-xs font-medium text-muted-foreground italic">
                             Cliente Ocasional
                         </span>
                     {/if}
                 </div>
 
-                <!-- Referencia truncada -->
-                <div class="min-w-[130px] max-w-[160px]">
-                    {#if rc.reference_number}
+                <!-- Pedidos Imputados (Hasta 3 en 2 filas + indicador '+ X') / Referencia -->
+                <div class="min-w-[170px] max-w-[220px] flex flex-col gap-1">
+                    {#if rc.orders && rc.orders.length > 0}
+                        <!-- Fila 1: Primeros 2 pedidos -->
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            {#each rc.orders.slice(0, 2) as ord (ord.id)}
+                                <span class="text-xs font-semibold font-sans tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
+                                    {ord.order_number}
+                                </span>
+                            {/each}
+                        </div>
+
+                        <!-- Fila 2: 3er pedido + indicador '+ X' si hay más -->
+                        {#if rc.orders.length > 2}
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-xs font-semibold font-sans tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
+                                    {rc.orders[2].order_number}
+                                </span>
+                                {#if rc.orders.length > 3}
+                                    <span
+                                        class="size-5 inline-flex items-center justify-center rounded-full bg-primary/10 text-primary border border-primary/25 text-xs font-bold font-sans tabular-nums shrink-0 cursor-default"
+                                        title={rc.orders.slice(3).map((o) => o.order_number).join(', ')}
+                                    >
+                                        +{rc.orders.length - 3}
+                                    </span>
+                                {/if}
+                            </div>
+                        {/if}
+                    {:else if rc.reference_number}
                         <span
-                            class="text-xs font-mono text-muted-foreground bg-muted/50 px-2 py-1 rounded-lg border border-border/50 max-w-[140px] truncate inline-block"
+                            class="text-xs font-mono text-muted-foreground bg-muted/50 px-2 py-1 rounded-lg border border-border/50 max-w-[150px] truncate inline-block"
                             title={rc.reference_number}
                         >
                             {truncateRef(rc.reference_number, 14)}
                         </span>
                     {:else}
-                        <span class="text-xs text-muted-foreground/60">—</span>
+                        <span class="text-xs font-medium text-muted-foreground/60">—</span>
                     {/if}
                 </div>
 
                 <!-- Estado: Badge Válido / Anulado -->
-                <div class="min-w-[90px] flex items-center justify-center">
+                <div class="min-w-[95px] flex items-center justify-center">
                     {#if rc.is_cancelled}
                         <span
                             title={rc.cancellation_reason ? `Motivo: ${rc.cancellation_reason}` : undefined}
-                            class="bg-destructive/10 text-destructive border border-destructive/20 text-xs font-bold px-2.5 py-1 rounded-full line-through"
+                            class="bg-destructive/10 text-destructive border border-destructive/20 text-xs font-semibold px-2.5 py-1 rounded-full line-through uppercase tracking-wider font-sans"
                         >
                             Anulado
                         </span>
                     {:else}
-                        <span class="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-semibold px-2.5 py-1 rounded-full">
+                        <span class="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider font-sans">
                             Válido
                         </span>
                     {/if}
@@ -154,23 +181,23 @@
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" class="w-48 shadow-lg">
                             <DropdownMenuItem
-                                class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2"
+                                class="flex items-center gap-2 text-xs font-semibold cursor-pointer py-2.5 px-3"
                                 onclick={() => onViewDetail?.(rc)}
                             >
                                 <Eye class="size-4 text-muted-foreground" />
                                 <span>Ver detalle</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2"
+                                class="flex items-center gap-2 text-xs font-semibold cursor-pointer py-2.5 px-3"
                                 onclick={() => onPreviewPdf?.(rc)}
                             >
                                 <Printer class="size-4 text-muted-foreground" />
                                 <span>Ver e Imprimir PDF</span>
                             </DropdownMenuItem>
-                            {#if !rc.is_cancelled}
+                            {#if !rc.is_cancelled && hasPermission('cobranzas.anular')}
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
-                                    class="flex items-center gap-2 text-xs font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2"
+                                    class="flex items-center gap-2 text-xs font-semibold text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5 px-3"
                                     onclick={() => onRequestVoid?.(rc)}
                                 >
                                     <Ban class="size-4 text-destructive" />

@@ -8,6 +8,7 @@
     import ReceiptText from 'lucide-svelte/icons/receipt-text';
     import History from 'lucide-svelte/icons/history';
     import HandCoins from 'lucide-svelte/icons/hand-coins';
+    import FileText from 'lucide-svelte/icons/file-text';
 
     interface Props {
         customers?: CustomerSummary[];
@@ -56,11 +57,29 @@
         );
     }
 
-    function handleSelectCustomer(customer: CustomerSummary) {
+    function handleSelectCustomer(customer: CustomerSummary | null) {
+        if (!customer || customer.id === selectedCustomer?.id) {
+            handleDeselectCustomer();
+            return;
+        }
+
         router.get(
             '/tenant/cobranzas',
             {
                 customer_id: customer.id,
+                search: searchTerm || undefined,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            }
+        );
+    }
+
+    function handleDeselectCustomer() {
+        router.get(
+            '/tenant/cobranzas',
+            {
                 search: searchTerm || undefined,
             },
             {
@@ -97,7 +116,7 @@
 
 <AppHead title="Panel de Cobranzas y Recibos" />
 
-<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1440px] mx-auto w-full">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1680px] mx-auto w-full font-sans">
     <!-- Header del Módulo con separación estándar mb-6 / gap-6 -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -105,15 +124,21 @@
                 <HandCoins class="size-7 text-primary" />
                 Panel de Cobranzas
             </h1>
-            <p class="text-xs sm:text-sm text-muted-foreground mt-1">
-                Gestión de cobros centralizados, imputación de recibos con algoritmo FIFO y saldos de clientes.
-            </p>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
             <Button
                 variant="secondary"
-                class="h-11 px-4 rounded-xl font-semibold gap-2 shadow-xs min-h-[44px]"
+                class="h-11 px-4 rounded-xl font-semibold gap-2 shadow-xs min-h-[44px] w-full sm:w-auto justify-center"
+                onclick={() => router.get('/tenant/cobranzas/facturas')}
+            >
+                <FileText class="size-4" />
+                <span>Historial de Facturas</span>
+            </Button>
+
+            <Button
+                variant="secondary"
+                class="h-11 px-4 rounded-xl font-semibold gap-2 shadow-xs min-h-[44px] w-full sm:w-auto justify-center"
                 onclick={() => router.get('/tenant/cobranzas/recibos')}
             >
                 <History class="size-4" />
@@ -133,6 +158,7 @@
             {selectedOrderIds}
             onSearch={handleSearch}
             onSelectCustomer={handleSelectCustomer}
+            onDeselectCustomer={handleDeselectCustomer}
             onToggleOrderSelection={toggleOrderSelection}
             onToggleSelectAllOrders={toggleSelectAllOrders}
             onOpenPaymentModal={() => (isPaymentModalOpen = true)}
