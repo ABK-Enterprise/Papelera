@@ -2,7 +2,6 @@
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
-    import { Badge } from '@/components/ui/badge';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import IconContainer from '@/components/common/IconContainer.svelte';
@@ -130,7 +129,7 @@
                         Vinculá tu cuenta de Mercado Pago
                     </h3>
                     <p class="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
-                        Permite cobrar pedidos en el mostrador y en repartos mediante código QR dinámico. El dinero se acreditará de forma inmediata en la cuenta bancaria de tu comercio con conciliación automática.
+                        Permite cobrar pedidos en el mostrador y en repartos mediante código QR dinámico.
                     </p>
                 </div>
 
@@ -187,9 +186,6 @@
                                 <h3 class="text-base sm:text-lg font-bold text-foreground truncate">
                                     {mpAccount?.nickname || 'Cuenta de Mercado Pago'}
                                 </h3>
-                                <Badge variant="outline" class="text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
-                                    {mpAccount?.live_mode ? 'Producción (Live)' : 'Pruebas / Sandbox'}
-                                </Badge>
                             </div>
                             <p class="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
                                 <Calendar class="size-3.5 shrink-0" />
@@ -209,7 +205,7 @@
                 </div>
 
                 <!-- Detalle de Datos Oficiales -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-5">
                     <div class="p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col gap-1">
                         <span class="text-xs text-muted-foreground flex items-center gap-1.5 font-medium">
                             <Building2 class="size-3.5" />
@@ -235,19 +231,6 @@
                         </span>
                         <span class="text-[11px] text-muted-foreground">
                             Cuenta receptora de cobros
-                        </span>
-                    </div>
-
-                    <div class="p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col gap-1">
-                        <span class="text-xs text-muted-foreground flex items-center gap-1.5 font-medium">
-                            <QrCode class="size-3.5" />
-                            ID de Vendedor (Collector)
-                        </span>
-                        <span class="text-sm font-semibold font-sans tabular-nums text-foreground truncate">
-                            {mpAccount?.user_id || '—'}
-                        </span>
-                        <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                            Conexión OAuth activa
                         </span>
                     </div>
                 </div>

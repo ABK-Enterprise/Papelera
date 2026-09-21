@@ -82,9 +82,6 @@
                 {zones.length} {zones.length === 1 ? 'zona' : 'zonas'}
             </span>
         </div>
-        <p class="text-sm text-muted-foreground mt-0.5 max-w-prose">
-            Configura los porcentajes de recargo y distancias de referencia para la distribución logística.
-        </p>
     </div>
 
     <!-- Botón de Acción Principal (Por fuera y encima del contenedor del searchbar) -->

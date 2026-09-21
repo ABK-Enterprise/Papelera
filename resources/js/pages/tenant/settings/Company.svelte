@@ -72,9 +72,6 @@
                 <span>Datos del Comercio</span>
             </h2>
         </div>
-        <p class="text-sm text-muted-foreground mt-0.5 max-w-prose">
-            Configurá la identidad fiscal, domicilio comercial y datos de contacto de tu comercio para comprobantes, recibos oficiales y Mercado Pago.
-        </p>
     </div>
 
     <!-- Formulario de Configuración -->
