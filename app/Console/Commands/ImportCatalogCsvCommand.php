@@ -18,7 +18,7 @@ class ImportCatalogCsvCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'catalog:import-csv {file? : Ruta al archivo CSV} {--tenant= : ID del tenant específico}';
+    protected $signature = 'catalog:import-csv {file? : Ruta al archivo CSV} {--tenant= : ID, CUIT o nombre del tenant}';
 
     /**
      * The console command description.
@@ -32,7 +32,11 @@ class ImportCatalogCsvCommand extends Command
      */
     public function handle(): int
     {
-        $filePath = $this->argument('file') ?: base_path('designs/Lista de precios - MAYO 2026.csv');
+        $defaultPath = file_exists(base_path('database/data/catalog.csv'))
+            ? base_path('database/data/catalog.csv')
+            : base_path('designs/Lista de precios - MAYO 2026.csv');
+
+        $filePath = $this->argument('file') ?: $defaultPath;
 
         if (! file_exists($filePath)) {
             $this->error("El archivo CSV no existe en la ruta: {$filePath}");
@@ -40,15 +44,20 @@ class ImportCatalogCsvCommand extends Command
             return self::FAILURE;
         }
 
-        $tenantId = $this->option('tenant');
-        if ($tenantId) {
-            $tenant = Tenant::find($tenantId);
+        $tenantOption = $this->option('tenant');
+        if ($tenantOption) {
+            $tenant = is_numeric($tenantOption)
+                ? Tenant::find($tenantOption)
+                : Tenant::where('name', 'ILIKE', "%{$tenantOption}%")
+                    ->orWhere('cuit_tax_id', $tenantOption)
+                    ->first();
         } else {
-            $tenant = Tenant::where('is_active', true)->first() ?: Tenant::first();
+            $tenant = Tenant::where('name', 'ILIKE', '%Papelera Bahia%')->first()
+                ?: (Tenant::where('is_active', true)->first() ?: Tenant::first());
         }
 
         if (! $tenant) {
-            $this->error('No se encontró ningún tenant activo en la base de datos.');
+            $this->error('No se encontró ningún tenant que coincida con el criterio.');
 
             return self::FAILURE;
         }
@@ -56,8 +65,29 @@ class ImportCatalogCsvCommand extends Command
         $defaultWarehouse = Warehouse::where('tenant_id', $tenant->id)->where('is_default', true)->first()
             ?: Warehouse::where('tenant_id', $tenant->id)->first();
 
+        if (! $defaultWarehouse) {
+            $branch = \App\Models\Branch::firstOrCreate([
+                'tenant_id' => $tenant->id,
+                'point_of_sale' => 1,
+            ], [
+                'name' => 'Casa Central',
+                'is_active' => true,
+            ]);
+
+            $defaultWarehouse = Warehouse::firstOrCreate([
+                'tenant_id' => $tenant->id,
+                'code' => 'DEP-01',
+            ], [
+                'branch_id' => $branch->id,
+                'name' => 'Depósito Central',
+                'address' => 'Depósito Central',
+                'is_active' => true,
+                'is_default' => true,
+            ]);
+        }
+
         $this->info("Importando catálogo para el tenant: [{$tenant->id}] {$tenant->name}");
-        $this->info("Depósito destino: " . ($defaultWarehouse ? "[{$defaultWarehouse->id}] {$defaultWarehouse->name}" : 'Ninguno'));
+        $this->info("Depósito destino: [{$defaultWarehouse->id}] {$defaultWarehouse->name}");
 
         $rawContent = file_get_contents($filePath);
         if (! mb_check_encoding($rawContent, 'UTF-8')) {

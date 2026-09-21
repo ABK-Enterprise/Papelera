@@ -168,8 +168,12 @@ class TestSeeder extends Seeder
             ShippingZone::where('tenant_id', $tenant->id)->delete();
 
             // Import CSV catalog for this tenant
+            $csvPath = file_exists(base_path('database/data/catalog.csv'))
+                ? base_path('database/data/catalog.csv')
+                : base_path('designs/Lista de precios - MAYO 2026.csv');
+
             Artisan::call('catalog:import-csv', [
-                'file' => base_path('designs/Lista de precios - MAYO 2026.csv'),
+                'file' => $csvPath,
                 '--tenant' => $tenant->id,
             ]);
         }
