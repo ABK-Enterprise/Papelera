@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Link, router } from '@inertiajs/svelte';
+    import { hasPermission } from '@/lib/permissions';
     import { Button } from '@/components/ui/button';
     import {
         DropdownMenu,
@@ -233,49 +234,59 @@
                 </div>
 
                 <!-- Menú Desplegable '...' con DropdownMenu (Touch Target >= 40px) -->
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        {#snippet children(props)}
-                            <button
-                                {...props}
-                                type="button"
-                                class="inline-flex items-center justify-center min-h-[40px] min-w-[40px] size-10 rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
-                                aria-label={`Opciones de ${product.name}`}
-                            >
-                                <MoreVertical class="h-4 w-4" />
-                            </button>
-                        {/snippet}
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" class="w-48 shadow-lg">
-                        <DropdownMenuItem asChild>
-                            {#snippet children(props)}
-                                <Link
-                                    {...props}
-                                    href={`/tenant/productos/${product.id}/editar`}
-                                    class="{props.class} flex items-center gap-2 text-xs font-medium cursor-pointer"
-                                >
-                                    <Edit2 class="h-3.5 w-3.5 text-muted-foreground" />
-                                    <span>{isIncomplete ? 'Completar datos' : 'Editar producto'}</span>
-                                </Link>
-                            {/snippet}
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
+                {#if hasPermission('productos.editar') || hasPermission('productos.eliminar')}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
                             {#snippet children(props)}
                                 <button
+                                    {...props}
                                     type="button"
-                                    class="{props.class} w-full flex items-center text-destructive focus:text-destructive focus:bg-destructive/10 gap-2 text-xs font-medium cursor-pointer"
-                                    onclick={() => {
-                                        promptDelete(product);
-                                    }}
+                                    class="inline-flex items-center justify-center min-h-[40px] min-w-[40px] size-10 rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
+                                    aria-label={`Opciones de ${product.name}`}
                                 >
-                                    <Trash2 class="h-3.5 w-3.5" />
-                                    <span>Eliminar producto</span>
+                                    <MoreVertical class="h-4 w-4" />
                                 </button>
                             {/snippet}
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" class="w-48 shadow-lg">
+                            {#if hasPermission('productos.editar')}
+                                <DropdownMenuItem asChild>
+                                    {#snippet children(props)}
+                                        <Link
+                                            {...props}
+                                            href={`/tenant/productos/${product.id}/editar`}
+                                            class="{props.class} flex items-center gap-2 text-xs font-medium cursor-pointer"
+                                        >
+                                            <Edit2 class="h-3.5 w-3.5 text-muted-foreground" />
+                                            <span>{isIncomplete ? 'Completar datos' : 'Editar producto'}</span>
+                                        </Link>
+                                    {/snippet}
+                                </DropdownMenuItem>
+                            {/if}
+
+                            {#if hasPermission('productos.editar') && hasPermission('productos.eliminar')}
+                                <DropdownMenuSeparator />
+                            {/if}
+
+                            {#if hasPermission('productos.eliminar')}
+                                <DropdownMenuItem asChild>
+                                    {#snippet children(props)}
+                                        <button
+                                            type="button"
+                                            class="{props.class} w-full flex items-center text-destructive focus:text-destructive focus:bg-destructive/10 gap-2 text-xs font-medium cursor-pointer"
+                                            onclick={() => {
+                                                promptDelete(product);
+                                            }}
+                                        >
+                                            <Trash2 class="h-3.5 w-3.5" />
+                                            <span>Eliminar producto</span>
+                                        </button>
+                                    {/snippet}
+                                </DropdownMenuItem>
+                            {/if}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                {/if}
             </div>
         </div>
     {/each}
@@ -285,8 +296,8 @@
             icon={Package}
             title="No se encontraron productos"
             description="No hay productos que coincidan con los filtros seleccionados o el catálogo de tu comercio está vacío."
-            actionLabel="Crear producto"
-            actionHref="/tenant/productos/crear"
+            actionLabel={hasPermission('productos.crear') ? 'Crear producto' : undefined}
+            actionHref={hasPermission('productos.crear') ? '/tenant/productos/crear' : undefined}
         />
     {/if}
 

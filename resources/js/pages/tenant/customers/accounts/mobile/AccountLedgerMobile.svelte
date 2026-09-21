@@ -15,6 +15,7 @@
     import Sliders from 'lucide-svelte/icons/sliders';
     import User from 'lucide-svelte/icons/user';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import { hasPermission } from '@/lib/permissions';
     import type { CustomerAccountFull } from '../desktop/AccountLedgerDesktop.svelte';
 
     let {
@@ -200,45 +201,49 @@
 
             <!-- Botones de Acción -->
             <div class="space-y-2">
-                <Button
-                    onclick={() => {
-                        const cust = selectedCustomerForDrawer;
-                        isDrawerOpen = false;
-                        if (cust) onOpenPayment(cust);
-                    }}
-                    class="w-full h-11 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm"
-                >
-                    <Banknote class="size-4" />
-                    <span>Registrar Cobro / Abono</span>
-                </Button>
-
-                <div class="grid grid-cols-2 gap-2.5">
+                {#if hasPermission('cobranzas.crear')}
                     <Button
-                        variant="secondary"
                         onclick={() => {
                             const cust = selectedCustomerForDrawer;
                             isDrawerOpen = false;
-                            if (cust) onOpenAdjustment(cust);
+                            if (cust) onOpenPayment(cust);
                         }}
-                        class="min-h-[40px] h-10 text-xs font-semibold rounded-xl gap-1.5"
+                        class="w-full h-11 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm"
                     >
-                        <Sliders class="size-3.5" />
-                        <span>Ajustar Saldo</span>
+                        <Banknote class="size-4" />
+                        <span>Registrar Cobro / Abono</span>
                     </Button>
+                {/if}
 
-                    <Button
-                        variant="outline"
-                        onclick={() => {
-                            const cust = selectedCustomerForDrawer;
-                            isDrawerOpen = false;
-                            if (cust) onOpenCreditSettings(cust);
-                        }}
-                        class="min-h-[40px] h-10 text-xs font-semibold rounded-xl gap-1.5"
-                    >
-                        <ShieldCheck class="size-3.5" />
-                        <span>Límites</span>
-                    </Button>
-                </div>
+                {#if hasPermission('clientes.editar')}
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <Button
+                            variant="secondary"
+                            onclick={() => {
+                                const cust = selectedCustomerForDrawer;
+                                isDrawerOpen = false;
+                                if (cust) onOpenAdjustment(cust);
+                            }}
+                            class="min-h-[40px] h-10 text-xs font-semibold rounded-xl gap-1.5"
+                        >
+                            <Sliders class="size-3.5" />
+                            <span>Ajustar Saldo</span>
+                        </Button>
+
+                        <Button
+                            variant="outline"
+                            onclick={() => {
+                                const cust = selectedCustomerForDrawer;
+                                isDrawerOpen = false;
+                                if (cust) onOpenCreditSettings(cust);
+                            }}
+                            class="min-h-[40px] h-10 text-xs font-semibold rounded-xl gap-1.5"
+                        >
+                            <ShieldCheck class="size-3.5" />
+                            <span>Límites</span>
+                        </Button>
+                    </div>
+                {/if}
 
             </div>
 

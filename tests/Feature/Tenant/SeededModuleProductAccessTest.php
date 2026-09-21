@@ -47,15 +47,12 @@ test('seeded productos and stock modules match routes and grant access to tenant
 
     // Create a tenant and assign the seeded modules
     $tenant = Tenant::factory()->create(['name' => 'Papelera San Martín', 'is_active' => true]);
-    $tenant->modules()->attach([$productosModule->id, $stockModule->id]);
-
-    $tenantUser = User::factory()->forTenant($tenant)->create();
     setPermissionsTeamId($tenant->id);
-    $adminRole = Role::firstOrCreate([
-        'name' => 'admin',
-        'guard_name' => 'web',
-        'tenant_id' => $tenant->id,
-    ]);
+
+    app(\App\Services\TenantModuleSynchronizer::class)->sync($tenant, [$productosModule->id, $stockModule->id]);
+
+    $adminRole = Role::where('name', 'admin')->where('tenant_id', $tenant->id)->first();
+    $tenantUser = User::factory()->forTenant($tenant)->create();
     $tenantUser->assignRole($adminRole);
 
     // Tenant user accesses /tenant/productos successfully

@@ -11,6 +11,7 @@
     import Eye from 'lucide-svelte/icons/eye';
     import Printer from 'lucide-svelte/icons/printer';
     import Ban from 'lucide-svelte/icons/ban';
+    import { hasPermission } from '@/lib/permissions';
 
     export interface ReceiptItem {
         id: number;
@@ -193,7 +194,7 @@
                                 <Printer class="size-4 text-muted-foreground" />
                                 <span>Ver e Imprimir PDF</span>
                             </DropdownMenuItem>
-                            {#if !rc.is_cancelled}
+                            {#if !rc.is_cancelled && hasPermission('cobranzas.anular')}
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                     class="flex items-center gap-2 text-xs font-semibold text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5 px-3"

@@ -51,6 +51,7 @@ beforeEach(function () {
         'repartos.ver',
         'repartos.gestionar',
         'facturas.emitir',
+        'facturas.anular',
     ];
 
     foreach ($permissions as $permName) {

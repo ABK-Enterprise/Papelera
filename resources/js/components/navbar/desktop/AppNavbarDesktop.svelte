@@ -150,13 +150,13 @@
                             icon: 'solar:bill-list-bold-duotone',
                             active: currentUrl.startsWith('/tenant/pedidos'),
                         },
-                        {
+                        ...((isAdmin || permissions.includes('repartos.ver')) ? [{
                             title: 'Repartos',
                             description: 'Pedidos de entrega',
                             href: '/tenant/repartos',
                             icon: 'solar:delivery-bold-duotone',
                             active: currentUrl.startsWith('/tenant/repartos'),
-                        },
+                        }] : []),
                     ],
                 });
             }
@@ -232,7 +232,7 @@
                     },
                 ];
 
-                if (modules.includes('facturacion_arca')) {
+                if (modules.includes('facturacion_arca') && (isAdmin || permissions.includes('facturas.consultar'))) {
                     cobranzasSubItems.push({
                         title: 'Historial de Facturas',
                         description: 'Facturas electrónicas y notas de crédito ARCA',

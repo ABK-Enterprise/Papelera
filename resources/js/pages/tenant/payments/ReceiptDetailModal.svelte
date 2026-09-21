@@ -22,6 +22,7 @@
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import User from 'lucide-svelte/icons/user';
     import X from 'lucide-svelte/icons/x';
+    import { hasPermission } from '@/lib/permissions';
 
     export interface ReceiptItem {
         id: number;
@@ -416,7 +417,7 @@
                         <span>Ver / Imprimir PDF</span>
                     </Button>
 
-                    {#if !receipt.is_cancelled}
+                    {#if !receipt.is_cancelled && hasPermission('cobranzas.anular')}
                         <Button
                             type="button"
                             variant="destructive"

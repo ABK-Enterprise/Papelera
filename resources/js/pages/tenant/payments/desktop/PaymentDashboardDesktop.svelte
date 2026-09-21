@@ -14,6 +14,7 @@
     import X from 'lucide-svelte/icons/x';
     import Check from 'lucide-svelte/icons/check';
     import { Link } from '@inertiajs/svelte';
+    import { hasPermission } from '@/lib/permissions';
 
     export interface CustomerSummary {
         id: number;
@@ -327,16 +328,18 @@
                         </span>
                     </div>
 
-                    <Button
-                        type="button"
-                        variant="default"
-                        class="min-h-[46px] h-auto py-3 px-5 rounded-xl font-bold text-xs sm:text-sm font-sans shadow-sm gap-2 leading-snug text-center flex items-center justify-center"
-                        disabled={selectedOrderIds.length === 0}
-                        onclick={() => onOpenPaymentModal?.()}
-                    >
-                        <ReceiptText class="size-4 shrink-0" />
-                        <span>Cobrar Seleccionados ({formatPrice(selectedOrdersTotalDebt)})</span>
-                    </Button>
+                    {#if hasPermission('cobranzas.crear')}
+                        <Button
+                            type="button"
+                            variant="default"
+                            class="min-h-[46px] h-auto py-3 px-5 rounded-xl font-bold text-xs sm:text-sm font-sans shadow-sm gap-2 leading-snug text-center flex items-center justify-center"
+                            disabled={selectedOrderIds.length === 0}
+                            onclick={() => onOpenPaymentModal?.()}
+                        >
+                            <ReceiptText class="size-4 shrink-0" />
+                            <span>Cobrar Seleccionados ({formatPrice(selectedOrdersTotalDebt)})</span>
+                        </Button>
+                    {/if}
                 </div>
             {/if}
         {/if}

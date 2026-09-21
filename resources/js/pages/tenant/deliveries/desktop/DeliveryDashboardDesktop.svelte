@@ -16,6 +16,7 @@
     import RefreshCw from 'lucide-svelte/icons/refresh-cw';
     import ShieldAlert from 'lucide-svelte/icons/shield-alert';
     import Eye from 'lucide-svelte/icons/eye';
+    import { hasPermission } from '@/lib/permissions';
 
     export interface ShiftSummary {
         cash_total: number;
@@ -309,24 +310,26 @@
                         </div>
 
                         <!-- Botones de Acción en Stack Vertical con Altura Simétrica min-h-[44px] -->
-                        <div class="flex flex-col gap-2 w-full sm:w-48 shrink-0">
-                            <Button
-                                class="w-full h-11 min-h-[44px] px-4 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xs"
-                                onclick={() => onDeliverOrder(order)}
-                            >
-                                <PackageCheck class="size-4.5" />
-                                <span>Entregado</span>
-                            </Button>
+                        {#if hasPermission('repartos.gestionar')}
+                            <div class="flex flex-col gap-2 w-full sm:w-48 shrink-0">
+                                <Button
+                                    class="w-full h-11 min-h-[44px] px-4 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xs"
+                                    onclick={() => onDeliverOrder(order)}
+                                >
+                                    <PackageCheck class="size-4.5" />
+                                    <span>Entregado</span>
+                                </Button>
 
-                            <Button
-                                variant="outline"
-                                class="w-full h-11 min-h-[44px] px-4 font-semibold text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 gap-2"
-                                onclick={() => onFailDelivery(order)}
-                            >
-                                <AlertTriangle class="size-4" />
-                                <span>No Entregado</span>
-                            </Button>
-                        </div>
+                                <Button
+                                    variant="outline"
+                                    class="w-full h-11 min-h-[44px] px-4 font-semibold text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 gap-2"
+                                    onclick={() => onFailDelivery(order)}
+                                >
+                                    <AlertTriangle class="size-4" />
+                                    <span>No Entregado</span>
+                                </Button>
+                            </div>
+                        {/if}
                     </div>
                 {/each}
             </div>
@@ -349,14 +352,16 @@
                     {/if}
                 </button>
 
-                <Button
-                    class="h-11 min-h-[44px] px-5 font-semibold gap-2"
-                    disabled={selectedAvailableIds.length === 0 || isAssigning}
-                    onclick={handleAssignSelected}
-                >
-                    <Truck class="size-4" />
-                    <span>Tomar Seleccionados ({selectedAvailableIds.length})</span>
-                </Button>
+                {#if hasPermission('repartos.gestionar')}
+                    <Button
+                        class="h-11 min-h-[44px] px-5 font-semibold gap-2"
+                        disabled={selectedAvailableIds.length === 0 || isAssigning}
+                        onclick={handleAssignSelected}
+                    >
+                        <Truck class="size-4" />
+                        <span>Tomar Seleccionados ({selectedAvailableIds.length})</span>
+                    </Button>
+                {/if}
             </div>
         {/if}
 
@@ -419,15 +424,17 @@
                             </div>
                         </div>
 
-                        <Button
-                            variant="secondary"
-                            class="h-11 min-h-[44px] px-5 font-semibold gap-2 shrink-0"
-                            disabled={isAssigning}
-                            onclick={() => handleAssignSingle(order.id)}
-                        >
-                            <Truck class="size-4" />
-                            <span>Tomar para Mi Ruta</span>
-                        </Button>
+                        {#if hasPermission('repartos.gestionar')}
+                            <Button
+                                variant="secondary"
+                                class="h-11 min-h-[44px] px-5 font-semibold gap-2 shrink-0"
+                                disabled={isAssigning}
+                                onclick={() => handleAssignSingle(order.id)}
+                            >
+                                <Truck class="size-4" />
+                                <span>Tomar para Mi Ruta</span>
+                            </Button>
+                        {/if}
                     </div>
                 {/each}
             </div>
@@ -479,13 +486,15 @@
                             </p>
                         </div>
 
-                        <Button
-                            class="h-11 min-h-[44px] px-5 font-semibold gap-2 shrink-0 bg-primary"
-                            onclick={() => onRescheduleOrder ? onRescheduleOrder(order) : handleReschedule(order.id)}
-                        >
-                            <RefreshCw class="size-4" />
-                            <span>Reprogramar Pedido</span>
-                        </Button>
+                        {#if hasPermission('repartos.gestionar')}
+                            <Button
+                                class="h-11 min-h-[44px] px-5 font-semibold gap-2 shrink-0 bg-primary"
+                                onclick={() => onRescheduleOrder ? onRescheduleOrder(order) : handleReschedule(order.id)}
+                            >
+                                <RefreshCw class="size-4" />
+                                <span>Reprogramar Pedido</span>
+                            </Button>
+                        {/if}
                     </div>
                 {/each}
             </div>

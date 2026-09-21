@@ -11,6 +11,7 @@
     import CreditCard from 'lucide-svelte/icons/credit-card';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import { hasPermission } from '@/lib/permissions';
 
     export interface CustomerItem {
         id: number;
@@ -209,10 +210,12 @@
             <p class="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
                 No hay clientes que coincidan con la búsqueda o todavía no has registrado clientes en tu comercio.
             </p>
-            <Button class="mt-4 gap-2 font-semibold" onclick={onOpenCreate}>
-                <Plus class="h-4 w-4" />
-                Añadir Primer Cliente
-            </Button>
+            {#if hasPermission('clientes.crear')}
+                <Button class="mt-4 gap-2 font-semibold" onclick={onOpenCreate}>
+                    <Plus class="h-4 w-4" />
+                    Añadir Primer Cliente
+                </Button>
+            {/if}
         </div>
     {/if}
 

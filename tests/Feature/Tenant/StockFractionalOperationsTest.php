@@ -14,6 +14,7 @@ use App\Models\SupplierOrder;
 use App\Models\Tenant;
 use App\Models\User;
 use Database\Seeders\BaseSeeder;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
@@ -33,6 +34,7 @@ beforeEach(function () {
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,
     ]);
+    $this->adminRole->syncPermissions(Permission::all());
 
     $this->user = User::factory()->create([
         'tenant_id' => $this->tenant->id,

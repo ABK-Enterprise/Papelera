@@ -32,6 +32,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -1003,22 +1004,24 @@ class CustomerOrderController extends Controller
             $mpOrderData = $mpService->getOrder($mpOrderId, $tenantToken);
 
             if ($mpOrderData) {
-                // Validación estricta anti-replay: el external_reference en MP debe coincidir con el pedido local
-                $mpExternalRef = (string) ($mpOrderData['external_reference'] ?? '');
-                $expectedRefs = [
-                    $customerOrder->order_number,
-                    "{$customerOrder->tenant_id}:{$customerOrder->order_number}",
-                ];
+                // Validación estricta anti-replay: si external_reference está presente en MP, debe coincidir con el pedido local
+                if (! empty($mpOrderData['external_reference'])) {
+                    $mpExternalRef = (string) $mpOrderData['external_reference'];
+                    $expectedRefs = [
+                        $customerOrder->order_number,
+                        "{$customerOrder->tenant_id}:{$customerOrder->order_number}",
+                    ];
 
-                if (! in_array($mpExternalRef, $expectedRefs, true)) {
-                    Log::warning('Mercado Pago reconciliation rejected: external_reference mismatch (replay attempt)', [
-                        'order_id' => $customerOrder->id,
-                        'order_number' => $customerOrder->order_number,
-                        'mp_order_id' => $mpOrderId,
-                        'mp_external_reference' => $mpExternalRef,
-                    ]);
+                    if (! in_array($mpExternalRef, $expectedRefs, true)) {
+                        Log::warning('Mercado Pago reconciliation rejected: external_reference mismatch (replay attempt)', [
+                            'order_id' => $customerOrder->id,
+                            'order_number' => $customerOrder->order_number,
+                            'mp_order_id' => $mpOrderId,
+                            'mp_external_reference' => $mpExternalRef,
+                        ]);
 
-                    return;
+                        return;
+                    }
                 }
 
                 $mpStatus = strtolower($mpOrderData['status'] ?? '');

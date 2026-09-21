@@ -10,6 +10,7 @@
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import ArrowRight from 'lucide-svelte/icons/arrow-right';
     import { Link } from '@inertiajs/svelte';
+    import { hasPermission } from '@/lib/permissions';
     import type { CustomerSummary, OrderSummary, ReceiptSummary } from '../desktop/PaymentDashboardDesktop.svelte';
 
     let {
@@ -280,16 +281,18 @@
                             </span>
                         </div>
 
-                        <Button
-                            type="button"
-                            variant="default"
-                            class="min-h-[46px] h-auto py-3 px-5 rounded-xl font-bold text-xs sm:text-sm shadow-sm gap-2 leading-snug text-center flex items-center justify-center"
-                            disabled={selectedOrderIds.length === 0}
-                            onclick={() => onOpenPaymentModal?.()}
-                        >
-                            <ReceiptText class="size-4 shrink-0" />
-                            <span>Cobrar ({formatPrice(selectedOrdersTotalDebt)})</span>
-                        </Button>
+                        {#if hasPermission('cobranzas.crear')}
+                            <Button
+                                type="button"
+                                variant="default"
+                                class="min-h-[46px] h-auto py-3 px-5 rounded-xl font-bold text-xs sm:text-sm shadow-sm gap-2 leading-snug text-center flex items-center justify-center"
+                                disabled={selectedOrderIds.length === 0}
+                                onclick={() => onOpenPaymentModal?.()}
+                            >
+                                <ReceiptText class="size-4 shrink-0" />
+                                <span>Cobrar ({formatPrice(selectedOrdersTotalDebt)})</span>
+                            </Button>
+                        {/if}
                     </div>
                 {/if}
             {/if}

@@ -5,9 +5,11 @@ use App\Models\Module;
 use App\Models\Product;
 use App\Models\Tenant;
 use App\Models\User;
+use Database\Seeders\BaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -15,12 +17,10 @@ uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
     Storage::fake('public');
+    $this->seed(BaseSeeder::class);
 
     $this->tenant = Tenant::factory()->create(['is_active' => true]);
-    $this->stockModule = Module::firstOrCreate(
-        ['code' => 'productos'],
-        ['name' => 'Catálogo de Productos', 'is_active' => true]
-    );
+    $this->stockModule = Module::where('code', 'productos')->first();
     $this->tenant->modules()->syncWithoutDetaching([$this->stockModule->id]);
 
     $this->user = User::factory()->forTenant($this->tenant)->create();
@@ -31,6 +31,7 @@ beforeEach(function () {
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,
     ]);
+    $adminRole->syncPermissions(Permission::all());
     $this->user->assignRole($adminRole);
 
     $this->category = Category::factory()->forTenant($this->tenant)->create();

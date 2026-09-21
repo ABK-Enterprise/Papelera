@@ -7,6 +7,7 @@
     import CustomerOrderReturnModal from './CustomerOrderReturnModal.svelte';
     import EmitFiscalInvoiceModal from './EmitFiscalInvoiceModal.svelte';
     import { router, page } from '@inertiajs/svelte';
+    import { hasPermission, hasModule } from '@/lib/permissions';
     import { fade, scale } from 'svelte/transition';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Calendar from 'lucide-svelte/icons/calendar';
@@ -263,26 +264,19 @@
     });
 
     const canReturn = $derived(
-        order?.status === 'entregado' && order?.return_status !== 'total'
-    );
-    const hasArcaModule = $derived(page.props.auth?.modules?.includes('facturacion_arca') ?? false);
-    const canEmitFiscalPermission = $derived(
-        Boolean(page.props.auth?.is_admin || page.props.auth?.roles?.includes('admin') || page.props.auth?.permissions?.includes('facturas.emitir'))
+        order?.status === 'entregado' && order?.return_status !== 'total' && hasPermission('pedidos.editar_estado')
     );
     const canEmitFiscal = $derived(
-        hasArcaModule &&
-        canEmitFiscalPermission &&
+        hasModule('facturacion_arca') &&
+        hasPermission('facturas.emitir') &&
         order?.status !== 'cancelado' &&
         (order?.fiscal_status === 'sin_facturar' ||
             order?.fiscal_status === 'error_fiscal' ||
             !order?.fiscal_status)
     );
     const hasFiscalPdf = $derived(
-        (order?.fiscal_status === 'facturado' || !!order?.active_fiscal_invoice) &&
-        (page.props.auth?.is_admin ||
-            page.props.auth?.roles?.includes('admin') ||
-            page.props.auth?.permissions?.includes('facturas.consultar') ||
-            page.props.auth?.permissions?.includes('pedidos.ver'))
+        (order?.fiscal_status === 'facturado' || Boolean(order?.active_fiscal_invoice)) &&
+        (hasPermission('facturas.consultar') || hasPermission('pedidos.ver'))
     );
     const hasFiscalAction = $derived(canEmitFiscal || hasFiscalPdf);
     const hasQrPayment = $derived(
@@ -607,61 +601,65 @@
                     </div>
                 {/if}
 
-                <!-- Cambiador de Estado Logístico (Solo si no está en estado terminal) -->
-                {#if order.status !== 'cancelado' && order.status !== 'entregado'}
+                <!-- Cambiador de Estado Logístico (Solo si no está en estado terminal y posee permisos) -->
+                {#if order.status !== 'cancelado' && order.status !== 'entregado' && (hasPermission('pedidos.editar_estado') || hasPermission('pedidos.cancelar'))}
                     <div class="space-y-2 pt-2 border-t">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold text-foreground block">Actualizar Estado del Pedido:</span>
                             <span class="text-[11px] text-muted-foreground">Selecciona el siguiente paso del flujo</span>
                         </div>
 
-                        <div class="grid grid-cols-1 {order.status === 'preparado' ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-2">
-                            {#if order.status === 'en_preparacion'}
-                                <button
-                                    type="button"
-                                    disabled={isUpdatingStatus}
-                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
-                                    onclick={() => requestStatusChange('preparado')}
-                                >
-                                    Pasar a Preparado
-                                </button>
-                            {:else if order.status === 'preparado'}
-                                <button
-                                    type="button"
-                                    disabled={isUpdatingStatus}
-                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
-                                    onclick={() => requestStatusChange('en_camino')}
-                                >
-                                    Despachar (En camino)
-                                </button>
-                                <button
-                                    type="button"
-                                    disabled={isUpdatingStatus}
-                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
-                                    onclick={() => requestStatusChange('entregado')}
-                                >
-                                    Entregar (Retiro en local)
-                                </button>
-                            {:else if order.status === 'en_camino'}
-                                <button
-                                    type="button"
-                                    disabled={isUpdatingStatus}
-                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
-                                    onclick={() => requestStatusChange('entregado')}
-                                >
-                                    Marcar Entregado
-                                </button>
+                        <div class="grid grid-cols-1 {order.status === 'preparado' && hasPermission('pedidos.editar_estado') ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-2">
+                            {#if hasPermission('pedidos.editar_estado')}
+                                {#if order.status === 'en_preparacion'}
+                                    <button
+                                        type="button"
+                                        disabled={isUpdatingStatus}
+                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-xs cursor-pointer"
+                                        onclick={() => requestStatusChange('preparado')}
+                                    >
+                                        Pasar a Preparado
+                                    </button>
+                                {:else if order.status === 'preparado'}
+                                    <button
+                                        type="button"
+                                        disabled={isUpdatingStatus}
+                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs cursor-pointer"
+                                        onclick={() => requestStatusChange('en_camino')}
+                                    >
+                                        Despachar (En camino)
+                                    </button>
+                                    <button
+                                        type="button"
+                                        disabled={isUpdatingStatus}
+                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer"
+                                        onclick={() => requestStatusChange('entregado')}
+                                    >
+                                        Entregar (Retiro en local)
+                                    </button>
+                                {:else if order.status === 'en_camino'}
+                                    <button
+                                        type="button"
+                                        disabled={isUpdatingStatus}
+                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer"
+                                        onclick={() => requestStatusChange('entregado')}
+                                    >
+                                        Marcar Entregado
+                                    </button>
+                                {/if}
                             {/if}
 
                             <!-- Botón Cancelar disponible para pedidos activos -->
-                            <button
-                                type="button"
-                                disabled={isUpdatingStatus}
-                                class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-rose-600/10 hover:bg-rose-600 hover:text-white text-rose-600 border-rose-500/30"
-                                onclick={() => requestStatusChange('cancelado')}
-                            >
-                                Cancelar Pedido
-                            </button>
+                            {#if hasPermission('pedidos.cancelar')}
+                                <button
+                                    type="button"
+                                    disabled={isUpdatingStatus}
+                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-rose-600/10 hover:bg-rose-600 hover:text-white text-rose-600 border-rose-500/30 cursor-pointer"
+                                    onclick={() => requestStatusChange('cancelado')}
+                                >
+                                    Cancelar Pedido
+                                </button>
+                            {/if}
                         </div>
                     </div>
                 {/if}
@@ -719,7 +717,7 @@
             {/snippet}
 
             {#snippet btnCreditNote(extraClass = '')}
-                {#if order?.has_pending_credit_note}
+                {#if order?.has_pending_credit_note && hasPermission('facturas.anular')}
                     <Button
                         type="button"
                         variant="outline"

@@ -9,15 +9,16 @@ use App\Models\Module;
 use App\Models\Supplier;
 use App\Models\Tenant;
 use App\Models\User;
+use Database\Seeders\BaseSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
+    $this->seed(BaseSeeder::class);
+
     $this->tenant = Tenant::factory()->create(['is_active' => true]);
-    $this->proveedoresModule = Module::firstOrCreate(
-        ['code' => 'proveedores'],
-        ['name' => 'Proveedores', 'is_active' => true]
-    );
+    $this->proveedoresModule = Module::where('code', 'proveedores')->first();
     $this->tenant->modules()->syncWithoutDetaching([$this->proveedoresModule->id]);
 
     $this->user = User::factory()->forTenant($this->tenant)->create();
@@ -28,6 +29,7 @@ beforeEach(function () {
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,
     ]);
+    $adminRole->syncPermissions(Permission::all());
     $this->user->assignRole($adminRole);
 });
 

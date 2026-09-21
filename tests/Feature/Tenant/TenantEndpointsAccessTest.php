@@ -5,13 +5,17 @@ use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Database\Seeders\BaseSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
+    $this->seed(BaseSeeder::class);
+
     // Setup Tenant
     $this->tenant = Tenant::factory()->create([
         'name' => 'Papelera Sol',
@@ -36,6 +40,7 @@ beforeEach(function () {
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,
     ]);
+    $this->adminRole->syncPermissions(Permission::all());
 
     $this->staffRole = Role::firstOrCreate([
         'name' => 'Gestor de Stock',

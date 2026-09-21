@@ -11,6 +11,7 @@
     import Truck from 'lucide-svelte/icons/truck';
     import Users from 'lucide-svelte/icons/users';
     import SortSelect from '@/components/common/SortSelect.svelte';
+    import { hasPermission } from '@/lib/permissions';
     import CreateSupplierOrderModal from './CreateSupplierOrderModal.svelte';
     import SupplierOrderDetailModal from './SupplierOrderDetailModal.svelte';
     import SupplierOrderFilterModalMobile from './mobile/SupplierOrderFilterModalMobile.svelte';
@@ -212,13 +213,15 @@
         </div>
 
         <div class="flex items-center justify-end gap-2.5">
-            <Button
-                onclick={() => (isCreateModalOpen = true)}
-                class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs"
-            >
-                <Plus class="size-4" />
-                <span>Hacer Pedido a Proveedor</span>
-            </Button>
+            {#if hasPermission('proveedores.pedidos.crear')}
+                <Button
+                    onclick={() => (isCreateModalOpen = true)}
+                    class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs"
+                >
+                    <Plus class="size-4" />
+                    <span>Hacer Pedido a Proveedor</span>
+                </Button>
+            {/if}
         </div>
     </div>
 

@@ -3,6 +3,7 @@
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
     import { Link, router } from '@inertiajs/svelte';
+    import { hasPermission } from '@/lib/permissions';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Filter from 'lucide-svelte/icons/filter';
     import Percent from 'lucide-svelte/icons/percent';
@@ -244,22 +245,26 @@
             </Link>
 
 
-            <Button
-                variant="secondary"
-                class="gap-1.5 font-medium shadow-2xs"
-                onclick={() => (isBulkDiscountModalOpen = true)}
-            >
-                <Percent class="size-4" />
-                <span>Desc. por Bulto</span>
-                <span class="tabular-nums font-bold">({tenantDefaultBulkDiscount}%)</span>
-            </Button>
-
-            <Link href="/tenant/productos/crear">
-                <Button class="gap-2 shadow-sm font-semibold">
-                    <Plus class="size-4" />
-                    Crear producto
+            {#if hasPermission('productos.editar')}
+                <Button
+                    variant="secondary"
+                    class="gap-1.5 font-medium shadow-2xs"
+                    onclick={() => (isBulkDiscountModalOpen = true)}
+                >
+                    <Percent class="size-4" />
+                    <span>Desc. por Bulto</span>
+                    <span class="tabular-nums font-bold">({tenantDefaultBulkDiscount}%)</span>
                 </Button>
-            </Link>
+            {/if}
+
+            {#if hasPermission('productos.crear')}
+                <Link href="/tenant/productos/crear">
+                    <Button class="gap-2 shadow-sm font-semibold">
+                        <Plus class="size-4" />
+                        Crear producto
+                    </Button>
+                </Link>
+            {/if}
         </div>
 
 

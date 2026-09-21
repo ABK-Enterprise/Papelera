@@ -10,24 +10,15 @@ use App\Models\Module;
 use App\Models\Product;
 use App\Models\Tenant;
 use App\Models\User;
+use Database\Seeders\BaseSeeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
+    $this->seed(BaseSeeder::class);
+
     $this->tenant = Tenant::factory()->create(['is_active' => true]);
-
-    $this->module = Module::create([
-        'code' => 'productos',
-        'name' => 'Catálogo de Productos',
-        'is_active' => true,
-    ]);
-
-    $this->permVer = Permission::create([
-        'name' => 'productos.ver',
-        'guard_name' => 'web',
-        'module_id' => $this->module->id,
-    ]);
-
+    $this->module = Module::where('code', 'productos')->first();
     $this->tenant->modules()->attach($this->module->id);
 
     setPermissionsTeamId($this->tenant->id);
@@ -36,6 +27,7 @@ beforeEach(function () {
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,
     ]);
+    $this->adminRole->syncPermissions(Permission::all());
 
     $this->user = User::factory()->forTenant($this->tenant)->create();
     $this->user->assignRole($this->adminRole);

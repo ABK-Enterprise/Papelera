@@ -20,6 +20,7 @@
     import { Label } from '@/components/ui/label';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import { router, useForm } from '@inertiajs/svelte';
+    import { hasPermission } from '@/lib/permissions';
     import UserCheck from 'lucide-svelte/icons/user-check';
     import Phone from 'lucide-svelte/icons/phone';
     import Mail from 'lucide-svelte/icons/mail';
@@ -64,6 +65,9 @@
 
     let isDeleting = $state(false);
     let lastLoadedCustomerId = $state<number | null>(null);
+
+    let canEdit = $derived(hasPermission('clientes.editar'));
+    let canDelete = $derived(hasPermission('clientes.eliminar'));
 
     // Modales de Confirmación
     let showDeactivateConfirm = $state(false);
@@ -183,71 +187,79 @@
             </div>
 
             <div class="flex items-center gap-1 shrink-0 -mr-1">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        {#snippet children(props)}
-                            <button
-                                {...props}
-                                type="button"
-                                class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
-                                aria-label="Más opciones"
-                            >
-                                <MoreHorizontal class="size-4" />
-                            </button>
-                        {/snippet}
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" class="w-48 shadow-lg">
-                        {#if form.is_active}
-                            <DropdownMenuItem asChild>
-                                {#snippet children(props)}
-                                    <button
-                                        type="button"
-                                        class="{props.class} w-full flex items-center text-rose-600 dark:text-rose-400 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30 gap-2 text-xs font-medium cursor-pointer"
-                                        onclick={() => {
-                                            props.onClick?.();
-                                            showDeactivateConfirm = true;
-                                        }}
-                                    >
-                                        <ShieldAlert class="size-3.5 shrink-0" />
-                                        <span>Desactivar cliente</span>
-                                    </button>
-                                {/snippet}
-                            </DropdownMenuItem>
-                        {:else}
-                            <DropdownMenuItem asChild>
-                                {#snippet children(props)}
-                                    <button
-                                        type="button"
-                                        class="{props.class} w-full flex items-center text-emerald-600 dark:text-emerald-400 focus:text-emerald-600 focus:bg-emerald-50 dark:focus:bg-emerald-950/30 gap-2 text-xs font-medium cursor-pointer"
-                                        onclick={() => {
-                                            props.onClick?.();
-                                            showActivateConfirm = true;
-                                        }}
-                                    >
-                                        <ShieldCheck class="size-3.5 shrink-0" />
-                                        <span>Activar cliente</span>
-                                    </button>
-                                {/snippet}
-                            </DropdownMenuItem>
-                        {/if}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
+                {#if canEdit || canDelete}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
                             {#snippet children(props)}
                                 <button
+                                    {...props}
                                     type="button"
-                                    class="{props.class} w-full flex items-center text-destructive focus:text-destructive focus:bg-destructive/10 gap-2 text-xs font-medium cursor-pointer"
-                                    onclick={() => {
-                                        props.onClick?.();
-                                        showDeleteConfirm = true;
-                                    }}
+                                    class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                                    aria-label="Más opciones"
                                 >
-                                    <Trash2 class="size-3.5 shrink-0" />
-                                    <span>Eliminar cliente</span>
+                                    <MoreHorizontal class="size-4" />
                                 </button>
                             {/snippet}
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" class="w-48 shadow-lg">
+                            {#if canEdit}
+                                {#if form.is_active}
+                                    <DropdownMenuItem asChild>
+                                        {#snippet children(props)}
+                                            <button
+                                                type="button"
+                                                class="{props.class} w-full flex items-center text-rose-600 dark:text-rose-400 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30 gap-2 text-xs font-medium cursor-pointer"
+                                                onclick={() => {
+                                                    props.onClick?.();
+                                                    showDeactivateConfirm = true;
+                                                }}
+                                            >
+                                                <ShieldAlert class="size-3.5 shrink-0" />
+                                                <span>Desactivar cliente</span>
+                                            </button>
+                                        {/snippet}
+                                    </DropdownMenuItem>
+                                {:else}
+                                    <DropdownMenuItem asChild>
+                                        {#snippet children(props)}
+                                            <button
+                                                type="button"
+                                                class="{props.class} w-full flex items-center text-emerald-600 dark:text-emerald-400 focus:text-emerald-600 focus:bg-emerald-50 dark:focus:bg-emerald-950/30 gap-2 text-xs font-medium cursor-pointer"
+                                                onclick={() => {
+                                                    props.onClick?.();
+                                                    showActivateConfirm = true;
+                                                }}
+                                            >
+                                                <ShieldCheck class="size-3.5 shrink-0" />
+                                                <span>Activar cliente</span>
+                                            </button>
+                                        {/snippet}
+                                    </DropdownMenuItem>
+                                {/if}
+                            {/if}
+                            {#if canEdit && canDelete}
+                                <DropdownMenuSeparator />
+                            {/if}
+                            {#if canDelete}
+                                <DropdownMenuItem asChild>
+                                    {#snippet children(props)}
+                                        <button
+                                            type="button"
+                                            class="{props.class} w-full flex items-center text-destructive focus:text-destructive focus:bg-destructive/10 gap-2 text-xs font-medium cursor-pointer"
+                                            onclick={() => {
+                                                props.onClick?.();
+                                                showDeleteConfirm = true;
+                                            }}
+                                        >
+                                            <Trash2 class="size-3.5 shrink-0" />
+                                            <span>Eliminar cliente</span>
+                                        </button>
+                                    {/snippet}
+                                </DropdownMenuItem>
+                            {/if}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                {/if}
 
                 <button
                     type="button"
@@ -500,9 +512,11 @@
             <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold">
                 Cancelar
             </Button>
-            <Button type="submit" form="manage-customer-form" disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-32">
-                {form.processing ? 'Guardando...' : 'Guardar cambios'}
-            </Button>
+            {#if canEdit}
+                <Button type="submit" form="manage-customer-form" disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-32">
+                    {form.processing ? 'Guardando...' : 'Guardar cambios'}
+                </Button>
+            {/if}
         </DialogFooter>
 
     </DialogContent>

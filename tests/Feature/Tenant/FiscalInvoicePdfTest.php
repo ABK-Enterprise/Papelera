@@ -37,13 +37,25 @@ beforeEach(function () {
         'is_active' => true,
     ]);
 
+    $this->arcaModule = Module::create([
+        'code' => 'facturacion_arca',
+        'name' => 'Facturación ARCA',
+        'is_active' => true,
+    ]);
+
     Permission::create([
         'name' => 'pedidos.ver',
         'guard_name' => 'web',
         'module_id' => $this->module->id,
     ]);
 
-    $this->tenant->modules()->attach($this->module->id);
+    Permission::create([
+        'name' => 'facturas.consultar',
+        'guard_name' => 'web',
+        'module_id' => $this->arcaModule->id,
+    ]);
+
+    $this->tenant->modules()->attach([$this->module->id, $this->arcaModule->id]);
 
     setPermissionsTeamId($this->tenant->id);
     $this->adminRole = Role::create([
@@ -51,6 +63,7 @@ beforeEach(function () {
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,
     ]);
+    $this->adminRole->givePermissionTo(Permission::all());
 
     $this->user = User::factory()->forTenant($this->tenant)->create();
     $this->user->assignRole($this->adminRole);

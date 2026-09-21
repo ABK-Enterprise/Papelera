@@ -11,13 +11,14 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\Tenant;
 use App\Models\User;
+use Database\Seeders\BaseSeeder;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
-    $this->stockModule = Module::firstOrCreate(
-        ['code' => 'stock'],
-        ['name' => 'Control de Stock y Kardex', 'is_active' => true]
-    );
+    $this->seed(BaseSeeder::class);
+
+    $this->stockModule = Module::where('code', 'stock')->first();
 
     $this->tenant = Tenant::factory()->create(['is_active' => true]);
     $this->tenant->modules()->syncWithoutDetaching([$this->stockModule->id]);
@@ -30,6 +31,7 @@ beforeEach(function () {
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,
     ]);
+    $adminRole->syncPermissions(Permission::all());
     $this->user->assignRole($adminRole);
 
     $this->category = Category::factory()->forTenant($this->tenant)->create();
