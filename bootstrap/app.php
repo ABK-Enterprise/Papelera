@@ -30,8 +30,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'api/webhooks/*',
         ]);
 
-        $trustedProxies = array_values(array_filter(array_map('trim', explode(',', (string) env('TRUSTED_PROXIES', '127.0.0.1')))));
-        $middleware->trustProxies(at: ! empty($trustedProxies) ? $trustedProxies : '127.0.0.1');
+        $trustedProxies = env('TRUSTED_PROXIES');
+        if ($trustedProxies === '*' || env('APP_ENV') === 'production') {
+            $middleware->trustProxies(at: '*');
+        } else {
+            $proxies = array_values(array_filter(array_map('trim', explode(',', (string) ($trustedProxies ?: '127.0.0.1')))));
+            $middleware->trustProxies(at: ! empty($proxies) ? $proxies : '127.0.0.1');
+        }
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
