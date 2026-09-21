@@ -4,6 +4,7 @@
     import PdfPreviewModal from '@/components/common/PdfPreviewModal.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import { router } from '@inertiajs/svelte';
+    import { hasPermission } from '@/lib/permissions';
     import { fade, scale } from 'svelte/transition';
     import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
     import PackageCheck from 'lucide-svelte/icons/package-check';
@@ -303,7 +304,7 @@
                 {/if}
 
                 <!-- Acciones de Estado -->
-                {#if order.status === 'solicitado'}
+                {#if order.status === 'solicitado' && hasPermission('proveedores.pedidos.recibir')}
                     <div class="p-3 rounded-xl bg-primary/5 border border-primary/20 flex flex-col sm:flex-row items-center justify-between gap-3">
                         <div>
                             <span class="text-xs font-bold text-foreground block">¿Llegó la mercadería al depósito?</span>
@@ -319,7 +320,7 @@
 
             <!-- Footer (shrink-0) -->
             <div class="flex items-center justify-between pt-3.5 border-t shrink-0">
-                {#if order.status === 'solicitado'}
+                {#if order.status === 'solicitado' && hasPermission('proveedores.pedidos.cancelar')}
                     <Button
                         type="button"
                         variant="outline"
@@ -390,6 +391,7 @@
             title="Orden de Compra"
             orderNumber={order.order_number}
             previewUrl={`/tenant/proveedores/ordenes/${order.id}/previsualizar-pdf`}
+            viewerUrl={`/tenant/proveedores/ordenes/${order.id}/visor`}
             downloadUrl={`/tenant/proveedores/ordenes/${order.id}/pdf`}
         />
     {/if}

@@ -19,6 +19,7 @@
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import X from 'lucide-svelte/icons/x';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import { ARGENTINA_GEOGRAPHY, PROVINCES_LIST } from '@/data/argentinaGeographicData';
 
     let {
         open = $bindable(false),
@@ -33,6 +34,8 @@
         email: '',
         phone: '',
         address: '',
+        province: '',
+        city: '',
         credit_limit: 0,
         discount_percentage: 0,
         is_defaulter: false,
@@ -188,6 +191,49 @@
                 {#if form.errors.address}
                     <p class="text-xs text-destructive">{form.errors.address}</p>
                 {/if}
+            </div>
+
+            <!-- Provincia y Ciudad / Localidad -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div class="space-y-1.5">
+                    <Label for="create-customer-province" class="text-xs font-semibold">Provincia</Label>
+                    <select
+                        id="create-customer-province"
+                        bind:value={form.province}
+                        onchange={() => {
+                            form.city = '';
+                        }}
+                        class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                    >
+                        <option value="">Selecciona una provincia...</option>
+                        {#each PROVINCES_LIST as prov}
+                            <option value={prov}>{prov}</option>
+                        {/each}
+                    </select>
+                    {#if form.errors.province}
+                        <p class="text-xs text-destructive">{form.errors.province}</p>
+                    {/if}
+                </div>
+
+                <div class="space-y-1.5">
+                    <Label for="create-customer-city" class="text-xs font-semibold">Localidad / Ciudad</Label>
+                    <select
+                        id="create-customer-city"
+                        bind:value={form.city}
+                        disabled={!form.province}
+                        class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                        <option value="">{form.province ? 'Selecciona una ciudad...' : 'Primero selecciona provincia'}</option>
+                        {#if form.province && ARGENTINA_GEOGRAPHY[form.province]}
+                            {#each ARGENTINA_GEOGRAPHY[form.province] as city}
+                                <option value={city}>{city}</option>
+                            {/each}
+                        {/if}
+                    </select>
+                    {#if form.errors.city}
+                        <p class="text-xs text-destructive">{form.errors.city}</p>
+                    {/if}
+                </div>
             </div>
 
             <!-- Límite de Crédito & Descuento Habitual & Flags -->

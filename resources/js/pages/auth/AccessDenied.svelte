@@ -2,7 +2,7 @@
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-    import { Link, router } from '@inertiajs/svelte';
+    import { Link, router, page } from '@inertiajs/svelte';
     import ShieldAlert from 'lucide-svelte/icons/shield-alert';
     import LogOut from 'lucide-svelte/icons/log-out';
     import LayoutGrid from 'lucide-svelte/icons/layout-grid';
@@ -13,6 +13,8 @@
     }: {
         reason?: string;
     } = $props();
+
+    let auth = $derived(page.props.auth);
 
     let subtitle = $derived.by(() => {
         switch (reason) {
@@ -103,9 +105,17 @@
             </CardContent>
 
             <CardFooter class="pt-4 pb-6 flex flex-wrap justify-center gap-2 border-t border-border/40 mt-2">
+                {#if auth?.user && auth?.tenant?.is_active}
+                    <Link href="/dashboard">
+                        <Button variant="default" size="sm" class="text-xs font-semibold gap-1.5">
+                            <LayoutGrid class="size-3.5" />
+                            Ir al panel principal
+                        </Button>
+                    </Link>
+                {/if}
                 <Link href="/login">
                     <Button
-                        variant="default"
+                        variant={auth?.user && auth?.tenant?.is_active ? "outline" : "default"}
                         size="sm"
                         class="text-xs font-semibold gap-1.5"
                     >

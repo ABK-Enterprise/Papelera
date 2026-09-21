@@ -4,14 +4,14 @@ use App\Models\Branch;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Models\Warehouse;
-use Database\Seeders\BaseSeeder;
+use Database\Seeders\TestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seed(BaseSeeder::class);
+    $this->seed(TestSeeder::class);
     $this->tenant = Tenant::first();
     $this->adminUser = User::where('tenant_id', $this->tenant->id)->first();
 });

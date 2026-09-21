@@ -4,6 +4,7 @@
     import Calendar from 'lucide-svelte/icons/calendar';
     import Package from 'lucide-svelte/icons/package';
     import User from 'lucide-svelte/icons/user';
+    import Building2 from 'lucide-svelte/icons/building-2';
 
     interface StockMovementItem {
         id: number;
@@ -14,6 +15,11 @@
         current_stock: number;
         notes: string | null;
         created_at: string;
+        warehouse?: {
+            id: number;
+            name: string;
+            code?: string | null;
+        } | null;
         product?: {
             id: number;
             name: string;
@@ -60,11 +66,19 @@
                             <div class="font-semibold text-foreground truncate text-sm leading-snug">
                                 {mov.product?.name ?? 'Producto eliminado'}
                             </div>
-                            {#if mov.product?.sku}
-                                <div class="text-xs text-muted-foreground tracking-wide tabular-nums">
-                                    SKU: {mov.product.sku}
-                                </div>
-                            {/if}
+                            <div class="flex items-center gap-2 flex-wrap mt-0.5">
+                                {#if mov.product?.sku}
+                                    <span class="text-xs text-muted-foreground tracking-wide tabular-nums">
+                                        SKU: {mov.product.sku}
+                                    </span>
+                                {/if}
+                                {#if mov.warehouse}
+                                    <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-muted/80 text-foreground border border-border/70 shadow-2xs">
+                                        <Building2 class="size-2.5 text-muted-foreground shrink-0" />
+                                        {mov.warehouse.name}
+                                    </span>
+                                {/if}
+                            </div>
                         </div>
                     </div>
 

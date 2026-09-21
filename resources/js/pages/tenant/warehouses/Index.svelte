@@ -75,16 +75,11 @@
 <div class="flex flex-col gap-6 w-full">
     <!-- Encabezado y Acciones Principales con Botones Equilibrados -->
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <div class="flex items-center gap-2.5">
-                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Gestión de Depósitos</h1>
-                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums">
-                    {warehouses.length} {warehouses.length === 1 ? 'depósito' : 'depósitos'}
-                </span>
-            </div>
-            <p class="mt-1 text-sm text-muted-foreground">
-                Controla los espacios físicos de almacenamiento, inventario y asignación por sucursal.
-            </p>
+        <div class="flex flex-wrap items-center gap-2.5 min-w-0">
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Gestión de Depósitos</h1>
+            <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums shrink-0">
+                {warehouses.length} {warehouses.length === 1 ? 'depósito' : 'depósitos'}
+            </span>
         </div>
         <div class="flex flex-wrap items-center justify-end gap-2.5">
             <Link href="/tenant/productos/buscar-deposito">

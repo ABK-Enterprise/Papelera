@@ -2,14 +2,14 @@
 
 use App\Models\Tenant;
 use App\Models\User;
-use Database\Seeders\BaseSeeder;
+use Database\Seeders\TestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seed(BaseSeeder::class);
+    $this->seed(TestSeeder::class);
     $this->tenant = Tenant::first();
 });
 
@@ -18,7 +18,7 @@ test('superadmin logging in via form is redirected directly to platform dashboar
 
     $response = $this->post(route('login.store'), [
         'email' => $superadmin->email,
-        'password' => 'admin',
+        'password' => 'admincontrol',
     ]);
 
     $this->assertAuthenticatedAs($superadmin);
@@ -86,7 +86,7 @@ test('superadmin login clears intended URL and redirects to platform dashboard',
 
     $response = $this->post(route('login.store'), [
         'email' => $superadmin->email,
-        'password' => 'admin',
+        'password' => 'admincontrol',
     ]);
 
     $this->assertAuthenticatedAs($superadmin);

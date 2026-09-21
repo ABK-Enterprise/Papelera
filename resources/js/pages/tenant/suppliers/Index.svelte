@@ -4,6 +4,7 @@
     import { Card } from '@/components/ui/card';
     import { Badge } from '@/components/ui/badge';
     import { Link, router } from '@inertiajs/svelte';
+    import { hasPermission } from '@/lib/permissions';
     import Plus from 'lucide-svelte/icons/plus';
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Search from 'lucide-svelte/icons/search';
@@ -106,10 +107,12 @@
         </div>
 
         <div class="flex items-center justify-end gap-2.5">
-            <Button class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs" onclick={() => (showCreateModal = true)}>
-                <Plus class="h-4 w-4" />
-                <span>Añadir Proveedor</span>
-            </Button>
+            {#if hasPermission('proveedores.crear')}
+                <Button class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs" onclick={() => (showCreateModal = true)}>
+                    <Plus class="h-4 w-4" />
+                    <span>Añadir Proveedor</span>
+                </Button>
+            {/if}
         </div>
     </div>
 

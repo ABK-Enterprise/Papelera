@@ -10,6 +10,7 @@
     import Plus from 'lucide-svelte/icons/plus';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import { hasPermission } from '@/lib/permissions';
 
     export interface CustomerItem {
         id: number;
@@ -20,6 +21,8 @@
         email: string | null;
         phone: string | null;
         address: string | null;
+        province?: string | null;
+        city?: string | null;
         credit_limit: number | string;
         is_defaulter: boolean;
         is_active: boolean;
@@ -163,10 +166,12 @@
         <div class="rounded-xl border border-dashed p-8 text-center bg-card/40">
             <UserCheck class="mx-auto h-10 w-10 text-muted-foreground/40 mb-2" />
             <p class="text-xs text-muted-foreground font-medium">No se encontraron clientes.</p>
-            <Button size="sm" class="mt-3 gap-1.5 text-xs" onclick={onOpenCreate}>
-                <Plus class="h-3.5 w-3.5" />
-                Añadir Cliente
-            </Button>
+            {#if hasPermission('clientes.crear')}
+                <Button size="sm" class="mt-3 gap-1.5 text-xs" onclick={onOpenCreate}>
+                    <Plus class="h-3.5 w-3.5" />
+                    Añadir Cliente
+                </Button>
+            {/if}
         </div>
     {/if}
 

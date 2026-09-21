@@ -9,6 +9,13 @@
     import StockNavigationTabs from '@/pages/tenant/stock/StockNavigationTabs.svelte';
     import Minus from 'lucide-svelte/icons/minus';
 
+    interface WarehouseItem {
+        id: number;
+        name: string;
+        code?: string | null;
+        is_default?: boolean;
+    }
+
     interface StockMovementItem {
         id: number;
         type: string;
@@ -18,6 +25,11 @@
         current_stock: number;
         notes: string | null;
         created_at: string;
+        warehouse?: {
+            id: number;
+            name: string;
+            code: string | null;
+        } | null;
         product?: {
             id: number;
             name: string;
@@ -40,9 +52,11 @@
     let {
         movements = [],
         products = [],
+        warehouses = [],
     }: {
         movements: StockMovementItem[];
         products: ProductItem[];
+        warehouses?: WarehouseItem[];
     } = $props();
 
     let isCreateModalOpen = $state(false);
@@ -77,13 +91,15 @@
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">Egresos de Stock</h1>
         </div>
         <div class="flex items-center gap-3">
-            <Button
-                onclick={() => (isCreateModalOpen = true)}
-                class="flex items-center gap-2 font-semibold shadow-sm bg-rose-600 hover:bg-rose-700 text-white sm:hover:shadow-lg sm:hover:shadow-rose-600/25 cursor-pointer"
-            >
-                <Minus class="size-4" />
-                <span>Registrar egreso</span>
-            </Button>
+            {#if page.props.auth?.is_admin || page.props.auth?.roles?.includes('admin') || page.props.auth?.permissions?.includes('stock_egreso.crear')}
+                <Button
+                    onclick={() => (isCreateModalOpen = true)}
+                    class="flex items-center gap-2 font-semibold shadow-sm bg-rose-600 hover:bg-rose-700 text-white sm:hover:shadow-lg sm:hover:shadow-rose-600/25 cursor-pointer"
+                >
+                    <Minus class="size-4" />
+                    <span>Registrar egreso</span>
+                </Button>
+            {/if}
         </div>
     </div>
 
@@ -100,4 +116,5 @@
 <CreateOutcomeModal
     bind:open={isCreateModalOpen}
     {products}
+    {warehouses}
 />

@@ -1,10 +1,6 @@
 <script lang="ts">
-    import { Link } from '@inertiajs/svelte';
     import Menu from 'lucide-svelte/icons/menu';
-    import AppLogoIcon from '@/components/AppLogoIcon.svelte';
     import UserAvatarDropdown from '@/components/navbar/UserAvatarDropdown.svelte';
-    import { toUrl } from '@/lib/utils';
-    import { dashboard } from '@/routes';
 
     let {
         onToggleMenu,
@@ -25,14 +21,8 @@
             <Menu class="h-6 w-6" />
         </button>
 
-        <!-- Centro: Isotipo de la Aplicación -->
-        <Link
-            href={toUrl(dashboard())}
-            class="flex items-center justify-center rounded-lg p-1 transition-transform active:scale-95"
-            aria-label="Dashboard"
-        >
-            <AppLogoIcon class="h-7 w-7 text-primary fill-current" />
-        </Link>
+        <!-- Centro: Espacio reservado para balance flex -->
+        <div class="flex items-center justify-center"></div>
 
         <!-- Extremo Derecho: Avatar de Usuario con Menú -->
         <div class="flex items-center">

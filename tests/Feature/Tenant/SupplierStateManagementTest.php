@@ -9,25 +9,24 @@ use App\Models\Module;
 use App\Models\Supplier;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\TenantModuleSynchronizer;
+use Database\Seeders\BaseSeeder;
 use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
-    $this->supplierModule = Module::firstOrCreate(
-        ['code' => 'proveedores'],
-        ['name' => 'Proveedores', 'is_active' => true]
-    );
+    $this->seed(BaseSeeder::class);
+    $this->supplierModule = Module::where('code', 'proveedores')->first();
 
     $this->tenant = Tenant::factory()->create(['is_active' => true]);
-    $this->tenant->modules()->syncWithoutDetaching([$this->supplierModule->id]);
-
-    $this->user = User::factory()->forTenant($this->tenant)->create();
-
     setPermissionsTeamId($this->tenant->id);
-    $adminRole = Role::firstOrCreate([
-        'name' => 'admin',
-        'guard_name' => 'web',
-        'tenant_id' => $this->tenant->id,
-    ]);
+
+    app(TenantModuleSynchronizer::class)->sync(
+        $this->tenant,
+        [$this->supplierModule->id]
+    );
+
+    $adminRole = Role::where('name', 'admin')->where('tenant_id', $this->tenant->id)->first();
+    $this->user = User::factory()->forTenant($this->tenant)->create();
     $this->user->assignRole($adminRole);
 });
 

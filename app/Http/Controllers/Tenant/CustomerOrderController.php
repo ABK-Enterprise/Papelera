@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Actions\Tenant\Fiscal\EmitCreditNoteAction;
+use App\Exceptions\ArcaException;
 use App\Events\Tenant\CustomerAccountMovementRecorded;
 use App\Events\Tenant\CustomerOrderCreated;
 use App\Events\Tenant\CustomerOrderPaymentReceived;
@@ -30,6 +32,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -47,6 +50,8 @@ class CustomerOrderController extends Controller
             'items.product:id,name,sku,sale_type,units_per_package,price',
             'customer:id,name,tax_id,tax_condition,phone,address,is_defaulter',
             'shippingZone:id,name,distance_km,surcharge_percentage',
+            'returns.items.product:id,name,sku',
+            'activeFiscalInvoice:id,customer_order_id,cbte_tipo,punto_venta,numero_comprobante,cae,cae_due_date,issue_date,status',
         ])
             ->when($search, function ($q, $search) {
                 $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
@@ -78,9 +83,7 @@ class CustomerOrderController extends Controller
         ];
 
         $availableProducts = Product::active()
-            ->complete()
             ->with('tenant:id,default_bulk_discount_percentage')
-            ->where('stock', '>', 0)
             ->select('id', 'tenant_id', 'name', 'sku', 'sale_type', 'price', 'stock', 'units_per_package', 'package_quantity', 'bulk_discount_type', 'custom_bulk_discount_percentage')
             ->orderBy('name')
             ->get();
@@ -161,7 +164,34 @@ class CustomerOrderController extends Controller
             $totalDiscountAmount = 0.00;
             $preparedItems = [];
 
-            $productIds = collect($itemsData)->pluck('product_id')->unique()->sort()->values();
+            // 1. Resolver o instanciar productos creados on-the-fly
+            foreach ($itemsData as $idx => $item) {
+                if (empty($item['product_id']) && ! empty($item['product_name'])) {
+                    $pName = trim((string) $item['product_name']);
+                    $existing = Product::where('tenant_id', $tenantId)
+                        ->where('name', $pName)
+                        ->first();
+
+                    if (! $existing) {
+                        $unitPrice = isset($item['unit_price']) ? max(0.01, (float) $item['unit_price']) : 0.00;
+                        $existing = Product::create([
+                            'tenant_id' => $tenantId,
+                            'name' => $pName,
+                            'category_id' => null,
+                            'price' => $unitPrice,
+                            'cost_price' => null,
+                            'stock' => 0,
+                            'min_stock' => 5,
+                            'units_per_package' => 1,
+                            'sale_type' => 'unit',
+                            'is_active' => true,
+                        ]);
+                    }
+                    $itemsData[$idx]['product_id'] = $existing->id;
+                }
+            }
+
+            $productIds = collect($itemsData)->pluck('product_id')->filter()->unique()->sort()->values();
             $lockedProducts = Product::whereIn('id', $productIds)
                 ->where('tenant_id', $tenantId)
                 ->orderBy('id', 'asc')
@@ -175,11 +205,7 @@ class CustomerOrderController extends Controller
                     abort(404, 'Producto no encontrado');
                 }
                 $product = $lockedProducts[$pId];
-                if ($product->is_incomplete) {
-                    throw ValidationException::withMessages([
-                        'items' => ["El producto '{$product->name}' tiene datos incompletos y no puede venderse."],
-                    ]);
-                }
+                // Permitir la venta de productos on-the-fly o catalogados con datos incompletos
                 $runningStock[$pId] = [
                     'model' => $product,
                     'current_stock' => (float) $product->stock,
@@ -193,7 +219,7 @@ class CustomerOrderController extends Controller
 
                 $packagingType = $item['packaging_type'];
                 $quantity = (float) $item['quantity'];
-                $packageSize = (float) $product->package_size;
+                $packageSize = ! empty($item['units_per_package']) ? (float) $item['units_per_package'] : (float) $product->package_size;
                 $itemWarehouseId = $item['warehouse_id'] ?? $orderWarehouseId;
 
                 if ($product->isWeighable()) {
@@ -215,35 +241,41 @@ class CustomerOrderController extends Controller
                     }
                 }
 
-                if ($availableStock < $quantityBase) {
-                    $unitLabel = $product->isWeighable() ? 'kg' : 'unidades';
-                    throw ValidationException::withMessages([
-                        'items' => ["Stock insuficiente para '{$product->name}'. Requerido: {$quantityBase} {$unitLabel}, disponible: {$availableStock} {$unitLabel}."],
-                    ]);
-                }
-
+                // Se permite stock negativo según regla de negocio (productos críticos)
                 $runningStock[$productId]['current_stock'] -= $quantityBase;
 
                 $isBulk = ($packagingType === 'bulto' || $packagingType === 'bolson' || $packagingType === 'package');
-                $unitPrice = $isBulk ? (float) $product->bulk_discount_price : (float) $product->price;
+                $basePrice = (float) $product->price;
+                if ($basePrice <= 0 && ! empty($item['unit_price'])) {
+                    $basePrice = (float) $item['unit_price'];
+                    $product->update(['price' => $basePrice]);
+                }
+                $unitPrice = $isBulk ? (float) $product->bulk_discount_price : $basePrice;
 
+                // 1. Descuento puntual de ítem (autónomo de línea)
+                $itemDiscountPct = isset($item['discount_percentage'])
+                    ? max(0.0, min(100.0, (float) $item['discount_percentage']))
+                    : 0.00;
+
+                $baseSubtotal = round($quantityBase * $unitPrice, 2);
+                $itemLineDiscountAmount = round($baseSubtotal * ($itemDiscountPct / 100), 2);
+                $netLineSubtotal = round($baseSubtotal - $itemLineDiscountAmount, 2);
+
+                // 2. Elegibilidad para descuento de cliente
                 $applyItemDiscount = isset($item['apply_customer_discount'])
                     ? (bool) $item['apply_customer_discount']
                     : (! $isBulk && $customerDiscountPct > 0);
 
+                $itemCustomerDiscountAmount = 0.00;
                 if ($applyItemDiscount && $customerDiscountPct > 0) {
-                    $itemDiscountPct = $customerDiscountPct;
-                    $baseSubtotal = round($quantityBase * $unitPrice, 2);
-                    $itemDiscountAmount = round($baseSubtotal * ($itemDiscountPct / 100), 2);
-                    $itemSubtotal = round($baseSubtotal - $itemDiscountAmount, 2);
-                } else {
-                    $itemDiscountPct = 0.00;
-                    $itemDiscountAmount = 0.00;
-                    $itemSubtotal = round($quantityBase * $unitPrice, 2);
+                    $itemCustomerDiscountAmount = round($netLineSubtotal * ($customerDiscountPct / 100), 2);
                 }
 
-                $totalAmount += $itemSubtotal;
-                $totalDiscountAmount += $itemDiscountAmount;
+                $finalItemSubtotal = round($netLineSubtotal - $itemCustomerDiscountAmount, 2);
+                $totalItemDiscount = round($itemLineDiscountAmount + $itemCustomerDiscountAmount, 2);
+
+                $totalAmount += $finalItemSubtotal;
+                $totalDiscountAmount += $itemCustomerDiscountAmount;
 
                 $preparedItems[] = [
                     'product_id' => $product->id,
@@ -254,13 +286,16 @@ class CustomerOrderController extends Controller
                     'quantity_base' => $quantityBase,
                     'unit_price' => $unitPrice,
                     'apply_customer_discount' => $applyItemDiscount,
-                    'discount_percentage' => $itemDiscountPct,
-                    'discount_amount' => $itemDiscountAmount,
-                    'subtotal' => $itemSubtotal,
+                    'discount_percentage' => $itemDiscountPct > 0 ? $itemDiscountPct : ($applyItemDiscount ? $customerDiscountPct : 0.00),
+                    'discount_amount' => $totalItemDiscount,
+                    'subtotal' => $finalItemSubtotal,
                 ];
             }
 
-            $subtotalProducts = $totalAmount;
+            $subtotalProducts = round($totalAmount + $totalDiscountAmount, 2);
+            $customerDiscountAmount = $totalDiscountAmount;
+            $netProductsAmount = $totalAmount;
+
             $shippingCost = 0.00;
             $shippingZoneId = $request->validated('shipping_zone_id');
             $shippingZoneName = null;
@@ -274,10 +309,11 @@ class CustomerOrderController extends Controller
                 if ($shippingZone) {
                     $shippingZoneName = $shippingZone->name;
                     $surchargePct = (float) $shippingZone->surcharge_percentage;
-                    $shippingCost = round($subtotalProducts * ($surchargePct / 100), 2);
-                    $totalAmount = round($subtotalProducts + $shippingCost, 2);
+                    $shippingCost = round($netProductsAmount * ($surchargePct / 100), 2);
                 }
             }
+
+            $totalAmount = round($netProductsAmount + $shippingCost, 2);
 
             $paymentType = $request->input('payment_type') ?: 'cuenta_corriente';
             $paymentMethod = $request->input('payment_method') ?: 'efectivo';
@@ -313,7 +349,7 @@ class CustomerOrderController extends Controller
                 'payment_status' => $paymentStatus,
                 'debt_amount' => $orderDebt,
                 'customer_discount_percentage' => $customerDiscountPct,
-                'customer_discount_amount' => $totalDiscountAmount,
+                'customer_discount_amount' => $customerDiscountAmount,
                 'subtotal_amount' => $subtotalProducts,
                 'shipping_cost' => $shippingCost,
                 'total_amount' => $totalAmount,
@@ -513,6 +549,7 @@ class CustomerOrderController extends Controller
     {
         $tenantId = $request->user()->tenant_id;
         $userId = $request->user()->id;
+        $user = $request->user();
 
         if ($customerOrder->tenant_id !== $tenantId) {
             abort(404);
@@ -522,7 +559,7 @@ class CustomerOrderController extends Controller
         $oldStatus = $customerOrder->status;
         $eventsToBroadcast = [];
 
-        $order = DB::transaction(function () use ($customerOrder, $newStatus, $tenantId, $userId, &$eventsToBroadcast) {
+        $order = DB::transaction(function () use ($customerOrder, $newStatus, $tenantId, $userId, $user, &$eventsToBroadcast) {
             /** @var CustomerOrder $lockedOrder */
             $lockedOrder = CustomerOrder::where('id', $customerOrder->id)
                 ->where('tenant_id', $tenantId)
@@ -633,12 +670,23 @@ class CustomerOrderController extends Controller
             broadcast($event);
         }
 
-        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
-            return response()->json($order->refresh());
+        $redirect = redirect()->route('tenant.orders.index')
+            ->with('success', "Estado del pedido {$order->order_number} actualizado a {$newStatus}.");
+
+        if ($newStatus === 'cancelado' && $order->hasPendingCreditNote()) {
+            $redirect->with('warning', "El pedido {$order->order_number} fue cancelado, pero mantiene una factura fiscal activa en ARCA pendiente de emisión de Nota de Crédito.");
         }
 
-        return redirect()->route('tenant.orders.index')
-            ->with('success', "Estado del pedido {$order->order_number} actualizado a {$newStatus}.");
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
+            $data = $order->refresh()->toArray();
+            if ($newStatus === 'cancelado' && $order->hasPendingCreditNote()) {
+                $data['warning'] = "El pedido {$order->order_number} fue cancelado, pero mantiene una factura fiscal activa en ARCA pendiente de emisión de Nota de Crédito.";
+            }
+
+            return response()->json($data);
+        }
+
+        return $redirect;
     }
 
     public function destroy(Request $request, CustomerOrder $customerOrder): RedirectResponse|JsonResponse
@@ -755,10 +803,19 @@ class CustomerOrderController extends Controller
 
         $customerOrder->load(['items.product', 'customer', 'tenant']);
 
+        $logoPath = public_path('logo-provisorio-papelera.png');
+        $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : null;
+
         return Pdf::view('pdf.customer-order', [
             'order' => $customerOrder,
+            'logoBase64' => $logoBase64,
         ])
             ->format('a4')
+            ->meta(
+                title: "Comprobante de Pedido - {$customerOrder->order_number}",
+                author: $customerOrder->tenant?->name ?? 'Papelera',
+                creator: config('app.name', 'Papelera'),
+            )
             ->name("pedido-{$customerOrder->order_number}.pdf")
             ->download();
     }
@@ -774,11 +831,35 @@ class CustomerOrderController extends Controller
 
         $customerOrder->load(['items.product', 'customer', 'tenant']);
 
+        $logoPath = public_path('logo-provisorio-papelera.png');
+        $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : null;
+
         return Pdf::view('pdf.customer-order', [
             'order' => $customerOrder,
+            'logoBase64' => $logoBase64,
         ])
             ->format('a4')
+            ->meta(
+                title: "Comprobante de Pedido - {$customerOrder->order_number}",
+                author: $customerOrder->tenant?->name ?? 'Papelera',
+                creator: config('app.name', 'Papelera'),
+            )
             ->inline("pedido-{$customerOrder->order_number}.pdf");
+    }
+
+    /**
+     * Display the customer order in an HTML viewer shell with brand metadata and favicon.
+     */
+    public function viewer(Request $request, CustomerOrder $customerOrder)
+    {
+        if ($customerOrder->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        return view('pdf.viewer', [
+            'title' => "Comprobante de Pedido - {$customerOrder->order_number}",
+            'streamUrl' => route('tenant.orders.preview-pdf', $customerOrder),
+        ]);
     }
 
     /**
@@ -923,6 +1004,26 @@ class CustomerOrderController extends Controller
             $mpOrderData = $mpService->getOrder($mpOrderId, $tenantToken);
 
             if ($mpOrderData) {
+                // Validación estricta anti-replay: si external_reference está presente en MP, debe coincidir con el pedido local
+                if (! empty($mpOrderData['external_reference'])) {
+                    $mpExternalRef = (string) $mpOrderData['external_reference'];
+                    $expectedRefs = [
+                        $customerOrder->order_number,
+                        "{$customerOrder->tenant_id}:{$customerOrder->order_number}",
+                    ];
+
+                    if (! in_array($mpExternalRef, $expectedRefs, true)) {
+                        Log::warning('Mercado Pago reconciliation rejected: external_reference mismatch (replay attempt)', [
+                            'order_id' => $customerOrder->id,
+                            'order_number' => $customerOrder->order_number,
+                            'mp_order_id' => $mpOrderId,
+                            'mp_external_reference' => $mpExternalRef,
+                        ]);
+
+                        return;
+                    }
+                }
+
                 $mpStatus = strtolower($mpOrderData['status'] ?? '');
                 $payments = $mpOrderData['transactions']['payments'] ?? ($mpOrderData['payments'] ?? []);
                 $hasApprovedPayment = false;

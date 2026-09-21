@@ -11,6 +11,7 @@
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import UserCheck from 'lucide-svelte/icons/user-check';
     import Banknote from 'lucide-svelte/icons/banknote';
+    import { hasPermission } from '@/lib/permissions';
 
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import CustomerFilterModalMobile from './mobile/CustomerFilterModalMobile.svelte';
@@ -120,10 +121,12 @@
                     <span>Cuentas Corrientes</span>
                 </Button>
             </a>
-            <Button class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs" onclick={() => (showCreateModal = true)}>
-                <Plus class="h-4 w-4" />
-                <span>Añadir Cliente</span>
-            </Button>
+            {#if hasPermission('clientes.crear')}
+                <Button class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs" onclick={() => (showCreateModal = true)}>
+                    <Plus class="h-4 w-4" />
+                    <span>Añadir Cliente</span>
+                </Button>
+            {/if}
         </div>
     </div>
 

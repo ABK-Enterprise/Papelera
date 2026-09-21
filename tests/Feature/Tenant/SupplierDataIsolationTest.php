@@ -9,13 +9,14 @@ use App\Models\Module;
 use App\Models\Supplier;
 use App\Models\Tenant;
 use App\Models\User;
+use Database\Seeders\BaseSeeder;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
-    $this->proveedoresModule = Module::firstOrCreate(
-        ['code' => 'proveedores'],
-        ['name' => 'Proveedores', 'is_active' => true]
-    );
+    $this->seed(BaseSeeder::class);
+
+    $this->proveedoresModule = Module::where('code', 'proveedores')->first();
 
     $this->tenant1 = Tenant::factory()->create(['name' => 'Tenant 1', 'is_active' => true]);
     $this->tenant1->modules()->syncWithoutDetaching([$this->proveedoresModule->id]);
@@ -27,6 +28,7 @@ beforeEach(function () {
         'guard_name' => 'web',
         'tenant_id' => $this->tenant1->id,
     ]);
+    $adminRole1->syncPermissions(Permission::all());
     $this->user1->assignRole($adminRole1);
 
     $this->tenant2 = Tenant::factory()->create(['name' => 'Tenant 2', 'is_active' => true]);
@@ -39,6 +41,7 @@ beforeEach(function () {
         'guard_name' => 'web',
         'tenant_id' => $this->tenant2->id,
     ]);
+    $adminRole2->syncPermissions(Permission::all());
     $this->user2->assignRole($adminRole2);
 });
 

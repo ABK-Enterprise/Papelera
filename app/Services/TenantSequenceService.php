@@ -23,6 +23,10 @@ class TenantSequenceService
             'table' => 'receipts',
             'column' => 'receipt_number',
         ],
+        'customer_order_return' => [
+            'table' => 'customer_order_returns',
+            'column' => 'return_number',
+        ],
     ];
 
     /**
@@ -101,6 +105,11 @@ class TenantSequenceService
     public function nextReceiptNumber(int $tenantId): string
     {
         return $this->nextNumber($tenantId, 'receipt', 'REC-', 4);
+    }
+
+    public function nextCustomerOrderReturnNumber(int $tenantId): string
+    {
+        return $this->nextNumber($tenantId, 'customer_order_return', 'DEV-', 4);
     }
 }
 

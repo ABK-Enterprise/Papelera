@@ -41,13 +41,26 @@ class HandleInertiaRequests extends Middleware
         $permissions = [];
         $modules = [];
 
+        $userData = null;
         if ($user) {
+            $userData = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'avatar' => $user->avatar,
+                'tenant_id' => $user->tenant_id,
+                'is_superadmin' => $user->isSuperAdmin(),
+                'email_verified_at' => $user->email_verified_at,
+                'created_at' => $user->created_at,
+            ];
+
             if ($user->tenant_id && $user->tenant) {
                 setPermissionsTeamId($user->tenant_id);
                 $tenantData = [
                     'id' => $user->tenant->id,
                     'name' => $user->tenant->name,
                     'cuit_tax_id' => $user->tenant->cuit_tax_id,
+                    'tax_condition' => $user->tenant->tax_condition,
                     'is_active' => $user->tenant->is_active,
                 ];
                 $modules = $user->tenant->modules()
@@ -67,7 +80,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $user,
+                'user' => $userData,
                 'tenant' => $tenantData,
                 'roles' => $roles,
                 'permissions' => $permissions,
@@ -78,6 +91,7 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'error' => $request->session()->get('error'),
                 'success' => $request->session()->get('success'),
+                'warning' => $request->session()->get('warning'),
                 'status' => $request->session()->get('status'),
             ],
         ];

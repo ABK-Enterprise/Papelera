@@ -4,22 +4,32 @@
     import PdfPreviewModal from '@/components/common/PdfPreviewModal.svelte';
     import MercadoPagoQrModal from '@/components/common/MercadoPagoQrModal.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
-    import { router } from '@inertiajs/svelte';
+    import CustomerOrderReturnModal from './CustomerOrderReturnModal.svelte';
+    import EmitFiscalInvoiceModal from './EmitFiscalInvoiceModal.svelte';
+    import { router, page } from '@inertiajs/svelte';
+    import { hasPermission, hasModule } from '@/lib/permissions';
     import { fade, scale } from 'svelte/transition';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Calendar from 'lucide-svelte/icons/calendar';
     import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
     import Clock from 'lucide-svelte/icons/clock';
+    import FileText from 'lucide-svelte/icons/file-text';
     import Info from 'lucide-svelte/icons/info';
     import MapPin from 'lucide-svelte/icons/map-pin';
     import Phone from 'lucide-svelte/icons/phone';
     import Printer from 'lucide-svelte/icons/printer';
     import QrCode from 'lucide-svelte/icons/qr-code';
+    import ReceiptText from 'lucide-svelte/icons/receipt-text';
+    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import Truck from 'lucide-svelte/icons/truck';
     import User from 'lucide-svelte/icons/user';
+    import Lock from 'lucide-svelte/icons/lock';
+    import Loader2 from 'lucide-svelte/icons/loader-2';
+    import Wallet from 'lucide-svelte/icons/wallet';
     import X from 'lucide-svelte/icons/x';
     import XCircle from 'lucide-svelte/icons/x-circle';
+    import { toast } from 'svelte-sonner';
 
     interface OrderItem {
         id: number;
@@ -27,6 +37,7 @@
         packaging_type: string;
         units_per_package: number;
         quantity: number;
+        returned_quantity?: number;
         unit_price: string | number;
         subtotal: string | number;
         product?: {
@@ -36,19 +47,39 @@
         };
     }
 
+    interface CustomerInfo {
+        id: number;
+        name: string;
+        tax_id?: string | null;
+        tax_condition?: string | null;
+        phone?: string | null;
+        address?: string | null;
+        is_defaulter?: boolean;
+    }
+
     interface OrderData {
         id: number;
         order_number: string;
+        customer_id?: number | null;
         customer_name: string;
         customer_phone: string | null;
         delivery_address: string | null;
         status: string;
+        fiscal_status?: string;
+        fiscal_error_message?: string | null;
+        active_fiscal_invoice?: any;
+        return_status?: string;
         payment_status?: string;
+        payment_method?: string | null;
+        payment_condition?: string | null;
+        derived_payment_condition?: string | null;
+        has_pending_credit_note?: boolean;
         debt_amount?: string | number;
         paid_amount?: string | number;
         total_amount: string | number;
         notes: string | null;
         created_at: string;
+        customer?: CustomerInfo | null;
         items?: OrderItem[];
     }
 
@@ -62,9 +93,50 @@
 
     let isUpdatingStatus = $state(false);
     let isConfirmModalOpen = $state(false);
+    let isConfirmReturnOpen = $state(false);
+    let isReturnModalOpen = $state(false);
     let isPdfModalOpen = $state(false);
+    let isFiscalModalOpen = $state(false);
+    let isFiscalPdfModalOpen = $state(false);
     let isQrModalOpen = $state(false);
     let pendingStatus = $state<string | null>(null);
+    let isEmittingCreditNote = $state(false);
+
+    function getMobilePaymentLabel(ord: OrderData): string {
+        const raw = (ord.derived_payment_condition || ord.payment_condition || ord.payment_method || '').toLowerCase();
+        if (raw.includes('transferencia')) return 'Transferencia';
+        if (raw.includes('mercado') || raw.includes('mdo') || raw.includes('mp')) return 'Mdo. Pago';
+        if (raw.includes('efectivo')) return 'Efectivo';
+        if (raw.includes('cheque')) return 'Cheque';
+        if (raw.includes('corriente') || raw.includes('cta') || raw.includes('parcial')) return 'Cta. Cte.';
+        if (raw.includes('contado')) return 'Contado';
+        return ord.derived_payment_condition || ord.payment_condition || ord.payment_method || 'Efectivo';
+    }
+
+    function emitCreditNote() {
+        if (!order || isEmittingCreditNote) return;
+        isEmittingCreditNote = true;
+        router.post(
+            `/tenant/pedidos/${order.id}/nota-credito`,
+            {},
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => {
+                    toast.success('Nota de Crédito ARCA emitida exitosamente.');
+                    isEmittingCreditNote = false;
+                },
+                onError: (errors) => {
+                    const msg = errors.fiscal_error || Object.values(errors)[0] || 'Error al emitir Nota de Crédito ARCA.';
+                    toast.error(msg);
+                    isEmittingCreditNote = false;
+                },
+                onFinish: () => {
+                    isEmittingCreditNote = false;
+                },
+            }
+        );
+    }
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
@@ -81,6 +153,19 @@
                 dateStyle: 'medium',
                 timeStyle: 'short',
             });
+        } catch {
+            return dateStr;
+        }
+    }
+
+    function formatDateOnly(dateStr: string | null | undefined): string {
+        if (!dateStr) return '-';
+        try {
+            const parts = dateStr.split('T')[0].split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return new Date(dateStr).toLocaleDateString('es-AR');
         } catch {
             return dateStr;
         }
@@ -135,9 +220,13 @@
     // Modal Copy Generator según el estado a aplicar
     let confirmModalConfig = $derived.by(() => {
         if (pendingStatus === 'cancelado') {
+            const description = order?.fiscal_status === 'facturado'
+                ? '¡Atención! Este pedido se encuentra facturado ante ARCA. Al cancelarlo, el sistema emitirá automáticamente una Nota de Crédito oficial para anular la factura. El stock será reincorporado al inventario. ¿Deseas continuar?'
+                : `¿Estás seguro de cancelar el pedido ${order?.order_number}? El stock de los artículos se reincorporará automáticamente al inventario. Esta acción es definitiva y no podrá revertirse.`;
+
             return {
                 title: '¿Cancelar pedido de venta?',
-                description: `¿Estás seguro de cancelar el pedido ${order?.order_number}? El stock de los artículos se reincorporará automáticamente al inventario. Esta acción es definitiva y no podrá revertirse.`,
+                description,
                 confirmText: 'Sí, Cancelar Pedido',
                 variant: 'danger' as const,
             };
@@ -173,6 +262,28 @@
             variant: 'default' as const,
         };
     });
+
+    const canReturn = $derived(
+        order?.status === 'entregado' && order?.return_status !== 'total' && hasPermission('pedidos.editar_estado')
+    );
+    const canEmitFiscal = $derived(
+        hasModule('facturacion_arca') &&
+        hasPermission('facturas.emitir') &&
+        order?.status !== 'cancelado' &&
+        (order?.fiscal_status === 'sin_facturar' ||
+            order?.fiscal_status === 'error_fiscal' ||
+            !order?.fiscal_status)
+    );
+    const hasFiscalPdf = $derived(
+        (order?.fiscal_status === 'facturado' || Boolean(order?.active_fiscal_invoice)) &&
+        (hasPermission('facturas.consultar') || hasPermission('pedidos.ver'))
+    );
+    const hasFiscalAction = $derived(canEmitFiscal || hasFiscalPdf);
+    const hasQrPayment = $derived(
+        order?.status !== 'cancelado' &&
+        order?.status !== 'entregado' &&
+        Number(order?.debt_amount ?? order?.total_amount) > 0
+    );
 </script>
 
 {#if open && order}
@@ -197,7 +308,7 @@
                 <div class="flex items-center gap-2.5">
                     <IconContainer size="md" variant="primary" icon="solar:bill-list-bold-duotone" />
                     <div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
                             <h2 class="text-base sm:text-lg font-bold text-foreground font-sans tabular-nums">{order.order_number}</h2>
                             {#if order.status === 'en_preparacion'}
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
@@ -220,8 +331,39 @@
                                     Cancelado
                                 </span>
                             {/if}
+
+                            <!-- Pill Pendiente NC -->
+                            {#if order.has_pending_credit_note}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                                    Pendiente NC
+                                </span>
+                            {/if}
+
+                            <!-- Badge de Estado Fiscal ARCA -->
+                            {#if order.fiscal_status === 'facturado'}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                                    <ReceiptText class="size-3.5" />
+                                    <span>Facturado ARCA</span>
+                                </span>
+                            {:else if order.fiscal_status === 'anulado_fiscal'}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 line-through">
+                                    <span>Anulado Fiscal (NC)</span>
+                                </span>
+                            {:else if order.fiscal_status === 'error_fiscal'}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                                    <AlertTriangle class="size-3.5" />
+                                    <span>Error Fiscal</span>
+                                </span>
+                            {:else}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border/70">
+                                    <span>Sin Facturar</span>
+                                </span>
+                            {/if}
                         </div>
-                        <p class="text-xs text-muted-foreground">Fecha: {formatDate(order.created_at)}</p>
+                        <p class="text-xs text-muted-foreground flex flex-wrap items-center gap-1 break-words leading-relaxed">
+                            <span>Fecha:</span>
+                            <span class="break-words font-sans tabular-nums">{formatDate(order.created_at)}</span>
+                        </p>
                     </div>
                 </div>
 
@@ -238,6 +380,55 @@
 
             <!-- Scrollable Content Body -->
             <div class="flex-1 min-h-0 overflow-y-auto space-y-4 sm:space-y-5 py-2 pr-1">
+                <!-- Banner de Inconveniente Fiscal en caso de error previo -->
+                {#if order.fiscal_status === 'error_fiscal' && order.fiscal_error_message}
+                    <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-xs text-amber-800 dark:text-amber-300">
+                        <AlertTriangle class="size-5 text-amber-600 shrink-0 mt-0.5" />
+                        <div class="space-y-0.5">
+                            <strong class="font-bold block">Inconveniente de facturación ARCA:</strong>
+                            <p class="leading-relaxed">{order.fiscal_error_message}</p>
+                            <p class="text-[11px] text-muted-foreground pt-1">
+                                Puedes reintentar la emisión con el botón «Facturar ARCA» al pie de la ventana.
+                            </p>
+                        </div>
+                    </div>
+                {/if}
+
+                <!-- Bloque Informativo de Factura Oficial Aprobada en ARCA -->
+                {#if order.fiscal_status === 'facturado' && order.active_fiscal_invoice}
+                    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                        <div class="flex items-center gap-2.5">
+                            <div class="size-8 rounded-lg bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                                <ReceiptText class="size-4.5" />
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <strong class="font-bold text-foreground text-sm font-sans tabular-nums">
+                                        {order.active_fiscal_invoice.formatted_number || `Comprobante Nº ${order.active_fiscal_invoice.numero_comprobante}`}
+                                    </strong>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+                                        CAE Oficial
+                                    </span>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground mt-0.5 font-sans tabular-nums text-[11px]">
+                                    <span>CAE: <strong class="text-foreground">{order.active_fiscal_invoice.cae}</strong></span>
+                                    <span>Vencimiento CAE: <strong class="text-foreground">{formatDateOnly(order.active_fiscal_invoice.cae_due_date)}</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            class="min-h-[36px] px-3 rounded-lg text-xs font-semibold text-emerald-700 dark:text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/15 gap-1.5 cursor-pointer shrink-0"
+                            onclick={() => (isFiscalPdfModalOpen = true)}
+                        >
+                            <FileText class="size-3.5" />
+                            <span>Ver Factura</span>
+                        </Button>
+                    </div>
+                {/if}
+
                 <!-- Cartel Informativo de Estado Terminal -->
                 {#if order.status === 'cancelado'}
                     <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-xs text-rose-700 dark:text-rose-300">
@@ -410,125 +601,315 @@
                     </div>
                 {/if}
 
-                <!-- Cambiador de Estado Logístico (Solo si no está en estado terminal) -->
-                {#if order.status !== 'cancelado' && order.status !== 'entregado'}
+                <!-- Cambiador de Estado Logístico (Solo si no está en estado terminal y posee permisos) -->
+                {#if order.status !== 'cancelado' && order.status !== 'entregado' && (hasPermission('pedidos.editar_estado') || hasPermission('pedidos.cancelar'))}
                     <div class="space-y-2 pt-2 border-t">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold text-foreground block">Actualizar Estado del Pedido:</span>
                             <span class="text-[11px] text-muted-foreground">Selecciona el siguiente paso del flujo</span>
                         </div>
 
-                        <div class="grid grid-cols-1 {order.status === 'preparado' ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-2">
-                            {#if order.status === 'en_preparacion'}
-                                <button
-                                    type="button"
-                                    disabled={isUpdatingStatus}
-                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
-                                    onclick={() => requestStatusChange('preparado')}
-                                >
-                                    Pasar a Preparado
-                                </button>
-                            {:else if order.status === 'preparado'}
-                                <button
-                                    type="button"
-                                    disabled={isUpdatingStatus}
-                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
-                                    onclick={() => requestStatusChange('en_camino')}
-                                >
-                                    Despachar (En camino)
-                                </button>
-                                <button
-                                    type="button"
-                                    disabled={isUpdatingStatus}
-                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
-                                    onclick={() => requestStatusChange('entregado')}
-                                >
-                                    Entregar (Retiro en local)
-                                </button>
-                            {:else if order.status === 'en_camino'}
-                                <button
-                                    type="button"
-                                    disabled={isUpdatingStatus}
-                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
-                                    onclick={() => requestStatusChange('entregado')}
-                                >
-                                    Marcar Entregado
-                                </button>
+                        <div class="grid grid-cols-1 {order.status === 'preparado' && hasPermission('pedidos.editar_estado') ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-2">
+                            {#if hasPermission('pedidos.editar_estado')}
+                                {#if order.status === 'en_preparacion'}
+                                    <button
+                                        type="button"
+                                        disabled={isUpdatingStatus}
+                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-xs cursor-pointer"
+                                        onclick={() => requestStatusChange('preparado')}
+                                    >
+                                        Pasar a Preparado
+                                    </button>
+                                {:else if order.status === 'preparado'}
+                                    <button
+                                        type="button"
+                                        disabled={isUpdatingStatus}
+                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs cursor-pointer"
+                                        onclick={() => requestStatusChange('en_camino')}
+                                    >
+                                        Despachar (En camino)
+                                    </button>
+                                    <button
+                                        type="button"
+                                        disabled={isUpdatingStatus}
+                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer"
+                                        onclick={() => requestStatusChange('entregado')}
+                                    >
+                                        Entregar (Retiro en local)
+                                    </button>
+                                {:else if order.status === 'en_camino'}
+                                    <button
+                                        type="button"
+                                        disabled={isUpdatingStatus}
+                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer"
+                                        onclick={() => requestStatusChange('entregado')}
+                                    >
+                                        Marcar Entregado
+                                    </button>
+                                {/if}
                             {/if}
 
                             <!-- Botón Cancelar disponible para pedidos activos -->
-                            <button
-                                type="button"
-                                disabled={isUpdatingStatus}
-                                class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-rose-600/10 hover:bg-rose-600 hover:text-white text-rose-600 border-rose-500/30"
-                                onclick={() => requestStatusChange('cancelado')}
-                            >
-                                Cancelar Pedido
-                            </button>
+                            {#if hasPermission('pedidos.cancelar')}
+                                <button
+                                    type="button"
+                                    disabled={isUpdatingStatus}
+                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-rose-600/10 hover:bg-rose-600 hover:text-white text-rose-600 border-rose-500/30 cursor-pointer"
+                                    onclick={() => requestStatusChange('cancelado')}
+                                >
+                                    Cancelar Pedido
+                                </button>
+                            {/if}
                         </div>
                     </div>
                 {/if}
             </div>
 
-            <!-- Footer con Total (Fila 1) y Acciones (Fila 2) (shrink-0) -->
-            <div class="flex flex-col gap-2.5 pt-3 border-t shrink-0">
-                <!-- Fila 1: Total alineado a la derecha -->
-                <div class="flex items-baseline justify-end gap-1.5 pb-1.5 border-b border-border/40">
-                    <span class="text-xs text-muted-foreground font-medium">Total:</span>
-                    <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary" title={formatPrice(order.total_amount)}>
-                        {formatPrice(order.total_amount)}
-                    </span>
-                </div>
+            <!-- Snippets de Botones de Acción (Reutilizados para Desktop y Mobile) -->
+            {#snippet btnDevolucion(extraClass = '')}
+                {#if canReturn}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        class="min-h-[42px] sm:min-h-[40px] px-3.5 rounded-xl text-xs font-semibold text-amber-600 border-amber-500/30 hover:bg-amber-500/10 hover:border-amber-500/50 gap-1.5 shrink-0 cursor-pointer {extraClass}"
+                        onclick={() => (isConfirmReturnOpen = true)}
+                    >
+                        <RotateCcw class="size-4 shrink-0" />
+                        <span class="truncate">Devolución</span>
+                    </Button>
+                {/if}
+            {/snippet}
 
-                <!-- Fila 2: Cancelar pedido a la izquierda | QR (MP), PDF y Cerrar a la derecha -->
-                <div class="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
-                    <div>
-                        {#if order.status !== 'cancelado' && order.status !== 'entregado'}
-                            <Button
-                                type="button"
-                                variant="outline"
-                                class="min-h-[40px] px-3.5 rounded-xl text-xs font-semibold text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-1.5 shrink-0 cursor-pointer"
-                                onclick={() => requestStatusChange('cancelado')}
-                            >
-                                <XCircle class="size-4" />
-                                <span>Cancelar pedido</span>
-                            </Button>
-                        {/if}
-                    </div>
-
-                    <div class="flex items-center gap-2 shrink-0">
-                        {#if order.status !== 'cancelado' && order.status !== 'entregado' && Number(order.debt_amount ?? order.total_amount) > 0}
-                            <Button
-                                type="button"
-                                variant="default"
-                                class="min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs bg-sky-600 hover:bg-sky-700 text-white dark:bg-sky-600 dark:hover:bg-sky-700 shrink-0 cursor-pointer"
-                                onclick={() => (isQrModalOpen = true)}
-                            >
-                                <QrCode class="size-4" />
-                                <span class="hidden sm:inline">Cobro QR MP</span>
-                                <span class="inline sm:hidden">QR (MP)</span>
-                            </Button>
-                        {/if}
-
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            class="min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer"
-                            onclick={() => (isPdfModalOpen = true)}
-                        >
-                            <Printer class="size-4 text-primary" />
-                            <span>PDF</span>
-                        </Button>
-
+            {#snippet btnFiscal(extraClass = '')}
+                {#if canEmitFiscal}
+                    {#if Number(order?.total_amount) <= 0}
                         <Button
                             type="button"
                             variant="outline"
-                            class="min-h-[40px] px-3.5 rounded-xl text-xs sm:text-sm font-semibold shrink-0 cursor-pointer"
-                            onclick={() => (open = false)}
+                            class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 bg-muted text-muted-foreground border border-border cursor-not-allowed opacity-60 {extraClass}"
+                            onclick={() => toast.error('WSFEv1 (ARCA) requiere comprobantes con importe total mayor a cero ($0.00). Para entregas sin cargo utilice remito interno.')}
                         >
-                            Cerrar
+                            <Lock class="size-4 shrink-0" />
+                            <span class="truncate">Facturar ARCA</span>
                         </Button>
+                    {:else}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer text-foreground hover:text-primary hover:border-primary/50 {extraClass}"
+                            onclick={() => (isFiscalModalOpen = true)}
+                        >
+                            <ReceiptText class="size-4 text-primary shrink-0" />
+                            <span class="truncate">Facturar ARCA</span>
+                        </Button>
+                    {/if}
+                {:else if hasFiscalPdf}
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer {extraClass}"
+                        onclick={() => (isFiscalPdfModalOpen = true)}
+                    >
+                        <FileText class="size-4 text-primary shrink-0" />
+                        <span class="truncate">Factura PDF</span>
+                    </Button>
+                {/if}
+            {/snippet}
+
+            {#snippet btnCreditNote(extraClass = '')}
+                {#if order?.has_pending_credit_note && hasPermission('facturas.anular')}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        disabled={isEmittingCreditNote}
+                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/30 hover:bg-rose-500/20 {extraClass}"
+                        onclick={emitCreditNote}
+                    >
+                        {#if isEmittingCreditNote}
+                            <Loader2 class="size-4 animate-spin shrink-0" />
+                            <span class="truncate">Emitiendo NC...</span>
+                        {:else}
+                            <ReceiptText class="size-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                            <span class="truncate">Emitir Nota de Crédito ARCA</span>
+                        {/if}
+                    </Button>
+                {/if}
+            {/snippet}
+
+            {#snippet btnQr(extraClass = '')}
+                {#if hasQrPayment}
+                    <Button
+                        type="button"
+                        variant="default"
+                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs bg-sky-600 hover:bg-sky-700 text-white dark:bg-sky-600 dark:hover:bg-sky-700 shrink-0 cursor-pointer {extraClass}"
+                        onclick={() => (isQrModalOpen = true)}
+                    >
+                        <QrCode class="size-4 shrink-0" />
+                        <span class="hidden sm:inline">Cobro QR MP</span>
+                        <span class="inline sm:hidden">QR (MP)</span>
+                    </Button>
+                {/if}
+            {/snippet}
+
+            {#snippet btnRemito(extraClass = '')}
+                <Button
+                    type="button"
+                    variant="secondary"
+                    class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer {extraClass}"
+                    onclick={() => (isPdfModalOpen = true)}
+                >
+                    <Printer class="size-4 text-primary shrink-0" />
+                    <span>Remito</span>
+                </Button>
+            {/snippet}
+
+            {#snippet btnCerrar(extraClass = '')}
+                <Button
+                    type="button"
+                    variant="outline"
+                    class="min-h-[42px] sm:min-h-[40px] px-3.5 rounded-xl text-xs sm:text-sm font-semibold shrink-0 cursor-pointer {extraClass}"
+                    onclick={() => (open = false)}
+                >
+                    Cerrar
+                </Button>
+            {/snippet}
+
+            <!-- Footer con Total (Fila 1) y Acciones (Fila 2) (shrink-0) -->
+            <div class="flex flex-col gap-2.5 pt-3 border-t shrink-0">
+                <!-- Fila 1: Método de pago a la izquierda y Total a la derecha (simétricos) -->
+                <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-border/40 min-w-0">
+                    <div class="flex items-center gap-1.5 text-xs text-muted-foreground font-medium min-w-0">
+                        <Wallet class="size-4 shrink-0 text-muted-foreground" />
+                        <span class="hidden sm:inline truncate" title={order.derived_payment_condition || order.payment_condition || 'Contado'}>
+                            {order.derived_payment_condition || order.payment_condition || 'Contado'}
+                        </span>
+                        <span class="inline sm:hidden truncate">
+                            {getMobilePaymentLabel(order)}
+                        </span>
                     </div>
+
+                    <div class="flex items-baseline gap-1.5 shrink-0">
+                        <span class="text-xs text-muted-foreground font-medium">Total:</span>
+                        <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary" title={formatPrice(order.total_amount)}>
+                            {formatPrice(order.total_amount)}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- VISTA DESKTOP (sm:) -->
+                <div class="hidden sm:flex sm:items-center sm:justify-between sm:gap-2 sm:w-full">
+                    <div class="flex flex-wrap items-center gap-2">
+                        {#if order.return_status === 'total'}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 shrink-0">
+                                Devolución Total
+                            </span>
+                        {:else if order.return_status === 'parcial'}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 shrink-0">
+                                Devolución Parcial
+                            </span>
+                        {/if}
+
+                        {@render btnDevolucion()}
+                    </div>
+
+                    <div class="flex items-center gap-2 shrink-0">
+                        {@render btnCreditNote()}
+                        {@render btnQr()}
+                        {@render btnFiscal()}
+                        {@render btnRemito()}
+                        {@render btnCerrar()}
+                    </div>
+                </div>
+
+                <!-- VISTA MOBILE (< sm) -->
+                <div class="sm:hidden flex flex-col gap-2 w-full">
+                    <!-- Botón Emitir NC si está pendiente -->
+                    {#if order.has_pending_credit_note}
+                        {@render btnCreditNote('w-full justify-center')}
+                    {/if}
+
+                    <!-- Badge de devolución si aplica -->
+                    {#if order.return_status === 'total'}
+                        <div class="flex items-center justify-start pb-0.5">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                                Devolución Total
+                            </span>
+                        </div>
+                    {:else if order.return_status === 'parcial'}
+                        <div class="flex items-center justify-start pb-0.5">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                                Devolución Parcial
+                            </span>
+                        </div>
+                    {/if}
+
+                    {#if order.status === 'entregado'}
+                        {#if canReturn && hasFiscalAction}
+                            <!-- Grid 2x2: Fila 1 (Facturar ARCA + Remito), Fila 2 (Devolución + Cerrar) -->
+                            <div class="grid grid-cols-[1.35fr_1fr] gap-2 w-full">
+                                {@render btnFiscal('w-full justify-center')}
+                                {@render btnRemito('w-full justify-center')}
+                            </div>
+                            <div class="grid grid-cols-[1.35fr_1fr] gap-2 w-full">
+                                {@render btnDevolucion('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {:else if canReturn}
+                            <!-- Devolución + Remito + Cerrar -->
+                            {@render btnDevolucion('w-full justify-center')}
+                            <div class="grid grid-cols-2 gap-2 w-full">
+                                {@render btnRemito('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {:else if hasFiscalAction}
+                            <!-- Facturar ARCA + Remito + Cerrar -->
+                            {@render btnFiscal('w-full justify-center')}
+                            <div class="grid grid-cols-2 gap-2 w-full">
+                                {@render btnRemito('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {:else}
+                            <div class="grid grid-cols-2 gap-2 w-full">
+                                {@render btnRemito('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {/if}
+                    {:else if order.status !== 'cancelado'}
+                        {#if hasQrPayment && hasFiscalAction}
+                            <!-- Grid 2x2: Fila 1 (Facturar ARCA + QR MP), Fila 2 (Remito + Cerrar) -->
+                            <div class="grid grid-cols-[1.35fr_1fr] gap-2 w-full">
+                                {@render btnFiscal('w-full justify-center')}
+                                {@render btnQr('w-full justify-center')}
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 w-full">
+                                {@render btnRemito('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {:else if hasQrPayment}
+                            {@render btnQr('w-full justify-center')}
+                            <div class="grid grid-cols-2 gap-2 w-full">
+                                {@render btnRemito('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {:else if hasFiscalAction}
+                            {@render btnFiscal('w-full justify-center')}
+                            <div class="grid grid-cols-2 gap-2 w-full">
+                                {@render btnRemito('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {:else}
+                            <div class="grid grid-cols-2 gap-2 w-full">
+                                {@render btnRemito('w-full justify-center')}
+                                {@render btnCerrar('w-full justify-center')}
+                            </div>
+                        {/if}
+                    {:else}
+                        <!-- Cancelado: Remito y Cerrar -->
+                        <div class="grid grid-cols-2 gap-2 w-full">
+                            {@render btnRemito('w-full justify-center')}
+                            {@render btnCerrar('w-full justify-center')}
+                        </div>
+                    {/if}
                 </div>
             </div>
 
@@ -559,7 +940,27 @@
             title="Comprobante de Pedido"
             orderNumber={order.order_number}
             previewUrl={`/tenant/pedidos/${order.id}/previsualizar-pdf`}
+            viewerUrl={`/tenant/pedidos/${order.id}/visor`}
             downloadUrl={`/tenant/pedidos/${order.id}/pdf`}
+        />
+
+        <!-- Modal de Facturación Electrónica ARCA -->
+        <EmitFiscalInvoiceModal
+            bind:open={isFiscalModalOpen}
+            {order}
+            onSuccess={() => {
+                router.reload({ only: ['orders'] });
+            }}
+        />
+
+        <!-- Modal de Previsualización y Descarga de Factura Fiscal Oficial ARCA -->
+        <PdfPreviewModal
+            bind:open={isFiscalPdfModalOpen}
+            title="Factura Electrónica ARCA"
+            orderNumber={order.order_number}
+            previewUrl={`/tenant/pedidos/${order.id}/factura-previsualizar`}
+            viewerUrl={`/tenant/pedidos/${order.id}/factura-visor`}
+            downloadUrl={`/tenant/pedidos/${order.id}/factura-pdf`}
         />
 
         <!-- Modal de Cobro QR Presencial Mercado Pago -->
@@ -572,6 +973,29 @@
                     order.paid_amount = updatedOrder.paid_amount;
                     order.payment_status = updatedOrder.payment_status;
                 }
+                router.reload({ only: ['orders'] });
+            }}
+        />
+
+        <!-- Modal de Confirmación para Devolución de Pedido -->
+        <ConfirmActionModal
+            bind:open={isConfirmReturnOpen}
+            title="¿Registrar Devolución de Pedido?"
+            description="Se abrirá el asistente para seleccionar los ítems a devolver, indicando reingreso a stock o merma/dañado, y acreditando el saldo correspondiente en cuenta corriente."
+            confirmText="Continuar a Devolución"
+            cancelText="Volver"
+            variant="warning"
+            onconfirm={() => {
+                isConfirmReturnOpen = false;
+                isReturnModalOpen = true;
+            }}
+        />
+
+        <!-- Modal de Asistente de Devolución de Productos -->
+        <CustomerOrderReturnModal
+            bind:open={isReturnModalOpen}
+            order={order as any}
+            onSuccess={() => {
                 router.reload({ only: ['orders'] });
             }}
         />

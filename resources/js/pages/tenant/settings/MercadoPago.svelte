@@ -14,13 +14,10 @@
     import Building2 from 'lucide-svelte/icons/building-2';
     import Mail from 'lucide-svelte/icons/mail';
     import Calendar from 'lucide-svelte/icons/calendar';
-    import ShieldCheck from 'lucide-svelte/icons/shield-check';
     import Unlink from 'lucide-svelte/icons/unlink';
     import ArrowRight from 'lucide-svelte/icons/arrow-right';
     import Save from 'lucide-svelte/icons/save';
     import Store from 'lucide-svelte/icons/store';
-    import Zap from 'lucide-svelte/icons/zap';
-    import Smartphone from 'lucide-svelte/icons/smartphone';
 
     interface MpAccount {
         user_id: string | null;
@@ -137,39 +134,6 @@
                     </p>
                 </div>
 
-                <!-- Beneficios Destacados -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full my-2 text-left">
-                    <div class="p-3.5 rounded-xl border border-border/60 bg-muted/30 flex flex-col gap-1.5">
-                        <div class="flex items-center gap-2 text-primary font-semibold text-xs">
-                            <Zap class="size-4 shrink-0" />
-                            <span>Cobro Inmediato</span>
-                        </div>
-                        <p class="text-[11px] text-muted-foreground leading-snug">
-                            Los fondos se acreditan al instante en tu cuenta oficial de Mercado Pago.
-                        </p>
-                    </div>
-
-                    <div class="p-3.5 rounded-xl border border-border/60 bg-muted/30 flex flex-col gap-1.5">
-                        <div class="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-semibold text-xs">
-                            <Smartphone class="size-4 shrink-0" />
-                            <span>QR en Repartos</span>
-                        </div>
-                        <p class="text-[11px] text-muted-foreground leading-snug">
-                            Tus choferes pueden generar el QR directamente desde el celular al entregar.
-                        </p>
-                    </div>
-
-                    <div class="p-3.5 rounded-xl border border-border/60 bg-muted/30 flex flex-col gap-1.5">
-                        <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-semibold text-xs">
-                            <ShieldCheck class="size-4 shrink-0" />
-                            <span>OAuth 2.0 Seguro</span>
-                        </div>
-                        <p class="text-[11px] text-muted-foreground leading-snug">
-                            Conexión oficial autorizada sin necesidad de compartir contraseñas.
-                        </p>
-                    </div>
-                </div>
-
                 <!-- Alerta de Requisito: Datos Comerciales y Geográficos -->
                 <div class="w-full text-left p-4 sm:p-5 rounded-2xl border border-amber-500/25 bg-amber-500/10 text-amber-950 dark:text-amber-200 flex items-start gap-3.5 text-xs leading-relaxed">
                     <Building2 class="size-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
@@ -180,32 +144,19 @@
                         <p class="text-muted-foreground">
                             Para dar de alta la sucursal y la caja de cobro, la API de Mercado Pago valida de forma estricta la relación entre la provincia y la ciudad configuradas en <a href="/tenant/configuracion/comercio" class="text-primary font-semibold underline hover:opacity-80">Configuración > Comercio</a>. Si los datos son incompatibles, Mercado Pago rechazará la creación de las órdenes de cobro con código QR.
                         </p>
-                        <div class="p-3 rounded-xl bg-background/70 border border-border/60 text-[11px] text-muted-foreground space-y-1.5">
-                            <span class="font-semibold text-foreground block">Ejemplos de compatibilidad requeridos por Mercado Pago:</span>
-                            <ul class="list-disc list-inside space-y-1">
-                                <li>
-                                    <strong>Provincia de Buenos Aires:</strong> La ciudad debe ser un partido de la provincia (ej. <em>San Isidro, Vicente López, La Plata, Morón</em>), <u>nunca</u> "Capital Federal".
-                                </li>
-                                <li>
-                                    <strong>Capital Federal (CABA):</strong> La provincia debe ser <em>Capital Federal</em> y la ciudad su barrio (ej. <em>Monserrat, Palermo, Caballito, Recoleta</em>).
-                                </li>
-                                <li>
-                                    <strong>Otras provincias:</strong> La provincia debe coincidir con su nombre oficial y la ciudad con su municipio (ej. Provincia: <em>Entre Ríos</em>, Ciudad: <em>Paraná</em>).
-                                </li>
-                            </ul>
-                        </div>
                     </div>
                 </div>
 
                 <!-- Call to Action -->
-                <div class="pt-2 flex flex-col sm:flex-row items-center gap-3">
+                <div class="pt-2 flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                     <Button
                         variant="default"
                         size="lg"
-                        class="min-h-[44px] px-6 rounded-xl font-semibold gap-2 shadow-xs bg-sky-600 hover:bg-sky-700 text-white cursor-pointer"
+                        class="min-h-[46px] w-full sm:w-auto py-3.5 sm:py-2.5 px-6 rounded-xl font-semibold gap-2 shadow-xs bg-sky-600 hover:bg-sky-700 text-white cursor-pointer"
                         onclick={handleConnect}
                     >
-                        <span>Vincular cuenta de Mercado Pago</span>
+                        <span class="inline sm:hidden">Vincular Mercado Pago</span>
+                        <span class="hidden sm:inline">Vincular cuenta de Mercado Pago</span>
                         <ArrowRight class="size-4" />
                     </Button>
                 </div>

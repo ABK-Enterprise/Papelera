@@ -20,6 +20,7 @@
     import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
     import { Badge } from '@/components/ui/badge';
     import { getInitials } from '@/lib/initials';
+    import { hasModule, hasPermission } from '@/lib/permissions';
     import { toUrl } from '@/lib/utils';
     import { logout } from '@/routes';
     import { edit as editProfile } from '@/routes/profile';
@@ -119,30 +120,34 @@
                             </Link>
                         {/snippet}
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        {#snippet children(props)}
-                            <Link
-                                class="{props.class} flex items-center gap-2 cursor-pointer py-2 text-sm font-normal"
-                                href="/tenant/configuracion/depositos"
-                                prefetch
-                            >
-                                <Building2 class="h-4 w-4 text-muted-foreground" />
-                                <span>Gestión de depósitos</span>
-                            </Link>
-                        {/snippet}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        {#snippet children(props)}
-                            <Link
-                                class="{props.class} flex items-center gap-2 cursor-pointer py-2 text-sm font-normal"
-                                href="/tenant/configuracion/zonas"
-                                prefetch
-                            >
-                                <MapPin class="h-4 w-4 text-muted-foreground" />
-                                <span>Zonas de envío</span>
-                            </Link>
-                        {/snippet}
-                    </DropdownMenuItem>
+                    {#if hasModule('stock') && (isAdmin || hasPermission('deposito.gestion'))}
+                        <DropdownMenuItem asChild>
+                            {#snippet children(props)}
+                                <Link
+                                    class="{props.class} flex items-center gap-2 cursor-pointer py-2 text-sm font-normal"
+                                    href="/tenant/configuracion/depositos"
+                                    prefetch
+                                >
+                                    <Building2 class="h-4 w-4 text-muted-foreground" />
+                                    <span>Gestión de depósitos</span>
+                                </Link>
+                            {/snippet}
+                        </DropdownMenuItem>
+                    {/if}
+                    {#if hasModule('pedidos') && (isAdmin || hasPermission('zonas.gestionar') || hasPermission('zonas.ver'))}
+                        <DropdownMenuItem asChild>
+                            {#snippet children(props)}
+                                <Link
+                                    class="{props.class} flex items-center gap-2 cursor-pointer py-2 text-sm font-normal"
+                                    href="/tenant/configuracion/zonas"
+                                    prefetch
+                                >
+                                    <MapPin class="h-4 w-4 text-muted-foreground" />
+                                    <span>Zonas de envío</span>
+                                </Link>
+                            {/snippet}
+                        </DropdownMenuItem>
+                    {/if}
                     <DropdownMenuItem asChild>
                         {#snippet children(props)}
                             <Link

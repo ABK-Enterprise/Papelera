@@ -51,6 +51,7 @@ use Illuminate\Support\Facades\DB;
     'bulk_discount_type',
     'custom_bulk_discount_percentage',
     'image_url',
+    'thumbnail_url',
     'is_active',
 ])]
 class Product extends Model

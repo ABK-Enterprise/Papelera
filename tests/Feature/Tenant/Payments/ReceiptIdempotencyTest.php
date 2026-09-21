@@ -7,7 +7,7 @@ use App\Models\CustomerOrder;
 use App\Models\Receipt;
 use App\Models\Tenant;
 use App\Models\User;
-use Database\Seeders\BaseSeeder;
+use Database\Seeders\TestSeeder;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -15,7 +15,7 @@ use Tests\TestCase;
 uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seed(BaseSeeder::class);
+    $this->seed(TestSeeder::class);
     $this->tenant = Tenant::first();
     $this->user = User::where('tenant_id', $this->tenant->id)->first();
     $this->warehouse = $this->tenant->warehouses()->where('is_default', true)->first();

@@ -16,6 +16,7 @@
     import Square from 'lucide-svelte/icons/square';
     import RefreshCw from 'lucide-svelte/icons/refresh-cw';
     import Eye from 'lucide-svelte/icons/eye';
+    import { hasPermission } from '@/lib/permissions';
 
     interface Props {
         availableOrders?: DeliveryOrder[];
@@ -268,30 +269,32 @@
                         {/if}
 
                         <!-- Botones de Acción Mobile con min-h-[44px] -->
-                        <div class="grid grid-cols-2 gap-2 pt-1 border-t border-border/50">
-                            <Button
-                                variant="outline"
-                                class="w-full h-11 min-h-[44px] text-xs font-semibold text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 gap-1.5"
-                                onclick={() => onFailDelivery(order)}
-                            >
-                                <AlertTriangle class="size-3.5" />
-                                <span>No Entregado</span>
-                            </Button>
+                        {#if hasPermission('repartos.gestionar')}
+                            <div class="grid grid-cols-2 gap-2 pt-1 border-t border-border/50">
+                                <Button
+                                    variant="outline"
+                                    class="w-full h-11 min-h-[44px] text-xs font-semibold text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 gap-1.5"
+                                    onclick={() => onFailDelivery(order)}
+                                >
+                                    <AlertTriangle class="size-3.5" />
+                                    <span>No Entregado</span>
+                                </Button>
 
-                            <Button
-                                class="w-full h-11 min-h-[44px] text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 shadow-xs"
-                                onclick={() => onDeliverOrder(order)}
-                            >
-                                <PackageCheck class="size-4" />
-                                <span>Entregado</span>
-                            </Button>
-                        </div>
+                                <Button
+                                    class="w-full h-11 min-h-[44px] text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 shadow-xs"
+                                    onclick={() => onDeliverOrder(order)}
+                                >
+                                    <PackageCheck class="size-4" />
+                                    <span>Entregado</span>
+                                </Button>
+                            </div>
+                        {/if}
                     </div>
                 {/each}
             </div>
         {/if}
     {:else if activeTab === 'available'}
-        {#if availableOrders.length > 0}
+        {#if availableOrders.length > 0 && hasPermission('repartos.gestionar')}
             <div class="flex items-center justify-between p-3 rounded-xl border border-border/80 bg-background/50">
                 <button
                     type="button"
@@ -363,15 +366,17 @@
 
                         <div class="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/40">
                             <span>Zona: {order.shipping_zone_name}</span>
-                            <Button
-                                variant="secondary"
-                                class="h-9 min-h-[44px] px-3 text-xs font-semibold gap-1.5"
-                                disabled={isAssigning}
-                                onclick={() => handleAssignSingle(order.id)}
-                            >
-                                <Truck class="size-3.5" />
-                                <span>Tomar</span>
-                            </Button>
+                            {#if hasPermission('repartos.gestionar')}
+                                <Button
+                                    variant="secondary"
+                                    class="h-9 min-h-[44px] px-3 text-xs font-semibold gap-1.5"
+                                    disabled={isAssigning}
+                                    onclick={() => handleAssignSingle(order.id)}
+                                >
+                                    <Truck class="size-3.5" />
+                                    <span>Tomar</span>
+                                </Button>
+                            {/if}
                         </div>
                     </div>
                 {/each}
@@ -464,15 +469,17 @@
                             </div>
                         {/if}
 
-                        <div class="pt-1">
-                            <Button
-                                class="w-full h-11 min-h-[44px] text-xs font-semibold gap-2 bg-primary"
-                                onclick={() => onRescheduleOrder ? onRescheduleOrder(order) : handleReschedule(order.id)}
-                            >
-                                <RefreshCw class="size-4" />
-                                <span>Reprogramar Pedido</span>
-                            </Button>
-                        </div>
+                        {#if hasPermission('repartos.gestionar')}
+                            <div class="pt-1">
+                                <Button
+                                    class="w-full h-11 min-h-[44px] text-xs font-semibold gap-2 bg-primary"
+                                    onclick={() => onRescheduleOrder ? onRescheduleOrder(order) : handleReschedule(order.id)}
+                                >
+                                    <RefreshCw class="size-4" />
+                                    <span>Reprogramar Pedido</span>
+                                </Button>
+                            </div>
+                        {/if}
                     </div>
                 {/each}
             </div>

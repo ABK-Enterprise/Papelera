@@ -2,7 +2,6 @@
     import { Link, page } from '@inertiajs/svelte';
     import Icon from '@iconify/svelte';
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
-    import AppLogoIcon from '@/components/AppLogoIcon.svelte';
     import UserAvatarDropdown from '@/components/navbar/UserAvatarDropdown.svelte';
     import { toUrl } from '@/lib/utils';
     import { dashboard } from '@/routes';
@@ -94,36 +93,45 @@
             }
 
             // Stock & Kardex (Stock module)
-            if (modules.includes('stock') && (roles.includes('admin') || user?.is_superadmin || permissions.some((p: string) => p.startsWith('stock_')))) {
-                items.push({
-                    title: 'Stock',
-                    href: '/tenant/stock/ingresos',
-                    icon: 'solar:archive-minimalistic-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/stock'),
-                    subItems: [
-                        {
-                            title: 'Ingresos de Stock',
-                            description: 'Registrar entradas y compras a inventario',
-                            href: '/tenant/stock/ingresos',
-                            icon: 'solar:archive-down-minimalistic-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/stock/ingresos'),
-                        },
-                        {
-                            title: 'Egresos de Stock',
-                            description: 'Registrar mermas, consumos o salidas',
-                            href: '/tenant/stock/egresos',
-                            icon: 'solar:archive-up-minimalistic-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/stock/egresos'),
-                        },
-                        {
-                            title: 'Kardex y Auditoría',
-                            description: 'Historial cronológico de movimientos',
-                            href: '/tenant/stock/kardex',
-                            icon: 'solar:history-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/stock/kardex'),
-                        },
-                    ],
-                });
+            if (modules.includes('stock')) {
+                const stockSubItems: SubItem[] = [];
+                if (isAdmin || permissions.includes('stock_ingreso.ver')) {
+                    stockSubItems.push({
+                        title: 'Ingresos de Stock',
+                        description: 'Registrar entradas y compras a inventario',
+                        href: '/tenant/stock/ingresos',
+                        icon: 'solar:archive-down-minimalistic-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/stock/ingresos'),
+                    });
+                }
+                if (isAdmin || permissions.includes('stock_egreso.ver')) {
+                    stockSubItems.push({
+                        title: 'Egresos de Stock',
+                        description: 'Registrar mermas, consumos o salidas',
+                        href: '/tenant/stock/egresos',
+                        icon: 'solar:archive-up-minimalistic-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/stock/egresos'),
+                    });
+                }
+                if (isAdmin || permissions.includes('stock_historial.ver')) {
+                    stockSubItems.push({
+                        title: 'Kardex y Auditoría',
+                        description: 'Historial cronológico de movimientos',
+                        href: '/tenant/stock/kardex',
+                        icon: 'solar:history-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/stock/kardex'),
+                    });
+                }
+
+                if (stockSubItems.length > 0) {
+                    items.push({
+                        title: 'Stock',
+                        href: stockSubItems[0].href,
+                        icon: 'solar:archive-minimalistic-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/stock'),
+                        subItems: stockSubItems,
+                    });
+                }
             }
 
 
@@ -142,13 +150,13 @@
                             icon: 'solar:bill-list-bold-duotone',
                             active: currentUrl.startsWith('/tenant/pedidos'),
                         },
-                        {
-                            title: 'Repartos y Última Milla',
-                            description: 'Bolsa de trabajo y rutas de entrega',
+                        ...((isAdmin || permissions.includes('repartos.ver')) ? [{
+                            title: 'Repartos',
+                            description: 'Pedidos de entrega',
                             href: '/tenant/repartos',
                             icon: 'solar:delivery-bold-duotone',
                             active: currentUrl.startsWith('/tenant/repartos'),
-                        },
+                        }] : []),
                     ],
                 });
             }
@@ -179,13 +187,13 @@
                 });
             }
 
-            // Customers (Clientes module con Cuentas Corrientes y Cobranzas)
+            // Customers (Clientes module con Cuentas Corrientes)
             if (modules.includes('clientes') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('clientes.ver'))) {
                 items.push({
                     title: 'Clientes',
                     href: '/tenant/clientes',
                     icon: 'solar:shop-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/clientes') || currentUrl.startsWith('/tenant/cobranzas'),
+                    active: currentUrl.startsWith('/tenant/clientes'),
                     subItems: [
                         {
                             title: 'Gestión de Clientes',
@@ -201,14 +209,45 @@
                             icon: 'solar:card-bold-duotone',
                             active: currentUrl.startsWith('/tenant/clientes/cuentas-corrientes'),
                         },
-                        {
-                            title: 'Panel de Cobranzas',
-                            description: 'Gestión de cobros e imputación de recibos',
-                            href: '/tenant/cobranzas',
-                            icon: 'solar:hand-money-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/cobranzas'),
-                        },
                     ],
+                });
+            }
+
+            // Cobranza (Módulo Independiente de Cobros y Recibos)
+            if (modules.includes('clientes') && (isAdmin || permissions.includes('cobranzas.ver') || permissions.includes('clientes.ver'))) {
+                const cobranzasSubItems: SubItem[] = [
+                    {
+                        title: 'Panel de Cobranzas',
+                        description: 'Gestión de cobros e imputación de recibos',
+                        href: '/tenant/cobranzas',
+                        icon: 'solar:hand-money-bold-duotone',
+                        active: currentUrl === '/tenant/cobranzas' || currentUrl.startsWith('/tenant/cobranzas?'),
+                    },
+                    {
+                        title: 'Historial de Recibos',
+                        description: 'Comprobantes oficiales emitidos y auditoría',
+                        href: '/tenant/cobranzas/recibos',
+                        icon: 'solar:bill-check-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/cobranzas/recibos'),
+                    },
+                ];
+
+                if (modules.includes('facturacion_arca') && (isAdmin || permissions.includes('facturas.consultar'))) {
+                    cobranzasSubItems.push({
+                        title: 'Historial de Facturas',
+                        description: 'Facturas electrónicas y notas de crédito ARCA',
+                        href: '/tenant/cobranzas/facturas',
+                        icon: 'solar:document-text-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/cobranzas/facturas'),
+                    });
+                }
+
+                items.push({
+                    title: 'Cobranza',
+                    href: '/tenant/cobranzas',
+                    icon: 'solar:hand-money-bold-duotone',
+                    active: currentUrl.startsWith('/tenant/cobranzas'),
+                    subItems: cobranzasSubItems,
                 });
             }
 
@@ -238,16 +277,8 @@
 
 <header class="w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-[0px_4px_20px_rgba(0,0,0,0.02)]">
     <div class="w-full flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        <!-- Extremo Izquierdo: Solo Isotipo de la Aplicación -->
-        <div class="flex items-center">
-            <Link
-                href={toUrl(dashboard())}
-                class="flex items-center gap-2 rounded-lg p-1.5 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary"
-                aria-label="Ir al Dashboard"
-            >
-                <AppLogoIcon class="h-8 w-8 text-primary fill-current" />
-            </Link>
-        </div>
+        <!-- Extremo Izquierdo: Mantener balance de distribución flex -->
+        <div class="flex items-center"></div>
 
         <!-- Centro: Navigation Menu con soporte On-Hover Dropdown -->
         <nav class="flex items-center justify-center gap-1 sm:gap-2">

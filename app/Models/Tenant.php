@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\TenantFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -54,6 +55,12 @@ use Laravel\Scout\Searchable;
     'mp_pos_id',
     'mp_linked_at',
 ])]
+#[Hidden([
+    'mp_access_token',
+    'mp_refresh_token',
+    'mp_public_key',
+    'mp_user_id',
+])]
 class Tenant extends Model
 {
     /** @use HasFactory<TenantFactory> */
@@ -84,6 +91,9 @@ class Tenant extends Model
             'mp_live_mode' => 'boolean',
             'mp_linked_at' => 'datetime',
             'start_activity_date' => 'date',
+            'mp_access_token' => 'encrypted',
+            'mp_refresh_token' => 'encrypted',
+            'mp_public_key' => 'encrypted',
         ];
     }
 

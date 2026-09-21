@@ -19,6 +19,13 @@
     import ShieldAlert from 'lucide-svelte/icons/shield-alert';
     import X from 'lucide-svelte/icons/x';
 
+    interface WarehouseItem {
+        id: number;
+        name: string;
+        code?: string | null;
+        is_default?: boolean;
+    }
+
     interface ProductItem {
         id: number;
         name: string;
@@ -29,16 +36,26 @@
     let {
         open = $bindable(false),
         products = [],
+        warehouses = [],
     }: {
         open?: boolean;
         products: ProductItem[];
+        warehouses?: WarehouseItem[];
     } = $props();
 
     const form = useForm({
         product_id: '',
+        warehouse_id: '',
         quantity: 1,
         reason: 'devolucion',
         notes: '',
+    });
+
+    $effect(() => {
+        if (!form.warehouse_id && warehouses.length > 0) {
+            const def = warehouses.find((w) => w.is_default) || warehouses[0];
+            form.warehouse_id = String(def.id);
+        }
     });
 
     let productSearchQuery = $state('');
@@ -157,6 +174,29 @@
                         <span class="font-semibold tabular-nums {selectedProduct.stock === 0 ? 'text-rose-500' : 'text-foreground'}">
                             {selectedProduct.stock} unidades
                         </span>
+                    </div>
+                {/if}
+
+                <!-- Depósito Origen -->
+                {#if warehouses.length > 0}
+                    <div class="space-y-1.5">
+                        <Label for="outcome-warehouse" class="text-xs font-semibold text-foreground">
+                            Depósito Origen *
+                        </Label>
+                        <select
+                            id="outcome-warehouse"
+                            bind:value={form.warehouse_id}
+                            class="w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
+                        >
+                            {#each warehouses as wh (wh.id)}
+                                <option value={String(wh.id)}>
+                                    {wh.name} {wh.is_default ? '(Principal)' : ''}
+                                </option>
+                            {/each}
+                        </select>
+                        {#if form.errors.warehouse_id}
+                            <p class="text-xs text-rose-500 font-medium">{form.errors.warehouse_id}</p>
+                        {/if}
                     </div>
                 {/if}
 

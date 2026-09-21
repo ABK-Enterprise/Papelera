@@ -8,10 +8,10 @@ uses(TestCase::class, RefreshDatabase::class);
 use App\Models\Customer;
 use App\Models\Tenant;
 use App\Models\User;
-use Database\Seeders\BaseSeeder;
+use Database\Seeders\TestSeeder;
 
 beforeEach(function () {
-    $this->seed(BaseSeeder::class);
+    $this->seed(TestSeeder::class);
 
     $this->tenantA = Tenant::first();
     $this->userA = User::where('tenant_id', $this->tenantA->id)->first();

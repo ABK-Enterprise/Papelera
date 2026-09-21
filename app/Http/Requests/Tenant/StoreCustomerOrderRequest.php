@@ -44,17 +44,36 @@ class StoreCustomerOrderRequest extends FormRequest
             'apply_customer_discount' => ['nullable', 'boolean'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => [
-                'required',
+                'nullable',
                 Rule::exists('products', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)),
             ],
+            'items.*.product_name' => ['nullable', 'string', 'max:255'],
+            'items.*.unit_price' => ['nullable', 'numeric', 'min:0.01'],
             'items.*.warehouse_id' => [
                 'nullable',
                 Rule::exists('warehouses', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)),
             ],
             'items.*.packaging_type' => ['required', 'string', 'in:paquete,unidad,bolson,bulto,gram,kg,units,package'],
             'items.*.quantity' => ['required', 'numeric', 'min:0.001'],
+            'items.*.discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'items.*.units_per_package' => ['nullable', 'numeric', 'min:1'],
             'items.*.apply_customer_discount' => ['nullable', 'boolean'],
         ];
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            if (empty($this->customer_id) && $this->payment_type === 'cuenta_corriente') {
+                $validator->errors()->add(
+                    'payment_type',
+                    'Los clientes ocasionales o no registrados no pueden operar con cuenta corriente. Debe seleccionarse Cobro Total o Pago Parcial.'
+                );
+            }
+        });
     }
 }
 

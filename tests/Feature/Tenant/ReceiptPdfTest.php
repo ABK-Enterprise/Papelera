@@ -6,7 +6,7 @@ use App\Models\CustomerOrderReceipt;
 use App\Models\Receipt;
 use App\Models\Tenant;
 use App\Models\User;
-use Database\Seeders\BaseSeeder;
+use Database\Seeders\TestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Tests\TestCase;
@@ -14,7 +14,7 @@ use Tests\TestCase;
 uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seed(BaseSeeder::class);
+    $this->seed(TestSeeder::class);
     $this->tenant = Tenant::first();
     $this->adminUser = User::where('tenant_id', $this->tenant->id)->first();
     $this->defaultWarehouse = $this->tenant->warehouses()->where('is_default', true)->first();
@@ -126,3 +126,15 @@ test('unauthenticated user is redirected when trying to download receipt pdf', f
 
     $response->assertRedirect(route('login'));
 });
+
+test('authenticated user can access payment receipt html viewer shell with favicon', function () {
+    $response = $this->actingAs($this->adminUser)
+        ->get(route('tenant.payments.receipts.viewer', $this->receipt));
+
+    $response->assertOk();
+    $response->assertViewIs('pdf.viewer');
+    $response->assertSee('favicon.ico?v=2', false);
+    $response->assertSee('logo-provisorio-papelera.png?v=2', false);
+    $response->assertSee(route('tenant.payments.receipts.preview-pdf', $this->receipt), false);
+});
+

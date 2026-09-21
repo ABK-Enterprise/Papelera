@@ -22,6 +22,7 @@
     import UserCheck from 'lucide-svelte/icons/user-check';
     import X from 'lucide-svelte/icons/x';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import { hasPermission } from '@/lib/permissions';
 
     export interface MovementData {
         id: number;
@@ -383,33 +384,37 @@
 
                 <!-- Botones de Acción Primaria y Secundaria -->
                 <div class="space-y-2.5 pt-2">
-                    <Button
-                        onclick={() => onOpenPayment(selectedCustomer!)}
-                        class="w-full h-10 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-sm"
-                    >
-                        <Banknote class="size-4" />
-                        <span>Registrar Cobro / Abono</span>
-                    </Button>
-
-                    <div class="grid grid-cols-2 gap-2.5">
+                    {#if hasPermission('cobranzas.crear')}
                         <Button
-                            variant="secondary"
-                            onclick={() => onOpenAdjustment(selectedCustomer!)}
-                            class="min-h-[40px] h-10 gap-1.5 text-xs font-semibold rounded-xl"
+                            onclick={() => onOpenPayment(selectedCustomer!)}
+                            class="w-full h-10 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-sm"
                         >
-                            <Sliders class="size-3.5" />
-                            <span>Ajustar Saldo</span>
+                            <Banknote class="size-4" />
+                            <span>Registrar Cobro / Abono</span>
                         </Button>
+                    {/if}
 
-                        <Button
-                            variant="outline"
-                            onclick={() => onOpenCreditSettings(selectedCustomer!)}
-                            class="min-h-[40px] h-10 gap-1.5 text-xs font-semibold rounded-xl"
-                        >
-                            <ShieldCheck class="size-3.5" />
-                            <span>Editar Límites</span>
-                        </Button>
-                    </div>
+                    {#if hasPermission('clientes.editar')}
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <Button
+                                variant="secondary"
+                                onclick={() => onOpenAdjustment(selectedCustomer!)}
+                                class="min-h-[40px] h-10 gap-1.5 text-xs font-semibold rounded-xl"
+                            >
+                                <Sliders class="size-3.5" />
+                                <span>Ajustar Saldo</span>
+                            </Button>
+
+                            <Button
+                                variant="outline"
+                                onclick={() => onOpenCreditSettings(selectedCustomer!)}
+                                class="min-h-[40px] h-10 gap-1.5 text-xs font-semibold rounded-xl"
+                            >
+                                <ShieldCheck class="size-3.5" />
+                                <span>Editar Límites</span>
+                            </Button>
+                        </div>
+                    {/if}
 
                 </div>
 

@@ -3,6 +3,7 @@
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
     import { Link, router } from '@inertiajs/svelte';
+    import { hasPermission } from '@/lib/permissions';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Filter from 'lucide-svelte/icons/filter';
     import Percent from 'lucide-svelte/icons/percent';
@@ -11,6 +12,7 @@
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import Warehouse from 'lucide-svelte/icons/warehouse';
     import X from 'lucide-svelte/icons/x';
+    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
@@ -243,22 +245,26 @@
             </Link>
 
 
-            <Button
-                variant="secondary"
-                class="gap-1.5 font-medium shadow-2xs"
-                onclick={() => (isBulkDiscountModalOpen = true)}
-            >
-                <Percent class="size-4" />
-                <span>Desc. por Bulto</span>
-                <span class="tabular-nums font-bold">({tenantDefaultBulkDiscount}%)</span>
-            </Button>
-
-            <Link href="/tenant/productos/crear">
-                <Button class="gap-2 shadow-sm font-semibold">
-                    <Plus class="size-4" />
-                    Crear producto
+            {#if hasPermission('productos.editar')}
+                <Button
+                    variant="secondary"
+                    class="gap-1.5 font-medium shadow-2xs"
+                    onclick={() => (isBulkDiscountModalOpen = true)}
+                >
+                    <Percent class="size-4" />
+                    <span>Desc. por Bulto</span>
+                    <span class="tabular-nums font-bold">({tenantDefaultBulkDiscount}%)</span>
                 </Button>
-            </Link>
+            {/if}
+
+            {#if hasPermission('productos.crear')}
+                <Link href="/tenant/productos/crear">
+                    <Button class="gap-2 shadow-sm font-semibold">
+                        <Plus class="size-4" />
+                        Crear producto
+                    </Button>
+                </Link>
+            {/if}
         </div>
 
 
@@ -294,11 +300,10 @@
 
     <!-- Barra de Búsqueda y Filtros -->
     <Card class="rounded-xl p-3 sm:p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
-        <!-- Vista Desktop (>= 768px): Buscador + Selects Directos -->
-        <div class="hidden md:flex items-center gap-3 flex-nowrap">
-            <!-- Buscador por Nombre, SKU o Código de Barras -->
-            <div class="w-full md:w-[448px] shrink-0">
-
+        <!-- Vista Desktop (>= 768px): Buscador Elástico + Selects Directos -->
+        <div class="hidden md:flex items-center justify-between gap-3 flex-wrap lg:flex-nowrap">
+            <!-- Buscador por Nombre, SKU o Código de Barras (Elástico) -->
+            <div class="flex-1 min-w-[240px] max-w-lg">
                 <SearchCombobox
                     bind:value={searchTerm}
                     items={products}
@@ -330,7 +335,7 @@
             </div>
 
             <!-- Selectores de Filtro en Desktop + Botón Limpiar -->
-            <div class="flex items-center gap-2.5 flex-nowrap flex-1 min-w-0 justify-end">
+            <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0 justify-end">
                 <!-- Selector de Ordenamiento -->
                 <SortSelect
                     value={sortBy}
@@ -345,7 +350,7 @@
                 <select
                     bind:value={selectedCategoryId}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[120px] max-w-[150px]"
+                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[115px] max-w-[140px]"
                 >
                     <option value={null}>Todas las Categorías</option>
                     {#each categories as cat}
@@ -357,7 +362,7 @@
                 <select
                     bind:value={selectedStockStatus}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
+                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[105px] max-w-[130px]"
                 >
                     <option value="">Stock: Todos</option>
                     <option value="in_stock">En Stock ({stats.in_stock})</option>
@@ -369,7 +374,7 @@
                 <select
                     bind:value={selectedInfoStatus}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
+                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[105px] max-w-[130px]"
                 >
                     <option value="">Datos: Todos</option>
                     <option value="complete">Completos</option>
@@ -380,17 +385,24 @@
                 <select
                     bind:value={selectedDiscount}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[120px] max-w-[150px]"
+                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[135px]"
                 >
                     <option value="all">Descuento: Todos</option>
                     <option value="with_discount">Con descuento</option>
                     <option value="without_discount">Sin descuento</option>
                 </select>
 
+                <!-- Botón Limpiar con Recuadro Indicativo (Verde en Light / Azul en Dark) -->
                 {#if hasActiveFilters}
-                    <Button variant="ghost" size="sm" class="h-10 px-2 text-xs text-muted-foreground hover:text-foreground gap-1 shrink-0" onclick={resetFilters}>
-                        <X class="size-3.5" />
-                        Limpiar
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        class="h-10 px-3 text-xs font-semibold gap-1.5 shrink-0 rounded-xl border shadow-2xs transition-colors bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25"
+                        onclick={resetFilters}
+                        title="Limpiar filtros activos"
+                    >
+                        <RotateCcw class="size-3.5 shrink-0" />
+                        <span>Limpiar</span>
                     </Button>
                 {/if}
             </div>

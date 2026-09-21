@@ -1,5 +1,4 @@
 <script lang="ts">
-    import AppLogoIcon from '@/components/AppLogoIcon.svelte';
     import { toUrl } from '@/lib/utils';
     import { dashboard } from '@/routes';
     import { Link, page } from '@inertiajs/svelte';
@@ -38,6 +37,8 @@
                 openModule = 'Proveedores';
             } else if (currentUrl.startsWith('/tenant/clientes')) {
                 openModule = 'Clientes';
+            } else if (currentUrl.startsWith('/tenant/cobranzas')) {
+                openModule = 'Cobranza';
             } else {
                 openModule = null;
             }
@@ -50,6 +51,7 @@
 
     interface SubItem {
         title: string;
+        description?: string;
         href: string;
         icon: string;
         active: boolean;
@@ -121,33 +123,42 @@
             }
 
             // Stock & Kardex: Acordeón
-            if (modules.includes('stock') && (isAdmin || permissions.some((p: string) => p.startsWith('stock_')))) {
-                items.push({
-                    title: 'Stock',
-                    href: '/tenant/stock/ingresos',
-                    icon: 'solar:archive-minimalistic-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/stock'),
-                    subItems: [
-                        {
-                            title: 'Ingresos de Stock',
-                            href: '/tenant/stock/ingresos',
-                            icon: 'solar:archive-down-minimalistic-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/stock/ingresos'),
-                        },
-                        {
-                            title: 'Egresos de Stock',
-                            href: '/tenant/stock/egresos',
-                            icon: 'solar:archive-up-minimalistic-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/stock/egresos'),
-                        },
-                        {
-                            title: 'Kardex y Auditoría',
-                            href: '/tenant/stock/kardex',
-                            icon: 'solar:history-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/stock/kardex'),
-                        },
-                    ],
-                });
+            if (modules.includes('stock')) {
+                const stockSubItems: SubItem[] = [];
+                if (isAdmin || permissions.includes('stock_ingreso.ver')) {
+                    stockSubItems.push({
+                        title: 'Ingresos de Stock',
+                        href: '/tenant/stock/ingresos',
+                        icon: 'solar:archive-down-minimalistic-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/stock/ingresos'),
+                    });
+                }
+                if (isAdmin || permissions.includes('stock_egreso.ver')) {
+                    stockSubItems.push({
+                        title: 'Egresos de Stock',
+                        href: '/tenant/stock/egresos',
+                        icon: 'solar:archive-up-minimalistic-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/stock/egresos'),
+                    });
+                }
+                if (isAdmin || permissions.includes('stock_historial.ver')) {
+                    stockSubItems.push({
+                        title: 'Kardex y Auditoría',
+                        href: '/tenant/stock/kardex',
+                        icon: 'solar:history-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/stock/kardex'),
+                    });
+                }
+
+                if (stockSubItems.length > 0) {
+                    items.push({
+                        title: 'Stock',
+                        href: stockSubItems[0].href,
+                        icon: 'solar:archive-minimalistic-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/stock'),
+                        subItems: stockSubItems,
+                    });
+                }
             }
 
 
@@ -166,12 +177,13 @@
                             icon: 'solar:bill-list-bold-duotone',
                             active: currentUrl.startsWith('/tenant/pedidos'),
                         },
-                        {
-                            title: 'Repartos y Última Milla',
+                        ...((isAdmin || permissions.includes('repartos.ver')) ? [{
+                            title: 'Repartos',
+                            description: 'Pedidos de entrega',
                             href: '/tenant/repartos',
                             icon: 'solar:delivery-bold-duotone',
                             active: currentUrl.startsWith('/tenant/repartos'),
-                        },
+                        }] : []),
                     ],
                 });
             }
@@ -200,13 +212,13 @@
                 });
             }
 
-            // Clientes: Acordeón con Cobranzas
+            // Clientes: Acordeón sin Cobranzas
             if (modules.includes('clientes') && (isAdmin || permissions.includes('clientes.ver'))) {
                 items.push({
                     title: 'Clientes',
                     href: '/tenant/clientes',
                     icon: 'solar:shop-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/clientes') || currentUrl.startsWith('/tenant/cobranzas'),
+                    active: currentUrl.startsWith('/tenant/clientes'),
                     subItems: [
                         {
                             title: 'Gestión de Clientes',
@@ -220,13 +232,42 @@
                             icon: 'solar:card-bold-duotone',
                             active: currentUrl.startsWith('/tenant/clientes/cuentas-corrientes'),
                         },
-                        {
-                            title: 'Panel de Cobranzas',
-                            href: '/tenant/cobranzas',
-                            icon: 'solar:hand-money-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/cobranzas'),
-                        },
                     ],
+                });
+            }
+
+            // Cobranza: Acordeón Independiente de Cobros y Recibos
+            if (modules.includes('clientes') && (isAdmin || permissions.includes('cobranzas.ver') || permissions.includes('clientes.ver'))) {
+                const cobranzasSubItems: SubItem[] = [
+                    {
+                        title: 'Panel de Cobranzas',
+                        href: '/tenant/cobranzas',
+                        icon: 'solar:hand-money-bold-duotone',
+                        active: currentUrl === '/tenant/cobranzas' || currentUrl.startsWith('/tenant/cobranzas?'),
+                    },
+                    {
+                        title: 'Historial de Recibos',
+                        href: '/tenant/cobranzas/recibos',
+                        icon: 'solar:bill-check-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/cobranzas/recibos'),
+                    },
+                ];
+
+                if (modules.includes('facturacion_arca') && (isAdmin || permissions.includes('facturas.consultar'))) {
+                    cobranzasSubItems.push({
+                        title: 'Historial de Facturas',
+                        href: '/tenant/cobranzas/facturas',
+                        icon: 'solar:document-text-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/cobranzas/facturas'),
+                    });
+                }
+
+                items.push({
+                    title: 'Cobranza',
+                    href: '/tenant/cobranzas',
+                    icon: 'solar:hand-money-bold-duotone',
+                    active: currentUrl.startsWith('/tenant/cobranzas'),
+                    subItems: cobranzasSubItems,
                 });
             }
 
@@ -273,8 +314,7 @@
     >
         <!-- Header del Sidebar Móvil -->
         <div class="flex h-16 items-center justify-between border-b border-border px-4">
-            <div class="flex items-center gap-2">
-                <AppLogoIcon class="h-7 w-7 text-primary fill-current" />
+            <div class="flex items-center">
                 <span class="font-bold text-base tracking-tight">Menú Principal</span>
             </div>
             <button

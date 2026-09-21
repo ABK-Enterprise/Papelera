@@ -22,12 +22,16 @@ use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use Database\Seeders\BaseSeeder;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
+    $this->seed(BaseSeeder::class);
+
     $this->stockModule = Module::firstOrCreate(['code' => 'stock'], ['name' => 'Stock', 'is_active' => true]);
     $this->ordersModule = Module::firstOrCreate(['code' => 'pedidos'], ['name' => 'Pedidos', 'is_active' => true]);
     $this->suppliersModule = Module::firstOrCreate(['code' => 'proveedores'], ['name' => 'Proveedores', 'is_active' => true]);
@@ -44,6 +48,7 @@ beforeEach(function () {
     $this->user = User::factory()->forTenant($this->tenant)->create();
     setPermissionsTeamId($this->tenant->id);
     $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web', 'tenant_id' => $this->tenant->id]);
+    $adminRole->syncPermissions(Permission::all());
     $this->user->assignRole($adminRole);
 
     $this->warehouse = Warehouse::firstOrCreate([

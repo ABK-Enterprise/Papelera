@@ -57,6 +57,7 @@ beforeEach(function () {
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,
     ]);
+    $this->adminRole->givePermissionTo([$this->permVer, $this->permCrear, $this->permEditar, $this->permCancelar]);
 
     $this->user = User::factory()->forTenant($this->tenant)->create();
     $this->user->assignRole($this->adminRole);
