@@ -23,8 +23,12 @@
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import Truck from 'lucide-svelte/icons/truck';
     import User from 'lucide-svelte/icons/user';
+    import Lock from 'lucide-svelte/icons/lock';
+    import Loader2 from 'lucide-svelte/icons/loader-2';
+    import Wallet from 'lucide-svelte/icons/wallet';
     import X from 'lucide-svelte/icons/x';
     import XCircle from 'lucide-svelte/icons/x-circle';
+    import { toast } from 'svelte-sonner';
 
     interface OrderItem {
         id: number;
@@ -65,6 +69,10 @@
         active_fiscal_invoice?: any;
         return_status?: string;
         payment_status?: string;
+        payment_method?: string | null;
+        payment_condition?: string | null;
+        derived_payment_condition?: string | null;
+        has_pending_credit_note?: boolean;
         debt_amount?: string | number;
         paid_amount?: string | number;
         total_amount: string | number;
@@ -91,6 +99,43 @@
     let isFiscalPdfModalOpen = $state(false);
     let isQrModalOpen = $state(false);
     let pendingStatus = $state<string | null>(null);
+    let isEmittingCreditNote = $state(false);
+
+    function getMobilePaymentLabel(ord: OrderData): string {
+        const raw = (ord.derived_payment_condition || ord.payment_condition || ord.payment_method || '').toLowerCase();
+        if (raw.includes('transferencia')) return 'Transferencia';
+        if (raw.includes('mercado') || raw.includes('mdo') || raw.includes('mp')) return 'Mdo. Pago';
+        if (raw.includes('efectivo')) return 'Efectivo';
+        if (raw.includes('cheque')) return 'Cheque';
+        if (raw.includes('corriente') || raw.includes('cta') || raw.includes('parcial')) return 'Cta. Cte.';
+        if (raw.includes('contado')) return 'Contado';
+        return ord.derived_payment_condition || ord.payment_condition || ord.payment_method || 'Efectivo';
+    }
+
+    function emitCreditNote() {
+        if (!order || isEmittingCreditNote) return;
+        isEmittingCreditNote = true;
+        router.post(
+            `/tenant/pedidos/${order.id}/nota-credito`,
+            {},
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => {
+                    toast.success('Nota de Crédito ARCA emitida exitosamente.');
+                    isEmittingCreditNote = false;
+                },
+                onError: (errors) => {
+                    const msg = errors.fiscal_error || Object.values(errors)[0] || 'Error al emitir Nota de Crédito ARCA.';
+                    toast.error(msg);
+                    isEmittingCreditNote = false;
+                },
+                onFinish: () => {
+                    isEmittingCreditNote = false;
+                },
+            }
+        );
+    }
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
@@ -290,6 +335,13 @@
                             {:else if order.status === 'cancelado'}
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                                     Cancelado
+                                </span>
+                            {/if}
+
+                            <!-- Pill Pendiente NC -->
+                            {#if order.has_pending_credit_note}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                                    Pendiente NC
                                 </span>
                             {/if}
 
@@ -632,15 +684,27 @@
 
             {#snippet btnFiscal(extraClass = '')}
                 {#if canEmitFiscal}
-                    <Button
-                        type="button"
-                        variant="outline"
-                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer text-foreground hover:text-primary hover:border-primary/50 {extraClass}"
-                        onclick={() => (isFiscalModalOpen = true)}
-                    >
-                        <ReceiptText class="size-4 text-primary shrink-0" />
-                        <span class="truncate">Facturar ARCA</span>
-                    </Button>
+                    {#if Number(order?.total_amount) <= 0}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 bg-muted text-muted-foreground border border-border cursor-not-allowed opacity-60 {extraClass}"
+                            onclick={() => toast.error('WSFEv1 (ARCA) requiere comprobantes con importe total mayor a cero ($0.00). Para entregas sin cargo utilice remito interno.')}
+                        >
+                            <Lock class="size-4 shrink-0" />
+                            <span class="truncate">Facturar ARCA</span>
+                        </Button>
+                    {:else}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer text-foreground hover:text-primary hover:border-primary/50 {extraClass}"
+                            onclick={() => (isFiscalModalOpen = true)}
+                        >
+                            <ReceiptText class="size-4 text-primary shrink-0" />
+                            <span class="truncate">Facturar ARCA</span>
+                        </Button>
+                    {/if}
                 {:else if hasFiscalPdf}
                     <Button
                         type="button"
@@ -650,6 +714,26 @@
                     >
                         <FileText class="size-4 text-primary shrink-0" />
                         <span class="truncate">Factura PDF</span>
+                    </Button>
+                {/if}
+            {/snippet}
+
+            {#snippet btnCreditNote(extraClass = '')}
+                {#if order?.has_pending_credit_note}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        disabled={isEmittingCreditNote}
+                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/30 hover:bg-rose-500/20 {extraClass}"
+                        onclick={emitCreditNote}
+                    >
+                        {#if isEmittingCreditNote}
+                            <Loader2 class="size-4 animate-spin shrink-0" />
+                            <span class="truncate">Emitiendo NC...</span>
+                        {:else}
+                            <ReceiptText class="size-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                            <span class="truncate">Emitir Nota de Crédito ARCA</span>
+                        {/if}
                     </Button>
                 {/if}
             {/snippet}
@@ -694,12 +778,24 @@
 
             <!-- Footer con Total (Fila 1) y Acciones (Fila 2) (shrink-0) -->
             <div class="flex flex-col gap-2.5 pt-3 border-t shrink-0">
-                <!-- Fila 1: Total alineado a la derecha -->
-                <div class="flex items-baseline justify-end gap-1.5 pb-1.5 border-b border-border/40">
-                    <span class="text-xs text-muted-foreground font-medium">Total:</span>
-                    <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary" title={formatPrice(order.total_amount)}>
-                        {formatPrice(order.total_amount)}
-                    </span>
+                <!-- Fila 1: Método de pago a la izquierda y Total a la derecha (simétricos) -->
+                <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-border/40 min-w-0">
+                    <div class="flex items-center gap-1.5 text-xs text-muted-foreground font-medium min-w-0">
+                        <Wallet class="size-4 shrink-0 text-muted-foreground" />
+                        <span class="hidden sm:inline truncate" title={order.derived_payment_condition || order.payment_condition || 'Contado'}>
+                            {order.derived_payment_condition || order.payment_condition || 'Contado'}
+                        </span>
+                        <span class="inline sm:hidden truncate">
+                            {getMobilePaymentLabel(order)}
+                        </span>
+                    </div>
+
+                    <div class="flex items-baseline gap-1.5 shrink-0">
+                        <span class="text-xs text-muted-foreground font-medium">Total:</span>
+                        <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary" title={formatPrice(order.total_amount)}>
+                            {formatPrice(order.total_amount)}
+                        </span>
+                    </div>
                 </div>
 
                 <!-- VISTA DESKTOP (sm:) -->
@@ -719,6 +815,7 @@
                     </div>
 
                     <div class="flex items-center gap-2 shrink-0">
+                        {@render btnCreditNote()}
                         {@render btnQr()}
                         {@render btnFiscal()}
                         {@render btnRemito()}
@@ -728,6 +825,11 @@
 
                 <!-- VISTA MOBILE (< sm) -->
                 <div class="sm:hidden flex flex-col gap-2 w-full">
+                    <!-- Botón Emitir NC si está pendiente -->
+                    {#if order.has_pending_credit_note}
+                        {@render btnCreditNote('w-full justify-center')}
+                    {/if}
+
                     <!-- Badge de devolución si aplica -->
                     {#if order.return_status === 'total'}
                         <div class="flex items-center justify-start pb-0.5">

@@ -218,7 +218,7 @@ class CustomerOrderController extends Controller
 
                 $packagingType = $item['packaging_type'];
                 $quantity = (float) $item['quantity'];
-                $packageSize = (float) $product->package_size;
+                $packageSize = ! empty($item['units_per_package']) ? (float) $item['units_per_package'] : (float) $product->package_size;
                 $itemWarehouseId = $item['warehouse_id'] ?? $orderWarehouseId;
 
                 if ($product->isWeighable()) {
@@ -253,7 +253,7 @@ class CustomerOrderController extends Controller
 
                 // 1. Descuento puntual de ítem (autónomo de línea)
                 $itemDiscountPct = isset($item['discount_percentage'])
-                    ? max(0.0, min(99.0, (float) $item['discount_percentage']))
+                    ? max(0.0, min(100.0, (float) $item['discount_percentage']))
                     : 0.00;
 
                 $baseSubtotal = round($quantityBase * $unitPrice, 2);

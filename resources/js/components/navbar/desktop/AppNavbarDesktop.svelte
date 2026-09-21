@@ -151,8 +151,8 @@
                             active: currentUrl.startsWith('/tenant/pedidos'),
                         },
                         {
-                            title: 'Repartos y Última Milla',
-                            description: 'Bolsa de trabajo y rutas de entrega',
+                            title: 'Repartos',
+                            description: 'Pedidos de entrega',
                             href: '/tenant/repartos',
                             icon: 'solar:delivery-bold-duotone',
                             active: currentUrl.startsWith('/tenant/repartos'),

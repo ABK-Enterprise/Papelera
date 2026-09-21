@@ -12,6 +12,7 @@
     import Layers from 'lucide-svelte/icons/layers';
     import Minus from 'lucide-svelte/icons/minus';
     import Package from 'lucide-svelte/icons/package';
+    import Pencil from 'lucide-svelte/icons/pencil';
     import Plus from 'lucide-svelte/icons/plus';
     import Scale from 'lucide-svelte/icons/scale';
     import Search from 'lucide-svelte/icons/search';
@@ -163,7 +164,7 @@
                 return it.quantity / 1000;
             }
             if (it.packaging_type === 'bulto') {
-                return it.quantity * (it.package_quantity || it.units_per_package || 1);
+                return it.quantity * (it.units_per_package || it.package_quantity || 1);
             }
             return it.quantity;
         } else {
@@ -586,10 +587,34 @@
     let mobileDiscountCustomVal = $state<number | string>('');
     let isMobileDiscountModalOpen = $state(false);
 
+    // Units per package ephemeral dialog state
+    let editingUnitsItemIndex = $state<number | null>(null);
+    let editingUnitsValue = $state<number | string>(1);
+    let isUnitsModalOpen = $state(false);
+
+    function openUnitsPerPackageDialog(index: number) {
+        editingUnitsItemIndex = index;
+        editingUnitsValue = items[index]?.units_per_package || 1;
+        isUnitsModalOpen = true;
+    }
+
+    function saveUnitsPerPackage() {
+        if (editingUnitsItemIndex !== null && items[editingUnitsItemIndex]) {
+            const parsed = Math.max(1, Math.floor(Number(editingUnitsValue) || 1));
+            items[editingUnitsItemIndex] = {
+                ...items[editingUnitsItemIndex],
+                units_per_package: parsed,
+                package_quantity: parsed,
+            };
+        }
+        isUnitsModalOpen = false;
+        editingUnitsItemIndex = null;
+    }
+
     function openMobileDiscountDialog(index: number) {
         mobileDiscountItemIndex = index;
         const currentPct = items[index]?.discount_percentage || 0;
-        const commonPresets = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
+        const commonPresets = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100];
         if (commonPresets.includes(currentPct)) {
             mobileDiscountPreset = currentPct;
             isMobileDiscountCustom = false;
@@ -606,7 +631,7 @@
         if (mobileDiscountItemIndex !== null && items[mobileDiscountItemIndex]) {
             let pct = 0;
             if (isMobileDiscountCustom || mobileDiscountPreset === 'custom') {
-                pct = Math.max(0, Math.min(99, Number(mobileDiscountCustomVal) || 0));
+                pct = Math.max(0, Math.min(100, Number(mobileDiscountCustomVal) || 0));
                 items[mobileDiscountItemIndex].is_custom_discount = true;
             } else {
                 pct = Number(mobileDiscountPreset) || 0;
@@ -683,6 +708,7 @@
             warehouse_id?: number | null;
             packaging_type: 'unidad' | 'bulto' | 'gram' | 'kg';
             quantity: number;
+            units_per_package?: number;
             discount_percentage?: number;
             apply_customer_discount: boolean;
         }[] = [];
@@ -695,6 +721,7 @@
                 warehouse_id: it.warehouse_id || selectedWarehouseId,
                 packaging_type: it.packaging_type,
                 quantity: it.quantity,
+                units_per_package: it.packaging_type === 'bulto' ? (Number(it.units_per_package) || 1) : undefined,
                 discount_percentage: Number(it.discount_percentage) || 0,
                 apply_customer_discount: it.apply_customer_discount,
             });
@@ -1189,6 +1216,15 @@
                                                     {/snippet}
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" class="w-48 shadow-lg">
+                                                    {#if item.packaging_type === 'bulto'}
+                                                        <DropdownMenuItem
+                                                            class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
+                                                            onclick={() => openUnitsPerPackageDialog(index)}
+                                                        >
+                                                            <Pencil class="size-3.5 shrink-0 text-sky-600 dark:text-sky-400" />
+                                                            <span>Unidades por bulto ({item.units_per_package || 1} u)</span>
+                                                        </DropdownMenuItem>
+                                                    {/if}
                                                     <DropdownMenuItem
                                                         class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
                                                         onclick={() => openMobileDiscountDialog(index)}
@@ -1316,6 +1352,20 @@
                                             {/if}
                                         </select>
 
+                                        <!-- Botón Edición Efímera de Unidades por Bulto -->
+                                        {#if item.packaging_type === 'bulto'}
+                                            <button
+                                                type="button"
+                                                onclick={() => openUnitsPerPackageDialog(index)}
+                                                class="h-9 px-2.5 rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 transition-colors inline-flex items-center gap-1.5 text-xs font-semibold cursor-pointer shrink-0"
+                                                title="Modificar unidades por bulto para esta fila ({item.units_per_package || 1} u/bulto)"
+                                                aria-label="Modificar unidades por bulto"
+                                            >
+                                                <Pencil class="size-3.5" />
+                                                <span class="tabular-nums font-bold">{item.units_per_package || 1} u</span>
+                                            </button>
+                                        {/if}
+
                                         <!-- Desktop: Selector de Descuento por Ítem -->
                                         <div class="hidden sm:flex items-center gap-1.5">
                                             <select
@@ -1343,6 +1393,7 @@
                                                 <option value={40}>Desc. 40%</option>
                                                 <option value={45}>Desc. 45%</option>
                                                 <option value={50}>Desc. 50%</option>
+                                                <option value={100}>Desc. 100%</option>
                                                 <option value="custom">Personalizado...</option>
                                             </select>
 
@@ -1351,12 +1402,12 @@
                                                     <input
                                                         type="number"
                                                         min="0"
-                                                        max="99"
+                                                        max="100"
                                                         step="1"
                                                         bind:value={item.discount_percentage}
                                                         placeholder="%"
                                                         class="h-9 w-14 rounded-xl border border-border/80 bg-background px-2 text-xs font-bold font-sans tabular-nums text-foreground focus:outline-none focus:border-primary-500 text-center"
-                                                        title="Porcentaje de descuento personalizado (0-99%)"
+                                                        title="Porcentaje de descuento personalizado (0-100%)"
                                                     />
                                                     <span class="text-xs font-bold text-muted-foreground">%</span>
                                                 </div>
@@ -1668,7 +1719,7 @@
             <div class="space-y-1.5">
                 <Label class="text-xs font-semibold text-foreground">Porcentajes Predefinidos</Label>
                 <div class="grid grid-cols-4 gap-2">
-                    {#each [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50] as preset}
+                    {#each [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100] as preset}
                         <button
                             type="button"
                             onclick={() => {
@@ -1700,13 +1751,13 @@
             <!-- Input de porcentaje personalizado -->
             {#if isMobileDiscountCustom || mobileDiscountPreset === 'custom'}
                 <div class="space-y-1.5 p-3 rounded-xl bg-muted/30 border border-border/70">
-                    <Label for="custom-discount-input" class="text-xs font-semibold text-foreground">Porcentaje Personalizado (0% a 99%)</Label>
+                    <Label for="custom-discount-input" class="text-xs font-semibold text-foreground">Porcentaje Personalizado (0% a 100%)</Label>
                     <div class="flex items-center gap-2">
                         <Input
                             id="custom-discount-input"
                             type="number"
                             min="0"
-                            max="99"
+                            max="100"
                             step="1"
                             bind:value={mobileDiscountCustomVal}
                             placeholder="ej. 12"
@@ -1733,6 +1784,61 @@
                 onclick={applyMobileDiscount}
             >
                 Aplicar Descuento
+            </Button>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>
+
+<!-- Diálogo Efímero de Edición de Unidades por Bulto -->
+<Dialog bind:open={isUnitsModalOpen}>
+    <DialogContent class="sm:max-w-[420px] p-5 sm:p-6 space-y-4 rounded-2xl bg-card border-border shadow-2xl">
+        <DialogHeader class="space-y-1">
+            <div class="flex items-center gap-2.5">
+                <IconContainer size="sm" variant="info" icon="solar:box-minimalistic-bold-duotone" />
+                <div>
+                    <DialogTitle class="text-base font-bold text-foreground">Unidades por Bulto</DialogTitle>
+                    <DialogDescription class="text-xs text-muted-foreground line-clamp-1">
+                        {editingUnitsItemIndex !== null && items[editingUnitsItemIndex] ? items[editingUnitsItemIndex].product_name : 'Modificar unidades para este pedido'}
+                    </DialogDescription>
+                </div>
+            </div>
+        </DialogHeader>
+
+        <DialogBody class="space-y-4 py-1">
+            <div class="space-y-2">
+                <Label for="units-per-package-input" class="text-xs font-semibold text-foreground">
+                    Cantidad de unidades por bulto
+                </Label>
+                <Input
+                    id="units-per-package-input"
+                    type="number"
+                    min="1"
+                    step="1"
+                    bind:value={editingUnitsValue}
+                    placeholder="ej. 12"
+                    class="h-10 text-sm font-bold font-sans tabular-nums"
+                />
+                <p class="text-xs text-muted-foreground">
+                    Este cambio se aplica únicamente a esta línea del pedido y no modifica el producto en el catálogo.
+                </p>
+            </div>
+        </DialogBody>
+
+        <DialogFooter class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:justify-end">
+            <Button
+                type="button"
+                variant="outline"
+                class="min-h-[44px] w-full rounded-xl text-xs font-semibold"
+                onclick={() => (isUnitsModalOpen = false)}
+            >
+                Cancelar
+            </Button>
+            <Button
+                type="button"
+                class="min-h-[44px] w-full rounded-xl text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+                onclick={saveUnitsPerPackage}
+            >
+                Guardar
             </Button>
         </DialogFooter>
     </DialogContent>

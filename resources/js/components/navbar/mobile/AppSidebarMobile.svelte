@@ -51,6 +51,7 @@
 
     interface SubItem {
         title: string;
+        description?: string;
         href: string;
         icon: string;
         active: boolean;
@@ -177,7 +178,8 @@
                             active: currentUrl.startsWith('/tenant/pedidos'),
                         },
                         {
-                            title: 'Repartos y Última Milla',
+                            title: 'Repartos',
+                            description: 'Pedidos de entrega',
                             href: '/tenant/repartos',
                             icon: 'solar:delivery-bold-duotone',
                             active: currentUrl.startsWith('/tenant/repartos'),

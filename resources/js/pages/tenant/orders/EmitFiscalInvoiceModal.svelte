@@ -168,7 +168,7 @@
     });
 
     function submitEmitInvoice() {
-        if (!order || isSubmitting) return;
+        if (!order || isSubmitting || totalAmount <= 0) return;
 
         if (requiresDocIdentification && !validateDoc()) {
             return;
@@ -243,6 +243,16 @@
                     <div class="flex-1 leading-relaxed">
                         <strong class="font-bold block">Error de facturación:</strong>
                         <span>{errorMessage}</span>
+                    </div>
+                </div>
+            {/if}
+
+            {#if totalAmount <= 0}
+                <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5 text-xs text-amber-800 dark:text-amber-300">
+                    <AlertTriangle class="size-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+                    <div class="flex-1 leading-relaxed space-y-0.5">
+                        <strong class="font-bold block">Imposibilidad fiscal de facturación ($0.00)</strong>
+                        <span>El servicio WSFEv1 de ARCA no admite la emisión de comprobantes fiscales con importe total menor o igual a cero ($0.00). Para pedidos bonificados al 100% o sin cargo, debe utilizarse el remito interno de traslado.</span>
                     </div>
                 </div>
             {/if}
@@ -378,7 +388,7 @@
                 variant="default"
                 class="min-h-[44px] px-5 rounded-xl font-bold w-full sm:w-auto gap-2 shadow-xs cursor-pointer"
                 onclick={submitEmitInvoice}
-                disabled={isSubmitting}
+                disabled={isSubmitting || totalAmount <= 0}
             >
                 {#if isSubmitting}
                     <Loader2 class="size-4 animate-spin shrink-0" />

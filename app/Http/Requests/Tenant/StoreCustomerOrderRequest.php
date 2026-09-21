@@ -55,7 +55,8 @@ class StoreCustomerOrderRequest extends FormRequest
             ],
             'items.*.packaging_type' => ['required', 'string', 'in:paquete,unidad,bolson,bulto,gram,kg,units,package'],
             'items.*.quantity' => ['required', 'numeric', 'min:0.001'],
-            'items.*.discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:99'],
+            'items.*.discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'items.*.units_per_package' => ['nullable', 'numeric', 'min:1'],
             'items.*.apply_customer_discount' => ['nullable', 'boolean'],
         ];
     }
