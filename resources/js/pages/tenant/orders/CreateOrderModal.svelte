@@ -1340,7 +1340,7 @@
                                         <select
                                             value={item.packaging_type}
                                             onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                            class="h-9 rounded-xl border border-border/80 bg-background px-1.5 sm:px-2.5 text-xs font-semibold text-foreground w-auto min-w-[70px] sm:min-w-[94px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer shrink-0"
+                                            class="h-9 rounded-xl border border-border/80 bg-background text-xs font-semibold text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer shrink-0 {item.packaging_type === 'bulto' ? 'w-[58px] min-w-[58px] px-1 sm:w-auto sm:min-w-[94px] sm:px-2.5' : 'w-auto min-w-[70px] sm:min-w-[94px] px-1.5 sm:px-2.5'}"
                                         >
                                             {#if item.sale_type === 'weight'}
                                                 <option value="gram">Gramos</option>
