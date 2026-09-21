@@ -7,6 +7,10 @@
     import ExternalLink from 'lucide-svelte/icons/external-link';
     import Building2 from 'lucide-svelte/icons/building-2';
 
+    import { Button } from '@/components/ui/button';
+    import ChevronLeft from 'lucide-svelte/icons/chevron-left';
+    import ChevronRight from 'lucide-svelte/icons/chevron-right';
+
     interface CategorySummary {
         id: number;
         name: string;
@@ -38,6 +42,20 @@
         products?: LowStockProduct[];
     } = $props();
 
+    const perPage = 9;
+    let currentPage = $state(1);
+
+    let totalPages = $derived(Math.max(1, Math.ceil(products.length / perPage)));
+    let paginatedProducts = $derived(products.slice((currentPage - 1) * perPage, currentPage * perPage));
+
+    $effect(() => {
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+    });
+
+    let startItem = $derived(products.length === 0 ? 0 : (currentPage - 1) * perPage + 1);
+    let endItem = $derived(Math.min(currentPage * perPage, products.length));
     let criticalCount = $derived(products.filter((p) => p.is_critical || p.stock < 0).length);
 </script>
 
@@ -68,7 +86,7 @@
     </div>
 
     <MinimalDataTable
-        items={products}
+        items={paginatedProducts}
         rowClass={(product) => (product.is_critical || product.stock < 0)
             ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30 hover:bg-rose-500/20'
             : 'bg-rose-500/8 text-rose-600 dark:text-rose-400 border-rose-500/15 hover:bg-rose-500/12'}
@@ -168,4 +186,40 @@
             </div>
         {/snippet}
     </MinimalDataTable>
+
+    {#if totalPages > 1}
+        <div class="flex items-center justify-between pt-2 px-1 text-xs text-muted-foreground">
+            <span class="tabular-nums">
+                Mostrando <strong class="text-foreground">{startItem}</strong> a <strong class="text-foreground">{endItem}</strong> de <strong class="text-foreground">{products.length}</strong> alertas
+            </span>
+
+            <div class="flex items-center gap-2">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    class="min-h-[36px] px-3 gap-1 rounded-lg text-xs font-medium cursor-pointer"
+                    disabled={currentPage <= 1}
+                    onclick={() => currentPage--}
+                >
+                    <ChevronLeft class="size-3.5" />
+                    <span>Anterior</span>
+                </Button>
+
+                <span class="tabular-nums px-2 font-medium text-foreground">
+                    Página {currentPage} de {totalPages}
+                </span>
+
+                <Button
+                    variant="outline"
+                    size="sm"
+                    class="min-h-[36px] px-3 gap-1 rounded-lg text-xs font-medium cursor-pointer"
+                    disabled={currentPage >= totalPages}
+                    onclick={() => currentPage++}
+                >
+                    <span>Siguiente</span>
+                    <ChevronRight class="size-3.5" />
+                </Button>
+            </div>
+        </div>
+    {/if}
 </div>
