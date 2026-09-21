@@ -39,7 +39,7 @@ test('superadmin can toggle module active status globally', function () {
 });
 
 test('regular tenant user cannot access platform modules catalog', function () {
-    $tenantUser = User::where('is_superadmin', false)->first();
+    $tenantUser = User::where('is_superadmin', false)->first() ?? User::factory()->create(['is_superadmin' => false]);
 
     $response = $this->actingAs($tenantUser)
         ->get(route('platform.modules.index'));

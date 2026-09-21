@@ -1,136 +1,107 @@
 <?php
 
+use App\Models\CustomerOrder;
+use App\Models\Module;
+use App\Models\Product;
+use App\Models\ProductWarehouse;
+use App\Models\ShippingZone;
+use App\Models\StockMovement;
+use App\Models\SupplierOrder;
+use App\Models\Tenant;
+use App\Models\User;
+use App\Models\Warehouse;
+use Database\Seeders\TestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
 
-use App\Models\Customer;
-use App\Models\CustomerOrder;
-use App\Models\Product;
-use App\Models\StockMovement;
-use App\Models\Supplier;
-use App\Models\SupplierOrder;
-use App\Models\Tenant;
-use App\Models\User;
-use Database\Seeders\TestSeeder;
-use Inertia\Testing\AssertableInertia;
-
-test('test seeder populates 5 tenants with specialized roles, products, clients and orders', function () {
+test('test seeder populates 2 clean tenants with admin users, default warehouse and csv catalog', function () {
     $this->seed(TestSeeder::class);
 
-    // 1. Verificar 5 Tenants
-    $this->assertEquals(5, Tenant::count());
+    // 1. Exactly 2 Tenants
+    expect(Tenant::count())->toBe(2);
 
+    $tenantMyB = Tenant::where('cuit_tax_id', '30712345678')->first();
     $tenantBahia = Tenant::where('cuit_tax_id', '30000000001')->first();
-    $tenantTesting = Tenant::where('cuit_tax_id', '30444444445')->first();
-    $tenantSanMartin = Tenant::where('cuit_tax_id', '30111111112')->first();
-    $tenantSur = Tenant::where('cuit_tax_id', '30222222223')->first();
-    $tenantBelgrano = Tenant::where('cuit_tax_id', '30333333334')->first();
 
-    $this->assertNotNull($tenantBahia);
-    $this->assertEquals('Papelera Bahía', $tenantBahia->name);
-    $this->assertNotNull($tenantTesting);
-    $this->assertEquals('Papelera Testing', $tenantTesting->name);
-    $this->assertNotNull($tenantSanMartin);
-    $this->assertNotNull($tenantSur);
-    $this->assertNotNull($tenantBelgrano);
+    expect($tenantMyB)->not->toBeNull()
+        ->and($tenantMyB->name)->toBe('Distribuciones MyB')
+        ->and($tenantMyB->is_active)->toBeTrue()
+        ->and($tenantBahia)->not->toBeNull()
+        ->and($tenantBahia->name)->toBe('Papelera Bahia')
+        ->and($tenantBahia->is_active)->toBeTrue();
 
-    // 2. Verificar Productos por Comercio
-    $this->assertTrue(Product::where('tenant_id', $tenantBahia->id)->count() >= 10);
-    $this->assertTrue(Product::where('tenant_id', $tenantTesting->id)->count() >= 10);
-    $this->assertEquals(10, Product::where('tenant_id', $tenantSanMartin->id)->count());
-    $this->assertEquals(10, Product::where('tenant_id', $tenantSur->id)->count());
-    $this->assertEquals(10, Product::where('tenant_id', $tenantBelgrano->id)->count());
+    // 2. All system modules assigned to both tenants
+    $activeModulesCount = Module::where('is_active', true)->count();
+    expect($tenantMyB->modules()->count())->toBe($activeModulesCount)
+        ->and($tenantBahia->modules()->count())->toBe($activeModulesCount);
 
-    // 3. Verificar Clientes (tenants con módulo clientes)
-    $this->assertTrue(Customer::where('tenant_id', $tenantBahia->id)->count() >= 5);
-    $this->assertTrue(Customer::where('tenant_id', $tenantTesting->id)->count() >= 5);
-    $this->assertTrue(Customer::where('tenant_id', $tenantSanMartin->id)->count() >= 5);
-    $this->assertTrue(Customer::where('tenant_id', $tenantSur->id)->count() >= 5);
-    $this->assertEquals(0, Customer::where('tenant_id', $tenantBelgrano->id)->count()); // Sin módulo clientes
+    // 3. Dedicated Admin Users with role admin and module permissions
+    $mariano = User::where('email', 'marianbri@gmail.com')->first();
+    expect($mariano)->not->toBeNull()
+        ->and($mariano->name)->toBe('Mariano')
+        ->and($mariano->tenant_id)->toBe($tenantMyB->id)
+        ->and($mariano->is_superadmin)->toBeFalse()
+        ->and(Hash::check('mariano340#', $mariano->password))->toBeTrue();
 
-    // 4. Verificar Proveedores (tenants con módulo proveedores)
-    $this->assertTrue(Supplier::where('tenant_id', $tenantBahia->id)->count() >= 3);
-    $this->assertTrue(Supplier::where('tenant_id', $tenantTesting->id)->count() >= 3);
-    $this->assertTrue(Supplier::where('tenant_id', $tenantSur->id)->count() >= 3);
-    $this->assertEquals(0, Supplier::where('tenant_id', $tenantSanMartin->id)->count()); // Sin módulo proveedores
-    $this->assertEquals(0, Supplier::where('tenant_id', $tenantBelgrano->id)->count()); // Sin módulo proveedores
+    setPermissionsTeamId($tenantMyB->id);
+    expect($mariano->hasRole('admin'))->toBeTrue();
 
-    // 5. Verificar Usuarios y Roles por Comercio
-    $this->assertTrue(User::where('tenant_id', $tenantBahia->id)->count() >= 3);
-    $this->assertTrue(User::where('tenant_id', $tenantTesting->id)->count() >= 4);
-    $this->assertTrue(User::where('tenant_id', $tenantSanMartin->id)->count() >= 3);
-    $this->assertTrue(User::where('tenant_id', $tenantSur->id)->count() >= 4);
-    $this->assertTrue(User::where('tenant_id', $tenantBelgrano->id)->count() >= 2);
+    $axel = User::where('email', 'axelberin@gmail.com')->first();
+    expect($axel)->not->toBeNull()
+        ->and($axel->name)->toBe('Axel')
+        ->and($axel->tenant_id)->toBe($tenantBahia->id)
+        ->and($axel->is_superadmin)->toBeFalse()
+        ->and(Hash::check('axel123#', $axel->password))->toBeTrue();
 
-    $marianoUser = User::where('email', 'mariano@admin.com')->first();
-    $this->assertNotNull($marianoUser);
-    $this->assertTrue(Illuminate\Support\Facades\Hash::check('marianocrack33#', $marianoUser->password) || Illuminate\Support\Facades\Hash::check('mariano13#', $marianoUser->password));
-    setPermissionsTeamId($tenantTesting->id);
-    $this->assertTrue($marianoUser->hasRole('admin'));
-
-    $stockUser = User::where('email', 'stock.sol@papelera.test')->first();
-    $this->assertNotNull($stockUser);
     setPermissionsTeamId($tenantBahia->id);
-    $this->assertTrue($stockUser->hasRole('Gestor de Stock'));
+    expect($axel->hasRole('admin'))->toBeTrue();
 
-    $driverUser = User::where('email', 'chofer.sol@papelera.test')->first();
-    $this->assertNotNull($driverUser);
-    $this->assertTrue($driverUser->hasRole('Repartidor / Chofer'));
+    // Check admin roles have all active permissions
+    $activeModuleIds = Module::where('is_active', true)->pluck('id');
+    $expectedPermsCount = Permission::whereIn('module_id', $activeModuleIds)->count();
 
-    // 6. Verificar Pedidos a Clientes
-    $ordersBahia = CustomerOrder::where('tenant_id', $tenantBahia->id)->get();
-    $this->assertTrue($ordersBahia->count() >= 5);
-    $this->assertTrue($ordersBahia->pluck('status')->contains('entregado'));
-    $this->assertTrue($ordersBahia->pluck('status')->contains('cancelado'));
-    $this->assertTrue($ordersBahia->pluck('status')->contains('en_preparacion'));
+    setPermissionsTeamId($tenantMyB->id);
+    $mybAdminRole = Role::where('tenant_id', $tenantMyB->id)->where('name', 'admin')->first();
+    expect($mybAdminRole->permissions()->count())->toBe($expectedPermsCount);
 
-    // 7. Verificar Órdenes a Proveedores
-    $suppOrdersBahia = SupplierOrder::where('tenant_id', $tenantBahia->id)->get();
-    $this->assertTrue($suppOrdersBahia->count() >= 3);
-    $this->assertTrue($suppOrdersBahia->pluck('status')->contains('recibido'));
-    $this->assertTrue($suppOrdersBahia->pluck('status')->contains('solicitado'));
+    setPermissionsTeamId($tenantBahia->id);
+    $bahiaAdminRole = Role::where('tenant_id', $tenantBahia->id)->where('name', 'admin')->first();
+    expect($bahiaAdminRole->permissions()->count())->toBe($expectedPermsCount);
 
-    // 8. Verificar Movimientos de Kardex
-    $this->assertTrue(StockMovement::where('tenant_id', $tenantBahia->id)->count() >= 2);
+    // 4. Default Warehouse Only (no secondary or extra warehouses)
+    $mybWarehouses = Warehouse::where('tenant_id', $tenantMyB->id)->get();
+    expect($mybWarehouses)->toHaveCount(1)
+        ->and($mybWarehouses->first()->is_default)->toBeTrue();
 
-    // 9. Verificar que solo los Roles operativos aparezcan en el Panel de Roles del Tenant (admin excluido)
-    $axelUser = User::where('email', 'axel@axel.com')->first();
-    $rolesResponse = $this->actingAs($axelUser)->get(route('tenant.roles.index'));
-    $rolesResponse->assertOk();
-    $rolesResponse->assertInertia(fn (AssertableInertia $page) => $page
-        ->component('tenant/roles/Index')
-        ->has('roles', 3)
-        ->where('roles.0.name', fn ($name) => in_array($name, ['Gestor de Stock', 'Vendedor / Cajero', 'Repartidor / Chofer']))
-    );
+    $bahiaWarehouses = Warehouse::where('tenant_id', $tenantBahia->id)->get();
+    expect($bahiaWarehouses)->toHaveCount(1)
+        ->and($bahiaWarehouses->first()->is_default)->toBeTrue();
 
-    // 10. Verificar Sincronización de Secuencias Atómicas por Tenant
-    $this->assertDatabaseHas('tenant_sequences', [
-        'tenant_id' => $tenantBahia->id,
-        'sequence_type' => 'customer_order',
-        'current_number' => 7,
-    ]);
-    $this->assertDatabaseHas('tenant_sequences', [
-        'tenant_id' => $tenantBahia->id,
-        'sequence_type' => 'supplier_order',
-        'current_number' => 3,
-    ]);
-    $this->assertDatabaseHas('tenant_sequences', [
-        'tenant_id' => $tenantBahia->id,
-        'sequence_type' => 'receipt',
-        'current_number' => 3,
-    ]);
+    expect(Warehouse::count())->toBe(2);
 
-    // 11. Verificar Consistencia Contable en Cuentas Corrientes
-    $ateneo = Customer::where('tenant_id', $tenantBahia->id)->where('name', 'Librería El Ateneo Central')->first();
-    $this->assertEquals(0.00, (float) $ateneo->current_balance);
-    $this->assertFalse((bool) $ateneo->is_defaulter);
+    // 5. No extra employees or shipping zones
+    expect(User::where('tenant_id', $tenantMyB->id)->count())->toBe(1)
+        ->and(User::where('tenant_id', $tenantBahia->id)->count())->toBe(1)
+        ->and(User::count())->toBe(4) // 2 superadmins + 2 tenant admins
+        ->and(ShippingZone::count())->toBe(0);
 
-    $grafica = Customer::where('tenant_id', $tenantBahia->id)->where('name', 'Gráfica Central SRL')->first();
-    $this->assertEquals(110000.00, (float) $grafica->current_balance);
+    // 6. CSV Catalog imported with 0.00 stock
+    $mybProducts = Product::where('tenant_id', $tenantMyB->id)->get();
+    $bahiaProducts = Product::where('tenant_id', $tenantBahia->id)->get();
 
-    $norte = Customer::where('tenant_id', $tenantBahia->id)->where('name', 'Distribuidora Mayorista Norte')->first();
-    $this->assertEquals(98500.00, (float) $norte->current_balance);
-    $this->assertTrue((bool) $norte->is_defaulter);
+    expect($mybProducts->count())->toBeGreaterThan(50)
+        ->and($bahiaProducts->count())->toBe($mybProducts->count());
+
+    expect(Product::where('stock', '!=', 0.00)->count())->toBe(0)
+        ->and(ProductWarehouse::where('stock', '!=', 0.00)->count())->toBe(0);
+
+    // 7. No dummy orders or movements
+    expect(CustomerOrder::count())->toBe(0)
+        ->and(SupplierOrder::count())->toBe(0)
+        ->and(StockMovement::count())->toBe(0);
 });
