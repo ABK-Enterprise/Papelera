@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -63,13 +64,16 @@ class TenantMercadoPagoController extends Controller
         $codeVerifier = Str::random(64);
         $codeChallenge = rtrim(strtr(base64_encode(hash('sha256', $codeVerifier, true)), '+/', '-_'), '=');
 
-        $tenantId = $request->user()->tenant_id;
-        $state = encrypt([
+        $state = Str::random(32);
+        $tenantId = $request->user()?->tenant_id;
+        $userId = $request->user()?->id;
+
+        Cache::put("mp_oauth_state_{$state}", [
             'tenant_id' => $tenantId,
-            'user_id' => $request->user()->id,
-            'timestamp' => now()->timestamp,
+            'user_id' => $userId,
             'code_verifier' => $codeVerifier,
-        ]);
+            'created_at' => now()->timestamp,
+        ], now()->addMinutes(15));
 
         $redirectUri = route('tenant.settings.mercadopago.callback');
 
@@ -81,7 +85,6 @@ class TenantMercadoPagoController extends Controller
             'redirect_uri' => $redirectUri,
             'code_challenge' => $codeChallenge,
             'code_challenge_method' => 'S256',
-            'scope' => 'offline_access read write',
         ]);
 
         $targetUrl = "https://auth.mercadopago.com/authorization?{$params}";
@@ -100,36 +103,66 @@ class TenantMercadoPagoController extends Controller
     {
         $code = $request->query('code');
         $state = $request->query('state');
+        $error = $request->query('error');
+        $errorDescription = $request->query('error_description');
 
-        if (! $code) {
-            Log::error('Mercado Pago OAuth callback received without code parameter', [
+        if ($error) {
+            Log::warning('Mercado Pago OAuth callback returned error parameter', [
+                'error' => $error,
+                'error_description' => $errorDescription,
+                'tenant_id' => $request->user()?->tenant_id,
+            ]);
+
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Vinculación rechazada por Mercado Pago: ' . ($errorDescription ?: $error),
+            ]);
+
+            return redirect()->route('tenant.settings.mercadopago')
+                ->with('error', 'Vinculación rechazada por Mercado Pago.');
+        }
+
+        if (! $code || ! $state) {
+            Log::warning('Mercado Pago OAuth callback received without code or state parameter', [
                 'query_params' => $request->query(),
             ]);
 
             Inertia::flash('toast', [
                 'type' => 'error',
-                'message' => 'No se recibió el código de autorización de Mercado Pago.',
+                'message' => 'No se recibieron los parámetros de autorización requeridos de Mercado Pago.',
             ]);
 
             return redirect()->route('tenant.settings.mercadopago')
-                ->with('error', 'No se recibió el código de autorización de Mercado Pago.');
+                ->with('error', 'No se recibieron los parámetros requeridos.');
         }
 
-        try {
-            $decrypted = decrypt($state);
-            $tenantId = $decrypted['tenant_id'] ?? null;
-            $codeVerifier = $decrypted['code_verifier'] ?? null;
-        } catch (\Exception $e) {
-            $tenantId = $request->user()?->tenant_id;
-            $codeVerifier = null;
+        $cachedState = Cache::get("mp_oauth_state_{$state}");
+
+        if (! $cachedState) {
+            Log::warning('Mercado Pago OAuth callback: State not found in cache or expired', [
+                'state_prefix' => substr($state, 0, 8),
+                'tenant_id' => $request->user()?->tenant_id,
+            ]);
+
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'La sesión de vinculación expiró o es inválida. Por favor, reintentá la conexión.',
+            ]);
+
+            return redirect()->route('tenant.settings.mercadopago')
+                ->with('error', 'La sesión de vinculación expiró o es inválida.');
         }
 
-        $tenant = $request->user()?->tenant;
+        $expectedTenantId = $cachedState['tenant_id'] ?? null;
+        $codeVerifier = $cachedState['code_verifier'] ?? null;
 
-        if (! $tenant || ($tenantId && $tenant->id !== (int) $tenantId)) {
-            Log::error('Mercado Pago OAuth callback tenant security mismatch', [
-                'user_tenant_id' => $tenant?->id,
-                'state_tenant_id' => $tenantId,
+        $user = $request->user();
+        $tenant = $user?->tenant;
+
+        if ($tenant && $expectedTenantId && $tenant->id !== (int) $expectedTenantId) {
+            Log::warning('Mercado Pago OAuth callback tenant security mismatch', [
+                'user_tenant_id' => $tenant->id,
+                'state_tenant_id' => $expectedTenantId,
             ]);
 
             Inertia::flash('toast', [
@@ -139,6 +172,24 @@ class TenantMercadoPagoController extends Controller
 
             return redirect()->route('tenant.settings.mercadopago')
                 ->with('error', 'Validación de seguridad fallida durante la vinculación.');
+        }
+
+        if (! $tenant && $expectedTenantId) {
+            $tenant = \App\Models\Tenant::find($expectedTenantId);
+        }
+
+        if (! $tenant) {
+            Log::warning('Mercado Pago OAuth callback tenant not found', [
+                'state_tenant_id' => $expectedTenantId,
+            ]);
+
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'No se encontró el comercio asociado a la vinculación.',
+            ]);
+
+            return redirect()->route('tenant.settings.mercadopago')
+                ->with('error', 'No se encontró el comercio asociado.');
         }
 
         $clientId = config('services.mercadopago.client_id', env('MERCADO_PAGO_CLIENT_ID'));
@@ -151,16 +202,18 @@ class TenantMercadoPagoController extends Controller
             'grant_type' => 'authorization_code',
             'code' => $code,
             'redirect_uri' => $redirectUri,
+            'code_verifier' => $codeVerifier,
         ];
 
-        if ($codeVerifier) {
-            $tokenPayload['code_verifier'] = $codeVerifier;
-        }
-
         try {
-            $response = Http::acceptJson()->asJson()->timeout(15)->post('https://api.mercadopago.com/oauth/token', $tokenPayload);
+            $response = Http::acceptJson()
+                ->asJson()
+                ->timeout(20)
+                ->post('https://api.mercadopago.com/oauth/token', $tokenPayload);
 
             if ($response->successful()) {
+                Cache::forget("mp_oauth_state_{$state}");
+
                 $data = $response->json();
                 $userId = $data['user_id'] ?? null;
                 $accessToken = $data['access_token'] ?? null;
@@ -168,19 +221,22 @@ class TenantMercadoPagoController extends Controller
                 $refreshToken = $data['refresh_token'] ?? null;
                 $liveMode = $data['live_mode'] ?? false;
 
-                // Consultar datos del perfil de usuario en MP
                 $nickname = null;
                 $email = null;
 
                 if ($userId && $accessToken) {
-                    $profileRes = Http::withToken($accessToken)
-                        ->timeout(10)
-                        ->get("https://api.mercadolibre.com/users/{$userId}");
+                    try {
+                        $profileRes = Http::withToken($accessToken)
+                            ->timeout(10)
+                            ->get("https://api.mercadolibre.com/users/{$userId}");
 
-                    if ($profileRes->successful()) {
-                        $profileData = $profileRes->json();
-                        $nickname = $profileData['nickname'] ?? trim(($profileData['first_name'] ?? '') . ' ' . ($profileData['last_name'] ?? ''));
-                        $email = $profileData['email'] ?? null;
+                        if ($profileRes->successful()) {
+                            $profileData = $profileRes->json();
+                            $nickname = $profileData['nickname'] ?? trim(($profileData['first_name'] ?? '') . ' ' . ($profileData['last_name'] ?? ''));
+                            $email = $profileData['email'] ?? null;
+                        }
+                    } catch (\Throwable $e) {
+                        Log::warning('Mercado Libre profile fetch non-blocking warning: ' . $e->getMessage());
                     }
                 }
 
@@ -215,15 +271,22 @@ class TenantMercadoPagoController extends Controller
                 'body' => $response->body(),
             ]);
 
+            $mpError = $response->json('message')
+                ?? $response->json('error_description')
+                ?? $response->json('error')
+                ?? 'Respuesta no exitosa de Mercado Pago.';
+
             Inertia::flash('toast', [
                 'type' => 'error',
-                'message' => 'Error al autorizar con Mercado Pago: ' . ($response->json('message') ?? 'Respuesta no exitosa.'),
+                'message' => 'Error al autorizar con Mercado Pago: ' . $mpError,
             ]);
 
             return redirect()->route('tenant.settings.mercadopago')
-                ->with('error', 'Error al autorizar con Mercado Pago: ' . ($response->json('message') ?? 'Respuesta no exitosa.'));
-        } catch (\Exception $e) {
-            Log::error('Mercado Pago OAuth exception', ['message' => $e->getMessage()]);
+                ->with('error', 'Error al autorizar con Mercado Pago: ' . $mpError);
+        } catch (\Throwable $e) {
+            Log::error('Mercado Pago OAuth exception', [
+                'message' => $e->getMessage(),
+            ]);
 
             Inertia::flash('toast', [
                 'type' => 'error',
