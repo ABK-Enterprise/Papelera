@@ -1337,7 +1337,7 @@
                                         </button>
 
                                         <!-- Label visible solo tras wrap vía Container Query -->
-                                        <span class="wrap-field-label text-xs font-semibold text-muted-foreground shrink-0 min-w-[54px]">Tipo:</span>
+                                        <span class="wrap-field-label text-xs font-semibold text-muted-foreground shrink-0 min-w-[58px]">Tipo:</span>
 
                                         <!-- Selector de empaque / unidad -->
                                         <select
@@ -1418,8 +1418,8 @@
                                     </div>
 
                                     <!-- Stepper Táctil Elástico con Label visible solo tras wrap -->
-                                    <div class="stepper-wrap-container flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial min-w-[104px] sm:min-w-[120px] sm:w-auto ml-auto sm:ml-0">
-                                        <span class="wrap-field-label text-xs font-semibold text-muted-foreground shrink-0 min-w-[54px]">Cantidad:</span>
+                                    <div class="stepper-wrap-container flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial min-w-[104px] sm:min-w-[120px] sm:w-auto">
+                                        <span class="wrap-field-label text-xs font-semibold text-muted-foreground shrink-0 min-w-[58px]">Cantidad:</span>
                                         <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden flex-1 sm:flex-initial min-w-[104px] sm:min-w-[120px] sm:w-auto justify-between">
                                             <button
                                                 type="button"
@@ -1868,6 +1868,10 @@
         .wrap-field-label {
             display: inline-flex;
             align-items: center;
+        }
+
+        .stepper-wrap-container {
+            width: 100%;
         }
     }
 </style>
