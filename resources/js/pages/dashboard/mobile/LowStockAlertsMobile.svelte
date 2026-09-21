@@ -31,12 +31,30 @@
         is_critical?: boolean;
     }
 
+    import { Button } from '@/components/ui/button';
+    import ChevronLeft from 'lucide-svelte/icons/chevron-left';
+    import ChevronRight from 'lucide-svelte/icons/chevron-right';
+
     let {
         products = [],
     }: {
         products?: LowStockProduct[];
     } = $props();
 
+    const perPage = 4;
+    let currentPage = $state(1);
+
+    let totalPages = $derived(Math.max(1, Math.ceil(products.length / perPage)));
+    let paginatedProducts = $derived(products.slice((currentPage - 1) * perPage, currentPage * perPage));
+
+    $effect(() => {
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+    });
+
+    let startItem = $derived(products.length === 0 ? 0 : (currentPage - 1) * perPage + 1);
+    let endItem = $derived(Math.min(currentPage * perPage, products.length));
     let criticalCount = $derived(products.filter((p) => p.is_critical || p.stock < 0).length);
 </script>
 
@@ -66,7 +84,7 @@
 
     {#if products.length > 0}
         <div class="flex flex-col gap-2.5">
-            {#each products as product (product.product_warehouse_id ?? product.id)}
+            {#each paginatedProducts as product (product.product_warehouse_id ?? product.id)}
                 {@const isCrit = product.is_critical || product.stock < 0}
                 <div class={`flex flex-col gap-2.5 rounded-xl border p-3.5 shadow-xs ${
                     isCrit
@@ -106,10 +124,10 @@
 
                         <Link
                             href={`/tenant/productos/${product.id}/editar`}
-                            class="flex size-7 items-center justify-center rounded-lg bg-background/60 text-muted-foreground hover:text-foreground border border-border/40"
+                            class="flex size-8 items-center justify-center rounded-lg bg-background/60 text-muted-foreground hover:text-foreground border border-border/40"
                             title="Editar producto"
                         >
-                            <Edit2 class="size-3" />
+                            <Edit2 class="size-3.5" />
                         </Link>
                     </div>
 
@@ -149,6 +167,44 @@
                 </div>
             {/each}
         </div>
+
+        {#if totalPages > 1}
+            <div class="flex items-center justify-between pt-2 px-1 text-xs text-muted-foreground">
+                <span class="tabular-nums">
+                    Mostrando <strong class="text-foreground">{startItem}</strong> a <strong class="text-foreground">{endItem}</strong> de <strong class="text-foreground">{products.length}</strong>
+                </span>
+
+                <div class="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        class="min-h-[44px] px-3 gap-1 rounded-xl text-xs font-medium cursor-pointer"
+                        disabled={currentPage <= 1}
+                        onclick={() => currentPage--}
+                        aria-label="Página anterior"
+                    >
+                        <ChevronLeft class="size-4" />
+                        <span class="hidden sm:inline">Anterior</span>
+                    </Button>
+
+                    <span class="tabular-nums px-1.5 font-medium text-foreground">
+                        {currentPage} / {totalPages}
+                    </span>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        class="min-h-[44px] px-3 gap-1 rounded-xl text-xs font-medium cursor-pointer"
+                        disabled={currentPage >= totalPages}
+                        onclick={() => currentPage++}
+                        aria-label="Página siguiente"
+                    >
+                        <span class="hidden sm:inline">Siguiente</span>
+                        <ChevronRight class="size-4" />
+                    </Button>
+                </div>
+            </div>
+        {/if}
     {:else}
         <!-- Estado Positivo Vacío -->
         <div class="flex flex-col items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/5 dark:bg-emerald-950/20 p-6 text-center shadow-xs">

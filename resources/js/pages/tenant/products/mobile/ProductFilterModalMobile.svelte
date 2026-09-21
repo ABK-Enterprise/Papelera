@@ -10,6 +10,7 @@
         DialogTitle,
     } from '@/components/ui/dialog';
     import { Badge } from '@/components/ui/badge';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import ArrowUpDown from 'lucide-svelte/icons/arrow-up-down';
     import Tag from 'lucide-svelte/icons/tag';
     import Boxes from 'lucide-svelte/icons/boxes';
@@ -17,6 +18,8 @@
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Check from 'lucide-svelte/icons/check';
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
+    import ChevronDown from 'lucide-svelte/icons/chevron-down';
+    import ChevronUp from 'lucide-svelte/icons/chevron-up';
 
     interface CategoryOption {
         id: number;
@@ -78,6 +81,20 @@
     let localSortBy = $state('latest');
     let activeTab = $state<'sort' | 'category' | 'stock' | 'info' | 'discount'>('sort');
 
+    const categoryInitialLimit = 11;
+    const categoryBatchSize = 6;
+    let categoryVisibleLimit = $state(11);
+    let visibleCategories = $derived(categories.slice(0, categoryVisibleLimit));
+
+    $effect(() => {
+        if (localCategoryId !== null) {
+            const idx = categories.findIndex((c) => c.id === localCategoryId);
+            if (idx >= categoryVisibleLimit) {
+                categoryVisibleLimit = Math.ceil((idx + 1 - categoryInitialLimit) / categoryBatchSize) * categoryBatchSize + categoryInitialLimit;
+            }
+        }
+    });
+
     $effect(() => {
         if (open) {
             localCategoryId = selectedCategoryId;
@@ -133,7 +150,7 @@
                     {/if}
                 </div>
             </div>
-            <DialogDescription class="text-xs text-muted-foreground mt-0.5">
+            <DialogDescription class="sr-only">
                 Selecciona las opciones para filtrar los artículos del catálogo.
             </DialogDescription>
         </DialogHeader>
@@ -256,10 +273,28 @@
 
                 <!-- Panel 2: Opciones de Categoría -->
                 {#if activeTab === 'category'}
-                    <div class="space-y-1.5">
-                        <h4 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-2 pb-1">
-                            Seleccionar categoría
-                        </h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between px-1">
+                            <h4 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                Seleccionar categoría
+                            </h4>
+                            <span class="text-[11px] text-muted-foreground tabular-nums">
+                                {categories.length} {categories.length === 1 ? 'categoría' : 'categorías'}
+                            </span>
+                        </div>
+
+                        <!-- SearchCombobox para categorías -->
+                        <div class="w-full">
+                            <SearchCombobox
+                                items={categories}
+                                searchKeys={['name']}
+                                placeholder="Buscar categoría..."
+                                onselect={(cat) => (localCategoryId = cat.id)}
+                                onclear={() => (localCategoryId = null)}
+                                inputClass="h-9 text-xs rounded-xl border-border/80 bg-background/50 focus:bg-background"
+                            />
+                        </div>
+
                         <!-- Opción Todas -->
                         <button
                             type="button"
@@ -277,23 +312,54 @@
                             </div>
                         </button>
 
-                        {#each categories as cat}
-                            <button
-                                type="button"
-                                onclick={() => (localCategoryId = cat.id)}
-                                class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localCategoryId === cat.id
-                                    ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                                    : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
-                            >
-                                <span class="truncate">{cat.name}</span>
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <span class="text-xs text-muted-foreground tabular-nums">({cat.products_count ?? 0})</span>
-                                    {#if localCategoryId === cat.id}
-                                        <Check class="h-4 w-4 text-primary shrink-0 stroke-[2.5]" />
-                                    {/if}
-                                </div>
-                            </button>
-                        {/each}
+                        <div class="space-y-1.5">
+                            {#each visibleCategories as cat (cat.id)}
+                                <button
+                                    type="button"
+                                    onclick={() => (localCategoryId = cat.id)}
+                                    class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localCategoryId === cat.id
+                                        ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
+                                        : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                                >
+                                    <span class="truncate">{cat.name}</span>
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        <span class="text-xs text-muted-foreground tabular-nums">({cat.products_count ?? 0})</span>
+                                        {#if localCategoryId === cat.id}
+                                            <Check class="h-4 w-4 text-primary shrink-0 stroke-[2.5]" />
+                                        {/if}
+                                    </div>
+                                </button>
+                            {/each}
+                        </div>
+
+                        <!-- Ver más / Ver menos -->
+                        {#if categories.length > categoryInitialLimit}
+                            <div class="flex items-center justify-between pt-2 px-1 text-xs border-t border-border/50">
+                                {#if categories.length > categoryVisibleLimit}
+                                    <button
+                                        type="button"
+                                        class="min-h-[44px] inline-flex items-center gap-1 font-semibold text-primary hover:underline cursor-pointer transition-colors"
+                                        onclick={() => (categoryVisibleLimit += categoryBatchSize)}
+                                    >
+                                        <ChevronDown class="size-4" />
+                                        <span>Ver más ({Math.min(categoryBatchSize, categories.length - categoryVisibleLimit)})</span>
+                                    </button>
+                                {:else}
+                                    <span class="text-muted-foreground/60 text-[11px]">Todas mostradas</span>
+                                {/if}
+
+                                {#if categoryVisibleLimit > categoryInitialLimit}
+                                    <button
+                                        type="button"
+                                        class="min-h-[44px] inline-flex items-center gap-1 font-semibold text-muted-foreground hover:text-foreground hover:underline cursor-pointer transition-colors ml-auto"
+                                        onclick={() => (categoryVisibleLimit = categoryInitialLimit)}
+                                    >
+                                        <ChevronUp class="size-4" />
+                                        <span>Ver menos</span>
+                                    </button>
+                                {/if}
+                            </div>
+                        {/if}
                     </div>
                 {/if}
 

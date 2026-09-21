@@ -14,11 +14,14 @@
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import { router } from '@inertiajs/svelte';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import Tag from 'lucide-svelte/icons/tag';
     import Plus from 'lucide-svelte/icons/plus';
     import Box from 'lucide-svelte/icons/box';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import Layers from 'lucide-svelte/icons/layers';
+    import ChevronDown from 'lucide-svelte/icons/chevron-down';
+    import ChevronUp from 'lucide-svelte/icons/chevron-up';
 
     interface CategoryItem {
         id: number;
@@ -37,6 +40,20 @@
         selectedCategoryId: number | null;
         onSelectCategory: (id: number | null) => void;
     } = $props();
+
+    const initialLimit = 11;
+    const batchSize = 6;
+    let visibleLimit = $state(11);
+    let visibleCategories = $derived(categories.slice(0, visibleLimit));
+
+    $effect(() => {
+        if (selectedCategoryId !== null) {
+            const idx = categories.findIndex((c) => c.id === selectedCategoryId);
+            if (idx >= visibleLimit) {
+                visibleLimit = Math.ceil((idx + 1 - initialLimit) / batchSize) * batchSize + initialLimit;
+            }
+        }
+    });
 
     let isCategoryModalOpen = $state(false);
     let isConfirmAlertOpen = $state(false);
@@ -115,6 +132,20 @@
         </Button>
     </div>
 
+    <!-- Búsqueda rápida de categorías -->
+    {#if categories.length > 0}
+        <div class="mb-3">
+            <SearchCombobox
+                items={categories}
+                searchKeys={['name']}
+                placeholder="Buscar categoría..."
+                onselect={(cat) => onSelectCategory(cat.id)}
+                onclear={() => onSelectCategory(null)}
+                inputClass="h-9 text-xs rounded-xl border-border/80 bg-background/50 focus:bg-background"
+            />
+        </div>
+    {/if}
+
     <ul class="flex flex-col gap-1.5">
         <li>
             <button
@@ -129,7 +160,7 @@
             </button>
         </li>
 
-        {#each categories as cat (cat.id)}
+        {#each visibleCategories as cat (cat.id)}
             {@const IconComponent = getCategoryIcon(cat.icon)}
             <li>
                 <button
@@ -148,6 +179,34 @@
             </li>
         {/each}
     </ul>
+
+    {#if categories.length > initialLimit}
+        <div class="flex items-center justify-between pt-3 px-1 text-xs border-t border-border/40 mt-2">
+            {#if categories.length > visibleLimit}
+                <button
+                    type="button"
+                    class="inline-flex items-center gap-1 font-semibold text-primary hover:underline cursor-pointer transition-colors"
+                    onclick={() => (visibleLimit += batchSize)}
+                >
+                    <ChevronDown class="size-3.5" />
+                    <span>Ver más ({Math.min(batchSize, categories.length - visibleLimit)})</span>
+                </button>
+            {:else}
+                <span class="text-muted-foreground/60 text-[11px]">Todas mostradas</span>
+            {/if}
+
+            {#if visibleLimit > initialLimit}
+                <button
+                    type="button"
+                    class="inline-flex items-center gap-1 font-semibold text-muted-foreground hover:text-foreground hover:underline cursor-pointer transition-colors ml-auto"
+                    onclick={() => (visibleLimit = initialLimit)}
+                >
+                    <ChevronUp class="size-3.5" />
+                    <span>Ver menos</span>
+                </button>
+            {/if}
+        </div>
+    {/if}
 
     {#if categories.length === 0}
         <p class="py-4 text-center text-xs text-muted-foreground">
