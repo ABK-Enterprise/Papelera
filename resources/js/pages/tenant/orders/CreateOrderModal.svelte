@@ -1324,7 +1324,7 @@
                                 <!-- Nivel 3: Acciones [trash (desktop), tipo unidad, descuento (desktop), cantidad] -->
                                 <div class="flex flex-wrap items-center justify-between gap-2 w-full pt-0.5">
                                     <!-- Grupo Izquierdo: Acciones & Configuración -->
-                                    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                                    <div class="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial min-w-[115px] sm:min-w-0">
                                         <!-- Desktop: Trash Button -->
                                         <button
                                             type="button"
@@ -1340,7 +1340,7 @@
                                         <select
                                             value={item.packaging_type}
                                             onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                            class="h-9 rounded-xl border border-border/80 bg-background text-xs font-semibold text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer shrink-0 {item.packaging_type === 'bulto' ? 'w-[58px] min-w-[58px] px-1 sm:w-auto sm:min-w-[94px] sm:px-2.5' : 'w-auto min-w-[70px] sm:min-w-[94px] px-1.5 sm:px-2.5'}"
+                                            class="h-9 rounded-xl border border-border/80 bg-background px-2 text-xs font-semibold text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer flex-1 w-full sm:w-auto min-w-[68px] sm:min-w-[94px] sm:px-2.5"
                                         >
                                             {#if item.sale_type === 'weight'}
                                                 <option value="gram">Gramos</option>
@@ -1352,17 +1352,16 @@
                                             {/if}
                                         </select>
 
-                                        <!-- Botón Edición Efímera de Unidades por Bulto -->
+                                        <!-- Botón Edición Efímera de Unidades por Bulto (Icono compacto) -->
                                         {#if item.packaging_type === 'bulto'}
                                             <button
                                                 type="button"
                                                 onclick={() => openUnitsPerPackageDialog(index)}
-                                                class="h-9 px-2 rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 transition-colors inline-flex items-center gap-1 text-xs font-semibold cursor-pointer shrink-0"
+                                                class="size-9 rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 transition-colors inline-flex items-center justify-center cursor-pointer shrink-0"
                                                 title="Modificar unidades por bulto para esta fila ({item.units_per_package || 1} u/bulto)"
-                                                aria-label="Modificar unidades por bulto"
+                                                aria-label="Modificar unidades por bulto ({item.units_per_package || 1} u)"
                                             >
                                                 <Pencil class="size-3.5" />
-                                                <span class="tabular-nums font-bold">{item.units_per_package || 1} u</span>
                                             </button>
                                         {/if}
 
