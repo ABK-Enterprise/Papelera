@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "provider": "php",
+  "packages": {
+    "node": "22",
+    "pnpm": "latest"
+  },
+  "buildAptPackages": [
+    "git",
+    "unzip",
+    "libpq-dev"
+  ],
+  "deploy": {
+    "aptPackages": [
+      "chromium",
+      "libnss3",
+      "libatk-bridge2.0-0",
+      "libx11-xcb1",
+      "libdrm2",
+      "libxcomposite1",
+      "libxdamage1",
+      "libxrandr2",
+      "libgbm1",
+      "libasound2"
+    ],
+    "variables": {
+      "RAILPACK_PHP_EXTENSIONS": "pdo_pgsql,gd,bcmath,intl,zip,opcache",
+      "BROWSERSHOT_CHROME_PATH": "/usr/bin/chromium",
+      "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "true",
+      "PUPPETEER_EXECUTABLE_PATH": "/usr/bin/chromium"
+    }
+  }
+}
