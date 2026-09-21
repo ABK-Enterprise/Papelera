@@ -401,7 +401,13 @@ class DeliveryRouteController extends Controller
             ? "Pedido {$customerOrder->order_number} cancelado definitivamente y stock reincorporado."
             : "Pedido {$customerOrder->order_number} devuelto a preparación para su posterior revisión.";
 
-        return back()->with('success', $msg);
+        $redirect = back()->with('success', $msg);
+
+        if ($destination === 'cancelado' && $customerOrder->hasPendingCreditNote()) {
+            $redirect->with('warning', "El pedido {$customerOrder->order_number} fue cancelado, pero mantiene una factura fiscal activa en ARCA pendiente de emisión de Nota de Crédito.");
+        }
+
+        return $redirect;
     }
 
     /**

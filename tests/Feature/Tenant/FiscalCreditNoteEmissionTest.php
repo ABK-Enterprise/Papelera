@@ -59,7 +59,19 @@ beforeEach(function () {
         'module_id' => $this->module->id,
     ]);
 
-    $this->tenant->modules()->attach($this->module->id);
+    $this->arcaModule = Module::create([
+        'code' => 'facturacion_arca',
+        'name' => 'Facturación ARCA',
+        'is_active' => true,
+    ]);
+
+    Permission::create([
+        'name' => 'facturas.emitir',
+        'guard_name' => 'web',
+        'module_id' => $this->arcaModule->id,
+    ]);
+
+    $this->tenant->modules()->attach([$this->module->id, $this->arcaModule->id]);
 
     setPermissionsTeamId($this->tenant->id);
     $this->adminRole = Role::create([
@@ -212,9 +224,19 @@ test('Test 1: Cancelling a billed order (Factura B) emits NC B with CbtesAsoc, m
 
     $order->refresh();
     expect($order->status)->toBe('cancelado')
-        ->and($order->fiscal_status)->toBe('anulado_fiscal')
-        ->and($order->fiscal_error_message)->toBeNull()
+        ->and($order->fiscal_status)->toBe('facturado')
+        ->and($order->hasPendingCreditNote())->toBeTrue()
         ->and((float) $order->debt_amount)->toBe(0.00);
+
+    $emitResponse = $this->actingAs($this->user)
+        ->postJson(route('tenant.customer-orders.fiscal-credit-note.emit', $order));
+
+    $emitResponse->assertSuccessful();
+
+    $order->refresh();
+    expect($order->fiscal_status)->toBe('anulado_fiscal')
+        ->and($order->fiscal_error_message)->toBeNull()
+        ->and($order->hasPendingCreditNote())->toBeFalse();
 
     $originalInvoice->refresh();
     expect($originalInvoice->status)->toBe(FiscalInvoice::STATUS_ANULADO_POR_NC);
@@ -356,8 +378,19 @@ test('Test 2: Cancelling a billed order (Factura A) emits NC A with CbtesAsoc', 
 
     $order->refresh();
     expect($order->status)->toBe('cancelado')
-        ->and($order->fiscal_status)->toBe('anulado_fiscal')
+        ->and($order->fiscal_status)->toBe('facturado')
+        ->and($order->hasPendingCreditNote())->toBeTrue()
         ->and((float) $order->debt_amount)->toBe(0.00);
+
+    $emitResponse = $this->actingAs($this->user)
+        ->postJson(route('tenant.customer-orders.fiscal-credit-note.emit', $order));
+
+    $emitResponse->assertSuccessful();
+
+    $order->refresh();
+    expect($order->fiscal_status)->toBe('anulado_fiscal')
+        ->and($order->fiscal_error_message)->toBeNull()
+        ->and($order->hasPendingCreditNote())->toBeFalse();
 
     $originalInvoice->refresh();
     expect($originalInvoice->status)->toBe(FiscalInvoice::STATUS_ANULADO_POR_NC);
@@ -372,7 +405,7 @@ test('Test 2: Cancelling a billed order (Factura A) emits NC A with CbtesAsoc', 
         ->and($creditNote->status)->toBe(FiscalInvoice::STATUS_APROBADO);
 });
 
-test('Test 3: When ARCA rejects Credit Note (error 10043), the cancellation transaction rolls back: order is NOT cancelled, stock is NOT reintegrated, and debt is NOT annulled', function () {
+test('Test 3: When ARCA rejects Credit Note (error 10043), order remains cancelled logistically with pending credit note', function () {
     $customer = Customer::factory()->forTenant($this->tenant)->create([
         'tax_condition' => 'consumidor_final',
         'current_balance' => 1210.00,
@@ -458,30 +491,35 @@ test('Test 3: When ARCA rejects Credit Note (error 10043), the cancellation tran
     $wsfeService->setSoapClient($mockSoap);
     app()->instance(ArcaWsfeService::class, $wsfeService);
 
+    // Step 1: Order is cancelled logistically with decoupling
     $response = $this->actingAs($this->user)
         ->patchJson(route('tenant.orders.update-status', $order), [
             'status' => 'cancelado',
         ]);
 
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors(['order']);
+    $response->assertSuccessful();
 
-    $errors = $response->json('errors.order');
-    expect($errors[0])->toContain('No se pudo anular la factura en ARCA. El pedido no fue cancelado: No se encontró el comprobante original asociado en ARCA para emitir la Nota de Crédito.');
-
-    // 1. Order NOT cancelled
+    // 1. Order IS cancelled logistically but remains pending credit note
     $order->refresh();
-    expect($order->status)->toBe('preparado')
+    expect($order->status)->toBe('cancelado')
         ->and($order->fiscal_status)->toBe('facturado')
-        ->and((float) $order->debt_amount)->toBe(1210.00);
+        ->and($order->hasPendingCreditNote())->toBeTrue()
+        ->and((float) $order->debt_amount)->toBe(0.00);
 
-    // 2. Stock NOT reintegrated
+    // 2. Stock IS reintegrated
     $product->refresh();
-    expect((float) $product->stock)->toBe(5.0);
+    expect((float) $product->stock)->toBe(7.0);
 
-    // 3. Customer debt NOT annulled
+    // 3. Customer debt IS annulled
     $customer->refresh();
-    expect((float) $customer->current_balance)->toBe(1210.00);
+    expect((float) $customer->current_balance)->toBe(0.00);
+
+    // Step 2: Attempting on-demand credit note emission fails when ARCA rejects (error 10043)
+    $emitResponse = $this->actingAs($this->user)
+        ->postJson(route('tenant.customer-orders.fiscal-credit-note.emit', $order));
+
+    $emitResponse->assertStatus(422);
+    expect($emitResponse->json('message'))->toContain('No se encontró el comprobante original asociado en ARCA');
 
     // 4. Original invoice still aprobado
     $originalInvoice->refresh();
@@ -489,10 +527,6 @@ test('Test 3: When ARCA rejects Credit Note (error 10043), the cancellation tran
 
     // 5. No credit note emitted
     expect(FiscalInvoice::where('cbte_tipo', FiscalInvoice::CBTE_TIPO_NOTA_CREDITO_B)->count())->toBe(0);
-
-    // 6. No stock or ledger movements recorded
-    expect(StockMovement::where('reason', 'cancelacion_pedido')->count())->toBe(0)
-        ->and(CustomerAccountMovement::where('type', 'adjustment')->count())->toBe(0);
 });
 
 test('Test 4: Cancelling an unbilled order (sin_facturar) cancels normally without interacting with ARCA', function () {

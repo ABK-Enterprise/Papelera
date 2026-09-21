@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Actions\Tenant\Fiscal\EmitCreditNoteAction;
 use App\Actions\Tenant\Fiscal\EmitFiscalInvoiceAction;
 use App\Exceptions\ArcaException;
 use App\Http\Controllers\Controller;
@@ -32,6 +33,49 @@ class CustomerOrderFiscalController extends Controller
             }
 
             return back()->with('success', 'Factura electrónica emitida exitosamente.');
+        } catch (ArcaException $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'error' => $e->getMessage(),
+                ], 422);
+            }
+
+            return back()->withErrors(['fiscal_error' => $e->getMessage()])->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            $translatedMsg = ArcaErrorTranslator::translate('SoapFault', $e->getMessage());
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'message' => $translatedMsg,
+                    'error' => $translatedMsg,
+                ], 422);
+            }
+
+            return back()->withErrors(['fiscal_error' => $translatedMsg])->with('error', $translatedMsg);
+        }
+    }
+
+    /**
+     * Emit electronic credit note via ARCA for the specified customer order.
+     */
+    public function emitCreditNote(Request $request, CustomerOrder $order, EmitCreditNoteAction $action): RedirectResponse|JsonResponse
+    {
+        if ($order->tenant_id !== $request->user()->tenant_id) {
+            abort(403);
+        }
+
+        try {
+            $creditNote = $action->execute($order, $request->user(), null, $request->all());
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'message' => 'Nota de Crédito electrónica emitida exitosamente.',
+                    'fiscal_invoice' => $creditNote,
+                ]);
+            }
+
+            return back()->with('success', 'Nota de Crédito electrónica emitida exitosamente.');
         } catch (ArcaException $e) {
             if ($request->wantsJson()) {
                 return response()->json([

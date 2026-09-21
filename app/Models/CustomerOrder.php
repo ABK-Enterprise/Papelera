@@ -61,6 +61,10 @@ class CustomerOrder extends Model
     /** @use HasFactory<CustomerOrderFactory> */
     use BelongsToTenant, HasFactory;
 
+    protected $appends = [
+        'has_pending_credit_note',
+    ];
+
     public const ALLOWED_TRANSITIONS = [
         'en_preparacion' => ['preparado', 'en_camino', 'cancelado'],
         'preparado' => ['en_camino', 'entregado', 'cancelado'],
@@ -171,12 +175,48 @@ class CustomerOrder extends Model
             ->whereIn('cbte_tipo', [1, 6, 11]);
     }
 
+    public function creditNotes(): HasMany
+    {
+        return $this->hasMany(FiscalInvoice::class)
+            ->where('status', FiscalInvoice::STATUS_APROBADO)
+            ->whereIn('cbte_tipo', [
+                FiscalInvoice::CBTE_TIPO_NOTA_CREDITO_A,
+                FiscalInvoice::CBTE_TIPO_NOTA_CREDITO_B,
+                FiscalInvoice::CBTE_TIPO_NOTA_CREDITO_C,
+            ]);
+    }
+
+    public function hasCreditNote(): bool
+    {
+        return $this->relationLoaded('creditNotes')
+            ? $this->creditNotes->isNotEmpty()
+            : $this->creditNotes()->exists();
+    }
+
+    public function hasPendingCreditNote(): bool
+    {
+        return $this->status === 'cancelado'
+            && $this->fiscal_status === 'facturado'
+            && ! $this->hasCreditNote();
+    }
+
+    public function getHasPendingCreditNoteAttribute(): bool
+    {
+        return $this->hasPendingCreditNote();
+    }
+
     protected static function booted(): void
     {
         static::updating(function (CustomerOrder $order) {
             $originalStatus = $order->getOriginal('status');
             if ($originalStatus === 'cancelado') {
-                throw new \DomainException("El pedido {$order->order_number} se encuentra en estado definitivo ({$originalStatus}) y es inmutable.");
+                $dirtyKeys = array_keys($order->getDirty());
+                $allowedFiscalFields = ['fiscal_status', 'fiscal_error_message'];
+                $hasForbiddenChanges = ! empty(array_diff($dirtyKeys, $allowedFiscalFields));
+
+                if ($hasForbiddenChanges) {
+                    throw new \DomainException("El pedido {$order->order_number} se encuentra en estado definitivo ({$originalStatus}) y es inmutable.");
+                }
             }
 
             if ($originalStatus === 'entregado') {

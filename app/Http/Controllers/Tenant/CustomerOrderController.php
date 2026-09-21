@@ -578,17 +578,6 @@ class CustomerOrderController extends Controller
             }
 
             if ($newStatus === 'cancelado') {
-                if ($lockedOrder->isFiscalInvoiced()) {
-                    try {
-                        $creditNoteAction = app(EmitCreditNoteAction::class);
-                        $creditNoteAction->execute($lockedOrder, $user);
-                    } catch (ArcaException $e) {
-                        throw ValidationException::withMessages([
-                            'order' => ["No se pudo anular la factura en ARCA. El pedido no fue cancelado: " . $e->getMessage()],
-                        ]);
-                    }
-                }
-
                 $lockedOrder->load('items.product');
                 $sortedItems = $lockedOrder->items->sortBy('product_id');
                 foreach ($sortedItems as $item) {
@@ -680,12 +669,23 @@ class CustomerOrderController extends Controller
             broadcast($event);
         }
 
-        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
-            return response()->json($order->refresh());
+        $redirect = redirect()->route('tenant.orders.index')
+            ->with('success', "Estado del pedido {$order->order_number} actualizado a {$newStatus}.");
+
+        if ($newStatus === 'cancelado' && $order->hasPendingCreditNote()) {
+            $redirect->with('warning', "El pedido {$order->order_number} fue cancelado, pero mantiene una factura fiscal activa en ARCA pendiente de emisión de Nota de Crédito.");
         }
 
-        return redirect()->route('tenant.orders.index')
-            ->with('success', "Estado del pedido {$order->order_number} actualizado a {$newStatus}.");
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
+            $data = $order->refresh()->toArray();
+            if ($newStatus === 'cancelado' && $order->hasPendingCreditNote()) {
+                $data['warning'] = "El pedido {$order->order_number} fue cancelado, pero mantiene una factura fiscal activa en ARCA pendiente de emisión de Nota de Crédito.";
+            }
+
+            return response()->json($data);
+        }
+
+        return $redirect;
     }
 
     public function destroy(Request $request, CustomerOrder $customerOrder): RedirectResponse|JsonResponse

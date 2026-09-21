@@ -150,6 +150,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('pedidos/{customerOrder}/reconciliar-pago', [CustomerOrderController::class, 'reconcilePayment'])->name('orders.reconcile-payment')->middleware('tenant.permission:pedidos.ver');
             Route::post('pedidos/{customerOrder}/devolucion', [CustomerOrderReturnController::class, 'store'])->name('orders.return')->middleware('tenant.permission:pedidos.crear');
             Route::post('pedidos/{order}/facturar', [CustomerOrderFiscalController::class, 'emit'])->name('customer-orders.fiscal-invoice.emit')->middleware(['module:facturacion_arca', 'tenant.permission:facturas.emitir']);
+            Route::post('pedidos/{order}/nota-credito', [CustomerOrderFiscalController::class, 'emitCreditNote'])->name('customer-orders.fiscal-credit-note.emit')->middleware(['module:facturacion_arca', 'tenant.permission:facturas.emitir']);
             Route::get('pedidos/{order}/factura-pdf', [CustomerOrderFiscalController::class, 'downloadPdf'])->name('customer-orders.fiscal-invoice.pdf')->middleware('tenant.permission:pedidos.ver');
             Route::get('pedidos/{order}/factura-previsualizar', [CustomerOrderFiscalController::class, 'previewPdf'])->name('customer-orders.fiscal-invoice.preview')->middleware('tenant.permission:pedidos.ver');
             Route::get('pedidos/{order}/factura-visor', [CustomerOrderFiscalController::class, 'viewer'])->name('customer-orders.fiscal-invoice.viewer')->middleware('tenant.permission:pedidos.ver');
