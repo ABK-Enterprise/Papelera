@@ -1163,19 +1163,27 @@
                                                         {item.sku}
                                                     </span>
                                                 {/if}
-                                                {#if item.sale_type === 'weight'}
-                                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                                                        Pesaje
+                                                <!-- Tipo de venta: Pesaje o Unidad -->
+                                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 {item.sale_type === 'weight' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground border border-border/70'}">
+                                                    {item.sale_type === 'weight' ? 'Pesaje' : 'Unidad'}
+                                                </span>
+
+                                                <!-- Mobile: Pill compacto 'X%' al lado del tipo de venta -->
+                                                {#if hasBulkDiscount}
+                                                    <span class="sm:hidden inline-flex items-center text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 shrink-0 font-sans tabular-nums" title="Descuento por Bulto {item.bulk_discount_percentage}% ({item.bulk_discount_type === 'custom' ? 'Personalizado' : 'Heredado'})">
+                                                        {item.bulk_discount_percentage}%
                                                     </span>
                                                 {/if}
+
+                                                <!-- Desktop: Pill descriptivo completo -->
                                                 {#if isBulk}
                                                     {#if item.bulk_discount_type !== 'none' && item.bulk_discount_percentage > 0}
-                                                        <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
+                                                        <span class="hidden sm:inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
                                                             <Percent class="size-3" />
                                                             Desc. Bulto {item.bulk_discount_percentage}% ({item.bulk_discount_type === 'custom' ? 'Personalizado' : 'Heredado'})
                                                         </span>
                                                     {:else}
-                                                        <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-muted text-muted-foreground border-border">
+                                                        <span class="hidden sm:inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-muted text-muted-foreground border-border">
                                                             Sin Descuento por Bulto
                                                         </span>
                                                     {/if}
