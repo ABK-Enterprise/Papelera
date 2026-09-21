@@ -22,6 +22,19 @@ class CustomerOrderFiscalController extends Controller
      */
     public function emit(Request $request, CustomerOrder $order, EmitFiscalInvoiceAction $action): RedirectResponse|JsonResponse
     {
+        if ((float) $order->total_amount <= 0.00) {
+            $errorMessage = 'WSFEv1 (ARCA) requiere comprobantes con importe total mayor a cero ($0.00). Los pedidos bonificados al 100% sin cargo deben canalizarse mediante remito interno de traslado.';
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'message' => $errorMessage,
+                    'error' => $errorMessage,
+                ], 422);
+            }
+
+            return back()->withErrors(['fiscal_error' => $errorMessage])->with('error', $errorMessage);
+        }
+
         try {
             $invoice = $action->execute($order, $request->user(), $request->all());
 
@@ -125,7 +138,7 @@ class CustomerOrderFiscalController extends Controller
         return Pdf::view('pdf.fiscal-invoice', compact('order', 'invoice', 'qrBase64', 'tenant'))
             ->format('a4')
             ->meta(
-                title: ($invoice->isCreditNote() ? 'Nota de Crédito' : 'Factura') . " - {$invoice->formatted_number}",
+                title: ($invoice->isCreditNote() ? 'Nota de Crédito' : 'Factura')." - {$invoice->formatted_number}",
                 author: $tenant?->name ?? 'Papelera',
                 creator: config('app.name', 'Papelera'),
             )
@@ -159,7 +172,7 @@ class CustomerOrderFiscalController extends Controller
         return Pdf::view('pdf.fiscal-invoice', compact('order', 'invoice', 'qrBase64', 'tenant'))
             ->format('a4')
             ->meta(
-                title: ($invoice->isCreditNote() ? 'Nota de Crédito' : 'Factura') . " - {$invoice->formatted_number}",
+                title: ($invoice->isCreditNote() ? 'Nota de Crédito' : 'Factura')." - {$invoice->formatted_number}",
                 author: $tenant?->name ?? 'Papelera',
                 creator: config('app.name', 'Papelera'),
             )
@@ -184,7 +197,7 @@ class CustomerOrderFiscalController extends Controller
         }
 
         return view('pdf.viewer', [
-            'title' => ($invoice->isCreditNote() ? 'Nota de Crédito' : 'Factura') . " - {$invoice->formatted_number}",
+            'title' => ($invoice->isCreditNote() ? 'Nota de Crédito' : 'Factura')." - {$invoice->formatted_number}",
             'streamUrl' => route('tenant.customer-orders.fiscal-invoice.preview', $order),
         ]);
     }

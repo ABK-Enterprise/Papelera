@@ -27,6 +27,10 @@ class EmitFiscalInvoiceAction
      */
     public function execute(CustomerOrder $order, User $user, array $overrides = []): FiscalInvoice
     {
+        if ((float) $order->total_amount <= 0.00) {
+            throw new ArcaException('WSFEv1 (ARCA) requiere comprobantes con importe total mayor a cero ($0.00). Los pedidos bonificados al 100% sin cargo deben canalizarse mediante remito interno de traslado.');
+        }
+
         try {
             return DB::transaction(function () use ($order, $user, $overrides) {
                 /** @var CustomerOrder|null $lockedOrder */
@@ -34,6 +38,10 @@ class EmitFiscalInvoiceAction
 
                 if (! $lockedOrder) {
                     throw new ArcaException('Pedido no encontrado.');
+                }
+
+                if ((float) $lockedOrder->total_amount <= 0.00) {
+                    throw new ArcaException('WSFEv1 (ARCA) requiere comprobantes con importe total mayor a cero ($0.00). Los pedidos bonificados al 100% sin cargo deben canalizarse mediante remito interno de traslado.');
                 }
 
                 // FSM Validation

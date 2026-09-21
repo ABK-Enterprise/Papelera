@@ -307,7 +307,9 @@ class CustomerOrder extends Model
 
     public function canBeFiscalInvoiced(): bool
     {
-        return $this->status !== 'cancelado' && in_array($this->fiscal_status, ['sin_facturar', 'error_fiscal'], true);
+        return (float) $this->total_amount > 0.00
+            && $this->status !== 'cancelado'
+            && in_array($this->fiscal_status, ['sin_facturar', 'error_fiscal'], true);
     }
 
     public function scopeStatus(Builder $query, string $status): Builder
