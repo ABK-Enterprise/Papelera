@@ -189,19 +189,24 @@ class TenantMercadoPagoController extends Controller
                 $refreshToken = $data['refresh_token'] ?? null;
                 $liveMode = $data['live_mode'] ?? false;
 
-                // Consultar datos del perfil de usuario en MP
+                // Consultar datos del perfil de usuario en MP (no bloqueante)
                 $nickname = null;
                 $email = null;
 
                 if ($userId && $accessToken) {
-                    $profileRes = Http::withToken($accessToken)
-                        ->timeout(10)
-                        ->get("https://api.mercadolibre.com/users/{$userId}");
+                    try {
+                        $profileRes = Http::withToken($accessToken)
+                            ->timeout(10)
+                            ->get("https://api.mercadolibre.com/users/{$userId}");
 
-                    if ($profileRes->successful()) {
-                        $profileData = $profileRes->json();
-                        $nickname = $profileData['nickname'] ?? trim(($profileData['first_name'] ?? '') . ' ' . ($profileData['last_name'] ?? ''));
-                        $email = $profileData['email'] ?? null;
+                        if ($profileRes->successful()) {
+                            $profileData = $profileRes->json();
+                            $nickname = $profileData['nickname'] ?? trim(($profileData['first_name'] ?? '') . ' ' . ($profileData['last_name'] ?? ''));
+                            $email = $profileData['email'] ?? null;
+                        }
+                    } catch (\Throwable $profileError) {
+                        error_log('MP_OAUTH_PROFILE_WARNING: ' . $profileError->getMessage());
+                        Log::warning('Mercado Pago profile lookup failed (non-critical): ' . $profileError->getMessage());
                     }
                 }
 
@@ -219,8 +224,11 @@ class TenantMercadoPagoController extends Controller
                 try {
                     app(\App\Services\MercadoPago\MercadoPagoService::class)->ensurePosExists($tenant);
                 } catch (\Throwable $e) {
+                    error_log('MP_OAUTH_ENSURE_POS_WARNING: ' . $e->getMessage());
                     Log::warning('Mercado Pago ensurePosExists on OAuth callback warning: ' . $e->getMessage());
                 }
+
+                error_log('MP_OAUTH_SUCCESS: Tenant ' . $tenant->id . ' successfully linked with MP user ' . $userId);
 
                 Inertia::flash('toast', [
                     'type' => 'success',
@@ -230,6 +238,8 @@ class TenantMercadoPagoController extends Controller
                 return redirect()->route('tenant.settings.mercadopago')
                     ->with('success', 'Cuenta de Mercado Pago vinculada exitosamente.');
             }
+
+            error_log('MP_OAUTH_TOKEN_EXCHANGE_FAILED: HTTP ' . $response->status() . ' - Body: ' . $response->body());
 
             Log::error('Mercado Pago OAuth token exchange failed', [
                 'status' => $response->status(),
@@ -245,8 +255,15 @@ class TenantMercadoPagoController extends Controller
 
             return redirect()->route('tenant.settings.mercadopago')
                 ->with('error', 'Error al autorizar con Mercado Pago: ' . ($response->json('message') ?? 'Respuesta no exitosa.'));
-        } catch (\Exception $e) {
-            Log::error('Mercado Pago OAuth exception', ['message' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            error_log('MP_OAUTH_EXCEPTION: [' . get_class($e) . '] ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
+
+            Log::error('Mercado Pago OAuth exception', [
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
 
             Inertia::flash('toast', [
                 'type' => 'error',

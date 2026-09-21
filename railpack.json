@@ -8,10 +8,14 @@
   "buildAptPackages": [
     "git",
     "unzip",
-    "libpq-dev"
+    "libpq-dev",
+    "ca-certificates",
+    "curl"
   ],
   "deploy": {
     "aptPackages": [
+      "ca-certificates",
+      "curl",
       "chromium",
       "libnss3",
       "libatk-bridge2.0-0",
