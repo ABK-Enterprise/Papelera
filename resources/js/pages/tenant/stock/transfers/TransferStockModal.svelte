@@ -4,7 +4,6 @@
         Dialog,
         DialogBody,
         DialogContent,
-        DialogDescription,
         DialogFooter,
         DialogHeader,
         DialogTitle,
@@ -193,14 +192,9 @@
         <DialogHeader>
             <div class="flex items-center gap-2.5 min-w-0">
                 <IconContainer size="md" variant="primary" icon="solar:transfer-horizontal-bold-duotone" />
-                <div class="min-w-0">
-                    <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug">
-                        Transferir stock entre depósitos
-                    </DialogTitle>
-                    <DialogDescription class="text-xs text-muted-foreground">
-                        Mueve existencias físicas de un depósito a otro de forma atómica y trazable.
-                    </DialogDescription>
-                </div>
+                <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug truncate">
+                    Transferir stock entre depósitos
+                </DialogTitle>
             </div>
             <button
                 type="button"
