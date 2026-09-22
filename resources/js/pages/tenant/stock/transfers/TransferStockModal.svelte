@@ -19,6 +19,8 @@
     import ArrowLeftRight from 'lucide-svelte/icons/arrow-left-right';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Loader2 from 'lucide-svelte/icons/loader-2';
+    import Minus from 'lucide-svelte/icons/minus';
+    import Plus from 'lucide-svelte/icons/plus';
     import X from 'lucide-svelte/icons/x';
 
     export interface WarehouseItem {
@@ -33,6 +35,7 @@
         name: string;
         sku?: string | null;
         stock?: number;
+        sale_type?: string;
     }
 
     let {
@@ -125,6 +128,20 @@
     function handleClearProduct() {
         form.product_id = '';
         productSearchQuery = '';
+    }
+
+    function decrementQuantity() {
+        const cur = Number(form.quantity) || 1;
+        if (cur > 1) {
+            form.quantity = Math.max(1, cur - 1);
+        }
+    }
+
+    function incrementQuantity() {
+        const cur = Number(form.quantity) || 0;
+        if (cur < 10000) {
+            form.quantity = Math.min(10000, cur + 1);
+        }
     }
 
     function onOriginChange(e: Event) {
@@ -231,20 +248,10 @@
                     {/if}
                 </div>
 
-                <!-- Resumen visual del Producto -->
-                {#if selectedProduct}
-                    <div class="p-3 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between text-xs">
-                        <span class="text-muted-foreground">Stock total en catálogo:</span>
-                        <span class="font-semibold text-foreground tabular-nums">
-                            {selectedProduct.stock ?? preselectedStock ?? 0} unidades
-                        </span>
-                    </div>
-                {/if}
-
-                <!-- Grilla de Depósitos: Origen y Destino -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-center">
+                <!-- Grilla de Depósitos: Origen, Icono Central y Destino -->
+                <div class="grid grid-cols-1 sm:grid-cols-[1fr,auto,1fr] gap-2.5 sm:gap-3 items-end">
                     <!-- Depósito Origen -->
-                    <div class="space-y-1.5">
+                    <div class="space-y-1.5 min-w-0">
                         <Label for="transfer-origin" class="text-xs font-semibold text-foreground">
                             Depósito Origen *
                         </Label>
@@ -265,21 +272,33 @@
                         {/if}
                     </div>
 
+                    <!-- Icono entre medio de origen y destino -->
+                    <div class="flex items-center justify-center shrink-0 py-0.5 sm:py-0 sm:mb-1.5">
+                        <div class="size-9 rounded-xl bg-primary-500/10 border border-primary-500/20 text-primary-600 dark:text-primary-400 flex items-center justify-center shadow-2xs">
+                            <ArrowRight class="size-4 rotate-90 sm:rotate-0 transition-transform" />
+                        </div>
+                    </div>
+
                     <!-- Depósito Destino -->
-                    <div class="space-y-1.5">
+                    <div class="space-y-1.5 min-w-0">
                         <Label for="transfer-destination" class="text-xs font-semibold text-foreground">
                             Depósito Destino *
                         </Label>
                         <select
                             id="transfer-destination"
                             bind:value={form.destination_warehouse_id}
-                            class="w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
+                            disabled={availableDestinations.length === 0}
+                            class="w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px] disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            {#each availableDestinations as wh (wh.id)}
-                                <option value={String(wh.id)}>
-                                    {wh.name} {wh.is_default ? '(Principal)' : ''}
-                                </option>
-                            {/each}
+                            {#if availableDestinations.length === 0}
+                                <option value="" disabled selected>No hay depósito destino</option>
+                            {:else}
+                                {#each availableDestinations as wh (wh.id)}
+                                    <option value={String(wh.id)}>
+                                        {wh.name} {wh.is_default ? '(Principal)' : ''}
+                                    </option>
+                                {/each}
+                            {/if}
                         </select>
                         {#if form.errors.destination_warehouse_id}
                             <p class="text-xs text-rose-500 font-medium">{form.errors.destination_warehouse_id}</p>
@@ -307,26 +326,77 @@
                     </div>
                 {/if}
 
-                <!-- Cantidad a Transferir -->
-                <div class="space-y-1.5">
-                    <Label for="transfer-qty" class="text-xs font-semibold text-foreground">
-                        Cantidad a Transferir *
-                    </Label>
-                    <Input
-                        id="transfer-qty"
-                        type="number"
-                        min="0.001"
-                        max="10000"
-                        step="any"
-                        bind:value={form.quantity}
-                        placeholder="Ej. 10"
-                        required
-                        class="text-sm shadow-2xs tabular-nums"
-                    />
-                    {#if form.errors.quantity}
-                        <p class="text-xs text-rose-500 font-medium">{form.errors.quantity}</p>
-                    {/if}
+                <!-- Fila: Stock en Catálogo (Izquierda) y Counter de Cantidad (Derecha) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                    <!-- Izquierda: Texto Descriptivo Stock en Catálogo -->
+                    <div class="min-w-0 flex-1">
+                        {#if selectedProduct || preselectedStock !== null}
+                            <p class="text-xs text-muted-foreground">
+                                Stock en catálogo:
+                                <strong class="font-semibold text-foreground tabular-nums">
+                                    {selectedProduct ? (selectedProduct.stock ?? preselectedStock ?? 0) : (preselectedStock ?? 0)}
+                                </strong>
+                                {selectedProduct?.sale_type === 'weight' ? 'kg' : 'unidades'}
+                            </p>
+                        {:else}
+                            <p class="text-xs text-muted-foreground italic">
+                                Selecciona un producto para consultar el stock
+                            </p>
+                        {/if}
+                    </div>
+
+                    <!-- Derecha: Cantidad con Counter Modificable (Stepper) -->
+                    <div class="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
+                        <Label for="transfer-qty" class="text-xs font-semibold text-foreground whitespace-nowrap">
+                            Cantidad:
+                        </Label>
+                        <div class="flex items-center border border-border/80 rounded-xl bg-background shadow-2xs h-9 overflow-hidden">
+                            <button
+                                type="button"
+                                class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer"
+                                onclick={decrementQuantity}
+                                disabled={Number(form.quantity) <= 1}
+                                aria-label="Disminuir cantidad"
+                            >
+                                <Minus class="size-3.5" />
+                            </button>
+                            <input
+                                id="transfer-qty"
+                                type="number"
+                                min="0.001"
+                                max="10000"
+                                step="any"
+                                bind:value={form.quantity}
+                                oninput={(e) => {
+                                    const val = (e.target as HTMLInputElement).value;
+                                    if (Number(val) > 10000) form.quantity = 10000;
+                                }}
+                                onblur={() => {
+                                    let val = Number(form.quantity);
+                                    if (isNaN(val) || val <= 0) {
+                                        form.quantity = 1;
+                                    } else if (val > 10000) {
+                                        form.quantity = 10000;
+                                    }
+                                }}
+                                class="w-16 h-full text-center text-xs font-semibold text-foreground focus:outline-none tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-transparent"
+                                required
+                            />
+                            <button
+                                type="button"
+                                class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer"
+                                onclick={incrementQuantity}
+                                disabled={Number(form.quantity) >= 10000}
+                                aria-label="Aumentar cantidad"
+                            >
+                                <Plus class="size-3.5" />
+                            </button>
+                        </div>
+                    </div>
                 </div>
+                {#if form.errors.quantity}
+                    <p class="text-xs text-rose-500 font-medium text-right">{form.errors.quantity}</p>
+                {/if}
 
                 <!-- Alerta de Stock Negativo en Origen -->
                 {#if isNegativeOriginWarning}

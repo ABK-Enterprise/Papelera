@@ -268,9 +268,7 @@
                         <option value="ingreso_manual">Ingreso manual / Ajuste inicial</option>
                         <option value="compra_proveedor">Compra de mercadería / Proveedor</option>
                         <option value="devolucion_cliente">Devolución de cliente</option>
-                        {#if warehouses.length > 1}
-                            <option value="transferencia_deposito">Transferencia desde otro depósito</option>
-                        {/if}
+                        <option value="transferencia_deposito">Transferencia desde otro depósito</option>
                     </select>
                     {#if form.errors.reason}
                         <p class="text-xs text-rose-500 font-medium">{form.errors.reason}</p>
@@ -287,13 +285,18 @@
                         <select
                             id="income-origin-warehouse"
                             bind:value={form.origin_warehouse_id}
-                            class="w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
+                            disabled={availableOrigins.length === 0}
+                            class="w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px] disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            {#each availableOrigins as wh (wh.id)}
-                                <option value={String(wh.id)}>
-                                    {wh.name} {wh.is_default ? '(Principal)' : ''}
-                                </option>
-                            {/each}
+                            {#if availableOrigins.length === 0}
+                                <option value="" disabled selected>No hay depósito origen</option>
+                            {:else}
+                                {#each availableOrigins as wh (wh.id)}
+                                    <option value={String(wh.id)}>
+                                        {wh.name} {wh.is_default ? '(Principal)' : ''}
+                                    </option>
+                                {/each}
+                            {/if}
                         </select>
                         {#if form.errors.origin_warehouse_id}
                             <p class="text-xs text-rose-500 font-medium">{form.errors.origin_warehouse_id}</p>

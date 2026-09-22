@@ -285,9 +285,7 @@
                         <option value="merma">Merma / Producto Dañado</option>
                         <option value="ajuste_inventario">Ajuste de inventario</option>
                         <option value="vencimiento">Vencimiento</option>
-                        {#if warehouses.length > 1}
-                            <option value="transferencia_deposito">Transferencia hacia otro depósito</option>
-                        {/if}
+                        <option value="transferencia_deposito">Transferencia hacia otro depósito</option>
                     </select>
                     {#if form.errors.reason}
                         <p class="text-xs text-rose-500 font-medium">{form.errors.reason}</p>
@@ -304,13 +302,18 @@
                         <select
                             id="outcome-dest-warehouse"
                             bind:value={form.destination_warehouse_id}
-                            class="w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
+                            disabled={availableDestinations.length === 0}
+                            class="w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px] disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            {#each availableDestinations as wh (wh.id)}
-                                <option value={String(wh.id)}>
-                                    {wh.name} {wh.is_default ? '(Principal)' : ''}
-                                </option>
-                            {/each}
+                            {#if availableDestinations.length === 0}
+                                <option value="" disabled selected>No hay depósito destino</option>
+                            {:else}
+                                {#each availableDestinations as wh (wh.id)}
+                                    <option value={String(wh.id)}>
+                                        {wh.name} {wh.is_default ? '(Principal)' : ''}
+                                    </option>
+                                {/each}
+                            {/if}
                         </select>
                         {#if form.errors.destination_warehouse_id}
                             <p class="text-xs text-rose-500 font-medium">{form.errors.destination_warehouse_id}</p>
