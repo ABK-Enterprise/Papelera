@@ -54,6 +54,8 @@ Route::middleware(['auth', 'verified', 'tenant'])
         Route::middleware('tenant.admin')->group(function () {
             Route::get('configuracion/comercio', [CompanySettingsController::class, 'edit'])->name('settings.company');
             Route::put('configuracion/comercio', [CompanySettingsController::class, 'update'])->name('settings.company.update');
+            Route::post('configuracion/comercio/logo', [CompanySettingsController::class, 'updateLogo'])->name('settings.company.logo.update');
+            Route::delete('configuracion/comercio/logo', [CompanySettingsController::class, 'deleteLogo'])->name('settings.company.logo.delete');
             Route::get('configuracion/mercadopago', [TenantMercadoPagoController::class, 'index'])->name('settings.mercadopago');
             Route::get('configuracion/mercadopago/vincular', [TenantMercadoPagoController::class, 'connect'])->name('settings.mercadopago.connect');
             Route::get('configuracion/mercadopago/callback', [TenantMercadoPagoController::class, 'callback'])->name('settings.mercadopago.callback');

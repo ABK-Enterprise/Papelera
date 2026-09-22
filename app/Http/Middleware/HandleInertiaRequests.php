@@ -62,6 +62,7 @@ class HandleInertiaRequests extends Middleware
                     'cuit_tax_id' => $user->tenant->cuit_tax_id,
                     'tax_condition' => $user->tenant->tax_condition,
                     'is_active' => $user->tenant->is_active,
+                    'logo_url' => $user->tenant->logo_url,
                 ];
                 $modules = $user->tenant->modules()
                     ->where(function ($query) {

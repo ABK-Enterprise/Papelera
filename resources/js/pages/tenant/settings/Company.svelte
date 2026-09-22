@@ -14,12 +14,15 @@
     import Calendar from 'lucide-svelte/icons/calendar';
     import Save from 'lucide-svelte/icons/save';
     import Loader2 from 'lucide-svelte/icons/loader-2';
+    import Pencil from 'lucide-svelte/icons/pencil';
+    import TenantLogoModal from '@/components/tenant/settings/TenantLogoModal.svelte';
 
     interface CompanyData {
         name: string;
         legal_name: string | null;
         cuit_tax_id: string | null;
         tax_condition: string;
+        logo_url?: string | null;
         address: string | null;
         city: string | null;
         state: string | null;
@@ -35,6 +38,13 @@
     }
 
     let { company }: Props = $props();
+
+    let showLogoModal = $state(false);
+    let logoUrl = $state(company.logo_url ?? null);
+
+    $effect(() => {
+        logoUrl = company.logo_url ?? null;
+    });
 
     const form = useForm({
         name: company.name ?? '',
@@ -81,6 +91,55 @@
             <div class="flex items-center gap-2 pb-2 border-b border-border/60">
                 <Building2 class="size-4 text-primary" />
                 <h3 class="text-base font-semibold tracking-normal text-foreground">Identidad Comercial & Fiscal</h3>
+            </div>
+
+            <!-- Avatar / Logo del Comercio con Indicador de Edición -->
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 p-4 rounded-xl bg-muted/20 border border-border/50">
+                <div
+                    class="relative size-24 sm:size-28 rounded-full border-2 border-border/80 bg-muted/50 shadow-xs cursor-pointer group shrink-0 flex items-center justify-center"
+                    onclick={() => (showLogoModal = true)}
+                    onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') showLogoModal = true; }}
+                    role="button"
+                    tabindex="0"
+                    aria-label="Editar logo del comercio"
+                    title="Editar logo del comercio"
+                >
+                    <div class="size-full rounded-full overflow-hidden flex items-center justify-center">
+                        {#if logoUrl}
+                            <img
+                                src={logoUrl}
+                                alt="Logo del comercio"
+                                class="size-full object-cover group-hover:scale-105 transition-transform duration-200"
+                            />
+                        {:else}
+                            <Store class="size-10 text-muted-foreground/70 group-hover:text-primary transition-colors" />
+                        {/if}
+                    </div>
+
+                    <!-- Indicador visual de lápiz sobre el borde circular -->
+                    <div
+                        class="absolute bottom-0 right-0 size-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-xs border-2 border-background group-hover:scale-110 transition-transform"
+                    >
+                        <Pencil class="size-3.5" />
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center sm:items-start text-center sm:text-left gap-1 pt-1">
+                    <span class="text-sm font-semibold text-foreground">Logo del comercio</span>
+                    <p class="text-xs text-muted-foreground max-w-sm">
+                        Se muestra en la plataforma y en todos los comprobantes PDF oficiales (facturas, remitos, órdenes y recibos).
+                    </p>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onclick={() => (showLogoModal = true)}
+                        class="mt-2 min-h-[36px] text-xs font-semibold gap-1.5 rounded-lg"
+                    >
+                        <Pencil class="size-3 text-primary" />
+                        <span>{logoUrl ? 'Cambiar logo' : 'Subir logo'}</span>
+                    </Button>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -341,4 +400,12 @@
             </Button>
         </div>
     </form>
+
+    <TenantLogoModal
+        bind:open={showLogoModal}
+        currentLogoUrl={logoUrl}
+        onSuccess={(newLogo) => {
+            logoUrl = newLogo;
+        }}
+    />
 </div>

@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Comprobante de Pedido - {{ $order->order_number }}</title>
-    <link rel="icon" href="{{ asset('favicon.ico') }}?v=2" sizes="any">
-    <link rel="icon" href="{{ asset('logo-provisorio-papelera.png') }}?v=2" type="image/png">
-    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}?v=2">
+    <link rel="icon" href="/favicon.ico" sizes="any">
     <style>
         @page {
             size: a4 portrait;
@@ -309,8 +307,7 @@
 </head>
 <body>
     @php
-        $logoPath = public_path('logo-provisorio-papelera.png');
-        $resolvedLogo = $logoBase64 ?? (file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : null);
+        $resolvedLogo = $logoBase64 ?? (isset($order->tenant) ? app(\App\Services\TenantLogoService::class)->getBase64Logo($order->tenant) : null);
 
         $bulkDiscountTotal = 0.00;
         $customerDiscountPct = (float) ($order->customer_discount_percentage ?? 0.00);

@@ -35,6 +35,7 @@ use Laravel\Scout\Searchable;
     'legal_name',
     'cuit_tax_id',
     'tax_condition',
+    'logo_url',
     'address',
     'city',
     'state',

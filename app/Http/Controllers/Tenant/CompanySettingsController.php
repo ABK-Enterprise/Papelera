@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\UpdateCompanySettingsRequest;
+use App\Http\Requests\Tenant\UpdateTenantLogoRequest;
+use App\Services\TenantLogoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,6 +26,7 @@ class CompanySettingsController extends Controller
             'legal_name' => $tenant->legal_name,
             'cuit_tax_id' => $tenant->cuit_tax_id,
             'tax_condition' => $tenant->tax_condition ?? 'responsable_inscripto',
+            'logo_url' => $tenant->logo_url,
             'address' => $tenant->address,
             'city' => $tenant->city,
             'state' => $tenant->state,
@@ -76,5 +79,70 @@ class CompanySettingsController extends Controller
 
         return redirect()->route('tenant.settings.company')
             ->with('success', 'Datos del comercio actualizados correctamente.');
+    }
+
+    /**
+     * Upload and optimize company logo.
+     */
+    public function updateLogo(UpdateTenantLogoRequest $request, TenantLogoService $logoService): RedirectResponse|JsonResponse
+    {
+        $tenant = $request->user()->tenant;
+
+        // Clean up previous logo file if existed
+        $oldLogoUrl = $tenant->logo_url;
+
+        $newLogoUrl = $logoService->storeAndOptimize($request->file('logo'), (int) $tenant->id);
+
+        $tenant->update([
+            'logo_url' => $newLogoUrl,
+        ]);
+
+        if ($oldLogoUrl && $oldLogoUrl !== $newLogoUrl) {
+            $logoService->deleteLogo($oldLogoUrl, (int) $tenant->id);
+        }
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Logo del comercio actualizado correctamente.',
+        ]);
+
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
+            return response()->json([
+                'message' => 'Logo del comercio actualizado correctamente.',
+                'logo_url' => $newLogoUrl,
+            ]);
+        }
+
+        return redirect()->route('tenant.settings.company')
+            ->with('success', 'Logo del comercio actualizado correctamente.');
+    }
+
+    /**
+     * Remove the company logo.
+     */
+    public function deleteLogo(Request $request, TenantLogoService $logoService): RedirectResponse|JsonResponse
+    {
+        $tenant = $request->user()->tenant;
+
+        if ($tenant->logo_url) {
+            $logoService->deleteLogo($tenant->logo_url, (int) $tenant->id);
+            $tenant->update([
+                'logo_url' => null,
+            ]);
+        }
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Logo del comercio eliminado correctamente.',
+        ]);
+
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
+            return response()->json([
+                'message' => 'Logo del comercio eliminado correctamente.',
+            ]);
+        }
+
+        return redirect()->route('tenant.settings.company')
+            ->with('success', 'Logo del comercio eliminado correctamente.');
     }
 }

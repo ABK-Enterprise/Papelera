@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ $invoice->isCreditNote() ? 'Nota de Crédito' : 'Factura' }} - {{ $invoice->formatted_number }}</title>
-    <link rel="icon" href="{{ asset('favicon.ico') }}?v=2" sizes="any">
-    <link rel="icon" href="{{ asset('logo-provisorio-papelera.png') }}?v=2" type="image/png">
-    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}?v=2">
+    <link rel="icon" href="/favicon.ico" sizes="any">
     <style>
         @page {
             size: a4 portrait;
@@ -345,6 +343,12 @@
                     <tr>
                         <!-- Lado Izquierdo: Emisor -->
                         <td class="header-left">
+                            @php
+                                $tenantLogo = app(\App\Services\TenantLogoService::class)->getBase64Logo($tenant);
+                            @endphp
+                            @if($tenantLogo)
+                                <img src="{{ $tenantLogo }}" alt="Logo" style="max-height: 44px; max-width: 140px; margin-bottom: 6px; object-fit: contain; display: block;" />
+                            @endif
                             <div class="tenant-name">{{ $tenant->legal_name ?: $tenant->name }}</div>
                             @if($tenant->legal_name && $tenant->name && $tenant->legal_name !== $tenant->name)
                                 <div class="tenant-legal">Nombre Comercial: {{ $tenant->name }}</div>

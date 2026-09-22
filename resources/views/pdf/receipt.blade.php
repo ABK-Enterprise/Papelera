@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Recibo de Cobro - {{ $receipt->receipt_number }}</title>
-    <link rel="icon" href="{{ asset('favicon.ico') }}?v=2" sizes="any">
-    <link rel="icon" href="{{ asset('logo-provisorio-papelera.png') }}?v=2" type="image/png">
-    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}?v=2">
+    <link rel="icon" href="/favicon.ico" sizes="any">
     <style>
         @page {
             size: a4 portrait;
@@ -237,6 +235,13 @@
     <table class="header-table">
         <tr>
             <td style="width: 44%;">
+                @php
+                    $receiptTenant = $receipt->tenant ?? $receipt->customer?->tenant;
+                    $resolvedReceiptLogo = $receiptTenant ? app(\App\Services\TenantLogoService::class)->getBase64Logo($receiptTenant) : null;
+                @endphp
+                @if($resolvedReceiptLogo)
+                    <img src="{{ $resolvedReceiptLogo }}" alt="Logo" style="max-height: 44px; max-width: 140px; margin-bottom: 6px; object-fit: contain; display: block;" />
+                @endif
                 <div class="tenant-title">{{ $receipt->tenant->name ?? 'COMERCIO' }}</div>
                 @if(!empty($receipt->tenant->legal_name))
                     <div class="tenant-legal">{{ $receipt->tenant->legal_name }}</div>

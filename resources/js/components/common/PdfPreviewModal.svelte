@@ -157,40 +157,44 @@
                 </div>
             {/if}
 
-            <div class="flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto order-2">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto order-2">
+                {#if isGenerated}
+                    <!-- Fila 1 en Mobile / Acciones principales en Desktop -->
+                    <div class="grid grid-cols-[1fr_1.25fr] sm:flex sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto order-1 sm:order-2">
+                        <a href={viewerUrl || previewUrl} target="_blank" rel="noreferrer" class="w-full sm:w-auto">
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                class="w-full sm:w-auto min-h-[44px] px-3 sm:px-4 gap-1.5 sm:gap-2 rounded-xl text-xs sm:text-sm font-semibold justify-center"
+                            >
+                                <ExternalLink class="size-4 text-primary shrink-0" />
+                                <span class="sm:hidden">Abrir</span>
+                                <span class="hidden sm:inline">Abrir en pestaña</span>
+                            </Button>
+                        </a>
+
+                        <a href={downloadUrl} download class="w-full sm:w-auto">
+                            <Button
+                                type="button"
+                                class="w-full sm:w-auto min-h-[44px] px-3 sm:px-5 gap-1.5 sm:gap-2 rounded-xl text-xs sm:text-sm font-semibold shadow-xs justify-center"
+                            >
+                                <Download class="size-4 shrink-0" />
+                                <span class="sm:hidden">Descargar</span>
+                                <span class="hidden sm:inline">Descargar pdf</span>
+                            </Button>
+                        </a>
+                    </div>
+                {/if}
+
+                <!-- Fila 2 en Mobile (100% ancho) / Primer botón a la izquierda del grupo en Desktop -->
                 <Button
                     type="button"
                     variant="outline"
-                    class="flex-1 sm:flex-initial min-h-[44px] px-3 sm:px-4 rounded-xl text-sm font-semibold justify-center"
+                    class="w-full sm:w-auto min-h-[44px] px-4 sm:px-4 rounded-xl text-sm font-semibold justify-center order-2 sm:order-1"
                     onclick={() => (open = false)}
                 >
                     Cerrar
                 </Button>
-
-                {#if isGenerated}
-                    <a href={viewerUrl || previewUrl} target="_blank" rel="noreferrer" class="flex-1 sm:flex-initial">
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            class="w-full min-h-[44px] px-2.5 sm:px-4 gap-1.5 sm:gap-2 rounded-xl text-xs sm:text-sm font-semibold justify-center"
-                        >
-                            <ExternalLink class="size-4 text-primary shrink-0" />
-                            <span class="sm:hidden">Abrir</span>
-                            <span class="hidden sm:inline">Abrir en pestaña</span>
-                        </Button>
-                    </a>
-
-                    <a href={downloadUrl} download class="flex-1 sm:flex-initial">
-                        <Button
-                            type="button"
-                            class="w-full min-h-[44px] px-2.5 sm:px-5 gap-1.5 sm:gap-2 rounded-xl text-xs sm:text-sm font-semibold shadow-xs justify-center"
-                        >
-                            <Download class="size-4 shrink-0" />
-                            <span class="sm:hidden">Descargar</span>
-                            <span class="hidden sm:inline">Descargar pdf</span>
-                        </Button>
-                    </a>
-                {/if}
             </div>
         </div>
     </DialogContent>
