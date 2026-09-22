@@ -280,7 +280,7 @@
                     <!-- Depósito de Origen -->
                     <div class="space-y-1.5">
                         <Label for="income-origin-warehouse" class="text-xs font-semibold text-foreground">
-                            Depósito de Origen (desde donde sale) *
+                            Depósito de Origen *
                         </Label>
                         <select
                             id="income-origin-warehouse"
@@ -307,7 +307,7 @@
                     {#if originWarehouse && destWarehouse}
                         <div class="p-3.5 rounded-xl bg-primary-500/5 border border-primary-500/20 flex items-center justify-between gap-2.5">
                             <div class="min-w-0 flex-1">
-                                <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Sale de (Origen)</span>
+                                <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Sale de</span>
                                 <span class="text-xs sm:text-sm font-semibold text-foreground truncate block">{originWarehouse.name}</span>
                             </div>
                             <div class="flex flex-col items-center justify-center shrink-0 px-2">
@@ -317,7 +317,7 @@
                                 </span>
                             </div>
                             <div class="min-w-0 flex-1 text-right">
-                                <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Ingresa a (Destino)</span>
+                                <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Ingresa en</span>
                                 <span class="text-xs sm:text-sm font-semibold text-foreground truncate block">{destWarehouse.name}</span>
                             </div>
                         </div>
@@ -344,30 +344,32 @@
             </form>
         </DialogBody>
 
-        <DialogFooter>
-            <Button
-                type="button"
-                variant="outline"
-                onclick={closeModal}
-                disabled={form.processing}
-                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70"
-            >
-                Cancelar
-            </Button>
-            <Button
-                type="submit"
-                form="create-income-form"
-                disabled={form.processing || !form.product_id}
-                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white min-w-32 shadow-xs"
-            >
-                {#if form.processing}
-                    <Loader2 class="size-3.5 animate-spin mr-1.5" />
-                    <span>Registrando...</span>
-                {:else}
-                    <ArrowDownLeft class="size-3.5 mr-1.5" />
-                    <span>Registrar ingreso</span>
-                {/if}
-            </Button>
+        <DialogFooter class="p-4 sm:p-6">
+            <div class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:w-auto sm:justify-end sm:items-center">
+                <Button
+                    type="button"
+                    variant="outline"
+                    onclick={closeModal}
+                    disabled={form.processing}
+                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70 whitespace-nowrap cursor-pointer"
+                >
+                    Cancelar
+                </Button>
+                <Button
+                    type="submit"
+                    form="create-income-form"
+                    disabled={form.processing || !form.product_id}
+                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs whitespace-nowrap cursor-pointer"
+                >
+                    {#if form.processing}
+                        <Loader2 class="size-3.5 animate-spin mr-1.5 shrink-0" />
+                        <span>Registrando...</span>
+                    {:else}
+                        <ArrowDownLeft class="size-3.5 mr-1.5 shrink-0" />
+                        <span>Registrar ingreso</span>
+                    {/if}
+                </Button>
+            </div>
         </DialogFooter>
 
     </DialogContent>

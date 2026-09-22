@@ -297,7 +297,7 @@
                     <!-- Depósito de Destino -->
                     <div class="space-y-1.5">
                         <Label for="outcome-dest-warehouse" class="text-xs font-semibold text-foreground">
-                            Depósito de Destino (adonde ingresa) *
+                            Depósito de Destino *
                         </Label>
                         <select
                             id="outcome-dest-warehouse"
@@ -324,7 +324,7 @@
                     {#if originWarehouse && destinationWarehouse}
                         <div class="p-3.5 rounded-xl bg-primary-500/5 border border-primary-500/20 flex items-center justify-between gap-2.5">
                             <div class="min-w-0 flex-1">
-                                <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Sale de (Origen)</span>
+                                <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Sale de</span>
                                 <span class="text-xs sm:text-sm font-semibold text-foreground truncate block">{originWarehouse.name}</span>
                             </div>
                             <div class="flex flex-col items-center justify-center shrink-0 px-2">
@@ -334,7 +334,7 @@
                                 </span>
                             </div>
                             <div class="min-w-0 flex-1 text-right">
-                                <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Ingresa a (Destino)</span>
+                                <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Ingresa en</span>
                                 <span class="text-xs sm:text-sm font-semibold text-foreground truncate block">{destinationWarehouse.name}</span>
                             </div>
                         </div>
@@ -361,30 +361,32 @@
             </form>
         </DialogBody>
 
-        <DialogFooter>
-            <Button
-                type="button"
-                variant="outline"
-                onclick={closeModal}
-                disabled={form.processing}
-                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70"
-            >
-                Cancelar
-            </Button>
-            <Button
-                type="submit"
-                form="create-outcome-form"
-                disabled={form.processing || !form.product_id || isQuantityExceeded}
-                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-700 text-white min-w-32 shadow-xs"
-            >
-                {#if form.processing}
-                    <Loader2 class="size-3.5 animate-spin mr-1.5" />
-                    <span>Procesando...</span>
-                {:else}
-                    <ArrowUpRight class="size-3.5 mr-1.5" />
-                    <span>Registrar egreso</span>
-                {/if}
-            </Button>
+        <DialogFooter class="p-4 sm:p-6">
+            <div class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:w-auto sm:justify-end sm:items-center">
+                <Button
+                    type="button"
+                    variant="outline"
+                    onclick={closeModal}
+                    disabled={form.processing}
+                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70 whitespace-nowrap cursor-pointer"
+                >
+                    Cancelar
+                </Button>
+                <Button
+                    type="submit"
+                    form="create-outcome-form"
+                    disabled={form.processing || !form.product_id || isQuantityExceeded}
+                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-700 text-white shadow-xs whitespace-nowrap cursor-pointer"
+                >
+                    {#if form.processing}
+                        <Loader2 class="size-3.5 animate-spin mr-1.5 shrink-0" />
+                        <span>Procesando...</span>
+                    {:else}
+                        <ArrowUpRight class="size-3.5 mr-1.5 shrink-0" />
+                        <span>Registrar egreso</span>
+                    {/if}
+                </Button>
+            </div>
         </DialogFooter>
 
     </DialogContent>

@@ -22,6 +22,7 @@
     import Minus from 'lucide-svelte/icons/minus';
     import Plus from 'lucide-svelte/icons/plus';
     import X from 'lucide-svelte/icons/x';
+    import Icon from '@iconify/svelte';
 
     export interface WarehouseItem {
         id: number;
@@ -272,10 +273,10 @@
                         {/if}
                     </div>
 
-                    <!-- Icono entre medio de origen y destino -->
-                    <div class="flex items-center justify-center shrink-0 py-0.5 sm:py-0 sm:mb-1.5">
-                        <div class="size-9 rounded-xl bg-primary-500/10 border border-primary-500/20 text-primary-600 dark:text-primary-400 flex items-center justify-center shadow-2xs">
-                            <ArrowRight class="size-4 rotate-90 sm:rotate-0 transition-transform" />
+                    <!-- Icono de dobles flechas (Iconify: solar:transfer-horizontal-bold-duotone) solo visible en Desktop -->
+                    <div class="hidden sm:flex items-center justify-center shrink-0 sm:mb-1.5">
+                        <div class="size-10 rounded-xl bg-primary-500/10 border border-primary-500/20 text-primary-600 dark:text-primary-400 flex items-center justify-center shadow-2xs">
+                            <Icon icon="solar:transfer-horizontal-bold-duotone" class="size-5" />
                         </div>
                     </div>
 
@@ -430,30 +431,33 @@
             </form>
         </DialogBody>
 
-        <DialogFooter class="flex items-center justify-between sm:justify-end gap-2.5">
-            <Button
-                type="button"
-                variant="outline"
-                onclick={closeModal}
-                disabled={form.processing}
-                class="min-h-[44px] rounded-xl font-medium"
-            >
-                Cancelar
-            </Button>
-            <Button
-                type="submit"
-                form="transfer-stock-form"
-                disabled={form.processing || !form.product_id || !form.origin_warehouse_id || !form.destination_warehouse_id || !form.quantity}
-                class="min-h-[44px] gap-2 rounded-xl font-semibold shadow-2xs"
-            >
-                {#if form.processing}
-                    <Loader2 class="size-4 animate-spin" />
-                    <span>Procesando...</span>
-                {:else}
-                    <ArrowLeftRight class="size-4" />
-                    <span>Confirmar transferencia</span>
-                {/if}
-            </Button>
+        <DialogFooter class="p-4 sm:p-6">
+            <div class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:w-auto sm:justify-end sm:items-center">
+                <Button
+                    type="button"
+                    variant="outline"
+                    onclick={closeModal}
+                    disabled={form.processing}
+                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70 whitespace-nowrap cursor-pointer"
+                >
+                    Cancelar
+                </Button>
+                <Button
+                    type="submit"
+                    form="transfer-stock-form"
+                    disabled={form.processing || !form.product_id || !form.origin_warehouse_id || !form.destination_warehouse_id || !form.quantity}
+                    class="w-full sm:w-auto min-h-[44px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-2xs whitespace-nowrap cursor-pointer"
+                >
+                    {#if form.processing}
+                        <Loader2 class="size-4 animate-spin shrink-0" />
+                        <span>Procesando...</span>
+                    {:else}
+                        <Icon icon="solar:transfer-horizontal-bold-duotone" class="size-4 shrink-0" />
+                        <span class="inline sm:hidden">Confirmar</span>
+                        <span class="hidden sm:inline">Confirmar transferencia</span>
+                    {/if}
+                </Button>
+            </div>
         </DialogFooter>
     </DialogContent>
 </Dialog>
