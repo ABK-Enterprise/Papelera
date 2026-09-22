@@ -30,6 +30,7 @@ use Illuminate\Support\Carbon;
     'tenant_id',
     'product_id',
     'warehouse_id',
+    'stock_transfer_id',
     'user_id',
     'type',
     'reason',
@@ -60,6 +61,11 @@ class StockMovement extends Model
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
+    }
+
+    public function stockTransfer(): BelongsTo
+    {
+        return $this->belongsTo(StockTransfer::class);
     }
 
     public function user(): BelongsTo

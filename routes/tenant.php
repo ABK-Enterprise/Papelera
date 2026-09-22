@@ -16,6 +16,7 @@ use App\Http\Controllers\Tenant\ShippingZoneController;
 use App\Http\Controllers\Tenant\Stock\StockIncomeController;
 use App\Http\Controllers\Tenant\Stock\StockKardexController;
 use App\Http\Controllers\Tenant\Stock\StockOutcomeController;
+use App\Http\Controllers\Tenant\Stock\StockTransferController;
 use App\Http\Controllers\Tenant\SupplierController;
 use App\Http\Controllers\Tenant\SupplierOrderController;
 use App\Http\Controllers\Tenant\TenantMercadoPagoController;
@@ -83,6 +84,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('stock/ingresos', [StockIncomeController::class, 'store'])->name('stock.incomes.store')->middleware('tenant.permission:stock_ingreso.crear');
             Route::get('stock/egresos', [StockOutcomeController::class, 'index'])->name('stock.outcomes.index')->middleware('tenant.permission:stock_egreso.ver');
             Route::post('stock/egresos', [StockOutcomeController::class, 'store'])->name('stock.outcomes.store')->middleware('tenant.permission:stock_egreso.crear');
+            Route::post('stock/transferencias', [StockTransferController::class, 'store'])->name('stock.transfers.store')->middleware('tenant.permission:stock_ingreso.crear,stock_egreso.crear,deposito.gestion');
             Route::get('stock/kardex', [StockKardexController::class, 'index'])->name('stock.kardex.index')->middleware('tenant.permission:stock_historial.ver');
         });
 
