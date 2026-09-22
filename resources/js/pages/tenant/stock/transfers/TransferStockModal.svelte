@@ -243,10 +243,10 @@
                     {/if}
                 </div>
 
-                <!-- Grilla de Depósitos: Origen, Icono Central y Destino -->
-                <div class="grid grid-cols-1 sm:grid-cols-[1fr,auto,1fr] gap-2.5 sm:gap-3 items-end">
+                <!-- Depósitos: Origen, Icono Central y Destino -->
+                <div class="flex flex-col sm:flex-row sm:items-end gap-2.5 sm:gap-3">
                     <!-- Depósito Origen -->
-                    <div class="space-y-1.5 min-w-0">
+                    <div class="w-full sm:flex-1 min-w-0 space-y-1.5">
                         <Label for="transfer-origin" class="text-xs font-semibold text-foreground">
                             Depósito Origen *
                         </Label>
@@ -268,14 +268,14 @@
                     </div>
 
                     <!-- Icono de dobles flechas (Iconify: solar:transfer-horizontal-bold-duotone) solo visible en Desktop -->
-                    <div class="hidden sm:flex items-center justify-center shrink-0 sm:mb-1.5">
+                    <div class="hidden sm:flex items-center justify-center shrink-0 sm:mb-1">
                         <div class="size-10 rounded-xl bg-primary-500/10 border border-primary-500/20 text-primary-600 dark:text-primary-400 flex items-center justify-center shadow-2xs">
                             <Icon icon="solar:transfer-horizontal-bold-duotone" class="size-5" />
                         </div>
                     </div>
 
                     <!-- Depósito Destino -->
-                    <div class="space-y-1.5 min-w-0">
+                    <div class="w-full sm:flex-1 min-w-0 space-y-1.5">
                         <Label for="transfer-destination" class="text-xs font-semibold text-foreground">
                             Depósito Destino *
                         </Label>
