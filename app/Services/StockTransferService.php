@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Events\StockMovementRecorded;
+use App\Events\Tenant\StockMovementRecorded;
 use App\Models\Product;
 use App\Models\ProductWarehouse;
 use App\Models\StockMovement;

@@ -269,4 +269,31 @@ test('product index returns warehouses_count and warehouses list', function () {
         ->and($prodData['warehouses_count'])->toBe(2);
 });
 
+test('tenant user can update a product that has critical or negative stock without min:0 validation error', function () {
+    $cat = Category::factory()->forTenant($this->tenant)->create(['name' => 'Papeles']);
+    $product = Product::factory()->forTenant($this->tenant)->forCategory($cat)->create([
+        'name' => 'Producto con Stock Negativo',
+        'price' => 1500,
+        'stock' => -5,
+    ]);
+
+    $response = $this->actingAs($this->user)
+        ->put("/tenant/productos/{$product->id}", [
+            'name' => 'Producto con Stock Negativo Renombrado',
+            'category_id' => $cat->id,
+            'price' => 1600,
+            'stock' => -5,
+            'sale_type' => 'unit',
+            'units_per_package' => 1,
+            'package_quantity' => 1,
+            'is_active' => true,
+        ]);
+
+    $response->assertSessionHasNoErrors();
+    $response->assertRedirect('/tenant/productos');
+
+    expect($product->fresh()->name)->toBe('Producto con Stock Negativo Renombrado')
+        ->and((float) $product->fresh()->price)->toBe(1600.0);
+});
+
 
