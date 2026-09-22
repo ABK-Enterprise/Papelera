@@ -44,7 +44,8 @@
 
     interface SupplierOrderItemLine {
         id: string;
-        product_id: number;
+        product_id: number | null;
+        is_on_the_fly?: boolean;
         product_name: string;
         sku?: string | null;
         sale_type?: string;
@@ -59,13 +60,14 @@
     }: {
         open: boolean;
         suppliers: SupplierOption[];
-        availableProducts: ProductOption[];
+        availableProducts?: ProductOption[];
     } = $props();
 
-    let selectedSupplierId = $state<number | ''>('');
-    let notes = $state('');
     let isSubmitting = $state(false);
     let errorMessage = $state<string | null>(null);
+
+    let selectedSupplierId = $state('');
+    let notes = $state('');
 
     let searchQuery = $state('');
     let selectedProductToAdd = $state<ProductOption | null>(null);
@@ -86,9 +88,42 @@
         searchQuery = prod.name;
     }
 
+    function addOnTheFlyProduct(name: string) {
+        const trimmedName = name.trim();
+        if (!trimmedName) return;
+        errorMessage = null;
+
+        const existingIndex = items.findIndex((it) => it.product_name.toLowerCase() === trimmedName.toLowerCase());
+        if (existingIndex !== -1) {
+            incrementQuantity(existingIndex);
+        } else {
+            items = [
+                ...items,
+                {
+                    id: 'item_otf_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+                    product_id: null,
+                    is_on_the_fly: true,
+                    product_name: trimmedName,
+                    sku: null,
+                    sale_type: 'unit',
+                    quantity: 1,
+                    unit_cost: '',
+                },
+            ];
+        }
+
+        searchQuery = '';
+        selectedProductToAdd = null;
+    }
+
     function addSelectedProduct(prod?: ProductOption) {
         const target = prod || selectedProductToAdd || (searchResults.length > 0 ? searchResults[0] : null);
-        if (!target) return;
+        if (!target) {
+            if (searchQuery.trim()) {
+                addOnTheFlyProduct(searchQuery.trim());
+            }
+            return;
+        }
 
         const existingIndex = items.findIndex((it) => it.product_id === target.id);
         if (existingIndex !== -1) {
@@ -202,8 +237,8 @@
         }
 
         for (const it of items) {
-            if (!it.product_id) {
-                errorMessage = `El producto "${it.product_name}" no es válido.`;
+            if (!it.product_name || !it.product_name.trim()) {
+                errorMessage = 'Todos los productos deben tener un nombre válido.';
                 return;
             }
             if (it.unit_cost === '' || Number(it.unit_cost) <= 0) {
@@ -220,8 +255,8 @@
         errorMessage = null;
 
         const payloadItems = items.map((it) => ({
-            product_id: it.product_id,
-            product_name: it.product_name,
+            product_id: it.product_id || null,
+            product_name: it.product_name.trim(),
             quantity: Number(it.quantity),
             unit_cost: Number(it.unit_cost),
         }));
@@ -395,11 +430,33 @@
                                     </div>
                                 {/snippet}
                                 {#snippet emptySnippet()}
-                                    <span class="text-xs text-muted-foreground italic">
-                                        No se encontraron productos coincidentes.
-                                    </span>
+                                    <div class="flex flex-col gap-2 p-2 w-full text-left">
+                                        <span class="text-xs text-muted-foreground italic">
+                                            No se encontraron productos coincidentes.
+                                        </span>
+                                        {#if searchQuery.trim()}
+                                            <button
+                                                type="button"
+                                                class="flex items-center gap-1.5 text-xs text-primary font-semibold hover:underline cursor-pointer text-left"
+                                                onclick={() => addOnTheFlyProduct(searchQuery.trim())}
+                                            >
+                                                <Plus class="size-3.5 shrink-0" />
+                                                <span>Crear producto "{searchQuery.trim()}" al vuelo</span>
+                                            </button>
+                                        {/if}
+                                    </div>
                                 {/snippet}
                             </SearchCombobox>
+                            {#if searchQuery.trim() && !searchResults.some((p) => p.name.toLowerCase() === searchQuery.trim().toLowerCase())}
+                                <button
+                                    type="button"
+                                    class="mt-1.5 flex items-center gap-1.5 text-xs text-primary font-medium hover:underline cursor-pointer text-left"
+                                    onclick={() => addOnTheFlyProduct(searchQuery.trim())}
+                                >
+                                    <Plus class="size-3.5 shrink-0" />
+                                    <span>¿Crear producto nuevo "<strong>{searchQuery.trim()}</strong>" al vuelo?</span>
+                                </button>
+                            {/if}
                         </div>
 
                         <Button
@@ -408,7 +465,7 @@
                             variant="secondary"
                             class="w-full sm:w-auto min-h-[44px] sm:min-h-[40px] px-4 rounded-xl text-xs gap-1.5 font-semibold shrink-0 justify-center shadow-2xs cursor-pointer"
                             onclick={() => addSelectedProduct()}
-                            disabled={!selectedProductToAdd && (!searchQuery.trim() || searchResults.length === 0)}
+                            disabled={!selectedProductToAdd && !searchQuery.trim()}
                         >
                             <Plus class="size-4 shrink-0" />
                             <span>Añadir producto</span>
@@ -440,6 +497,11 @@
                                                 <span class="text-base font-bold text-foreground leading-snug line-clamp-2 break-words">
                                                     {item.product_name}
                                                 </span>
+                                                {#if item.is_on_the_fly}
+                                                    <span class="text-[10px] font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20 shrink-0">
+                                                        Al vuelo
+                                                    </span>
+                                                {/if}
                                                 {#if item.sku}
                                                     <span class="text-sm font-mono tabular-nums bg-muted px-2 py-0.5 rounded text-muted-foreground shrink-0">
                                                         {item.sku}
