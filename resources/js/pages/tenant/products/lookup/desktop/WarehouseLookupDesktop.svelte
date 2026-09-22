@@ -13,6 +13,7 @@
     import PackageSearch from 'lucide-svelte/icons/package-search';
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import WarehouseIcon from 'lucide-svelte/icons/warehouse';
+    import ArrowLeftRight from 'lucide-svelte/icons/arrow-left-right';
 
     export interface WarehouseItem {
         id: number;
@@ -55,6 +56,7 @@
         onsearch,
         onfilterchange,
         onreset,
+        ontransfer,
     }: {
         items: {
             data: WarehouseItem[];
@@ -74,6 +76,7 @@
         onsearch?: (query: string) => void;
         onfilterchange?: () => void;
         onreset?: () => void;
+        ontransfer?: (item: WarehouseItem) => void;
     } = $props();
 
     const hasActiveFilters = $derived(
@@ -263,14 +266,27 @@
                         </div>
                     </div>
 
-                    <!-- Pie de la Card: Stock en este depósito y Stock consolidado con mismo tamaño de fuente -->
-                    <div class="pt-3 border-t border-border/50 flex items-center justify-between bg-muted/20 -mx-5 -mb-5 px-5 py-3 rounded-b-2xl">
+                    <!-- Pie de la Card: Stock en este depósito, acción de transferir y Stock consolidado -->
+                    <div class="pt-3 border-t border-border/50 flex items-center justify-between gap-2 bg-muted/20 -mx-5 -mb-5 px-5 py-3 rounded-b-2xl">
                         <div class="flex flex-col">
                             <span class="text-xs font-normal text-muted-foreground">Stock en este depósito</span>
                             <span class="text-sm font-semibold tabular-nums text-foreground">
                                 {formatNumber(item.stock, isWeight)} {unitLabel}
                             </span>
                         </div>
+
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            class="min-h-[32px] h-8 px-2.5 gap-1.5 text-xs text-foreground font-medium rounded-lg shadow-2xs hover:bg-muted"
+                            onclick={() => ontransfer?.(item)}
+                            title="Transferir stock de este producto"
+                        >
+                            <ArrowLeftRight class="size-3 text-primary" />
+                            <span>Transferir</span>
+                        </Button>
+
                         <div class="flex flex-col text-right">
                             <span class="text-xs font-normal text-muted-foreground">Stock total comercio</span>
                             <span class="text-sm font-semibold tabular-nums text-muted-foreground">

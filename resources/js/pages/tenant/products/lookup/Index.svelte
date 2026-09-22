@@ -4,6 +4,8 @@
     import { Link, router } from '@inertiajs/svelte';
     import Box from 'lucide-svelte/icons/box';
     import WarehouseIcon from 'lucide-svelte/icons/warehouse';
+    import ArrowLeftRight from 'lucide-svelte/icons/arrow-left-right';
+    import TransferStockModal from '@/pages/tenant/stock/transfers/TransferStockModal.svelte';
     import WarehouseLookupDesktop, {
         type WarehouseItem,
         type WarehouseOption,
@@ -23,6 +25,7 @@
         };
         warehouses: WarehouseOption[];
         categories: CategoryOption[];
+        products?: any[];
         filters: {
             search?: string | null;
             warehouse_id?: string | number | null;
@@ -31,7 +34,7 @@
         };
     }
 
-    let { items, warehouses, categories, filters }: Props = $props();
+    let { items, warehouses, categories, products = [], filters }: Props = $props();
 
     let searchTerm = $state(filters.search || '');
     let selectedWarehouseId = $state<string>(filters.warehouse_id ? String(filters.warehouse_id) : '');
@@ -79,6 +82,29 @@
             replace: true,
         });
     }
+
+    let transferModalOpen = $state(false);
+    let transferProduct = $state<any>(null);
+    let transferOriginWarehouseId = $state<number | null>(null);
+    let transferStock = $state<number | null>(null);
+
+    function openTransferModal(item?: any) {
+        if (item) {
+            transferProduct = {
+                id: item.product_id,
+                name: item.product_name,
+                sku: item.product_sku,
+                stock: item.total_consolidated_stock,
+            };
+            transferOriginWarehouseId = item.warehouse_id;
+            transferStock = item.stock;
+        } else {
+            transferProduct = null;
+            transferOriginWarehouseId = selectedWarehouseId ? Number(selectedWarehouseId) : null;
+            transferStock = null;
+        }
+        transferModalOpen = true;
+    }
 </script>
 
 <AppHead title="Buscar en Depósito - Control de Stock Físico" />
@@ -101,13 +127,22 @@
             </p>
         </div>
 
-        <div class="flex items-center justify-end gap-2.5">
+        <div class="flex items-center justify-end gap-2.5 flex-wrap sm:flex-nowrap">
             <Link href="/tenant/productos">
                 <Button variant="secondary" class="min-h-[44px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs">
                     <Box class="size-4 text-primary" />
                     <span>Catálogo de productos</span>
                 </Button>
             </Link>
+
+            <Button
+                variant="default"
+                class="min-h-[44px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs"
+                onclick={() => openTransferModal()}
+            >
+                <ArrowLeftRight class="size-4" />
+                <span>Transferir stock</span>
+            </Button>
         </div>
     </div>
 
@@ -124,6 +159,7 @@
             onsearch={() => applyFilters()}
             onfilterchange={() => applyFilters()}
             onreset={resetFilters}
+            ontransfer={(item) => openTransferModal(item)}
         />
     </div>
 
@@ -140,8 +176,18 @@
             onsearch={() => applyFilters()}
             onfilterchange={() => applyFilters()}
             onreset={resetFilters}
+            ontransfer={(item) => openTransferModal(item)}
         />
     </div>
 </div>
+
+<TransferStockModal
+    bind:open={transferModalOpen}
+    {products}
+    {warehouses}
+    preselectedProduct={transferProduct}
+    preselectedOriginWarehouseId={transferOriginWarehouseId}
+    preselectedStock={transferStock}
+/>
 
 

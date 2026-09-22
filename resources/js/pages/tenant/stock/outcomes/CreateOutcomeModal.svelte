@@ -15,6 +15,7 @@
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import { useForm } from '@inertiajs/svelte';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
+    import ArrowRight from 'lucide-svelte/icons/arrow-right';
     import Loader2 from 'lucide-svelte/icons/loader-2';
     import ShieldAlert from 'lucide-svelte/icons/shield-alert';
     import X from 'lucide-svelte/icons/x';
@@ -46,15 +47,21 @@
     const form = useForm({
         product_id: '',
         warehouse_id: '',
+        destination_warehouse_id: '',
         quantity: 1,
         reason: 'devolucion',
         notes: '',
+        allow_negative_origin: true,
     });
 
     $effect(() => {
         if (!form.warehouse_id && warehouses.length > 0) {
             const def = warehouses.find((w) => w.is_default) || warehouses[0];
             form.warehouse_id = String(def.id);
+        }
+        if (form.reason === 'transferencia_deposito' && (!form.destination_warehouse_id || form.destination_warehouse_id === form.warehouse_id) && warehouses.length > 1) {
+            const diff = warehouses.find((w) => String(w.id) !== form.warehouse_id);
+            if (diff) form.destination_warehouse_id = String(diff.id);
         }
     });
 
@@ -76,6 +83,18 @@
         );
     });
 
+    let availableDestinations = $derived(
+        warehouses.filter((w) => String(w.id) !== form.warehouse_id)
+    );
+
+    let originWarehouse = $derived(
+        warehouses.find((w) => String(w.id) === form.warehouse_id)
+    );
+
+    let destinationWarehouse = $derived(
+        warehouses.find((w) => String(w.id) === form.destination_warehouse_id)
+    );
+
     function handleSelectProduct(product: ProductItem) {
         form.product_id = String(product.id);
         productSearchQuery = product.name;
@@ -88,9 +107,28 @@
 
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
-        if (isQuantityExceeded) return;
+        if (isQuantityExceeded && form.reason !== 'transferencia_deposito') return;
 
-        form.post('/tenant/stock/egresos', {
+        const url = form.reason === 'transferencia_deposito'
+            ? '/tenant/stock/transferencias'
+            : '/tenant/stock/egresos';
+
+        const payload: Record<string, any> = {
+            product_id: form.product_id,
+            quantity: form.quantity,
+            notes: form.notes,
+        };
+
+        if (form.reason === 'transferencia_deposito') {
+            payload.origin_warehouse_id = form.warehouse_id;
+            payload.destination_warehouse_id = form.destination_warehouse_id;
+            payload.allow_negative_origin = true;
+        } else {
+            payload.warehouse_id = form.warehouse_id;
+            payload.reason = form.reason;
+        }
+
+        form.transform(() => payload).post(url, {
             preserveScroll: true,
             onSuccess: () => {
                 form.reset();
@@ -247,11 +285,58 @@
                         <option value="merma">Merma / Producto Dañado</option>
                         <option value="ajuste_inventario">Ajuste de inventario</option>
                         <option value="vencimiento">Vencimiento</option>
+                        {#if warehouses.length > 1}
+                            <option value="transferencia_deposito">Transferencia hacia otro depósito</option>
+                        {/if}
                     </select>
                     {#if form.errors.reason}
                         <p class="text-xs text-rose-500 font-medium">{form.errors.reason}</p>
                     {/if}
                 </div>
+
+                <!-- Campos específicos si es Transferencia de Depósito -->
+                {#if form.reason === 'transferencia_deposito'}
+                    <!-- Depósito de Destino -->
+                    <div class="space-y-1.5">
+                        <Label for="outcome-dest-warehouse" class="text-xs font-semibold text-foreground">
+                            Depósito de Destino (adonde ingresa) *
+                        </Label>
+                        <select
+                            id="outcome-dest-warehouse"
+                            bind:value={form.destination_warehouse_id}
+                            class="w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
+                        >
+                            {#each availableDestinations as wh (wh.id)}
+                                <option value={String(wh.id)}>
+                                    {wh.name} {wh.is_default ? '(Principal)' : ''}
+                                </option>
+                            {/each}
+                        </select>
+                        {#if form.errors.destination_warehouse_id}
+                            <p class="text-xs text-rose-500 font-medium">{form.errors.destination_warehouse_id}</p>
+                        {/if}
+                    </div>
+
+                    <!-- Indicador visual con flechas de dirección -->
+                    {#if originWarehouse && destinationWarehouse}
+                        <div class="p-3.5 rounded-xl bg-primary-500/5 border border-primary-500/20 flex items-center justify-between gap-2.5">
+                            <div class="min-w-0 flex-1">
+                                <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Sale de (Origen)</span>
+                                <span class="text-xs sm:text-sm font-semibold text-foreground truncate block">{originWarehouse.name}</span>
+                            </div>
+                            <div class="flex flex-col items-center justify-center shrink-0 px-2">
+                                <ArrowRight class="size-4 text-primary-500" />
+                                <span class="text-[10px] font-bold text-primary-600 dark:text-primary-400 tabular-nums">
+                                    {form.quantity || 0} u.
+                                </span>
+                            </div>
+                            <div class="min-w-0 flex-1 text-right">
+                                <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Ingresa a (Destino)</span>
+                                <span class="text-xs sm:text-sm font-semibold text-foreground truncate block">{destinationWarehouse.name}</span>
+                            </div>
+                        </div>
+                    {/if}
+                {/if}
 
                 <!-- Notas / Observaciones -->
                 <div class="space-y-1.5">

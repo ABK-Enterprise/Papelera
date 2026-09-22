@@ -15,6 +15,7 @@
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import { useForm } from '@inertiajs/svelte';
     import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
+    import ArrowRight from 'lucide-svelte/icons/arrow-right';
     import Loader2 from 'lucide-svelte/icons/loader-2';
     import X from 'lucide-svelte/icons/x';
 
@@ -45,15 +46,21 @@
     const form = useForm({
         product_id: '',
         warehouse_id: '',
+        origin_warehouse_id: '',
         quantity: 1,
         reason: 'ingreso_manual',
         notes: '',
+        allow_negative_origin: true,
     });
 
     $effect(() => {
         if (!form.warehouse_id && warehouses.length > 0) {
             const def = warehouses.find((w) => w.is_default) || warehouses[0];
             form.warehouse_id = String(def.id);
+        }
+        if (form.reason === 'transferencia_deposito' && (!form.origin_warehouse_id || form.origin_warehouse_id === form.warehouse_id) && warehouses.length > 1) {
+            const diff = warehouses.find((w) => String(w.id) !== form.warehouse_id);
+            if (diff) form.origin_warehouse_id = String(diff.id);
         }
     });
 
@@ -71,6 +78,18 @@
         );
     });
 
+    let availableOrigins = $derived(
+        warehouses.filter((w) => String(w.id) !== form.warehouse_id)
+    );
+
+    let originWarehouse = $derived(
+        warehouses.find((w) => String(w.id) === form.origin_warehouse_id)
+    );
+
+    let destWarehouse = $derived(
+        warehouses.find((w) => String(w.id) === form.warehouse_id)
+    );
+
     function handleSelectProduct(product: ProductItem) {
         form.product_id = String(product.id);
         productSearchQuery = product.name;
@@ -83,7 +102,26 @@
 
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
-        form.post('/tenant/stock/ingresos', {
+        const url = form.reason === 'transferencia_deposito'
+            ? '/tenant/stock/transferencias'
+            : '/tenant/stock/ingresos';
+
+        const payload: Record<string, any> = {
+            product_id: form.product_id,
+            quantity: form.quantity,
+            notes: form.notes,
+        };
+
+        if (form.reason === 'transferencia_deposito') {
+            payload.origin_warehouse_id = form.origin_warehouse_id;
+            payload.destination_warehouse_id = form.warehouse_id;
+            payload.allow_negative_origin = true;
+        } else {
+            payload.warehouse_id = form.warehouse_id;
+            payload.reason = form.reason;
+        }
+
+        form.transform(() => payload).post(url, {
             preserveScroll: true,
             onSuccess: () => {
                 form.reset();
@@ -217,22 +255,71 @@
                     {/if}
                 </div>
 
-                <!-- Motivo -->
+                <!-- Motivo del Ingreso -->
                 <div class="space-y-1.5">
                     <Label for="income-reason" class="text-xs font-semibold text-foreground">
-                        Motivo / Concepto
+                        Motivo / Concepto *
                     </Label>
-                    <Input
+                    <select
                         id="income-reason"
-                        type="text"
                         bind:value={form.reason}
-                        placeholder="Ej. Compra a proveedor, ajuste inicial..."
-                        class="text-sm shadow-2xs"
-                    />
+                        class="w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
+                    >
+                        <option value="ingreso_manual">Ingreso manual / Ajuste inicial</option>
+                        <option value="compra_proveedor">Compra de mercadería / Proveedor</option>
+                        <option value="devolucion_cliente">Devolución de cliente</option>
+                        {#if warehouses.length > 1}
+                            <option value="transferencia_deposito">Transferencia desde otro depósito</option>
+                        {/if}
+                    </select>
                     {#if form.errors.reason}
                         <p class="text-xs text-rose-500 font-medium">{form.errors.reason}</p>
                     {/if}
                 </div>
+
+                <!-- Campos específicos si es Transferencia de Depósito -->
+                {#if form.reason === 'transferencia_deposito'}
+                    <!-- Depósito de Origen -->
+                    <div class="space-y-1.5">
+                        <Label for="income-origin-warehouse" class="text-xs font-semibold text-foreground">
+                            Depósito de Origen (desde donde sale) *
+                        </Label>
+                        <select
+                            id="income-origin-warehouse"
+                            bind:value={form.origin_warehouse_id}
+                            class="w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
+                        >
+                            {#each availableOrigins as wh (wh.id)}
+                                <option value={String(wh.id)}>
+                                    {wh.name} {wh.is_default ? '(Principal)' : ''}
+                                </option>
+                            {/each}
+                        </select>
+                        {#if form.errors.origin_warehouse_id}
+                            <p class="text-xs text-rose-500 font-medium">{form.errors.origin_warehouse_id}</p>
+                        {/if}
+                    </div>
+
+                    <!-- Indicador visual con flechas de dirección -->
+                    {#if originWarehouse && destWarehouse}
+                        <div class="p-3.5 rounded-xl bg-primary-500/5 border border-primary-500/20 flex items-center justify-between gap-2.5">
+                            <div class="min-w-0 flex-1">
+                                <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Sale de (Origen)</span>
+                                <span class="text-xs sm:text-sm font-semibold text-foreground truncate block">{originWarehouse.name}</span>
+                            </div>
+                            <div class="flex flex-col items-center justify-center shrink-0 px-2">
+                                <ArrowRight class="size-4 text-primary-500" />
+                                <span class="text-[10px] font-bold text-primary-600 dark:text-primary-400 tabular-nums">
+                                    {form.quantity || 0} u.
+                                </span>
+                            </div>
+                            <div class="min-w-0 flex-1 text-right">
+                                <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Ingresa a (Destino)</span>
+                                <span class="text-xs sm:text-sm font-semibold text-foreground truncate block">{destWarehouse.name}</span>
+                            </div>
+                        </div>
+                    {/if}
+                {/if}
 
                 <!-- Notas / Observaciones -->
                 <div class="space-y-1.5">
