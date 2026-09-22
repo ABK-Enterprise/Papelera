@@ -73,10 +73,10 @@
 
         <!-- Accesos Rápidos Operativos -->
         {#if tenant}
-            <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center justify-end gap-2 flex-wrap w-full sm:w-auto ml-auto">
                 {#if modules.includes('pedidos')}
                     <Link href="/tenant/pedidos?crear=1">
-                        <Button class="min-h-[40px] px-4 gap-2 text-sm font-medium rounded-xl shadow-xs">
+                        <Button class="min-h-[44px] px-4 gap-2 text-sm font-medium rounded-xl shadow-xs">
                             <Plus class="size-4" />
                             <span>Nuevo Pedido</span>
                         </Button>
@@ -85,7 +85,7 @@
 
                 {#if modules.includes('stock')}
                     <Link href="/tenant/stock/ingresos?crear=1">
-                        <Button variant="secondary" class="min-h-[40px] px-4 gap-2 text-sm font-medium rounded-xl">
+                        <Button variant="secondary" class="min-h-[44px] px-4 gap-2 text-sm font-medium rounded-xl">
                             <ArrowDownLeft class="size-4 text-emerald-600 dark:text-emerald-400" />
                             <span>Ingreso de Stock</span>
                         </Button>
@@ -93,9 +93,9 @@
                 {/if}
             </div>
         {:else if user?.is_superadmin}
-            <div class="flex items-center gap-2">
+            <div class="flex items-center justify-end gap-2 w-full sm:w-auto ml-auto">
                 <Link href="/platform/tenants">
-                    <Button class="min-h-[40px] px-4 gap-2 text-sm font-medium rounded-xl shadow-xs">
+                    <Button class="min-h-[44px] px-4 gap-2 text-sm font-medium rounded-xl shadow-xs">
                         <Building2 class="size-4" />
                         <span>Gestionar Comercios</span>
                     </Button>

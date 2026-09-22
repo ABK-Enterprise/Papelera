@@ -27,7 +27,6 @@
     import Lock from 'lucide-svelte/icons/lock';
     import Loader2 from 'lucide-svelte/icons/loader-2';
     import Wallet from 'lucide-svelte/icons/wallet';
-    import X from 'lucide-svelte/icons/x';
     import XCircle from 'lucide-svelte/icons/x-circle';
     import { toast } from 'svelte-sonner';
 
@@ -366,15 +365,6 @@
                         </p>
                     </div>
                 </div>
-
-                <button
-                    type="button"
-                    onclick={() => (open = false)}
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
-                    aria-label="Cerrar"
-                >
-                    <X class="size-4" />
-                </button>
             </div>
 
 

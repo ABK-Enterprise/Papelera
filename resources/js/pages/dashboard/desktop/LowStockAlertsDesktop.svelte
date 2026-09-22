@@ -62,7 +62,7 @@
 <div class="flex flex-col gap-3.5">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
-            <div class="flex size-8 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+            <div class="flex size-8 items-center justify-center rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
                 <AlertTriangle class="size-4" />
             </div>
             <div>

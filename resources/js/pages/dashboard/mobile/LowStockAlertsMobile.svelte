@@ -56,27 +56,31 @@
     let startItem = $derived(products.length === 0 ? 0 : (currentPage - 1) * perPage + 1);
     let endItem = $derived(Math.min(currentPage * perPage, products.length));
     let criticalCount = $derived(products.filter((p) => p.is_critical || p.stock < 0).length);
+    let minimumCount = $derived(products.filter((p) => !(p.is_critical || p.stock < 0)).length);
 </script>
 
 <div class="flex flex-col gap-3">
-    <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <div class="flex size-7 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-                <AlertTriangle class="size-3.5" />
+    <!-- Encabezado con Icono Danger, Título y Stack Vertical de Pills [X mínimo, Y crítico] -->
+    <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5 min-w-0 flex-1">
+            <div class="flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                <AlertTriangle class="size-4" />
             </div>
-            <h2 class="text-sm font-semibold tracking-tight text-foreground">Alertas de stock mínimo y crítico</h2>
+            <h2 class="text-sm font-semibold tracking-tight text-foreground leading-snug break-words">
+                Alertas de stock mínimo y crítico
+            </h2>
         </div>
 
         {#if products.length > 0}
-            <div class="flex items-center gap-1.5">
-                {#if criticalCount > 0}
-                    <span class="inline-flex items-center gap-1 rounded-full border border-rose-600/30 bg-rose-600/15 px-2 py-0.5 text-xs font-bold tracking-wide tabular-nums text-rose-700 dark:text-rose-300">
+            <div class="flex flex-col items-end gap-1 shrink-0">
+                <span class="inline-flex items-center justify-center rounded-full border border-amber-500/30 bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold tracking-wide tabular-nums text-amber-700 dark:text-amber-400 shrink-0 whitespace-nowrap">
+                    {minimumCount} mínimo
+                </span>
+                <span class="inline-flex items-center justify-center gap-1 rounded-full border border-rose-600/30 bg-rose-600/15 px-2.5 py-0.5 text-xs font-bold tracking-wide tabular-nums text-rose-700 dark:text-rose-300 shrink-0 whitespace-nowrap">
+                    {#if criticalCount > 0}
                         <span class="size-1.5 rounded-full bg-rose-600 animate-pulse"></span>
-                        {criticalCount} {criticalCount === 1 ? 'crítico' : 'críticos'}
-                    </span>
-                {/if}
-                <span class="inline-flex items-center gap-1 rounded-full border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-xs font-semibold tracking-wide tabular-nums text-rose-600 dark:text-rose-400">
-                    {products.length}
+                    {/if}
+                    {criticalCount} crítico
                 </span>
             </div>
         {/if}
@@ -93,9 +97,9 @@
                 }`}>
                     <div class="flex items-start justify-between gap-2">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/50 bg-background/60">
+                            <div class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border/50 bg-background/60">
                                 {#if product.image_url}
-                                    <img src={product.image_url} alt={product.name} class="h-full w-full object-cover" />
+                                    <img src={product.image_url} alt={product.name} class="h-full w-full object-cover rounded-full" />
                                 {:else}
                                     <Package class="size-4 text-muted-foreground/60" />
                                 {/if}
@@ -124,7 +128,7 @@
 
                         <Link
                             href={`/tenant/productos/${product.id}/editar`}
-                            class="flex size-8 items-center justify-center rounded-lg bg-background/60 text-muted-foreground hover:text-foreground border border-border/40"
+                            class="flex size-9 items-center justify-center rounded-full bg-background/80 text-muted-foreground hover:text-foreground border border-border/60 hover:bg-background transition-colors shrink-0 shadow-2xs cursor-pointer"
                             title="Editar producto"
                         >
                             <Edit2 class="size-3.5" />
@@ -134,7 +138,7 @@
                     <!-- Fila de Depósito y Métricas de Stock -->
                     <div class="flex items-center justify-between gap-2 pt-0.5">
                         {#if product.warehouse}
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-background/80 text-foreground border border-border/80 shadow-2xs">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-background/80 text-foreground border border-border/80 shadow-2xs">
                                 <Building2 class="size-3 text-muted-foreground shrink-0" />
                                 {product.warehouse.name}
                             </span>

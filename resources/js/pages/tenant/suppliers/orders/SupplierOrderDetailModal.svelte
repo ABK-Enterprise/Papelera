@@ -12,7 +12,6 @@
     import Printer from 'lucide-svelte/icons/printer';
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import Truck from 'lucide-svelte/icons/truck';
-    import X from 'lucide-svelte/icons/x';
     import XCircle from 'lucide-svelte/icons/x-circle';
 
     interface SupplierOrderItem {
@@ -154,38 +153,53 @@
             aria-labelledby="modal-title"
         >
             <!-- Header (shrink-0) -->
-            <div class="flex items-center justify-between border-b pb-3.5 sm:pb-4 shrink-0">
-                <div class="flex items-center gap-2.5">
-                    <IconContainer size="md" variant="primary" icon="solar:clipboard-list-bold-duotone" />
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h2 class="text-base sm:text-lg font-bold text-foreground font-sans tabular-nums">{order.order_number}</h2>
+            <div class="flex items-start sm:items-center justify-between border-b pb-3.5 sm:pb-4 shrink-0">
+                <div class="flex items-start sm:items-center gap-2.5 min-w-0 flex-1">
+                    <IconContainer size="md" variant="primary" icon="solar:clipboard-list-bold-duotone" class="shrink-0 mt-0.5 sm:mt-0" />
+                    <div class="min-w-0 flex-1">
+                        <!-- Mobile (< sm): Stack vertical [ID de orden, Pill de estado, Fecha] -->
+                        <div class="flex sm:hidden flex-col items-start gap-1">
+                            <h2 class="text-base font-bold text-foreground font-sans tabular-nums break-words leading-tight">
+                                {order.order_number}
+                            </h2>
                             {#if order.status === 'solicitado'}
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
-                                    Solicitado (Pendiente)
+                                    Solicitado
                                 </span>
                             {:else if order.status === 'recibido'}
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
-                                    Recibido en Stock
+                                    Recibido
                                 </span>
                             {:else if order.status === 'cancelado'}
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                                     Cancelado
                                 </span>
                             {/if}
+                            <p class="text-xs text-muted-foreground mt-0.5">Fecha: {formatDate(order.created_at)}</p>
                         </div>
-                        <p class="text-xs text-muted-foreground">Fecha: {formatDate(order.created_at)}</p>
+
+                        <!-- Desktop (sm:): Row horizontal con ID y Pill, luego Fecha -->
+                        <div class="hidden sm:block">
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-lg font-bold text-foreground font-sans tabular-nums">{order.order_number}</h2>
+                                {#if order.status === 'solicitado'}
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                                        Solicitado
+                                    </span>
+                                {:else if order.status === 'recibido'}
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                                        Recibido
+                                    </span>
+                                {:else if order.status === 'cancelado'}
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                                        Cancelado
+                                    </span>
+                                {/if}
+                            </div>
+                            <p class="text-xs text-muted-foreground mt-0.5">Fecha: {formatDate(order.created_at)}</p>
+                        </div>
                     </div>
                 </div>
-
-                <button
-                    type="button"
-                    onclick={() => (open = false)}
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
-                    aria-label="Cerrar"
-                >
-                    <X class="size-4" />
-                </button>
             </div>
 
 
@@ -318,42 +332,86 @@
                 {/if}
             </div>
 
-            <!-- Footer (shrink-0) -->
-            <div class="flex items-center justify-between pt-3.5 border-t shrink-0">
+            {#snippet btnCancel(extraClass = '')}
                 {#if order.status === 'solicitado' && hasPermission('proveedores.pedidos.cancelar')}
                     <Button
                         type="button"
                         variant="outline"
-                        class="min-h-[44px] px-4 rounded-xl text-xs font-semibold text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-2"
+                        class="min-h-[44px] px-3 rounded-xl text-xs sm:text-sm font-semibold text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-1.5 cursor-pointer {extraClass}"
                         onclick={promptCancel}
                         disabled={isProcessing}
                     >
-                        <XCircle class="size-4" />
-                        <span>Cancelar orden</span>
+                        <XCircle class="size-4 shrink-0" />
+                        <span class="break-words text-center leading-tight">Cancelar orden</span>
                     </Button>
-                {:else}
-                    <div></div>
                 {/if}
+            {/snippet}
 
-                <div class="flex items-center gap-2.5">
-                    <div class="text-right mr-1">
-                        <span class="text-xs text-muted-foreground block">Costo Total:</span>
-                        <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary">{formatPrice(order.total_cost)}</span>
+            {#snippet btnPdf(extraClass = '')}
+                <Button
+                    type="button"
+                    variant="secondary"
+                    class="min-h-[44px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs cursor-pointer {extraClass}"
+                    onclick={() => (isPdfModalOpen = true)}
+                >
+                    <Printer class="size-4 text-primary shrink-0" />
+                    <span class="break-words text-center leading-tight">Ver PDF</span>
+                </Button>
+            {/snippet}
+
+            {#snippet btnClose(extraClass = '')}
+                <Button
+                    type="button"
+                    variant="outline"
+                    class="min-h-[44px] px-3.5 rounded-xl text-xs sm:text-sm font-semibold shrink-0 cursor-pointer {extraClass}"
+                    onclick={() => (open = false)}
+                >
+                    <span class="break-words text-center leading-tight">Cerrar</span>
+                </Button>
+            {/snippet}
+
+            <!-- Footer con Total y Acciones (shrink-0) -->
+            <div class="flex flex-col gap-2.5 pt-3 border-t shrink-0">
+                <!-- Fila de Costo Total (separado de los botones) -->
+                <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-border/40 min-w-0">
+                    <span class="text-xs text-muted-foreground font-medium">Costo Total:</span>
+                    <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary">
+                        {formatPrice(order.total_cost)}
+                    </span>
+                </div>
+
+                <!-- VISTA DESKTOP (sm:) -->
+                <div class="hidden sm:flex sm:items-center sm:justify-between sm:gap-2 sm:w-full">
+                    <div>
+                        {#if order.status === 'solicitado' && hasPermission('proveedores.pedidos.cancelar')}
+                            {@render btnCancel()}
+                        {/if}
                     </div>
 
-                    <Button
-                        type="button"
-                        variant="secondary"
-                        class="min-h-[44px] px-3.5 sm:px-4 rounded-xl text-xs sm:text-sm font-semibold gap-2 shadow-xs"
-                        onclick={() => (isPdfModalOpen = true)}
-                    >
-                        <Printer class="size-4 text-primary" />
-                        <span>Generar PDF</span>
-                    </Button>
+                    <div class="flex items-center gap-2.5">
+                        {@render btnPdf()}
+                        {@render btnClose()}
+                    </div>
+                </div>
 
-                    <Button type="button" variant="outline" class="min-h-[44px] px-4 rounded-xl text-sm font-semibold" onclick={() => (open = false)}>
-                        Cerrar
-                    </Button>
+                <!-- VISTA MOBILE (< sm) -->
+                <div class="sm:hidden flex flex-col gap-2 w-full">
+                    {#if order.status === 'solicitado' && hasPermission('proveedores.pedidos.cancelar')}
+                        <!-- Si hay 3 botones: Fila 1 [Cancelar orden, Ver PDF] y Fila 2 [Cerrar] -->
+                        <div class="grid grid-cols-2 gap-2 w-full">
+                            {@render btnCancel('w-full justify-center')}
+                            {@render btnPdf('w-full justify-center')}
+                        </div>
+                        <div class="w-full">
+                            {@render btnClose('w-full justify-center')}
+                        </div>
+                    {:else}
+                        <!-- Si no hay cancelar: Fila única con Ver PDF y Cerrar en 2 columnas -->
+                        <div class="grid grid-cols-2 gap-2 w-full">
+                            {@render btnPdf('w-full justify-center')}
+                            {@render btnClose('w-full justify-center')}
+                        </div>
+                    {/if}
                 </div>
             </div>
 
