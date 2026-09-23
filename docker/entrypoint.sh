@@ -12,12 +12,13 @@ if [ "$MIGRATE_FRESH" = "true" ]; then
     php artisan db:seed --class=BaseSeeder --force || true
     php artisan db:seed --class=TestSeeder --force || true
 else
-    echo "Ejecutando migraciones de base de datos..."
+    echo "Ejecutando migraciones incrementales de base de datos..."
     php artisan migrate --force || true
+fi
 
-    echo "Ejecutando seeders de base de datos..."
+if [ "$RUN_SEEDERS" = "true" ]; then
+    echo "⚠️ RUN_SEEDERS=true detectado: Ejecutando seeders de plataforma..."
     php artisan db:seed --class=BaseSeeder --force || true
-    php artisan db:seed --class=TestSeeder --force || true
 fi
 
 echo "Creando symlink de storage..."
