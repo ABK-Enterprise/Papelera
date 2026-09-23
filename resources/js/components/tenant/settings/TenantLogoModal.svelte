@@ -235,14 +235,14 @@
                         </Button>
                         <Button
                             type="button"
-                            variant="ghost"
+                            variant="destructive"
                             size="sm"
                             onclick={confirmDelete}
                             disabled={isSubmitting || isDeleting}
-                            class="min-h-[36px] text-xs font-semibold text-destructive hover:text-destructive hover:bg-destructive/10 gap-1.5 px-3 rounded-lg"
+                            class="min-h-[36px] text-xs font-semibold gap-1.5 px-3 rounded-lg"
                         >
                             <Trash2 class="size-3.5" />
-                            <span>Eliminar imagen</span>
+                            <span>Quitar</span>
                         </Button>
                     </div>
                 {/if}
