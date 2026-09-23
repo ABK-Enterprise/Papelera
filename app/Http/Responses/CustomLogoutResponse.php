@@ -17,6 +17,7 @@ class CustomLogoutResponse implements LogoutResponseContract
     public function toResponse($request)
     {
         $request->session()->forget('url.intended');
+        $request->session()->regenerateToken();
 
         return $request->wantsJson()
             ? new JsonResponse('', 204)

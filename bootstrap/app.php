@@ -72,6 +72,11 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             if ($response->getStatusCode() === 419) {
+                if ($request->is('login')) {
+                    return redirect()->route('login')
+                        ->with('status', 'La sesión fue renovada. Ingresa tus datos para continuar.');
+                }
+
                 return \Inertia\Inertia::render('errors/419', [
                     'status' => 419,
                     'message' => 'Expiró la sesión en el navegador',

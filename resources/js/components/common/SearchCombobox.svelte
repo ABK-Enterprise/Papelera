@@ -14,8 +14,10 @@
         placeholder = 'Buscar...',
         items = [],
         loading = false,
-        debounceMs = 300,
+        debounceMs = 250,
         showDropdown = true,
+        filterLocally = true,
+        maxResults = 15,
         searchKeys,
         itemSnippet,
         emptySnippet,
@@ -33,6 +35,8 @@
         loading?: boolean;
         debounceMs?: number;
         showDropdown?: boolean;
+        filterLocally?: boolean;
+        maxResults?: number;
         searchKeys?: (keyof T | string)[];
         itemSnippet?: Snippet<[T, number]>;
         emptySnippet?: Snippet;
@@ -49,12 +53,30 @@
     let timer: ReturnType<typeof setTimeout> | null = null;
     let inputElement = $state<HTMLInputElement | null>(null);
 
+    // Keep an internal query state that always matches what the user is typing
+    let localQuery = $state(value || '');
+
+    // Synchronize localQuery when value prop is updated externally (e.g. form reset or parent clear),
+    // but only if it differs and user is not actively typing in this input
+    $effect(() => {
+        if (value !== localQuery && document.activeElement !== inputElement) {
+            localQuery = value || '';
+        }
+    });
+
     let displayItems = $derived.by(() => {
         if (!items || items.length === 0) return [];
-        if (!value || !value.trim()) {
-            return items.slice(0, 5);
+
+        // If parent already filtered items or remote search is active, don't re-filter
+        if (!filterLocally) {
+            return items.slice(0, maxResults);
         }
-        const q = value.toLowerCase().trim();
+
+        const q = (localQuery || '').toLowerCase().trim();
+        if (!q) {
+            return items.slice(0, maxResults);
+        }
+
         return items
             .filter((item) => {
                 if (searchKeys && searchKeys.length > 0) {
@@ -63,35 +85,48 @@
                         return val !== undefined && val !== null && String(val).toLowerCase().includes(q);
                     });
                 }
-                const str = Object.entries(item)
-                    .filter(([key, v]) => !['id', 'tenant_id', 'module_id', 'branch_id', 'warehouse_id', 'customer_id', 'supplier_id', 'created_at', 'updated_at', 'deleted_at'].includes(key) && (typeof v === 'string' || typeof v === 'number'))
-                    .map(([, v]) => String(v))
-                    .join(' ')
-                    .toLowerCase();
-                return str.includes(q);
+
+                // Fast common property checks first to avoid expensive Object.entries overhead
+                if (item.name && String(item.name).toLowerCase().includes(q)) return true;
+                if (item.sku && String(item.sku).toLowerCase().includes(q)) return true;
+                if (item.barcode && String(item.barcode).toLowerCase().includes(q)) return true;
+                if (item.title && String(item.title).toLowerCase().includes(q)) return true;
+
+                // Fallback for generic objects
+                for (const key in item) {
+                    if (['id', 'tenant_id', 'module_id', 'branch_id', 'warehouse_id', 'customer_id', 'supplier_id', 'created_at', 'updated_at', 'deleted_at'].includes(key)) {
+                        continue;
+                    }
+                    const v = item[key];
+                    if ((typeof v === 'string' || typeof v === 'number') && String(v).toLowerCase().includes(q)) {
+                        return true;
+                    }
+                }
+                return false;
             })
-            .slice(0, 5);
+            .slice(0, maxResults);
     });
-
-
-    let lastSearchedVal: string | null = null;
 
     function handleInput(e: Event) {
         const val = (e.target as HTMLInputElement).value;
+        localQuery = val;
         value = val;
         activeIndex = -1;
 
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+
         if (debounceMs <= 0) {
-            lastSearchedVal = val;
             onsearch?.(val);
             if (showDropdown) {
                 isOpen = true;
             }
         } else {
-            if (timer) clearTimeout(timer);
             timer = setTimeout(() => {
-                lastSearchedVal = val;
-                onsearch?.(val);
+                // Emit the current live query, avoiding stale closure values
+                onsearch?.(localQuery);
                 if (showDropdown) {
                     isOpen = true;
                 }
@@ -109,17 +144,14 @@
                     clearTimeout(timer);
                     timer = null;
                 }
-                const currentVal = (e.target as HTMLInputElement)?.value ?? inputElement?.value ?? value;
+                const currentVal = (e.target as HTMLInputElement)?.value ?? inputElement?.value ?? localQuery;
+                localQuery = currentVal;
                 value = currentVal;
-                lastSearchedVal = currentVal;
                 onsearch?.(currentVal);
                 isOpen = false;
             }
             return;
         }
-
-
-
 
         if (!isOpen || displayItems.length === 0) {
             return;
@@ -141,33 +173,43 @@
     }
 
     function selectItem(item: T) {
+        let selectedLabel = '';
         if (searchKeys && searchKeys.length > 0) {
             const firstKey = searchKeys[0] as keyof T;
             if (item[firstKey] !== undefined && item[firstKey] !== null) {
-                value = String(item[firstKey]);
+                selectedLabel = String(item[firstKey]);
             }
         } else if (item.name || item.title || item.product_name) {
-            value = String(item.name || item.title || item.product_name);
+            selectedLabel = String(item.name || item.title || item.product_name);
         }
+
+        if (selectedLabel) {
+            localQuery = selectedLabel;
+            value = selectedLabel;
+        }
+
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+
         onselect?.(item);
         isOpen = false;
         activeIndex = -1;
     }
-
 
     function clear() {
         if (timer) {
             clearTimeout(timer);
             timer = null;
         }
+        localQuery = '';
         value = '';
-        lastSearchedVal = '';
         isOpen = false;
         activeIndex = -1;
         onclear?.();
         inputElement?.focus();
     }
-
 
     function handleFocusOrClick() {
         if (showDropdown && (displayItems.length > 0 || emptySnippet || footerSnippet)) {
@@ -188,7 +230,7 @@
             bind:this={inputElement}
             id={id || undefined}
             type="text"
-            bind:value={value}
+            value={localQuery}
             oninput={handleInput}
             onkeydown={handleKeyDown}
             onfocus={handleFocusOrClick}
@@ -206,7 +248,7 @@
 
         {#if loading}
             <Loader2 class="absolute right-3 top-1/2 -translate-y-1/2 size-4 animate-spin text-muted-foreground" />
-        {:else if value}
+        {:else if localQuery || value}
             <button
                 type="button"
                 onclick={clear}

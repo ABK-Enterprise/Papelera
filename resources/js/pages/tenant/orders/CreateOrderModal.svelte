@@ -854,6 +854,7 @@
                             id="cust-search"
                             bind:value={customerSearchQuery}
                             items={customerSearchResults}
+                            filterLocally={false}
                             placeholder="Escribe el nombre, CUIT/DNI o teléfono para autocompletar..."
                             showDropdown={true}
                             onsearch={(q) => {
@@ -1034,6 +1035,7 @@
                             <SearchCombobox
                                 bind:value={searchQuery}
                                 items={searchResults}
+                                filterLocally={false}
                                 placeholder="Escribe el nombre o SKU del producto para buscar..."
                                 showDropdown={true}
                                 onsearch={(q) => (searchQuery = q)}

@@ -66,6 +66,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
         // Products & Categories Management (Productos module)
         Route::middleware('module:productos')->group(function () {
             Route::get('productos', [ProductController::class, 'index'])->name('products.index')->middleware('tenant.permission:productos.ver');
+            Route::get('productos/buscar', [ProductController::class, 'search'])->name('products.search')->middleware('tenant.permission:productos.ver');
             Route::get('productos/buscar-deposito', [ProductWarehouseLookupController::class, 'index'])->name('products.warehouse-search')->middleware('tenant.permission:productos.ver');
             Route::patch('productos/descuento-bulto/global', [ProductController::class, 'updateGlobalBulkDiscount'])->name('products.bulk-discount.global')->middleware('tenant.permission:productos.editar');
             Route::get('productos/crear', [ProductController::class, 'create'])->name('products.create')->middleware('tenant.permission:productos.crear');

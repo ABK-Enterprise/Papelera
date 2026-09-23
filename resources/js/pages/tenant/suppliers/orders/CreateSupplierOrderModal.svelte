@@ -380,6 +380,7 @@
                             <SearchCombobox
                                 bind:value={searchQuery}
                                 items={searchResults}
+                                filterLocally={false}
                                 placeholder="Buscar producto por nombre o SKU..."
                                 showDropdown={true}
                                 onsearch={(q) => (searchQuery = q)}

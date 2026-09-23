@@ -329,4 +329,48 @@ class ProductController extends Controller
         return redirect()->route('tenant.products.index')
             ->with('success', 'Producto eliminado exitosamente.');
     }
+
+    public function search(Request $request): JsonResponse
+    {
+        $query = trim((string) $request->input('q', ''));
+        if (mb_strlen($query, 'UTF-8') < 1) {
+            return response()->json([]);
+        }
+
+        $searchTerm = '%'.mb_strtolower($query, 'UTF-8').'%';
+        $warehouseId = $request->integer('warehouse_id');
+
+        $products = Product::query()
+            ->select([
+                'id',
+                'category_id',
+                'name',
+                'sku',
+                'barcode',
+                'price',
+                'cost_price',
+                'stock',
+                'sale_type',
+                'package_size',
+                'package_price',
+                'bulk_discount_percentage',
+                'is_active',
+            ])
+            ->where('is_active', true)
+            ->where(function ($sub) use ($searchTerm) {
+                $sub->whereRaw('LOWER(name) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(sku) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(barcode) LIKE ?', [$searchTerm]);
+            })
+            ->when($warehouseId, function ($q, $warehouseId) {
+                $q->with(['warehouses' => function ($w) use ($warehouseId) {
+                    $w->where('warehouse_id', $warehouseId);
+                }]);
+            })
+            ->orderBy('name')
+            ->limit(15)
+            ->get();
+
+        return response()->json($products);
+    }
 }
