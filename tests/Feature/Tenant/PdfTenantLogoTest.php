@@ -159,3 +159,57 @@ test('pdf receipt template renders tenant logo when available', function () {
 
     expect($rendered)->toContain('data:image/webp;base64,');
 });
+
+test('CustomerOrderController downloadPdf passes tenant logo Base64 and not provisional system logo', function () {
+    \Spatie\LaravelPdf\Facades\Pdf::fake();
+
+    $service = app(TenantLogoService::class);
+    $file = UploadedFile::fake()->image('order_logo.png', 200, 200);
+    $logoUrl = $service->storeAndOptimize($file, (int) $this->tenant->id);
+    $this->tenant->update(['logo_url' => $logoUrl]);
+
+    $module = \App\Models\Module::create([
+        'code' => 'pedidos',
+        'name' => 'Pedidos',
+        'is_active' => true,
+    ]);
+    $this->tenant->modules()->attach($module->id);
+
+    $perm = \Spatie\Permission\Models\Permission::create([
+        'name' => 'pedidos.ver',
+        'guard_name' => 'web',
+        'module_id' => $module->id,
+    ]);
+
+    setPermissionsTeamId($this->tenant->id);
+    $role = \Spatie\Permission\Models\Role::create([
+        'name' => 'admin',
+        'guard_name' => 'web',
+        'tenant_id' => $this->tenant->id,
+    ]);
+    $role->givePermissionTo($perm);
+    $this->user->assignRole($role);
+
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'order_number' => 'PED-0099',
+        'customer_name' => $this->customer->name,
+        'delivery_address' => $this->customer->address,
+        'status' => 'entregado',
+        'subtotal_amount' => 5000.00,
+        'total_amount' => 5000.00,
+    ]);
+
+    $response = $this->actingAs($this->user)
+        ->get(route('tenant.orders.pdf', $order));
+
+    $response->assertOk();
+
+    \Spatie\LaravelPdf\Facades\Pdf::assertRespondedWithPdf(function ($pdf) {
+        return $pdf->viewName === 'pdf.customer-order'
+            && str_starts_with($pdf->viewData['logoBase64'], 'data:image/webp;base64,')
+            && ! str_contains($pdf->viewData['logoBase64'], 'logo-provisorio-papelera');
+    });
+});
+

@@ -46,6 +46,31 @@
         logoUrl = company.logo_url ?? null;
     });
 
+    $effect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('editar_logo') === '1' || params.get('editar_logo') === 'true') {
+                const timer = setTimeout(() => {
+                    showLogoModal = true;
+                    params.delete('editar_logo');
+                    const newUrl = window.location.pathname + (params.toString() ? `?${params.toString()}` : '');
+                    window.history.replaceState({}, '', newUrl);
+                }, 300);
+                return () => clearTimeout(timer);
+            }
+        }
+    });
+
+    $effect(() => {
+        if (typeof window !== 'undefined') {
+            const handleCustomOpen = () => {
+                showLogoModal = true;
+            };
+            window.addEventListener('open-tenant-logo-modal', handleCustomOpen);
+            return () => window.removeEventListener('open-tenant-logo-modal', handleCustomOpen);
+        }
+    });
+
     const form = useForm({
         name: company.name ?? '',
         legal_name: company.legal_name ?? '',

@@ -803,8 +803,7 @@ class CustomerOrderController extends Controller
 
         $customerOrder->load(['items.product', 'customer', 'tenant']);
 
-        $logoPath = public_path('logo-provisorio-papelera.png');
-        $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : null;
+        $logoBase64 = app(\App\Services\TenantLogoService::class)->getBase64Logo($customerOrder->tenant);
 
         return Pdf::view('pdf.customer-order', [
             'order' => $customerOrder,
@@ -831,8 +830,7 @@ class CustomerOrderController extends Controller
 
         $customerOrder->load(['items.product', 'customer', 'tenant']);
 
-        $logoPath = public_path('logo-provisorio-papelera.png');
-        $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : null;
+        $logoBase64 = app(\App\Services\TenantLogoService::class)->getBase64Logo($customerOrder->tenant);
 
         return Pdf::view('pdf.customer-order', [
             'order' => $customerOrder,

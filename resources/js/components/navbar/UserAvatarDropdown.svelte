@@ -26,6 +26,7 @@
     import { edit as editProfile } from '@/routes/profile';
     import { edit as editSecurity } from '@/routes/security';
     import { edit as editAppearance } from '@/routes/appearance';
+    import Pencil from 'lucide-svelte/icons/pencil';
 
     let user = $derived(page.props.auth?.user);
     let tenant = $derived(page.props.auth?.tenant);
@@ -33,12 +34,26 @@
     let isAdmin = $derived(page.props.auth?.is_admin || roles.includes('admin') || user?.is_superadmin);
 
     let imageFailed = $state(false);
-    let hasAvatar = $derived(Boolean(user?.avatar && !imageFailed));
+    let avatarSrc = $derived(tenant?.logo_url || user?.avatar || null);
+    let hasAvatar = $derived(Boolean(avatarSrc && !imageFailed));
 
     function handleLogout(e: MouseEvent) {
         e.preventDefault();
         router.flushAll();
         router.post(logout());
+    }
+
+    function handleEditLogoRedirect(e: MouseEvent) {
+        e.preventDefault();
+        if (typeof window !== 'undefined') {
+            if (window.location.pathname === '/tenant/configuracion/comercio') {
+                setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('open-tenant-logo-modal'));
+                }, 300);
+            } else {
+                router.visit('/tenant/configuracion/comercio?editar_logo=1');
+            }
+        }
     }
 </script>
 
@@ -54,13 +69,14 @@
                     <Avatar class="h-9 w-9 rounded-full border border-border/80 shadow-sm">
                         {#if hasAvatar}
                             <AvatarImage
-                                src={user.avatar!}
-                                alt={user.name}
+                                src={avatarSrc!}
+                                alt={tenant?.name || user.name}
                                 onerror={() => (imageFailed = true)}
+                                class="object-cover"
                             />
                         {/if}
                         <AvatarFallback class="rounded-full bg-primary/10 font-medium text-xs text-primary dark:bg-primary/20">
-                            {getInitials(user.name)}
+                            {getInitials(tenant?.name || user.name)}
                         </AvatarFallback>
                     </Avatar>
                 </button>
@@ -72,14 +88,42 @@
             <DropdownMenuLabel class="p-2 font-normal">
                 <div class="flex flex-col gap-1.5">
                     <div class="flex items-center gap-2.5 min-w-0">
-                        <Avatar class="h-10 w-10 shrink-0 rounded-full border">
-                            {#if hasAvatar}
-                                <AvatarImage src={user.avatar!} alt={user.name} />
-                            {/if}
-                            <AvatarFallback class="rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                                {getInitials(user.name)}
-                            </AvatarFallback>
-                        </Avatar>
+                        {#if tenant && isAdmin}
+                            <button
+                                type="button"
+                                onclick={handleEditLogoRedirect}
+                                class="relative h-11 w-11 shrink-0 rounded-full border-2 border-border/80 bg-muted/40 shadow-xs cursor-pointer group hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                aria-label="Editar logo del comercio"
+                                title="Editar logo del comercio"
+                            >
+                                <Avatar class="size-full rounded-full overflow-hidden">
+                                    {#if hasAvatar}
+                                        <AvatarImage
+                                            src={avatarSrc!}
+                                            alt={tenant?.name || user.name}
+                                            class="size-full object-cover"
+                                        />
+                                    {/if}
+                                    <AvatarFallback class="rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                                        {getInitials(tenant?.name || user.name)}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div
+                                    class="absolute -bottom-0.5 -right-0.5 size-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-xs border-1.5 border-background group-hover:scale-110 transition-transform"
+                                >
+                                    <Pencil class="size-2.5" />
+                                </div>
+                            </button>
+                        {:else}
+                            <Avatar class="h-10 w-10 shrink-0 rounded-full border">
+                                {#if hasAvatar}
+                                    <AvatarImage src={avatarSrc!} alt={tenant?.name || user.name} class="object-cover" />
+                                {/if}
+                                <AvatarFallback class="rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                                    {getInitials(tenant?.name || user.name)}
+                                </AvatarFallback>
+                            </Avatar>
+                        {/if}
                         <div class="flex flex-col min-w-0 flex-1">
                             <span class="truncate text-sm font-semibold text-foreground" title={user.name}>{user.name}</span>
                             <span class="truncate text-xs text-muted-foreground" title={user.email}>{user.email}</span>
