@@ -42,18 +42,18 @@ class TenantModuleSynchronizer
             }
         }
 
-        // 3. Grant newly attached module permissions to tenant's 'admin' role
-        if (! empty($attachedModuleIds)) {
-            $newPermissions = Permission::whereIn('module_id', $attachedModuleIds)->get();
+        // 3. Grant active module permissions to tenant's 'admin' role
+        if (! empty($newModuleIds)) {
+            $contractedPermissions = Permission::whereIn('module_id', $newModuleIds)->get();
 
-            if ($newPermissions->isNotEmpty()) {
+            if ($contractedPermissions->isNotEmpty()) {
                 $adminRole = Role::firstOrCreate([
                     'name' => 'admin',
                     'guard_name' => 'web',
                     'tenant_id' => $tenant->id,
                 ]);
 
-                $adminRole->givePermissionTo($newPermissions);
+                $adminRole->givePermissionTo($contractedPermissions);
             }
         }
 
