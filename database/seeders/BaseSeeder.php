@@ -111,6 +111,7 @@ class BaseSeeder extends Seeder
                     'clientes.crear',
                     'clientes.editar',
                     'clientes.eliminar',
+                    'cuentas_corrientes.ver',
                     'cobranzas.ver',
                     'cobranzas.crear',
                     'cobranzas.anular',

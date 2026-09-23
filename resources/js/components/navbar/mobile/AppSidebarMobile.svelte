@@ -31,17 +31,8 @@
     // Auto-expansión inicial del módulo activo al abrir el Sidebar
     $effect(() => {
         if (open) {
-            if (currentUrl.startsWith('/tenant/stock') || currentUrl.startsWith('/tenant/productos/buscar-deposito')) {
-                openModule = 'Stock';
-            } else if (currentUrl.startsWith('/tenant/proveedores')) {
-                openModule = 'Proveedores';
-            } else if (currentUrl.startsWith('/tenant/clientes')) {
-                openModule = 'Clientes';
-            } else if (currentUrl.startsWith('/tenant/cobranzas')) {
-                openModule = 'Cobranza';
-            } else {
-                openModule = null;
-            }
+            const activeGroup = navItems.find((item) => item.subItems && item.subItems.length > 0 && item.active);
+            openModule = activeGroup ? activeGroup.title : null;
         }
     });
 
@@ -98,27 +89,55 @@
         }
 
         if (tenant) {
-            // Productos: Acordeón con Catálogo y Buscar en Depósito
-            if (modules.includes('productos') && (isAdmin || permissions.includes('productos.ver'))) {
+            function addModuleGroup(
+                parentTitle: string,
+                parentIcon: string,
+                parentPrefix: string,
+                subItems: SubItem[],
+                elevateTitleMap?: Record<string, string>
+            ) {
+                if (subItems.length === 0) return;
+
+                if (subItems.length === 1) {
+                    const single = subItems[0];
+                    const title = (elevateTitleMap && elevateTitleMap[single.href]) || single.title;
+                    items.push({
+                        title,
+                        href: single.href,
+                        icon: single.icon,
+                        active: single.active,
+                    });
+                    return;
+                }
+
                 items.push({
-                    title: 'Productos',
-                    href: '/tenant/productos',
-                    icon: 'solar:box-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/productos') || currentUrl.startsWith('/tenant/categorias'),
-                    subItems: [
-                        {
-                            title: 'Catálogo de Productos',
-                            href: '/tenant/productos',
-                            icon: 'solar:box-bold-duotone',
-                            active: (currentUrl.startsWith('/tenant/productos') && !currentUrl.startsWith('/tenant/productos/buscar-deposito')) || currentUrl.startsWith('/tenant/categorias'),
-                        },
-                        {
-                            title: 'Buscar en Depósito',
-                            href: '/tenant/productos/buscar-deposito',
-                            icon: 'solar:box-minimalistic-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/productos/buscar-deposito'),
-                        },
-                    ],
+                    title: parentTitle,
+                    href: subItems[0].href,
+                    icon: parentIcon,
+                    active: currentUrl.startsWith(parentPrefix) || subItems.some((s) => s.active),
+                    subItems,
+                });
+            }
+
+            // Productos: Acordeón con Catálogo y Buscar en Depósito
+            if (modules.includes('productos') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('productos.ver'))) {
+                const productosSubItems: SubItem[] = [
+                    {
+                        title: 'Catálogo de Productos',
+                        href: '/tenant/productos',
+                        icon: 'solar:box-bold-duotone',
+                        active: (currentUrl.startsWith('/tenant/productos') && !currentUrl.startsWith('/tenant/productos/buscar-deposito')) || currentUrl.startsWith('/tenant/categorias'),
+                    },
+                    {
+                        title: 'Buscar en Depósito',
+                        href: '/tenant/productos/buscar-deposito',
+                        icon: 'solar:box-minimalistic-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/productos/buscar-deposito'),
+                    },
+                ];
+
+                addModuleGroup('Productos', 'solar:box-bold-duotone', '/tenant/productos', productosSubItems, {
+                    '/tenant/productos': 'Productos',
                 });
             }
 
@@ -150,108 +169,102 @@
                     });
                 }
 
-                if (stockSubItems.length > 0) {
-                    items.push({
-                        title: 'Stock',
-                        href: stockSubItems[0].href,
-                        icon: 'solar:archive-minimalistic-bold-duotone',
-                        active: currentUrl.startsWith('/tenant/stock'),
-                        subItems: stockSubItems,
-                    });
-                }
+                addModuleGroup('Stock', 'solar:archive-minimalistic-bold-duotone', '/tenant/stock', stockSubItems);
             }
 
-
-
             // Pedidos: Acordeón con Listado y Repartos
-            if (modules.includes('pedidos') && (isAdmin || permissions.includes('pedidos.ver'))) {
-                items.push({
-                    title: 'Pedidos',
-                    href: '/tenant/pedidos',
-                    icon: 'solar:bill-list-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/pedidos') || currentUrl.startsWith('/tenant/repartos'),
-                    subItems: [
-                        {
-                            title: 'Listado de Pedidos',
-                            href: '/tenant/pedidos',
-                            icon: 'solar:bill-list-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/pedidos'),
-                        },
-                        ...((isAdmin || permissions.includes('repartos.ver')) ? [{
-                            title: 'Repartos',
-                            description: 'Pedidos de entrega',
-                            href: '/tenant/repartos',
-                            icon: 'solar:delivery-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/repartos'),
-                        }] : []),
-                    ],
+            if (modules.includes('pedidos')) {
+                const pedidosSubItems: SubItem[] = [];
+                if (isAdmin || permissions.includes('pedidos.ver')) {
+                    pedidosSubItems.push({
+                        title: 'Listado de Pedidos',
+                        href: '/tenant/pedidos',
+                        icon: 'solar:bill-list-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/pedidos'),
+                    });
+                }
+                if (isAdmin || permissions.includes('repartos.ver')) {
+                    pedidosSubItems.push({
+                        title: 'Repartos',
+                        description: 'Pedidos de entrega',
+                        href: '/tenant/repartos',
+                        icon: 'solar:delivery-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/repartos'),
+                    });
+                }
+
+                addModuleGroup('Pedidos', 'solar:bill-list-bold-duotone', '/tenant/pedidos', pedidosSubItems, {
+                    '/tenant/pedidos': 'Pedidos',
                 });
             }
 
             // Proveedores: Acordeón
-            if (modules.includes('proveedores') && (isAdmin || permissions.includes('proveedores.ver') || permissions.includes('proveedores.pedidos.ver'))) {
-                items.push({
-                    title: 'Proveedores',
-                    href: '/tenant/proveedores',
-                    icon: 'solar:delivery-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/proveedores'),
-                    subItems: [
-                        {
-                            title: 'Directorio de Proveedores',
-                            href: '/tenant/proveedores',
-                            icon: 'solar:delivery-bold-duotone',
-                            active: currentUrl === '/tenant/proveedores' || currentUrl.startsWith('/tenant/proveedores?'),
-                        },
-                        {
-                            title: 'Órdenes de Compra',
-                            href: '/tenant/proveedores/ordenes',
-                            icon: 'solar:clipboard-list-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/proveedores/ordenes'),
-                        },
-                    ],
+            if (modules.includes('proveedores')) {
+                const proveedoresSubItems: SubItem[] = [];
+                if (isAdmin || permissions.includes('proveedores.ver')) {
+                    proveedoresSubItems.push({
+                        title: 'Directorio de Proveedores',
+                        href: '/tenant/proveedores',
+                        icon: 'solar:delivery-bold-duotone',
+                        active: currentUrl === '/tenant/proveedores' || currentUrl.startsWith('/tenant/proveedores?'),
+                    });
+                }
+                if (isAdmin || permissions.includes('proveedores.pedidos.ver')) {
+                    proveedoresSubItems.push({
+                        title: 'Órdenes de Compra',
+                        href: '/tenant/proveedores/ordenes',
+                        icon: 'solar:clipboard-list-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/proveedores/ordenes'),
+                    });
+                }
+
+                addModuleGroup('Proveedores', 'solar:delivery-bold-duotone', '/tenant/proveedores', proveedoresSubItems, {
+                    '/tenant/proveedores': 'Proveedores',
                 });
             }
 
             // Clientes: Acordeón sin Cobranzas
-            if (modules.includes('clientes') && (isAdmin || permissions.includes('clientes.ver'))) {
-                items.push({
-                    title: 'Clientes',
-                    href: '/tenant/clientes',
-                    icon: 'solar:shop-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/clientes'),
-                    subItems: [
-                        {
-                            title: 'Gestión de Clientes',
-                            href: '/tenant/clientes',
-                            icon: 'solar:shop-bold-duotone',
-                            active: currentUrl === '/tenant/clientes' || currentUrl.startsWith('/tenant/clientes?'),
-                        },
-                        {
-                            title: 'Cuentas Corrientes',
-                            href: '/tenant/clientes/cuentas-corrientes',
-                            icon: 'solar:card-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/clientes/cuentas-corrientes'),
-                        },
-                    ],
+            if (modules.includes('clientes')) {
+                const clientesSubItems: SubItem[] = [];
+                if (isAdmin || permissions.includes('clientes.ver')) {
+                    clientesSubItems.push({
+                        title: 'Gestión de Clientes',
+                        href: '/tenant/clientes',
+                        icon: 'solar:shop-bold-duotone',
+                        active: currentUrl === '/tenant/clientes' || currentUrl.startsWith('/tenant/clientes?'),
+                    });
+                }
+                if (isAdmin || permissions.includes('cuentas_corrientes.ver')) {
+                    clientesSubItems.push({
+                        title: 'Cuentas Corrientes',
+                        href: '/tenant/clientes/cuentas-corrientes',
+                        icon: 'solar:card-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/clientes/cuentas-corrientes'),
+                    });
+                }
+
+                addModuleGroup('Clientes', 'solar:shop-bold-duotone', '/tenant/clientes', clientesSubItems, {
+                    '/tenant/clientes': 'Clientes',
                 });
             }
 
             // Cobranza: Acordeón Independiente de Cobros y Recibos
-            if (modules.includes('clientes') && (isAdmin || permissions.includes('cobranzas.ver') || permissions.includes('clientes.ver'))) {
-                const cobranzasSubItems: SubItem[] = [
-                    {
+            if (modules.includes('clientes')) {
+                const cobranzasSubItems: SubItem[] = [];
+                if (isAdmin || permissions.includes('cobranzas.ver')) {
+                    cobranzasSubItems.push({
                         title: 'Panel de Cobranzas',
                         href: '/tenant/cobranzas',
                         icon: 'solar:hand-money-bold-duotone',
                         active: currentUrl === '/tenant/cobranzas' || currentUrl.startsWith('/tenant/cobranzas?'),
-                    },
-                    {
+                    });
+                    cobranzasSubItems.push({
                         title: 'Historial de Recibos',
                         href: '/tenant/cobranzas/recibos',
                         icon: 'solar:bill-check-bold-duotone',
                         active: currentUrl.startsWith('/tenant/cobranzas/recibos'),
-                    },
-                ];
+                    });
+                }
 
                 if (modules.includes('facturacion_arca') && (isAdmin || permissions.includes('facturas.consultar'))) {
                     cobranzasSubItems.push({
@@ -262,12 +275,8 @@
                     });
                 }
 
-                items.push({
-                    title: 'Cobranza',
-                    href: '/tenant/cobranzas',
-                    icon: 'solar:hand-money-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/cobranzas'),
-                    subItems: cobranzasSubItems,
+                addModuleGroup('Cobranza', 'solar:hand-money-bold-duotone', '/tenant/cobranzas', cobranzasSubItems, {
+                    '/tenant/cobranzas': 'Cobranza',
                 });
             }
 

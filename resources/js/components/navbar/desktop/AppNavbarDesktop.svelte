@@ -66,29 +66,57 @@
 
         // Tenant modular navigation (Zero-Trust con Navigation Menu)
         if (tenant) {
+            function addModuleGroup(
+                parentTitle: string,
+                parentIcon: string,
+                parentPrefix: string,
+                subItems: SubItem[],
+                elevateTitleMap?: Record<string, string>
+            ) {
+                if (subItems.length === 0) return;
+
+                if (subItems.length === 1) {
+                    const single = subItems[0];
+                    const title = (elevateTitleMap && elevateTitleMap[single.href]) || single.title;
+                    items.push({
+                        title,
+                        href: single.href,
+                        icon: single.icon,
+                        active: single.active,
+                    });
+                    return;
+                }
+
+                items.push({
+                    title: parentTitle,
+                    href: subItems[0].href,
+                    icon: parentIcon,
+                    active: currentUrl.startsWith(parentPrefix) || subItems.some((s) => s.active),
+                    subItems,
+                });
+            }
+
             // Products catalog (Productos module)
             if (modules.includes('productos') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('productos.ver'))) {
-                items.push({
-                    title: 'Productos',
-                    href: '/tenant/productos',
-                    icon: 'solar:box-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/productos') || currentUrl.startsWith('/tenant/categorias'),
-                    subItems: [
-                        {
-                            title: 'Catálogo de Productos',
-                            description: 'Gestión de precios, artículos y categorías',
-                            href: '/tenant/productos',
-                            icon: 'solar:box-bold-duotone',
-                            active: (currentUrl.startsWith('/tenant/productos') && !currentUrl.startsWith('/tenant/productos/buscar-deposito')) || currentUrl.startsWith('/tenant/categorias'),
-                        },
-                        {
-                            title: 'Buscar en Depósito',
-                            description: 'Existencias físicas y estanterías por depósito',
-                            href: '/tenant/productos/buscar-deposito',
-                            icon: 'solar:box-minimalistic-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/productos/buscar-deposito'),
-                        },
-                    ],
+                const productosSubItems: SubItem[] = [
+                    {
+                        title: 'Catálogo de Productos',
+                        description: 'Gestión de precios, artículos y categorías',
+                        href: '/tenant/productos',
+                        icon: 'solar:box-bold-duotone',
+                        active: (currentUrl.startsWith('/tenant/productos') && !currentUrl.startsWith('/tenant/productos/buscar-deposito')) || currentUrl.startsWith('/tenant/categorias'),
+                    },
+                    {
+                        title: 'Buscar en Depósito',
+                        description: 'Existencias físicas y estanterías por depósito',
+                        href: '/tenant/productos/buscar-deposito',
+                        icon: 'solar:box-minimalistic-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/productos/buscar-deposito'),
+                    },
+                ];
+
+                addModuleGroup('Productos', 'solar:box-bold-duotone', '/tenant/productos', productosSubItems, {
+                    '/tenant/productos': 'Productos',
                 });
             }
 
@@ -123,114 +151,109 @@
                     });
                 }
 
-                if (stockSubItems.length > 0) {
-                    items.push({
-                        title: 'Stock',
-                        href: stockSubItems[0].href,
-                        icon: 'solar:archive-minimalistic-bold-duotone',
-                        active: currentUrl.startsWith('/tenant/stock'),
-                        subItems: stockSubItems,
-                    });
-                }
+                addModuleGroup('Stock', 'solar:archive-minimalistic-bold-duotone', '/tenant/stock', stockSubItems);
             }
 
-
             // Customer Orders (Pedidos module)
-            if (modules.includes('pedidos') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('pedidos.ver'))) {
-                items.push({
-                    title: 'Pedidos',
-                    href: '/tenant/pedidos',
-                    icon: 'solar:bill-list-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/pedidos') || currentUrl.startsWith('/tenant/repartos'),
-                    subItems: [
-                        {
-                            title: 'Listado de Pedidos',
-                            description: 'Ventas, armado y estados logísticos',
-                            href: '/tenant/pedidos',
-                            icon: 'solar:bill-list-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/pedidos'),
-                        },
-                        ...((isAdmin || permissions.includes('repartos.ver')) ? [{
-                            title: 'Repartos',
-                            description: 'Pedidos de entrega',
-                            href: '/tenant/repartos',
-                            icon: 'solar:delivery-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/repartos'),
-                        }] : []),
-                    ],
+            if (modules.includes('pedidos')) {
+                const pedidosSubItems: SubItem[] = [];
+                if (isAdmin || permissions.includes('pedidos.ver')) {
+                    pedidosSubItems.push({
+                        title: 'Listado de Pedidos',
+                        description: 'Ventas, armado y estados logísticos',
+                        href: '/tenant/pedidos',
+                        icon: 'solar:bill-list-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/pedidos'),
+                    });
+                }
+                if (isAdmin || permissions.includes('repartos.ver')) {
+                    pedidosSubItems.push({
+                        title: 'Repartos',
+                        description: 'Pedidos de entrega',
+                        href: '/tenant/repartos',
+                        icon: 'solar:delivery-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/repartos'),
+                    });
+                }
+
+                addModuleGroup('Pedidos', 'solar:bill-list-bold-duotone', '/tenant/pedidos', pedidosSubItems, {
+                    '/tenant/pedidos': 'Pedidos',
                 });
             }
 
-            // Suppliers (Proveedores module con submenú)
-            if (modules.includes('proveedores') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('proveedores.ver') || permissions.includes('proveedores.pedidos.ver'))) {
-                items.push({
-                    title: 'Proveedores',
-                    href: '/tenant/proveedores',
-                    icon: 'solar:delivery-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/proveedores'),
-                    subItems: [
-                        {
-                            title: 'Directorio de Proveedores',
-                            description: 'Fichas comerciales y datos de contacto',
-                            href: '/tenant/proveedores',
-                            icon: 'solar:delivery-bold-duotone',
-                            active: currentUrl === '/tenant/proveedores' || currentUrl.startsWith('/tenant/proveedores?'),
-                        },
-                        {
-                            title: 'Órdenes de Compra',
-                            description: 'Emisión y recepción de pedidos a fábricas',
-                            href: '/tenant/proveedores/ordenes',
-                            icon: 'solar:clipboard-list-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/proveedores/ordenes'),
-                        },
-                    ],
+            // Suppliers (Proveedores module)
+            if (modules.includes('proveedores')) {
+                const proveedoresSubItems: SubItem[] = [];
+                if (isAdmin || permissions.includes('proveedores.ver')) {
+                    proveedoresSubItems.push({
+                        title: 'Directorio de Proveedores',
+                        description: 'Fichas comerciales y datos de contacto',
+                        href: '/tenant/proveedores',
+                        icon: 'solar:delivery-bold-duotone',
+                        active: currentUrl === '/tenant/proveedores' || currentUrl.startsWith('/tenant/proveedores?'),
+                    });
+                }
+                if (isAdmin || permissions.includes('proveedores.pedidos.ver')) {
+                    proveedoresSubItems.push({
+                        title: 'Órdenes de Compra',
+                        description: 'Emisión y recepción de pedidos a fábricas',
+                        href: '/tenant/proveedores/ordenes',
+                        icon: 'solar:clipboard-list-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/proveedores/ordenes'),
+                    });
+                }
+
+                addModuleGroup('Proveedores', 'solar:delivery-bold-duotone', '/tenant/proveedores', proveedoresSubItems, {
+                    '/tenant/proveedores': 'Proveedores',
                 });
             }
 
             // Customers (Clientes module con Cuentas Corrientes)
-            if (modules.includes('clientes') && (roles.includes('admin') || user?.is_superadmin || permissions.includes('clientes.ver'))) {
-                items.push({
-                    title: 'Clientes',
-                    href: '/tenant/clientes',
-                    icon: 'solar:shop-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/clientes'),
-                    subItems: [
-                        {
-                            title: 'Gestión de Clientes',
-                            description: 'Directorio, condiciones fiscales y saldos',
-                            href: '/tenant/clientes',
-                            icon: 'solar:shop-bold-duotone',
-                            active: currentUrl === '/tenant/clientes' || currentUrl.startsWith('/tenant/clientes?'),
-                        },
-                        {
-                            title: 'Cuentas Corrientes',
-                            description: 'Trazabilidad de deuda, cobros y límites',
-                            href: '/tenant/clientes/cuentas-corrientes',
-                            icon: 'solar:card-bold-duotone',
-                            active: currentUrl.startsWith('/tenant/clientes/cuentas-corrientes'),
-                        },
-                    ],
+            if (modules.includes('clientes')) {
+                const clientesSubItems: SubItem[] = [];
+                if (isAdmin || permissions.includes('clientes.ver')) {
+                    clientesSubItems.push({
+                        title: 'Gestión de Clientes',
+                        description: 'Directorio, condiciones fiscales y saldos',
+                        href: '/tenant/clientes',
+                        icon: 'solar:shop-bold-duotone',
+                        active: currentUrl === '/tenant/clientes' || currentUrl.startsWith('/tenant/clientes?'),
+                    });
+                }
+                if (isAdmin || permissions.includes('cuentas_corrientes.ver')) {
+                    clientesSubItems.push({
+                        title: 'Cuentas Corrientes',
+                        description: 'Trazabilidad de deuda, cobros y límites',
+                        href: '/tenant/clientes/cuentas-corrientes',
+                        icon: 'solar:card-bold-duotone',
+                        active: currentUrl.startsWith('/tenant/clientes/cuentas-corrientes'),
+                    });
+                }
+
+                addModuleGroup('Clientes', 'solar:shop-bold-duotone', '/tenant/clientes', clientesSubItems, {
+                    '/tenant/clientes': 'Clientes',
                 });
             }
 
             // Cobranza (Módulo Independiente de Cobros y Recibos)
-            if (modules.includes('clientes') && (isAdmin || permissions.includes('cobranzas.ver') || permissions.includes('clientes.ver'))) {
-                const cobranzasSubItems: SubItem[] = [
-                    {
+            if (modules.includes('clientes')) {
+                const cobranzasSubItems: SubItem[] = [];
+                if (isAdmin || permissions.includes('cobranzas.ver')) {
+                    cobranzasSubItems.push({
                         title: 'Panel de Cobranzas',
                         description: 'Gestión de cobros e imputación de recibos',
                         href: '/tenant/cobranzas',
                         icon: 'solar:hand-money-bold-duotone',
                         active: currentUrl === '/tenant/cobranzas' || currentUrl.startsWith('/tenant/cobranzas?'),
-                    },
-                    {
+                    });
+                    cobranzasSubItems.push({
                         title: 'Historial de Recibos',
                         description: 'Comprobantes oficiales emitidos y auditoría',
                         href: '/tenant/cobranzas/recibos',
                         icon: 'solar:bill-check-bold-duotone',
                         active: currentUrl.startsWith('/tenant/cobranzas/recibos'),
-                    },
-                ];
+                    });
+                }
 
                 if (modules.includes('facturacion_arca') && (isAdmin || permissions.includes('facturas.consultar'))) {
                     cobranzasSubItems.push({
@@ -242,12 +265,8 @@
                     });
                 }
 
-                items.push({
-                    title: 'Cobranza',
-                    href: '/tenant/cobranzas',
-                    icon: 'solar:hand-money-bold-duotone',
-                    active: currentUrl.startsWith('/tenant/cobranzas'),
-                    subItems: cobranzasSubItems,
+                addModuleGroup('Cobranza', 'solar:hand-money-bold-duotone', '/tenant/cobranzas', cobranzasSubItems, {
+                    '/tenant/cobranzas': 'Cobranza',
                 });
             }
 

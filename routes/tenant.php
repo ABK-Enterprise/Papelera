@@ -116,8 +116,8 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::delete('clientes/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy')->middleware('tenant.permission:clientes.eliminar');
 
             // Cuentas Corrientes (Customer Accounts Ledger)
-            Route::get('clientes/cuentas-corrientes', [CustomerAccountController::class, 'index'])->name('customers.accounts.index')->middleware('tenant.permission:clientes.ver');
-            Route::get('clientes/{customer}/cuenta-corriente', [CustomerAccountController::class, 'show'])->name('customers.accounts.show')->middleware('tenant.permission:clientes.ver');
+            Route::get('clientes/cuentas-corrientes', [CustomerAccountController::class, 'index'])->name('customers.accounts.index')->middleware('tenant.permission:cuentas_corrientes.ver');
+            Route::get('clientes/{customer}/cuenta-corriente', [CustomerAccountController::class, 'show'])->name('customers.accounts.show')->middleware('tenant.permission:cuentas_corrientes.ver');
             Route::post('clientes/{customer}/cuenta-corriente/cobro', [CustomerAccountController::class, 'recordPayment'])->name('customers.accounts.payment')->middleware('tenant.permission:cobranzas.crear,clientes.editar');
             Route::post('clientes/{customer}/cuenta-corriente/ajuste', [CustomerAccountController::class, 'recordAdjustment'])->name('customers.accounts.adjustment')->middleware('tenant.permission:clientes.editar');
             Route::patch('clientes/{customer}/cuenta-corriente/limite-credito', [CustomerAccountController::class, 'updateCreditSettings'])->name('customers.accounts.credit-settings')->middleware('tenant.permission:clientes.editar');
