@@ -98,7 +98,7 @@ class TenantLogoService
         imagedestroy($optimized);
         imagedestroy($source);
 
-        return Storage::disk('public')->url($optimizedRelativePath);
+        return "/storage/{$optimizedRelativePath}";
     }
 
     /**

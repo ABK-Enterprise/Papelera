@@ -28,13 +28,6 @@
         status?: string;
         canResetPassword: boolean;
     } = $props();
-
-    let warmedUp = false;
-    function handleWarmup() {
-        if (warmedUp || typeof window === 'undefined') return;
-        warmedUp = true;
-        fetch('/up', { method: 'HEAD' }).catch(() => {});
-    }
 </script>
 
 <AppHead title="Iniciar Sesión" />
@@ -48,7 +41,6 @@
 <Form
     {...store.form()}
     resetOnSuccess={['password']}
-    onfocusin={handleWarmup}
     class="flex flex-col gap-5"
 >
     {#snippet children({ errors, processing })}

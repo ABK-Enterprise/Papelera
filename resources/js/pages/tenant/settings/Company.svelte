@@ -15,6 +15,7 @@
     import Save from 'lucide-svelte/icons/save';
     import Loader2 from 'lucide-svelte/icons/loader-2';
     import Pencil from 'lucide-svelte/icons/pencil';
+    import ImageOff from 'lucide-svelte/icons/image-off';
     import TenantLogoModal from '@/components/tenant/settings/TenantLogoModal.svelte';
 
     interface CompanyData {
@@ -40,10 +41,12 @@
     let { company }: Props = $props();
 
     let showLogoModal = $state(false);
+    let imageFailed = $state(false);
     let logoUrl = $state(company.logo_url ?? null);
 
     $effect(() => {
         logoUrl = company.logo_url ?? null;
+        imageFailed = false;
     });
 
     $effect(() => {
@@ -129,15 +132,21 @@
                     aria-label="Editar logo del comercio"
                     title="Editar logo del comercio"
                 >
-                    <div class="size-full rounded-full overflow-hidden flex items-center justify-center">
-                        {#if logoUrl}
+                    <div class="size-full rounded-full overflow-hidden flex items-center justify-center bg-muted/40">
+                        {#if logoUrl && !imageFailed}
                             <img
                                 src={logoUrl}
                                 alt="Logo del comercio"
+                                onerror={() => (imageFailed = true)}
                                 class="size-full object-cover group-hover:scale-105 transition-transform duration-200"
                             />
                         {:else}
-                            <Store class="size-10 text-muted-foreground/70 group-hover:text-primary transition-colors" />
+                            <div class="flex flex-col items-center justify-center gap-1 text-center select-none px-2">
+                                <ImageOff class="size-5 text-muted-foreground/60 group-hover:text-primary/70 transition-colors" />
+                                <span class="text-[11px] font-medium text-muted-foreground tracking-tight leading-tight">
+                                    Sin imagen
+                                </span>
+                            </div>
                         {/if}
                     </div>
 

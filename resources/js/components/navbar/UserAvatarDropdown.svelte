@@ -34,8 +34,28 @@
     let isAdmin = $derived(page.props.auth?.is_admin || roles.includes('admin') || user?.is_superadmin);
 
     let imageFailed = $state(false);
-    let avatarSrc = $derived(tenant?.logo_url || user?.avatar || null);
+    let rawAvatar = $derived(tenant?.logo_url || user?.avatar || null);
+    let avatarSrc = $derived.by(() => {
+        if (!rawAvatar) return null;
+        if (rawAvatar.startsWith('/storage/')) return rawAvatar;
+        if (rawAvatar.startsWith('storage/')) return '/' + rawAvatar;
+        try {
+            const parsed = new URL(rawAvatar, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+            if (parsed.pathname.includes('/storage/')) {
+                return parsed.pathname.slice(parsed.pathname.indexOf('/storage/'));
+            }
+        } catch {
+            // Non-standard URL, return as is
+        }
+        return rawAvatar;
+    });
     let hasAvatar = $derived(Boolean(avatarSrc && !imageFailed));
+
+    $effect(() => {
+        if (avatarSrc) {
+            imageFailed = false;
+        }
+    });
 
     function handleLogout(e: MouseEvent) {
         e.preventDefault();

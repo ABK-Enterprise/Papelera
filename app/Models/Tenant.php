@@ -98,6 +98,31 @@ class Tenant extends Model
         ];
     }
 
+    /**
+     * Normalize stored logo URL to a root-relative path to prevent host mismatch and mixed content across environments.
+     */
+    public function getLogoUrlAttribute(?string $value): ?string
+    {
+        if (! $value) {
+            return null;
+        }
+
+        if (str_starts_with($value, '/storage/')) {
+            return $value;
+        }
+
+        if (str_starts_with($value, 'storage/')) {
+            return '/' . $value;
+        }
+
+        $parsedPath = parse_url($value, PHP_URL_PATH);
+        if ($parsedPath && preg_match('#^/?storage/(.+)$#', $parsedPath, $matches)) {
+            return '/storage/' . $matches[1];
+        }
+
+        return $value;
+    }
+
     public function users(): HasMany
     {
         return $this->hasMany(User::class);

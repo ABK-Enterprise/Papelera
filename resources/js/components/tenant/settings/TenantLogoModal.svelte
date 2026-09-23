@@ -36,9 +36,16 @@
     let showDeleteConfirm = $state(false);
     let errorMessage = $state<string | null>(null);
     let isDragging = $state(false);
+    let imageFailed = $state(false);
 
     // Derived active display URL: selected file preview > server current logo > null
     let activeImage = $derived(previewUrl || currentLogoUrl || null);
+
+    $effect(() => {
+        if (activeImage) {
+            imageFailed = false;
+        }
+    });
 
     onDestroy(() => {
         if (previewUrl) {
@@ -183,18 +190,24 @@
             <!-- Imagen actual centrada -->
             <div class="flex flex-col items-center justify-center gap-3">
                 <div class="relative size-32 sm:size-36 rounded-full border-2 border-border/80 bg-muted/30 shadow-inner flex items-center justify-center overflow-hidden shrink-0">
-                    {#if activeImage}
+                    {#if activeImage && !imageFailed}
                         <img
                             src={activeImage}
                             alt="Logo del comercio"
+                            onerror={() => (imageFailed = true)}
                             class="w-full h-full object-cover"
                         />
                     {:else}
-                        <Store class="size-14 text-muted-foreground/60" />
+                        <div class="flex flex-col items-center justify-center gap-1.5 text-center select-none px-3">
+                            <ImageOff class="size-7 text-muted-foreground/60" />
+                            <span class="text-xs font-semibold text-muted-foreground/80 tracking-tight">
+                                Sin imagen
+                            </span>
+                        </div>
                     {/if}
                 </div>
 
-                {#if activeImage}
+                {#if activeImage && !imageFailed}
                     <Button
                         type="button"
                         variant="ghost"
