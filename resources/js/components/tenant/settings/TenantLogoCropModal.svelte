@@ -5,10 +5,8 @@
         DialogBody,
         DialogContent,
         DialogFooter,
-        DialogHeader,
         DialogTitle,
     } from '@/components/ui/dialog';
-    import Crop from 'lucide-svelte/icons/crop';
     import ZoomIn from 'lucide-svelte/icons/zoom-in';
     import ZoomOut from 'lucide-svelte/icons/zoom-out';
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
@@ -27,8 +25,12 @@
         onCancel?: () => void;
     } = $props();
 
-    // Canvas / Viewport size
+    // Geometric constants for pixel-perfect circular crop
     const VIEWPORT_SIZE = 280;
+    const CROP_SIZE = 260; // Exact diameter of the guide circle
+    const CROP_RADIUS = CROP_SIZE / 2; // 130px
+    const CROP_OFFSET = (VIEWPORT_SIZE - CROP_SIZE) / 2; // 10px margin around circle
+    const TARGET_SIZE = 512; // High-res square output canvas
 
     let zoom = $state(1);
     let panX = $state(0);
@@ -41,6 +43,8 @@
     let imageLoaded = $state(false);
     let naturalWidth = $state(0);
     let naturalHeight = $state(0);
+    let baseWidth = $state(0);
+    let baseHeight = $state(0);
 
     // Reset coordinates whenever modal opens or image changes
     $effect(() => {
@@ -57,8 +61,13 @@
         imageElement = img;
         naturalWidth = img.naturalWidth;
         naturalHeight = img.naturalHeight;
+
+        // Base scale: ensure the image at zoom=1 covers at least the CROP_SIZE diameter
+        const baseScale = Math.max(CROP_SIZE / naturalWidth, CROP_SIZE / naturalHeight);
+        baseWidth = Math.round(naturalWidth * baseScale);
+        baseHeight = Math.round(naturalHeight * baseScale);
+
         imageLoaded = true;
-        // Center initial pan
         panX = 0;
         panY = 0;
         zoom = 1;
@@ -110,41 +119,33 @@
 
         try {
             const canvas = document.createElement('canvas');
-            const targetSize = 512; // High-res square output
-            canvas.width = targetSize;
-            canvas.height = targetSize;
+            canvas.width = TARGET_SIZE;
+            canvas.height = TARGET_SIZE;
             const ctx = canvas.getContext('2d');
 
             if (!ctx) {
                 throw new Error('No se pudo inicializar el contexto de imagen.');
             }
 
-            // High quality image smoothing
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
-            // Calculate scaling between the on-screen preview viewport and original image
-            const baseScale = Math.max(
-                VIEWPORT_SIZE / naturalWidth,
-                VIEWPORT_SIZE / naturalHeight
-            );
+            // Dimensions on screen during preview
+            const displayW = baseWidth * zoom;
+            const displayH = baseHeight * zoom;
 
-            // Display dimensions on screen
-            const displayW = naturalWidth * baseScale * zoom;
-            const displayH = naturalHeight * baseScale * zoom;
-
-            // Offset of the image center relative to viewport center
+            // Offset of image center relative to viewport center
             const screenCenterX = VIEWPORT_SIZE / 2;
             const screenCenterY = VIEWPORT_SIZE / 2;
 
             const imageTopLeftX = screenCenterX - displayW / 2 + panX;
             const imageTopLeftY = screenCenterY - displayH / 2 + panY;
 
-            // Map the screen coordinates to the target 512x512 canvas coordinates
-            const factor = targetSize / VIEWPORT_SIZE;
+            // Map the exact CROP_SIZE bounding box to TARGET_SIZE canvas
+            const factor = TARGET_SIZE / CROP_SIZE;
 
-            const destX = imageTopLeftX * factor;
-            const destY = imageTopLeftY * factor;
+            const destX = (imageTopLeftX - CROP_OFFSET) * factor;
+            const destY = (imageTopLeftY - CROP_OFFSET) * factor;
             const destW = displayW * factor;
             const destH = displayH * factor;
 
@@ -171,19 +172,16 @@
 
 <Dialog bind:open onOpenChange={(val) => { if (!val) handleClose(); }}>
     <DialogContent class="max-w-md w-full p-5 sm:p-6 space-y-4 rounded-2xl">
-        <DialogHeader>
-            <div class="flex items-center gap-2.5">
-                <div class="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    <Crop class="size-4" />
-                </div>
-                <DialogTitle class="text-lg font-bold tracking-tight">Ajustar encuadre</DialogTitle>
-            </div>
-        </DialogHeader>
+        <!-- Accessible hidden title for screen readers -->
+        <DialogTitle class="sr-only">Ajustar encuadre</DialogTitle>
 
-        <DialogBody class="flex flex-col items-center justify-center gap-4 py-2">
+        <!-- Espacio en blanco de 10px con separador horizontal -->
+        <div class="pt-2.5 border-b border-border/60 w-full"></div>
+
+        <DialogBody class="flex flex-col items-center justify-center gap-4 py-1">
             <!-- Viewport de recorte con máscara circular -->
             <div
-                class="relative size-[280px] rounded-2xl overflow-hidden bg-neutral-950 select-none shadow-inner border border-border/80 cursor-grab active:cursor-grabbing touch-none"
+                class="relative size-[280px] rounded-2xl overflow-hidden bg-neutral-950 select-none shadow-inner border border-border/80 cursor-grab active:cursor-grabbing touch-none shrink-0"
                 onpointerdown={handlePointerDown}
                 onpointermove={handlePointerMove}
                 onpointerup={handlePointerUp}
@@ -202,8 +200,8 @@
                             alt="Logo a recortar"
                             crossorigin="anonymous"
                             onload={handleImageLoad}
-                            class="max-w-none pointer-events-none"
-                            style="min-width: {VIEWPORT_SIZE}px; min-height: {VIEWPORT_SIZE}px; object-fit: contain;"
+                            class="pointer-events-none max-w-none select-none"
+                            style="width: {baseWidth}px; height: {baseHeight}px; min-width: {baseWidth}px; min-height: {baseHeight}px; object-fit: fill;"
                         />
                     </div>
                 {/if}
@@ -218,7 +216,7 @@
                     <defs>
                         <mask id="logo-circle-cutout">
                             <rect width="280" height="280" fill="white" />
-                            <circle cx="140" cy="140" r="120" fill="black" />
+                            <circle cx="140" cy="140" r={CROP_RADIUS} fill="black" />
                         </mask>
                     </defs>
                     <!-- Zona exterior oscurecida -->
@@ -232,7 +230,7 @@
                     <circle
                         cx="140"
                         cy="140"
-                        r="120"
+                        r={CROP_RADIUS}
                         stroke="rgba(255, 255, 255, 0.85)"
                         stroke-width="2"
                         stroke-dasharray="4 4"
@@ -246,24 +244,16 @@
                 {/if}
             </div>
 
-            <!-- Controles de Zoom y Reset -->
-            <div class="w-full max-w-[280px] space-y-2">
+            <!-- Controles de Zoom -->
+            <div class="w-full max-w-[280px] sm:max-w-[300px] space-y-2">
                 <div class="flex items-center justify-between text-xs text-muted-foreground font-medium px-1">
                     <span class="flex items-center gap-1.5">
                         <ZoomIn class="size-3.5 text-primary" />
                         <span>Zoom ({Math.round(zoom * 100)}%)</span>
                     </span>
-                    <button
-                        type="button"
-                        onclick={resetTransform}
-                        class="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                    >
-                        <RotateCcw class="size-3" />
-                        <span>Restablecer</span>
-                    </button>
                 </div>
 
-                <div class="flex items-center gap-2.5">
+                <div class="flex items-center gap-2.5 w-full">
                     <button
                         type="button"
                         onclick={() => (zoom = Math.max(1, Number((zoom - 0.1).toFixed(2))))}
@@ -279,7 +269,7 @@
                         max="3"
                         step="0.05"
                         bind:value={zoom}
-                        class="w-full accent-primary h-1.5 bg-muted rounded-lg cursor-pointer"
+                        class="flex-1 min-w-0 accent-primary h-1.5 bg-muted rounded-lg cursor-pointer"
                     />
 
                     <button
@@ -294,30 +284,80 @@
             </div>
         </DialogBody>
 
-        <DialogFooter class="grid grid-cols-2 gap-2.5 sm:flex sm:justify-end sm:gap-3 pt-2">
-            <Button
-                type="button"
-                variant="outline"
-                onclick={handleClose}
-                disabled={isProcessing}
-                class="w-full sm:w-auto min-h-[44px] px-5 rounded-xl font-semibold justify-center"
-            >
-                Cancelar
-            </Button>
-            <Button
-                type="button"
-                onclick={applyCrop}
-                disabled={isProcessing || !imageLoaded}
-                class="w-full sm:w-auto min-h-[44px] px-5 rounded-xl font-semibold gap-2 justify-center"
-            >
-                {#if isProcessing}
-                    <Loader2 class="size-4 animate-spin" />
-                    <span>Recortando...</span>
-                {:else}
-                    <Check class="size-4" />
-                    <span>Aplicar ajuste</span>
-                {/if}
-            </Button>
+        <DialogFooter class="pt-2 w-full">
+            <!-- Mobile Actions Layout (< sm) -->
+            <div class="flex flex-col gap-2 w-full sm:hidden">
+                <div class="grid grid-cols-2 gap-2 w-full">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onclick={resetTransform}
+                        disabled={isProcessing}
+                        class="min-h-[44px] rounded-xl font-semibold text-xs justify-center border-border/80"
+                    >
+                        Restablecer
+                    </Button>
+                    <Button
+                        type="button"
+                        onclick={applyCrop}
+                        disabled={isProcessing || !imageLoaded}
+                        class="min-h-[44px] rounded-xl font-semibold text-xs justify-center gap-1.5"
+                    >
+                        {#if isProcessing}
+                            <Loader2 class="size-3.5 animate-spin" />
+                            <span>Aplicando...</span>
+                        {:else}
+                            <span>Aplicar</span>
+                        {/if}
+                    </Button>
+                </div>
+                <Button
+                    type="button"
+                    variant="outline"
+                    onclick={handleClose}
+                    disabled={isProcessing}
+                    class="w-full min-h-[44px] rounded-xl font-semibold text-xs justify-center border-border/80"
+                >
+                    Cancelar
+                </Button>
+            </div>
+
+            <!-- Desktop Actions Layout (>= sm) -->
+            <div class="hidden sm:flex sm:items-center sm:justify-end sm:gap-2.5 w-full">
+                <Button
+                    type="button"
+                    variant="outline"
+                    onclick={handleClose}
+                    disabled={isProcessing}
+                    class="min-h-[40px] px-4 rounded-xl font-semibold text-xs justify-center border-border/80"
+                >
+                    Cancelar
+                </Button>
+                <Button
+                    type="button"
+                    variant="outline"
+                    onclick={resetTransform}
+                    disabled={isProcessing}
+                    class="min-h-[40px] px-4 rounded-xl font-semibold text-xs gap-1.5 justify-center border-border/80"
+                >
+                    <RotateCcw class="size-3.5" />
+                    <span>Restablecer</span>
+                </Button>
+                <Button
+                    type="button"
+                    onclick={applyCrop}
+                    disabled={isProcessing || !imageLoaded}
+                    class="min-h-[40px] px-5 rounded-xl font-semibold text-xs gap-2 justify-center"
+                >
+                    {#if isProcessing}
+                        <Loader2 class="size-4 animate-spin" />
+                        <span>Recortando...</span>
+                    {:else}
+                        <Check class="size-4" />
+                        <span>Aplicar ajuste</span>
+                    {/if}
+                </Button>
+            </div>
         </DialogFooter>
     </DialogContent>
 </Dialog>
