@@ -176,11 +176,8 @@
                 <div class="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     <Crop class="size-4" />
                 </div>
-                <DialogTitle class="text-lg font-bold tracking-tight">Ajustar encuadre del logo</DialogTitle>
+                <DialogTitle class="text-lg font-bold tracking-tight">Ajustar encuadre</DialogTitle>
             </div>
-            <p class="text-xs text-muted-foreground pt-1">
-                Arrastra la imagen con el cursor o el dedo para centrarla dentro del marco circular.
-            </p>
         </DialogHeader>
 
         <DialogBody class="flex flex-col items-center justify-center gap-4 py-2">
