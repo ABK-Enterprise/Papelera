@@ -18,6 +18,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     libzip-dev \
     libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    libwebp-dev \
     libicu-dev \
     libxml2-dev \
     openssl \
@@ -25,6 +28,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
     fonts-liberation \
     fonts-noto-color-emoji \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) \
     pdo \
     pdo_pgsql \
@@ -34,6 +38,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     intl \
     soap \
     pcntl \
+    exif \
+    gd \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
