@@ -16,6 +16,8 @@
     import Store from 'lucide-svelte/icons/store';
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import UploadCloud from 'lucide-svelte/icons/upload-cloud';
+    import Crop from 'lucide-svelte/icons/crop';
+    import TenantLogoCropModal from '@/components/tenant/settings/TenantLogoCropModal.svelte';
     import { onDestroy } from 'svelte';
 
     let {
@@ -34,6 +36,7 @@
     let isSubmitting = $state(false);
     let isDeleting = $state(false);
     let showDeleteConfirm = $state(false);
+    let showCropModal = $state(false);
     let errorMessage = $state<string | null>(null);
     let isDragging = $state(false);
     let imageFailed = $state(false);
@@ -161,6 +164,16 @@
         });
     }
 
+    function handleCropApply(blob: Blob, url: string) {
+        if (previewUrl && previewUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(previewUrl);
+        }
+        selectedFile = new File([blob], 'logo.png', { type: 'image/png' });
+        previewUrl = url;
+        imageFailed = false;
+        errorMessage = null;
+    }
+
     function resetLocal() {
         if (previewUrl) {
             URL.revokeObjectURL(previewUrl);
@@ -208,17 +221,30 @@
                 </div>
 
                 {#if activeImage && !imageFailed}
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onclick={confirmDelete}
-                        disabled={isSubmitting || isDeleting}
-                        class="text-xs text-destructive hover:text-destructive hover:bg-destructive/10 gap-1.5 h-8 px-3 rounded-lg"
-                    >
-                        <Trash2 class="size-3.5" />
-                        <span>Eliminar imagen</span>
-                    </Button>
+                    <div class="flex items-center gap-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onclick={() => (showCropModal = true)}
+                            disabled={isSubmitting || isDeleting}
+                            class="min-h-[36px] text-xs font-semibold text-foreground hover:bg-muted gap-1.5 px-3 rounded-lg border-border/80"
+                        >
+                            <Crop class="size-3.5 text-primary" />
+                            <span>Ajustar</span>
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onclick={confirmDelete}
+                            disabled={isSubmitting || isDeleting}
+                            class="min-h-[36px] text-xs font-semibold text-destructive hover:text-destructive hover:bg-destructive/10 gap-1.5 px-3 rounded-lg"
+                        >
+                            <Trash2 class="size-3.5" />
+                            <span>Eliminar imagen</span>
+                        </Button>
+                    </div>
                 {/if}
             </div>
 
@@ -302,4 +328,12 @@
     isLoading={isDeleting}
     onConfirm={handleDeleteServerLogo}
     onCancel={() => (showDeleteConfirm = false)}
+/>
+
+<!-- Modal de Ajuste y Recorte Circular -->
+<TenantLogoCropModal
+    bind:open={showCropModal}
+    imageSrc={activeImage}
+    onApply={handleCropApply}
+    onCancel={() => (showCropModal = false)}
 />

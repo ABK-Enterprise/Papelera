@@ -84,8 +84,7 @@
     let searchResults = $derived.by(() => getFilteredProducts(searchQuery));
 
     function selectProductFromSearch(prod: ProductOption) {
-        selectedProductToAdd = prod;
-        searchQuery = prod.name;
+        addSelectedProduct(prod);
     }
 
     function addOnTheFlyProduct(name: string) {
@@ -98,7 +97,6 @@
             incrementQuantity(existingIndex);
         } else {
             items = [
-                ...items,
                 {
                     id: 'item_otf_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
                     product_id: null,
@@ -109,6 +107,7 @@
                     quantity: 1,
                     unit_cost: '',
                 },
+                ...items,
             ];
         }
 
@@ -137,7 +136,6 @@
             }
 
             items = [
-                ...items,
                 {
                     id: 'item_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
                     product_id: target.id,
@@ -147,6 +145,7 @@
                     quantity: 1,
                     unit_cost: initialCost,
                 },
+                ...items,
             ];
         }
 
@@ -464,7 +463,7 @@
                             type="button"
                             size="sm"
                             variant="secondary"
-                            class="w-full sm:w-auto min-h-[44px] sm:min-h-[40px] px-4 rounded-xl text-xs gap-1.5 font-semibold shrink-0 justify-center shadow-2xs cursor-pointer"
+                            class="hidden sm:inline-flex w-full sm:w-auto min-h-[44px] sm:min-h-[40px] px-4 rounded-xl text-xs gap-1.5 font-semibold shrink-0 justify-center shadow-2xs cursor-pointer"
                             onclick={() => addSelectedProduct()}
                             disabled={!selectedProductToAdd && !searchQuery.trim()}
                         >

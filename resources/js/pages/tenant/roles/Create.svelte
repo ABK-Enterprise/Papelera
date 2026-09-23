@@ -9,6 +9,7 @@
     import Shield from 'lucide-svelte/icons/shield';
     import ArrowLeft from 'lucide-svelte/icons/arrow-left';
     import Check from 'lucide-svelte/icons/check';
+    import { getPermissionLabel } from '@/lib/permissions';
 
     interface PermissionItem {
         id: number;
@@ -145,13 +146,13 @@
                                 </Badge>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-1">
+                            <div class="flex flex-col gap-2 pt-1">
                                 {#each mod.permissions as perm (perm.id)}
                                     {@const isChecked = form.permissions.includes(perm.name)}
                                     <button
                                         type="button"
                                         onclick={() => togglePermission(perm.name)}
-                                        class="flex min-h-[44px] items-center gap-3 rounded-xl border p-2.5 text-left text-xs cursor-pointer select-none transition-all {isChecked
+                                        class="flex min-h-[44px] items-center gap-3 rounded-xl border p-2.5 sm:px-3.5 text-left text-xs cursor-pointer select-none transition-all {isChecked
                                             ? 'border-primary bg-primary/10 text-foreground shadow-2xs font-semibold'
                                             : 'border-border/80 bg-card hover:bg-muted/60 text-muted-foreground'}"
                                     >
@@ -160,11 +161,18 @@
                                                 <Check class="size-3 stroke-[3]" />
                                             {/if}
                                         </div>
-                                        <span class="text-xs truncate flex-1 {isChecked ? 'text-foreground font-semibold' : 'text-muted-foreground'}">{perm.name}</span>
+                                        <div class="flex-1 min-w-0 flex items-center justify-between gap-2">
+                                            <span class="text-xs leading-tight break-words {isChecked ? 'text-foreground font-semibold' : 'text-muted-foreground'}">
+                                                {getPermissionLabel(perm.name)}
+                                            </span>
+                                            <span class="text-[10px] font-sans text-muted-foreground/60 tabular-nums shrink-0 hidden sm:inline-block">
+                                                {perm.name}
+                                            </span>
+                                        </div>
                                     </button>
                                 {/each}
                                 {#if mod.permissions.length === 0}
-                                    <p class="text-xs italic text-muted-foreground col-span-full">
+                                    <p class="text-xs italic text-muted-foreground py-2">
                                         Este módulo no define permisos granulares.
                                     </p>
                                 {/if}

@@ -246,13 +246,12 @@
     }
 
     function selectProductFromSearch(prod: ProductOption) {
-        selectedProductToAdd = prod;
-        searchQuery = prod.name;
+        addSelectedProduct(prod);
     }
 
-    function addSelectedProduct() {
-        if (!selectedProductToAdd) return;
-        const prod = selectedProductToAdd;
+    function addSelectedProduct(prodParam?: ProductOption) {
+        const prod = prodParam || selectedProductToAdd;
+        if (!prod) return;
 
         errorMessage = null;
 
@@ -273,7 +272,6 @@
             incrementQuantity(existingIndex);
         } else {
             items = [
-                ...items,
                 {
                     id: 'item_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8),
                     product_id: prod.id,
@@ -296,6 +294,7 @@
                     is_custom_discount: false,
                     apply_customer_discount: !isBulk,
                 },
+                ...items,
             ];
         }
 
@@ -311,7 +310,6 @@
         const defaultQuantity = 1;
 
         items = [
-            ...items,
             {
                 id: 'item_otf_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8),
                 product_id: null,
@@ -334,6 +332,7 @@
                 is_custom_discount: false,
                 apply_customer_discount: false,
             },
+            ...items,
         ];
 
         selectedProductToAdd = null;
@@ -1113,7 +1112,7 @@
                             type="button"
                             size="sm"
                             variant="secondary"
-                            class="w-full sm:w-auto min-h-[44px] sm:min-h-[40px] sm:h-10 px-5 rounded-xl text-xs sm:text-sm gap-2 font-semibold shrink-0 justify-center shadow-2xs bg-primary-500 hover:bg-primary-600 text-white border-transparent dark:bg-secondary dark:text-secondary-foreground dark:hover:bg-secondary/80 dark:border-secondary/40"
+                            class="hidden sm:inline-flex w-full sm:w-auto min-h-[44px] sm:min-h-[40px] sm:h-10 px-5 rounded-xl text-xs sm:text-sm gap-2 font-semibold shrink-0 justify-center shadow-2xs bg-primary-500 hover:bg-primary-600 text-white border-transparent dark:bg-secondary dark:text-secondary-foreground dark:hover:bg-secondary/80 dark:border-secondary/40"
                             onclick={() => {
                                 if (selectedProductToAdd) {
                                     addSelectedProduct();
