@@ -25,10 +25,10 @@
         onCancel?: () => void;
     } = $props();
 
-    // Geometric constants for pixel-perfect circular crop
-    const VIEWPORT_SIZE = 280;
-    const CROP_SIZE = 260; // Exact diameter of the guide circle
-    const CROP_RADIUS = CROP_SIZE / 2; // 130px
+    // Geometric constants for universal safe size (compatible with 320px+ viewports)
+    const VIEWPORT_SIZE = 240;
+    const CROP_SIZE = 220; // Exact diameter of the guide circle
+    const CROP_RADIUS = CROP_SIZE / 2; // 110px
     const CROP_OFFSET = (VIEWPORT_SIZE - CROP_SIZE) / 2; // 10px margin around circle
     const TARGET_SIZE = 512; // High-res square output canvas
 
@@ -62,7 +62,7 @@
         naturalWidth = img.naturalWidth;
         naturalHeight = img.naturalHeight;
 
-        // Base scale: ensure the image at zoom=1 covers at least the CROP_SIZE diameter
+        // Base scale: ensure the image covers at least the CROP_SIZE diameter at zoom=1
         const baseScale = Math.max(CROP_SIZE / naturalWidth, CROP_SIZE / naturalHeight);
         baseWidth = Math.round(naturalWidth * baseScale);
         baseHeight = Math.round(naturalHeight * baseScale);
@@ -171,17 +171,17 @@
 </script>
 
 <Dialog bind:open onOpenChange={(val) => { if (!val) handleClose(); }}>
-    <DialogContent class="max-w-md w-full p-5 sm:p-6 space-y-4 rounded-2xl">
+    <DialogContent class="max-w-md w-full p-4 sm:p-6 space-y-4 rounded-2xl">
         <!-- Accessible hidden title for screen readers -->
         <DialogTitle class="sr-only">Ajustar encuadre</DialogTitle>
 
         <!-- Espacio en blanco de 10px con separador horizontal -->
         <div class="pt-2.5 border-b border-border/60 w-full"></div>
 
-        <DialogBody class="flex flex-col items-center justify-center gap-4 py-1">
-            <!-- Viewport de recorte con máscara circular -->
+        <DialogBody class="flex flex-col items-center justify-center gap-4 p-0 py-1 overflow-x-hidden">
+            <!-- Viewport de recorte con máscara circular (240x240 universal) -->
             <div
-                class="relative size-[280px] rounded-2xl overflow-hidden bg-neutral-950 select-none shadow-inner border border-border/80 cursor-grab active:cursor-grabbing touch-none shrink-0"
+                class="relative size-[240px] rounded-2xl overflow-hidden bg-neutral-950 select-none shadow-inner border border-border/80 cursor-grab active:cursor-grabbing touch-none shrink-0"
                 onpointerdown={handlePointerDown}
                 onpointermove={handlePointerMove}
                 onpointerup={handlePointerUp}
@@ -209,27 +209,27 @@
                 <!-- Máscara SVG con corte circular transparente y bordes sombreados -->
                 <svg
                     class="absolute inset-0 size-full pointer-events-none"
-                    viewBox="0 0 280 280"
+                    viewBox="0 0 240 240"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                 >
                     <defs>
                         <mask id="logo-circle-cutout">
-                            <rect width="280" height="280" fill="white" />
-                            <circle cx="140" cy="140" r={CROP_RADIUS} fill="black" />
+                            <rect width="240" height="240" fill="white" />
+                            <circle cx="120" cy="120" r={CROP_RADIUS} fill="black" />
                         </mask>
                     </defs>
                     <!-- Zona exterior oscurecida -->
                     <rect
-                        width="280"
-                        height="280"
+                        width="240"
+                        height="240"
                         fill="rgba(0, 0, 0, 0.65)"
                         mask="url(#logo-circle-cutout)"
                     />
                     <!-- Anillo circular guía -->
                     <circle
-                        cx="140"
-                        cy="140"
+                        cx="120"
+                        cy="120"
                         r={CROP_RADIUS}
                         stroke="rgba(255, 255, 255, 0.85)"
                         stroke-width="2"
@@ -245,7 +245,7 @@
             </div>
 
             <!-- Controles de Zoom -->
-            <div class="w-full max-w-[280px] sm:max-w-[300px] space-y-2">
+            <div class="w-full max-w-[240px] space-y-2">
                 <div class="flex items-center justify-between text-xs text-muted-foreground font-medium px-1">
                     <span class="flex items-center gap-1.5">
                         <ZoomIn class="size-3.5 text-primary" />
