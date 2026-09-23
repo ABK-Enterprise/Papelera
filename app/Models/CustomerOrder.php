@@ -66,7 +66,7 @@ class CustomerOrder extends Model
     ];
 
     public const ALLOWED_TRANSITIONS = [
-        'en_preparacion' => ['preparado', 'en_camino', 'cancelado'],
+        'en_preparacion' => ['preparado', 'en_camino', 'entregado', 'cancelado'],
         'preparado' => ['en_camino', 'entregado', 'cancelado'],
         'en_camino' => ['entregado', 'no_entregado', 'cancelado'],
         'no_entregado' => ['preparado', 'en_preparacion', 'cancelado'],

@@ -962,6 +962,9 @@
                     order.debt_amount = updatedOrder.debt_amount;
                     order.paid_amount = updatedOrder.paid_amount;
                     order.payment_status = updatedOrder.payment_status;
+                    if (updatedOrder.status) {
+                        order.status = updatedOrder.status;
+                    }
                 }
                 router.reload({ only: ['orders'] });
             }}

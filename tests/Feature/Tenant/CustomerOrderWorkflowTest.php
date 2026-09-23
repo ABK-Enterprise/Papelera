@@ -362,20 +362,19 @@ test('can list customer orders and search by customer name', function () {
         );
 });
 
-test('cannot skip FSM steps directly from en_preparacion to entregado', function () {
+test('can transition customer order directly from en_preparacion to entregado for counter sales and direct delivery', function () {
     $order = CustomerOrder::factory()->forTenant($this->tenant)->create([
         'status' => 'en_preparacion',
     ]);
 
-    $response = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
+    $response = $this->actingAs($this->user)->patch(route('tenant.orders.update-status', $order), [
         'status' => 'entregado',
     ]);
 
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors(['status']);
+    $response->assertRedirect();
 
     $order->refresh();
-    expect($order->status)->toBe('en_preparacion');
+    expect($order->status)->toBe('entregado');
 });
 
 test('can transition customer order directly from preparado to entregado for in-store pickup', function () {

@@ -667,6 +667,7 @@
             customer_name: order.customer_name,
             total_amount: order.total_amount,
             debt_amount: amountToPay > 0 ? amountToPay : order.debt_amount,
+            status: order.status,
             customer: order.customer_id ? {
                 id: order.customer_id,
                 name: order.customer_name,
@@ -674,5 +675,6 @@
             } : undefined
         }}
         onSuccess={handleQrDelivered}
+        onMarkDelivered={handleQrDelivered}
     />
 {/if}

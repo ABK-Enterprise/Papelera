@@ -17,6 +17,7 @@
     import X from 'lucide-svelte/icons/x';
     import User from 'lucide-svelte/icons/user';
     import Loader2 from 'lucide-svelte/icons/loader-2';
+    import PackageCheck from 'lucide-svelte/icons/package-check';
 
     export interface OrderData {
         id: number;
@@ -26,6 +27,7 @@
         debt_amount?: number | string;
         paid_amount?: number | string;
         payment_status?: string;
+        status?: string;
         customer?: {
             id: number;
             name: string;
@@ -37,6 +39,7 @@
         open?: boolean;
         order: OrderData | null;
         onSuccess?: (order?: any) => void;
+        onMarkDelivered?: (order?: any) => void;
         onclose?: () => void;
     }
 
@@ -44,6 +47,7 @@
         open = $bindable(false),
         order = null,
         onSuccess = undefined,
+        onMarkDelivered = undefined,
         onclose = undefined,
     }: Props = $props();
 
@@ -71,6 +75,10 @@
 
     let orderDebt = $derived(
         order ? Number(order.debt_amount ?? order.total_amount) : 0
+    );
+
+    let canMarkDelivered = $derived(
+        Boolean(order && order.status !== 'entregado' && order.status !== 'cancelado')
     );
 
     let formattedRemainingTime = $derived.by(() => {
@@ -348,6 +356,44 @@
                 order.payment_status = 'parcial';
             }
         }
+    }
+
+    let isMarkingDelivered = $state<boolean>(false);
+
+    function handleMarkAsDelivered() {
+        if (!order || isMarkingDelivered) return;
+
+        if (onMarkDelivered) {
+            onMarkDelivered(order);
+            open = false;
+            return;
+        }
+
+        isMarkingDelivered = true;
+        router.patch(
+            `/tenant/pedidos/${order.id}/estado`,
+            { status: 'entregado' },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => {
+                    isMarkingDelivered = false;
+                    open = false;
+                    if (order) {
+                        order.status = 'entregado';
+                    }
+                    if (onSuccess) {
+                        onSuccess({ ...order, status: 'entregado' });
+                    } else {
+                        router.reload({ only: ['orders'] });
+                    }
+                },
+                onError: (err) => {
+                    isMarkingDelivered = false;
+                    console.error('Error al marcar pedido como entregado:', err);
+                }
+            }
+        );
     }
 
     function handleCompleteSuccess() {
@@ -653,15 +699,45 @@
                     <span>Reintentar</span>
                 </Button>
             {:else if currentStep === 'paid_success'}
-                <Button
-                    type="button"
-                    variant="default"
-                    class="h-11 px-8 rounded-xl font-bold w-full sm:w-auto min-h-[44px] gap-2 shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white"
-                    onclick={handleCompleteSuccess}
-                >
-                    <CheckCircle2 class="size-4" />
-                    <span>Aceptar y Finalizar</span>
-                </Button>
+                {#if canMarkDelivered}
+                    <div class="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto justify-end">
+                        <Button
+                            type="button"
+                            variant="default"
+                            class="h-11 px-6 rounded-xl font-bold w-full sm:w-auto min-h-[44px] gap-2 shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+                            disabled={isMarkingDelivered}
+                            onclick={handleMarkAsDelivered}
+                        >
+                            {#if isMarkingDelivered}
+                                <Loader2 class="size-4 animate-spin shrink-0" />
+                                <span>Marcando entrega...</span>
+                            {:else}
+                                <PackageCheck class="size-4 shrink-0" />
+                                <span>Marcar como entregado</span>
+                            {/if}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            class="h-11 px-6 rounded-xl font-semibold w-full sm:w-auto min-h-[44px] gap-2 text-foreground border-border hover:bg-muted cursor-pointer"
+                            disabled={isMarkingDelivered}
+                            onclick={handleCompleteSuccess}
+                        >
+                            <CheckCircle2 class="size-4 shrink-0" />
+                            <span>Finalizar</span>
+                        </Button>
+                    </div>
+                {:else}
+                    <Button
+                        type="button"
+                        variant="default"
+                        class="h-11 px-8 rounded-xl font-bold w-full sm:w-auto min-h-[44px] gap-2 shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+                        onclick={handleCompleteSuccess}
+                    >
+                        <CheckCircle2 class="size-4 shrink-0" />
+                        <span>Aceptar y Finalizar</span>
+                    </Button>
+                {/if}
             {/if}
         </DialogFooter>
     </DialogContent>
