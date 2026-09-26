@@ -10,14 +10,14 @@ uses(TestCase::class);
 
 beforeEach(function () {
     Cache::flush();
-    $storageFiles = glob(storage_path('app/arca/ta_*_testing.json'));
+    $storageFiles = glob(storage_path('app/arca/ta_*_*.json'));
     foreach ($storageFiles as $file) {
         @unlink($file);
     }
 });
 
 afterEach(function () {
-    $storageFiles = glob(storage_path('app/arca/ta_*_testing.json'));
+    $storageFiles = glob(storage_path('app/arca/ta_*_*.json'));
     foreach ($storageFiles as $file) {
         @unlink($file);
     }
@@ -222,4 +222,154 @@ test('it handles coe.alreadyAuthenticated by recovering existing ticket from dis
     );
 
     expect($ticket)->toBe($diskTicket);
+});
+
+test('it encodes and decodes certificate and key to base64 with exact byte parity', function () {
+    $certPath = storage_path('app/arca/MiPedidoCSR.crt');
+    $keyPath = storage_path('app/arca/Papelera.key');
+
+    expect(file_exists($certPath))->toBeTrue()
+        ->and(file_exists($keyPath))->toBeTrue();
+
+    $originalCert = file_get_contents($certPath);
+    $originalKey = file_get_contents($keyPath);
+
+    $encodedCert = base64_encode($originalCert);
+    $encodedKey = base64_encode($originalKey);
+
+    $decodedCert = base64_decode($encodedCert, true);
+    $decodedKey = base64_decode($encodedKey, true);
+
+    expect($decodedCert)->toBe($originalCert)
+        ->and($decodedKey)->toBe($originalKey)
+        ->and(strlen($decodedCert))->toBe(strlen($originalCert))
+        ->and(strlen($decodedKey))->toBe(strlen($originalKey))
+        ->and(md5($decodedCert))->toBe(md5($originalCert))
+        ->and(md5($decodedKey))->toBe(md5($originalKey));
+
+    // Verify OpenSSL can parse both in-memory decoded strings
+    $certParsed = openssl_x509_parse($decodedCert);
+    $keyParsed = openssl_pkey_get_private($decodedKey);
+
+    expect($certParsed)->toBeArray()
+        ->and($keyParsed)->not->toBeFalse();
+});
+
+test('it resolves and authenticates with WSAA in production using base64 credentials', function () {
+    $certContent = file_get_contents(storage_path('app/arca/MiPedidoCSR.crt'));
+    $keyContent = file_get_contents(storage_path('app/arca/Papelera.key'));
+    $cuit = '30712345678';
+
+    config([
+        'arca.environment' => 'production',
+        'arca.production.cuit' => $cuit,
+        'arca.production.cert_base64' => base64_encode($certContent),
+        'arca.production.key_base64' => base64_encode($keyContent),
+        'arca.production.cert_content' => null,
+        'arca.production.key_content' => null,
+        'arca.production.cert_path' => null,
+        'arca.production.key_path' => null,
+    ]);
+
+    $service = new ArcaAuthService();
+
+    expect($service->resolveCertificateContent())->toBe($certContent)
+        ->and($service->resolvePrivateKeyContent())->toBe($keyContent)
+        ->and($service->resolveCuit())->toBe($cuit);
+
+    $fakeXmlResponse = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <loginTicketResponse version="1.0">
+        <header>
+            <source>CN=wsaa, O=AFIP, C=AR</source>
+            <destination>SERIALNUMBER=CUIT ' . $cuit . '</destination>
+            <uniqueId>555666777</uniqueId>
+            <generationTime>' . Carbon::now()->subMinutes(5)->toIso8601String() . '</generationTime>
+            <expirationTime>' . Carbon::now()->addHours(11)->toIso8601String() . '</expirationTime>
+        </header>
+        <credentials>
+            <token>PROD_BASE64_TOKEN_999</token>
+            <sign>PROD_BASE64_SIGN_888</sign>
+        </credentials>
+    </loginTicketResponse>';
+
+    $mockSoapClient = Mockery::mock(SoapClient::class);
+    $mockSoapClient->shouldReceive('loginCms')
+        ->once()
+        ->with(Mockery::on(function ($args) {
+            return isset($args['in0']) && is_string($args['in0']) && strlen($args['in0']) > 50;
+        }))
+        ->andReturn((object) ['loginCmsReturn' => $fakeXmlResponse]);
+
+    $service->setSoapClient($mockSoapClient);
+
+    $ticket = $service->getAccessTicket($cuit, service: 'wsfe');
+
+    expect($ticket['token'])->toBe('PROD_BASE64_TOKEN_999')
+        ->and($ticket['sign'])->toBe('PROD_BASE64_SIGN_888')
+        ->and($ticket['cuit'])->toBe($cuit);
+});
+
+test('it resolves and authenticates with WSAA in production using raw PEM content credentials', function () {
+    $certContent = file_get_contents(storage_path('app/arca/MiPedidoCSR.crt'));
+    $keyContent = file_get_contents(storage_path('app/arca/Papelera.key'));
+    $cuit = '30712345678';
+
+    config([
+        'arca.environment' => 'production',
+        'arca.production.cuit' => $cuit,
+        'arca.production.cert_base64' => null,
+        'arca.production.key_base64' => null,
+        'arca.production.cert_content' => $certContent,
+        'arca.production.key_content' => $keyContent,
+        'arca.production.cert_path' => null,
+        'arca.production.key_path' => null,
+    ]);
+
+    $service = new ArcaAuthService();
+
+    expect($service->resolveCertificateContent())->toBe($certContent)
+        ->and($service->resolvePrivateKeyContent())->toBe($keyContent);
+
+    $fakeXmlResponse = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <loginTicketResponse version="1.0">
+        <header>
+            <source>CN=wsaa, O=AFIP, C=AR</source>
+            <destination>SERIALNUMBER=CUIT ' . $cuit . '</destination>
+            <uniqueId>111222333</uniqueId>
+            <generationTime>' . Carbon::now()->subMinutes(5)->toIso8601String() . '</generationTime>
+            <expirationTime>' . Carbon::now()->addHours(11)->toIso8601String() . '</expirationTime>
+        </header>
+        <credentials>
+            <token>PROD_PEM_TOKEN_111</token>
+            <sign>PROD_PEM_SIGN_222</sign>
+        </credentials>
+    </loginTicketResponse>';
+
+    $mockSoapClient = Mockery::mock(SoapClient::class);
+    $mockSoapClient->shouldReceive('loginCms')
+        ->once()
+        ->andReturn((object) ['loginCmsReturn' => $fakeXmlResponse]);
+
+    $service->setSoapClient($mockSoapClient);
+
+    $ticket = $service->getAccessTicket($cuit, service: 'wsfe');
+
+    expect($ticket['token'])->toBe('PROD_PEM_TOKEN_111')
+        ->and($ticket['sign'])->toBe('PROD_PEM_SIGN_222');
+});
+
+test('it prioritizes explicit override over base64 and pem content', function () {
+    $certContent = file_get_contents(storage_path('app/arca/MiPedidoCSR.crt'));
+    $fakeCert = "-----BEGIN CERTIFICATE-----\nFAKE_OVERRIDE_CERT\n-----END CERTIFICATE-----";
+
+    config([
+        'arca.environment' => 'production',
+        'arca.production.cert_base64' => base64_encode($certContent),
+        'arca.production.cert_content' => $certContent,
+    ]);
+
+    $service = new ArcaAuthService();
+
+    expect($service->resolveCertificateContent($fakeCert))->toBe($fakeCert)
+        ->and($service->resolveCertificateContent())->toBe($certContent);
 });

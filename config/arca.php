@@ -49,6 +49,27 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Production Credentials (12-Factor App & File Fallbacks)
+    |--------------------------------------------------------------------------
+    |
+    | Credentials for production environment. Supports direct Base64 encoded
+    | strings, raw PEM multiline strings from environment variables, or physical
+    | file paths.
+    |
+    */
+    'production' => [
+        'cuit' => (string) env('ARCA_PROD_CUIT', env('ARCA_CUIT', '')),
+        'cert_base64' => env('ARCA_CERT_BASE64'),
+        'cert_content' => env('ARCA_CERT_CONTENT'),
+        'cert_path' => env('ARCA_CERT_PATH'),
+        'key_base64' => env('ARCA_KEY_BASE64'),
+        'key_content' => env('ARCA_KEY_CONTENT'),
+        'key_path' => env('ARCA_KEY_PATH'),
+        'passphrase' => env('ARCA_PASSPHRASE', ''),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Testing / Homologation Default Credentials
     |--------------------------------------------------------------------------
     |
@@ -58,7 +79,11 @@ return [
     'testing' => [
         'cuit' => (string) env('ARCA_TESTING_CUIT', '20463191280'),
         'punto_venta' => (int) env('ARCA_TESTING_PTO_VTA', 1),
+        'cert_base64' => env('ARCA_TESTING_CERT_BASE64'),
+        'cert_content' => env('ARCA_TESTING_CERT_CONTENT'),
         'cert_path' => env('ARCA_TESTING_CERT_PATH', storage_path('app/arca/MiPedidoCSR.crt')),
+        'key_base64' => env('ARCA_TESTING_KEY_BASE64'),
+        'key_content' => env('ARCA_TESTING_KEY_CONTENT'),
         'key_path' => env('ARCA_TESTING_KEY_PATH', storage_path('app/arca/Papelera.key')),
         'passphrase' => env('ARCA_TESTING_PASSPHRASE', ''),
     ],

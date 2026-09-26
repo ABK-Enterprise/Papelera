@@ -54,10 +54,8 @@ class ArcaAuthService
         ?string $passphrase = null,
         string $service = 'wsfe'
     ): array {
-        $cuit = $cuit ?: config('arca.testing.cuit');
-        $certPath = $certPath ?: config('arca.testing.cert_path');
-        $keyPath = $keyPath ?: config('arca.testing.key_path');
-        $passphrase = $passphrase ?? config('arca.testing.passphrase', '');
+        $cuit = $cuit ?: $this->resolveCuit();
+        $passphrase = $this->resolvePassphrase($passphrase);
 
         $cacheKey = "arca_ta_{$cuit}_{$service}_{$this->environment}";
         $storageFilePath = $this->getStorageCacheFilePath($cuit, $service);
@@ -112,18 +110,22 @@ class ArcaAuthService
      */
     public function requestNewTicketFromWsaa(
         string $cuit,
-        string $certPath,
-        string $keyPath,
-        string $passphrase,
+        ?string $certPath = null,
+        ?string $keyPath = null,
+        ?string $passphrase = null,
         string $service = 'wsfe'
     ): array {
-        $this->validateCertificates($certPath, $keyPath);
+        $certContent = $this->resolveCertificateContent($certPath);
+        $keyContent = $this->resolvePrivateKeyContent($keyPath);
+        $passphrase = $this->resolvePassphrase($passphrase);
+
+        $this->validateCertificateContents($certContent, $keyContent, $passphrase);
 
         // 1. Build TRA XML
         $traXml = $this->createTraXml($service);
 
         // 2. Sign TRA via CMS (PKCS#7)
-        $cmsBase64 = $this->signTra($traXml, $certPath, $keyPath, $passphrase);
+        $cmsBase64 = $this->signTraContent($traXml, $certContent, $keyContent, $passphrase);
 
         // 3. Call WSAA via SOAP
         try {
@@ -243,14 +245,18 @@ class ArcaAuthService
      */
     protected function signTra(string $traXml, string $certPath, string $keyPath, string $passphrase): string
     {
-        $cert = file_get_contents($certPath);
-        $key = file_get_contents($keyPath);
+        $certContent = $this->resolveCertificateContent($certPath);
+        $keyContent = $this->resolvePrivateKeyContent($keyPath);
 
-        if ($cert === false || $key === false) {
-            throw new ArcaAuthenticationException('No se pudieron leer los archivos del certificado o clave privada de ARCA.');
-        }
+        return $this->signTraContent($traXml, $certContent, $keyContent, $passphrase);
+    }
 
-        $privateKey = openssl_pkey_get_private($key, $passphrase);
+    /**
+     * Sign TRA XML with raw certificate and private key contents.
+     */
+    protected function signTraContent(string $traXml, string $certContent, string $keyContent, string $passphrase): string
+    {
+        $privateKey = openssl_pkey_get_private($keyContent, $passphrase);
         if ($privateKey === false) {
             throw new ArcaAuthenticationException('La clave privada de ARCA es inválida o la contraseña es incorrecta.');
         }
@@ -264,7 +270,7 @@ class ArcaAuthService
             $signed = openssl_pkcs7_sign(
                 $tempTraFile,
                 $tempCmsFile,
-                $cert,
+                $certContent,
                 $privateKey,
                 [],
                 0
@@ -346,15 +352,196 @@ class ArcaAuthService
     }
 
     /**
-     * Validate that certificate and key files exist and are readable.
+     * Resolve CUIT based on current environment.
+     */
+    public function resolveCuit(): string
+    {
+        $envKey = $this->environment === 'production' ? 'production' : 'testing';
+        $cuit = config("arca.{$envKey}.cuit");
+
+        return (string) ($cuit ?: config('arca.testing.cuit', ''));
+    }
+
+    /**
+     * Resolve passphrase based on current environment.
+     */
+    public function resolvePassphrase(?string $override = null): string
+    {
+        if ($override !== null && $override !== '') {
+            return $override;
+        }
+
+        $envKey = $this->environment === 'production' ? 'production' : 'testing';
+        $passphrase = config("arca.{$envKey}.passphrase");
+
+        return (string) ($passphrase ?? config('arca.testing.passphrase', ''));
+    }
+
+    /**
+     * Resolve certificate PEM content from override, Base64 env, PEM content env, or file path.
+     *
+     * @throws ArcaAuthenticationException
+     */
+    public function resolveCertificateContent(?string $override = null): string
+    {
+        if ($override !== null && trim($override) !== '') {
+            return $this->parseContentOrFilePath($override, 'certificado');
+        }
+
+        $envKey = $this->environment === 'production' ? 'production' : 'testing';
+
+        // 1. Direct Base64 environment variable
+        $base64 = config("arca.{$envKey}.cert_base64");
+        if (! empty($base64)) {
+            $decoded = base64_decode((string) $base64, true);
+            if ($decoded !== false && ! empty(trim($decoded))) {
+                return $decoded;
+            }
+        }
+
+        // 2. Direct PEM text environment variable
+        $content = config("arca.{$envKey}.cert_content");
+        if (! empty($content) && ! empty(trim((string) $content))) {
+            return (string) $content;
+        }
+
+        // 3. Physical file path
+        $path = config("arca.{$envKey}.cert_path");
+        if (! empty($path)) {
+            if (! file_exists((string) $path)) {
+                throw new ArcaAuthenticationException("El certificado de ARCA no existe en la ruta: {$path}");
+            }
+            $fileContent = file_get_contents((string) $path);
+            if ($fileContent !== false) {
+                return $fileContent;
+            }
+        }
+
+        // Fallback for testing environment
+        $testingPath = config('arca.testing.cert_path');
+        if ($this->environment === 'testing' && ! empty($testingPath) && file_exists((string) $testingPath)) {
+            $fileContent = file_get_contents((string) $testingPath);
+            if ($fileContent !== false) {
+                return $fileContent;
+            }
+        }
+
+        throw new ArcaAuthenticationException('El certificado de ARCA no existe o no pudo ser resuelto desde variables de entorno ni rutas de archivo.');
+    }
+
+    /**
+     * Resolve private key PEM content from override, Base64 env, PEM content env, or file path.
+     *
+     * @throws ArcaAuthenticationException
+     */
+    public function resolvePrivateKeyContent(?string $override = null): string
+    {
+        if ($override !== null && trim($override) !== '') {
+            return $this->parseContentOrFilePath($override, 'clave privada');
+        }
+
+        $envKey = $this->environment === 'production' ? 'production' : 'testing';
+
+        // 1. Direct Base64 environment variable
+        $base64 = config("arca.{$envKey}.key_base64");
+        if (! empty($base64)) {
+            $decoded = base64_decode((string) $base64, true);
+            if ($decoded !== false && ! empty(trim($decoded))) {
+                return $decoded;
+            }
+        }
+
+        // 2. Direct PEM text environment variable
+        $content = config("arca.{$envKey}.key_content");
+        if (! empty($content) && ! empty(trim((string) $content))) {
+            return (string) $content;
+        }
+
+        // 3. Physical file path
+        $path = config("arca.{$envKey}.key_path");
+        if (! empty($path)) {
+            if (! file_exists((string) $path)) {
+                throw new ArcaAuthenticationException("La clave privada de ARCA no existe en la ruta: {$path}");
+            }
+            $fileContent = file_get_contents((string) $path);
+            if ($fileContent !== false) {
+                return $fileContent;
+            }
+        }
+
+        // Fallback for testing environment
+        $testingPath = config('arca.testing.key_path');
+        if ($this->environment === 'testing' && ! empty($testingPath) && file_exists((string) $testingPath)) {
+            $fileContent = file_get_contents((string) $testingPath);
+            if ($fileContent !== false) {
+                return $fileContent;
+            }
+        }
+
+        throw new ArcaAuthenticationException('La clave privada de ARCA no existe o no pudo ser resuelta desde variables de entorno ni rutas de archivo.');
+    }
+
+    /**
+     * Parse content or file path for certificate or key.
+     */
+    protected function parseContentOrFilePath(string $input, string $typeLabel): string
+    {
+        // If it starts with -----BEGIN, it is raw PEM text
+        if (str_contains($input, '-----BEGIN')) {
+            return $input;
+        }
+
+        // If file exists at path, read it
+        if (file_exists($input)) {
+            $content = file_get_contents($input);
+            if ($content !== false) {
+                return $content;
+            }
+        }
+
+        // If it looks like a path (starts with / or ./ or contains / or \ or ends with .crt/.key), but doesn't exist
+        if (str_contains($input, '/') || str_contains($input, '\\') || str_ends_with($input, '.crt') || str_ends_with($input, '.key')) {
+            throw new ArcaAuthenticationException("El {$typeLabel} de ARCA no existe en la ruta: {$input}");
+        }
+
+        // Attempt Base64 decode
+        $decoded = base64_decode($input, true);
+        if ($decoded !== false && str_contains($decoded, '-----BEGIN')) {
+            return $decoded;
+        }
+
+        throw new ArcaAuthenticationException("El {$typeLabel} de ARCA provisto no es una ruta válida ni un contenido PEM/Base64 válido.");
+    }
+
+    /**
+     * Validate that certificate and key contents are valid and parseable.
+     */
+    protected function validateCertificateContents(string $certContent, string $keyContent, string $passphrase = ''): void
+    {
+        if (trim($certContent) === '') {
+            throw new ArcaAuthenticationException('El certificado de ARCA está vacío o no pudo ser resuelto.');
+        }
+
+        if (trim($keyContent) === '') {
+            throw new ArcaAuthenticationException('La clave privada de ARCA está vacía o no pudo ser resuelta.');
+        }
+
+        $privateKey = openssl_pkey_get_private($keyContent, $passphrase);
+        if ($privateKey === false) {
+            throw new ArcaAuthenticationException('La clave privada de ARCA es inválida o la contraseña es incorrecta.');
+        }
+    }
+
+    /**
+     * Validate that certificate and key files exist and are readable (backwards compatibility).
      */
     protected function validateCertificates(string $certPath, string $keyPath): void
     {
-        if (! file_exists($certPath)) {
+        if (! file_exists($certPath) && ! str_contains($certPath, '-----BEGIN')) {
             throw new ArcaAuthenticationException("El certificado de ARCA no existe en la ruta: {$certPath}");
         }
 
-        if (! file_exists($keyPath)) {
+        if (! file_exists($keyPath) && ! str_contains($keyPath, '-----BEGIN')) {
             throw new ArcaAuthenticationException("La clave privada de ARCA no existe en la ruta: {$keyPath}");
         }
     }
