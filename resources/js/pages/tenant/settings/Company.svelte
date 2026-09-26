@@ -23,6 +23,7 @@
         legal_name: string | null;
         cuit_tax_id: string | null;
         tax_condition: string;
+        point_of_sale?: number | null;
         logo_url?: string | null;
         address: string | null;
         city: string | null;
@@ -79,6 +80,7 @@
         legal_name: company.legal_name ?? '',
         cuit_tax_id: company.cuit_tax_id ?? '',
         tax_condition: company.tax_condition ?? 'responsable_inscripto',
+        point_of_sale: company.point_of_sale ?? 1,
         address: company.address ?? '',
         city: company.city ?? '',
         state: company.state ?? '',
@@ -241,6 +243,27 @@
                     </select>
                     {#if form.errors.tax_condition}
                         <p class="text-xs text-destructive">{form.errors.tax_condition}</p>
+                    {/if}
+                </div>
+
+                <div class="space-y-1.5">
+                    <Label for="company-point-of-sale" class="text-xs font-semibold">
+                        Punto de Venta de ARCA
+                    </Label>
+                    <Input
+                        id="company-point-of-sale"
+                        type="number"
+                        min="1"
+                        max="99999"
+                        bind:value={form.point_of_sale}
+                        placeholder="ej. 1"
+                        class="h-10 text-sm font-sans tabular-nums"
+                    />
+                    <p class="text-xs text-muted-foreground">
+                        debe coincidir con el punto fiscal declarado en ARCA
+                    </p>
+                    {#if form.errors.point_of_sale}
+                        <p class="text-xs text-destructive">{form.errors.point_of_sale}</p>
                     {/if}
                 </div>
             </div>

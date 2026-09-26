@@ -57,7 +57,7 @@ class EmitFiscalInvoiceAction
                 /** @var Tenant|null $tenant */
                 $tenant = $lockedOrder->tenant ?? Tenant::find($lockedOrder->tenant_id);
                 $branchPtoVta = $lockedOrder->warehouse?->branch?->point_of_sale;
-                $ptoVta = (int) ($branchPtoVta ?: config('arca.testing.punto_venta', 1));
+                $ptoVta = (int) ($branchPtoVta ?: ($tenant?->branches()->value('point_of_sale') ?: config('arca.testing.punto_venta', 1)));
                 $cuit = (string) ($tenant?->cuit_tax_id ?: config('arca.testing.cuit'));
                 $cleanCuit = (float) preg_replace('/\D/', '', $cuit);
 

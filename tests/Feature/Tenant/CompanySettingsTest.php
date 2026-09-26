@@ -141,3 +141,27 @@ test('validation rejects invalid email', function () {
 
     $response->assertSessionHasErrors(['email']);
 });
+
+test('admin can update branch point of sale', function () {
+    $response = $this->actingAs($this->adminUser)
+        ->put(route('tenant.settings.company.update'), [
+            'name' => 'Papelera San Martín',
+            'tax_condition' => 'responsable_inscripto',
+            'point_of_sale' => 5,
+        ]);
+
+    $response->assertRedirect(route('tenant.settings.company'));
+    $this->tenant->refresh();
+    expect($this->tenant->branches()->first()->point_of_sale)->toBe(5);
+});
+
+test('validation rejects invalid point_of_sale', function () {
+    $response = $this->actingAs($this->adminUser)
+        ->put(route('tenant.settings.company.update'), [
+            'name' => 'Papelera',
+            'tax_condition' => 'responsable_inscripto',
+            'point_of_sale' => 0,
+        ]);
+
+    $response->assertSessionHasErrors(['point_of_sale']);
+});

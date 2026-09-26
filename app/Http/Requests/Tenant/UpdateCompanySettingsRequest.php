@@ -34,6 +34,7 @@ class UpdateCompanySettingsRequest extends FormRequest
             'email' => ['nullable', 'email', 'max:150'],
             'gross_income_number' => ['nullable', 'string', 'max:50'],
             'start_activity_date' => ['nullable', 'date'],
+            'point_of_sale' => ['nullable', 'integer', 'min:1', 'max:99999'],
         ];
     }
 
@@ -51,6 +52,9 @@ class UpdateCompanySettingsRequest extends FormRequest
             'tax_condition.in' => 'La condición frente al IVA seleccionada no es válida.',
             'email.email' => 'El correo electrónico debe tener un formato válido.',
             'start_activity_date.date' => 'La fecha de inicio de actividades no tiene un formato de fecha válido.',
+            'point_of_sale.integer' => 'El punto de venta debe ser un número entero.',
+            'point_of_sale.min' => 'El punto de venta debe ser como mínimo 1.',
+            'point_of_sale.max' => 'El punto de venta no puede superar 99999.',
         ];
     }
 }

@@ -21,11 +21,14 @@ class CompanySettingsController extends Controller
     {
         $tenant = $request->user()->tenant;
 
+        $branch = $tenant->branches()->first();
+
         $companyData = [
             'name' => $tenant->name,
             'legal_name' => $tenant->legal_name,
             'cuit_tax_id' => $tenant->cuit_tax_id,
             'tax_condition' => $tenant->tax_condition ?? 'responsable_inscripto',
+            'point_of_sale' => $branch?->point_of_sale ?? 1,
             'logo_url' => $tenant->logo_url,
             'address' => $tenant->address,
             'city' => $tenant->city,
@@ -54,8 +57,23 @@ class CompanySettingsController extends Controller
     public function update(UpdateCompanySettingsRequest $request): RedirectResponse|JsonResponse
     {
         $tenant = $request->user()->tenant;
+        $validated = $request->validated();
 
-        $tenant->update($request->validated());
+        $tenant->update(collect($validated)->except('point_of_sale')->all());
+
+        if ($request->has('point_of_sale') && $request->filled('point_of_sale')) {
+            $pointOfSale = $request->integer('point_of_sale');
+            $branch = $tenant->branches()->first();
+            if ($branch) {
+                $branch->update(['point_of_sale' => $pointOfSale]);
+            } else {
+                $tenant->branches()->create([
+                    'name' => 'Casa Central',
+                    'point_of_sale' => $pointOfSale,
+                    'is_active' => true,
+                ]);
+            }
+        }
 
         if ($tenant->mp_access_token) {
             try {
