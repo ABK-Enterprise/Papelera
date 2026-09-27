@@ -1,11 +1,12 @@
 <script lang="ts">
     import { Link, router } from '@inertiajs/svelte';
-    import { hasPermission } from '@/lib/permissions';
+    import { hasPermission, isAdmin } from '@/lib/permissions';
     import { Button } from '@/components/ui/button';
     import {
         DropdownMenu,
         DropdownMenuContent,
         DropdownMenuItem,
+        DropdownMenuSeparator,
         DropdownMenuTrigger,
     } from '@/components/ui/dropdown-menu';
     import AppPagination from '@/components/common/AppPagination.svelte';
@@ -16,7 +17,7 @@
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Camera from 'lucide-svelte/icons/camera';
     import Edit2 from 'lucide-svelte/icons/edit-2';
-    import MoreHorizontal from 'lucide-svelte/icons/more-horizontal';
+    import MoreVertical from 'lucide-svelte/icons/more-vertical';
     import Package from 'lucide-svelte/icons/package';
     import Scale from 'lucide-svelte/icons/scale';
     import Trash2 from 'lucide-svelte/icons/trash-2';
@@ -120,21 +121,22 @@
             <!-- Card de Producto Incompleto (Datos pendientes / Al Vuelo) -->
             <div class="relative flex flex-col gap-3 rounded-2xl border border-amber-500/40 bg-amber-500/5 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-lg hover:shadow-amber-500/10">
                 <!-- Menú discreto "..." en la esquina superior derecha: Únicamente "Eliminar producto" -->
-                {#if hasPermission('productos.eliminar')}
+                {#if hasPermission('productos.eliminar') || isAdmin()}
                     <div class="absolute top-2.5 right-2.5 z-10">
                         <DropdownMenu>
-                            <DropdownMenuTrigger>
-                                {#snippet child({ props })}
+                            <DropdownMenuTrigger asChild>
+                                {#snippet children(props)}
                                     <button
                                         {...props}
-                                        class="size-8 flex items-center justify-center rounded-lg hover:bg-amber-500/15 text-amber-700/80 dark:text-amber-400 transition-colors cursor-pointer"
+                                        type="button"
+                                        class="inline-flex items-center justify-center min-h-[40px] min-w-[40px] size-10 rounded-xl hover:bg-amber-500/15 text-amber-700/80 dark:text-amber-400 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500/40 focus-visible:outline-hidden"
                                         aria-label={`Acciones para producto incompleto ${product.name}`}
                                     >
-                                        <MoreHorizontal class="size-4" />
+                                        <MoreVertical class="size-4" />
                                     </button>
                                 {/snippet}
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" class="w-44 shadow-lg">
+                            <DropdownMenuContent align="end" class="w-48 shadow-lg">
                                 <DropdownMenuItem
                                     class="flex items-center gap-2 text-xs font-medium text-destructive cursor-pointer py-2.5 focus:text-destructive focus:bg-destructive/10"
                                     onclick={() => promptDelete(product)}
@@ -148,7 +150,7 @@
                 {/if}
 
                 <!-- Fila Superior: Imagen + Nombre + Badges + Precio -->
-                <div class="flex items-start gap-3.5 pr-8">
+                <div class="flex items-start gap-3.5 pr-10">
                     {#if product.thumbnail_url || product.image_url}
                         <div class="relative size-12 shrink-0 rounded-xl border border-amber-500/30 overflow-hidden">
                             <img src={product.thumbnail_url || product.image_url} alt={product.name} class="h-full w-full object-cover" loading="lazy" />
@@ -242,7 +244,7 @@
                         </span>
                     </div>
 
-                    {#if hasPermission('productos.editar')}
+                    {#if hasPermission('productos.editar') || isAdmin()}
                         <Link
                             href={`/tenant/productos/${product.id}/editar`}
                             class="inline-flex items-center justify-center min-h-[36px] px-4 text-xs font-semibold bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white rounded-xl shadow-xs transition-colors shrink-0"
@@ -256,31 +258,40 @@
             <!-- Card de Producto Completo -->
             <div class="relative flex items-center gap-3.5 rounded-2xl border border-border/70 bg-card p-3.5 shadow-2xs transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
                 <!-- Menú discreto "..." en la esquina superior derecha -->
-                {#if hasPermission('productos.editar') || hasPermission('productos.eliminar')}
+                {#if hasPermission('productos.editar') || hasPermission('productos.eliminar') || isAdmin()}
                     <div class="absolute top-2.5 right-2.5 z-10">
                         <DropdownMenu>
-                            <DropdownMenuTrigger>
-                                {#snippet child({ props })}
+                            <DropdownMenuTrigger asChild>
+                                {#snippet children(props)}
                                     <button
                                         {...props}
-                                        class="size-8 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground transition-colors cursor-pointer"
+                                        type="button"
+                                        class="inline-flex items-center justify-center min-h-[40px] min-w-[40px] size-10 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
                                         aria-label={`Acciones para ${product.name}`}
                                     >
-                                        <MoreHorizontal class="size-4" />
+                                        <MoreVertical class="size-4" />
                                     </button>
                                 {/snippet}
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" class="w-44 shadow-lg">
-                                {#if hasPermission('productos.editar')}
-                                    <DropdownMenuItem
-                                        class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
-                                        onclick={() => router.visit(`/tenant/productos/${product.id}/editar`)}
-                                    >
-                                        <Edit2 class="size-4 text-muted-foreground" />
-                                        <span>Editar producto</span>
+                            <DropdownMenuContent align="end" class="w-48 shadow-lg">
+                                {#if hasPermission('productos.editar') || isAdmin()}
+                                    <DropdownMenuItem asChild>
+                                        {#snippet children(props)}
+                                            <Link
+                                                {...props}
+                                                href={`/tenant/productos/${product.id}/editar`}
+                                                class="{props.class} flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
+                                            >
+                                                <Edit2 class="size-4 text-muted-foreground" />
+                                                <span>Editar producto</span>
+                                            </Link>
+                                        {/snippet}
                                     </DropdownMenuItem>
                                 {/if}
-                                {#if hasPermission('productos.eliminar')}
+                                {#if (hasPermission('productos.editar') || isAdmin()) && (hasPermission('productos.eliminar') || isAdmin())}
+                                    <DropdownMenuSeparator />
+                                {/if}
+                                {#if hasPermission('productos.eliminar') || isAdmin()}
                                     <DropdownMenuItem
                                         class="flex items-center gap-2 text-xs font-medium text-destructive cursor-pointer py-2.5 focus:text-destructive focus:bg-destructive/10"
                                         onclick={() => promptDelete(product)}
@@ -332,7 +343,7 @@
                     </div>
                 {/if}
 
-                <div class="flex flex-1 flex-col min-w-0 justify-center pr-8">
+                <div class="flex flex-1 flex-col min-w-0 justify-center pr-10">
                     <div class="flex items-center gap-1.5 truncate">
                         <h4 class="font-semibold text-sm text-foreground truncate leading-snug">
                             <HighlightMatch text={product.name} query={searchQuery} />
