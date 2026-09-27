@@ -1,7 +1,7 @@
 <script module lang="ts">
     export const layout = {
-        title: 'Iniciar Sesión',
-        description: 'Ingresa a tu cuenta para continuar',
+        title: 'Ingresa a ABK Solutions!',
+        description: 'Inicia sesión a tu cuenta para continuar',
     };
 </script>
 
@@ -30,7 +30,7 @@
     } = $props();
 </script>
 
-<AppHead title="Iniciar Sesión" />
+<AppHead title="Ingresa a ABK Solutions!" />
 
 {#if status}
     <div class="mb-4 rounded-lg bg-emerald-50 p-3 text-center text-sm font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
@@ -62,14 +62,7 @@
 
 
             <div class="grid gap-2">
-                <div class="flex items-center justify-between">
-                    <Label for="password" class="text-sm font-medium text-foreground">Contraseña</Label>
-                    {#if canResetPassword}
-                        <TextLink href={request()} class="text-xs text-muted-foreground hover:text-foreground">
-                            ¿Olvidaste tu contraseña?
-                        </TextLink>
-                    {/if}
-                </div>
+                <Label for="password" class="text-sm font-medium text-foreground">Contraseña</Label>
                 <PasswordInput
                     id="password"
                     name="password"
@@ -86,6 +79,11 @@
                     <Checkbox id="remember" name="remember" />
                     <span>Recordarme</span>
                 </Label>
+                {#if canResetPassword}
+                    <TextLink href={request()} class="text-xs text-muted-foreground hover:text-foreground">
+                        ¿Olvidaste tu contraseña?
+                    </TextLink>
+                {/if}
             </div>
 
             <Button

@@ -24,9 +24,9 @@
 <div class="relative flex min-h-screen flex-col justify-between overflow-hidden bg-background text-foreground antialiased selection:bg-primary/20">
     <!-- Ambient Background Blobs (coherente con AuthSimpleLayout) -->
     <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        <div class="absolute -left-20 top-1/4 h-96 w-96 rounded-full bg-primary/10 opacity-40 blur-3xl mix-blend-multiply transition-all duration-1000 dark:bg-primary/5 dark:mix-blend-screen"></div>
-        <div class="absolute -right-20 top-1/3 h-80 w-80 rounded-full bg-secondary opacity-40 blur-3xl mix-blend-multiply transition-all duration-1000 dark:bg-secondary/10 dark:mix-blend-screen"></div>
-        <div class="absolute -bottom-20 left-1/3 h-96 w-96 rounded-full bg-accent/30 opacity-40 blur-3xl mix-blend-multiply transition-all duration-1000 dark:bg-accent/5 dark:mix-blend-screen"></div>
+        <div class="absolute -left-20 top-1/4 h-[480px] w-[480px] rounded-full bg-primary-500/40 blur-[120px] transition-all duration-1000 dark:bg-primary-500/35"></div>
+        <div class="absolute -right-20 top-1/3 h-[420px] w-[420px] rounded-full bg-secondary-500/35 blur-[100px] transition-all duration-1000 dark:bg-accent-500/30"></div>
+        <div class="absolute -bottom-24 left-1/3 h-[500px] w-[500px] rounded-full bg-accent-500/30 blur-[130px] transition-all duration-1000 dark:bg-primary-600/30"></div>
     </div>
 
     <main class="relative z-10 mx-auto flex w-full max-w-7xl flex-1 items-center justify-center px-4 py-12 md:px-12">
