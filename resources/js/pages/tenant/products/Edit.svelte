@@ -36,6 +36,8 @@
         bulk_discount_type?: string;
         custom_bulk_discount_percentage?: number | string | null;
         image_url: string | null;
+        thumbnail_url?: string | null;
+        image_position?: { zoom: number; x: number; y: number } | null;
         is_active: boolean;
     }
 
@@ -71,6 +73,7 @@
         image: null as File | null,
         remove_image: false,
         image_url: product.image_url ?? '',
+        image_position: product.image_position ?? null as { zoom: number; x: number; y: number } | null,
         is_active: product.is_active,
     }));
 
@@ -165,7 +168,9 @@
             <!-- Product Image Uploader -->
             <ProductImageUploader
                 initialImageUrl={product.image_url}
+                initialPosition={product.image_position}
                 bind:file={form.image}
+                bind:position={form.image_position}
                 bind:removeImage={form.remove_image}
                 error={form.errors.image}
                 disabled={form.processing}

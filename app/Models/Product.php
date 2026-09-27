@@ -52,6 +52,7 @@ use Illuminate\Support\Facades\DB;
     'custom_bulk_discount_percentage',
     'image_url',
     'thumbnail_url',
+    'image_position',
     'is_active',
 ])]
 class Product extends Model
@@ -70,6 +71,7 @@ class Product extends Model
             'units_per_package' => FlexibleDecimal::class,
             'package_quantity' => FlexibleDecimal::class,
             'custom_bulk_discount_percentage' => 'decimal:2',
+            'image_position' => 'array',
             'is_active' => 'boolean',
         ];
     }

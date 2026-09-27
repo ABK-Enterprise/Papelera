@@ -15,13 +15,14 @@
     import IconContainer from '@/components/common/IconContainer.svelte';
     import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
-
+    import Camera from 'lucide-svelte/icons/camera';
     import Edit2 from 'lucide-svelte/icons/edit-2';
     import Layers from 'lucide-svelte/icons/layers';
     import MoreVertical from 'lucide-svelte/icons/more-vertical';
     import Package from 'lucide-svelte/icons/package';
     import Scale from 'lucide-svelte/icons/scale';
     import Trash2 from 'lucide-svelte/icons/trash-2';
+    import ProductImageQuickEditModal from '@/components/tenant/products/ProductImageQuickEditModal.svelte';
 
     interface CategorySummary {
         id: number;
@@ -42,6 +43,7 @@
         package_quantity?: number;
         image_url: string | null;
         thumbnail_url?: string | null;
+        image_position?: { zoom: number; x: number; y: number } | null;
         is_incomplete?: boolean;
         warehouses_count?: number;
         category?: CategorySummary | null;
@@ -65,6 +67,29 @@
     let productToDelete = $state<ProductItem | null>(null);
     let isDeleteModalOpen = $state(false);
     let isDeleting = $state(false);
+
+    let selectedImageProduct = $state<ProductItem | null>(null);
+    let isImageModalOpen = $state(false);
+
+    function openImageModal(product: ProductItem) {
+        selectedImageProduct = product;
+        isImageModalOpen = true;
+    }
+
+    function handleImageUpdated(updatedProduct: any) {
+        if (!updatedProduct) return;
+        const target = products.find((p) => p.id === updatedProduct.id);
+        if (target) {
+            target.image_url = updatedProduct.image_url;
+            target.thumbnail_url = updatedProduct.thumbnail_url;
+            target.image_position = updatedProduct.image_position;
+        }
+        if (selectedImageProduct && selectedImageProduct.id === updatedProduct.id) {
+            selectedImageProduct.image_url = updatedProduct.image_url;
+            selectedImageProduct.thumbnail_url = updatedProduct.thumbnail_url;
+            selectedImageProduct.image_position = updatedProduct.image_position;
+        }
+    }
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
@@ -103,25 +128,50 @@
             <!-- Lado Izquierdo: Imagen / Avatar Placeholder + Info Principal -->
             <div class="flex items-center gap-4 min-w-0 flex-1">
                 {#if product.thumbnail_url || product.image_url}
-                    <div class="relative size-12 rounded-xl border border-border/80 overflow-hidden shrink-0">
+                    <div class="relative group size-12 rounded-xl border border-border/80 overflow-hidden shrink-0">
                         <img
                             src={product.thumbnail_url || product.image_url}
                             alt={product.name}
-                            class="h-full w-full object-cover"
+                            class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
                             loading="lazy"
                         />
                         {#if isWeighable}
-                            <span class="absolute bottom-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-1 py-0.5 rounded-tl tabular-nums">
+                            <span class="absolute bottom-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-1 py-0.5 rounded-tl tabular-nums z-10">
                                 Kg
                             </span>
                         {/if}
+
+                        {#if hasPermission('productos.editar')}
+                            <button
+                                type="button"
+                                onclick={() => openImageModal(product)}
+                                class="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity flex items-center justify-center cursor-pointer z-20 outline-none"
+                                title="Cambiar o encuadrar foto"
+                                aria-label={`Editar foto de ${product.name}`}
+                            >
+                                <Camera class="size-4.5 drop-shadow-sm text-white" />
+                            </button>
+                        {/if}
                     </div>
                 {:else}
-                    <IconContainer
-                        size="lg"
-                        variant={isWeighable ? 'info' : 'primary'}
-                        icon={isWeighable ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone'}
-                    />
+                    <div class="relative group size-12 rounded-xl border border-dashed border-border/80 hover:border-primary/50 overflow-hidden shrink-0 flex items-center justify-center bg-muted/20">
+                        <IconContainer
+                            size="lg"
+                            variant={isWeighable ? 'info' : 'primary'}
+                            icon={isWeighable ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone'}
+                        />
+                        {#if hasPermission('productos.editar')}
+                            <button
+                                type="button"
+                                onclick={() => openImageModal(product)}
+                                class="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity flex items-center justify-center cursor-pointer z-20 outline-none"
+                                title="Subir foto del producto"
+                                aria-label={`Subir foto para ${product.name}`}
+                            >
+                                <Camera class="size-4.5 drop-shadow-sm text-white" />
+                            </button>
+                        {/if}
+                    </div>
                 {/if}
 
                 <!-- Info Principal: Título, Categoría, Packaging y Stock Unificados -->
@@ -317,4 +367,11 @@
     variant="danger"
     loading={isDeleting}
     onconfirm={executeDelete}
+/>
+
+<!-- Modal de Edición Rápida de Imagen del Producto -->
+<ProductImageQuickEditModal
+    bind:open={isImageModalOpen}
+    product={selectedImageProduct}
+    onSuccess={handleImageUpdated}
 />

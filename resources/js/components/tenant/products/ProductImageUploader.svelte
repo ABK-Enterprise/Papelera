@@ -11,13 +11,17 @@
 
     let {
         initialImageUrl = null,
+        initialPosition = null,
         file = $bindable(null),
+        position = $bindable(null),
         removeImage = $bindable(false),
         disabled = false,
         error = '',
     }: {
         initialImageUrl?: string | null;
+        initialPosition?: { zoom?: number; x?: number; y?: number } | null;
         file: File | null;
+        position?: { zoom?: number; x?: number; y?: number } | null;
         removeImage: boolean;
         disabled?: boolean;
         error?: string;
@@ -217,20 +221,16 @@
         isCropperOpen = true;
     }
 
-    function handleCropApply(blob: Blob, url: string) {
+    function handleCropApply(blob: Blob, url: string, newPosition?: { zoom: number; x: number; y: number }) {
+        if (newPosition) {
+            position = newPosition;
+        }
         if (localPreviewUrl) {
             URL.revokeObjectURL(localPreviewUrl);
         }
-        const baseName = file?.name?.replace(/\.[^/.]+$/, '') || 'producto';
-        const croppedWebpFile = new File([blob], `${baseName}.webp`, {
-            type: 'image/webp',
-            lastModified: Date.now(),
-        });
 
-        file = croppedWebpFile;
         removeImage = false;
         localPreviewUrl = url;
-        optimizedSizeKb = Math.round(blob.size / 1024);
         localError = null;
     }
 </script>
@@ -399,6 +399,7 @@
         targetSize={800}
         title="Ajustar encuadre del producto"
         description="Arrastrá la foto para centrar el producto y usá el zoom para un encuadre 1:1."
+        initialPosition={position || initialPosition}
         onApply={handleCropApply}
     />
 </div>

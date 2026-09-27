@@ -73,6 +73,8 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('productos', [ProductController::class, 'store'])->name('products.store')->middleware('tenant.permission:productos.crear');
             Route::get('productos/{product}/editar', [ProductController::class, 'edit'])->name('products.edit')->middleware('tenant.permission:productos.editar');
             Route::put('productos/{product}', [ProductController::class, 'update'])->name('products.update')->middleware('tenant.permission:productos.editar');
+            Route::post('productos/{product}/imagen', [ProductController::class, 'updateImage'])->name('products.update-image')->middleware('tenant.permission:productos.editar');
+            Route::delete('productos/{product}/imagen', [ProductController::class, 'destroyImage'])->name('products.destroy-image')->middleware('tenant.permission:productos.editar');
             Route::delete('productos/{product}', [ProductController::class, 'destroy'])->name('products.destroy')->middleware('tenant.permission:productos.eliminar');
 
             Route::get('categorias', [CategoryController::class, 'index'])->name('categories.index')->middleware('tenant.permission:productos.ver');

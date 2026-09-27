@@ -26,7 +26,8 @@
         targetSize?: number;
         title?: string;
         description?: string;
-        onApply?: (blob: Blob, url: string) => void;
+        initialPosition?: { zoom?: number; x?: number; y?: number } | null;
+        onApply?: (blob: Blob, url: string, position: { zoom: number; x: number; y: number }) => void;
         onCancel?: () => void;
     }
 
@@ -40,6 +41,7 @@
         targetSize = 512,
         title = 'Ajustar encuadre',
         description = 'Arrastrá la imagen para posicionarla y usá el zoom para ajustar el tamaño.',
+        initialPosition = null,
         onApply = undefined,
         onCancel = undefined,
     }: Props = $props();
@@ -67,10 +69,14 @@
     // Reset coordinates whenever modal opens or image changes
     $effect(() => {
         if (open && imageSrc) {
-            zoom = 1;
-            panX = 0;
-            panY = 0;
             imageLoaded = false;
+            if (initialPosition) {
+                zoom = Math.min(3, Math.max(1, Number(initialPosition.zoom || 1)));
+            } else {
+                zoom = 1;
+                panX = 0;
+                panY = 0;
+            }
         }
     });
 
@@ -86,9 +92,18 @@
         baseHeight = Math.round(naturalHeight * baseScale);
 
         imageLoaded = true;
-        panX = 0;
-        panY = 0;
-        zoom = 1;
+
+        if (initialPosition) {
+            zoom = Math.min(3, Math.max(1, Number(initialPosition.zoom || 1)));
+            const displayW = baseWidth * zoom;
+            const displayH = baseHeight * zoom;
+            panX = Math.round(((initialPosition.x || 0) / 50) * (displayW / 2));
+            panY = Math.round(((initialPosition.y || 0) / 50) * (displayH / 2));
+        } else {
+            panX = 0;
+            panY = 0;
+            zoom = 1;
+        }
     }
 
     function handlePointerDown(e: PointerEvent) {
@@ -169,13 +184,19 @@
 
             ctx.drawImage(imageElement, destX, destY, destW, destH);
 
+            const normalizedPosition = {
+                zoom: Number(zoom.toFixed(2)),
+                x: Number(Math.max(-100, Math.min(100, (panX / (displayW / 2)) * 50)).toFixed(2)),
+                y: Number(Math.max(-100, Math.min(100, (panY / (displayH / 2)) * 50)).toFixed(2)),
+            };
+
             canvas.toBlob(
                 (blob) => {
                     isProcessing = false;
                     if (blob) {
                         const croppedUrl = URL.createObjectURL(blob);
                         open = false;
-                        onApply?.(blob, croppedUrl);
+                        onApply?.(blob, croppedUrl, normalizedPosition);
                     }
                 },
                 outputFormat,

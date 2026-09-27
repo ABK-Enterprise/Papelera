@@ -15,13 +15,14 @@ class ProductImageService
      * Store and optimize an uploaded image using Zero-Trust architecture with native GD.
      *
      * - Re-encodes strictly to WebP at 80% quality.
-     * - Strips all EXIF metadata and embedded payloads.
-     * - Auto-rotates according to camera orientation before stripping EXIF.
-     * - Dual output: 150x150 thumbnail and max 800x800 optimized image.
+     * - Preserves the full original aspect ratio and dimensions (up to 1200px max dimension).
+     * - Derives a 150x150 thumbnail using the framing coordinates (zoom, x, y) without destructive crop.
+     * - Strips all EXIF metadata and auto-rotates phone images.
      *
-     * @return array{image_url: string, thumbnail_url: string}
+     * @param  array{zoom?: float, x?: float, y?: float}|null  $position
+     * @return array{image_url: string, thumbnail_url: string, image_position: array{zoom: float, x: float, y: float}}
      */
-    public function storeAndOptimize(UploadedFile $file, int $tenantId): array
+    public function storeAndOptimize(UploadedFile $file, int $tenantId, ?array $position = null): array
     {
         $realPath = $file->getRealPath();
         if (! $realPath || ! file_exists($realPath)) {
@@ -61,31 +62,20 @@ class ProductImageService
             ]);
         }
 
-        $randomHash = Str::random(40);
         $directory = "products/{$tenantId}";
-
         Storage::disk('public')->makeDirectory($directory);
 
-        // 1. Generate Thumbnail (150x150 square crop)
-        $thumbSize = 150;
-        $thumb = imagecreatetruecolor($thumbSize, $thumbSize);
-        imagealphablending($thumb, false);
-        imagesavealpha($thumb, true);
+        $normalizedPosition = [
+            'zoom' => max(1.0, min(5.0, (float) ($position['zoom'] ?? 1.0))),
+            'x' => max(-100.0, min(100.0, (float) ($position['x'] ?? 0.0))),
+            'y' => max(-100.0, min(100.0, (float) ($position['y'] ?? 0.0))),
+        ];
 
-        $minDim = min($origWidth, $origHeight);
-        $srcX = (int) (($origWidth - $minDim) / 2);
-        $srcY = (int) (($origHeight - $minDim) / 2);
+        // 1. Generate Derived Thumbnail (150x150) based on framing coordinates
+        $thumbRelativePath = $this->renderThumbnailFromGd($source, $origWidth, $origHeight, $normalizedPosition, $directory);
 
-        imagecopyresampled($thumb, $source, 0, 0, $srcX, $srcY, $thumbSize, $thumbSize, $minDim, $minDim);
-
-        $thumbFilename = "thumb_{$randomHash}.webp";
-        $thumbRelativePath = "{$directory}/{$thumbFilename}";
-        $thumbFullPath = Storage::disk('public')->path($thumbRelativePath);
-        imagewebp($thumb, $thumbFullPath, 80);
-        imagedestroy($thumb);
-
-        // 2. Generate Optimized Main Image (max 800x800 maintaining aspect ratio)
-        $maxDim = 800;
+        // 2. Generate Optimized Full Main Image (max 1200px maintaining original aspect ratio)
+        $maxDim = 1200;
         if ($origWidth > $maxDim || $origHeight > $maxDim) {
             if ($origWidth >= $origHeight) {
                 $newWidth = $maxDim;
@@ -105,6 +95,7 @@ class ProductImageService
 
         imagecopyresampled($optimized, $source, 0, 0, 0, 0, $newWidth, $newHeight, $origWidth, $origHeight);
 
+        $randomHash = Str::random(40);
         $optimizedFilename = "{$randomHash}.webp";
         $optimizedRelativePath = "{$directory}/{$optimizedFilename}";
         $optimizedFullPath = Storage::disk('public')->path($optimizedRelativePath);
@@ -115,7 +106,116 @@ class ProductImageService
         return [
             'image_url' => Storage::disk('public')->url($optimizedRelativePath),
             'thumbnail_url' => Storage::disk('public')->url($thumbRelativePath),
+            'image_position' => $normalizedPosition,
         ];
+    }
+
+    /**
+     * Reframe the thumbnail of an already uploaded product image without re-uploading the file.
+     *
+     * @param  array{zoom?: float, x?: float, y?: float}  $position
+     * @return array{image_url: string, thumbnail_url: string, image_position: array{zoom: float, x: float, y: float}}
+     */
+    public function reframeThumbnail(Product $product, array $position): array
+    {
+        if (! $product->image_url) {
+            throw ValidationException::withMessages([
+                'image' => ['El producto no tiene una imagen cargada para encuadrar.'],
+            ]);
+        }
+
+        $relativePath = $this->extractRelativePath($product->image_url);
+        if (! $relativePath || ! Storage::disk('public')->exists($relativePath)) {
+            throw ValidationException::withMessages([
+                'image' => ['El archivo de imagen original no se encuentra disponible en el almacenamiento.'],
+            ]);
+        }
+
+        $fullPath = Storage::disk('public')->path($relativePath);
+        $source = @imagecreatefromstring(file_get_contents($fullPath));
+        if ($source === false) {
+            throw ValidationException::withMessages([
+                'image' => ['No se pudo procesar la imagen original del producto.'],
+            ]);
+        }
+
+        $origWidth = imagesx($source);
+        $origHeight = imagesy($source);
+        $directory = "products/{$product->tenant_id}";
+
+        $normalizedPosition = [
+            'zoom' => max(1.0, min(5.0, (float) ($position['zoom'] ?? 1.0))),
+            'x' => max(-100.0, min(100.0, (float) ($position['x'] ?? 0.0))),
+            'y' => max(-100.0, min(100.0, (float) ($position['y'] ?? 0.0))),
+        ];
+
+        $newThumbRelative = $this->renderThumbnailFromGd($source, $origWidth, $origHeight, $normalizedPosition, $directory);
+        imagedestroy($source);
+
+        // Delete old thumbnail if different
+        if ($product->thumbnail_url) {
+            $this->deleteImages(null, $product->thumbnail_url, $product->tenant_id);
+        }
+
+        $newThumbUrl = Storage::disk('public')->url($newThumbRelative);
+        $product->update([
+            'thumbnail_url' => $newThumbUrl,
+            'image_position' => $normalizedPosition,
+        ]);
+
+        return [
+            'image_url' => $product->image_url,
+            'thumbnail_url' => $newThumbUrl,
+            'image_position' => $normalizedPosition,
+        ];
+    }
+
+    /**
+     * Renders a 150x150 WebP thumbnail using framing coordinates (zoom, x, y).
+     *
+     * @param  resource|\GdImage  $source
+     * @param  array{zoom: float, x: float, y: float}  $position
+     */
+    public function renderThumbnailFromGd($source, int $origWidth, int $origHeight, array $position, string $directory): string
+    {
+        $thumbSize = 150;
+        $thumb = imagecreatetruecolor($thumbSize, $thumbSize);
+        imagealphablending($thumb, false);
+        imagesavealpha($thumb, true);
+
+        $baseCropSize = min($origWidth, $origHeight);
+        $zoom = max(1.0, min(5.0, (float) ($position['zoom'] ?? 1.0)));
+        $cropDimension = (int) round($baseCropSize / $zoom);
+        $cropDimension = max(1, min($cropDimension, $baseCropSize));
+
+        $maxPanX = ($origWidth - $cropDimension) / 2;
+        $maxPanY = ($origHeight - $cropDimension) / 2;
+
+        $pctX = max(-100.0, min(100.0, (float) ($position['x'] ?? 0.0)));
+        $pctY = max(-100.0, min(100.0, (float) ($position['y'] ?? 0.0)));
+
+        // Panning the image right (+x) shifts the visible region to the left (-srcX)
+        $offsetX = (int) round(($pctX / 100.0) * $maxPanX);
+        $offsetY = (int) round(($pctY / 100.0) * $maxPanY);
+
+        $centerX = (int) ($origWidth / 2) - $offsetX;
+        $centerY = (int) ($origHeight / 2) - $offsetY;
+
+        $srcX = (int) max(0, min($origWidth - $cropDimension, round($centerX - ($cropDimension / 2))));
+        $srcY = (int) max(0, min($origHeight - $cropDimension, round($centerY - ($cropDimension / 2))));
+
+        imagecopyresampled($thumb, $source, 0, 0, $srcX, $srcY, $thumbSize, $thumbSize, $cropDimension, $cropDimension);
+
+        $randomHash = Str::random(40);
+        $thumbFilename = "thumb_{$randomHash}.webp";
+        $thumbRelativePath = "{$directory}/{$thumbFilename}";
+        $thumbFullPath = Storage::disk('public')->path($thumbRelativePath);
+
+        Storage::disk('public')->makeDirectory($directory);
+        imagewebp($thumb, $thumbFullPath, 80);
+        imagedestroy($thumb);
+
+        return $thumbRelativePath;
     }
 
     /**

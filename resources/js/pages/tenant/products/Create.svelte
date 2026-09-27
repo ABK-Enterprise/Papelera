@@ -53,6 +53,7 @@
         custom_bulk_discount_percentage: '',
         image: null as File | null,
         image_url: '',
+        image_position: null as { zoom: number; x: number; y: number } | null,
         is_active: true,
     });
 
@@ -123,6 +124,7 @@
             <!-- Product Image Uploader -->
             <ProductImageUploader
                 bind:file={form.image}
+                bind:position={form.image_position}
                 error={form.errors.image}
                 disabled={form.processing}
             />

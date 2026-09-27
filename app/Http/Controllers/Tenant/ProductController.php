@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreProductRequest;
+use App\Http\Requests\Tenant\UpdateProductImageRequest;
 use App\Http\Requests\Tenant\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Product;
@@ -176,14 +177,17 @@ class ProductController extends Controller
         $tenantId = $request->user()->tenant_id;
         $imageUrl = $request->validated('image_url');
         $thumbnailUrl = $request->validated('thumbnail_url');
+        $imagePosition = null;
 
         if ($request->hasFile('image')) {
             $imageResult = app(ProductImageService::class)->storeAndOptimize(
                 $request->file('image'),
-                $tenantId
+                $tenantId,
+                $request->input('image_position')
             );
             $imageUrl = $imageResult['image_url'];
             $thumbnailUrl = $imageResult['thumbnail_url'];
+            $imagePosition = $imageResult['image_position'];
         }
 
         $product = Product::create([
@@ -205,6 +209,7 @@ class ProductController extends Controller
             'custom_bulk_discount_percentage' => $request->validated('custom_bulk_discount_percentage'),
             'image_url' => $imageUrl,
             'thumbnail_url' => $thumbnailUrl,
+            'image_position' => $imagePosition,
             'is_active' => $request->boolean('is_active', true),
         ]);
 
@@ -268,20 +273,24 @@ class ProductController extends Controller
         $packageQuantity = $request->validated('package_quantity') ?? $request->validated('units_per_package', $product->package_quantity) ?: 1;
         $imageUrl = $request->validated('image_url', $product->image_url);
         $thumbnailUrl = $request->validated('thumbnail_url', $product->thumbnail_url);
+        $imagePosition = $request->input('image_position', $product->image_position);
 
         if ($request->boolean('remove_image')) {
             app(ProductImageService::class)->deleteImages($product->image_url, $product->thumbnail_url, $product->tenant_id);
             $imageUrl = null;
             $thumbnailUrl = null;
+            $imagePosition = null;
         } elseif ($request->hasFile('image')) {
             app(ProductImageService::class)->deleteImages($product->image_url, $product->thumbnail_url, $product->tenant_id);
 
             $imageResult = app(ProductImageService::class)->storeAndOptimize(
                 $request->file('image'),
-                $product->tenant_id
+                $product->tenant_id,
+                $request->input('image_position')
             );
             $imageUrl = $imageResult['image_url'];
             $thumbnailUrl = $imageResult['thumbnail_url'];
+            $imagePosition = $imageResult['image_position'];
         }
 
         $product->update([
@@ -301,6 +310,7 @@ class ProductController extends Controller
             'custom_bulk_discount_percentage' => $request->validated('custom_bulk_discount_percentage'),
             'image_url' => $imageUrl,
             'thumbnail_url' => $thumbnailUrl,
+            'image_position' => $imagePosition,
             'is_active' => $request->boolean('is_active', true),
         ]);
 
@@ -310,6 +320,92 @@ class ProductController extends Controller
 
         return redirect()->route('tenant.products.index')
             ->with('success', 'Producto actualizado exitosamente.');
+    }
+
+    /**
+     * Actualiza la imagen y encuadre del producto de forma aislada y no destructiva.
+     */
+    public function updateImage(
+        UpdateProductImageRequest $request,
+        Product $product,
+        ProductImageService $imageService
+    ): JsonResponse {
+        if ($product->tenant_id !== $request->user()->tenant_id) {
+            abort(404);
+        }
+
+        $position = $request->validated('image_position');
+        $removeImage = $request->boolean('remove_image');
+
+        if ($removeImage) {
+            $imageService->deleteImages($product->image_url, $product->thumbnail_url, $product->tenant_id);
+            $product->update([
+                'image_url' => null,
+                'thumbnail_url' => null,
+                'image_position' => null,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Imagen eliminada correctamente.',
+                'product' => $product->fresh(),
+            ]);
+        }
+
+        if ($request->hasFile('image')) {
+            $imageService->deleteImages($product->image_url, $product->thumbnail_url, $product->tenant_id);
+
+            $result = $imageService->storeAndOptimize(
+                file: $request->file('image'),
+                tenantId: $product->tenant_id,
+                position: $position
+            );
+
+            $product->update([
+                'image_url' => $result['image_url'],
+                'thumbnail_url' => $result['thumbnail_url'],
+                'image_position' => $result['image_position'],
+            ]);
+        } elseif ($position && $product->image_url) {
+            $result = $imageService->reframeThumbnail($product, $position);
+
+            $product->update([
+                'thumbnail_url' => $result['thumbnail_url'],
+                'image_position' => $result['image_position'],
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Imagen de producto actualizada correctamente.',
+            'product' => $product->fresh(),
+        ]);
+    }
+
+    /**
+     * Elimina la imagen del producto.
+     */
+    public function destroyImage(
+        Request $request,
+        Product $product,
+        ProductImageService $imageService
+    ): JsonResponse {
+        if ($product->tenant_id !== $request->user()->tenant_id) {
+            abort(404);
+        }
+
+        $imageService->deleteImages($product->image_url, $product->thumbnail_url, $product->tenant_id);
+        $product->update([
+            'image_url' => null,
+            'thumbnail_url' => null,
+            'image_position' => null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Imagen eliminada correctamente.',
+            'product' => $product->fresh(),
+        ]);
     }
 
     public function destroy(Request $request, Product $product): RedirectResponse|JsonResponse
