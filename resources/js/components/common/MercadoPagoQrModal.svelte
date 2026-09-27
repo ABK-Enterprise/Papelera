@@ -38,6 +38,7 @@
     interface Props {
         open?: boolean;
         order: OrderData | null;
+        initialAmount?: number | null;
         onSuccess?: (order?: any) => void;
         onMarkDelivered?: (order?: any) => void;
         onclose?: () => void;
@@ -46,6 +47,7 @@
     let {
         open = $bindable(false),
         order = null,
+        initialAmount = null,
         onSuccess = undefined,
         onMarkDelivered = undefined,
         onclose = undefined,
@@ -106,7 +108,12 @@
                     lastOpenedOrderId = currentOrderId;
                     resetModalState();
                     const initialDebt = Number(order?.debt_amount ?? 0);
-                    amountToCharge = initialDebt > 0 ? initialDebt : Number(order?.total_amount || 0);
+                    const parsedInitial = Number(initialAmount ?? 0);
+                    if (parsedInitial > 0) {
+                        amountToCharge = parsedInitial;
+                    } else {
+                        amountToCharge = initialDebt > 0 ? initialDebt : Number(order?.total_amount || 0);
+                    }
                     // Generar inmediatamente el QR si el monto es válido
                     if (amountToCharge > 0) {
                         generateQrOrder();

@@ -41,6 +41,7 @@ class StoreCustomerOrderRequest extends FormRequest
             'payment_method' => ['nullable', 'string', 'in:efectivo,transferencia,mercadopago,cheque,debito,credito,otro'],
             'paid_amount' => ['nullable', 'numeric', 'min:0'],
             'payment_reference' => ['nullable', 'string', 'max:255'],
+            'mp_qr_checkout' => ['nullable', 'boolean'],
             'apply_customer_discount' => ['nullable', 'boolean'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => [
@@ -72,6 +73,27 @@ class StoreCustomerOrderRequest extends FormRequest
                     'payment_type',
                     'Los clientes ocasionales o no registrados no pueden operar con cuenta corriente. Debe seleccionarse Cobro Total o Pago Parcial.'
                 );
+            }
+
+            if ($this->boolean('mp_qr_checkout')) {
+                if ($this->payment_method !== 'mercadopago') {
+                    $validator->errors()->add(
+                        'payment_method',
+                        'El cobro con QR en el momento solo está disponible para el método de pago Mercado Pago.'
+                    );
+                }
+                if (! in_array($this->payment_type, ['contado', 'parcial'], true)) {
+                    $validator->errors()->add(
+                        'payment_type',
+                        'El cobro con QR en el momento requiere seleccionar Cobro Total o Pago Parcial.'
+                    );
+                }
+                if ($this->payment_type === 'parcial' && (float) $this->paid_amount <= 0) {
+                    $validator->errors()->add(
+                        'paid_amount',
+                        'Para un pago parcial con QR debe ingresar un monto de seña o anticipo mayor a cero.'
+                    );
+                }
             }
         });
     }

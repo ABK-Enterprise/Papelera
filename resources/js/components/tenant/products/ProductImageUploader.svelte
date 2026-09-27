@@ -5,6 +5,8 @@
     import RefreshCw from 'lucide-svelte/icons/refresh-cw';
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import UploadCloud from 'lucide-svelte/icons/upload-cloud';
+    import Crop from 'lucide-svelte/icons/crop';
+    import ImageCropperModal from '@/components/common/ImageCropperModal.svelte';
     import { onDestroy } from 'svelte';
 
     let {
@@ -28,6 +30,8 @@
     let optimizedSizeKb = $state<number | null>(null);
     let originalSizeKb = $state<number | null>(null);
     let localError = $state<string | null>(null);
+    let isCropperOpen = $state(false);
+    let cropperSourceUrl = $state<string | null>(null);
 
     // Derived active preview URL
     let activePreview = $derived.by(() => {
@@ -206,6 +210,29 @@
         if (disabled) return;
         removeImage = false;
     }
+
+    function openCropper() {
+        if (!activePreview || disabled) return;
+        cropperSourceUrl = activePreview;
+        isCropperOpen = true;
+    }
+
+    function handleCropApply(blob: Blob, url: string) {
+        if (localPreviewUrl) {
+            URL.revokeObjectURL(localPreviewUrl);
+        }
+        const baseName = file?.name?.replace(/\.[^/.]+$/, '') || 'producto';
+        const croppedWebpFile = new File([blob], `${baseName}.webp`, {
+            type: 'image/webp',
+            lastModified: Date.now(),
+        });
+
+        file = croppedWebpFile;
+        removeImage = false;
+        localPreviewUrl = url;
+        optimizedSizeKb = Math.round(blob.size / 1024);
+        localError = null;
+    }
 </script>
 
 <div class="space-y-3 w-full">
@@ -320,22 +347,36 @@
                     type="button"
                     variant="outline"
                     class="min-h-[44px] flex-1 rounded-xl text-xs font-semibold gap-2 border-border/80 hover:bg-muted/70"
+                    onclick={openCropper}
+                    {disabled}
+                    title="Ajustar encuadre y zoom de la foto"
+                >
+                    <Crop class="size-4 text-primary" />
+                    <span>Ajustar encuadre</span>
+                </Button>
+
+                <Button
+                    type="button"
+                    variant="outline"
+                    class="min-h-[44px] flex-1 rounded-xl text-xs font-semibold gap-2 border-border/80 hover:bg-muted/70"
                     onclick={triggerFileInput}
                     {disabled}
+                    title="Seleccionar otra imagen"
                 >
                     <Camera class="size-4 text-primary" />
-                    <span>Reemplazar foto</span>
+                    <span>Reemplazar</span>
                 </Button>
 
                 <Button
                     type="button"
                     variant="destructive"
-                    class="min-h-[44px] px-4 rounded-xl text-xs font-semibold gap-2 shadow-2xs"
+                    class="min-h-[44px] px-3.5 rounded-xl text-xs font-semibold gap-2 shadow-2xs"
                     onclick={handleRemove}
                     {disabled}
+                    title="Quitar imagen"
                 >
                     <Trash2 class="size-4" />
-                    <span class="hidden sm:inline">Quitar imagen</span>
+                    <span class="sr-only sm:not-sr-only">Quitar</span>
                 </Button>
             {/if}
         </div>
@@ -348,4 +389,16 @@
             <span>{localError || error}</span>
         </p>
     {/if}
+
+    <!-- Modal Universal de Recorte y Ajuste de Encuadre -->
+    <ImageCropperModal
+        bind:open={isCropperOpen}
+        imageSrc={cropperSourceUrl}
+        cropShape="square"
+        outputFormat="image/webp"
+        targetSize={800}
+        title="Ajustar encuadre del producto"
+        description="Arrastrá la foto para centrar el producto y usá el zoom para un encuadre 1:1."
+        onApply={handleCropApply}
+    />
 </div>

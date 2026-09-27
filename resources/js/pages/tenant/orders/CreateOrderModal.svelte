@@ -29,6 +29,8 @@
     import Warehouse from 'lucide-svelte/icons/warehouse';
     import MapPin from 'lucide-svelte/icons/map-pin';
     import MoreVertical from 'lucide-svelte/icons/more-vertical';
+    import QrCode from 'lucide-svelte/icons/qr-code';
+    import MercadoPagoQrModal from '@/components/common/MercadoPagoQrModal.svelte';
     import {
         DropdownMenu,
         DropdownMenuContent,
@@ -142,6 +144,14 @@
     let paidAmount = $state<number | string>('');
     let isSubmitting = $state(false);
     let errorMessage = $state<string | null>(null);
+    let chargeWithQr = $state(true);
+    let isQrModalOpen = $state(false);
+    let createdOrderForQr = $state<any>(null);
+    let targetQrAmountForModal = $state<number | null>(null);
+
+    let isMpInstantCharge = $derived(
+        paymentMethod === 'mercadopago' && (paymentType === 'contado' || paymentType === 'parcial')
+    );
 
     $effect(() => {
         if (!selectedCustomerId && paymentType === 'cuenta_corriente') {
@@ -742,6 +752,8 @@
             numericPaidAmount = raw;
         }
 
+        const shouldChargeWithQr = isMpInstantCharge && chargeWithQr;
+
         router.post(
             '/tenant/pedidos',
             {
@@ -757,12 +769,25 @@
                 paid_amount: numericPaidAmount,
                 payment_reference: null,
                 apply_customer_discount: applyCustomerDiscount,
+                mp_qr_checkout: shouldChargeWithQr ? true : undefined,
                 items: payloadItems,
             },
             {
                 preserveScroll: true,
-                onSuccess: () => {
-                    closeModal();
+                onSuccess: (page) => {
+                    const flash = (page.props as any)?.flash;
+                    const createdOrder = flash?.created_order;
+                    const targetAmount = flash?.target_qr_amount;
+
+                    if (shouldChargeWithQr && createdOrder) {
+                        createdOrderForQr = createdOrder;
+                        targetQrAmountForModal = targetAmount || (paymentType === 'parcial' ? numericPaidAmount : grandTotal);
+                        isQrModalOpen = true;
+                        open = false;
+                        resetForm();
+                    } else {
+                        closeModal();
+                    }
                 },
                 onError: (errors) => {
                     const firstError = Object.values(errors)[0];
@@ -1614,6 +1639,38 @@
                                     </div>
                                 </div>
                             {/if}
+
+                            <!-- Cobro Inmediato con QR de Mercado Pago -->
+                            {#if isMpInstantCharge}
+                                <div class="rounded-xl border border-sky-500/30 bg-sky-500/10 p-3 sm:p-3.5 space-y-2">
+                                    <label class="flex items-center justify-between gap-3 cursor-pointer select-none">
+                                        <div class="flex items-center gap-2.5 min-w-0">
+                                            <div class="size-8 rounded-lg bg-sky-500/20 text-sky-600 dark:text-sky-300 flex items-center justify-center shrink-0">
+                                                <QrCode class="size-4" />
+                                            </div>
+                                            <div class="min-w-0">
+                                                <p class="text-xs font-bold text-foreground">Cobro Inmediato con QR</p>
+                                                <p class="text-[11px] text-muted-foreground">Generar el código QR en pantalla al crear el pedido para cobrarlo en el momento</p>
+                                            </div>
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            bind:checked={chargeWithQr}
+                                            class="size-4.5 rounded text-primary focus:ring-primary cursor-pointer shrink-0"
+                                        />
+                                    </label>
+                                    {#if chargeWithQr}
+                                        <div class="text-[11px] font-medium text-sky-800 dark:text-sky-200 bg-sky-500/10 px-2.5 py-1.5 rounded-lg border border-sky-500/20">
+                                            {#if paymentType === 'contado'}
+                                                Se abrirá el QR para cobrar el total de <strong class="tabular-nums">{formatPrice(grandTotal)}</strong>.
+                                            {:else}
+                                                Se abrirá el QR para cobrar el anticipo de <strong class="tabular-nums">{formatPrice(Number(paidAmount) || 0)}</strong>.
+                                            {/if}
+                                            Al acreditarse el pago, se registrará el recibo oficial y se actualizará el pedido automáticamente.
+                                        </div>
+                                    {/if}
+                                </div>
+                            {/if}
                         </div>
                     {/if}
                 </div>
@@ -1701,6 +1758,9 @@
                     >
                         {#if isSubmitting}
                             <span>Guardando...</span>
+                        {:else if isMpInstantCharge && chargeWithQr}
+                            <QrCode class="size-4 shrink-0" />
+                            <span>Crear y Cobrar QR</span>
                         {:else}
                             <Check class="size-4 shrink-0" />
                             <span>Crear Pedido</span>
@@ -1856,6 +1916,25 @@
         </DialogFooter>
     </DialogContent>
 </Dialog>
+
+<!-- Modal de Cobro con QR Inmediato de Mercado Pago -->
+<MercadoPagoQrModal
+    bind:open={isQrModalOpen}
+    order={createdOrderForQr}
+    initialAmount={targetQrAmountForModal}
+    onSuccess={() => {
+        isQrModalOpen = false;
+        createdOrderForQr = null;
+        targetQrAmountForModal = null;
+        router.reload({ only: ['orders', 'stats'], preserveScroll: true });
+    }}
+    onclose={() => {
+        isQrModalOpen = false;
+        createdOrderForQr = null;
+        targetQrAmountForModal = null;
+        router.reload({ only: ['orders', 'stats'], preserveScroll: true });
+    }}
+/>
 
 <style>
     .order-item-card {

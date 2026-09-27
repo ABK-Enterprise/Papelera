@@ -140,7 +140,8 @@ class CustomerOrderController extends Controller
         $userId = $request->user()->id;
 
         $eventsToBroadcast = [];
-        $order = DB::transaction(function () use ($request, $tenantId, $userId, &$eventsToBroadcast) {
+        $targetQrAmount = null;
+        $order = DB::transaction(function () use ($request, $tenantId, $userId, &$eventsToBroadcast, &$targetQrAmount) {
             $orderNumber = app(TenantSequenceService::class)->nextCustomerOrderNumber($tenantId);
 
             $customerId = $request->validated('customer_id');
@@ -318,21 +319,33 @@ class CustomerOrderController extends Controller
             $paymentType = $request->input('payment_type') ?: 'cuenta_corriente';
             $paymentMethod = $request->input('payment_method') ?: 'efectivo';
             $paymentReference = $request->input('payment_reference');
+            $mpQrCheckout = (bool) $request->boolean('mp_qr_checkout');
 
             $paidAmount = 0.00;
-            if ($paymentType === 'contado') {
+            $targetQrAmount = null;
+
+            if ($mpQrCheckout && $paymentMethod === 'mercadopago') {
+                // Cobro presencial inmediato con Mercado Pago QR:
+                // No se emite recibo preliminar en store(). El pedido queda con status 'pendiente'
+                // y deuda activa. El recibo oficial se registrará cuando MP confirme la acreditación.
+                $paidAmount = 0.00;
+                $targetQrAmount = ($paymentType === 'parcial')
+                    ? min($totalAmount, max(0.01, round((float) $request->input('paid_amount', 0), 2)))
+                    : $totalAmount;
+                $orderDebt = $totalAmount;
+                $paymentStatus = 'pendiente';
+            } elseif ($paymentType === 'contado') {
                 $paidAmount = $totalAmount;
+                $orderDebt = 0.00;
+                $paymentStatus = 'cobrado';
             } elseif ($paymentType === 'parcial') {
                 $inputPaid = (float) $request->input('paid_amount', 0);
                 $paidAmount = min($totalAmount, max(0.00, round($inputPaid, 2)));
-            }
-
-            $orderDebt = round($totalAmount - $paidAmount, 2);
-            $paymentStatus = 'pendiente';
-            if ($paidAmount >= $totalAmount) {
-                $paymentStatus = 'cobrado';
-            } elseif ($paidAmount > 0) {
-                $paymentStatus = 'parcial';
+                $orderDebt = round($totalAmount - $paidAmount, 2);
+                $paymentStatus = $paidAmount >= $totalAmount ? 'cobrado' : ($paidAmount > 0 ? 'parcial' : 'pendiente');
+            } else {
+                $orderDebt = $totalAmount;
+                $paymentStatus = 'pendiente';
             }
 
             $order = CustomerOrder::create([
@@ -538,11 +551,16 @@ class CustomerOrderController extends Controller
         }
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
-            return response()->json($order->load('items.product'), 201);
+            return response()->json([
+                'order' => $order->load('items.product'),
+                'target_qr_amount' => $targetQrAmount,
+            ], 201);
         }
 
         return redirect()->route('tenant.orders.index')
-            ->with('success', "Pedido {$order->order_number} registrado correctamente.");
+            ->with('success', "Pedido {$order->order_number} registrado correctamente.")
+            ->with('created_order', $order->load('items.product'))
+            ->with('target_qr_amount', $targetQrAmount);
     }
 
     public function updateStatus(UpdateCustomerOrderStatusRequest $request, CustomerOrder $customerOrder): RedirectResponse|JsonResponse

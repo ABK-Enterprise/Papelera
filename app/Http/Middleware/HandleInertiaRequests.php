@@ -94,6 +94,8 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->session()->get('success'),
                 'warning' => $request->session()->get('warning'),
                 'status' => $request->session()->get('status'),
+                'created_order' => $request->session()->get('created_order'),
+                'target_qr_amount' => $request->session()->get('target_qr_amount'),
             ],
         ];
     }
