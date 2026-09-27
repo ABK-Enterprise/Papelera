@@ -50,6 +50,7 @@
         package_quantity?: number;
         image_url?: string | null;
         is_active?: boolean;
+        is_incomplete?: boolean;
     }
 
     let {
@@ -90,6 +91,7 @@
     let lastLoadedProductId = $state<number | null>(null);
     let initialSaleType = $state<'unit' | 'weight'>('unit');
     let isConfirmAlertOpen = $state(false);
+    let isProductIncomplete = $derived(mode === 'edit' && Boolean(product?.is_incomplete || !product?.category_id || Number(product?.price) <= 0));
 
     $effect(() => {
         if (product && product.id !== lastLoadedProductId) {
@@ -358,11 +360,16 @@
                                 </div>
 
                                 <div class="space-y-1">
-                                    <Label for="modal-prod-cat" class="text-xs font-semibold">Categoría</Label>
+                                    <div class="flex items-center justify-between">
+                                        <Label for="modal-prod-cat" class="text-xs font-semibold">Categoría</Label>
+                                        {#if isProductIncomplete && !form.category_id}
+                                            <span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400">Dato faltante</span>
+                                        {/if}
+                                    </div>
                                     <select
                                         id="modal-prod-cat"
                                         bind:value={form.category_id}
-                                        class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                        class="h-10 w-full rounded-xl border bg-background px-3 text-xs font-medium text-foreground focus:outline-none transition-colors {isProductIncomplete && !form.category_id ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus:border-amber-600' : 'border-border/80 focus:border-primary-500 focus:ring-1 focus:ring-primary'}"
                                     >
                                         <option value="">Sin categoría asignada</option>
                                         {#each categories as cat}
@@ -383,9 +390,14 @@
                             <h3 class="text-xs font-bold text-primary uppercase tracking-wider">2. Precios & Facturación (ARCA)</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div class="space-y-1">
-                                    <Label for="modal-prod-price" class="text-xs font-semibold">
-                                        Precio Venta ({form.sale_type === 'weight' ? '$ / Kg' : '$ / unid.'}) <span class="text-destructive">*</span>
-                                    </Label>
+                                    <div class="flex items-center justify-between">
+                                        <Label for="modal-prod-price" class="text-xs font-semibold">
+                                            Precio Venta ({form.sale_type === 'weight' ? '$ / Kg' : '$ / unid.'}) <span class="text-destructive">*</span>
+                                        </Label>
+                                        {#if isProductIncomplete && (!form.price || Number(form.price) <= 0)}
+                                            <span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400">Dato faltante</span>
+                                        {/if}
+                                    </div>
                                     <div class="relative">
                                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
                                         <Input
@@ -395,7 +407,7 @@
                                             min="0"
                                             bind:value={form.price}
                                             placeholder="0.00"
-                                            class="h-9 pl-7 text-xs rounded-xl font-sans tabular-nums"
+                                            class="h-9 pl-7 text-xs rounded-xl font-sans tabular-nums transition-colors {isProductIncomplete && (!form.price || Number(form.price) <= 0) ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus-visible:ring-amber-500' : ''}"
                                             required
                                         />
                                     </div>

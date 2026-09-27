@@ -68,4 +68,12 @@ class User extends Authenticatable
     {
         return (bool) $this->is_superadmin;
     }
+
+    /**
+     * Send the password reset notification asynchronously.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\QueuedResetPasswordNotification($token));
+    }
 }

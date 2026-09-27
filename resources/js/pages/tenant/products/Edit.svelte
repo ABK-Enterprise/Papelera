@@ -6,6 +6,7 @@
     import SaleTypeChangeAlertDialog from '@/components/common/SaleTypeChangeAlertDialog.svelte';
     import ProductImageUploader from '@/components/tenant/products/ProductImageUploader.svelte';
     import { Link, useForm } from '@inertiajs/svelte';
+    import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import ArrowLeft from 'lucide-svelte/icons/arrow-left';
     import Check from 'lucide-svelte/icons/check';
     import Package from 'lucide-svelte/icons/package';
@@ -39,6 +40,7 @@
         thumbnail_url?: string | null;
         image_position?: { zoom: number; x: number; y: number } | null;
         is_active: boolean;
+        is_incomplete?: boolean;
     }
 
     let {
@@ -52,6 +54,7 @@
     } = $props();
 
     let initialSaleType = $derived((product.sale_type ?? 'unit') as 'unit' | 'weight');
+    let isProductIncomplete = $derived(Boolean(product.is_incomplete || !product.category_id || Number(product.price) <= 0));
     let isConfirmAlertOpen = $state(false);
 
     const form = useForm(() => ({
@@ -152,7 +155,14 @@
         </Link>
     </div>
 
-
+    {#if isProductIncomplete}
+        <div class="flex items-center gap-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs font-medium text-amber-800 dark:text-amber-300 shadow-xs">
+            <AlertTriangle class="size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+            <p class="leading-relaxed">
+                Este producto posee datos incompletos. Los campos pendientes requeridos para regularizarlo en el catálogo están señalados con un <span class="font-bold underline decoration-amber-500">borde anaranjado</span>.
+            </p>
+        </div>
+    {/if}
 
     <!-- Contenedor 2 Columnas Stitch Layout -->
     <div class="bg-card text-card-foreground rounded-3xl border border-border/80 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] overflow-hidden flex flex-col md:flex-row">
@@ -273,11 +283,16 @@
                         </div>
 
                         <div class="space-y-1">
-                            <Label for="edit-prod-cat" class="text-xs font-semibold">Categoría</Label>
+                            <div class="flex items-center justify-between">
+                                <Label for="edit-prod-cat" class="text-xs font-semibold">Categoría</Label>
+                                {#if isProductIncomplete && !form.category_id}
+                                    <span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400">Dato faltante</span>
+                                {/if}
+                            </div>
                             <select
                                 id="edit-prod-cat"
                                 bind:value={form.category_id}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                class="h-10 w-full rounded-xl border bg-background px-3 text-xs font-medium text-foreground focus:outline-none transition-colors {isProductIncomplete && !form.category_id ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus:border-amber-600' : 'border-border/80 focus:border-primary-500 focus:ring-1 focus:ring-primary'}"
                             >
                                 <option value="">Sin categoría asignada</option>
                                 {#each categories as cat}
@@ -299,9 +314,14 @@
                     <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">2. Precios y facturación</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div class="space-y-1">
-                            <Label for="edit-prod-price" class="text-xs font-semibold">
-                                Precio Venta ({form.sale_type === 'weight' ? '$ / Kg' : '$ / unid.'}) <span class="text-destructive">*</span>
-                            </Label>
+                            <div class="flex items-center justify-between">
+                                <Label for="edit-prod-price" class="text-xs font-semibold">
+                                    Precio Venta ({form.sale_type === 'weight' ? '$ / Kg' : '$ / unid.'}) <span class="text-destructive">*</span>
+                                </Label>
+                                {#if isProductIncomplete && (!form.price || Number(form.price) <= 0)}
+                                    <span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400">Dato faltante</span>
+                                {/if}
+                            </div>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
                                 <Input
@@ -311,7 +331,7 @@
                                     min="0"
                                     bind:value={form.price}
                                     placeholder="0.00"
-                                    class="h-9 pl-7 text-xs rounded-xl tabular-nums"
+                                    class="h-9 pl-7 text-xs rounded-xl tabular-nums transition-colors {isProductIncomplete && (!form.price || Number(form.price) <= 0) ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus-visible:ring-amber-500' : ''}"
                                     required
                                 />
                             </div>

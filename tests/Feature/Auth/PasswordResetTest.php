@@ -6,12 +6,19 @@ use Tests\TestCase;
 uses(TestCase::class, RefreshDatabase::class);
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\QueuedResetPasswordNotification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
 
 beforeEach(function () {
     $this->skipUnlessFortifyHas(Features::resetPasswords());
+});
+
+test('queued reset password notification implements should queue', function () {
+    $notification = new QueuedResetPasswordNotification('dummy-token');
+    expect($notification)->toBeInstanceOf(ShouldQueue::class);
 });
 
 test('reset password link screen can be rendered', function () {
@@ -20,14 +27,14 @@ test('reset password link screen can be rendered', function () {
     $response->assertOk();
 });
 
-test('reset password link can be requested', function () {
+test('reset password link can be requested and dispatches queued notification', function () {
     Notification::fake();
 
     $user = User::factory()->create();
 
     $this->post(route('password.email'), ['email' => $user->email]);
 
-    Notification::assertSentTo($user, ResetPassword::class);
+    Notification::assertSentTo($user, QueuedResetPasswordNotification::class);
 });
 
 test('reset password screen can be rendered', function () {
@@ -37,7 +44,7 @@ test('reset password screen can be rendered', function () {
 
     $this->post(route('password.email'), ['email' => $user->email]);
 
-    Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
+    Notification::assertSentTo($user, QueuedResetPasswordNotification::class, function ($notification) {
         $response = $this->get(route('password.reset', $notification->token));
 
         $response->assertOk();
@@ -53,7 +60,7 @@ test('password can be reset with valid token', function () {
 
     $this->post(route('password.email'), ['email' => $user->email]);
 
-    Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+    Notification::assertSentTo($user, QueuedResetPasswordNotification::class, function ($notification) use ($user) {
         $response = $this->post(route('password.update'), [
             'token' => $notification->token,
             'email' => $user->email,
@@ -80,4 +87,17 @@ test('password cannot be reset with invalid token', function () {
     ]);
 
     $response->assertSessionHasErrors('email');
+});
+
+test('forgot password endpoint has rate limiter configured for 3 attempts per minute', function () {
+    $limiter = RateLimiter::limiter('forgot-password');
+    expect($limiter)->not->toBeNull();
+
+    $mockRequest = \Illuminate\Http\Request::create('/forgot-password', 'POST', ['email' => 'test@example.com']);
+    app()->detectEnvironment(fn () => 'production');
+    $limits = $limiter($mockRequest);
+    expect($limits)->toBeArray()
+        ->and(count($limits))->toBe(2)
+        ->and($limits[0]->maxAttempts)->toBe(3);
+    app()->detectEnvironment(fn () => 'testing');
 });

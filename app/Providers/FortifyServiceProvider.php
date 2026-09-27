@@ -94,5 +94,18 @@ class FortifyServiceProvider extends ServiceProvider
 
             return Limit::perMinute(5)->by($throttleKey);
         });
+
+        RateLimiter::for('forgot-password', function (Request $request) {
+            if (app()->environment('local', 'testing')) {
+                return Limit::none();
+            }
+
+            $email = Str::transliterate(Str::lower((string) $request->input('email')));
+
+            return [
+                Limit::perMinute(3)->by($request->ip()),
+                Limit::perMinute(3)->by($email),
+            ];
+        });
     }
 }
