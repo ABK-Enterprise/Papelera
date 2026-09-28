@@ -74,7 +74,7 @@
                 <InputError message={errors.password} />
             </div>
 
-            <div class="flex items-center justify-between py-1">
+            <div class="flex flex-col items-start gap-2.5 py-1 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
                 <Label for="remember" class="flex items-center space-x-2 text-sm text-muted-foreground cursor-pointer">
                     <Checkbox id="remember" name="remember" />
                     <span>Recordarme</span>
