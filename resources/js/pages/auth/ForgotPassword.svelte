@@ -84,9 +84,11 @@
                 >
                     {#if processing}
                         <Spinner class="size-4 text-current" />
-                        <span>Enviando enlace...</span>
+                        <span class="sm:hidden">Enviando...</span>
+                        <span class="hidden sm:inline">Enviando enlace...</span>
                     {:else}
-                        <span>Enviar enlace de recuperación</span>
+                        <span class="sm:hidden">Enviar correo</span>
+                        <span class="hidden sm:inline">Enviar enlace de recuperación</span>
                         <ArrowRight class="size-4" />
                     {/if}
                 </Button>
