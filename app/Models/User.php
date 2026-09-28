@@ -70,10 +70,10 @@ class User extends Authenticatable
     }
 
     /**
-     * Send the password reset notification asynchronously.
+     * Send the password reset notification synchronously.
      */
     public function sendPasswordResetNotification($token): void
     {
-        $this->notify(new \App\Notifications\QueuedResetPasswordNotification($token));
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
     }
 }

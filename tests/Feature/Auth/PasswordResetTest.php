@@ -6,7 +6,7 @@ use Tests\TestCase;
 uses(TestCase::class, RefreshDatabase::class);
 
 use App\Models\User;
-use App\Notifications\QueuedResetPasswordNotification;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
@@ -16,9 +16,9 @@ beforeEach(function () {
     $this->skipUnlessFortifyHas(Features::resetPasswords());
 });
 
-test('queued reset password notification implements should queue', function () {
-    $notification = new QueuedResetPasswordNotification('dummy-token');
-    expect($notification)->toBeInstanceOf(ShouldQueue::class);
+test('reset password notification is synchronous and does not implement should queue', function () {
+    $notification = new ResetPasswordNotification('dummy-token');
+    expect($notification)->not->toBeInstanceOf(ShouldQueue::class);
 });
 
 test('reset password link screen can be rendered at /recuperar', function () {
@@ -39,7 +39,7 @@ test('reset password link can be requested with custom success message and dispa
     $response = $this->post(route('password.email'), ['email' => $user->email]);
 
     $response->assertSessionHas('status', 'Correo enviado a la cuenta.');
-    Notification::assertSentTo($user, QueuedResetPasswordNotification::class);
+    Notification::assertSentTo($user, ResetPasswordNotification::class);
 });
 
 test('reset password link fails with custom error message when email is incorrect', function () {
@@ -55,7 +55,7 @@ test('reset password screen can be rendered', function () {
 
     $this->post(route('password.email'), ['email' => $user->email]);
 
-    Notification::assertSentTo($user, QueuedResetPasswordNotification::class, function ($notification) {
+    Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification) {
         $response = $this->get(route('password.reset', $notification->token));
 
         $response->assertOk();
@@ -71,7 +71,7 @@ test('password can be reset with valid token', function () {
 
     $this->post(route('password.email'), ['email' => $user->email]);
 
-    Notification::assertSentTo($user, QueuedResetPasswordNotification::class, function ($notification) use ($user) {
+    Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification) use ($user) {
         $response = $this->post(route('password.update'), [
             'token' => $notification->token,
             'email' => $user->email,

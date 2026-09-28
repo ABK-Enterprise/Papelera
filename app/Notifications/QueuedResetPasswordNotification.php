@@ -6,7 +6,7 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class QueuedResetPasswordNotification extends ResetPassword implements ShouldQueue
+class QueuedResetPasswordNotification extends ResetPasswordNotification
 {
-    use Queueable;
+    // Kept for backward compatibility
 }

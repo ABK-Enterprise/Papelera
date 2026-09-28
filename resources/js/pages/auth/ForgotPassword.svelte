@@ -83,7 +83,8 @@
                     data-test="email-password-reset-link-button"
                 >
                     {#if processing}
-                        <Spinner />
+                        <Spinner class="size-4 text-current" />
+                        <span>Enviando enlace...</span>
                     {:else}
                         <span>Enviar enlace de recuperación</span>
                         <ArrowRight class="size-4" />
