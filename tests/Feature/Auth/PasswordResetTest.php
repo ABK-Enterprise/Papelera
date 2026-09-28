@@ -112,3 +112,21 @@ test('forgot password endpoint has rate limiter configured for 3 attempts per mi
         ->and($limits[0]->maxAttempts)->toBe(3);
     app()->detectEnvironment(fn () => 'testing');
 });
+
+test('returns friendly error message when mail transport fails', function () {
+    $user = User::factory()->create();
+
+    Notification::shouldReceive('send')
+        ->once()
+        ->andThrow(new \Symfony\Component\Mailer\Exception\TransportException('Connection to mail transport failed'));
+
+    $response = $this->from('/recuperar')->post(route('password.email'), [
+        'email' => $user->email,
+    ]);
+
+    $response->assertRedirect('/recuperar');
+    $response->assertSessionHasErrors([
+        'email' => 'El servicio de correo no se encuentra disponible temporalmente. Intente nuevamente más tarde.',
+    ]);
+});
+
