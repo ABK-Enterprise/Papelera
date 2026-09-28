@@ -22,6 +22,7 @@
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.14",
         "pusher/pusher-php-server": "^7.2",
+        "resend/resend-php": "^1.16",
         "spatie/browsershot": "^5.4",
         "spatie/laravel-pdf": "^2.13",
         "spatie/laravel-permission": "^8.3"

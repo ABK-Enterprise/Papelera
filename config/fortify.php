@@ -90,6 +90,13 @@ return [
 
     'domain' => null,
 
+    'paths' => [
+        'password' => [
+            'request' => '/recuperar',
+            'email' => '/recuperar',
+        ],
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Fortify Routes Middleware

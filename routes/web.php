@@ -15,9 +15,13 @@ Route::get('access-denied', [AccessDeniedController::class, 'index'])
 Route::middleware('guest')->group(function () {
     Route::get('auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
     Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
-    Route::post('forgot-password', [\Laravel\Fortify\Http\Controllers\PasswordResetLinkController::class, 'store'])
+    Route::post('recuperar', [\Laravel\Fortify\Http\Controllers\PasswordResetLinkController::class, 'store'])
         ->middleware('throttle:forgot-password')
         ->name('password.email');
+
+    Route::redirect('forgot-password', 'recuperar', 301);
+    Route::post('forgot-password', [\Laravel\Fortify\Http\Controllers\PasswordResetLinkController::class, 'store'])
+        ->middleware('throttle:forgot-password');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

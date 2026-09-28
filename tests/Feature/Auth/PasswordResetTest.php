@@ -21,20 +21,31 @@ test('queued reset password notification implements should queue', function () {
     expect($notification)->toBeInstanceOf(ShouldQueue::class);
 });
 
-test('reset password link screen can be rendered', function () {
-    $response = $this->get(route('password.request'));
+test('reset password link screen can be rendered at /recuperar', function () {
+    expect(route('password.request'))->toContain('/recuperar');
 
+    $response = $this->get('/recuperar');
     $response->assertOk();
+
+    $legacyResponse = $this->get('/forgot-password');
+    $legacyResponse->assertRedirect('/recuperar');
 });
 
-test('reset password link can be requested and dispatches queued notification', function () {
+test('reset password link can be requested with custom success message and dispatches queued notification', function () {
     Notification::fake();
 
     $user = User::factory()->create();
 
-    $this->post(route('password.email'), ['email' => $user->email]);
+    $response = $this->post(route('password.email'), ['email' => $user->email]);
 
+    $response->assertSessionHas('status', 'Correo enviado a la cuenta.');
     Notification::assertSentTo($user, QueuedResetPasswordNotification::class);
+});
+
+test('reset password link fails with custom error message when email is incorrect', function () {
+    $response = $this->post(route('password.email'), ['email' => 'no-existe@empresa.com']);
+
+    $response->assertSessionHasErrors(['email' => 'Cuenta de correo incorrecta. Intente denuevo.']);
 });
 
 test('reset password screen can be rendered', function () {
