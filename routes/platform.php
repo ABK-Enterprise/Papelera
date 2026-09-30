@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Platform\ArcaTicketController;
+use App\Http\Controllers\Platform\AuditLogController;
 use App\Http\Controllers\Platform\DashboardController;
 use App\Http\Controllers\Platform\ModuleController;
 use App\Http\Controllers\Platform\TenantController;
@@ -23,5 +25,11 @@ Route::middleware(['auth', 'verified', 'superadmin'])
         // Modules & Permissions (Catálogo y Permisos Granulares)
         Route::get('modules', [ModuleController::class, 'index'])->name('modules.index');
         Route::patch('modules/{module}/toggle-active', [ModuleController::class, 'toggleActive'])->name('modules.toggle-active');
+
+        // System Audit Logs (Auditoría)
+        Route::get('auditoria', [AuditLogController::class, 'index'])->name('audit.index');
+
+        // ARCA Access Tickets (Seguimiento de Tickets)
+        Route::get('tickets-arca', [ArcaTicketController::class, 'index'])->name('arca-tickets.index');
     });
 

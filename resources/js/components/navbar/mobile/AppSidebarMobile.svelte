@@ -85,6 +85,18 @@
                     icon: 'solar:box-minimalistic-bold-duotone',
                     active: currentUrl.startsWith('/platform/modules'),
                 },
+                {
+                    title: 'Auditoría',
+                    href: '/platform/auditoria',
+                    icon: 'solar:history-bold-duotone',
+                    active: currentUrl.startsWith('/platform/auditoria'),
+                },
+                {
+                    title: 'Tickets ARCA',
+                    href: '/platform/tickets-arca',
+                    icon: 'solar:shield-keyhole-bold-duotone',
+                    active: currentUrl.startsWith('/platform/tickets-arca'),
+                },
             );
         }
 

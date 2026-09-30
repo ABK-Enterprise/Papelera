@@ -27,6 +27,10 @@
     import { edit as editSecurity } from '@/routes/security';
     import { edit as editAppearance } from '@/routes/appearance';
     import Pencil from 'lucide-svelte/icons/pencil';
+    import BookOpen from 'lucide-svelte/icons/book-open';
+    import UserManualModal from '@/components/manual/UserManualModal.svelte';
+
+    let isManualModalOpen = $state(false);
 
     let user = $derived(page.props.auth?.user);
     let tenant = $derived(page.props.auth?.tenant);
@@ -266,6 +270,16 @@
                         </Link>
                     {/snippet}
                 </DropdownMenuItem>
+
+                {#if tenant}
+                    <DropdownMenuItem
+                        class="flex items-center gap-2 cursor-pointer py-2 text-sm font-normal"
+                        onselect={() => (isManualModalOpen = true)}
+                    >
+                        <BookOpen class="h-4 w-4 text-muted-foreground" />
+                        <span>Manual de usuario</span>
+                    </DropdownMenuItem>
+                {/if}
             </DropdownMenuGroup>
 
             <DropdownMenuSeparator />
@@ -286,4 +300,6 @@
             </DropdownMenuItem>
         </DropdownMenuContent>
     </DropdownMenu>
+
+    <UserManualModal bind:isOpen={isManualModalOpen} />
 {/if}

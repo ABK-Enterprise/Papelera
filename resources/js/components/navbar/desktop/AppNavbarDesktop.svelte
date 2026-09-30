@@ -3,8 +3,13 @@
     import Icon from '@iconify/svelte';
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import UserAvatarDropdown from '@/components/navbar/UserAvatarDropdown.svelte';
+    import { Button } from '@/components/ui/button';
+    import BookOpen from 'lucide-svelte/icons/book-open';
+    import UserManualModal from '@/components/manual/UserManualModal.svelte';
     import { toUrl } from '@/lib/utils';
     import { dashboard } from '@/routes';
+
+    let isManualModalOpen = $state(false);
 
     interface SubItem {
         title: string;
@@ -60,6 +65,18 @@
                     href: '/platform/modules',
                     icon: 'solar:box-minimalistic-bold-duotone',
                     active: currentUrl.startsWith('/platform/modules'),
+                },
+                {
+                    title: 'Auditoría',
+                    href: '/platform/auditoria',
+                    icon: 'solar:shield-check-bold-duotone',
+                    active: currentUrl.startsWith('/platform/auditoria'),
+                },
+                {
+                    title: 'Tickets ARCA',
+                    href: '/platform/tickets-arca',
+                    icon: 'solar:key-minimalistic-square-3-bold-duotone',
+                    active: currentUrl.startsWith('/platform/tickets-arca'),
                 },
             );
         }
@@ -372,7 +389,23 @@
                 />
             </div>
 
+            {#if tenant}
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    class="min-h-[38px] px-3 gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                    onclick={() => (isManualModalOpen = true)}
+                >
+                    <BookOpen class="size-4 shrink-0" />
+                    <span>Manual</span>
+                </Button>
+            {/if}
+
             <UserAvatarDropdown />
         </div>
     </div>
 </header>
+
+<UserManualModal bind:isOpen={isManualModalOpen} />
+

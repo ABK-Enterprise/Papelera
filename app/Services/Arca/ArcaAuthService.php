@@ -85,6 +85,7 @@ class ArcaAuthService
         // 4. Store in Cache and Disk with strict 11h 30m TTL
         Cache::put($cacheKey, $ticket, $this->cacheTtl);
         $this->saveTicketToDisk($storageFilePath, $ticket);
+        $this->recordTicketHistory($ticket, $service);
 
         return $ticket;
     }
@@ -337,6 +338,8 @@ class ArcaAuthService
 
         $token = (string) ($xml->credentials->token ?? '');
         $sign = (string) ($xml->credentials->sign ?? '');
+        $uniqueId = (string) ($xml->header->uniqueId ?? '');
+        $generation = (string) ($xml->header->generationTime ?? '');
         $expiration = (string) ($xml->header->expirationTime ?? '');
 
         if (empty($token) || empty($sign)) {
@@ -346,9 +349,47 @@ class ArcaAuthService
         return [
             'token' => $token,
             'sign' => $sign,
+            'unique_id' => $uniqueId,
+            'generation' => $generation,
             'expiration' => $expiration,
             'cuit' => $cuit,
         ];
+    }
+
+    /**
+     * Record the issued ticket in arca_access_tickets table.
+     */
+    protected function recordTicketHistory(array $ticket, string $service): void
+    {
+        try {
+            $cuit = $ticket['cuit'] ?? $this->resolveCuit();
+            $uniqueId = ! empty($ticket['unique_id']) ? (string) $ticket['unique_id'] : (string) time();
+            $tokenPreview = ! empty($ticket['token']) ? substr((string) $ticket['token'], 0, 8) . '...' : null;
+
+            // Mark previous active tickets for this cuit/service as expired
+            \App\Models\ArcaAccessTicket::where('cuit', $cuit)
+                ->where('service', $service)
+                ->where('environment', $this->environment)
+                ->where('status', 'active')
+                ->update(['status' => 'expired']);
+
+            $generatedAt = ! empty($ticket['generation']) ? Carbon::parse($ticket['generation']) : now();
+            $expiresAt = ! empty($ticket['expiration']) ? Carbon::parse($ticket['expiration']) : now()->addSeconds($this->cacheTtl);
+
+            \App\Models\ArcaAccessTicket::create([
+                'tenant_id' => auth()->user()?->tenant_id,
+                'cuit' => $cuit,
+                'unique_id' => $uniqueId,
+                'token_preview' => $tokenPreview,
+                'service' => $service,
+                'environment' => $this->environment,
+                'generated_at' => $generatedAt,
+                'expires_at' => $expiresAt,
+                'status' => 'active',
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Failed to persist ARCA ticket to history table: ' . $e->getMessage());
+        }
     }
 
     /**

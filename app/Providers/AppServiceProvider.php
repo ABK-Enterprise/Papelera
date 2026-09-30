@@ -38,6 +38,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         \App\Models\Tenant::observe(\App\Observers\TenantObserver::class);
+        \App\Models\CustomerOrder::observe(\App\Observers\CustomerOrderObserver::class);
+        \App\Models\FiscalInvoice::observe(\App\Observers\FiscalInvoiceObserver::class);
 
         RedirectIfAuthenticated::redirectUsing(function (Request $request) {
             $user = $request->user();
