@@ -96,38 +96,25 @@
         filters?: FilterProps;
     } = $props();
 
+    import { useTableFilters } from '@/lib/useTableFilters.svelte';
 
-    import { untrack } from 'svelte';
-
-
-    let searchTerm = $state('');
-    let selectedCategoryId = $state<number | null>(null);
-    let selectedStockStatus = $state('');
-    let selectedInfoStatus = $state('');
-    let selectedDiscount = $state('all');
-    let sortBy = $state('latest');
     let isBulkDiscountModalOpen = $state(false);
     let isFilterModalOpen = $state(false);
     let isProductModalOpen = $state(false);
     let selectedProductForModal = $state<any>(null);
 
-    $effect(() => {
-        const s = filters?.search ?? '';
-        const cid = filters?.category_id ?? null;
-        const ss = filters?.stock_status ?? '';
-        const is = filters?.info_status ?? '';
-        const d = filters?.discount ?? 'all';
-        const sb = filters?.sort_by ?? 'latest';
-        untrack(() => {
-            searchTerm = s;
-            selectedCategoryId = cid;
-            selectedStockStatus = ss;
-            selectedInfoStatus = is;
-            selectedDiscount = d;
-            sortBy = sb;
-        });
+    const tableFilters = useTableFilters({
+        basePath: '/tenant/productos',
+        defaultFilters: {
+            search: '',
+            category_id: null as number | null,
+            stock_status: '',
+            info_status: '',
+            discount: 'all',
+            sort_by: 'latest',
+        },
+        serverFilters: () => filters,
     });
-
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
@@ -154,31 +141,15 @@
     ];
 
     function applyFilters() {
-        router.get(
-            '/tenant/productos',
-            {
-                search: searchTerm || undefined,
-                category_id: selectedCategoryId ?? undefined,
-                stock_status: selectedStockStatus || undefined,
-                info_status: selectedInfoStatus || undefined,
-                discount: selectedDiscount !== 'all' ? selectedDiscount : undefined,
-                sort_by: sortBy !== 'latest' ? sortBy : undefined,
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-            }
-        );
+        tableFilters.apply();
     }
 
     function handleSelectCategory(catId: number | null) {
-        selectedCategoryId = catId;
-        applyFilters();
+        tableFilters.apply({ category_id: catId });
     }
 
     function filterIncompleteQuick() {
-        selectedInfoStatus = 'incomplete';
-        applyFilters();
+        tableFilters.apply({ info_status: 'incomplete' });
     }
 
     function handleApplyMobileFilters(f: {
@@ -188,35 +159,21 @@
         discount: string;
         sort_by: string;
     }) {
-        selectedCategoryId = f.category_id;
-        selectedStockStatus = f.stock_status;
-        selectedInfoStatus = f.info_status;
-        selectedDiscount = f.discount;
-        sortBy = f.sort_by;
-        applyFilters();
+        tableFilters.apply({
+            category_id: f.category_id,
+            stock_status: f.stock_status,
+            info_status: f.info_status,
+            discount: f.discount,
+            sort_by: f.sort_by,
+        });
     }
 
     function resetFilters() {
-        searchTerm = '';
-        selectedCategoryId = null;
-        selectedStockStatus = '';
-        selectedInfoStatus = '';
-        selectedDiscount = 'all';
-        sortBy = 'latest';
-        router.get('/tenant/productos', {}, { preserveState: true, preserveScroll: true });
+        tableFilters.reset();
     }
 
-    let hasActiveFilters = $derived(
-        Boolean(searchTerm || selectedCategoryId !== null || selectedStockStatus || selectedInfoStatus || (selectedDiscount && selectedDiscount !== 'all') || (sortBy && sortBy !== 'latest'))
-    );
-
-    let activeFiltersCount = $derived(
-        (selectedCategoryId !== null ? 1 : 0) +
-        (selectedStockStatus ? 1 : 0) +
-        (selectedInfoStatus ? 1 : 0) +
-        (selectedDiscount && selectedDiscount !== 'all' ? 1 : 0) +
-        (sortBy && sortBy !== 'latest' ? 1 : 0)
-    );
+    let hasActiveFilters = $derived(tableFilters.hasActiveFilters);
+    let activeFiltersCount = $derived(tableFilters.activeFiltersCount);
 </script>
 
 <AppHead title="Catálogo de Productos - Comercio" />
@@ -305,13 +262,12 @@
             <!-- Buscador por Nombre, SKU o Código de Barras (Elástico) -->
             <div class="flex-1 min-w-[240px] max-w-lg">
                 <SearchCombobox
-                    bind:value={searchTerm}
+                    bind:value={tableFilters.filters.search}
                     items={products}
                     searchKeys={['name', 'sku', 'barcode']}
                     placeholder="Buscar por nombre, SKU o barra..."
                     onsearch={(q) => {
-                        searchTerm = q;
-                        applyFilters();
+                        tableFilters.apply({ search: q });
                     }}
                     onselect={handleSelectProductSuggestion}
                     onclear={resetFilters}
@@ -320,11 +276,11 @@
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
                             <div class="flex flex-col min-w-0 text-left">
                                 <span class="truncate font-medium text-foreground">
-                                    <HighlightMatch text={prod.name} query={searchTerm} />
+                                    <HighlightMatch text={prod.name} query={tableFilters.filters.search} />
                                 </span>
                                 {#if prod.sku}
                                     <span class="text-[11px] text-muted-foreground tabular-nums">
-                                        SKU: <HighlightMatch text={prod.sku} query={searchTerm} />
+                                        SKU: <HighlightMatch text={prod.sku} query={tableFilters.filters.search} />
                                     </span>
                                 {/if}
                             </div>
@@ -338,17 +294,16 @@
             <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0 justify-end">
                 <!-- Selector de Ordenamiento -->
                 <SortSelect
-                    value={sortBy}
+                    value={tableFilters.filters.sort_by}
                     options={sortOptions}
                     onchange={(val) => {
-                        sortBy = val;
-                        applyFilters();
+                        tableFilters.apply({ sort_by: val });
                     }}
                 />
 
                 <!-- Filtro Categoría -->
                 <select
-                    bind:value={selectedCategoryId}
+                    bind:value={tableFilters.filters.category_id}
                     onchange={applyFilters}
                     class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[115px] max-w-[140px]"
                 >
@@ -360,7 +315,7 @@
 
                 <!-- Filtro Disponibilidad de Stock -->
                 <select
-                    bind:value={selectedStockStatus}
+                    bind:value={tableFilters.filters.stock_status}
                     onchange={applyFilters}
                     class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[105px] max-w-[130px]"
                 >
@@ -372,7 +327,7 @@
 
                 <!-- Filtro Estado de Información -->
                 <select
-                    bind:value={selectedInfoStatus}
+                    bind:value={tableFilters.filters.info_status}
                     onchange={applyFilters}
                     class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[105px] max-w-[130px]"
                 >
@@ -383,7 +338,7 @@
 
                 <!-- Filtro Descuento por Bulto -->
                 <select
-                    bind:value={selectedDiscount}
+                    bind:value={tableFilters.filters.discount}
                     onchange={applyFilters}
                     class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[135px]"
                 >
@@ -397,7 +352,7 @@
                     <Button
                         variant="outline"
                         size="sm"
-                        class="h-10 px-3 text-xs font-semibold gap-1.5 shrink-0 rounded-xl border shadow-2xs transition-colors bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25"
+                        class="h-10 px-3 text-xs font-semibold gap-1.5 shrink-0 rounded-xl border shadow-2xs transition-colors bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25 animate-in fade-in zoom-in-95 duration-200"
                         onclick={resetFilters}
                         title="Limpiar filtros activos"
                     >
@@ -412,13 +367,12 @@
         <div class="flex md:hidden items-center gap-2">
             <div class="flex-1">
                 <SearchCombobox
-                    bind:value={searchTerm}
+                    bind:value={tableFilters.filters.search}
                     items={products}
                     searchKeys={['name', 'sku', 'barcode']}
                     placeholder="Buscar producto, SKU o código..."
                     onsearch={(q) => {
-                        searchTerm = q;
-                        applyFilters();
+                        tableFilters.apply({ search: q });
                     }}
                     onselect={handleSelectProductSuggestion}
                     onclear={resetFilters}
@@ -427,11 +381,11 @@
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
                             <div class="flex flex-col min-w-0 text-left">
                                 <span class="truncate font-medium text-foreground">
-                                    <HighlightMatch text={prod.name} query={searchTerm} />
+                                    <HighlightMatch text={prod.name} query={tableFilters.filters.search} />
                                 </span>
                                 {#if prod.sku}
                                     <span class="text-[11px] text-muted-foreground tabular-nums">
-                                        SKU: <HighlightMatch text={prod.sku} query={searchTerm} />
+                                        SKU: <HighlightMatch text={prod.sku} query={tableFilters.filters.search} />
                                     </span>
                                 {/if}
                             </div>
@@ -465,19 +419,19 @@
         <div class="md:col-span-3 sticky top-20">
             <CategorySidebarDesktop
                 {categories}
-                {selectedCategoryId}
+                selectedCategoryId={tableFilters.filters.category_id}
                 onSelectCategory={handleSelectCategory}
             />
         </div>
 
         <div class="md:col-span-9">
-            <ProductListDesktop {products} searchQuery={searchTerm} />
+            <ProductListDesktop {products} searchQuery={tableFilters.filters.search} />
         </div>
     </div>
 
     <!-- Vista Mobile -->
     <div class="block md:hidden space-y-4">
-        <ProductListMobile {products} searchQuery={searchTerm} />
+        <ProductListMobile {products} searchQuery={tableFilters.filters.search} />
     </div>
 
 
@@ -493,11 +447,11 @@
         {categories}
         {stats}
         {incompleteCount}
-        {selectedCategoryId}
-        {selectedStockStatus}
-        {selectedInfoStatus}
-        {selectedDiscount}
-        {sortBy}
+        selectedCategoryId={tableFilters.filters.category_id}
+        selectedStockStatus={tableFilters.filters.stock_status}
+        selectedInfoStatus={tableFilters.filters.info_status}
+        selectedDiscount={tableFilters.filters.discount}
+        sortBy={tableFilters.filters.sort_by}
         {sortOptions}
         onapply={handleApplyMobileFilters}
         onreset={resetFilters}

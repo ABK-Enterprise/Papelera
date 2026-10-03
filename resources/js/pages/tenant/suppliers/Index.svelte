@@ -18,6 +18,8 @@
     import CreateSupplierModal from './CreateSupplierModal.svelte';
     import ManageSupplierModal, { type SupplierItem } from './ManageSupplierModal.svelte';
 
+    import { useTableFilters } from '@/lib/useTableFilters.svelte';
+
     interface FilterProps {
         search?: string | null;
         status?: string | null;
@@ -33,12 +35,13 @@
         filters?: FilterProps;
     } = $props();
 
-    let searchTerm = $state('');
-    let selectedStatus = $state('');
-
-    $effect(() => {
-        searchTerm = filters?.search ?? '';
-        selectedStatus = filters?.status ?? '';
+    const tableFilters = useTableFilters({
+        basePath: '/tenant/proveedores',
+        defaultFilters: {
+            search: '',
+            status: '',
+        },
+        serverFilters: () => filters,
     });
 
     let showCreateModal = $state(false);
@@ -47,23 +50,11 @@
     let selectedSupplier = $state<SupplierItem | null>(null);
 
     function applyFilters() {
-        router.get(
-            '/tenant/proveedores',
-            {
-                search: searchTerm || undefined,
-                status: selectedStatus || undefined,
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-            }
-        );
+        tableFilters.apply();
     }
 
     function resetFilters() {
-        searchTerm = '';
-        selectedStatus = '';
-        router.get('/tenant/proveedores');
+        tableFilters.reset();
     }
 
     function handleSelectSupplier(supplier: SupplierItem) {
@@ -71,8 +62,8 @@
         showManageModal = true;
     }
 
-    let hasActiveFilters = $derived(Boolean(searchTerm || selectedStatus));
-    let activeFiltersCount = $derived(selectedStatus ? 1 : 0);
+    let hasActiveFilters = $derived(tableFilters.hasActiveFilters);
+    let activeFiltersCount = $derived(tableFilters.activeFiltersCount);
 </script>
 
 <AppHead title="Gestión de Proveedores - Comercio" />
@@ -123,13 +114,12 @@
             <div class="flex items-center gap-2 w-full md:w-[538px]">
                 <div class="flex-1 min-w-0">
                     <SearchCombobox
-                        bind:value={searchTerm}
+                        bind:value={tableFilters.filters.search}
                         items={suppliers}
                         searchKeys={['name', 'contact_number', 'email', 'address']}
                         placeholder="Buscar por nombre, teléfono, email..."
                         onsearch={(q) => {
-                            searchTerm = q;
-                            applyFilters();
+                            tableFilters.apply({ search: q });
                         }}
                         onselect={handleSelectSupplier}
                         onclear={resetFilters}
@@ -182,7 +172,7 @@
             <!-- Selectores de Filtro Desktop -->
             <div class="hidden md:flex items-center gap-2.5 w-auto">
                 <select
-                    bind:value={selectedStatus}
+                    bind:value={tableFilters.filters.status}
                     onchange={applyFilters}
                     class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[150px]"
                 >
@@ -192,8 +182,14 @@
                 </select>
 
                 {#if hasActiveFilters}
-                    <Button variant="ghost" size="sm" class="h-10 px-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 gap-1.5 rounded-xl transition-all" onclick={resetFilters}>
-                        <RotateCcw class="size-3.5" />
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        class="h-10 px-3 text-xs font-semibold gap-1.5 shrink-0 rounded-xl border shadow-2xs transition-colors bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25 animate-in fade-in zoom-in-95 duration-200"
+                        onclick={resetFilters}
+                        title="Limpiar filtros activos"
+                    >
+                        <RotateCcw class="size-3.5 shrink-0" />
                         <span>Limpiar</span>
                     </Button>
                 {/if}
@@ -228,10 +224,9 @@
 <!-- Modal de Filtros Mobile -->
 <SupplierFilterModalMobile
     bind:open={isFilterModalOpen}
-    {selectedStatus}
+    selectedStatus={tableFilters.filters.status}
     onapply={(f) => {
-        selectedStatus = f.status;
-        applyFilters();
+        tableFilters.apply({ status: f.status });
     }}
     onreset={resetFilters}
 />
