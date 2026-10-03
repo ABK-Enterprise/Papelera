@@ -12,6 +12,8 @@
     import { Label } from '@/components/ui/label';
     import { Textarea } from '@/components/ui/textarea';
     import { useForm } from '@inertiajs/svelte';
+    import MinusCircle from 'lucide-svelte/icons/minus-circle';
+    import PlusCircle from 'lucide-svelte/icons/plus-circle';
     import Percent from 'lucide-svelte/icons/percent';
     import DollarSign from 'lucide-svelte/icons/dollar-sign';
     import Tag from 'lucide-svelte/icons/tag';
@@ -126,38 +128,38 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <!-- Tipo: Descuento o Recargo -->
                 <div class="space-y-1.5">
-                    <Label class="text-xs font-semibold">Tipo de Ajuste</Label>
+                    <Label class="text-xs font-semibold">Tipo de ajuste</Label>
                     <div class="grid grid-cols-2 gap-2">
                         <button
                             type="button"
                             onclick={() => form.type = 'discount'}
-                            class={`min-h-[40px] flex items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                            class={`min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                                 form.type === 'discount'
-                                    ? 'bg-emerald-500 text-white border-emerald-600 shadow-xs'
+                                    ? 'bg-emerald-500 text-white border-emerald-600 shadow-2xs'
                                     : 'bg-background hover:bg-muted text-foreground border-border/80'
                             }`}
                         >
-                            <Percent class="h-3.5 w-3.5" />
-                            Descuento
+                            <MinusCircle class="h-4 w-4" />
+                            <span>Descuento</span>
                         </button>
                         <button
                             type="button"
                             onclick={() => form.type = 'surcharge'}
-                            class={`min-h-[40px] flex items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                            class={`min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                                 form.type === 'surcharge'
-                                    ? 'bg-amber-600 text-white border-amber-700 shadow-xs'
+                                    ? 'bg-amber-600 text-white border-amber-700 shadow-2xs'
                                     : 'bg-background hover:bg-muted text-foreground border-border/80'
                             }`}
                         >
-                            <DollarSign class="h-3.5 w-3.5" />
-                            Recargo
+                            <PlusCircle class="h-4 w-4" />
+                            <span>Recargo</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Tipo de Cálculo: Porcentual o Fijo -->
+                <!-- Tipo de Cálculo: Porcentaje o Monto Fijo -->
                 <div class="space-y-1.5">
-                    <Label class="text-xs font-semibold">Modalidad de Cálculo</Label>
+                    <Label class="text-xs font-semibold">Modalidad de cálculo</Label>
                     <div class="grid grid-cols-2 gap-2">
                         <button
                             type="button"
@@ -165,13 +167,14 @@
                                 form.calculation_type = 'percentage';
                                 if (Number(form.value) > 100) form.value = 100;
                             }}
-                            class={`min-h-[40px] flex items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                            class={`min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                                 form.calculation_type === 'percentage'
-                                    ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                                    ? 'bg-primary text-primary-foreground border-primary shadow-2xs'
                                     : 'bg-background hover:bg-muted text-foreground border-border/80'
                             }`}
                         >
-                            Porcentual (%)
+                            <Percent class="h-4 w-4" />
+                            <span>Porcentaje</span>
                         </button>
                         <button
                             type="button"
@@ -179,13 +182,14 @@
                                 form.calculation_type = 'fixed';
                                 if (Number(form.value) > 100_000_000) form.value = 100_000_000;
                             }}
-                            class={`min-h-[40px] flex items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                            class={`min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                                 form.calculation_type === 'fixed'
-                                    ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                                    ? 'bg-primary text-primary-foreground border-primary shadow-2xs'
                                     : 'bg-background hover:bg-muted text-foreground border-border/80'
                             }`}
                         >
-                            Monto Fijo ($)
+                            <DollarSign class="h-4 w-4" />
+                            <span>Monto fijo</span>
                         </button>
                     </div>
                 </div>
@@ -194,12 +198,12 @@
             <!-- Nombre y Valor -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div class="sm:col-span-2 space-y-1.5">
-                    <Label for="adjustment-name" class="text-xs font-semibold">Nombre identificativo (Opcional)</Label>
+                    <Label for="adjustment-name" class="text-xs font-semibold">Nombre identificativo (opcional)</Label>
                     <Input
                         id="adjustment-name"
                         bind:value={form.name}
-                        placeholder="ej. Descuento Miércoles de Clientes (default: Sin Nombre)"
-                        class="h-10 text-sm font-medium"
+                        placeholder="ej. Promoción comercial (default: Sin Nombre)"
+                        class="min-h-[40px] text-sm font-medium"
                     />
                     {#if form.errors.name}
                         <p class="text-xs text-destructive">{form.errors.name}</p>
@@ -208,7 +212,7 @@
 
                 <div class="space-y-1.5">
                     <Label for="adjustment-value" class="text-xs font-semibold">
-                        Valor {form.calculation_type === 'percentage' ? '(%)' : '($)'}
+                        Valor
                     </Label>
                     <div class="relative">
                         <Input
@@ -226,7 +230,7 @@
                                 });
                             }}
                             required
-                            class="h-10 text-sm font-bold tabular-nums pr-8"
+                            class="min-h-[40px] text-sm font-bold tabular-nums pr-8"
                         />
                         <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground pointer-events-none">
                             {form.calculation_type === 'percentage' ? '%' : '$'}
@@ -242,13 +246,13 @@
             <div class="space-y-1.5">
                 <Label for="adjustment-reason" class="text-xs font-semibold flex items-center gap-1.5">
                     <FileText class="h-3.5 w-3.5 text-muted-foreground" />
-                    Motivo o justificación interna (Opcional)
+                    Motivo o justificación interna (opcional)
                 </Label>
                 <Input
                     id="adjustment-reason"
                     bind:value={form.reason}
-                    placeholder="ej. Promoción comercial fin de mes por pago al contado"
-                    class="h-10 text-sm"
+                    placeholder="ej. Descuento comercial por pronto pago"
+                    class="min-h-[40px] text-sm"
                 />
                 {#if form.errors.reason}
                     <p class="text-xs text-destructive">{form.errors.reason}</p>
@@ -266,7 +270,7 @@
             <!-- Switch Activo -->
             <div class="flex items-center justify-between p-3 rounded-xl border border-border/70 bg-muted/20">
                 <div>
-                    <p class="text-xs font-semibold text-foreground">Habilitar inmediatamente</p>
+                    <p class="text-xs font-semibold text-foreground">Estado activo</p>
                     <p class="text-2xs text-muted-foreground">Si está activo, se evaluará automáticamente en nuevos pedidos.</p>
                 </div>
                 <input

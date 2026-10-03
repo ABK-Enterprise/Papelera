@@ -174,12 +174,12 @@
 <div class="space-y-4 rounded-xl border border-border/70 bg-card p-4">
     <!-- Header: Días de la Semana -->
     <div>
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
             <Label class="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                <CalendarIcon class="h-3.5 w-3.5 text-primary-600" />
-                Días de la semana recurrentes
+                <CalendarIcon class="h-3.5 w-3.5 text-primary" />
+                Días recurrentes
             </Label>
-            <div class="flex items-center gap-1.5 text-2xs">
+            <div class="flex items-center gap-1.5 text-2xs flex-wrap">
                 <button
                     type="button"
                     onclick={selectAllDays}
@@ -204,7 +204,7 @@
                     {disabled}
                     class="text-xs text-primary hover:underline font-medium cursor-pointer disabled:opacity-50"
                 >
-                    Fin de semana
+                    Fines de semana
                 </button>
                 {#if daysOfWeek.length > 0}
                     <span class="text-muted-foreground">•</span>
@@ -220,59 +220,55 @@
             </div>
         </div>
 
-        <!-- 7 Chips -->
-        <div class="grid grid-cols-7 gap-1.5">
+        <!-- 7 Chips con touch target accesible min-h-[44px] -->
+        <div class="grid grid-cols-7 gap-1 sm:gap-1.5">
             {#each WEEK_DAYS as day}
                 {@const isSelected = daysOfWeek.includes(day.id)}
                 <button
                     type="button"
                     onclick={() => toggleDay(day.id)}
                     {disabled}
-                    class={`min-h-[40px] flex flex-col items-center justify-center rounded-lg border text-xs font-medium transition-colors cursor-pointer select-none ${
+                    class={`min-h-[44px] flex flex-col items-center justify-center rounded-xl border text-xs font-medium transition-colors cursor-pointer select-none touch-manipulation ${
                         isSelected
-                            ? 'bg-primary text-primary-foreground border-primary shadow-xs font-semibold'
+                            ? 'bg-primary text-primary-foreground border-primary shadow-2xs font-semibold'
                             : 'bg-background hover:bg-muted/60 text-foreground border-border/80'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                    <span class="text-xs">{day.label}</span>
-                    <span class="text-2xs opacity-75">{day.short}</span>
+                    <span class="text-xs font-semibold">{day.label}</span>
+                    <span class="text-2xs opacity-75 hidden sm:inline">{day.short}</span>
                 </button>
             {/each}
         </div>
-        <p class="text-2xs text-muted-foreground mt-1.5">
-            {#if daysOfWeek.length === 0}
-                Si no seleccionas días específicos, aplicará todos los días dentro del rango de vigencia.
-            {:else}
+        {#if daysOfWeek.length > 0}
+            <p class="text-2xs text-muted-foreground mt-1.5">
                 Aplica recurrentemente los días: {daysOfWeek.map(d => WEEK_DAYS.find(w => w.id === d)?.name).join(', ')}.
-            {/if}
-        </p>
+            </p>
+        {/if}
     </div>
 
     <!-- Rango de Fechas (Desde / Hasta) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-border/50">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-border/50">
         <div class="space-y-1">
-            <Label for="adjustment-starts-at" class="text-xs font-medium">Vigencia Desde (Opcional)</Label>
+            <Label for="adjustment-starts-at" class="text-xs font-medium">Vigencia desde (opcional)</Label>
             <input
                 id="adjustment-starts-at"
                 type="date"
                 bind:value={startsAt}
                 {disabled}
-                class="h-9 w-full rounded-lg border border-border/80 bg-background px-3 py-1 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50"
+                class="min-h-[40px] w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50"
             />
-            <p class="text-2xs text-muted-foreground">Si está vacío, aplica desde su creación.</p>
         </div>
 
         <div class="space-y-1">
-            <Label for="adjustment-ends-at" class="text-xs font-medium">Vigencia Hasta (Opcional)</Label>
+            <Label for="adjustment-ends-at" class="text-xs font-medium">Vigencia hasta (opcional)</Label>
             <input
                 id="adjustment-ends-at"
                 type="date"
                 bind:value={endsAt}
                 min={startsAt || undefined}
                 {disabled}
-                class="h-9 w-full rounded-lg border border-border/80 bg-background px-3 py-1 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50"
+                class="min-h-[40px] w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50"
             />
-            <p class="text-2xs text-muted-foreground">Si está vacío, la vigencia es indefinida.</p>
         </div>
     </div>
 
@@ -330,10 +326,10 @@
             {/each}
         </div>
 
-        <div class="flex items-center gap-3 mt-2 text-2xs text-muted-foreground">
+        <div class="flex flex-wrap items-center gap-3 mt-2 text-2xs text-muted-foreground">
             <div class="flex items-center gap-1.5">
                 <div class="h-2.5 w-2.5 rounded-sm bg-primary-500/25 border border-primary-500/50"></div>
-                <span>Días efectivos con ajuste aplicado</span>
+                <span>Días con ajuste aplicado</span>
             </div>
             <div class="flex items-center gap-1.5">
                 <div class="h-2.5 w-2.5 rounded-sm ring-1 ring-primary-500"></div>

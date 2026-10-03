@@ -1,12 +1,14 @@
 <?php
 
 use App\Enums\SystemModule;
+use App\Models\CustomerOrder;
 use App\Models\Module;
 use App\Models\Tenant;
 use App\Models\TenantPriceAdjustment;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -196,7 +198,7 @@ test('rejects fixed price adjustments exceeding 100 million ceiling', function (
 });
 
 test('post-order adjustment rejects percentage over 100 and fixed over 100M', function () {
-    $customerOrder = \App\Models\CustomerOrder::factory()->create([
+    $customerOrder = CustomerOrder::factory()->create([
         'tenant_id' => $this->tenant->id,
         'status' => 'en_preparacion',
         'fiscal_status' => 'sin_facturar',
@@ -225,7 +227,7 @@ test('post-order adjustment rejects percentage over 100 and fixed over 100M', fu
 });
 
 test('post-order adjustment returns redirect back when requested with X-Inertia', function () {
-    $customerOrder = \App\Models\CustomerOrder::factory()->create([
+    $customerOrder = CustomerOrder::factory()->create([
         'tenant_id' => $this->tenant->id,
         'status' => 'en_preparacion',
         'fiscal_status' => 'sin_facturar',
@@ -269,4 +271,142 @@ test('post-order adjustment returns redirect back when requested with X-Inertia'
     $deleteResponse->assertRedirect();
     $deleteResponse->assertSessionHas('success');
     expect($freshOrder->fresh()->price_adjustments)->toHaveCount(0);
+});
+
+test('index filters adjustments by search on name or reason case-insensitively', function () {
+    TenantPriceAdjustment::create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Descuento Primavera',
+        'reason' => 'Promo estacional',
+        'type' => 'discount',
+        'calculation_type' => 'percentage',
+        'value' => 10,
+        'is_active' => true,
+    ]);
+
+    TenantPriceAdjustment::create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Recargo Tarjeta',
+        'reason' => 'Costo financiero posnet',
+        'type' => 'surcharge',
+        'calculation_type' => 'percentage',
+        'value' => 5,
+        'is_active' => true,
+    ]);
+
+    // Search by name (case-insensitive)
+    $this->actingAs($this->adminUser)
+        ->get(route('tenant.price-adjustments.index', ['search' => 'PRIMAVERA']))
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/settings/price-adjustments/Index')
+            ->has('adjustments', 1)
+            ->where('adjustments.0.name', 'Descuento Primavera')
+        );
+
+    // Search by reason
+    $this->actingAs($this->adminUser)
+        ->get(route('tenant.price-adjustments.index', ['search' => 'posnet']))
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/settings/price-adjustments/Index')
+            ->has('adjustments', 1)
+            ->where('adjustments.0.name', 'Recargo Tarjeta')
+        );
+});
+
+test('index filters adjustments by type', function () {
+    TenantPriceAdjustment::create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Descuento Mayorista',
+        'type' => 'discount',
+        'calculation_type' => 'percentage',
+        'value' => 10,
+        'is_active' => true,
+    ]);
+
+    TenantPriceAdjustment::create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Recargo Urgencia',
+        'type' => 'surcharge',
+        'calculation_type' => 'fixed',
+        'value' => 1000,
+        'is_active' => true,
+    ]);
+
+    // Filter discount
+    $this->actingAs($this->adminUser)
+        ->get(route('tenant.price-adjustments.index', ['type' => 'discount']))
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/settings/price-adjustments/Index')
+            ->has('adjustments', 1)
+            ->where('adjustments.0.type', 'discount')
+        );
+
+    // Filter surcharge
+    $this->actingAs($this->adminUser)
+        ->get(route('tenant.price-adjustments.index', ['type' => 'surcharge']))
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/settings/price-adjustments/Index')
+            ->has('adjustments', 1)
+            ->where('adjustments.0.type', 'surcharge')
+        );
+});
+
+test('index filters adjustments by status', function () {
+    TenantPriceAdjustment::create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Ajuste Activo',
+        'type' => 'discount',
+        'calculation_type' => 'percentage',
+        'value' => 5,
+        'is_active' => true,
+    ]);
+
+    TenantPriceAdjustment::create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Ajuste Inactivo',
+        'type' => 'discount',
+        'calculation_type' => 'percentage',
+        'value' => 5,
+        'is_active' => false,
+    ]);
+
+    // Active
+    $this->actingAs($this->adminUser)
+        ->get(route('tenant.price-adjustments.index', ['status' => 'active']))
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/settings/price-adjustments/Index')
+            ->has('adjustments', 1)
+            ->where('adjustments.0.name', 'Ajuste Activo')
+        );
+
+    // Inactive
+    $this->actingAs($this->adminUser)
+        ->get(route('tenant.price-adjustments.index', ['status' => 'inactive']))
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/settings/price-adjustments/Index')
+            ->has('adjustments', 1)
+            ->where('adjustments.0.name', 'Ajuste Inactivo')
+        );
+});
+
+test('index preserves and returns filter parameters in Inertia view', function () {
+    $this->actingAs($this->adminUser)
+        ->get(route('tenant.price-adjustments.index', [
+            'search' => 'Flete',
+            'type' => 'surcharge',
+            'status' => 'active',
+        ]))
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/settings/price-adjustments/Index')
+            ->where('filters.search', 'Flete')
+            ->where('filters.type', 'surcharge')
+            ->where('filters.status', 'active')
+        );
 });

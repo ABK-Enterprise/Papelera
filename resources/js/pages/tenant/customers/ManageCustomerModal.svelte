@@ -572,7 +572,7 @@
                     <div class="space-y-1.5">
                         <Label for="manage-customer-credit" class="text-xs font-semibold flex items-center gap-1.5">
                             <CreditCard class="h-3.5 w-3.5 text-muted-foreground" />
-                            Límite Crédito ($)
+                            Límite de crédito
                         </Label>
                         <Input
                             id="manage-customer-credit"
@@ -595,7 +595,7 @@
                     <div class="space-y-1.5">
                         <Label for="manage-customer-discount" class="text-xs font-semibold flex items-center gap-1.5">
                             <Percent class="h-3.5 w-3.5 text-primary" />
-                            Descuento Habitual (%)
+                            Descuento habitual
                         </Label>
                         <Input
                             id="manage-customer-discount"

@@ -82,7 +82,7 @@
             <div class="grid gap-4 py-5">
                 <div class="space-y-2">
                     <Label for="discount-percentage" class="text-sm font-medium text-foreground">
-                        Porcentaje de descuento global (%)
+                        Descuento global por bulto
                     </Label>
                     <div class="relative">
                         <Percent class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />

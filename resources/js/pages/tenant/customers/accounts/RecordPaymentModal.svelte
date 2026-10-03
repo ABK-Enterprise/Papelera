@@ -156,7 +156,7 @@
                     <div class="space-y-1.5">
                         <div class="flex items-center justify-between">
                             <Label for="payment-amount" class="text-xs font-semibold text-foreground">
-                                Monto a cobrar ($) <span class="text-destructive">*</span>
+                                Monto a cobrar <span class="text-destructive">*</span>
                             </Label>
                             {#if currentBalanceNum > 0}
                                 <button

@@ -184,7 +184,7 @@
                     <!-- Monto -->
                     <div class="space-y-1.5">
                         <Label for="adjust-amount" class="text-xs font-semibold text-foreground">
-                            Monto a ajustar ($) <span class="text-destructive">*</span>
+                            Monto a ajustar <span class="text-destructive">*</span>
                         </Label>
                         <div class="relative">
                             <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">$</span>

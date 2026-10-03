@@ -9,6 +9,7 @@ use App\Models\TenantPriceAdjustment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -21,12 +22,41 @@ class TenantPriceAdjustmentController extends Controller
     {
         $tenantId = $request->user()->tenant_id;
 
-        $adjustments = TenantPriceAdjustment::where('tenant_id', $tenantId)
-            ->orderByDesc('created_at')
-            ->get();
+        $search = $request->input('search');
+        $type = $request->input('type');
+        $status = $request->input('status');
+
+        $driver = DB::connection()->getDriverName();
+        $likeOperator = $driver === 'pgsql' ? 'ilike' : 'like';
+
+        $query = TenantPriceAdjustment::where('tenant_id', $tenantId);
+
+        if (! empty($search)) {
+            $query->where(function ($q) use ($search, $likeOperator) {
+                $q->where('name', $likeOperator, "%{$search}%")
+                    ->orWhere('reason', $likeOperator, "%{$search}%");
+            });
+        }
+
+        if (in_array($type, ['discount', 'surcharge'], true)) {
+            $query->where('type', $type);
+        }
+
+        if ($status === 'active') {
+            $query->where('is_active', true);
+        } elseif ($status === 'inactive') {
+            $query->where('is_active', false);
+        }
+
+        $adjustments = $query->orderByDesc('created_at')->get();
 
         return Inertia::render('tenant/settings/price-adjustments/Index', [
             'adjustments' => $adjustments,
+            'filters' => [
+                'search' => $search,
+                'type' => $type,
+                'status' => $status,
+            ],
         ]);
     }
 

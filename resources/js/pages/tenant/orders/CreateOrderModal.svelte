@@ -1363,7 +1363,7 @@
                                         <div class="flex items-center gap-1.5 {item.is_on_the_fly ? 'w-full sm:w-auto min-w-0' : 'shrink-0'}">
                                             {#if item.is_on_the_fly}
                                                 <div class="flex flex-wrap items-center gap-1.5 w-full sm:w-auto min-w-0">
-                                                    <label for="otf_price_{index}" class="text-xs font-semibold text-muted-foreground whitespace-nowrap">Precio Unitario ($):</label>
+                                                    <label for="otf_price_{index}" class="text-xs font-semibold text-muted-foreground whitespace-nowrap">Precio unitario:</label>
                                                     <input
                                                         id="otf_price_{index}"
                                                         type="number"
@@ -1537,7 +1537,7 @@
                                                                 item.discount_percentage = typeof val === 'number' ? val : (Number(val) || 0);
                                                             });
                                                         }}
-                                                        placeholder="%"
+                                                        placeholder="0"
                                                         class="h-9 w-14 rounded-xl border border-border/80 bg-background px-2 text-xs font-bold font-sans tabular-nums text-foreground focus:outline-none focus:border-primary-500 text-center"
                                                         title="Porcentaje de descuento personalizado (0-100%)"
                                                     />
@@ -1703,7 +1703,7 @@
                                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                                         <div>
                                             <Label for="order-paid-amount" class="text-xs font-semibold text-foreground">
-                                                Monto Cobrado Anticipadamente ($)
+                                                Monto cobrado anticipadamente
                                             </Label>
                                             <p class="text-[11px] text-muted-foreground">
                                                 Deuda restante que quedará pendiente:
@@ -2012,7 +2012,7 @@
             <!-- Input de porcentaje personalizado -->
             {#if isMobileDiscountCustom || mobileDiscountPreset === 'custom'}
                 <div class="space-y-1.5 p-3 rounded-xl bg-muted/30 border border-border/70">
-                    <Label for="custom-discount-input" class="text-xs font-semibold text-foreground">Porcentaje Personalizado (0% a 100%)</Label>
+                    <Label for="custom-discount-input" class="text-xs font-semibold text-foreground">Porcentaje personalizado</Label>
                     <div class="flex items-center gap-2">
                         <Input
                             id="custom-discount-input"

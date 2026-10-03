@@ -147,7 +147,7 @@
             <!-- Precio Actual vs Nuevo Precio -->
             <div class="space-y-2">
                 <Label for="item-new-price" class="text-xs font-semibold text-foreground">
-                    Nuevo precio unitario ($)
+                    Nuevo precio unitario
                 </Label>
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground text-sm font-semibold">

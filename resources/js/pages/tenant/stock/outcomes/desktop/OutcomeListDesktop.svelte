@@ -72,7 +72,7 @@
             case 'pedido_cliente':
                 return 'Despacho de Pedido';
             case 'ajuste_negativo':
-                return 'Ajuste de Inventario (-)';
+                return 'Ajuste de inventario';
             case 'merma_rotura':
                 return 'Merma / Rotura';
             case 'vencimiento':

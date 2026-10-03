@@ -188,7 +188,7 @@
                         onclick={() => (type = 'discount')}
                     >
                         <MinusCircle class="size-4" />
-                        <span>Descuento (-)</span>
+                        <span>Descuento</span>
                     </button>
                     <button
                         type="button"
@@ -196,7 +196,7 @@
                         onclick={() => (type = 'surcharge')}
                     >
                         <PlusCircle class="size-4" />
-                        <span>Recargo (+)</span>
+                        <span>Recargo</span>
                     </button>
                 </div>
             </div>
@@ -228,7 +228,7 @@
                         }}
                     >
                         <Percent class="size-4" />
-                        <span>Porcentual (%)</span>
+                        <span>Porcentaje</span>
                     </button>
                     <button
                         type="button"
@@ -239,7 +239,7 @@
                         }}
                     >
                         <DollarSign class="size-4" />
-                        <span>Monto Fijo ($)</span>
+                        <span>Monto fijo</span>
                     </button>
                 </div>
             </div>
@@ -247,7 +247,7 @@
             <!-- Valor Numérico -->
             <div class="space-y-1.5">
                 <Label for="adj-value" class="text-xs font-semibold text-foreground">
-                    {calculationType === 'percentage' ? 'Porcentaje a Aplicar (%)' : 'Monto Fijo ($)'}
+                    Valor a aplicar
                 </Label>
                 <div class="relative">
                     <Input

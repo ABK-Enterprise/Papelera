@@ -141,6 +141,10 @@ export const PERMISSION_LABELS: Record<string, string> = {
     'facturas.consultar': 'Consultar comprobantes electrónicos emitidos',
     'facturas.anular': 'Anular facturas mediante Notas de Crédito',
     'facturas.puntos_venta': 'Gestionar puntos de venta fiscales',
+
+    // Recargos y Descuentos
+    'recargos_descuentos.ver': 'Ver recargos y descuentos del comercio',
+    'recargos_descuentos.gestionar': 'Gestionar recargos y descuentos del comercio',
 };
 
 export function getPermissionLabel(name: string): string {

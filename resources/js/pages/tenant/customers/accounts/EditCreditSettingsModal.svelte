@@ -131,7 +131,7 @@
                     <!-- Límite de Crédito -->
                     <div class="space-y-1.5">
                         <Label for="credit-limit-input" class="text-xs font-semibold text-foreground">
-                            Límite Máximo de Crédito ($)
+                            Límite de crédito máximo
                         </Label>
                         <div class="relative">
                             <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">$</span>
@@ -154,7 +154,7 @@
                     <!-- Días de Vencimiento -->
                     <div class="space-y-1.5">
                         <Label for="credit-due-days" class="text-xs font-semibold text-foreground">
-                            Plazo de Vencimiento Predeterminado (Días)
+                            Plazo de vencimiento predeterminado
                         </Label>
                         <Input
                             id="credit-due-days"

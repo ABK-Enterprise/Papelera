@@ -137,7 +137,7 @@
                 <div class="space-y-1.5">
                     <Label for="zone-distance" class="text-xs font-semibold text-foreground flex items-center gap-1.5">
                         <Navigation class="size-3.5 text-muted-foreground" />
-                        Distancia (km)
+                        Distancia
                     </Label>
                     <div class="relative">
                         <Input
@@ -157,7 +157,7 @@
                 <div class="space-y-1.5">
                     <Label for="zone-surcharge" class="text-xs font-semibold text-foreground flex items-center gap-1.5">
                         <Percent class="size-3.5 text-muted-foreground" />
-                        Recargo (%)
+                        Recargo
                     </Label>
                     <div class="relative">
                         <Input

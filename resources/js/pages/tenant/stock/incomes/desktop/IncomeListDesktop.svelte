@@ -74,7 +74,7 @@
             case 'orden_compra_proveedor':
                 return 'Orden de Compra / Proveedor';
             case 'ajuste_positivo':
-                return 'Ajuste de Inventario (+)';
+                return 'Ajuste de inventario';
             case 'cancelacion_pedido':
                 return 'Cancelación de Pedido';
             case 'devolucion_cliente':
