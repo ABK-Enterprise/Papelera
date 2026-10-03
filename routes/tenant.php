@@ -21,6 +21,7 @@ use App\Http\Controllers\Tenant\Stock\StockTransferController;
 use App\Http\Controllers\Tenant\SupplierController;
 use App\Http\Controllers\Tenant\SupplierOrderController;
 use App\Http\Controllers\Tenant\TenantMercadoPagoController;
+use App\Http\Controllers\Tenant\TenantPriceAdjustmentController;
 use App\Http\Controllers\Tenant\UserController;
 use App\Http\Controllers\Tenant\WarehouseController;
 use Illuminate\Support\Facades\Route;
@@ -56,6 +57,28 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('configuracion/zonas', [ShippingZoneController::class, 'store'])->name('shipping-zones.store')->middleware('tenant.permission:zonas.gestionar');
             Route::put('configuracion/zonas/{shippingZone}', [ShippingZoneController::class, 'update'])->name('shipping-zones.update')->middleware('tenant.permission:zonas.gestionar');
             Route::delete('configuracion/zonas/{shippingZone}', [ShippingZoneController::class, 'destroy'])->name('shipping-zones.destroy')->middleware('tenant.permission:zonas.gestionar');
+        });
+
+        // Recargos y Descuentos del Comercio (Módulo recargos_descuentos)
+        Route::middleware(['module:recargos_descuentos'])->group(function () {
+            Route::get('configuracion/recargos-descuentos', [TenantPriceAdjustmentController::class, 'index'])
+                ->name('price-adjustments.index')
+                ->middleware('tenant.permission:recargos_descuentos.ver');
+            Route::post('configuracion/recargos-descuentos', [TenantPriceAdjustmentController::class, 'store'])
+                ->name('price-adjustments.store')
+                ->middleware('tenant.permission:recargos_descuentos.gestionar');
+            Route::put('configuracion/recargos-descuentos/{priceAdjustment}', [TenantPriceAdjustmentController::class, 'update'])
+                ->name('price-adjustments.update')
+                ->middleware('tenant.permission:recargos_descuentos.gestionar');
+            Route::patch('configuracion/recargos-descuentos/{priceAdjustment}/alternar', [TenantPriceAdjustmentController::class, 'toggle'])
+                ->name('price-adjustments.toggle')
+                ->middleware('tenant.permission:recargos_descuentos.gestionar');
+            Route::delete('configuracion/recargos-descuentos/{priceAdjustment}', [TenantPriceAdjustmentController::class, 'destroy'])
+                ->name('price-adjustments.destroy')
+                ->middleware('tenant.permission:recargos_descuentos.gestionar');
+            Route::get('configuracion/recargos-descuentos/activos', [TenantPriceAdjustmentController::class, 'activeAdjustments'])
+                ->name('price-adjustments.active')
+                ->middleware('tenant.permission:recargos_descuentos.ver');
         });
 
         // Company & Mercado Pago Configuration (Restricted to Tenant Admin)

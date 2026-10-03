@@ -11,6 +11,7 @@ enum SystemModule: string
     case Pedidos = 'pedidos';
     case FacturacionArca = 'facturacion_arca';
     case InventarioStock = 'inventario_stock';
+    case RecargosDescuentos = 'recargos_descuentos';
 
     /**
      * Get the human-readable name for the module.
@@ -25,6 +26,7 @@ enum SystemModule: string
             self::Pedidos => 'Pedidos y Ventas',
             self::FacturacionArca => 'Facturación ARCA',
             self::InventarioStock => 'Inventario y Stock (Legacy)',
+            self::RecargosDescuentos => 'Recargos y Descuentos',
         };
     }
 }

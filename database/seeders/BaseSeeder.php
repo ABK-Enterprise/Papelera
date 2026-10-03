@@ -143,6 +143,15 @@ class BaseSeeder extends Seeder
                     'facturas.puntos_venta',
                 ],
             ],
+            [
+                'name' => SystemModule::RecargosDescuentos->label(),
+                'code' => SystemModule::RecargosDescuentos->value,
+                'description' => 'Configuración de recargos y descuentos personalizados con vigencia temporal y días de la semana.',
+                'permissions' => [
+                    'recargos_descuentos.ver',
+                    'recargos_descuentos.gestionar',
+                ],
+            ],
         ];
 
         foreach ($modules as $modData) {
