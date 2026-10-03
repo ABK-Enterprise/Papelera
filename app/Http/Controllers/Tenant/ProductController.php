@@ -336,7 +336,7 @@ class ProductController extends Controller
         }
 
         $validated = $request->validate([
-            'price' => ['required', 'numeric', 'min:0.01'],
+            'price' => ['required', 'numeric', 'min:0.01', 'max:100000000'],
         ]);
 
         $affectedOrderIds = app(\App\Services\ProductPriceUpdateService::class)->updatePrice(

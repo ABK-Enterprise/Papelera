@@ -23,7 +23,7 @@ class UpdateTenantPriceAdjustmentRequest extends FormRequest
                 'required',
                 'numeric',
                 'min:0.01',
-                $isPercentage ? 'max:100' : 'max:999999999.99',
+                $isPercentage ? 'max:100' : 'max:100000000',
             ],
             'reason' => ['nullable', 'string', 'max:500'],
             'starts_at' => ['nullable', 'date'],
@@ -41,7 +41,9 @@ class UpdateTenantPriceAdjustmentRequest extends FormRequest
             'calculation_type.required' => 'El tipo de cálculo es obligatorio (fijo o porcentual).',
             'value.required' => 'El valor numérico es obligatorio.',
             'value.min' => 'El valor debe ser estrictamente positivo mayor a 0.',
-            'value.max' => 'Para valores porcentuales, el valor máximo es 100%.',
+            'value.max' => $this->input('calculation_type') === 'percentage'
+                ? 'Para valores porcentuales, el valor máximo es 100%.'
+                : 'El monto fijo no puede exceder $100.000.000.',
             'ends_at.after_or_equal' => 'La fecha de fin debe ser igual o posterior a la fecha de inicio.',
         ];
     }

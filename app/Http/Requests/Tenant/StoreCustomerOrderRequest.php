@@ -39,7 +39,7 @@ class StoreCustomerOrderRequest extends FormRequest
             'notes' => ['nullable', 'string', 'max:1000'],
             'payment_type' => ['nullable', 'string', 'in:contado,cuenta_corriente,parcial'],
             'payment_method' => ['nullable', 'string', 'in:efectivo,transferencia,mercadopago,cheque,debito,credito,otro'],
-            'paid_amount' => ['nullable', 'numeric', 'min:0'],
+            'paid_amount' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
             'payment_reference' => ['nullable', 'string', 'max:255'],
             'mp_qr_checkout' => ['nullable', 'boolean'],
             'apply_customer_discount' => ['nullable', 'boolean'],
@@ -49,13 +49,13 @@ class StoreCustomerOrderRequest extends FormRequest
                 Rule::exists('products', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)),
             ],
             'items.*.product_name' => ['nullable', 'string', 'max:255'],
-            'items.*.unit_price' => ['nullable', 'numeric', 'min:0.01'],
+            'items.*.unit_price' => ['nullable', 'numeric', 'min:0.01', 'max:100000000'],
             'items.*.warehouse_id' => [
                 'nullable',
                 Rule::exists('warehouses', 'id')->where(fn ($query) => $query->where('tenant_id', $tenantId)),
             ],
             'items.*.packaging_type' => ['required', 'string', 'in:paquete,unidad,bolson,bulto,gram,kg,units,package'],
-            'items.*.quantity' => ['required', 'numeric', 'min:0.001'],
+            'items.*.quantity' => ['required', 'numeric', 'min:0.001', 'max:100000000'],
             'items.*.discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'items.*.units_per_package' => ['nullable', 'numeric', 'min:1'],
             'items.*.apply_customer_discount' => ['nullable', 'boolean'],
@@ -104,6 +104,18 @@ class StoreCustomerOrderRequest extends FormRequest
                         'paid_amount',
                         'Para un pago parcial con QR debe ingresar un monto de seña o anticipo mayor a cero.'
                     );
+                }
+            }
+
+            if (is_array($this->price_adjustments)) {
+                foreach ($this->price_adjustments as $idx => $adj) {
+                    $calcType = $adj['calculation_type'] ?? null;
+                    $val = (float) ($adj['value'] ?? 0);
+                    if ($calcType === 'percentage' && $val > 100) {
+                        $validator->errors()->add("price_adjustments.{$idx}.value", 'El porcentaje de ajuste no puede superar el 100%.');
+                    } elseif ($calcType === 'fixed' && $val > 100000000) {
+                        $validator->errors()->add("price_adjustments.{$idx}.value", 'El monto fijo de ajuste no puede superar $100.000.000.');
+                    }
                 }
             }
         });

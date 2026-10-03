@@ -18,6 +18,7 @@
     import FileText from 'lucide-svelte/icons/file-text';
     import Sparkles from 'lucide-svelte/icons/sparkles';
     import AdjustmentCalendarPicker from './AdjustmentCalendarPicker.svelte';
+    import { preventInvalidNumericKeys, sanitizeNumericInput } from '@/lib/numericSanitizer';
 
     export interface PriceAdjustmentItem {
         id: number;
@@ -174,7 +175,10 @@
                         </button>
                         <button
                             type="button"
-                            onclick={() => form.calculation_type = 'fixed'}
+                            onclick={() => {
+                                form.calculation_type = 'fixed';
+                                if (Number(form.value) > 100_000_000) form.value = 100_000_000;
+                            }}
                             class={`min-h-[40px] flex items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                                 form.calculation_type === 'fixed'
                                     ? 'bg-primary text-primary-foreground border-primary shadow-xs'
@@ -212,8 +216,15 @@
                             type="number"
                             step={form.calculation_type === 'percentage' ? '0.01' : '1'}
                             min="0.01"
-                            max={form.calculation_type === 'percentage' ? '100' : undefined}
-                            bind:value={form.value}
+                            max={form.calculation_type === 'percentage' ? '100' : '100000000'}
+                            value={form.value}
+                            onkeydown={(e) => preventInvalidNumericKeys(e)}
+                            oninput={(e) => {
+                                const max = form.calculation_type === 'percentage' ? 100 : 100_000_000;
+                                sanitizeNumericInput(e, 0.01, max, (val) => {
+                                    form.value = typeof val === 'number' ? val : (Number(val) || 0);
+                                });
+                            }}
                             required
                             class="h-10 text-sm font-bold tabular-nums pr-8"
                         />

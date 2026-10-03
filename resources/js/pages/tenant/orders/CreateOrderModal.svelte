@@ -35,6 +35,7 @@
     import MercadoPagoQrModal from '@/components/common/MercadoPagoQrModal.svelte';
     import EditItemPriceModal from '@/components/tenant/products/EditItemPriceModal.svelte';
     import CreateCustomAdjustmentModal from './components/CreateCustomAdjustmentModal.svelte';
+    import { preventInvalidNumericKeys, sanitizeNumericInput } from '@/lib/numericSanitizer';
     import {
         DropdownMenu,
         DropdownMenuContent,
@@ -1529,7 +1530,13 @@
                                                         min="0"
                                                         max="100"
                                                         step="1"
-                                                        bind:value={item.discount_percentage}
+                                                        value={item.discount_percentage}
+                                                        onkeydown={(e) => preventInvalidNumericKeys(e)}
+                                                        oninput={(e) => {
+                                                            sanitizeNumericInput(e, 0, 100, (val) => {
+                                                                item.discount_percentage = typeof val === 'number' ? val : (Number(val) || 0);
+                                                            });
+                                                        }}
                                                         placeholder="%"
                                                         class="h-9 w-14 rounded-xl border border-border/80 bg-background px-2 text-xs font-bold font-sans tabular-nums text-foreground focus:outline-none focus:border-primary-500 text-center"
                                                         title="Porcentaje de descuento personalizado (0-100%)"
@@ -2013,7 +2020,13 @@
                             min="0"
                             max="100"
                             step="1"
-                            bind:value={mobileDiscountCustomVal}
+                            value={mobileDiscountCustomVal}
+                            onkeydown={(e) => preventInvalidNumericKeys(e)}
+                            oninput={(e) => {
+                                sanitizeNumericInput(e, 0, 100, (val) => {
+                                    mobileDiscountCustomVal = typeof val === 'number' ? val : (Number(val) || 0);
+                                });
+                            }}
                             placeholder="ej. 12"
                             class="h-10 text-sm font-bold font-sans tabular-nums"
                         />

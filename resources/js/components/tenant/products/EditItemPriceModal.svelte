@@ -19,6 +19,7 @@
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import Store from 'lucide-svelte/icons/store';
     import Tag from 'lucide-svelte/icons/tag';
+    import { preventInvalidNumericKeys, sanitizeNumericInput } from '@/lib/numericSanitizer';
 
     export interface ProductPriceTarget {
         id?: number | null;
@@ -76,6 +77,11 @@
 
         if (!newPriceInput || isNaN(parsedPrice) || parsedPrice <= 0) {
             errorMessage = 'El precio debe ser un número positivo mayor a 0.';
+            return;
+        }
+
+        if (parsedPrice > 100_000_000) {
+            errorMessage = 'El precio no puede exceder los $100.000.000.';
             return;
         }
 
@@ -152,8 +158,15 @@
                         type="number"
                         step="0.01"
                         min="0.01"
+                        max="100000000"
                         placeholder="0.00"
-                        bind:value={newPriceInput}
+                        value={newPriceInput}
+                        onkeydown={(e) => preventInvalidNumericKeys(e)}
+                        oninput={(e) => {
+                            sanitizeNumericInput(e, 0.01, 100_000_000, (val) => {
+                                newPriceInput = String(val);
+                            });
+                        }}
                         class="pl-8 text-base font-semibold tabular-nums min-h-[44px] rounded-xl"
                         autofocus
                     />

@@ -16,6 +16,10 @@ class ProductPriceUpdateService
      */
     public function updatePrice(Product $product, float $newPrice): array
     {
+        if ($newPrice <= 0 || $newPrice > 100000000) {
+            throw new \InvalidArgumentException('El precio del producto debe ser mayor a 0 y no puede superar los $100.000.000.');
+        }
+
         $oldPrice = (float) $product->price;
 
         if (abs($oldPrice - $newPrice) < 0.0001) {

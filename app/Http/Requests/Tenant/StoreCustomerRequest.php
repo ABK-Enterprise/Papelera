@@ -39,7 +39,7 @@ class StoreCustomerRequest extends FormRequest
             'address' => ['nullable', 'string', 'max:255'],
             'province' => ['nullable', 'string', 'max:100'],
             'city' => ['nullable', 'string', 'max:100'],
-            'credit_limit' => ['nullable', 'numeric', 'min:0'],
+            'credit_limit' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
             'discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'is_defaulter' => ['boolean'],
             'is_active' => ['boolean'],
