@@ -1,20 +1,14 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
-    import { Badge } from '@/components/ui/badge';
     import {
         Dialog,
         DialogContent,
-        DialogHeader,
         DialogTitle,
-        DialogDescription,
-        DialogFooter,
     } from '@/components/ui/dialog';
     import BookOpen from 'lucide-svelte/icons/book-open';
     import Eye from 'lucide-svelte/icons/eye';
     import Download from 'lucide-svelte/icons/download';
-    import Layers from 'lucide-svelte/icons/layers';
-    import ReceiptText from 'lucide-svelte/icons/receipt-text';
-    import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
+    import X from 'lucide-svelte/icons/x';
     import { toast } from 'svelte-sonner';
 
     let {
@@ -38,96 +32,55 @@
 </script>
 
 <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-    <DialogContent class="max-w-xl p-5 sm:p-6 space-y-4">
-        <DialogHeader class="space-y-1">
-            <div class="flex items-center gap-2">
-                <div class="size-8 rounded-lg bg-primary-500/10 border border-primary-500/20 flex items-center justify-center text-primary shrink-0">
-                    <BookOpen class="size-4" />
-                </div>
-                <Badge variant="outline" class="border-primary-500/30 bg-primary-500/10 text-primary-700 dark:text-primary-300 font-semibold">
-                    Documentación Operativa
-                </Badge>
-            </div>
-            <DialogTitle class="text-xl font-bold tracking-tight text-foreground pt-1">
-                Manual de Usuario
+    <DialogContent class="max-w-md sm:max-w-lg p-5 sm:p-6 space-y-5">
+        <!-- Cabecera del Dialog: Título e Icono X de cierre -->
+        <div class="flex items-center justify-between gap-3 shrink-0 pb-3 border-b border-border/60">
+            <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground">
+                Manual de usuario
             </DialogTitle>
-            <DialogDescription class="text-xs sm:text-sm text-muted-foreground">
-                Guía completa con capturas y explicaciones paso a paso de cada funcionalidad del sistema.
-            </DialogDescription>
-        </DialogHeader>
-
-        <!-- Preview de Secciones del Manual -->
-        <div class="space-y-2.5 py-1">
-            <div class="flex items-start gap-3 rounded-lg border border-border/70 bg-card p-3 shadow-2xs">
-                <div class="size-8 rounded-md bg-muted/60 flex items-center justify-center text-foreground shrink-0 mt-0.5">
-                    <Layers class="size-4" />
-                </div>
-                <div class="space-y-0.5">
-                    <span class="text-xs font-semibold text-foreground block">Gestión de Catálogo y Depósitos</span>
-                    <p class="text-[11px] text-muted-foreground">
-                        Carga rápida de productos, control de stock por depósito, transferencias e historial kardex.
-                    </p>
-                </div>
-            </div>
-
-            <div class="flex items-start gap-3 rounded-lg border border-border/70 bg-card p-3 shadow-2xs">
-                <div class="size-8 rounded-md bg-muted/60 flex items-center justify-center text-foreground shrink-0 mt-0.5">
-                    <ShoppingBag class="size-4" />
-                </div>
-                <div class="space-y-0.5">
-                    <span class="text-xs font-semibold text-foreground block">Pedidos y Cuentas Corrientes</span>
-                    <p class="text-[11px] text-muted-foreground">
-                        Flujo de estados de pedidos, repartos en calle, imputación de pagos y balances de clientes.
-                    </p>
-                </div>
-            </div>
-
-            <div class="flex items-start gap-3 rounded-lg border border-border/70 bg-card p-3 shadow-2xs">
-                <div class="size-8 rounded-md bg-muted/60 flex items-center justify-center text-foreground shrink-0 mt-0.5">
-                    <ReceiptText class="size-4" />
-                </div>
-                <div class="space-y-0.5">
-                    <span class="text-xs font-semibold text-foreground block">Facturación Electrónica ARCA</span>
-                    <p class="text-[11px] text-muted-foreground">
-                        Emisión automática de facturas y notas de crédito con CAE y código QR oficial.
-                    </p>
-                </div>
-            </div>
+            <button
+                type="button"
+                onclick={() => handleOpenChange(false)}
+                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0 cursor-pointer"
+                aria-label="Cerrar modal"
+            >
+                <X class="size-4.5" />
+            </button>
         </div>
 
-        <DialogFooter class="pt-3 border-t border-border/50 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2.5">
-            <Button
-                type="button"
-                variant="ghost"
-                class="min-h-[44px] px-4 font-medium text-xs text-muted-foreground hover:text-foreground"
-                onclick={() => handleOpenChange(false)}
-            >
-                Cerrar
-            </Button>
+        <!-- Cuerpo del Dialog: Icono centrado y oración descriptiva -->
+        <div class="flex flex-col items-center justify-center text-center py-4 sm:py-6 space-y-4">
+            <div class="size-16 sm:size-20 rounded-2xl bg-primary-500/10 border border-primary-500/20 flex items-center justify-center text-primary shrink-0 shadow-2xs">
+                <BookOpen class="size-8 sm:size-10" />
+            </div>
+            <p class="text-sm sm:text-base text-muted-foreground max-w-xs sm:max-w-sm leading-relaxed">
+                Aqui podras ver o descargar el manual de usuario proveido por ABK Solutions.
+            </p>
+        </div>
 
-            <div class="grid grid-cols-2 gap-2.5 sm:flex sm:items-center">
-                <!-- Botón Ver -->
+        <!-- Nivel Inferior: Botones Ver y Descargar adaptados a Mobile y Desktop -->
+        <div class="pt-4 border-t border-border/60 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2.5">
+            <div class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:w-auto">
                 <Button
                     type="button"
                     variant="outline"
-                    class="min-h-[44px] px-5 gap-2 font-medium"
+                    class="min-h-[44px] px-5 gap-2 font-medium w-full sm:w-auto justify-center"
                     onclick={() => handleActionClick('ver')}
                 >
-                    <Eye class="size-4" />
+                    <Eye class="size-4 shrink-0" />
                     <span>Ver</span>
                 </Button>
 
-                <!-- Botón Descargar -->
                 <Button
                     type="button"
                     variant="default"
-                    class="min-h-[44px] px-5 gap-2 font-medium shadow-xs"
+                    class="min-h-[44px] px-5 gap-2 font-medium shadow-xs w-full sm:w-auto justify-center"
                     onclick={() => handleActionClick('descargar')}
                 >
-                    <Download class="size-4" />
+                    <Download class="size-4 shrink-0" />
                     <span>Descargar</span>
                 </Button>
             </div>
-        </DialogFooter>
+        </div>
     </DialogContent>
 </Dialog>
