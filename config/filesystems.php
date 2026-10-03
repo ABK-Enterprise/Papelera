@@ -62,10 +62,10 @@ return [
 
         'r2' => [
             'driver' => 's3',
-            'key' => env('R2_ACCESS_KEY_ID'),
-            'secret' => env('R2_SECRET_ACCESS_KEY'),
+            'key' => (string) env('R2_ACCESS_KEY_ID', ''),
+            'secret' => (string) env('R2_SECRET_ACCESS_KEY', ''),
             'region' => 'auto',
-            'bucket' => env('R2_BUCKET'),
+            'bucket' => (string) env('R2_BUCKET', 'abksolutions'),
             'endpoint' => env('R2_ENDPOINT'),
             'use_path_style_endpoint' => env('R2_USE_PATH_STYLE_ENDPOINT', true),
             'throw' => true,
