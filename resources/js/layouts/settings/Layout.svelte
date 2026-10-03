@@ -12,9 +12,11 @@
     import Building2 from 'lucide-svelte/icons/building-2';
     import MapPin from 'lucide-svelte/icons/map-pin';
     import CreditCard from 'lucide-svelte/icons/credit-card';
+    import Percent from 'lucide-svelte/icons/percent';
     import User from 'lucide-svelte/icons/user';
     import Shield from 'lucide-svelte/icons/shield';
     import Palette from 'lucide-svelte/icons/palette';
+    import { hasModule } from '@/lib/permissions';
 
     let {
         children,
@@ -27,28 +29,38 @@
     let roles = $derived(page.props.auth?.roles ?? []);
     let isAdmin = $derived(Boolean(page.props.auth?.is_admin || roles.includes('admin') || user?.is_superadmin));
 
-    const commerceNavItems = [
+    const commerceNavItems = $derived([
         {
             title: 'Datos del Comercio',
             href: '/tenant/configuracion/comercio',
             icon: Store,
+            show: true,
+        },
+        {
+            title: 'Recargos y Descuentos',
+            href: '/tenant/configuracion/recargos-descuentos',
+            icon: Percent,
+            show: hasModule('recargos_descuentos'),
         },
         {
             title: 'Depósitos',
             href: '/tenant/configuracion/depositos',
             icon: Building2,
+            show: hasModule('stock'),
         },
         {
             title: 'Zonas de Envío',
             href: '/tenant/configuracion/zonas',
             icon: MapPin,
+            show: hasModule('pedidos'),
         },
         {
             title: 'Mercado Pago',
             href: '/tenant/configuracion/mercadopago',
             icon: CreditCard,
+            show: true,
         },
-    ];
+    ].filter(item => item.show));
 
     const accountNavItems = [
         {

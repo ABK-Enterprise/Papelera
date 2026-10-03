@@ -8,6 +8,7 @@
     import Building2 from 'lucide-svelte/icons/building-2';
     import MapPin from 'lucide-svelte/icons/map-pin';
     import CreditCard from 'lucide-svelte/icons/credit-card';
+    import Percent from 'lucide-svelte/icons/percent';
     import {
         DropdownMenu,
         DropdownMenuContent,
@@ -188,6 +189,20 @@
                             </Link>
                         {/snippet}
                     </DropdownMenuItem>
+                    {#if hasModule('recargos_descuentos')}
+                        <DropdownMenuItem asChild>
+                            {#snippet children(props)}
+                                <Link
+                                    class="{props.class} flex items-center gap-2 cursor-pointer py-2 text-sm font-normal"
+                                    href="/tenant/configuracion/recargos-descuentos"
+                                    prefetch
+                                >
+                                    <Percent class="h-4 w-4 text-muted-foreground" />
+                                    <span>Recargos y descuentos</span>
+                                </Link>
+                            {/snippet}
+                        </DropdownMenuItem>
+                    {/if}
                     {#if hasModule('stock') && (isAdmin || hasPermission('deposito.gestion'))}
                         <DropdownMenuItem asChild>
                             {#snippet children(props)}

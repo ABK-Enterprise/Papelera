@@ -33,8 +33,8 @@ class EnsureTenantAdmin
             return $next($request);
         }
 
-        if ($request->wantsJson()) {
-            abort(403, 'Solo el administrador del comercio puede gestionar empleados y roles.');
+        if ($request->expectsJson()) {
+            abort(403, 'Esta sección es exclusiva para el administrador del comercio.');
         }
 
         return redirect()->route('auth.access-denied', ['reason' => 'insufficient_permissions']);

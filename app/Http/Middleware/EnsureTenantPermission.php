@@ -56,7 +56,7 @@ class EnsureTenantPermission
             return $next($request);
         }
 
-        if ($request->wantsJson()) {
+        if ($request->expectsJson()) {
             abort(403, 'No tienes los permisos necesarios para realizar esta acción.');
         }
 
