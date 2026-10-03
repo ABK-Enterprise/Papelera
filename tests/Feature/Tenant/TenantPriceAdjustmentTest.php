@@ -410,3 +410,73 @@ test('index preserves and returns filter parameters in Inertia view', function (
             ->where('filters.status', 'active')
         );
 });
+
+test('adjustment with specific_dates matches exactly selected dates and ignores unselected dates', function () {
+    $adjustment = TenantPriceAdjustment::create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Cyber Monday y Black Friday',
+        'type' => 'discount',
+        'calculation_type' => 'percentage',
+        'value' => 20,
+        'starts_at' => '2026-10-05',
+        'ends_at' => '2026-10-20',
+        'specific_dates' => ['2026-10-05', '2026-10-12', '2026-10-20'],
+        'is_active' => true,
+    ]);
+
+    expect($adjustment->isValidForDate(Carbon::parse('2026-10-05')))->toBeTrue();
+    expect($adjustment->isValidForDate(Carbon::parse('2026-10-12')))->toBeTrue();
+    expect($adjustment->isValidForDate(Carbon::parse('2026-10-20')))->toBeTrue();
+
+    // Intermediate dates within starts_at..ends_at but NOT in specific_dates must be invalid
+    expect($adjustment->isValidForDate(Carbon::parse('2026-10-06')))->toBeFalse();
+    expect($adjustment->isValidForDate(Carbon::parse('2026-10-11')))->toBeFalse();
+    expect($adjustment->isValidForDate(Carbon::parse('2026-10-21')))->toBeFalse();
+});
+
+test('scopeValidForDate correctly queries adjustments with specific_dates and falls back to historical records', function () {
+    // 1. Adjustment with specific_dates
+    $specificAdj = TenantPriceAdjustment::create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Fechas Específicas',
+        'type' => 'discount',
+        'calculation_type' => 'percentage',
+        'value' => 10,
+        'starts_at' => '2026-10-01',
+        'ends_at' => '2026-10-31',
+        'specific_dates' => ['2026-10-15'],
+        'is_active' => true,
+    ]);
+
+    // 2. Historical adjustment with range & day of week (null specific_dates)
+    $historicalAdj = TenantPriceAdjustment::create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Jueves Histórico',
+        'type' => 'surcharge',
+        'calculation_type' => 'percentage',
+        'value' => 5,
+        'starts_at' => '2026-10-01',
+        'ends_at' => '2026-10-31',
+        'days_of_week' => [4], // Thursday
+        'specific_dates' => null,
+        'is_active' => true,
+    ]);
+
+    // Date 2026-10-15 is Thursday (matches both!)
+    $date15 = Carbon::parse('2026-10-15');
+    $matched15 = TenantPriceAdjustment::validForDate($date15)->pluck('id')->all();
+    expect($matched15)->toContain($specificAdj->id)
+        ->and($matched15)->toContain($historicalAdj->id);
+
+    // Date 2026-10-22 is Thursday (matches only historicalAdj, not specificAdj)
+    $date22 = Carbon::parse('2026-10-22');
+    $matched22 = TenantPriceAdjustment::validForDate($date22)->pluck('id')->all();
+    expect($matched22)->not->toContain($specificAdj->id)
+        ->and($matched22)->toContain($historicalAdj->id);
+
+    // Date 2026-10-16 is Friday (matches neither)
+    $date16 = Carbon::parse('2026-10-16');
+    $matched16 = TenantPriceAdjustment::validForDate($date16)->pluck('id')->all();
+    expect($matched16)->not->toContain($specificAdj->id)
+        ->and($matched16)->not->toContain($historicalAdj->id);
+});

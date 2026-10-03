@@ -22,6 +22,7 @@ class TenantPriceAdjustment extends Model
         'starts_at',
         'ends_at',
         'days_of_week',
+        'specific_dates',
         'is_active',
     ];
 
@@ -32,6 +33,7 @@ class TenantPriceAdjustment extends Model
             'starts_at' => 'date',
             'ends_at' => 'date',
             'days_of_week' => 'array',
+            'specific_dates' => 'array',
             'is_active' => 'boolean',
         ];
     }
@@ -47,11 +49,13 @@ class TenantPriceAdjustment extends Model
     }
 
     /**
-     * Scope to filter adjustments valid for a given date (starts_at / ends_at range).
+     * Scope to filter adjustments valid for a given date.
+     * Evaluates specific_dates when present, or falls back to bounding box / starts_at / ends_at and days_of_week.
      */
     public function scopeValidForDate(Builder $query, CarbonInterface $date): Builder
     {
         $dateStr = $date->toDateString();
+        $isoDay = $date->dayOfWeekIso;
 
         return $query->active()
             ->where(function (Builder $q) use ($dateStr) {
@@ -59,6 +63,18 @@ class TenantPriceAdjustment extends Model
             })
             ->where(function (Builder $q) use ($dateStr) {
                 $q->whereNull('ends_at')->orWhere('ends_at', '>=', $dateStr);
+            })
+            ->where(function (Builder $query) use ($dateStr, $isoDay) {
+                $query->where(function (Builder $q) use ($dateStr) {
+                    $q->whereNotNull('specific_dates')
+                        ->whereJsonContains('specific_dates', $dateStr);
+                })->orWhere(function (Builder $q) use ($isoDay) {
+                    $q->whereNull('specific_dates')
+                        ->where(function (Builder $sub) use ($isoDay) {
+                            $sub->whereNull('days_of_week')
+                                ->orWhereJsonContains('days_of_week', $isoDay);
+                        });
+                });
             });
     }
 
@@ -72,6 +88,13 @@ class TenantPriceAdjustment extends Model
         }
 
         $dateStr = $date->toDateString();
+
+        // 1. If specific_dates is defined, exact match governs
+        if (! empty($this->specific_dates) && is_array($this->specific_dates)) {
+            return in_array($dateStr, $this->specific_dates, true);
+        }
+
+        // 2. Fallback to range and days_of_week
         if ($this->starts_at && $this->starts_at->toDateString() > $dateStr) {
             return false;
         }
