@@ -123,7 +123,7 @@
             </DialogDescription>
         </DialogHeader>
 
-        <form onsubmit={handleSubmit} class="space-y-4">
+        <form onsubmit={handleSubmit} class="space-y-4 w-full min-w-0 max-w-full">
             <!-- Tipo y Tipo de Cálculo -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <!-- Tipo: Descuento o Recargo -->

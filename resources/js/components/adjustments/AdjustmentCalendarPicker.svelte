@@ -171,13 +171,13 @@
     }
 </script>
 
-<div class="space-y-4 rounded-xl border border-border/70 bg-card p-4">
+<div class="w-[calc(100%-4px)] sm:w-full mx-auto space-y-3.5 sm:space-y-4 rounded-xl border border-border/70 bg-card p-3 sm:p-4 overflow-hidden box-border">
     <!-- Header: Días de la Semana -->
     <div>
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-            <Label class="text-xs font-semibold text-foreground flex items-center gap-1.5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2 mb-2">
+            <Label class="text-xs font-semibold text-foreground flex items-center gap-1.5 shrink-0">
                 <CalendarIcon class="h-3.5 w-3.5 text-primary" />
-                Días recurrentes
+                <span>Días recurrentes</span>
             </Label>
             <div class="flex items-center gap-1.5 text-2xs flex-wrap">
                 <button
@@ -220,22 +220,21 @@
             </div>
         </div>
 
-        <!-- 7 Chips con touch target accesible min-h-[44px] -->
-        <div class="grid grid-cols-7 gap-1 sm:gap-1.5">
+        <!-- 7 Chips con touch target accesible min-h-[42px] y min-w-0 para evitar desbordes -->
+        <div class="grid grid-cols-7 gap-1 sm:gap-1.5 w-full">
             {#each WEEK_DAYS as day}
                 {@const isSelected = daysOfWeek.includes(day.id)}
                 <button
                     type="button"
                     onclick={() => toggleDay(day.id)}
                     {disabled}
-                    class={`min-h-[44px] flex flex-col items-center justify-center rounded-xl border text-xs font-medium transition-colors cursor-pointer select-none touch-manipulation ${
+                    class={`min-h-[42px] sm:min-h-[44px] min-w-0 w-full flex flex-col items-center justify-center rounded-xl border text-[11px] sm:text-xs font-medium transition-colors cursor-pointer select-none touch-manipulation px-0.5 sm:px-1 ${
                         isSelected
                             ? 'bg-primary text-primary-foreground border-primary shadow-2xs font-semibold'
                             : 'bg-background hover:bg-muted/60 text-foreground border-border/80'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                    <span class="text-xs font-semibold">{day.label}</span>
-                    <span class="text-2xs opacity-75 hidden sm:inline">{day.short}</span>
+                    <span class="text-[11px] sm:text-xs font-semibold">{day.label}</span>
                 </button>
             {/each}
         </div>
@@ -247,19 +246,19 @@
     </div>
 
     <!-- Rango de Fechas (Desde / Hasta) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-border/50">
-        <div class="space-y-1">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 pt-2 border-t border-border/50">
+        <div class="space-y-1 min-w-0">
             <Label for="adjustment-starts-at" class="text-xs font-medium">Vigencia desde (opcional)</Label>
             <input
                 id="adjustment-starts-at"
                 type="date"
                 bind:value={startsAt}
                 {disabled}
-                class="min-h-[40px] w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50"
+                class="min-h-[40px] w-full max-w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50"
             />
         </div>
 
-        <div class="space-y-1">
+        <div class="space-y-1 min-w-0">
             <Label for="adjustment-ends-at" class="text-xs font-medium">Vigencia hasta (opcional)</Label>
             <input
                 id="adjustment-ends-at"
@@ -267,7 +266,7 @@
                 bind:value={endsAt}
                 min={startsAt || undefined}
                 {disabled}
-                class="min-h-[40px] w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50"
+                class="min-h-[40px] w-full max-w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50"
             />
         </div>
     </div>
@@ -302,17 +301,17 @@
         </div>
 
         <!-- Encabezados Días -->
-        <div class="grid grid-cols-7 gap-1 text-center mb-1">
+        <div class="grid grid-cols-7 gap-1 text-center mb-1 w-full">
             {#each ['L', 'M', 'M', 'J', 'V', 'S', 'D'] as h}
-                <div class="text-2xs font-semibold text-muted-foreground py-0.5">{h}</div>
+                <div class="text-2xs font-semibold text-muted-foreground py-0.5 min-w-0">{h}</div>
             {/each}
         </div>
 
         <!-- Grilla de Celdas -->
-        <div class="grid grid-cols-7 gap-1">
+        <div class="grid grid-cols-7 gap-1 w-full">
             {#each calendarCells as cell}
                 <div
-                    class={`min-h-[28px] sm:min-h-[30px] flex items-center justify-center rounded-md text-xs transition-all select-none ${
+                    class={`min-h-[28px] sm:min-h-[30px] min-w-0 w-full flex items-center justify-center rounded-md text-xs transition-all select-none ${
                         !cell.isCurrentMonth
                             ? 'text-muted-foreground/30 opacity-40'
                             : cell.isEffective
@@ -328,11 +327,11 @@
 
         <div class="flex flex-wrap items-center gap-3 mt-2 text-2xs text-muted-foreground">
             <div class="flex items-center gap-1.5">
-                <div class="h-2.5 w-2.5 rounded-sm bg-primary-500/25 border border-primary-500/50"></div>
+                <div class="h-2.5 w-2.5 rounded-sm bg-primary-500/25 border border-primary-500/50 shrink-0"></div>
                 <span>Días con ajuste aplicado</span>
             </div>
             <div class="flex items-center gap-1.5">
-                <div class="h-2.5 w-2.5 rounded-sm ring-1 ring-primary-500"></div>
+                <div class="h-2.5 w-2.5 rounded-sm ring-1 ring-primary-500 shrink-0"></div>
                 <span>Hoy</span>
             </div>
         </div>

@@ -177,7 +177,7 @@
             </div>
         </DialogHeader>
 
-        <DialogBody class="flex-1 overflow-y-auto space-y-4 pr-1">
+        <DialogBody class="flex-1 overflow-y-auto space-y-4 pr-0 sm:pr-1">
             <!-- Tipo de Ajuste: Descuento o Recargo -->
             <div class="space-y-1.5">
                 <Label class="text-xs font-semibold text-foreground">Tipo de Ajuste</Label>
