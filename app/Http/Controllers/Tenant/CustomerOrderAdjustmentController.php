@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\CustomerAccountMovement;
 use App\Models\CustomerOrder;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -18,7 +19,7 @@ class CustomerOrderAdjustmentController extends Controller
     /**
      * Add a custom or preset price adjustment to an existing order.
      */
-    public function store(Request $request, CustomerOrder $customerOrder): JsonResponse
+    public function store(Request $request, CustomerOrder $customerOrder): JsonResponse|RedirectResponse
     {
         $tenantId = $request->user()->tenant_id;
         $userId = $request->user()->id;
@@ -39,13 +40,20 @@ class CustomerOrderAdjustmentController extends Controller
             ]);
         }
 
+        $isPercentage = $request->input('calculation_type') === 'percentage';
+
         $validated = $request->validate([
             'source' => ['nullable', 'string', 'in:preset,ad_hoc'],
             'source_id' => ['nullable', 'integer'],
             'type' => ['required', 'string', 'in:discount,surcharge'],
             'name' => ['nullable', 'string', 'max:255'],
             'calculation_type' => ['required', 'string', 'in:percentage,fixed'],
-            'value' => ['required', 'numeric', 'min:0.01'],
+            'value' => [
+                'required',
+                'numeric',
+                'min:0.01',
+                $isPercentage ? 'max:100' : 'max:100000000',
+            ],
             'reason' => ['nullable', 'string', 'max:500'],
             'show_in_receipt' => ['nullable', 'boolean'],
         ]);
@@ -143,17 +151,21 @@ class CustomerOrderAdjustmentController extends Controller
         $freshOrder = $order->fresh(['items.product', 'customer']);
         event(new CustomerOrderAdjustmentsUpdated($freshOrder));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Ajuste agregado exitosamente al pedido.',
-            'order' => $freshOrder,
-        ]);
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Ajuste agregado exitosamente al pedido.',
+                'order' => $freshOrder,
+            ]);
+        }
+
+        return back()->with('success', 'Ajuste agregado exitosamente al pedido.');
     }
 
     /**
      * Remove an adjustment from the order.
      */
-    public function destroy(Request $request, CustomerOrder $customerOrder, string $adjustmentId): JsonResponse
+    public function destroy(Request $request, CustomerOrder $customerOrder, string $adjustmentId): JsonResponse|RedirectResponse
     {
         $tenantId = $request->user()->tenant_id;
         $userId = $request->user()->id;
@@ -258,10 +270,14 @@ class CustomerOrderAdjustmentController extends Controller
         $freshOrder = $order->fresh(['items.product', 'customer']);
         event(new CustomerOrderAdjustmentsUpdated($freshOrder));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Ajuste eliminado con éxito.',
-            'order' => $freshOrder,
-        ]);
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Ajuste eliminado con éxito.',
+                'order' => $freshOrder,
+            ]);
+        }
+
+        return back()->with('success', 'Ajuste eliminado con éxito.');
     }
 }

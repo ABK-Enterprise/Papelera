@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerOrder;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class CustomerOrderReceiptController extends Controller
@@ -12,7 +13,7 @@ class CustomerOrderReceiptController extends Controller
     /**
      * Update receipt visibility settings (current account data and individual adjustments).
      */
-    public function updateVisibility(Request $request, CustomerOrder $customerOrder): JsonResponse
+    public function updateVisibility(Request $request, CustomerOrder $customerOrder): JsonResponse|RedirectResponse
     {
         if ($customerOrder->tenant_id !== $request->user()->tenant_id) {
             abort(404);
@@ -41,10 +42,14 @@ class CustomerOrderReceiptController extends Controller
 
         $customerOrder->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Configuración de visibilidad en remito actualizada con éxito.',
-            'order' => $customerOrder->fresh(['items.product', 'customer']),
-        ]);
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Configuración de visibilidad en remito actualizada con éxito.',
+                'order' => $customerOrder->fresh(['items.product', 'customer']),
+            ]);
+        }
+
+        return back()->with('success', 'Configuración de visibilidad en remito actualizada con éxito.');
     }
 }

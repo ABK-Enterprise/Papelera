@@ -19,6 +19,7 @@
     import Loader2 from 'lucide-svelte/icons/loader-2';
     import Tag from 'lucide-svelte/icons/tag';
     import FileText from 'lucide-svelte/icons/file-text';
+    import { preventInvalidNumericKeys, sanitizeNumericInput } from '@/lib/numericSanitizer';
 
     let {
         open = $bindable(false),
@@ -84,6 +85,8 @@
             errors.value = 'El valor debe ser un número positivo mayor a 0.';
         } else if (calculationType === 'percentage' && numericValue > 100) {
             errors.value = 'El porcentaje no puede ser superior al 100%.';
+        } else if (calculationType === 'fixed' && numericValue > 100_000_000) {
+            errors.value = 'El monto fijo no puede superar $100.000.000.';
         }
 
         formErrors = errors;
@@ -219,7 +222,10 @@
                     <button
                         type="button"
                         class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer {calculationType === 'percentage' ? 'bg-primary/10 text-primary border-primary shadow-xs' : 'bg-card text-muted-foreground border-border hover:bg-muted/50'}"
-                        onclick={() => (calculationType = 'percentage')}
+                        onclick={() => {
+                            calculationType = 'percentage';
+                            if (Number(value) > 100) value = 100;
+                        }}
                     >
                         <Percent class="size-4" />
                         <span>Porcentual (%)</span>
@@ -227,7 +233,10 @@
                     <button
                         type="button"
                         class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer {calculationType === 'fixed' ? 'bg-primary/10 text-primary border-primary shadow-xs' : 'bg-card text-muted-foreground border-border hover:bg-muted/50'}"
-                        onclick={() => (calculationType = 'fixed')}
+                        onclick={() => {
+                            calculationType = 'fixed';
+                            if (Number(value) > 100_000_000) value = 100_000_000;
+                        }}
                     >
                         <DollarSign class="size-4" />
                         <span>Monto Fijo ($)</span>
@@ -246,8 +255,15 @@
                         type="number"
                         step="0.01"
                         min="0.01"
-                        max={calculationType === 'percentage' ? 100 : undefined}
-                        bind:value
+                        max={calculationType === 'percentage' ? 100 : 100_000_000}
+                        value={value}
+                        onkeydown={(e) => preventInvalidNumericKeys(e)}
+                        oninput={(e) => {
+                            const max = calculationType === 'percentage' ? 100 : 100_000_000;
+                            sanitizeNumericInput(e, 0.01, max, (val) => {
+                                value = typeof val === 'number' ? val : (Number(val) || 0);
+                            });
+                        }}
                         placeholder={calculationType === 'percentage' ? '15.00' : '2500.00'}
                         class="min-h-[44px] rounded-xl text-xs sm:text-sm font-sans tabular-nums pr-10 {formErrors.value ? 'border-destructive' : ''}"
                     />

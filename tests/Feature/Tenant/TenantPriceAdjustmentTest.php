@@ -21,19 +21,25 @@ beforeEach(function () {
         ['name' => SystemModule::RecargosDescuentos->label(), 'is_active' => true]
     );
 
-    $this->tenant->modules()->sync([$this->module->id]);
+    $this->pedidosModule = Module::firstOrCreate(
+        ['code' => SystemModule::Pedidos->value],
+        ['name' => SystemModule::Pedidos->label(), 'is_active' => true]
+    );
+
+    $this->tenant->modules()->sync([$this->module->id, $this->pedidosModule->id]);
 
     setPermissionsTeamId($this->tenant->id);
 
     Permission::firstOrCreate(['name' => 'recargos_descuentos.ver', 'guard_name' => 'web', 'module_id' => $this->module->id]);
     Permission::firstOrCreate(['name' => 'recargos_descuentos.gestionar', 'guard_name' => 'web', 'module_id' => $this->module->id]);
+    Permission::firstOrCreate(['name' => 'pedidos.editar_estado', 'guard_name' => 'web']);
 
     $this->adminRole = Role::firstOrCreate([
         'name' => 'admin',
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,
     ]);
-    $this->adminRole->givePermissionTo(['recargos_descuentos.ver', 'recargos_descuentos.gestionar']);
+    $this->adminRole->givePermissionTo(['recargos_descuentos.ver', 'recargos_descuentos.gestionar', 'pedidos.editar_estado']);
 
     $this->adminUser = User::factory()->create([
         'tenant_id' => $this->tenant->id,
@@ -175,4 +181,92 @@ test('tenant cannot mutate adjustments of another tenant', function () {
             'value' => 999,
         ])
         ->assertNotFound();
+});
+
+test('rejects fixed price adjustments exceeding 100 million ceiling', function () {
+    $this->actingAs($this->adminUser)
+        ->postJson(route('tenant.price-adjustments.store'), [
+            'name' => 'Excesivo',
+            'type' => 'surcharge',
+            'calculation_type' => 'fixed',
+            'value' => 100_000_001,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['value']);
+});
+
+test('post-order adjustment rejects percentage over 100 and fixed over 100M', function () {
+    $customerOrder = \App\Models\CustomerOrder::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'sin_facturar',
+        'total_amount' => 10000,
+    ]);
+
+    // Percentage > 100 rejected
+    $this->actingAs($this->adminUser)
+        ->postJson(route('tenant.orders.adjustments.store', $customerOrder), [
+            'type' => 'discount',
+            'calculation_type' => 'percentage',
+            'value' => 10000, // 10000%
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['value']);
+
+    // Fixed > 100M rejected
+    $this->actingAs($this->adminUser)
+        ->postJson(route('tenant.orders.adjustments.store', $customerOrder), [
+            'type' => 'surcharge',
+            'calculation_type' => 'fixed',
+            'value' => 100_000_001,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['value']);
+});
+
+test('post-order adjustment returns redirect back when requested with X-Inertia', function () {
+    $customerOrder = \App\Models\CustomerOrder::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'sin_facturar',
+        'total_amount' => 10000,
+    ]);
+
+    // Inertia POST request
+    $response = $this->actingAs($this->adminUser)
+        ->withHeaders([
+            'X-Inertia' => 'true',
+            'X-Requested-With' => 'XMLHttpRequest',
+        ])
+        ->post(route('tenant.orders.adjustments.store', $customerOrder), [
+            'type' => 'discount',
+            'calculation_type' => 'fixed',
+            'value' => 1500,
+            'name' => 'Descuento Test',
+        ]);
+
+    // Must be redirect back (HTTP 302 or 303), NEVER plain 200 JsonResponse
+    $response->assertRedirect();
+    $response->assertSessionHas('success');
+
+    $freshOrder = $customerOrder->fresh();
+    expect($freshOrder->price_adjustments)->toHaveCount(1)
+        ->and((float) $freshOrder->discount_total)->toBe(1500.0);
+
+    $adjId = $freshOrder->price_adjustments[0]['id'];
+
+    // Inertia DELETE request
+    $deleteResponse = $this->actingAs($this->adminUser)
+        ->withHeaders([
+            'X-Inertia' => 'true',
+            'X-Requested-With' => 'XMLHttpRequest',
+        ])
+        ->delete(route('tenant.orders.adjustments.destroy', [
+            'customerOrder' => $customerOrder,
+            'adjustmentId' => $adjId,
+        ]));
+
+    $deleteResponse->assertRedirect();
+    $deleteResponse->assertSessionHas('success');
+    expect($freshOrder->fresh()->price_adjustments)->toHaveCount(0);
 });
