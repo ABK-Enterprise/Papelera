@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Events\Tenant\CustomerOrderAdjustmentsUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerAccountMovement;
@@ -139,10 +140,13 @@ class CustomerOrderAdjustmentController extends Controller
             return $lockedOrder;
         });
 
+        $freshOrder = $order->fresh(['items.product', 'customer']);
+        event(new CustomerOrderAdjustmentsUpdated($freshOrder));
+
         return response()->json([
             'success' => true,
             'message' => 'Ajuste agregado exitosamente al pedido.',
-            'order' => $order->fresh(['items.product', 'customer']),
+            'order' => $freshOrder,
         ]);
     }
 
@@ -251,10 +255,13 @@ class CustomerOrderAdjustmentController extends Controller
             return $lockedOrder;
         });
 
+        $freshOrder = $order->fresh(['items.product', 'customer']);
+        event(new CustomerOrderAdjustmentsUpdated($freshOrder));
+
         return response()->json([
             'success' => true,
             'message' => 'Ajuste eliminado con éxito.',
-            'order' => $order->fresh(['items.product', 'customer']),
+            'order' => $freshOrder,
         ]);
     }
 }

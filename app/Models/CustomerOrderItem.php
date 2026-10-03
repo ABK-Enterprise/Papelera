@@ -54,6 +54,27 @@ class CustomerOrderItem extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::updating(function (CustomerOrderItem $item) {
+            if ($item->order && $item->order->fiscal_status === 'facturado') {
+                if ($item->isDirty(['unit_price', 'quantity', 'quantity_base', 'subtotal', 'discount_percentage', 'discount_amount'])) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'order' => ['El pedido posee un comprobante con CAE emitido. Debe emitirse la Nota de Crédito correspondiente antes de modificar montos.'],
+                    ]);
+                }
+            }
+        });
+
+        static::deleting(function (CustomerOrderItem $item) {
+            if ($item->order && $item->order->fiscal_status === 'facturado') {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'order' => ['El pedido posee un comprobante con CAE emitido. Debe emitirse la Nota de Crédito correspondiente antes de modificar montos.'],
+                ]);
+            }
+        });
+    }
+
     public function getAvailableForReturnAttribute(): float
     {
         return max(0.0, round((float) $this->quantity - (float) ($this->returned_quantity ?? 0), 3));

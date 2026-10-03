@@ -218,6 +218,26 @@ class CustomerOrder extends Model
     protected static function booted(): void
     {
         static::updating(function (CustomerOrder $order) {
+            // Bloqueo de Inmutabilidad Fiscal ARCA
+            if ($order->getOriginal('fiscal_status') === 'facturado') {
+                $financialFields = [
+                    'total_amount',
+                    'subtotal_amount',
+                    'shipping_cost',
+                    'discount_total',
+                    'surcharge_total',
+                    'price_adjustments',
+                    'customer_discount_amount',
+                    'customer_discount_percentage',
+                ];
+
+                if ($order->isDirty($financialFields) && ! $order->isDirty('fiscal_status')) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'order' => ['El pedido posee un comprobante con CAE emitido. Debe emitirse la Nota de Crédito correspondiente antes de modificar montos.'],
+                    ]);
+                }
+            }
+
             $originalStatus = $order->getOriginal('status');
             if ($originalStatus === 'cancelado') {
                 $dirtyKeys = array_keys($order->getDirty());
@@ -256,6 +276,12 @@ class CustomerOrder extends Model
         });
 
         static::deleting(function (CustomerOrder $order) {
+            if ($order->fiscal_status === 'facturado') {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'order' => ['El pedido posee un comprobante con CAE emitido. Debe emitirse la Nota de Crédito correspondiente antes de eliminar.'],
+                ]);
+            }
+
             $originalStatus = $order->getOriginal('status') ?? $order->status;
             if (in_array($originalStatus, ['entregado', 'cancelado'], true)) {
                 throw new \DomainException("El pedido {$order->order_number} se encuentra en estado definitivo ({$originalStatus}) y no puede ser eliminado.");
