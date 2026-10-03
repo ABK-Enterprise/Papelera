@@ -480,3 +480,40 @@ test('scopeValidForDate correctly queries adjustments with specific_dates and fa
     expect($matched16)->not->toContain($specificAdj->id)
         ->and($matched16)->not->toContain($historicalAdj->id);
 });
+
+test('store and update auto-derives starts_at and ends_at bounding box from specific_dates', function () {
+    // 1. Store with unsorted specific_dates and null starts_at/ends_at
+    $response = $this->actingAs($this->adminUser)
+        ->post(route('tenant.price-adjustments.store'), [
+            'name' => 'Ajuste Bounding Box',
+            'type' => 'discount',
+            'calculation_type' => 'fixed',
+            'value' => 500,
+            'specific_dates' => ['2026-10-25', '2026-10-05', '2026-10-15'],
+        ]);
+
+    $response->assertRedirect();
+    $adjustment = TenantPriceAdjustment::where('name', 'Ajuste Bounding Box')->firstOrFail();
+
+    expect($adjustment->starts_at?->toDateString())->toBe('2026-10-05')
+        ->and($adjustment->ends_at?->toDateString())->toBe('2026-10-25')
+        ->and($adjustment->specific_dates)->toBe(['2026-10-05', '2026-10-15', '2026-10-25']);
+
+    // 2. Update with new specific_dates
+    $updateResponse = $this->actingAs($this->adminUser)
+        ->put(route('tenant.price-adjustments.update', $adjustment->id), [
+            'name' => 'Ajuste Bounding Box Actualizado',
+            'type' => 'discount',
+            'calculation_type' => 'fixed',
+            'value' => 750,
+            'specific_dates' => ['2026-11-02', '2026-11-20'],
+        ]);
+
+    $updateResponse->assertRedirect();
+    $adjustment->refresh();
+
+    expect($adjustment->name)->toBe('Ajuste Bounding Box Actualizado')
+        ->and($adjustment->starts_at?->toDateString())->toBe('2026-11-02')
+        ->and($adjustment->ends_at?->toDateString())->toBe('2026-11-20')
+        ->and($adjustment->specific_dates)->toBe(['2026-11-02', '2026-11-20']);
+});
