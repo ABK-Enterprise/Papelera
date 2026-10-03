@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Tenant\ArgentinaGeodataController;
 use App\Http\Controllers\Tenant\CategoryController;
 use App\Http\Controllers\Tenant\CompanySettingsController;
 use App\Http\Controllers\Tenant\CustomerAccountController;
@@ -28,6 +29,13 @@ Route::middleware(['auth', 'verified', 'tenant'])
     ->prefix('tenant')
     ->name('tenant.')
     ->group(function () {
+        // Geodatos Oficiales de Argentina (Lectura general para el tenant)
+        Route::prefix('geo')->name('geo.')->group(function () {
+            Route::get('provincias', [ArgentinaGeodataController::class, 'provinces'])->name('provinces');
+            Route::get('departamentos', [ArgentinaGeodataController::class, 'departments'])->name('departments');
+            Route::get('localidades', [ArgentinaGeodataController::class, 'localities'])->name('localities');
+        });
+
         // Users & Roles Management (Restricted to Tenant Admin & Superadmin)
         Route::middleware('tenant.admin')->group(function () {
             Route::resource('usuarios', UserController::class)->parameters(['usuarios' => 'user'])->names('users')->except(['show']);

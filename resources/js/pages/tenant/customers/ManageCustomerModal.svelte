@@ -36,7 +36,15 @@
     import X from 'lucide-svelte/icons/x';
     import Calendar from 'lucide-svelte/icons/calendar';
     import IconContainer from '@/components/common/IconContainer.svelte';
-    import { ARGENTINA_GEOGRAPHY, PROVINCES_LIST } from '@/data/argentinaGeographicData';
+    import {
+        fetchProvinces,
+        fetchDepartments,
+        fetchLocalities,
+        type GeoProvince,
+        type GeoDepartment,
+        type GeoLocality,
+        ARGENTINE_PROVINCES_FALLBACK,
+    } from '@/lib/geodata';
     import type { CustomerItem } from './desktop/CustomerListDesktop.svelte';
 
     let {
@@ -95,6 +103,62 @@
             lastLoadedCustomerId = null;
         }
     });
+
+    let provinces = $state<GeoProvince[]>([]);
+    let departments = $state<GeoDepartment[]>([]);
+    let localities = $state<GeoLocality[]>([]);
+    let selectedDepartmentId = $state<string>('');
+    let isLoadingDepartments = $state<boolean>(false);
+    let isLoadingLocalities = $state<boolean>(false);
+
+    $effect(() => {
+        if (open) {
+            fetchProvinces().then(data => {
+                provinces = data;
+                if (form.province) {
+                    const provObj = data.find(p => p.name === form.province);
+                    if (provObj) {
+                        isLoadingDepartments = true;
+                        fetchDepartments(provObj.id).then(depts => {
+                            departments = depts;
+                            isLoadingDepartments = false;
+                        });
+                    }
+                }
+            });
+        }
+    });
+
+    async function onProvinceChange() {
+        form.city = '';
+        selectedDepartmentId = '';
+        departments = [];
+        localities = [];
+
+        const provObj = provinces.find(p => p.name === form.province);
+        if (!provObj) return;
+
+        isLoadingDepartments = true;
+        try {
+            departments = await fetchDepartments(provObj.id);
+        } finally {
+            isLoadingDepartments = false;
+        }
+    }
+
+    async function onDepartmentChange() {
+        form.city = '';
+        localities = [];
+
+        if (!selectedDepartmentId) return;
+
+        isLoadingLocalities = true;
+        try {
+            localities = await fetchLocalities(selectedDepartmentId);
+        } finally {
+            isLoadingLocalities = false;
+        }
+    }
 
 
     function submit(e: SubmitEvent) {
@@ -385,21 +449,19 @@
                     {/if}
                 </div>
 
-                <!-- Provincia y Ciudad / Localidad -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <!-- Provincia, Departamento y Localidad / Barrio -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                     <div class="space-y-1.5">
                         <Label for="manage-customer-province" class="text-xs font-semibold">Provincia</Label>
                         <select
                             id="manage-customer-province"
                             bind:value={form.province}
-                            onchange={() => {
-                                form.city = '';
-                            }}
+                            onchange={onProvinceChange}
                             class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
                         >
-                            <option value="">Selecciona una provincia...</option>
-                            {#each PROVINCES_LIST as prov}
-                                <option value={prov}>{prov}</option>
+                            <option value="">Selecciona provincia...</option>
+                            {#each provinces.length > 0 ? provinces : ARGENTINE_PROVINCES_FALLBACK.map(p => ({ id: p, name: p })) as prov}
+                                <option value={prov.name}>{prov.name}</option>
                             {/each}
                         </select>
                         {#if form.errors.province}
@@ -408,19 +470,52 @@
                     </div>
 
                     <div class="space-y-1.5">
-                        <Label for="manage-customer-city" class="text-xs font-semibold">Localidad / Ciudad</Label>
+                        <Label for="manage-customer-department" class="text-xs font-semibold">Departamento / Partido</Label>
+                        <select
+                            id="manage-customer-department"
+                            bind:value={selectedDepartmentId}
+                            onchange={onDepartmentChange}
+                            disabled={!form.province || isLoadingDepartments}
+                            class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                            <option value="">
+                                {#if isLoadingDepartments}
+                                    Cargando...
+                                {:else if !form.province}
+                                    Primero provincia
+                                {:else}
+                                    Selecciona...
+                                {/if}
+                            </option>
+                            {#each departments as dept}
+                                <option value={dept.id}>{dept.name}</option>
+                            {/each}
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <Label for="manage-customer-city" class="text-xs font-semibold">Localidad / Barrio</Label>
                         <select
                             id="manage-customer-city"
                             bind:value={form.city}
-                            disabled={!form.province}
+                            disabled={(!selectedDepartmentId && localities.length === 0) || isLoadingLocalities}
                             class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
-                            <option value="">{form.province ? 'Selecciona una ciudad...' : 'Primero selecciona provincia'}</option>
-                            {#if form.province && ARGENTINA_GEOGRAPHY[form.province]}
-                                {#each ARGENTINA_GEOGRAPHY[form.province] as city}
-                                    <option value={city}>{city}</option>
-                                {/each}
+                            <option value="">
+                                {#if isLoadingLocalities}
+                                    Cargando...
+                                {:else if !selectedDepartmentId && !form.city}
+                                    Primero departamento
+                                {:else}
+                                    {form.city ? form.city : 'Selecciona localidad...'}
+                                {/if}
+                            </option>
+                            {#if form.city && !localities.some(l => l.name === form.city)}
+                                <option value={form.city}>{form.city} (actual)</option>
                             {/if}
+                            {#each localities as loc}
+                                <option value={loc.name}>{loc.name}</option>
+                            {/each}
                         </select>
                         {#if form.errors.city}
                             <p class="text-xs text-destructive">{form.errors.city}</p>
