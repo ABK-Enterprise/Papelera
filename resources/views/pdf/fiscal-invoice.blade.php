@@ -575,11 +575,6 @@
                     </td>
                 </tr>
             </table>
-
-            <!-- Marca de agua y pie institucional -->
-            <div class="watermark-footer">
-                Generado por {{ config('app.name', 'Papelera ERP') }}
-            </div>
         </div>
     </div>
 

@@ -11,9 +11,6 @@
     import { router } from '@inertiajs/svelte';
     import { toast } from 'svelte-sonner';
     import FileText from 'lucide-svelte/icons/file-text';
-    import Wallet from 'lucide-svelte/icons/wallet';
-    import Percent from 'lucide-svelte/icons/percent';
-    import DollarSign from 'lucide-svelte/icons/dollar-sign';
     import CheckSquare from 'lucide-svelte/icons/check-square';
     import Square from 'lucide-svelte/icons/square';
     import MinusSquare from 'lucide-svelte/icons/minus-square';
@@ -207,31 +204,28 @@
                             class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
                         />
                         <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-1.5">
-                                <Wallet class="size-3.5 text-primary shrink-0" />
-                                <span class="text-xs sm:text-sm font-semibold text-foreground">
-                                    Datos de Cuenta Corriente
-                                </span>
-                            </div>
-                            <p class="text-[11px] text-muted-foreground mt-0.5">
+                            <span class="text-sm sm:text-base font-semibold text-foreground block">
+                                Datos de Cuenta Corriente
+                            </span>
+                            <p class="text-xs sm:text-sm text-muted-foreground mt-0.5">
                                 Imprime en el pie del remito el límite de crédito, saldo deudor actual y saldo disponible.
                             </p>
                             {#if !order?.customer_id}
-                                <div class="mt-1.5 flex items-center gap-1 text-[10px] text-amber-600 dark:text-amber-400">
-                                    <AlertCircle class="size-3 shrink-0" />
+                                <div class="mt-1.5 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                                    <AlertCircle class="size-3.5 shrink-0" />
                                     <span>No disponible: El pedido no tiene un cliente registrado con cuenta corriente.</span>
                                 </div>
                             {:else if order?.customer}
-                                <div class="mt-2 grid grid-cols-2 gap-2 p-2 rounded-lg bg-muted/40 text-[11px] font-sans tabular-nums">
+                                <div class="mt-2.5 grid grid-cols-2 gap-3 p-3 rounded-xl bg-muted/40 text-sm font-sans tabular-nums border border-border/40">
                                     <div>
-                                        <span class="text-muted-foreground block text-[10px]">Saldo Deudor:</span>
-                                        <span class="font-semibold text-foreground">
+                                        <span class="text-xs text-muted-foreground block font-medium">Saldo Deudor:</span>
+                                        <span class="text-sm font-bold text-foreground">
                                             {formatCurrency(order.customer.current_balance ?? 0)}
                                         </span>
                                     </div>
                                     <div>
-                                        <span class="text-muted-foreground block text-[10px]">Límite de Crédito:</span>
-                                        <span class="font-semibold text-foreground">
+                                        <span class="text-xs text-muted-foreground block font-medium">Límite de Crédito:</span>
+                                        <span class="text-sm font-bold text-foreground">
                                             {formatCurrency(order.customer.credit_limit ?? 0)}
                                         </span>
                                     </div>
@@ -259,53 +253,45 @@
                                     <Square class="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
                                 {/if}
                             </span>
-                            <div class="flex items-center gap-1.5">
-                                <Percent class="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                                <span class="text-xs sm:text-sm font-semibold text-foreground">
-                                    Descuentos Aplicados ({discounts.length})
-                                </span>
-                            </div>
-                        </button>
-                        {#if discounts.length > 0}
-                            <span class="text-[11px] text-muted-foreground font-sans tabular-nums">
-                                {discounts.filter((d) => visibilityMap[d.id]).length} visibles
+                            <span class="text-sm sm:text-base font-semibold text-foreground">
+                                Descuentos Aplicados ({discounts.length})
                             </span>
-                        {/if}
+                        </button>
                     </div>
 
                     {#if discounts.length === 0}
-                        <p class="text-[11px] text-muted-foreground pl-6">
+                        <p class="text-xs sm:text-sm text-muted-foreground pl-6">
                             No se aplicaron descuentos en este pedido.
                         </p>
                     {:else}
                         <!-- Sub-items indentados con línea de conexión de árbol -->
-                        <div class="ml-2 pl-4 border-l-2 border-border/60 space-y-1.5 pt-1">
+                        <div class="ml-2 pl-4 border-l-2 border-border/60 space-y-2 pt-1">
                             {#each discounts as disc (disc.id)}
-                                <label class="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-muted/40 transition-colors cursor-pointer">
-                                    <div class="flex items-center gap-2.5 min-w-0">
+                                <label class="flex items-center justify-between gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors cursor-pointer border border-transparent hover:border-border/60">
+                                    <div class="flex items-center gap-3 min-w-0">
                                         <input
                                             type="checkbox"
                                             checked={Boolean(visibilityMap[disc.id])}
                                             onchange={() => toggleItem(disc.id)}
-                                            class="size-3.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                            class="size-4 rounded border-border text-primary focus:ring-primary shrink-0"
                                         />
                                         <div class="min-w-0">
-                                            <span class="text-xs font-medium text-foreground block truncate">
+                                            <span class="text-sm font-semibold text-foreground block truncate">
                                                 {disc.name || 'Descuento'}
                                             </span>
                                             {#if disc.reason}
-                                                <span class="text-[10px] text-muted-foreground block truncate">
+                                                <span class="text-xs text-muted-foreground block truncate mt-0.5">
                                                     {disc.reason}
                                                 </span>
                                             {/if}
                                         </div>
                                     </div>
                                     <div class="text-right shrink-0 font-sans tabular-nums">
-                                        <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                                        <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400">
                                             -{formatCurrency(disc.applied_amount)}
                                         </span>
                                         {#if disc.calculation_type === 'percentage'}
-                                            <span class="text-[10px] text-muted-foreground block">
+                                            <span class="text-xs text-muted-foreground block">
                                                 ({disc.value}%)
                                             </span>
                                         {/if}
@@ -334,53 +320,45 @@
                                     <Square class="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
                                 {/if}
                             </span>
-                            <div class="flex items-center gap-1.5">
-                                <DollarSign class="size-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                                <span class="text-xs sm:text-sm font-semibold text-foreground">
-                                    Recargos Aplicados ({surcharges.length})
-                                </span>
-                            </div>
-                        </button>
-                        {#if surcharges.length > 0}
-                            <span class="text-[11px] text-muted-foreground font-sans tabular-nums">
-                                {surcharges.filter((s) => visibilityMap[s.id]).length} visibles
+                            <span class="text-sm sm:text-base font-semibold text-foreground">
+                                Recargos Aplicados ({surcharges.length})
                             </span>
-                        {/if}
+                        </button>
                     </div>
 
                     {#if surcharges.length === 0}
-                        <p class="text-[11px] text-muted-foreground pl-6">
+                        <p class="text-xs sm:text-sm text-muted-foreground pl-6">
                             No se aplicaron recargos en este pedido.
                         </p>
                     {:else}
                         <!-- Sub-items indentados con línea de conexión de árbol -->
-                        <div class="ml-2 pl-4 border-l-2 border-border/60 space-y-1.5 pt-1">
+                        <div class="ml-2 pl-4 border-l-2 border-border/60 space-y-2 pt-1">
                             {#each surcharges as sur (sur.id)}
-                                <label class="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-muted/40 transition-colors cursor-pointer">
-                                    <div class="flex items-center gap-2.5 min-w-0">
+                                <label class="flex items-center justify-between gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors cursor-pointer border border-transparent hover:border-border/60">
+                                    <div class="flex items-center gap-3 min-w-0">
                                         <input
                                             type="checkbox"
                                             checked={Boolean(visibilityMap[sur.id])}
                                             onchange={() => toggleItem(sur.id)}
-                                            class="size-3.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                            class="size-4 rounded border-border text-primary focus:ring-primary shrink-0"
                                         />
                                         <div class="min-w-0">
-                                            <span class="text-xs font-medium text-foreground block truncate">
+                                            <span class="text-sm font-semibold text-foreground block truncate">
                                                 {sur.name || 'Recargo'}
                                             </span>
                                             {#if sur.reason}
-                                                <span class="text-[10px] text-muted-foreground block truncate">
+                                                <span class="text-xs text-muted-foreground block truncate mt-0.5">
                                                     {sur.reason}
                                                 </span>
                                             {/if}
                                         </div>
                                     </div>
                                     <div class="text-right shrink-0 font-sans tabular-nums">
-                                        <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">
+                                        <span class="text-sm font-bold text-amber-600 dark:text-amber-400">
                                             +{formatCurrency(sur.applied_amount)}
                                         </span>
                                         {#if sur.calculation_type === 'percentage'}
-                                            <span class="text-[10px] text-muted-foreground block">
+                                            <span class="text-xs text-muted-foreground block">
                                                 ({sur.value}%)
                                             </span>
                                         {/if}
@@ -393,12 +371,12 @@
             </div>
         </DialogBody>
 
-        <DialogFooter class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2 border-t border-border/60 shrink-0">
+        <DialogFooter class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 pt-2 border-t border-border/60 shrink-0">
             <Button
                 type="button"
                 variant="outline"
                 disabled={isSaving}
-                class="min-h-[44px] px-4 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer w-full sm:w-auto"
+                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto"
                 onclick={() => (open = false)}
             >
                 Cancelar
@@ -407,7 +385,7 @@
                 type="button"
                 variant="default"
                 disabled={isSaving}
-                class="min-h-[44px] px-5 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer w-full sm:w-auto gap-2"
+                class="min-h-[44px] px-5 rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto gap-2"
                 onclick={saveSettings}
             >
                 {#if isSaving}

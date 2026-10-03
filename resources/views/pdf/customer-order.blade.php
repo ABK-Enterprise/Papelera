@@ -561,11 +561,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Marca de Agua y Pie Institucional del Sistema -->
-            <div class="watermark-footer">
-                Generado por {{ config('app.name', 'Papelera ERP') }}
-            </div>
         </div>
     </div>
 </body>

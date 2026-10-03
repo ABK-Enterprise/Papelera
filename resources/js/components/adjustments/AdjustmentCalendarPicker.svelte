@@ -275,10 +275,10 @@
     <!-- Previsualizador Interactivo Mensual en CSS Grid -->
     <div class="pt-2 border-t border-border/50">
         <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-foreground flex items-center gap-1.5">
+            <span class="text-xs font-semibold text-foreground hidden sm:inline-flex items-center gap-1.5">
                 Previsualización en tiempo real
             </span>
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-1 justify-between sm:justify-end w-full sm:w-auto">
                 <span class="text-xs font-medium text-muted-foreground mr-1">
                     {monthNames[viewMonth]} {viewYear}
                 </span>

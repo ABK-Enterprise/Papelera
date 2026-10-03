@@ -49,7 +49,7 @@
                     {/if}
                 </div>
             </div>
-            <DialogDescription class="text-xs text-muted-foreground mt-0.5">{description}</DialogDescription>
+            <DialogDescription class="sr-only">{description || title}</DialogDescription>
         </DialogHeader>
 
         <DialogBody class="p-0 flex-1 min-h-0 overflow-hidden flex flex-row bg-card">

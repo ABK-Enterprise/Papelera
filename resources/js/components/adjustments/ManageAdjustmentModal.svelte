@@ -4,6 +4,7 @@
         Dialog,
         DialogBody,
         DialogContent,
+        DialogDescription,
         DialogFooter,
         DialogHeader,
         DialogTitle,
@@ -18,7 +19,6 @@
     import DollarSign from 'lucide-svelte/icons/dollar-sign';
     import Tag from 'lucide-svelte/icons/tag';
     import FileText from 'lucide-svelte/icons/file-text';
-    import Sparkles from 'lucide-svelte/icons/sparkles';
     import AdjustmentCalendarPicker from './AdjustmentCalendarPicker.svelte';
     import { preventInvalidNumericKeys, sanitizeNumericInput } from '@/lib/numericSanitizer';
 
@@ -115,12 +115,12 @@
 <Dialog bind:open>
     <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto p-5 sm:p-6 space-y-4">
         <DialogHeader>
-            <DialogTitle class="text-lg font-bold flex items-center gap-2">
-                <div class="h-8 w-8 rounded-lg bg-primary-500/10 text-primary-600 flex items-center justify-center">
-                    <Sparkles class="h-4 w-4" />
-                </div>
+            <DialogTitle class="text-lg font-bold text-foreground">
                 {adjustment ? 'Editar Recargo / Descuento' : 'Nuevo Recargo o Descuento'}
             </DialogTitle>
+            <DialogDescription class="sr-only">
+                {adjustment ? 'Editar configuración de recargo o descuento' : 'Crear nuevo recargo o descuento'}
+            </DialogDescription>
         </DialogHeader>
 
         <form onsubmit={handleSubmit} class="space-y-4">
@@ -266,19 +266,6 @@
                 bind:daysOfWeek={form.days_of_week}
                 disabled={form.processing}
             />
-
-            <!-- Switch Activo -->
-            <div class="flex items-center justify-between p-3 rounded-xl border border-border/70 bg-muted/20">
-                <div>
-                    <p class="text-xs font-semibold text-foreground">Estado activo</p>
-                    <p class="text-2xs text-muted-foreground">Si está activo, se evaluará automáticamente en nuevos pedidos.</p>
-                </div>
-                <input
-                    type="checkbox"
-                    bind:checked={form.is_active}
-                    class="h-5 w-5 rounded border-border text-primary focus:ring-primary cursor-pointer"
-                />
-            </div>
 
             <DialogFooter class="grid grid-cols-2 gap-2.5 sm:flex sm:justify-end pt-2">
                 <Button

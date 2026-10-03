@@ -2,20 +2,32 @@
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
     import { Badge } from '@/components/ui/badge';
+    import {
+        DropdownMenu,
+        DropdownMenuContent,
+        DropdownMenuItem,
+        DropdownMenuSeparator,
+        DropdownMenuTrigger,
+    } from '@/components/ui/dropdown-menu';
     import MinusCircle from 'lucide-svelte/icons/minus-circle';
     import PlusCircle from 'lucide-svelte/icons/plus-circle';
     import Calendar from 'lucide-svelte/icons/calendar';
     import Pencil from 'lucide-svelte/icons/pencil';
+    import MoreHorizontal from 'lucide-svelte/icons/more-horizontal';
+    import Power from 'lucide-svelte/icons/power';
+    import Trash2 from 'lucide-svelte/icons/trash-2';
     import type { PriceAdjustmentItem } from '@/components/adjustments/ManageAdjustmentModal.svelte';
 
     let {
         adjustments = [],
         onedit,
         ontoggle,
+        ondelete,
     }: {
         adjustments: PriceAdjustmentItem[];
         onedit: (adj: PriceAdjustmentItem) => void;
         ontoggle: (adj: PriceAdjustmentItem) => void;
+        ondelete: (adj: PriceAdjustmentItem) => void;
     } = $props();
 
     const DAY_NAMES: Record<number, string> = {
@@ -41,16 +53,16 @@
     }
 
     function formatDateRange(adj: PriceAdjustmentItem): string {
-        if (!adj.starts_at && !adj.ends_at) {
-            return 'Vigencia permanente';
-        }
         if (adj.starts_at && !adj.ends_at) {
             return `Desde ${adj.starts_at.slice(0, 10)}`;
         }
         if (!adj.starts_at && adj.ends_at) {
             return `Hasta ${adj.ends_at.slice(0, 10)}`;
         }
-        return `${adj.starts_at?.slice(0, 10)} al ${adj.ends_at?.slice(0, 10)}`;
+        if (adj.starts_at && adj.ends_at) {
+            return `${adj.starts_at.slice(0, 10)} al ${adj.ends_at.slice(0, 10)}`;
+        }
+        return '';
     }
 </script>
 
@@ -73,9 +85,9 @@
                     : 'border-border/40 opacity-80 bg-muted/15'
             }`}
         >
-            <!-- Cabecera Superior: Badges y Estado -->
+            <!-- Cabecera Superior: Badges, Estado y Menú de Opciones '...' -->
             <div class="space-y-2">
-                <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center gap-1.5 flex-wrap">
                         <!-- Badge de Tipo limpio sin redundancia textual -->
                         <span
@@ -98,15 +110,57 @@
                         <Badge variant="secondary" class="text-2xs font-medium">
                             {adj.calculation_type === 'percentage' ? 'Porcentaje' : 'Monto fijo'}
                         </Badge>
+
+                        <!-- Indicador de Estado Activo / Pausado -->
+                        <span class={`inline-flex items-center gap-1.5 text-xs font-semibold ${
+                            adj.is_active ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'
+                        }`}>
+                            <span class={`h-2 w-2 rounded-full ${adj.is_active ? 'bg-emerald-500' : 'bg-muted-foreground'}`}></span>
+                            <span>{adj.is_active ? 'Activo' : 'Pausado'}</span>
+                        </span>
                     </div>
 
-                    <!-- Indicador de Estado Activo / Pausado -->
-                    <span class={`inline-flex items-center gap-1.5 text-xs font-semibold ${
-                        adj.is_active ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'
-                    }`}>
-                        <span class={`h-2 w-2 rounded-full ${adj.is_active ? 'bg-emerald-500' : 'bg-muted-foreground'}`}></span>
-                        <span>{adj.is_active ? 'Activo' : 'Pausado'}</span>
-                    </span>
+                    <!-- Menú de Opciones '...' en esquina superior derecha -->
+                    <div class="shrink-0 -mr-1">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                {#snippet children(props)}
+                                    <button
+                                        {...props}
+                                        type="button"
+                                        onclick={(e) => e.stopPropagation()}
+                                        class="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center"
+                                        aria-label="Más opciones"
+                                    >
+                                        <MoreHorizontal class="size-4" />
+                                    </button>
+                                {/snippet}
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" class="w-48 shadow-lg">
+                                <DropdownMenuItem
+                                    onclick={(e) => {
+                                        e.stopPropagation();
+                                        ontoggle(adj);
+                                    }}
+                                    class="flex items-center gap-2 cursor-pointer text-xs font-medium"
+                                >
+                                    <Power class="size-4" />
+                                    <span>{adj.is_active ? 'Desactivar ajuste' : 'Activar ajuste'}</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    onclick={(e) => {
+                                        e.stopPropagation();
+                                        ondelete(adj);
+                                    }}
+                                    class="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer text-xs font-medium"
+                                >
+                                    <Trash2 class="size-4" />
+                                    <span>Eliminar ajuste</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </div>
 
                 <!-- Título y Valor en Bloque Elástico -->
@@ -137,12 +191,14 @@
 
             <!-- Fila de Calendario y Días Recurrentes en Mobile -->
             <div class="rounded-xl bg-muted/40 p-2.5 space-y-2 border border-border/40">
-                <div class="flex items-center justify-between gap-2 flex-wrap text-2xs">
-                    <div class="flex items-center gap-1.5 text-muted-foreground">
-                        <Calendar class="h-3.5 w-3.5 shrink-0" />
-                        <span class="font-medium">{formatDateRange(adj)}</span>
+                {#if adj.starts_at || adj.ends_at}
+                    <div class="flex items-center justify-between gap-2 flex-wrap text-2xs">
+                        <div class="flex items-center gap-1.5 text-muted-foreground">
+                            <Calendar class="h-3.5 w-3.5 shrink-0" />
+                            <span class="font-medium">{formatDateRange(adj)}</span>
+                        </div>
                     </div>
-                </div>
+                {/if}
 
                 <!-- Chips de Días -->
                 <div class="flex items-center gap-1 flex-wrap pt-0.5">
@@ -169,32 +225,17 @@
                 </div>
             </div>
 
-            <!-- Botonera Operativa Móvil (Simétrica en Grilla 2 Cols y min-h-[44px] A11y Touch Targets) -->
-            <div class="grid grid-cols-2 gap-2.5 pt-1 border-t border-border/40">
-                <Button
-                    variant="secondary"
-                    onclick={(e) => {
-                        e.stopPropagation();
-                        ontoggle(adj);
-                    }}
-                    class={`min-h-[44px] w-full rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 shadow-2xs ${
-                        adj.is_active
-                            ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30'
-                            : 'bg-muted/40 text-muted-foreground border border-border/80'
-                    }`}
-                >
-                    <span>{adj.is_active ? 'Pausar' : 'Activar'}</span>
-                </Button>
-
+            <!-- Botonera Operativa Móvil (Exclusivamente Edición con min-h-[44px] A11y Touch Target y text-sm) -->
+            <div class="pt-1 border-t border-border/40">
                 <Button
                     variant="outline"
                     onclick={(e) => {
                         e.stopPropagation();
                         onedit(adj);
                     }}
-                    class="min-h-[44px] w-full rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 border-primary/30 bg-primary/10 text-primary shadow-2xs"
+                    class="min-h-[44px] w-full rounded-xl text-sm font-semibold flex items-center justify-center gap-2 border-primary/30 bg-primary/10 text-primary shadow-2xs"
                 >
-                    <Pencil class="h-3.5 w-3.5" />
+                    <Pencil class="h-4 w-4" />
                     <span>Editar</span>
                 </Button>
             </div>

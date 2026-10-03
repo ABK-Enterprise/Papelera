@@ -715,21 +715,21 @@
 
                 <!-- Sección de Descuentos y Recargos Aplicados -->
                 <div class="space-y-2 pt-2 border-t">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-1.5">
                             <Tag class="size-3.5 text-primary" />
-                            <span class="text-xs font-bold text-foreground">Ajustes del Pedido (Recargos / Descuentos)</span>
+                            <span class="text-xs font-bold text-foreground">Descuento | Recargo</span>
                         </div>
                         {#if order.status !== 'cancelado' && order.status !== 'entregado' && order.fiscal_status !== 'facturado' && hasPermission('pedidos.editar_estado')}
                             <Button
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                class="h-7 px-2.5 rounded-lg text-xs font-semibold gap-1 text-primary hover:bg-primary/10 cursor-pointer"
+                                class="h-8 px-3 rounded-lg text-[13px] font-semibold gap-1.5 text-primary border-primary/40 hover:bg-primary/10 cursor-pointer shadow-2xs"
                                 onclick={() => (isCustomAdjustmentModalOpen = true)}
                             >
-                                <Plus class="size-3" />
-                                <span>Agregar Ajuste</span>
+                                <Plus class="size-3.5" />
+                                <span>Agregar</span>
                             </Button>
                         {/if}
                     </div>
@@ -772,8 +772,7 @@
                 {#if order.status !== 'cancelado' && order.status !== 'entregado' && (hasPermission('pedidos.editar_estado') || hasPermission('pedidos.cancelar'))}
                     <div class="space-y-2 pt-2 border-t">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-foreground block">Actualizar Estado del Pedido:</span>
-                            <span class="text-[11px] text-muted-foreground">Selecciona el siguiente paso del flujo</span>
+                            <span class="text-xs font-bold text-foreground block">Actualizar estado</span>
                         </div>
 
                         <div class="grid grid-cols-1 {order.status === 'preparado' && hasPermission('pedidos.editar_estado') ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-2">
