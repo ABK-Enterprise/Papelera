@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     unzip \
     libpq-dev \
+    postgresql-client \
     libzip-dev \
     libpng-dev \
     libjpeg62-turbo-dev \
