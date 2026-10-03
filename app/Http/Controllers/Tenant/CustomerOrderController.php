@@ -314,7 +314,51 @@ class CustomerOrderController extends Controller
                 }
             }
 
-            $totalAmount = round($netProductsAmount + $shippingCost, 2);
+            $rawAdjustments = $request->validated('price_adjustments', []);
+            $processedAdjustments = [];
+            $discountTotal = 0.00;
+            $surchargeTotal = 0.00;
+
+            if (is_array($rawAdjustments)) {
+                foreach ($rawAdjustments as $adj) {
+                    $adjType = $adj['type'] ?? 'discount';
+                    $calcType = $adj['calculation_type'] ?? 'percentage';
+                    $val = max(0.0, (float) ($adj['value'] ?? 0));
+                    $name = ! empty($adj['name']) ? trim((string) $adj['name']) : ($adjType === 'discount' ? 'Descuento' : 'Recargo');
+                    $reason = ! empty($adj['reason']) ? trim((string) $adj['reason']) : null;
+                    $showInReceipt = isset($adj['show_in_receipt']) ? (bool) $adj['show_in_receipt'] : false;
+
+                    if ($calcType === 'percentage') {
+                        $appliedAmount = round($netProductsAmount * ($val / 100), 2);
+                    } else {
+                        $appliedAmount = round($val, 2);
+                    }
+
+                    if ($adjType === 'discount') {
+                        $discountTotal += $appliedAmount;
+                    } else {
+                        $surchargeTotal += $appliedAmount;
+                    }
+
+                    $processedAdjustments[] = [
+                        'id' => $adj['id'] ?? (string) \Illuminate\Support\Str::uuid(),
+                        'source' => $adj['source'] ?? 'ad_hoc',
+                        'source_id' => $adj['source_id'] ?? null,
+                        'type' => $adjType,
+                        'name' => $name,
+                        'calculation_type' => $calcType,
+                        'value' => $val,
+                        'applied_amount' => $appliedAmount,
+                        'reason' => $reason,
+                        'show_in_receipt' => $showInReceipt,
+                    ];
+                }
+            }
+
+            $discountTotal = round($discountTotal, 2);
+            $surchargeTotal = round($surchargeTotal, 2);
+
+            $totalAmount = max(0.00, round($netProductsAmount + $shippingCost + $surchargeTotal - $discountTotal, 2));
 
             $paymentType = $request->input('payment_type') ?: 'cuenta_corriente';
             $paymentMethod = $request->input('payment_method') ?: 'efectivo';
@@ -365,6 +409,10 @@ class CustomerOrderController extends Controller
                 'customer_discount_amount' => $customerDiscountAmount,
                 'subtotal_amount' => $subtotalProducts,
                 'shipping_cost' => $shippingCost,
+                'price_adjustments' => $processedAdjustments,
+                'show_account_in_receipt' => $request->boolean('show_account_in_receipt'),
+                'discount_total' => $discountTotal,
+                'surcharge_total' => $surchargeTotal,
                 'total_amount' => $totalAmount,
                 'notes' => $request->validated('notes'),
             ]);

@@ -59,6 +59,17 @@ class StoreCustomerOrderRequest extends FormRequest
             'items.*.discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'items.*.units_per_package' => ['nullable', 'numeric', 'min:1'],
             'items.*.apply_customer_discount' => ['nullable', 'boolean'],
+            'show_account_in_receipt' => ['nullable', 'boolean'],
+            'price_adjustments' => ['nullable', 'array'],
+            'price_adjustments.*.id' => ['nullable', 'string'],
+            'price_adjustments.*.source' => ['nullable', 'string', 'in:preset,ad_hoc'],
+            'price_adjustments.*.source_id' => ['nullable', 'integer'],
+            'price_adjustments.*.type' => ['required_with:price_adjustments', 'string', 'in:discount,surcharge'],
+            'price_adjustments.*.name' => ['nullable', 'string', 'max:255'],
+            'price_adjustments.*.calculation_type' => ['required_with:price_adjustments', 'string', 'in:percentage,fixed'],
+            'price_adjustments.*.value' => ['required_with:price_adjustments', 'numeric', 'min:0.01'],
+            'price_adjustments.*.reason' => ['nullable', 'string', 'max:500'],
+            'price_adjustments.*.show_in_receipt' => ['nullable', 'boolean'],
         ];
     }
 

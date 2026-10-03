@@ -474,6 +474,35 @@
         <!-- 4. Pie de Página (Sticky Footer anclado al margen inferior) -->
         <div class="page-footer">
             <div class="totals-container">
+                @if($order->show_account_in_receipt && $order->customer)
+                    <div style="display: table-cell; vertical-align: bottom; width: 55%; text-align: left;">
+                        <div class="account-box" style="border: 1px solid #cbd5e1; border-radius: 5px; background-color: #f8fafc; padding: 6px 10px; width: 95%;">
+                            <div style="font-size: 9.5px; font-weight: 800; color: #0f172a; text-transform: uppercase; margin-bottom: 4px; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px;">
+                                Estado de Cuenta Corriente
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 9.5px;">
+                                <tr>
+                                    <td style="color: #475569; padding: 1.5px 0;">Límite de Crédito:</td>
+                                    <td style="text-align: right; font-weight: 600; color: #0f172a;" class="tabular-nums">
+                                        ${{ number_format((float) ($order->customer->credit_limit ?? 0), 2, ',', '.') }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #475569; padding: 1.5px 0;">Saldo Actual Deudor:</td>
+                                    <td style="text-align: right; font-weight: 600; color: #0f172a;" class="tabular-nums">
+                                        ${{ number_format((float) ($order->customer->current_balance ?? 0), 2, ',', '.') }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #475569; padding: 1.5px 0;">Crédito Disponible:</td>
+                                    <td style="text-align: right; font-weight: 700; color: {{ ((float) ($order->customer->credit_limit ?? 0) - (float) ($order->customer->current_balance ?? 0)) >= 0 ? '#16a34a' : '#dc2626' }};" class="tabular-nums">
+                                        ${{ number_format(max(0, (float) ($order->customer->credit_limit ?? 0) - (float) ($order->customer->current_balance ?? 0)), 2, ',', '.') }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                @endif
                 <div class="totals-box-wrapper">
                     <div class="totals-box">
                         <table class="totals-table">
@@ -494,6 +523,27 @@
                                     <td class="totals-label text-green">Descuento cliente (%{{ number_format($customerDiscountPct, 1, ',', '.') }}):</td>
                                     <td class="totals-value tabular-nums text-green">-${{ number_format($customerDiscountAmount, 2, ',', '.') }}</td>
                                 </tr>
+                            @endif
+
+                            @if(!empty($order->price_adjustments) && is_array($order->price_adjustments))
+                                @foreach($order->price_adjustments as $adj)
+                                    @if(!empty($adj['show_in_receipt']))
+                                        @php
+                                            $isDisc = ($adj['type'] ?? '') === 'discount';
+                                            $appliedVal = (float) ($adj['applied_amount'] ?? 0);
+                                            $adjName = $adj['name'] ?? ($isDisc ? 'Descuento' : 'Recargo');
+                                            if (($adj['calculation_type'] ?? '') === 'percentage') {
+                                                $adjName .= ' (%' . number_format((float) ($adj['value'] ?? 0), 1, ',', '.') . ')';
+                                            }
+                                        @endphp
+                                        <tr>
+                                            <td class="totals-label {{ $isDisc ? 'text-green' : '' }}">{{ $adjName }}:</td>
+                                            <td class="totals-value tabular-nums {{ $isDisc ? 'text-green' : '' }}">
+                                                {{ $isDisc ? '-' : '+' }}${{ number_format($appliedVal, 2, ',', '.') }}
+                                            </td>
+                                        </tr>
+                                    @endif
+                                @endforeach
                             @endif
 
                             @if((float) ($order->shipping_cost ?? 0) > 0)

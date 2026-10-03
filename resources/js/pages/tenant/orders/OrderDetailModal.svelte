@@ -6,6 +6,8 @@
     import IconContainer from '@/components/common/IconContainer.svelte';
     import CustomerOrderReturnModal from './CustomerOrderReturnModal.svelte';
     import EmitFiscalInvoiceModal from './EmitFiscalInvoiceModal.svelte';
+    import ReceiptItemsVisibilityModal from './components/ReceiptItemsVisibilityModal.svelte';
+    import CreateCustomAdjustmentModal from './components/CreateCustomAdjustmentModal.svelte';
     import { router, page } from '@inertiajs/svelte';
     import { hasPermission, hasModule } from '@/lib/permissions';
     import { fade, scale } from 'svelte/transition';
@@ -17,11 +19,14 @@
     import Info from 'lucide-svelte/icons/info';
     import MapPin from 'lucide-svelte/icons/map-pin';
     import Phone from 'lucide-svelte/icons/phone';
+    import Plus from 'lucide-svelte/icons/plus';
     import Printer from 'lucide-svelte/icons/printer';
     import QrCode from 'lucide-svelte/icons/qr-code';
     import ReceiptText from 'lucide-svelte/icons/receipt-text';
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
+    import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
+    import Tag from 'lucide-svelte/icons/tag';
     import Truck from 'lucide-svelte/icons/truck';
     import User from 'lucide-svelte/icons/user';
     import Lock from 'lucide-svelte/icons/lock';
@@ -75,6 +80,10 @@
         payment_condition?: string | null;
         derived_payment_condition?: string | null;
         has_pending_credit_note?: boolean;
+        show_account_in_receipt?: boolean;
+        discount_total?: string | number;
+        surcharge_total?: string | number;
+        price_adjustments?: any[] | null;
         debt_amount?: string | number;
         paid_amount?: string | number;
         total_amount: string | number;
@@ -100,9 +109,15 @@
     let isFiscalModalOpen = $state(false);
     let isFiscalPdfModalOpen = $state(false);
     let isQrModalOpen = $state(false);
+    let isReceiptVisibilityModalOpen = $state(false);
+    let isCustomAdjustmentModalOpen = $state(false);
     let pendingStatus = $state<string | null>(null);
     let isEmittingCreditNote = $state(false);
     let isResolvingPrices = $state(false);
+
+    let netProductsSubtotal = $derived(
+        order?.items?.reduce((acc, it) => acc + Number(it.subtotal || 0), 0) ?? 0
+    );
 
     function resolveKeepPrices() {
         if (!order || isResolvingPrices) return;
@@ -698,6 +713,55 @@
                     </div>
                 </div>
 
+                <!-- Sección de Descuentos y Recargos Aplicados -->
+                <div class="space-y-2 pt-2 border-t">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                            <Tag class="size-3.5 text-primary" />
+                            <span class="text-xs font-bold text-foreground">Ajustes del Pedido (Recargos / Descuentos)</span>
+                        </div>
+                        {#if order.status !== 'cancelado' && order.status !== 'entregado' && order.fiscal_status !== 'facturado' && hasPermission('pedidos.editar_estado')}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                class="h-7 px-2.5 rounded-lg text-xs font-semibold gap-1 text-primary hover:bg-primary/10 cursor-pointer"
+                                onclick={() => (isCustomAdjustmentModalOpen = true)}
+                            >
+                                <Plus class="size-3" />
+                                <span>Agregar Ajuste</span>
+                            </Button>
+                        {/if}
+                    </div>
+
+                    {#if Array.isArray(order.price_adjustments) && order.price_adjustments.length > 0}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {#each order.price_adjustments as adj}
+                                <div class="p-2.5 rounded-xl border flex items-center justify-between text-xs {adj.type === 'discount' ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-amber-500/5 border-amber-500/20'}">
+                                    <div class="min-w-0 pr-2">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-semibold text-foreground truncate">{adj.name || (adj.type === 'discount' ? 'Descuento' : 'Recargo')}</span>
+                                            {#if adj.calculation_type === 'percentage'}
+                                                <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-sans tabular-nums font-medium">%{adj.value}</span>
+                                            {/if}
+                                        </div>
+                                        {#if adj.reason}
+                                            <p class="text-[11px] text-muted-foreground truncate mt-0.5">{adj.reason}</p>
+                                        {/if}
+                                    </div>
+                                    <div class="text-right shrink-0 font-sans tabular-nums">
+                                        <span class="font-bold {adj.type === 'discount' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}">
+                                            {adj.type === 'discount' ? '-' : '+'}{formatPrice(adj.applied_amount)}
+                                        </span>
+                                    </div>
+                                </div>
+                            {/each}
+                        </div>
+                    {:else}
+                        <p class="text-xs text-muted-foreground italic">Sin recargos ni descuentos adicionales aplicados.</p>
+                    {/if}
+                </div>
+
                 {#if order.notes}
                     <div class="p-2.5 rounded-lg bg-muted/20 border text-xs text-muted-foreground">
                         <strong class="text-foreground">Notas:</strong> {order.notes}
@@ -855,15 +919,26 @@
             {/snippet}
 
             {#snippet btnRemito(extraClass = '')}
-                <Button
-                    type="button"
-                    variant="secondary"
-                    class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer {extraClass}"
-                    onclick={() => (isPdfModalOpen = true)}
-                >
-                    <Printer class="size-4 text-primary shrink-0" />
-                    <span>Remito</span>
-                </Button>
+                <div class="inline-flex items-center {extraClass}">
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-l-xl rounded-r-none text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer flex-1 justify-center border-r-0"
+                        onclick={() => (isPdfModalOpen = true)}
+                    >
+                        <Printer class="size-4 text-primary shrink-0" />
+                        <span>Remito</span>
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        class="min-h-[42px] sm:min-h-[40px] px-2.5 rounded-r-xl rounded-l-none border-l border-border/60 text-xs sm:text-sm font-semibold shadow-xs shrink-0 cursor-pointer hover:bg-muted"
+                        title="Configurar visibilidad en remito"
+                        onclick={() => (isReceiptVisibilityModalOpen = true)}
+                    >
+                        <SlidersHorizontal class="size-3.5 text-muted-foreground hover:text-foreground" />
+                    </Button>
+                </div>
             {/snippet}
 
             {#snippet btnCerrar(extraClass = '')}
@@ -1102,6 +1177,32 @@
             bind:open={isReturnModalOpen}
             order={order as any}
             onSuccess={() => {
+                router.reload({ only: ['orders'] });
+            }}
+        />
+
+        <!-- Modal de Visibilidad en Remito -->
+        <ReceiptItemsVisibilityModal
+            bind:open={isReceiptVisibilityModalOpen}
+            bind:order={order as any}
+            onSuccess={() => {
+                router.reload({ only: ['orders'] });
+            }}
+        />
+
+        <!-- Modal de Ajuste Personalizado (Recargo / Descuento) -->
+        <CreateCustomAdjustmentModal
+            bind:open={isCustomAdjustmentModalOpen}
+            orderId={order.id}
+            orderNumber={order.order_number}
+            netProductsAmount={netProductsSubtotal}
+            onSuccess={(updatedOrder) => {
+                if (order && updatedOrder) {
+                    order = {
+                        ...order,
+                        ...updatedOrder,
+                    };
+                }
                 router.reload({ only: ['orders'] });
             }}
         />

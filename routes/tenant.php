@@ -5,9 +5,11 @@ use App\Http\Controllers\Tenant\CategoryController;
 use App\Http\Controllers\Tenant\CompanySettingsController;
 use App\Http\Controllers\Tenant\CustomerAccountController;
 use App\Http\Controllers\Tenant\CustomerController;
+use App\Http\Controllers\Tenant\CustomerOrderAdjustmentController;
 use App\Http\Controllers\Tenant\CustomerOrderController;
 use App\Http\Controllers\Tenant\CustomerOrderFiscalController;
 use App\Http\Controllers\Tenant\CustomerOrderPriceReviewController;
+use App\Http\Controllers\Tenant\CustomerOrderReceiptController;
 use App\Http\Controllers\Tenant\CustomerOrderReturnController;
 use App\Http\Controllers\Tenant\DeliveryRouteController;
 use App\Http\Controllers\Tenant\PaymentCollectionController;
@@ -197,6 +199,9 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::delete('pedidos/{customerOrder}', [CustomerOrderController::class, 'destroy'])->name('orders.destroy')->middleware('tenant.permission:pedidos.cancelar');
             Route::post('pedidos/{customerOrder}/conservar-precios', [CustomerOrderPriceReviewController::class, 'keepPrices'])->name('orders.keep-prices')->middleware('tenant.permission:pedidos.ver');
             Route::post('pedidos/{customerOrder}/actualizar-precios', [CustomerOrderPriceReviewController::class, 'updatePrices'])->name('orders.update-prices')->middleware('tenant.permission:pedidos.editar_estado');
+            Route::patch('pedidos/{customerOrder}/visibilidad-remito', [CustomerOrderReceiptController::class, 'updateVisibility'])->name('orders.receipt-visibility')->middleware('tenant.permission:pedidos.ver');
+            Route::post('pedidos/{customerOrder}/ajustes', [CustomerOrderAdjustmentController::class, 'store'])->name('orders.adjustments.store')->middleware('tenant.permission:pedidos.editar_estado');
+            Route::delete('pedidos/{customerOrder}/ajustes/{adjustmentId}', [CustomerOrderAdjustmentController::class, 'destroy'])->name('orders.adjustments.destroy')->middleware('tenant.permission:pedidos.editar_estado');
 
             // Repartos y Logística de Última Milla
             Route::get('repartos', [DeliveryRouteController::class, 'index'])->name('deliveries.index')->middleware('tenant.permission:repartos.ver');

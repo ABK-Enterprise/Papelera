@@ -31,8 +31,10 @@
     import MoreVertical from 'lucide-svelte/icons/more-vertical';
     import QrCode from 'lucide-svelte/icons/qr-code';
     import Tag from 'lucide-svelte/icons/tag';
+    import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import MercadoPagoQrModal from '@/components/common/MercadoPagoQrModal.svelte';
     import EditItemPriceModal from '@/components/tenant/products/EditItemPriceModal.svelte';
+    import CreateCustomAdjustmentModal from './components/CreateCustomAdjustmentModal.svelte';
     import {
         DropdownMenu,
         DropdownMenuContent,
@@ -678,15 +680,53 @@
         isEditItemPriceModalOpen = false;
     }
 
+    let priceAdjustments = $state<any[]>([]);
+    let showAccountInReceipt = $state(false);
+    let isCreateAdjustmentModalOpen = $state(false);
+
     let shippingCost = $derived.by(() => {
         if (!selectedShippingZone) return 0;
         const pct = Number(selectedShippingZone.surcharge_percentage) || 0;
         return Math.round(computedTotals.finalTotal * (pct / 100) * 100) / 100;
     });
 
+    let adjustmentsTotals = $derived.by(() => {
+        let disc = 0;
+        let sur = 0;
+        for (const adj of priceAdjustments) {
+            const val = Number(adj.value) || 0;
+            const applied = adj.calculation_type === 'percentage'
+                ? Math.round(computedTotals.finalTotal * (val / 100) * 100) / 100
+                : val;
+            adj.applied_amount = applied;
+            if (adj.type === 'discount') {
+                disc += applied;
+            } else {
+                sur += applied;
+            }
+        }
+        return {
+            discountTotal: Math.round(disc * 100) / 100,
+            surchargeTotal: Math.round(sur * 100) / 100,
+        };
+    });
+
     let grandTotal = $derived(
-        Math.round((computedTotals.finalTotal + shippingCost) * 100) / 100
+        Math.max(
+            0,
+            Math.round(
+                (computedTotals.finalTotal +
+                    shippingCost +
+                    adjustmentsTotals.surchargeTotal -
+                    adjustmentsTotals.discountTotal) *
+                    100
+            ) / 100
+        )
     );
+
+    function removePriceAdjustment(id: string) {
+        priceAdjustments = priceAdjustments.filter((a) => a.id !== id);
+    }
 
     function resetForm() {
         selectedCustomerId = null;
@@ -706,6 +746,8 @@
         searchQuery = '';
         selectedProductToAdd = null;
         items = [];
+        priceAdjustments = [];
+        showAccountInReceipt = false;
     }
 
     function closeModal() {
@@ -795,6 +837,8 @@
                 paid_amount: numericPaidAmount,
                 payment_reference: null,
                 apply_customer_discount: applyCustomerDiscount,
+                price_adjustments: priceAdjustments,
+                show_account_in_receipt: showAccountInReceipt,
                 mp_qr_checkout: shouldChargeWithQr ? true : undefined,
                 items: payloadItems,
             },
@@ -1720,6 +1764,83 @@
                     {/if}
                 </div>
 
+                <!-- Bento Card: Ajustes de Precio y Remito -->
+                <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="size-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                <Tag class="size-3.5" />
+                            </div>
+                            <span class="text-xs font-bold text-foreground">Recargos, Descuentos y Remito</span>
+                        </div>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            class="h-8 px-2.5 rounded-lg text-xs font-semibold gap-1 text-primary hover:bg-primary/10 cursor-pointer"
+                            onclick={() => (isCreateAdjustmentModalOpen = true)}
+                        >
+                            <Plus class="size-3.5" />
+                            <span>Agregar Ajuste</span>
+                        </Button>
+                    </div>
+
+                    <!-- Lista de Ajustes Agregados -->
+                    {#if priceAdjustments.length > 0}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                            {#each priceAdjustments as adj (adj.id)}
+                                <div class="p-2.5 rounded-xl border flex items-center justify-between text-xs bg-background {adj.type === 'discount' ? 'border-emerald-500/30' : 'border-amber-500/30'}">
+                                    <div class="min-w-0 pr-2">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-semibold text-foreground truncate">{adj.name}</span>
+                                            {#if adj.calculation_type === 'percentage'}
+                                                <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-sans tabular-nums font-medium">%{adj.value}</span>
+                                            {/if}
+                                        </div>
+                                        {#if adj.reason}
+                                            <p class="text-[11px] text-muted-foreground truncate mt-0.5">{adj.reason}</p>
+                                        {/if}
+                                    </div>
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        <span class="font-bold font-sans tabular-nums {adj.type === 'discount' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}">
+                                            {adj.type === 'discount' ? '-' : '+'}{formatPrice(adj.applied_amount)}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            class="size-6 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors cursor-pointer"
+                                            onclick={() => removePriceAdjustment(adj.id)}
+                                            title="Eliminar ajuste"
+                                        >
+                                            <Trash2 class="size-3" />
+                                        </button>
+                                    </div>
+                                </div>
+                            {/each}
+                        </div>
+                    {:else}
+                        <p class="text-[11px] text-muted-foreground">
+                            Podés aplicar recargos o descuentos especiales a este pedido (fletes, bonificaciones, promociones).
+                        </p>
+                    {/if}
+
+                    <!-- Checkbox de cuenta corriente en remito -->
+                    {#if selectedCustomerId}
+                        <label class="flex items-center gap-2.5 pt-2 border-t border-border/50 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                bind:checked={showAccountInReceipt}
+                                class="size-4 rounded text-primary focus:ring-primary cursor-pointer shrink-0"
+                            />
+                            <div class="flex items-center gap-1.5">
+                                <SlidersHorizontal class="size-3 text-muted-foreground shrink-0" />
+                                <span class="text-xs font-medium text-foreground">
+                                    Incluir resumen de cuenta corriente en el remito impreso
+                                </span>
+                            </div>
+                        </label>
+                    {/if}
+                </div>
+
                 <!-- Bento Card 4: Notas Adicionales -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-1.5">
                     <Label for="order-notes" class="text-xs font-semibold text-foreground">Notas / Instrucciones de Entrega</Label>
@@ -1756,6 +1877,20 @@
                         <div class="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
                             <span>Descuento de cliente ({customerDiscountPercentage}%):</span>
                             <span>-{formatPrice(computedTotals.customerDiscountTotal)}</span>
+                        </div>
+                    {/if}
+
+                    {#if adjustmentsTotals.discountTotal > 0}
+                        <div class="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
+                            <span>Ajustes de descuento:</span>
+                            <span>-{formatPrice(adjustmentsTotals.discountTotal)}</span>
+                        </div>
+                    {/if}
+
+                    {#if adjustmentsTotals.surchargeTotal > 0}
+                        <div class="flex items-center justify-between text-xs text-amber-600 dark:text-amber-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
+                            <span>Ajustes de recargo:</span>
+                            <span>+{formatPrice(adjustmentsTotals.surchargeTotal)}</span>
                         </div>
                     {/if}
 
@@ -1992,6 +2127,14 @@
     } : null}
     isOrderContext={true}
     onPriceUpdated={handleOrderItemPriceUpdated}
+/>
+
+<CreateCustomAdjustmentModal
+    bind:open={isCreateAdjustmentModalOpen}
+    netProductsAmount={computedTotals.finalTotal}
+    onAddLocal={(newAdj) => {
+        priceAdjustments = [...priceAdjustments, newAdj];
+    }}
 />
 
 <style>

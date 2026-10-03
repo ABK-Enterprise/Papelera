@@ -55,6 +55,10 @@ use Illuminate\Support\Carbon;
     'fiscal_status',
     'fiscal_error_message',
     'price_review_pending',
+    'price_adjustments',
+    'show_account_in_receipt',
+    'discount_total',
+    'surcharge_total',
     'notes',
 ])]
 class CustomerOrder extends Model
@@ -103,7 +107,11 @@ class CustomerOrder extends Model
             'debt_amount' => 'decimal:2',
             'customer_discount_percentage' => 'decimal:2',
             'customer_discount_amount' => 'decimal:2',
+            'discount_total' => 'decimal:2',
+            'surcharge_total' => 'decimal:2',
             'price_review_pending' => 'boolean',
+            'show_account_in_receipt' => 'boolean',
+            'price_adjustments' => 'array',
         ];
     }
 
