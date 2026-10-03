@@ -6,7 +6,6 @@
         DialogContent,
         DialogHeader,
         DialogTitle,
-        DialogDescription,
         DialogFooter,
     } from '@/components/ui/dialog';
     import ArrowRight from 'lucide-svelte/icons/arrow-right';
@@ -93,7 +92,7 @@
 
 <Dialog open={isOpen} onOpenChange={handleOpenChange}>
     <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto p-5 sm:p-6 space-y-4">
-        <DialogHeader class="space-y-1">
+        <DialogHeader class="space-y-1 shrink-0">
             <div class="flex items-center gap-2">
                 <Badge variant="outline" class="border-primary-500/30 bg-primary-500/10 text-primary-700 dark:text-primary-300 font-semibold">
                     Auditoría #{log?.id ?? ''}
@@ -107,9 +106,6 @@
             <DialogTitle class="text-xl font-bold tracking-tight text-foreground pt-1">
                 {log?.action ?? 'Detalle de Acción'}
             </DialogTitle>
-            <DialogDescription class="text-xs sm:text-sm text-muted-foreground">
-                Trazabilidad completa de modificaciones registradas en el sistema.
-            </DialogDescription>
         </DialogHeader>
 
         {#if log}

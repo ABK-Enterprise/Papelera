@@ -181,14 +181,9 @@
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
     <!-- Header de la Página -->
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
-                Catálogo de Productos
-            </h1>
-            <p class="text-sm text-muted-foreground mt-0.5 max-w-prose">
-                Gestiona y organiza el catálogo de tu comercio y parámetros de empaque.
-            </p>
-        </div>
+        <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
+            Catálogo de Productos
+        </h1>
 
         <div class="flex items-center justify-end gap-2.5 flex-wrap">
             <Link href="/tenant/productos/buscar-deposito">

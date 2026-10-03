@@ -3,7 +3,6 @@
     import {
         Dialog,
         DialogContent,
-        DialogDescription,
         DialogTitle,
     } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
@@ -121,12 +120,7 @@
         <div class="flex items-center justify-between pb-4 border-b border-border">
             <div class="flex items-center gap-3">
                 <IconContainer size="md" variant="primary" icon="solar:user-plus-bold-duotone" />
-                <div>
-                    <DialogTitle class="text-xl font-bold text-foreground">Añadir Nuevo Cliente</DialogTitle>
-                    <DialogDescription class="text-xs text-muted-foreground mt-0.5">
-                        Registra un cliente en el directorio de tu comercio para pedidos y facturación.
-                    </DialogDescription>
-                </div>
+                <DialogTitle class="text-xl font-bold text-foreground">Añadir Nuevo Cliente</DialogTitle>
             </div>
             <button
                 type="button"

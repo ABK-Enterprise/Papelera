@@ -4,7 +4,6 @@
         Dialog,
         DialogBody,
         DialogContent,
-        DialogDescription,
         DialogFooter,
         DialogHeader,
         DialogTitle,
@@ -78,12 +77,7 @@
         <DialogHeader>
             <div class="flex items-center gap-3 min-w-0">
                 <IconContainer size="md" variant="primary" icon="solar:shop-bold-duotone" />
-                <div class="min-w-0">
-                    <DialogTitle class="text-xl font-bold text-foreground">Crear Comercio</DialogTitle>
-                    <DialogDescription class="text-xs text-muted-foreground mt-0.5">
-                        Registra el comercio, su administrador principal y los módulos activos.
-                    </DialogDescription>
-                </div>
+                <DialogTitle class="text-xl font-bold text-foreground">Crear Comercio</DialogTitle>
             </div>
             <button
                 type="button"

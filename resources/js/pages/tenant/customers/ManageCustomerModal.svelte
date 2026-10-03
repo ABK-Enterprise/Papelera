@@ -4,7 +4,6 @@
         Dialog,
         DialogBody,
         DialogContent,
-        DialogDescription,
         DialogFooter,
         DialogHeader,
         DialogTitle,
@@ -241,12 +240,6 @@
                             </span>
                         {/if}
                     </div>
-                    {#if customer?.created_at}
-                        <DialogDescription class="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                            <Calendar class="size-3 shrink-0" />
-                            <span class="tabular-nums">{formatDate(customer.created_at)}</span>
-                        </DialogDescription>
-                    {/if}
                 </div>
             </div>
 

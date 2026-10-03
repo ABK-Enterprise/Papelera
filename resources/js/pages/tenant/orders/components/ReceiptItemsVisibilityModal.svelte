@@ -4,7 +4,6 @@
         DialogContent,
         DialogHeader,
         DialogTitle,
-        DialogDescription,
         DialogBody,
         DialogFooter,
     } from '@/components/ui/dialog';
@@ -184,18 +183,15 @@
 
 <Dialog bind:open>
     <DialogContent class="sm:max-w-xl max-h-[90vh] flex flex-col p-5 sm:p-6 space-y-4">
-        <DialogHeader class="space-y-1.5 shrink-0 text-left">
+        <DialogHeader class="shrink-0 text-left">
             <div class="flex items-center gap-2">
                 <div class="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     <FileText class="size-4" />
                 </div>
                 <DialogTitle class="text-base sm:text-lg font-bold text-foreground">
-                    Visibilidad en Remito
+                    Visibilidad en Remito #{order?.order_number ?? ''}
                 </DialogTitle>
             </div>
-            <DialogDescription class="text-xs text-muted-foreground">
-                Seleccione qué conceptos e información financiera se imprimirán en el comprobante oficial del pedido #{order?.order_number}.
-            </DialogDescription>
         </DialogHeader>
 
         <DialogBody class="flex-1 overflow-y-auto pr-1 space-y-4">

@@ -115,15 +115,10 @@
 <div class="max-w-6xl w-full lg:w-[80%] mx-auto px-4 sm:px-6 py-6 space-y-6">
     <!-- Header del Módulo con separación estándar (24px a 30px) -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border/60 pb-5">
-        <div class="space-y-1">
-            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-                <ShieldCheck class="size-7 text-primary shrink-0" />
-                Historial de Auditoría
-            </h1>
-            <p class="text-sm text-muted-foreground">
-                Trazabilidad completa y control de acciones comerciales, pedidos y comprobantes fiscales.
-            </p>
-        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+            <ShieldCheck class="size-7 text-primary shrink-0" />
+            Historial de Auditoría
+        </h1>
 
         <div class="flex items-center gap-2 self-start sm:self-auto text-xs text-muted-foreground font-medium tabular-nums">
             <span>{logs.total} {logs.total === 1 ? 'registro' : 'registros'}</span>

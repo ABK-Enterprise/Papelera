@@ -4,7 +4,6 @@
         DialogContent,
         DialogHeader,
         DialogTitle,
-        DialogDescription,
         DialogBody,
         DialogFooter,
     } from '@/components/ui/dialog';
@@ -164,18 +163,15 @@
 
 <Dialog bind:open>
     <DialogContent class="sm:max-w-md max-h-[90vh] flex flex-col p-5 sm:p-6 space-y-4">
-        <DialogHeader class="space-y-1.5 shrink-0 text-left">
+        <DialogHeader class="shrink-0 text-left">
             <div class="flex items-center gap-2">
                 <div class="size-8 rounded-lg {type === 'discount' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'} flex items-center justify-center shrink-0">
                     <Tag class="size-4" />
                 </div>
                 <DialogTitle class="text-base sm:text-lg font-bold text-foreground">
-                    Nuevo Ajuste en Pedido
+                    Nuevo Ajuste en Pedido #{orderNumber}
                 </DialogTitle>
             </div>
-            <DialogDescription class="text-xs text-muted-foreground">
-                Aplica un recargo o descuento ad-hoc para el pedido #{orderNumber}.
-            </DialogDescription>
         </DialogHeader>
 
         <DialogBody class="flex-1 overflow-y-auto space-y-4 pr-1">

@@ -113,15 +113,10 @@
 <div class="max-w-6xl w-full lg:w-[80%] mx-auto px-4 sm:px-6 py-6 space-y-6">
     <!-- Header del Módulo -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border/60 pb-5">
-        <div class="space-y-1">
-            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-                <KeyRound class="size-7 text-primary shrink-0" />
-                Seguimiento de Tickets ARCA
-            </h1>
-            <p class="text-sm text-muted-foreground">
-                Supervisión visual del Ticket de Acceso (WSAA) y consulta de histórico de tokens emitidos.
-            </p>
-        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+            <KeyRound class="size-7 text-primary shrink-0" />
+            Seguimiento de Tickets ARCA
+        </h1>
 
         <div class="flex items-center gap-2 self-start sm:self-auto text-xs text-muted-foreground font-medium tabular-nums">
             <span>{historicalTickets.total} {historicalTickets.total === 1 ? 'ticket emitido' : 'tickets emitidos'}</span>
@@ -136,17 +131,12 @@
                     <div class="size-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
                         <ShieldCheck class="size-6" />
                     </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h2 class="text-lg font-bold text-foreground">Ticket de Acceso Activo</h2>
-                            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                                <span class="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                Operativo
-                            </span>
-                        </div>
-                        <p class="text-xs text-muted-foreground">
-                            Habilitado para firma y emisión de comprobantes fiscales electrónicos (WSAA).
-                        </p>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-lg font-bold text-foreground">Ticket de Acceso Activo</h2>
+                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            <span class="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Operativo
+                        </span>
                     </div>
                 </div>
 

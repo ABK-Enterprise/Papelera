@@ -87,15 +87,10 @@
 
     <!-- Header de la Página -->
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-                <Truck class="size-7 text-primary" />
-                Gestión de Proveedores
-            </h1>
-            <p class="text-sm text-muted-foreground mt-0.5">
-                Administra tu red de proveedores, contactos comerciales y compras integrales.
-            </p>
-        </div>
+        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+            <Truck class="size-7 text-primary" />
+            Gestión de Proveedores
+        </h1>
 
         <div class="flex items-center justify-end gap-2.5">
             {#if hasPermission('proveedores.crear')}

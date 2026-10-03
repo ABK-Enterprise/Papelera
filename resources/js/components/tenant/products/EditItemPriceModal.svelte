@@ -9,7 +9,6 @@
         DialogFooter,
         DialogHeader,
         DialogTitle,
-        DialogDescription,
     } from '@/components/ui/dialog';
     import { router } from '@inertiajs/svelte';
     import { toast } from 'svelte-sonner';
@@ -118,7 +117,7 @@
 
 <Dialog bind:open>
     <DialogContent class="max-w-lg p-5 sm:p-6 space-y-4 rounded-2xl">
-        <DialogHeader class="space-y-1">
+        <DialogHeader class="shrink-0">
             <div class="flex items-center gap-2">
                 <div class="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     <Tag class="size-4" />
@@ -127,19 +126,18 @@
                     {isOrderContext ? 'Modificar precio en el pedido' : 'Editar precio en catálogo'}
                 </DialogTitle>
             </div>
-            <DialogDescription class="text-xs text-muted-foreground leading-relaxed">
-                {#if product}
-                    Producto: <strong class="text-foreground">{product.name}</strong>
-                    {#if product.sku}
-                        <span class="ml-1 text-[11px] tabular-nums font-mono text-muted-foreground">({product.sku})</span>
-                    {/if}
-                {:else}
-                    Ajusta el valor unitario para este producto.
-                {/if}
-            </DialogDescription>
         </DialogHeader>
 
         <DialogBody class="space-y-4 py-1">
+            {#if product}
+                <div class="p-3 rounded-xl bg-muted/40 border border-border/60 text-xs">
+                    <span class="text-muted-foreground block text-[11px]">Producto:</span>
+                    <strong class="text-foreground font-semibold text-sm">{product.name}</strong>
+                    {#if product.sku}
+                        <span class="ml-1 text-xs tabular-nums font-mono text-muted-foreground">({product.sku})</span>
+                    {/if}
+                </div>
+            {/if}
             <!-- Precio Actual vs Nuevo Precio -->
             <div class="space-y-2">
                 <Label for="item-new-price" class="text-xs font-semibold text-foreground">

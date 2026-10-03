@@ -126,17 +126,12 @@
 <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <!-- Header del Módulo (Separación homogénea mb-6 / gap-6 sin métricas decorativas) -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-border/70">
-        <div>
-            <h1 class="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                <div class="h-8 w-8 rounded-lg bg-primary-500/10 text-primary flex items-center justify-center">
-                    <Sparkles class="h-4 w-4" />
-                </div>
-                Recargos y Descuentos
-            </h1>
-            <p class="text-sm text-muted-foreground mt-1">
-                Configura ajustes automáticos para ventas y órdenes con reglas de calendario, días de la semana y cálculo porcentual o fijo.
-            </p>
-        </div>
+        <h1 class="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            <div class="h-8 w-8 rounded-lg bg-primary-500/10 text-primary flex items-center justify-center">
+                <Sparkles class="h-4 w-4" />
+            </div>
+            Recargos y Descuentos
+        </h1>
 
         <Button
             onclick={openCreateModal}

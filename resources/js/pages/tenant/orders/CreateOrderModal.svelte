@@ -1955,19 +1955,20 @@
 <!-- Diálogo Táctil Accesible de Descuento por Ítem en Mobile -->
 <Dialog bind:open={isMobileDiscountModalOpen}>
     <DialogContent class="sm:max-w-[420px] p-5 sm:p-6 space-y-4 rounded-2xl bg-card border-border shadow-2xl">
-        <DialogHeader class="space-y-1">
+        <DialogHeader class="shrink-0">
             <div class="flex items-center gap-2.5">
                 <IconContainer size="sm" variant="primary" icon="solar:tag-price-bold-duotone" />
-                <div>
-                    <DialogTitle class="text-base font-bold text-foreground">Descuento de Producto</DialogTitle>
-                    <DialogDescription class="text-xs text-muted-foreground line-clamp-1">
-                        {mobileDiscountItemIndex !== null && items[mobileDiscountItemIndex] ? items[mobileDiscountItemIndex].product_name : 'Seleccionar porcentaje a aplicar'}
-                    </DialogDescription>
-                </div>
+                <DialogTitle class="text-base font-bold text-foreground">Descuento de Producto</DialogTitle>
             </div>
         </DialogHeader>
 
         <DialogBody class="space-y-4 py-1">
+            {#if mobileDiscountItemIndex !== null && items[mobileDiscountItemIndex]}
+                <div class="p-2.5 rounded-xl bg-muted/40 border border-border/60 text-xs">
+                    <span class="text-muted-foreground block text-[10px]">Producto:</span>
+                    <strong class="text-foreground font-semibold line-clamp-1">{items[mobileDiscountItemIndex].product_name}</strong>
+                </div>
+            {/if}
             <!-- Grid de presets rápidos (touch targets mínimos de 44px) -->
             <div class="space-y-1.5">
                 <Label class="text-xs font-semibold text-foreground">Porcentajes Predefinidos</Label>
@@ -2045,19 +2046,20 @@
 <!-- Diálogo Efímero de Edición de Unidades por Bulto -->
 <Dialog bind:open={isUnitsModalOpen}>
     <DialogContent class="sm:max-w-[420px] p-5 sm:p-6 space-y-4 rounded-2xl bg-card border-border shadow-2xl">
-        <DialogHeader class="space-y-1">
+        <DialogHeader class="shrink-0">
             <div class="flex items-center gap-2.5">
                 <IconContainer size="sm" variant="info" icon="solar:box-minimalistic-bold-duotone" />
-                <div>
-                    <DialogTitle class="text-base font-bold text-foreground">Unidades por Bulto</DialogTitle>
-                    <DialogDescription class="text-xs text-muted-foreground line-clamp-1">
-                        {editingUnitsItemIndex !== null && items[editingUnitsItemIndex] ? items[editingUnitsItemIndex].product_name : 'Modificar unidades para este pedido'}
-                    </DialogDescription>
-                </div>
+                <DialogTitle class="text-base font-bold text-foreground">Unidades por Bulto</DialogTitle>
             </div>
         </DialogHeader>
 
         <DialogBody class="space-y-4 py-1">
+            {#if editingUnitsItemIndex !== null && items[editingUnitsItemIndex]}
+                <div class="p-2.5 rounded-xl bg-muted/40 border border-border/60 text-xs">
+                    <span class="text-muted-foreground block text-[10px]">Producto:</span>
+                    <strong class="text-foreground font-semibold line-clamp-1">{items[editingUnitsItemIndex].product_name}</strong>
+                </div>
+            {/if}
             <div class="space-y-2">
                 <Label for="units-per-package-input" class="text-xs font-semibold text-foreground">
                     Cantidad de unidades por bulto

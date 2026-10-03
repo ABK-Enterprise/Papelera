@@ -4,7 +4,6 @@
         Dialog,
         DialogBody,
         DialogContent,
-        DialogDescription,
         DialogFooter,
         DialogHeader,
         DialogTitle,
@@ -119,9 +118,6 @@
                 </div>
                 {adjustment ? 'Editar Recargo / Descuento' : 'Nuevo Recargo o Descuento'}
             </DialogTitle>
-            <DialogDescription class="text-xs text-muted-foreground">
-                Configura ajustes automáticos para pedidos con reglas de vigencia temporal y días de la semana.
-            </DialogDescription>
         </DialogHeader>
 
         <form onsubmit={handleSubmit} class="space-y-4">
