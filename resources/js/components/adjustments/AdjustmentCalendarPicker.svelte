@@ -1,10 +1,8 @@
 <script lang="ts">
-    import { Button } from '@/components/ui/button';
     import { Label } from '@/components/ui/label';
     import ChevronLeft from 'lucide-svelte/icons/chevron-left';
     import ChevronRight from 'lucide-svelte/icons/chevron-right';
     import CalendarIcon from 'lucide-svelte/icons/calendar';
-    import Check from 'lucide-svelte/icons/check';
 
     let {
         startsAt = $bindable(''),
@@ -46,24 +44,9 @@
         }
     }
 
-    function selectAllDays() {
-        if (disabled) return;
-        daysOfWeek = [1, 2, 3, 4, 5, 6, 7];
-    }
-
-    function selectWeekdays() {
-        if (disabled) return;
-        daysOfWeek = [1, 2, 3, 4, 5];
-    }
-
-    function selectWeekends() {
-        if (disabled) return;
-        daysOfWeek = [6, 7];
-    }
-
-    function clearDays() {
-        if (disabled) return;
-        daysOfWeek = [];
+    function handleCellClick(cell: CalendarCell) {
+        if (disabled || !cell.isCurrentMonth) return;
+        toggleDay(cell.isoDay);
     }
 
     function prevMonth() {
@@ -88,6 +71,7 @@
     interface CalendarCell {
         dayNumber: number;
         dateStr: string;
+        isoDay: number;
         isCurrentMonth: boolean;
         isEffective: boolean;
         isToday: boolean;
@@ -111,9 +95,13 @@
             const m = viewMonth === 0 ? 12 : viewMonth;
             const y = viewMonth === 0 ? viewYear - 1 : viewYear;
             const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            const dateObj = new Date(y, m - 1, d);
+            let isoDay = dateObj.getDay();
+            isoDay = isoDay === 0 ? 7 : isoDay;
             cells.push({
                 dayNumber: d,
                 dateStr,
+                isoDay,
                 isCurrentMonth: false,
                 isEffective: isDateEffective(dateStr, y, m - 1, d),
                 isToday: dateStr === todayStr,
@@ -123,9 +111,13 @@
         // Current month days
         for (let d = 1; d <= lastDayOfMonth.getDate(); d++) {
             const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            const dateObj = new Date(viewYear, viewMonth, d);
+            let isoDay = dateObj.getDay();
+            isoDay = isoDay === 0 ? 7 : isoDay;
             cells.push({
                 dayNumber: d,
                 dateStr,
+                isoDay,
                 isCurrentMonth: true,
                 isEffective: isDateEffective(dateStr, viewYear, viewMonth, d),
                 isToday: dateStr === todayStr,
@@ -139,9 +131,13 @@
             const m = viewMonth === 11 ? 1 : viewMonth + 2;
             const y = viewMonth === 11 ? viewYear + 1 : viewYear;
             const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(nextDay).padStart(2, '0')}`;
+            const dateObj = new Date(y, m - 1, nextDay);
+            let isoDay = dateObj.getDay();
+            isoDay = isoDay === 0 ? 7 : isoDay;
             cells.push({
                 dayNumber: nextDay,
                 dateStr,
+                isoDay,
                 isCurrentMonth: false,
                 isEffective: isDateEffective(dateStr, y, m - 1, nextDay),
                 isToday: dateStr === todayStr,
@@ -174,50 +170,11 @@
 <div class="w-[calc(100%-4px)] sm:w-full mx-auto space-y-3.5 sm:space-y-4 rounded-xl border border-border/70 bg-card p-3 sm:p-4 overflow-hidden box-border">
     <!-- Header: Días de la Semana -->
     <div>
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2 mb-2">
+        <div class="flex items-center justify-between gap-2 mb-2">
             <Label class="text-xs font-semibold text-foreground flex items-center gap-1.5 shrink-0">
                 <CalendarIcon class="h-3.5 w-3.5 text-primary" />
                 <span>Días recurrentes</span>
             </Label>
-            <div class="flex items-center gap-1.5 text-2xs flex-wrap">
-                <button
-                    type="button"
-                    onclick={selectAllDays}
-                    {disabled}
-                    class="text-xs text-primary hover:underline font-medium cursor-pointer disabled:opacity-50"
-                >
-                    Todos
-                </button>
-                <span class="text-muted-foreground">•</span>
-                <button
-                    type="button"
-                    onclick={selectWeekdays}
-                    {disabled}
-                    class="text-xs text-primary hover:underline font-medium cursor-pointer disabled:opacity-50"
-                >
-                    Lun-Vie
-                </button>
-                <span class="text-muted-foreground">•</span>
-                <button
-                    type="button"
-                    onclick={selectWeekends}
-                    {disabled}
-                    class="text-xs text-primary hover:underline font-medium cursor-pointer disabled:opacity-50"
-                >
-                    Fines de semana
-                </button>
-                {#if daysOfWeek.length > 0}
-                    <span class="text-muted-foreground">•</span>
-                    <button
-                        type="button"
-                        onclick={clearDays}
-                        {disabled}
-                        class="text-xs text-destructive hover:underline font-medium cursor-pointer"
-                    >
-                        Limpiar
-                    </button>
-                {/if}
-            </div>
         </div>
 
         <!-- 7 Chips con touch target accesible min-h-[42px] y min-w-0 para evitar desbordes -->
@@ -233,16 +190,13 @@
                             ? 'bg-primary text-primary-foreground border-primary shadow-2xs font-semibold'
                             : 'bg-background hover:bg-muted/60 text-foreground border-border/80'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    aria-label={`Alternar ${day.name}`}
                 >
-                    <span class="text-[11px] sm:text-xs font-semibold">{day.label}</span>
+                    <span class="sm:hidden text-xs font-semibold">{day.short}</span>
+                    <span class="hidden sm:inline text-xs font-semibold">{day.label}</span>
                 </button>
             {/each}
         </div>
-        {#if daysOfWeek.length > 0}
-            <p class="text-2xs text-muted-foreground mt-1.5">
-                Aplica recurrentemente los días: {daysOfWeek.map(d => WEEK_DAYS.find(w => w.id === d)?.name).join(', ')}.
-            </p>
-        {/if}
     </div>
 
     <!-- Rango de Fechas (Desde / Hasta) -->
@@ -302,38 +256,44 @@
 
         <!-- Encabezados Días -->
         <div class="grid grid-cols-7 gap-1 text-center mb-1 w-full">
-            {#each ['L', 'M', 'M', 'J', 'V', 'S', 'D'] as h}
-                <div class="text-2xs font-semibold text-muted-foreground py-0.5 min-w-0">{h}</div>
+            {#each WEEK_DAYS as day}
+                <button
+                    type="button"
+                    onclick={() => toggleDay(day.id)}
+                    {disabled}
+                    class="text-2xs font-semibold py-1 rounded-md transition-colors cursor-pointer select-none hover:bg-muted/60 {daysOfWeek.includes(day.id) ? 'text-primary font-bold' : 'text-muted-foreground'}"
+                    aria-label={`Alternar columna ${day.name}`}
+                >
+                    {day.short}
+                </button>
             {/each}
         </div>
 
-        <!-- Grilla de Celdas -->
+        <!-- Grilla de Celdas Interactivas -->
         <div class="grid grid-cols-7 gap-1 w-full">
             {#each calendarCells as cell}
-                <div
-                    class={`min-h-[28px] sm:min-h-[30px] min-w-0 w-full flex items-center justify-center rounded-md text-xs transition-all select-none ${
-                        !cell.isCurrentMonth
-                            ? 'text-muted-foreground/30 opacity-40'
-                            : cell.isEffective
-                                ? 'bg-primary-500/20 text-primary-800 dark:text-primary-300 font-bold border border-primary-500/40 shadow-2xs'
-                                : 'text-foreground/80 hover:bg-muted/40'
-                    } ${cell.isToday ? 'ring-1 ring-primary-500/60' : ''}`}
-                    title={cell.isEffective ? `${cell.dateStr}: Aplicable` : cell.dateStr}
-                >
-                    <span class="tabular-nums">{cell.dayNumber}</span>
-                </div>
+                {#if cell.isCurrentMonth}
+                    <button
+                        type="button"
+                        onclick={() => handleCellClick(cell)}
+                        {disabled}
+                        class={`min-h-[28px] sm:min-h-[30px] min-w-0 w-full flex items-center justify-center rounded-md text-xs transition-all select-none cursor-pointer ${
+                            cell.isEffective
+                                ? 'bg-primary-500/20 text-primary-800 dark:text-primary-300 font-bold border border-primary-500/40 shadow-2xs hover:bg-primary-500/30'
+                                : 'text-foreground/80 hover:bg-muted/60'
+                        } ${cell.isToday ? 'ring-1 ring-primary-500/60' : ''} disabled:cursor-not-allowed disabled:opacity-50`}
+                        title={cell.isEffective ? `${cell.dateStr}: Ajuste activo (Click para alternar)` : `${cell.dateStr} (Click para activar)`}
+                    >
+                        <span class="tabular-nums">{cell.dayNumber}</span>
+                    </button>
+                {:else}
+                    <div
+                        class="min-h-[28px] sm:min-h-[30px] min-w-0 w-full flex items-center justify-center rounded-md text-xs text-muted-foreground/30 opacity-40 select-none"
+                    >
+                        <span class="tabular-nums">{cell.dayNumber}</span>
+                    </div>
+                {/if}
             {/each}
-        </div>
-
-        <div class="flex flex-wrap items-center gap-3 mt-2 text-2xs text-muted-foreground">
-            <div class="flex items-center gap-1.5">
-                <div class="h-2.5 w-2.5 rounded-sm bg-primary-500/25 border border-primary-500/50 shrink-0"></div>
-                <span>Días con ajuste aplicado</span>
-            </div>
-            <div class="flex items-center gap-1.5">
-                <div class="h-2.5 w-2.5 rounded-sm ring-1 ring-primary-500 shrink-0"></div>
-                <span>Hoy</span>
-            </div>
         </div>
     </div>
 </div>

@@ -19,6 +19,7 @@
     import Loader2 from 'lucide-svelte/icons/loader-2';
     import Tag from 'lucide-svelte/icons/tag';
     import FileText from 'lucide-svelte/icons/file-text';
+    import X from 'lucide-svelte/icons/x';
     import { preventInvalidNumericKeys, sanitizeNumericInput } from '@/lib/numericSanitizer';
 
     let {
@@ -165,19 +166,27 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="sm:max-w-md max-h-[90vh] flex flex-col p-5 sm:p-6 space-y-4">
-        <DialogHeader class="shrink-0 text-left">
-            <div class="flex items-center gap-2">
+    <DialogContent class="sm:max-w-md max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader class="p-4 sm:p-5 border-b border-border/60 shrink-0 flex items-center justify-between bg-card">
+            <div class="flex items-center gap-2 min-w-0">
                 <div class="size-8 rounded-lg {type === 'discount' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'} flex items-center justify-center shrink-0">
                     <Tag class="size-4" />
                 </div>
-                <DialogTitle class="text-base sm:text-lg font-bold text-foreground">
+                <DialogTitle class="text-base sm:text-lg font-bold text-foreground truncate">
                     Nuevo Ajuste en Pedido #{orderNumber}
                 </DialogTitle>
             </div>
+            <button
+                type="button"
+                onclick={() => (open = false)}
+                class="size-8 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                aria-label="Cerrar modal"
+            >
+                <X class="size-4" />
+            </button>
         </DialogHeader>
 
-        <DialogBody class="flex-1 overflow-y-auto space-y-4 pr-0 sm:pr-1">
+        <DialogBody class="p-4 sm:p-5 space-y-4 flex-1 overflow-y-auto w-full box-border">
             <!-- Tipo de Ajuste: Descuento o Recargo -->
             <div class="space-y-1.5">
                 <Label class="text-xs font-semibold text-foreground">Tipo de Ajuste</Label>
@@ -282,7 +291,7 @@
 
             <!-- Previsualización Dinámica de Impacto -->
             {#if numericValue > 0}
-                <div class="p-3 rounded-xl border {type === 'discount' ? 'bg-emerald-500/5 border-emerald-500/30' : 'bg-amber-500/5 border-amber-500/30'} flex items-center justify-between text-xs font-sans tabular-nums">
+                <div class="w-full box-border p-3 rounded-xl border {type === 'discount' ? 'bg-emerald-500/5 border-emerald-500/30' : 'bg-amber-500/5 border-amber-500/30'} flex items-center justify-between text-xs font-sans tabular-nums">
                     <div>
                         <span class="text-muted-foreground block text-[11px]">Impacto sobre el pedido:</span>
                         <span class="font-bold {type === 'discount' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}">
@@ -327,7 +336,7 @@
             </label>
         </DialogBody>
 
-        <DialogFooter class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2 border-t border-border/60 shrink-0">
+        <DialogFooter class="p-4 sm:p-5 border-t border-border/60 shrink-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 bg-card">
             <Button
                 type="button"
                 variant="outline"
