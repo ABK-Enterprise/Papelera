@@ -3,6 +3,7 @@
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Calendar from 'lucide-svelte/icons/calendar';
     import Eye from 'lucide-svelte/icons/eye';
     import Package from 'lucide-svelte/icons/package';
@@ -28,6 +29,7 @@
         status: string;
         fiscal_status?: string | null;
         return_status?: string | null;
+        price_review_pending?: boolean;
         payment_method?: string | null;
         total_amount: number | string;
         created_at: string;
@@ -78,8 +80,7 @@
             tabindex="0"
             onclick={() => onSelectOrder(order)}
             onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelectOrder(order)}
-            class="flex items-center justify-between p-4 rounded-2xl border border-border/70 bg-card shadow-xs hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-border transition-all duration-200 gap-4 cursor-pointer select-none"
-
+            class="flex items-center justify-between p-4 rounded-2xl border bg-card shadow-xs hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-border transition-all duration-200 gap-4 cursor-pointer select-none {order.price_review_pending ? 'border-amber-500/80 bg-amber-500/5 ring-1 ring-amber-500/30' : 'border-border/70'}"
         >
             <!-- Lado Izquierdo: Icono + Número de Pedido y Fecha -->
             <div class="flex items-center gap-3.5 min-w-[200px]">
@@ -88,6 +89,12 @@
                 <div class="flex flex-col">
                     <div class="flex items-center gap-2">
                         <span class="font-semibold text-base text-foreground tabular-nums">{order.order_number}</span>
+                        {#if order.price_review_pending}
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/40">
+                                <AlertTriangle class="h-3 w-3 text-amber-600 shrink-0" />
+                                <span>Revisar precios</span>
+                            </span>
+                        {/if}
                     </div>
                     <div class="flex items-center gap-1 text-xs text-muted-foreground mt-0.5 tabular-nums">
                         <Calendar class="h-3 w-3" />

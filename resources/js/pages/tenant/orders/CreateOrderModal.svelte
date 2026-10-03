@@ -30,7 +30,9 @@
     import MapPin from 'lucide-svelte/icons/map-pin';
     import MoreVertical from 'lucide-svelte/icons/more-vertical';
     import QrCode from 'lucide-svelte/icons/qr-code';
+    import Tag from 'lucide-svelte/icons/tag';
     import MercadoPagoQrModal from '@/components/common/MercadoPagoQrModal.svelte';
+    import EditItemPriceModal from '@/components/tenant/products/EditItemPriceModal.svelte';
     import {
         DropdownMenu,
         DropdownMenuContent,
@@ -652,6 +654,30 @@
         mobileDiscountItemIndex = null;
     }
 
+    // Edit item price dialog state
+    let editingPriceItemIndex = $state<number | null>(null);
+    let isEditItemPriceModalOpen = $state(false);
+
+    function openEditItemPriceDialog(index: number) {
+        editingPriceItemIndex = index;
+        isEditItemPriceModalOpen = true;
+    }
+
+    function handleOrderItemPriceUpdated(newPrice: number, mode: 'order_only' | 'catalog') {
+        if (editingPriceItemIndex === null || !items[editingPriceItemIndex]) return;
+        const it = items[editingPriceItemIndex];
+        it.unit_price = newPrice;
+        it.regular_price = newPrice;
+        if (mode === 'catalog' && it.product_id) {
+            const p = availableProducts.find((prod) => prod.id === it.product_id);
+            if (p) {
+                p.price = newPrice;
+            }
+        }
+        editingPriceItemIndex = null;
+        isEditItemPriceModalOpen = false;
+    }
+
     let shippingCost = $derived.by(() => {
         if (!selectedShippingZone) return 0;
         const pct = Number(selectedShippingZone.surcharge_percentage) || 0;
@@ -1261,6 +1287,13 @@
                                                     {/if}
                                                     <DropdownMenuItem
                                                         class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
+                                                        onclick={() => openEditItemPriceDialog(index)}
+                                                    >
+                                                        <Tag class="size-3.5 shrink-0 text-primary" />
+                                                        <span>Modificar precio</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
                                                         onclick={() => openMobileDiscountDialog(index)}
                                                     >
                                                         <Percent class="size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
@@ -1308,6 +1341,18 @@
                                                 <span class="text-sm font-semibold text-foreground whitespace-nowrap font-sans tabular-nums" title={formatExactPrice(item.unit_price)}>
                                                     {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
                                                 </span>
+                                            {/if}
+
+                                            {#if !item.is_on_the_fly}
+                                                <button
+                                                    type="button"
+                                                    onclick={() => openEditItemPriceDialog(index)}
+                                                    class="inline-flex items-center justify-center size-6 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                                                    title="Modificar precio del producto"
+                                                    aria-label="Modificar precio del producto"
+                                                >
+                                                    <Pencil class="size-3" />
+                                                </button>
                                             {/if}
                                         </div>
 
@@ -1934,6 +1979,19 @@
         targetQrAmountForModal = null;
         router.reload({ only: ['orders', 'stats'], preserveScroll: true });
     }}
+/>
+
+<!-- Modal de Modificación de Precio de Ítem -->
+<EditItemPriceModal
+    bind:open={isEditItemPriceModalOpen}
+    product={editingPriceItemIndex !== null && items[editingPriceItemIndex] ? {
+        id: items[editingPriceItemIndex].product_id,
+        name: items[editingPriceItemIndex].product_name,
+        price: items[editingPriceItemIndex].unit_price,
+        sku: items[editingPriceItemIndex].sku,
+    } : null}
+    isOrderContext={true}
+    onPriceUpdated={handleOrderItemPriceUpdated}
 />
 
 <style>

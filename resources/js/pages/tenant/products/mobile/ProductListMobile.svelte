@@ -20,8 +20,10 @@
     import MoreVertical from 'lucide-svelte/icons/more-vertical';
     import Package from 'lucide-svelte/icons/package';
     import Scale from 'lucide-svelte/icons/scale';
+    import Tag from 'lucide-svelte/icons/tag';
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import ProductImageQuickEditModal from '@/components/tenant/products/ProductImageQuickEditModal.svelte';
+    import EditItemPriceModal from '@/components/tenant/products/EditItemPriceModal.svelte';
 
     interface CategorySummary {
         id: number;
@@ -65,6 +67,14 @@
 
     let selectedImageProduct = $state<ProductItem | null>(null);
     let isImageModalOpen = $state(false);
+
+    let productToEditPrice = $state<ProductItem | null>(null);
+    let isEditPriceModalOpen = $state(false);
+
+    function promptEditPrice(product: ProductItem) {
+        productToEditPrice = product;
+        isEditPriceModalOpen = true;
+    }
 
     function openImageModal(product: ProductItem) {
         selectedImageProduct = product;
@@ -137,6 +147,18 @@
                                 {/snippet}
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" class="w-48 shadow-lg">
+                                {#if hasPermission('productos.editar') || isAdmin()}
+                                    <DropdownMenuItem
+                                        class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
+                                        onclick={() => promptEditPrice(product)}
+                                    >
+                                        <Tag class="size-4 text-muted-foreground" />
+                                        <span>Editar precio</span>
+                                    </DropdownMenuItem>
+                                    {#if hasPermission('productos.eliminar') || isAdmin()}
+                                        <DropdownMenuSeparator />
+                                    {/if}
+                                {/if}
                                 <DropdownMenuItem
                                     class="flex items-center gap-2 text-xs font-medium text-destructive cursor-pointer py-2.5 focus:text-destructive focus:bg-destructive/10"
                                     onclick={() => promptDelete(product)}
@@ -287,6 +309,14 @@
                                             </Link>
                                         {/snippet}
                                     </DropdownMenuItem>
+
+                                    <DropdownMenuItem
+                                        class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
+                                        onclick={() => promptEditPrice(product)}
+                                    >
+                                        <Tag class="size-4 text-muted-foreground" />
+                                        <span>Editar precio</span>
+                                    </DropdownMenuItem>
                                 {/if}
                                 {#if (hasPermission('productos.editar') || isAdmin()) && (hasPermission('productos.eliminar') || isAdmin())}
                                     <DropdownMenuSeparator />
@@ -431,4 +461,11 @@
     bind:open={isImageModalOpen}
     product={selectedImageProduct}
     onSuccess={handleImageUpdated}
+/>
+
+<!-- Modal de Edición de Precio de Catálogo Mobile -->
+<EditItemPriceModal
+    bind:open={isEditPriceModalOpen}
+    product={productToEditPrice}
+    isOrderContext={false}
 />

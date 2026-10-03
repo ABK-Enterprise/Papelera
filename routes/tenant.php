@@ -7,6 +7,7 @@ use App\Http\Controllers\Tenant\CustomerAccountController;
 use App\Http\Controllers\Tenant\CustomerController;
 use App\Http\Controllers\Tenant\CustomerOrderController;
 use App\Http\Controllers\Tenant\CustomerOrderFiscalController;
+use App\Http\Controllers\Tenant\CustomerOrderPriceReviewController;
 use App\Http\Controllers\Tenant\CustomerOrderReturnController;
 use App\Http\Controllers\Tenant\DeliveryRouteController;
 use App\Http\Controllers\Tenant\PaymentCollectionController;
@@ -104,6 +105,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('productos', [ProductController::class, 'store'])->name('products.store')->middleware('tenant.permission:productos.crear');
             Route::get('productos/{product}/editar', [ProductController::class, 'edit'])->name('products.edit')->middleware('tenant.permission:productos.editar');
             Route::put('productos/{product}', [ProductController::class, 'update'])->name('products.update')->middleware('tenant.permission:productos.editar');
+            Route::patch('productos/{product}/precio', [ProductController::class, 'updatePrice'])->name('products.update-price')->middleware('tenant.permission:productos.editar');
             Route::post('productos/{product}/imagen', [ProductController::class, 'updateImage'])->name('products.update-image')->middleware('tenant.permission:productos.editar');
             Route::delete('productos/{product}/imagen', [ProductController::class, 'destroyImage'])->name('products.destroy-image')->middleware('tenant.permission:productos.editar');
             Route::delete('productos/{product}', [ProductController::class, 'destroy'])->name('products.destroy')->middleware('tenant.permission:productos.eliminar');
@@ -193,6 +195,8 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::get('pedidos/{order}/factura-previsualizar', [CustomerOrderFiscalController::class, 'previewPdf'])->name('customer-orders.fiscal-invoice.preview')->middleware(['module:facturacion_arca', 'tenant.permission:facturas.consultar', 'throttle:20,1']);
             Route::get('pedidos/{order}/factura-visor', [CustomerOrderFiscalController::class, 'viewer'])->name('customer-orders.fiscal-invoice.viewer')->middleware(['module:facturacion_arca', 'tenant.permission:facturas.consultar']);
             Route::delete('pedidos/{customerOrder}', [CustomerOrderController::class, 'destroy'])->name('orders.destroy')->middleware('tenant.permission:pedidos.cancelar');
+            Route::post('pedidos/{customerOrder}/conservar-precios', [CustomerOrderPriceReviewController::class, 'keepPrices'])->name('orders.keep-prices')->middleware('tenant.permission:pedidos.ver');
+            Route::post('pedidos/{customerOrder}/actualizar-precios', [CustomerOrderPriceReviewController::class, 'updatePrices'])->name('orders.update-prices')->middleware('tenant.permission:pedidos.editar_estado');
 
             // Repartos y Logística de Última Milla
             Route::get('repartos', [DeliveryRouteController::class, 'index'])->name('deliveries.index')->middleware('tenant.permission:repartos.ver');

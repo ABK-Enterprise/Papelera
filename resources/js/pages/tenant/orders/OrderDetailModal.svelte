@@ -43,6 +43,7 @@
             id: number;
             name: string;
             sku: string | null;
+            price?: string | number;
         };
     }
 
@@ -69,6 +70,7 @@
         active_fiscal_invoice?: any;
         return_status?: string;
         payment_status?: string;
+        price_review_pending?: boolean;
         payment_method?: string | null;
         payment_condition?: string | null;
         derived_payment_condition?: string | null;
@@ -100,6 +102,59 @@
     let isQrModalOpen = $state(false);
     let pendingStatus = $state<string | null>(null);
     let isEmittingCreditNote = $state(false);
+    let isResolvingPrices = $state(false);
+
+    function resolveKeepPrices() {
+        if (!order || isResolvingPrices) return;
+        isResolvingPrices = true;
+        router.post(
+            `/tenant/pedidos/${order.id}/conservar-precios`,
+            {},
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => {
+                    toast.success('Precios originales conservados para este pedido.');
+                    if (order) order.price_review_pending = false;
+                    isResolvingPrices = false;
+                },
+                onError: (errors) => {
+                    const msg = Object.values(errors)[0] || 'Error al procesar la solicitud.';
+                    toast.error(msg);
+                    isResolvingPrices = false;
+                },
+                onFinish: () => {
+                    isResolvingPrices = false;
+                },
+            }
+        );
+    }
+
+    function resolveUpdatePrices() {
+        if (!order || isResolvingPrices) return;
+        isResolvingPrices = true;
+        router.post(
+            `/tenant/pedidos/${order.id}/actualizar-precios`,
+            {},
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => {
+                    toast.success('Precios del pedido actualizados con éxito según el catálogo.');
+                    if (order) order.price_review_pending = false;
+                    isResolvingPrices = false;
+                },
+                onError: (errors) => {
+                    const msg = Object.values(errors)[0] || 'Error al actualizar precios del pedido.';
+                    toast.error(msg);
+                    isResolvingPrices = false;
+                },
+                onFinish: () => {
+                    isResolvingPrices = false;
+                },
+            }
+        );
+    }
 
     function getMobilePaymentLabel(ord: OrderData): string {
         const raw = (ord.derived_payment_condition || ord.payment_condition || ord.payment_method || '').toLowerCase();
@@ -370,6 +425,50 @@
 
             <!-- Scrollable Content Body -->
             <div class="flex-1 min-h-0 overflow-y-auto space-y-4 sm:space-y-5 py-2 pr-1">
+                <!-- Banner de Discrepancia de Precios de Catálogo -->
+                {#if order.price_review_pending}
+                    <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-3">
+                        <div class="flex items-start gap-3">
+                            <AlertTriangle class="size-5 text-amber-600 shrink-0 mt-0.5" />
+                            <div class="space-y-1">
+                                <strong class="font-bold text-sm text-foreground block">
+                                    Discrepancia en Precios de Catálogo
+                                </strong>
+                                <p class="text-xs text-muted-foreground leading-relaxed">
+                                    Uno o más productos incluidos en este pedido tuvieron modificaciones de precio en el catálogo con posterioridad a la creación de la orden. Puedes conservar los valores fijados originalmente o recalcular los ítems al valor vigente del catálogo.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap items-center justify-end gap-2.5 pt-2 border-t border-amber-500/20">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                class="min-h-[36px] rounded-lg text-xs font-semibold border-amber-500/40 hover:bg-amber-500/15 text-foreground cursor-pointer"
+                                disabled={isResolvingPrices}
+                                onclick={resolveKeepPrices}
+                            >
+                                Conservar precios originales
+                            </Button>
+                            <Button
+                                type="button"
+                                size="sm"
+                                class="min-h-[36px] rounded-lg text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white cursor-pointer gap-1.5"
+                                disabled={isResolvingPrices}
+                                onclick={resolveUpdatePrices}
+                            >
+                                {#if isResolvingPrices}
+                                    <Loader2 class="size-3.5 animate-spin" />
+                                    <span>Actualizando...</span>
+                                {:else}
+                                    <span>Actualizar al precio vigente</span>
+                                {/if}
+                            </Button>
+                        </div>
+                    </div>
+                {/if}
+
                 <!-- Banner de Inconveniente Fiscal en caso de error previo -->
                 {#if order.fiscal_status === 'error_fiscal' && order.fiscal_error_message}
                     <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-xs text-amber-800 dark:text-amber-300">
@@ -502,15 +601,22 @@
 
                                 <div class="flex items-center justify-between pt-2 border-t border-border/50">
                                     <div class="text-xs text-muted-foreground font-sans tabular-nums">
-                                        {formatPrice(item.unit_price)} × 
-                                        {#if item.packaging_type === 'gram'}
-                                            {item.quantity} g ({item.quantity / 1000} Kg)
-                                        {:else if item.packaging_type === 'kg'}
-                                            {item.quantity} Kg
-                                        {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
-                                            {item.quantity} {item.quantity === 1 ? 'bulto' : 'bultos'} ({item.quantity * (item.units_per_package || 1)} u)
-                                        {:else}
-                                            {item.quantity} unid.
+                                        <div>
+                                            {formatPrice(item.unit_price)} × 
+                                            {#if item.packaging_type === 'gram'}
+                                                {item.quantity} g ({item.quantity / 1000} Kg)
+                                            {:else if item.packaging_type === 'kg'}
+                                                {item.quantity} Kg
+                                            {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
+                                                {item.quantity} {item.quantity === 1 ? 'bulto' : 'bultos'} ({item.quantity * (item.units_per_package || 1)} u)
+                                            {:else}
+                                                {item.quantity} unid.
+                                            {/if}
+                                        </div>
+                                        {#if item.product?.price && Math.abs(Number(item.product.price) - Number(item.unit_price)) >= 0.01}
+                                            <span class="text-[11px] text-amber-600 dark:text-amber-400 font-semibold block mt-0.5">
+                                                Catálogo actual: {formatPrice(item.product.price)}
+                                            </span>
                                         {/if}
                                     </div>
                                     <div class="text-sm font-bold font-sans tabular-nums text-foreground">
@@ -576,7 +682,14 @@
                                                 {item.quantity} unid.
                                             {/if}
                                         </td>
-                                        <td class="p-2.5 text-right font-sans tabular-nums">{formatPrice(item.unit_price)}</td>
+                                        <td class="p-2.5 text-right font-sans tabular-nums">
+                                            <div>{formatPrice(item.unit_price)}</div>
+                                            {#if item.product?.price && Math.abs(Number(item.product.price) - Number(item.unit_price)) >= 0.01}
+                                                <span class="text-[10px] text-amber-600 dark:text-amber-400 block font-normal tabular-nums">
+                                                    Catálogo: {formatPrice(item.product.price)}
+                                                </span>
+                                            {/if}
+                                        </td>
                                         <td class="p-2.5 text-right font-sans tabular-nums font-bold text-foreground">{formatPrice(item.subtotal)}</td>
                                     </tr>
                                 {/each}

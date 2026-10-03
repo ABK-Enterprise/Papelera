@@ -293,6 +293,9 @@ class ProductController extends Controller
             $imagePosition = $imageResult['image_position'];
         }
 
+        $oldPrice = (float) $product->price;
+        $newPrice = (float) $request->validated('price');
+
         $product->update([
             'category_id' => $request->validated('category_id'),
             'name' => $request->validated('name'),
@@ -300,7 +303,7 @@ class ProductController extends Controller
             'sku' => $request->validated('sku'),
             'barcode' => $request->validated('barcode'),
             'description' => $request->validated('description'),
-            'price' => $request->validated('price'),
+            'price' => $newPrice,
             'cost_price' => $request->validated('cost_price'),
             'iva_rate' => $request->validated('iva_rate', 21.00),
             'min_stock' => $request->validated('min_stock', $product->min_stock ?? 5),
@@ -314,12 +317,43 @@ class ProductController extends Controller
             'is_active' => $request->boolean('is_active', true),
         ]);
 
+        if (abs($oldPrice - $newPrice) >= 0.001) {
+            app(\App\Services\ProductPriceUpdateService::class)->updatePrice($product, $newPrice);
+        }
+
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json($product);
         }
 
         return redirect()->route('tenant.products.index')
             ->with('success', 'Producto actualizado exitosamente.');
+    }
+
+    public function updatePrice(Request $request, Product $product): JsonResponse|RedirectResponse
+    {
+        if ($product->tenant_id !== $request->user()->tenant_id) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'price' => ['required', 'numeric', 'min:0.01'],
+        ]);
+
+        $affectedOrderIds = app(\App\Services\ProductPriceUpdateService::class)->updatePrice(
+            $product,
+            (float) $validated['price']
+        );
+
+        if ($request->wantsJson() || $request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Precio actualizado en el catálogo con éxito.',
+                'product' => $product->fresh(),
+                'affected_orders_count' => count($affectedOrderIds),
+            ]);
+        }
+
+        return back()->with('success', 'Precio actualizado en el catálogo con éxito.');
     }
 
     /**

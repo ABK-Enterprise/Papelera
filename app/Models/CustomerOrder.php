@@ -54,6 +54,7 @@ use Illuminate\Support\Carbon;
     'return_status',
     'fiscal_status',
     'fiscal_error_message',
+    'price_review_pending',
     'notes',
 ])]
 class CustomerOrder extends Model
@@ -102,6 +103,7 @@ class CustomerOrder extends Model
             'debt_amount' => 'decimal:2',
             'customer_discount_percentage' => 'decimal:2',
             'customer_discount_amount' => 'decimal:2',
+            'price_review_pending' => 'boolean',
         ];
     }
 

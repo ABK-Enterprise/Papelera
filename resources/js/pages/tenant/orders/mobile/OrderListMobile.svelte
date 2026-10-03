@@ -3,6 +3,7 @@
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Calendar from 'lucide-svelte/icons/calendar';
     import Eye from 'lucide-svelte/icons/eye';
     import Package from 'lucide-svelte/icons/package';
@@ -33,6 +34,7 @@
         status: string;
         fiscal_status?: string;
         return_status?: string;
+        price_review_pending?: boolean;
         total_amount: string | number;
         notes: string | null;
         created_at: string;
@@ -76,13 +78,19 @@
 <div class="flex flex-col gap-3">
     {#each paginatedOrders as order (order.id)}
         <div
-            class="flex flex-col min-h-[56px] gap-3 rounded-2xl border border-border/70 bg-card p-4 shadow-2xs transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 active:scale-[0.99] cursor-pointer select-none"
-
+            class="flex flex-col min-h-[56px] gap-3 rounded-2xl border bg-card p-4 shadow-2xs transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 active:scale-[0.99] cursor-pointer select-none {order.price_review_pending ? 'border-amber-500/80 bg-amber-500/5 ring-1 ring-amber-500/30' : 'border-border/70'}"
             onclick={() => onSelectOrder(order)}
             onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelectOrder(order)}
             role="button"
             tabindex="0"
         >
+            {#if order.price_review_pending}
+                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-semibold">
+                    <AlertTriangle class="size-3.5 text-amber-600 shrink-0" />
+                    <span>Precios de catálogo desactualizados</span>
+                </div>
+            {/if}
+
             <!-- Header Card Mobile (Alineación dinámica y +4px eje-y de padding) -->
             <div class="flex {order.return_status ? 'items-start' : 'items-center'} justify-between py-0.5 gap-2">
                 <div class="flex items-center gap-3 min-w-0">

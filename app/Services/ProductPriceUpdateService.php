@@ -1,0 +1,49 @@
+<?php
+
+namespace App\Services;
+
+use App\Events\Tenant\ProductPriceChanged;
+use App\Models\CustomerOrder;
+use App\Models\Product;
+use Illuminate\Support\Facades\DB;
+
+class ProductPriceUpdateService
+{
+    /**
+     * Update product catalog price and flag affected pending orders.
+     *
+     * @return array<int> IDs of affected customer orders
+     */
+    public function updatePrice(Product $product, float $newPrice): array
+    {
+        $oldPrice = (float) $product->price;
+
+        if (abs($oldPrice - $newPrice) < 0.0001) {
+            return [];
+        }
+
+        return DB::transaction(function () use ($product, $oldPrice, $newPrice) {
+            $product->update(['price' => $newPrice]);
+
+            // Query affected non-terminal, non-invoiced orders
+            $affectedOrderIds = CustomerOrder::where('tenant_id', $product->tenant_id)
+                ->whereNotIn('status', ['entregado', 'cancelado'])
+                ->where('fiscal_status', '!=', 'facturado')
+                ->whereHas('items', function ($query) use ($product) {
+                    $query->where('product_id', $product->id);
+                })
+                ->pluck('id')
+                ->all();
+
+            if (! empty($affectedOrderIds)) {
+                CustomerOrder::whereIn('id', $affectedOrderIds)->update([
+                    'price_review_pending' => true,
+                ]);
+            }
+
+            event(new ProductPriceChanged($product, $oldPrice, $newPrice, $affectedOrderIds));
+
+            return $affectedOrderIds;
+        });
+    }
+}
