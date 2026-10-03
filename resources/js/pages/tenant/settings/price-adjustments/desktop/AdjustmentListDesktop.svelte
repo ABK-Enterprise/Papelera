@@ -1,7 +1,6 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
-    import { Badge } from '@/components/ui/badge';
     import {
         DropdownMenu,
         DropdownMenuContent,
@@ -52,15 +51,35 @@
         }).format(val);
     }
 
+    function formatDateParts(dateStr: string): string {
+        const parts = dateStr.slice(0, 10).split('-');
+        if (parts.length !== 3) return dateStr;
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
     function formatDateRange(adj: PriceAdjustmentItem): string {
+        if (adj.specific_dates && adj.specific_dates.length > 0) {
+            const count = adj.specific_dates.length;
+            const start = adj.specific_dates[0].slice(0, 10);
+            const end = adj.specific_dates[count - 1].slice(0, 10);
+            if (start === end) {
+                return `${formatDateParts(start)} (1 día)`;
+            }
+            return `${formatDateParts(start)} al ${formatDateParts(end)} (${count} días)`;
+        }
         if (adj.starts_at && !adj.ends_at) {
-            return `Desde ${adj.starts_at.slice(0, 10)}`;
+            return `Desde ${formatDateParts(adj.starts_at)}`;
         }
         if (!adj.starts_at && adj.ends_at) {
-            return `Hasta ${adj.ends_at.slice(0, 10)}`;
+            return `Hasta ${formatDateParts(adj.ends_at)}`;
         }
         if (adj.starts_at && adj.ends_at) {
-            return `${adj.starts_at.slice(0, 10)} al ${adj.ends_at.slice(0, 10)}`;
+            const start = adj.starts_at.slice(0, 10);
+            const end = adj.ends_at.slice(0, 10);
+            if (start === end) {
+                return `${formatDateParts(start)} (1 día)`;
+            }
+            return `${formatDateParts(start)} al ${formatDateParts(end)}`;
         }
         return '';
     }
@@ -85,49 +104,7 @@
                     : 'border-border/40 opacity-75 bg-muted/15 hover:opacity-90'
             }`}
         >
-            <!-- Menú de Opciones '...' en esquina superior derecha -->
-            <div class="absolute top-3.5 right-3.5 z-10">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        {#snippet children(props)}
-                            <button
-                                {...props}
-                                type="button"
-                                onclick={(e) => e.stopPropagation()}
-                                class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
-                                aria-label="Más opciones"
-                            >
-                                <MoreHorizontal class="size-4" />
-                            </button>
-                        {/snippet}
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" class="w-48 shadow-lg">
-                        <DropdownMenuItem
-                            onclick={(e) => {
-                                e.stopPropagation();
-                                ontoggle(adj);
-                            }}
-                            class="flex items-center gap-2 cursor-pointer text-xs font-medium"
-                        >
-                            <Power class="size-4" />
-                            <span>{adj.is_active ? 'Desactivar ajuste' : 'Activar ajuste'}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                            onclick={(e) => {
-                                e.stopPropagation();
-                                ondelete(adj);
-                            }}
-                            class="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer text-xs font-medium"
-                        >
-                            <Trash2 class="size-4" />
-                            <span>Eliminar ajuste</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 pr-8 lg:pr-10">
+            <div class="flex items-center justify-between gap-5">
                 <!-- Columna Izquierda: Badges, Nombre y Motivo -->
                 <div class="space-y-2 flex-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
@@ -147,11 +124,6 @@
                                 <span>Recargo</span>
                             {/if}
                         </span>
-
-                        <!-- Modalidad de Cálculo -->
-                        <Badge variant="secondary" class="text-2xs font-medium tracking-wide">
-                            {adj.calculation_type === 'percentage' ? 'Porcentaje' : 'Monto fijo'}
-                        </Badge>
 
                         <!-- Indicador de Estado Activo / Pausado -->
                         <span class={`inline-flex items-center gap-1.5 text-2xs font-semibold ${
@@ -175,10 +147,10 @@
                     {/if}
                 </div>
 
-                <!-- Columna Central / Derecha: Valor, Calendario y Acciones de Creación/Edición -->
-                <div class="flex flex-col sm:flex-row sm:items-center gap-6 lg:gap-8 pt-3 lg:pt-0 border-t lg:border-t-0 border-border/60">
+                <!-- Columna Central: Valor y Calendario -->
+                <div class="flex items-center gap-6 lg:gap-8 shrink-0">
                     <!-- Valor Destacado -->
-                    <div class="text-left sm:text-right shrink-0">
+                    <div class="text-right shrink-0">
                         <span class="text-2xs font-semibold text-muted-foreground uppercase tracking-wider block">
                             Valor
                         </span>
@@ -190,7 +162,7 @@
                     </div>
 
                     <!-- Resumen de Vigencia y Días -->
-                    <div class="space-y-1.5 text-xs text-muted-foreground min-w-[200px]">
+                    <div class="space-y-1.5 text-xs text-muted-foreground min-w-[190px]">
                         <!-- Días recurrentes -->
                         <div class="flex items-center gap-1 flex-wrap">
                             {#if !adj.days_of_week || adj.days_of_week.length === 0}
@@ -217,28 +189,69 @@
                         </div>
 
                         <!-- Rango de fechas (únicamente si existen fechas definidas) -->
-                        {#if adj.starts_at || adj.ends_at}
+                        {#if adj.specific_dates?.length || adj.starts_at || adj.ends_at}
                             <div class="flex items-center gap-1.5 text-2xs text-muted-foreground">
                                 <Calendar class="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                                 <span>{formatDateRange(adj)}</span>
                             </div>
                         {/if}
                     </div>
+                </div>
 
-                    <!-- Acciones Operativas (Exclusivamente Edición con tipografía ampliada) -->
-                    <div class="flex items-center shrink-0 pt-2 sm:pt-0">
-                        <Button
-                            variant="outline"
-                            onclick={(e) => {
-                                e.stopPropagation();
-                                onedit(adj);
-                            }}
-                            class="min-h-[40px] px-4 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-2xs cursor-pointer border-primary/30 bg-primary/5 text-primary hover:bg-primary/10"
-                        >
-                            <Pencil class="h-4 w-4" />
-                            <span>Editar</span>
-                        </Button>
-                    </div>
+                <!-- Columna Derecha de Acciones: Alineación vertical de '...' arriba y 'Editar' abajo -->
+                <div class="flex flex-col items-end justify-between self-stretch shrink-0 gap-3">
+                    <!-- Menú de Opciones '...' con borde visible y affordance táctil -->
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            {#snippet children(props)}
+                                <button
+                                    {...props}
+                                    type="button"
+                                    onclick={(e) => e.stopPropagation()}
+                                    class="size-8 rounded-xl border border-border/80 bg-background/80 shadow-2xs hover:bg-muted hover:border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center"
+                                    aria-label="Más opciones"
+                                >
+                                    <MoreHorizontal class="size-4" />
+                                </button>
+                            {/snippet}
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" class="w-48 shadow-lg">
+                            <DropdownMenuItem
+                                onclick={(e) => {
+                                    e.stopPropagation();
+                                    ontoggle(adj);
+                                }}
+                                class="flex items-center gap-2 cursor-pointer text-xs font-medium"
+                            >
+                                <Power class="size-4" />
+                                <span>{adj.is_active ? 'Desactivar ajuste' : 'Activar ajuste'}</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                onclick={(e) => {
+                                    e.stopPropagation();
+                                    ondelete(adj);
+                                }}
+                                class="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer text-xs font-medium"
+                            >
+                                <Trash2 class="size-4" />
+                                <span>Eliminar ajuste</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <!-- Acciones Operativas (Exclusivamente Edición) -->
+                    <Button
+                        variant="outline"
+                        onclick={(e) => {
+                            e.stopPropagation();
+                            onedit(adj);
+                        }}
+                        class="min-h-[38px] px-3.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer border-primary/30 bg-primary/5 text-primary hover:bg-primary/10"
+                    >
+                        <Pencil class="h-3.5 w-3.5" />
+                        <span>Editar</span>
+                    </Button>
                 </div>
             </div>
         </Card>

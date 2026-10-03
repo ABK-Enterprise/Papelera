@@ -1,7 +1,6 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
-    import { Badge } from '@/components/ui/badge';
     import {
         DropdownMenu,
         DropdownMenuContent,
@@ -52,15 +51,35 @@
         }).format(val);
     }
 
+    function formatDateParts(dateStr: string): string {
+        const parts = dateStr.slice(0, 10).split('-');
+        if (parts.length !== 3) return dateStr;
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
     function formatDateRange(adj: PriceAdjustmentItem): string {
+        if (adj.specific_dates && adj.specific_dates.length > 0) {
+            const count = adj.specific_dates.length;
+            const start = adj.specific_dates[0].slice(0, 10);
+            const end = adj.specific_dates[count - 1].slice(0, 10);
+            if (start === end) {
+                return `${formatDateParts(start)} (1 día)`;
+            }
+            return `${formatDateParts(start)} al ${formatDateParts(end)} (${count} días)`;
+        }
         if (adj.starts_at && !adj.ends_at) {
-            return `Desde ${adj.starts_at.slice(0, 10)}`;
+            return `Desde ${formatDateParts(adj.starts_at)}`;
         }
         if (!adj.starts_at && adj.ends_at) {
-            return `Hasta ${adj.ends_at.slice(0, 10)}`;
+            return `Hasta ${formatDateParts(adj.ends_at)}`;
         }
         if (adj.starts_at && adj.ends_at) {
-            return `${adj.starts_at.slice(0, 10)} al ${adj.ends_at.slice(0, 10)}`;
+            const start = adj.starts_at.slice(0, 10);
+            const end = adj.ends_at.slice(0, 10);
+            if (start === end) {
+                return `${formatDateParts(start)} (1 día)`;
+            }
+            return `${formatDateParts(start)} al ${formatDateParts(end)}`;
         }
         return '';
     }
@@ -106,11 +125,6 @@
                             {/if}
                         </span>
 
-                        <!-- Modalidad de Cálculo -->
-                        <Badge variant="secondary" class="text-2xs font-medium">
-                            {adj.calculation_type === 'percentage' ? 'Porcentaje' : 'Monto fijo'}
-                        </Badge>
-
                         <!-- Indicador de Estado Activo / Pausado -->
                         <span class={`inline-flex items-center gap-1.5 text-xs font-semibold ${
                             adj.is_active ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'
@@ -120,7 +134,7 @@
                         </span>
                     </div>
 
-                    <!-- Menú de Opciones '...' en esquina superior derecha -->
+                    <!-- Menú de Opciones '...' con borde visible y shadow-2xs -->
                     <div class="shrink-0 -mr-1">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -129,7 +143,7 @@
                                         {...props}
                                         type="button"
                                         onclick={(e) => e.stopPropagation()}
-                                        class="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center"
+                                        class="size-8 rounded-xl border border-border/80 bg-background/80 shadow-2xs hover:bg-muted hover:border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center"
                                         aria-label="Más opciones"
                                     >
                                         <MoreHorizontal class="size-4" />
@@ -191,7 +205,7 @@
 
             <!-- Fila de Calendario y Días Recurrentes en Mobile -->
             <div class="rounded-xl bg-muted/40 p-2.5 space-y-2 border border-border/40">
-                {#if adj.starts_at || adj.ends_at}
+                {#if adj.specific_dates?.length || adj.starts_at || adj.ends_at}
                     <div class="flex items-center justify-between gap-2 flex-wrap text-2xs">
                         <div class="flex items-center gap-1.5 text-muted-foreground">
                             <Calendar class="h-3.5 w-3.5 shrink-0" />

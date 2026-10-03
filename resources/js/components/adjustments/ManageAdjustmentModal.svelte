@@ -33,6 +33,7 @@
         starts_at?: string | null;
         ends_at?: string | null;
         days_of_week?: number[] | null;
+        specific_dates?: string[] | null;
         is_active: boolean;
         created_at?: string;
     }
@@ -56,6 +57,7 @@
         starts_at: '',
         ends_at: '',
         days_of_week: [] as number[],
+        specific_dates: [] as string[],
         is_active: true,
     });
 
@@ -72,6 +74,7 @@
             form.starts_at = adjustment.starts_at ? adjustment.starts_at.slice(0, 10) : '';
             form.ends_at = adjustment.ends_at ? adjustment.ends_at.slice(0, 10) : '';
             form.days_of_week = Array.isArray(adjustment.days_of_week) ? adjustment.days_of_week : [];
+            form.specific_dates = Array.isArray(adjustment.specific_dates) ? adjustment.specific_dates : [];
             form.is_active = Boolean(adjustment.is_active);
             form.clearErrors();
         } else if (open && !adjustment && lastLoadedId !== null) {
@@ -85,6 +88,7 @@
             form.starts_at = '';
             form.ends_at = '';
             form.days_of_week = [];
+            form.specific_dates = [];
             form.is_active = true;
             form.clearErrors();
         } else if (!open) {
@@ -261,6 +265,7 @@
 
             <!-- Selector de Calendario y Días de la Semana -->
             <AdjustmentCalendarPicker
+                bind:specificDates={form.specific_dates}
                 bind:startsAt={form.starts_at}
                 bind:endsAt={form.ends_at}
                 bind:daysOfWeek={form.days_of_week}
