@@ -97,3 +97,17 @@ test('authenticated tenant user can fetch provinces, departments, and localities
 test('unauthenticated guest cannot access geodata endpoints', function () {
     $this->getJson(route('tenant.geo.provinces'))->assertUnauthorized();
 });
+
+test('auto-seeds geodata when provinces table is completely empty', function () {
+    // Provinces count is 0
+    expect(Province::count())->toBe(0);
+
+    // Call endpoint
+    $response = $this->actingAs($this->user)
+        ->getJson(route('tenant.geo.provinces'))
+        ->assertSuccessful()
+        ->json();
+
+    expect(Province::count())->toBe(24)
+        ->and($response)->toHaveCount(24);
+});

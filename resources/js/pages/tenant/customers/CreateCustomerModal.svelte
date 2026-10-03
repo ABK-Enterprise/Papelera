@@ -22,11 +22,13 @@
         fetchProvinces,
         fetchDepartments,
         fetchLocalities,
+        fetchLocalitiesByProvince,
         type GeoProvince,
         type GeoDepartment,
         type GeoLocality,
         ARGENTINE_PROVINCES_FALLBACK,
     } from '@/lib/geodata';
+    import { preventInvalidNumericKeys, sanitizeNumericInput } from '@/lib/numericSanitizer';
 
     let {
         open = $bindable(false),
@@ -56,6 +58,7 @@
     let selectedDepartmentId = $state<string>('');
     let isLoadingDepartments = $state<boolean>(false);
     let isLoadingLocalities = $state<boolean>(false);
+    let isManualCity = $state<boolean>(false);
 
     $effect(() => {
         if (open) {
@@ -71,12 +74,33 @@
         departments = [];
         localities = [];
 
-        const provObj = provinces.find(p => p.name === form.province);
+        if (!form.province) return;
+
+        let provObj = provinces.find(p => p.name === form.province);
+        if (!provObj) {
+            provinces = await fetchProvinces();
+            provObj = provinces.find(p => p.name === form.province);
+        }
+        if (!provObj) {
+            provObj = ARGENTINE_PROVINCES_FALLBACK.find(p => p.name === form.province);
+        }
         if (!provObj) return;
 
         isLoadingDepartments = true;
         try {
             departments = await fetchDepartments(provObj.id);
+            if (departments.length === 1) {
+                selectedDepartmentId = departments[0].id;
+                await onDepartmentChange();
+            } else if (departments.length === 0) {
+                // Si la provincia no tiene departamentos desglosados, cargar localidades directas
+                isLoadingLocalities = true;
+                try {
+                    localities = await fetchLocalitiesByProvince(provObj.id);
+                } finally {
+                    isLoadingLocalities = false;
+                }
+            }
         } finally {
             isLoadingDepartments = false;
         }
@@ -285,26 +309,44 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="create-customer-city" class="text-xs font-semibold">Localidad / Barrio</Label>
-                    <select
-                        id="create-customer-city"
-                        bind:value={form.city}
-                        disabled={!selectedDepartmentId || isLoadingLocalities}
-                        class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                    >
-                        <option value="">
-                            {#if isLoadingLocalities}
-                                Cargando...
-                            {:else if !selectedDepartmentId}
-                                Primero departamento
-                            {:else}
-                                Selecciona localidad...
-                            {/if}
-                        </option>
-                        {#each localities as loc}
-                            <option value={loc.name}>{loc.name}</option>
-                        {/each}
-                    </select>
+                    <div class="flex items-center justify-between">
+                        <Label for="create-customer-city" class="text-xs font-semibold">Localidad / Barrio</Label>
+                        <button
+                            type="button"
+                            onclick={() => (isManualCity = !isManualCity)}
+                            class="text-[11px] text-primary hover:underline cursor-pointer"
+                        >
+                            {isManualCity ? 'Elegir de lista' : 'Ingreso manual'}
+                        </button>
+                    </div>
+                    {#if isManualCity}
+                        <Input
+                            id="create-customer-city"
+                            bind:value={form.city}
+                            placeholder="Nombre de localidad o barrio"
+                            class="h-10 text-sm font-medium"
+                        />
+                    {:else}
+                        <select
+                            id="create-customer-city"
+                            bind:value={form.city}
+                            disabled={(!selectedDepartmentId && localities.length === 0) || isLoadingLocalities}
+                            class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                            <option value="">
+                                {#if isLoadingLocalities}
+                                    Cargando...
+                                {:else if !selectedDepartmentId && localities.length === 0}
+                                    Primero departamento
+                                {:else}
+                                    Selecciona localidad...
+                                {/if}
+                            </option>
+                            {#each localities as loc}
+                                <option value={loc.name}>{loc.name}</option>
+                            {/each}
+                        </select>
+                    {/if}
                     {#if form.errors.city}
                         <p class="text-xs text-destructive">{form.errors.city}</p>
                     {/if}
@@ -323,7 +365,14 @@
                         type="number"
                         step="0.01"
                         min="0"
-                        bind:value={form.credit_limit}
+                        max="100000000"
+                        value={form.credit_limit}
+                        onkeydown={(e) => preventInvalidNumericKeys(e)}
+                        oninput={(e) => {
+                            sanitizeNumericInput(e, 0, 100_000_000, (val) => {
+                                form.credit_limit = typeof val === 'number' ? val : (Number(val) || 0);
+                            });
+                        }}
                         placeholder="0.00"
                         class="h-9 text-sm font-sans tabular-nums"
                     />
@@ -340,7 +389,13 @@
                         step="0.5"
                         min="0"
                         max="100"
-                        bind:value={form.discount_percentage}
+                        value={form.discount_percentage}
+                        onkeydown={(e) => preventInvalidNumericKeys(e)}
+                        oninput={(e) => {
+                            sanitizeNumericInput(e, 0, 100, (val) => {
+                                form.discount_percentage = typeof val === 'number' ? val : (Number(val) || 0);
+                            });
+                        }}
                         placeholder="0.00"
                         class="h-9 text-sm font-sans tabular-nums font-semibold text-primary"
                     />

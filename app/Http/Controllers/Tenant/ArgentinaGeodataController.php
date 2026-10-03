@@ -17,6 +17,14 @@ class ArgentinaGeodataController extends Controller
      */
     public function provinces(): JsonResponse
     {
+        if (Province::count() === 0) {
+            \Illuminate\Support\Facades\Artisan::call('db:seed', [
+                '--class' => 'Database\\Seeders\\ArgentinaGeodataSeeder',
+                '--force' => true,
+            ]);
+            Cache::forget('argentina:provinces');
+        }
+
         $provinces = Cache::rememberForever('argentina:provinces', function () {
             return Province::orderBy('name')
                 ->select(['id', 'name', 'iso_code'])

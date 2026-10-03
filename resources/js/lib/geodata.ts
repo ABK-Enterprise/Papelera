@@ -17,31 +17,31 @@ export interface GeoLocality {
     name: string;
 }
 
-export const ARGENTINE_PROVINCES_FALLBACK: string[] = [
-    'Buenos Aires',
-    'Catamarca',
-    'Chaco',
-    'Chubut',
-    'Ciudad Autónoma de Buenos Aires',
-    'Corrientes',
-    'Córdoba',
-    'Entre Ríos',
-    'Formosa',
-    'Jujuy',
-    'La Pampa',
-    'La Rioja',
-    'Mendoza',
-    'Misiones',
-    'Neuquén',
-    'Río Negro',
-    'Salta',
-    'San Juan',
-    'San Luis',
-    'Santa Cruz',
-    'Santa Fe',
-    'Santiago del Estero',
-    'Tierra del Fuego, Antártida e Islas del Atlántico Sur',
-    'Tucumán',
+export const ARGENTINE_PROVINCES_FALLBACK: GeoProvince[] = [
+    { id: '02', name: 'Ciudad Autónoma de Buenos Aires', iso_code: 'AR-C' },
+    { id: '06', name: 'Buenos Aires', iso_code: 'AR-B' },
+    { id: '10', name: 'Catamarca', iso_code: 'AR-K' },
+    { id: '14', name: 'Córdoba', iso_code: 'AR-X' },
+    { id: '18', name: 'Corrientes', iso_code: 'AR-W' },
+    { id: '22', name: 'Chaco', iso_code: 'AR-H' },
+    { id: '26', name: 'Chubut', iso_code: 'AR-U' },
+    { id: '30', name: 'Entre Ríos', iso_code: 'AR-E' },
+    { id: '34', name: 'Formosa', iso_code: 'AR-P' },
+    { id: '38', name: 'Jujuy', iso_code: 'AR-Y' },
+    { id: '42', name: 'La Pampa', iso_code: 'AR-L' },
+    { id: '46', name: 'La Rioja', iso_code: 'AR-F' },
+    { id: '50', name: 'Mendoza', iso_code: 'AR-M' },
+    { id: '54', name: 'Misiones', iso_code: 'AR-N' },
+    { id: '58', name: 'Neuquén', iso_code: 'AR-Q' },
+    { id: '62', name: 'Río Negro', iso_code: 'AR-R' },
+    { id: '66', name: 'Salta', iso_code: 'AR-A' },
+    { id: '70', name: 'San Juan', iso_code: 'AR-J' },
+    { id: '74', name: 'San Luis', iso_code: 'AR-D' },
+    { id: '78', name: 'Santa Cruz', iso_code: 'AR-Z' },
+    { id: '82', name: 'Santa Fe', iso_code: 'AR-S' },
+    { id: '86', name: 'Santiago del Estero', iso_code: 'AR-G' },
+    { id: '90', name: 'Tucumán', iso_code: 'AR-T' },
+    { id: '94', name: 'Tierra del Fuego, Antártida e Islas del Atlántico Sur', iso_code: 'AR-V' },
 ];
 
 let provincesCache: GeoProvince[] | null = null;
@@ -55,17 +55,16 @@ export async function fetchProvinces(): Promise<GeoProvince[]> {
     try {
         const res = await fetch('/tenant/geo/provincias');
         if (res.ok) {
-            provincesCache = await res.json();
-            return provincesCache || [];
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+                provincesCache = data;
+                return provincesCache;
+            }
         }
     } catch (e) {
         console.error('Error fetching provinces:', e);
     }
-    return ARGENTINE_PROVINCES_FALLBACK.map((name, index) => ({
-        id: String(index + 1).padStart(2, '0'),
-        name,
-        iso_code: null,
-    }));
+    return ARGENTINE_PROVINCES_FALLBACK;
 }
 
 export async function fetchDepartments(provinceId: string): Promise<GeoDepartment[]> {
@@ -100,6 +99,25 @@ export async function fetchLocalities(departmentId: string): Promise<GeoLocality
         }
     } catch (e) {
         console.error('Error fetching localities:', e);
+    }
+    return [];
+}
+
+export async function fetchLocalitiesByProvince(provinceId: string): Promise<GeoLocality[]> {
+    if (!provinceId) return [];
+    const cacheKey = `prov_${provinceId}`;
+    if (localitiesCache.has(cacheKey)) {
+        return localitiesCache.get(cacheKey)!;
+    }
+    try {
+        const res = await fetch(`/tenant/geo/localidades?provincia_id=${encodeURIComponent(provinceId)}`);
+        if (res.ok) {
+            const data: GeoLocality[] = await res.json();
+            localitiesCache.set(cacheKey, data);
+            return data;
+        }
+    } catch (e) {
+        console.error('Error fetching localities by province:', e);
     }
     return [];
 }

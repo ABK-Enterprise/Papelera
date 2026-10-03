@@ -10,6 +10,7 @@ if [ "$MIGRATE_FRESH" = "true" ]; then
     echo "⚠️ MIGRATE_FRESH=true detectado: Reseteando base de datos completa con seeders..."
     php artisan migrate:fresh --force || true
     php artisan db:seed --class=BaseSeeder --force || true
+    php artisan db:seed --class=ArgentinaGeodataSeeder --force || true
     php artisan db:seed --class=TestSeeder --force || true
 else
     echo "Ejecutando migraciones incrementales de base de datos..."
@@ -19,6 +20,7 @@ fi
 if [ "$RUN_SEEDERS" = "true" ]; then
     echo "⚠️ RUN_SEEDERS=true detectado: Ejecutando seeders de plataforma..."
     php artisan db:seed --class=BaseSeeder --force || true
+    php artisan db:seed --class=ArgentinaGeodataSeeder --force || true
 fi
 
 echo "Creando symlink de storage..."
