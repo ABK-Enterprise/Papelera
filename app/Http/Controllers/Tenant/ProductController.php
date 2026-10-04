@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\ProductWarehouse;
 use App\Models\Warehouse;
 use App\Services\ProductImageService;
+use App\Services\ProductPriceUpdateService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -263,7 +264,6 @@ class ProductController extends Controller
         ]);
     }
 
-
     public function update(UpdateProductRequest $request, Product $product): RedirectResponse|JsonResponse
     {
         if ($product->tenant_id !== $request->user()->tenant_id) {
@@ -318,7 +318,7 @@ class ProductController extends Controller
         ]);
 
         if (abs($oldPrice - $newPrice) >= 0.001) {
-            app(\App\Services\ProductPriceUpdateService::class)->updatePrice($product, $newPrice);
+            app(ProductPriceUpdateService::class)->updatePrice($product, $newPrice, $oldPrice);
         }
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
@@ -339,7 +339,7 @@ class ProductController extends Controller
             'price' => ['required', 'numeric', 'min:0.01', 'max:100000000'],
         ]);
 
-        $affectedOrderIds = app(\App\Services\ProductPriceUpdateService::class)->updatePrice(
+        $affectedOrderIds = app(ProductPriceUpdateService::class)->updatePrice(
             $product,
             (float) $validated['price']
         );
