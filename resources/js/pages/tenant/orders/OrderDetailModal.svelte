@@ -8,6 +8,8 @@
     import EmitFiscalInvoiceModal from './EmitFiscalInvoiceModal.svelte';
     import ReceiptItemsVisibilityModal from './components/ReceiptItemsVisibilityModal.svelte';
     import CreateCustomAdjustmentModal from './components/CreateCustomAdjustmentModal.svelte';
+    import ChooseAdjustmentActionModal from './components/ChooseAdjustmentActionModal.svelte';
+    import SelectExistingAdjustmentModal from './components/SelectExistingAdjustmentModal.svelte';
     import { router, page } from '@inertiajs/svelte';
     import { hasPermission, hasModule } from '@/lib/permissions';
     import { fade, scale } from 'svelte/transition';
@@ -110,7 +112,9 @@
     let isFiscalPdfModalOpen = $state(false);
     let isQrModalOpen = $state(false);
     let isReceiptVisibilityModalOpen = $state(false);
+    let isChooseAdjustmentModalOpen = $state(false);
     let isCustomAdjustmentModalOpen = $state(false);
+    let isSelectExistingAdjustmentModalOpen = $state(false);
     let pendingStatus = $state<string | null>(null);
     let isEmittingCreditNote = $state(false);
     let isResolvingPrices = $state(false);
@@ -718,7 +722,7 @@
                     <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-1.5">
                             <Tag class="size-3.5 text-primary" />
-                            <span class="text-xs font-bold text-foreground">Descuento | Recargo</span>
+                            <span class="text-xs font-bold text-foreground">Descuentos y Recargos</span>
                         </div>
                         {#if order.status !== 'cancelado' && order.status !== 'entregado' && order.fiscal_status !== 'facturado' && hasPermission('pedidos.editar_estado')}
                             <Button
@@ -726,7 +730,7 @@
                                 variant="outline"
                                 size="sm"
                                 class="h-8 px-3 rounded-lg text-[13px] font-semibold gap-1.5 text-primary border-primary/40 hover:bg-primary/10 cursor-pointer shadow-2xs"
-                                onclick={() => (isCustomAdjustmentModalOpen = true)}
+                                onclick={() => (isChooseAdjustmentModalOpen = true)}
                             >
                                 <Plus class="size-3.5" />
                                 <span>Agregar</span>
@@ -1185,6 +1189,30 @@
             bind:open={isReceiptVisibilityModalOpen}
             bind:order={order as any}
             onSuccess={() => {
+                router.reload({ only: ['orders'] });
+            }}
+        />
+
+        <!-- Modal de Elección de Ajuste -->
+        <ChooseAdjustmentActionModal
+            bind:open={isChooseAdjustmentModalOpen}
+            onCreate={() => (isCustomAdjustmentModalOpen = true)}
+            onSelectExisting={() => (isSelectExistingAdjustmentModalOpen = true)}
+        />
+
+        <!-- Modal de Ajuste Existente del Catálogo -->
+        <SelectExistingAdjustmentModal
+            bind:open={isSelectExistingAdjustmentModalOpen}
+            orderId={order.id}
+            orderDate={order.created_at}
+            netProductsAmount={netProductsSubtotal}
+            onSuccess={(updatedOrder) => {
+                if (order && updatedOrder) {
+                    order = {
+                        ...order,
+                        ...updatedOrder,
+                    };
+                }
                 router.reload({ only: ['orders'] });
             }}
         />

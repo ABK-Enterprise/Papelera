@@ -35,6 +35,8 @@
     import MercadoPagoQrModal from '@/components/common/MercadoPagoQrModal.svelte';
     import EditItemPriceModal from '@/components/tenant/products/EditItemPriceModal.svelte';
     import CreateCustomAdjustmentModal from './components/CreateCustomAdjustmentModal.svelte';
+    import ChooseAdjustmentActionModal from './components/ChooseAdjustmentActionModal.svelte';
+    import SelectExistingAdjustmentModal from './components/SelectExistingAdjustmentModal.svelte';
     import { preventInvalidNumericKeys, sanitizeNumericInput } from '@/lib/numericSanitizer';
     import {
         DropdownMenu,
@@ -683,7 +685,9 @@
 
     let priceAdjustments = $state<any[]>([]);
     let showAccountInReceipt = $state(false);
+    let isChooseAdjustmentModalOpen = $state(false);
     let isCreateAdjustmentModalOpen = $state(false);
+    let isSelectExistingAdjustmentModalOpen = $state(false);
 
     let shippingCost = $derived.by(() => {
         if (!selectedShippingZone) return 0;
@@ -1771,24 +1775,24 @@
                     {/if}
                 </div>
 
-                <!-- Bento Card: Ajustes de Precio y Remito -->
+                <!-- Bento Card: Descuentos y Recargos -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <div class="size-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                                 <Tag class="size-3.5" />
                             </div>
-                            <span class="text-xs font-bold text-foreground">Recargos, Descuentos y Remito</span>
+                            <span class="text-xs font-bold text-foreground">Descuentos y Recargos</span>
                         </div>
                         <Button
                             type="button"
                             variant="outline"
                             size="sm"
                             class="h-8 px-2.5 rounded-lg text-xs font-semibold gap-1 text-primary hover:bg-primary/10 cursor-pointer"
-                            onclick={() => (isCreateAdjustmentModalOpen = true)}
+                            onclick={() => (isChooseAdjustmentModalOpen = true)}
                         >
                             <Plus class="size-3.5" />
-                            <span>Agregar Ajuste</span>
+                            <span>Agregar</span>
                         </Button>
                     </div>
 
@@ -2142,6 +2146,20 @@
     } : null}
     isOrderContext={true}
     onPriceUpdated={handleOrderItemPriceUpdated}
+/>
+
+<ChooseAdjustmentActionModal
+    bind:open={isChooseAdjustmentModalOpen}
+    onCreate={() => (isCreateAdjustmentModalOpen = true)}
+    onSelectExisting={() => (isSelectExistingAdjustmentModalOpen = true)}
+/>
+
+<SelectExistingAdjustmentModal
+    bind:open={isSelectExistingAdjustmentModalOpen}
+    netProductsAmount={computedTotals.finalTotal}
+    onApplyLocal={(newAdjs) => {
+        priceAdjustments = [...priceAdjustments, ...newAdjs];
+    }}
 />
 
 <CreateCustomAdjustmentModal

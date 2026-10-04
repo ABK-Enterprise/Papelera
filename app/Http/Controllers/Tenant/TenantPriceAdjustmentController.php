@@ -125,9 +125,14 @@ class TenantPriceAdjustmentController extends Controller
 
         $adjustments = TenantPriceAdjustment::where('tenant_id', $tenantId)
             ->active()
+            ->orderBy('name')
             ->get()
-            ->filter(fn (TenantPriceAdjustment $adj) => $adj->isValidForDate($date))
-            ->values();
+            ->map(function (TenantPriceAdjustment $adj) use ($date) {
+                $data = $adj->toArray();
+                $data['is_valid_today'] = $adj->isValidForDate($date);
+
+                return $data;
+            });
 
         return response()->json($adjustments);
     }

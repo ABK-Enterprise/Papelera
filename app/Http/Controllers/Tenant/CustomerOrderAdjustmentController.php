@@ -40,25 +40,54 @@ class CustomerOrderAdjustmentController extends Controller
             ]);
         }
 
-        $isPercentage = $request->input('calculation_type') === 'percentage';
+        $itemsToApply = [];
+        if ($request->has('adjustments') && is_array($request->input('adjustments'))) {
+            $validated = $request->validate([
+                'adjustments' => ['required', 'array', 'min:1'],
+                'adjustments.*.source' => ['nullable', 'string', 'in:preset,ad_hoc'],
+                'adjustments.*.source_id' => ['nullable', 'integer'],
+                'adjustments.*.type' => ['required', 'string', 'in:discount,surcharge'],
+                'adjustments.*.name' => ['nullable', 'string', 'max:255'],
+                'adjustments.*.calculation_type' => ['required', 'string', 'in:percentage,fixed'],
+                'adjustments.*.value' => ['required', 'numeric', 'min:0.01'],
+                'adjustments.*.reason' => ['nullable', 'string', 'max:500'],
+                'adjustments.*.show_in_receipt' => ['nullable', 'boolean'],
+            ]);
 
-        $validated = $request->validate([
-            'source' => ['nullable', 'string', 'in:preset,ad_hoc'],
-            'source_id' => ['nullable', 'integer'],
-            'type' => ['required', 'string', 'in:discount,surcharge'],
-            'name' => ['nullable', 'string', 'max:255'],
-            'calculation_type' => ['required', 'string', 'in:percentage,fixed'],
-            'value' => [
-                'required',
-                'numeric',
-                'min:0.01',
-                $isPercentage ? 'max:100' : 'max:100000000',
-            ],
-            'reason' => ['nullable', 'string', 'max:500'],
-            'show_in_receipt' => ['nullable', 'boolean'],
-        ]);
+            foreach ($validated['adjustments'] as $idx => $adj) {
+                if ($adj['calculation_type'] === 'percentage' && (float) $adj['value'] > 100) {
+                    throw ValidationException::withMessages([
+                        "adjustments.{$idx}.value" => ['El porcentaje no puede ser superior al 100%.'],
+                    ]);
+                }
+                if ($adj['calculation_type'] === 'fixed' && (float) $adj['value'] > 100000000) {
+                    throw ValidationException::withMessages([
+                        "adjustments.{$idx}.value" => ['El monto fijo no puede superar $100.000.000.'],
+                    ]);
+                }
+            }
+            $itemsToApply = $validated['adjustments'];
+        } else {
+            $isPercentage = $request->input('calculation_type') === 'percentage';
+            $validated = $request->validate([
+                'source' => ['nullable', 'string', 'in:preset,ad_hoc'],
+                'source_id' => ['nullable', 'integer'],
+                'type' => ['required', 'string', 'in:discount,surcharge'],
+                'name' => ['nullable', 'string', 'max:255'],
+                'calculation_type' => ['required', 'string', 'in:percentage,fixed'],
+                'value' => [
+                    'required',
+                    'numeric',
+                    'min:0.01',
+                    $isPercentage ? 'max:100' : 'max:100000000',
+                ],
+                'reason' => ['nullable', 'string', 'max:500'],
+                'show_in_receipt' => ['nullable', 'boolean'],
+            ]);
+            $itemsToApply = [$validated];
+        }
 
-        $order = DB::transaction(function () use ($customerOrder, $validated, $tenantId, $userId) {
+        $order = DB::transaction(function () use ($customerOrder, $itemsToApply, $tenantId, $userId) {
             /** @var CustomerOrder $lockedOrder */
             $lockedOrder = CustomerOrder::where('id', $customerOrder->id)
                 ->where('tenant_id', $tenantId)
@@ -67,29 +96,33 @@ class CustomerOrderAdjustmentController extends Controller
 
             $oldTotal = (float) $lockedOrder->total_amount;
             $netProductsAmount = (float) $lockedOrder->items()->sum('subtotal');
-            $val = (float) $validated['value'];
-
-            if ($validated['calculation_type'] === 'percentage') {
-                $appliedAmount = round($netProductsAmount * ($val / 100), 2);
-            } else {
-                $appliedAmount = round($val, 2);
-            }
-
             $currentAdjustments = $lockedOrder->price_adjustments ?: [];
-            $newAdj = [
-                'id' => (string) Str::uuid(),
-                'source' => $validated['source'] ?? 'ad_hoc',
-                'source_id' => $validated['source_id'] ?? null,
-                'type' => $validated['type'],
-                'name' => ! empty($validated['name']) ? trim($validated['name']) : ($validated['type'] === 'discount' ? 'Descuento' : 'Recargo'),
-                'calculation_type' => $validated['calculation_type'],
-                'value' => $val,
-                'applied_amount' => $appliedAmount,
-                'reason' => ! empty($validated['reason']) ? trim($validated['reason']) : null,
-                'show_in_receipt' => (bool) ($validated['show_in_receipt'] ?? false),
-            ];
+            $appliedNames = [];
 
-            $currentAdjustments[] = $newAdj;
+            foreach ($itemsToApply as $item) {
+                $val = (float) $item['value'];
+                if ($item['calculation_type'] === 'percentage') {
+                    $appliedAmount = round($netProductsAmount * ($val / 100), 2);
+                } else {
+                    $appliedAmount = round($val, 2);
+                }
+
+                $name = ! empty($item['name']) ? trim($item['name']) : ($item['type'] === 'discount' ? 'Descuento' : 'Recargo');
+                $appliedNames[] = $name;
+
+                $currentAdjustments[] = [
+                    'id' => (string) Str::uuid(),
+                    'source' => $item['source'] ?? 'ad_hoc',
+                    'source_id' => $item['source_id'] ?? null,
+                    'type' => $item['type'],
+                    'name' => $name,
+                    'calculation_type' => $item['calculation_type'],
+                    'value' => $val,
+                    'applied_amount' => $appliedAmount,
+                    'reason' => ! empty($item['reason']) ? trim($item['reason']) : null,
+                    'show_in_receipt' => (bool) ($item['show_in_receipt'] ?? false),
+                ];
+            }
 
             // Recalcular discount_total y surcharge_total
             $discountTotal = 0.00;
@@ -124,18 +157,22 @@ class CustomerOrderAdjustmentController extends Controller
                     if ($customer) {
                         $newBalance = round((float) $customer->current_balance + $diff, 2);
 
+                        $descriptionSummary = count($appliedNames) > 1
+                            ? 'Ajustes múltiples ('.implode(', ', array_slice($appliedNames, 0, 3)).(count($appliedNames) > 3 ? '...' : '').')'
+                            : "Ajuste de precio ({$appliedNames[0]})";
+
                         CustomerAccountMovement::create([
                             'tenant_id' => $tenantId,
                             'customer_id' => $customer->id,
                             'customer_order_id' => $lockedOrder->id,
                             'created_by_user_id' => $userId,
                             'type' => 'adjustment',
-                            'description' => "Ajuste de precio ({$newAdj['name']}) en Pedido {$lockedOrder->order_number}",
+                            'description' => "{$descriptionSummary} en Pedido {$lockedOrder->order_number}",
                             'amount' => abs($diff),
                             'balance_after' => $newBalance,
                             'payment_method' => 'ajuste',
                             'reference_number' => "ADJ-{$lockedOrder->order_number}",
-                            'notes' => $newAdj['reason'] ?: 'Ajuste manual de recargo/descuento.',
+                            'notes' => 'Ajuste comercial aplicado al pedido.',
                         ]);
 
                         $customer->update(['current_balance' => $newBalance]);
