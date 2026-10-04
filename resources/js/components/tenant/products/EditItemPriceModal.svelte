@@ -32,6 +32,7 @@
         open?: boolean;
         product: ProductPriceTarget | null;
         isOrderContext?: boolean;
+        customUpdateHandler?: (newPrice: number, mode: 'order_only' | 'catalog') => Promise<void> | void;
         onPriceUpdated?: (newPrice: number, mode: 'order_only' | 'catalog') => void;
         onclose?: () => void;
     }
@@ -40,6 +41,7 @@
         open = $bindable(false),
         product = null,
         isOrderContext = false,
+        customUpdateHandler = undefined,
         onPriceUpdated = undefined,
         onclose = undefined,
     }: Props = $props();
@@ -82,6 +84,22 @@
 
         if (parsedPrice > 100_000_000) {
             errorMessage = 'El precio no puede exceder los $100.000.000.';
+            return;
+        }
+
+        if (customUpdateHandler) {
+            isSubmitting = true;
+            Promise.resolve(customUpdateHandler(parsedPrice, updateMode))
+                .then(() => {
+                    onPriceUpdated?.(parsedPrice, updateMode);
+                    handleClose();
+                })
+                .catch((err: any) => {
+                    errorMessage = err?.message || 'Error al actualizar el precio.';
+                })
+                .finally(() => {
+                    isSubmitting = false;
+                });
             return;
         }
 

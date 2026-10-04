@@ -3,10 +3,18 @@
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import {
+        DropdownMenu,
+        DropdownMenuContent,
+        DropdownMenuItem,
+        DropdownMenuTrigger,
+    } from '@/components/ui/dropdown-menu';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Calendar from 'lucide-svelte/icons/calendar';
     import Eye from 'lucide-svelte/icons/eye';
+    import MoreHorizontal from 'lucide-svelte/icons/more-horizontal';
     import Package from 'lucide-svelte/icons/package';
+    import Pencil from 'lucide-svelte/icons/pencil';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import User from 'lucide-svelte/icons/user';
 
@@ -44,9 +52,11 @@
     let {
         orders = [],
         onSelectOrder,
+        onEditPrices = undefined,
     }: {
         orders: OrderData[];
         onSelectOrder: (order: OrderData) => void;
+        onEditPrices?: (order: OrderData) => void;
     } = $props();
 
     let page = $state(1);
@@ -176,17 +186,59 @@
                 </span>
             </div>
 
-            <!-- Footer: Total & Botón con Touch Target >= 44px -->
-            <div class="flex items-center justify-between pt-1">
+            <!-- Footer: Total & Botones con Simetría (ambos min-h-[44px]) -->
+            <div class="flex items-center justify-between pt-1 gap-2" onclick={(e) => e.stopPropagation()}>
                 <span class="font-bold text-base text-primary tabular-nums">
                     {formatPrice(order.total_amount)}
                 </span>
-                <Button size="sm" variant="tertiary" class="min-h-[44px] px-3.5 text-xs gap-1.5 font-medium rounded-xl">
-                    <Eye class="h-3.5 w-3.5" />
-                    <span>Ver detalle</span>
-                </Button>
+                <div class="flex items-center gap-2 shrink-0">
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant="tertiary"
+                        class="min-h-[44px] px-3.5 text-xs gap-1.5 font-medium rounded-xl cursor-pointer"
+                        onclick={() => onSelectOrder(order)}
+                    >
+                        <Eye class="h-3.5 w-3.5" />
+                        <span>Ver detalle</span>
+                    </Button>
 
-
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            {#snippet children(props)}
+                                <button
+                                    {...props}
+                                    type="button"
+                                    onclick={(e) => {
+                                        e.stopPropagation();
+                                        props.onclick?.(e);
+                                    }}
+                                    class="size-11 min-h-[44px] rounded-xl border border-border/80 bg-background/80 shadow-2xs hover:bg-muted hover:border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                                    aria-label="Más opciones"
+                                >
+                                    <MoreHorizontal class="size-4" />
+                                </button>
+                            {/snippet}
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" class="w-56 shadow-lg rounded-xl">
+                            <DropdownMenuItem
+                                onclick={() => onSelectOrder(order)}
+                                class="flex items-center gap-2 cursor-pointer text-xs font-medium"
+                            >
+                                <Eye class="size-3.5 text-muted-foreground" />
+                                <span>Ver detalle</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                disabled={order.status === 'entregado' || order.status === 'cancelado' || order.fiscal_status === 'facturado'}
+                                onclick={() => onEditPrices?.(order)}
+                                class="flex items-center gap-2 cursor-pointer text-xs font-medium {order.status === 'entregado' || order.status === 'cancelado' || order.fiscal_status === 'facturado' ? 'opacity-50 cursor-not-allowed' : ''}"
+                            >
+                                <Pencil class="size-3.5 text-muted-foreground" />
+                                <span>Editar precio de los productos</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </div>
         </div>
     {/each}

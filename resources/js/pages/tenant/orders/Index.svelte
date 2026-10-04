@@ -18,6 +18,7 @@
     import OrderFilterModalMobile from './mobile/OrderFilterModalMobile.svelte';
     import OrderListDesktop from './desktop/OrderListDesktop.svelte';
     import OrderListMobile from './mobile/OrderListMobile.svelte';
+    import OrderProductsPriceEditModal from './components/OrderProductsPriceEditModal.svelte';
 
     interface OrderItem {
         id: number;
@@ -101,6 +102,13 @@
     let isDetailModalOpen = $state(false);
     let isFilterModalOpen = $state(false);
     let selectedOrder = $state<OrderData | null>(null);
+    let isPriceEditModalOpen = $state(false);
+    let editingPriceOrder = $state<OrderData | null>(null);
+
+    function openOrderPriceEdit(order: OrderData) {
+        editingPriceOrder = order;
+        isPriceEditModalOpen = true;
+    }
 
     let tenantId = $derived(
         Number(page.props.auth?.tenant?.id ?? page.props.auth?.user?.tenant_id ?? 1)
@@ -357,14 +365,25 @@
 
     <!-- Lista Desktop -->
     <div class="hidden md:block">
-        <OrderListDesktop {orders} onSelectOrder={openOrderDetail} />
+        <OrderListDesktop {orders} onSelectOrder={openOrderDetail} onEditPrices={openOrderPriceEdit} />
     </div>
 
     <!-- Lista Mobile -->
     <div class="block md:hidden">
-        <OrderListMobile {orders} onSelectOrder={openOrderDetail} />
+        <OrderListMobile {orders} onSelectOrder={openOrderDetail} onEditPrices={openOrderPriceEdit} />
     </div>
 </div>
+
+<!-- Modal de Edición de Precios de Productos del Pedido -->
+<OrderProductsPriceEditModal
+    bind:open={isPriceEditModalOpen}
+    order={editingPriceOrder as any}
+    onPriceUpdated={(updatedOrder) => {
+        if (selectedOrder && selectedOrder.id === updatedOrder.id) {
+            selectedOrder = updatedOrder;
+        }
+    }}
+/>
 
 <!-- Modal de Creación de Pedido -->
 <CreateOrderModal
