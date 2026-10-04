@@ -135,14 +135,17 @@
                     </div>
 
                     <!-- Menú de Opciones '...' con borde visible y shadow-2xs -->
-                    <div class="shrink-0 -mr-1">
+                    <div class="shrink-0 -mr-1" onclick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 {#snippet children(props)}
                                     <button
                                         {...props}
                                         type="button"
-                                        onclick={(e) => e.stopPropagation()}
+                                        onclick={(e) => {
+                                            e.stopPropagation();
+                                            props.onclick?.(e);
+                                        }}
                                         class="size-8 rounded-xl border border-border/80 bg-background/80 shadow-2xs hover:bg-muted hover:border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center"
                                         aria-label="Más opciones"
                                     >
@@ -152,21 +155,15 @@
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" class="w-48 shadow-lg">
                                 <DropdownMenuItem
-                                    onclick={(e) => {
-                                        e.stopPropagation();
-                                        ontoggle(adj);
-                                    }}
+                                    onclick={() => ontoggle(adj)}
                                     class="flex items-center gap-2 cursor-pointer text-xs font-medium"
                                 >
                                     <Power class="size-4" />
-                                    <span>{adj.is_active ? 'Desactivar ajuste' : 'Activar ajuste'}</span>
+                                    <span>{adj.is_active ? 'Suspender ajuste' : 'Reactivar ajuste'}</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
-                                    onclick={(e) => {
-                                        e.stopPropagation();
-                                        ondelete(adj);
-                                    }}
+                                    onclick={() => ondelete(adj)}
                                     class="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer text-xs font-medium"
                                 >
                                     <Trash2 class="size-4" />

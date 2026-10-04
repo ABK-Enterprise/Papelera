@@ -126,6 +126,52 @@
         syncBounds();
     }
 
+    function getYearDatesForWeekday(year: number, dayId: number): string[] {
+        const dates: string[] = [];
+        const d = new Date(year, 0, 1);
+        while (d.getFullYear() === year) {
+            let isoDay = d.getDay();
+            isoDay = isoDay === 0 ? 7 : isoDay;
+            if (isoDay === dayId) {
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                dates.push(`${year}-${m}-${day}`);
+            }
+            d.setDate(d.getDate() + 1);
+        }
+        return dates;
+    }
+
+    function toggleWeekdayInActiveYear(dayId: number) {
+        if (disabled) return;
+
+        const yearDates = getYearDatesForWeekday(viewYear, dayId);
+        if (yearDates.length === 0) return;
+
+        const allAlreadyActive = yearDates.every(d => specificDates.includes(d));
+
+        if (allAlreadyActive) {
+            // Deselect all dates of this weekday in this year
+            specificDates = specificDates.filter(d => !yearDates.includes(d));
+        } else {
+            // Idempotent union: turn all dates of this weekday in this year to active (1)
+            const set = new Set([...specificDates, ...yearDates]);
+            specificDates = Array.from(set).sort();
+        }
+
+        syncBounds();
+    }
+
+    function getWeekdayStatusInActiveYear(dayId: number): 'none' | 'some' | 'all' {
+        const yearDates = getYearDatesForWeekday(viewYear, dayId);
+        if (yearDates.length === 0) return 'none';
+
+        const activeCount = yearDates.filter(d => specificDates.includes(d)).length;
+        if (activeCount === 0) return 'none';
+        if (activeCount === yearDates.length) return 'all';
+        return 'some';
+    }
+
     function clearAllDates() {
         if (disabled) return;
         specificDates = [];
@@ -250,22 +296,22 @@
 </script>
 
 <div class="w-full space-y-3.5 sm:space-y-4 rounded-xl border border-border/70 bg-card p-3 sm:p-4 overflow-hidden box-border">
-    <!-- Header: Días de la Semana Recurrentes en el Mes Activo -->
+    <!-- Header: Días de la Semana Recurrentes en el Año Activo -->
     <div>
         <div class="flex items-center justify-between gap-2 mb-2">
             <Label class="text-xs font-semibold text-foreground flex items-center gap-1.5 shrink-0">
                 <CalendarIcon class="h-3.5 w-3.5 text-primary" />
-                <span>Días recurrentes del mes</span>
+                <span>Días recurrentes del año ({viewYear})</span>
             </Label>
         </div>
 
         <!-- 7 Chips con touch target accesible min-h-[42px] y min-w-0 para evitar desbordes -->
         <div class="grid grid-cols-7 gap-1 sm:gap-1.5 w-full">
             {#each WEEK_DAYS as day}
-                {@const status = getWeekdayStatusInActiveMonth(day.id)}
+                {@const status = getWeekdayStatusInActiveYear(day.id)}
                 <button
                     type="button"
-                    onclick={() => toggleWeekdayInActiveMonth(day.id)}
+                    onclick={() => toggleWeekdayInActiveYear(day.id)}
                     {disabled}
                     class={`min-h-[42px] sm:min-h-[44px] min-w-0 w-full flex flex-col items-center justify-center rounded-xl border text-[11px] sm:text-xs font-medium transition-colors cursor-pointer select-none touch-manipulation px-0.5 sm:px-1 ${
                         status === 'all'
@@ -274,8 +320,8 @@
                                 ? 'bg-primary/15 text-primary border-primary/40 font-semibold ring-1 ring-primary/30'
                                 : 'bg-background hover:bg-muted/60 text-foreground border-border/80'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    aria-label={`Alternar ${day.name} en ${monthNames[viewMonth]}`}
-                    title={`Alternar ${day.name} en ${monthNames[viewMonth]} ${viewYear}`}
+                    aria-label={`Alternar ${day.name} en todo ${viewYear}`}
+                    title={`Alternar ${day.name} en todo ${viewYear}`}
                 >
                     <span class="text-xs font-semibold">{day.short}</span>
                 </button>
@@ -321,8 +367,8 @@
                     onclick={() => toggleWeekdayInActiveMonth(day.id)}
                     {disabled}
                     class="text-2xs font-semibold py-1 rounded-md transition-colors cursor-pointer select-none hover:bg-muted/60 {status === 'all' ? 'text-primary font-bold' : status === 'some' ? 'text-primary font-semibold' : 'text-muted-foreground'}"
-                    aria-label={`Alternar columna ${day.name}`}
-                    title={`Alternar columna ${day.name}`}
+                    aria-label={`Alternar columna ${day.name} en ${monthNames[viewMonth]}`}
+                    title={`Alternar columna ${day.name} en ${monthNames[viewMonth]}`}
                 >
                     {day.short}
                 </button>
