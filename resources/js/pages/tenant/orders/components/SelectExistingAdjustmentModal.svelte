@@ -11,6 +11,7 @@
     import { Input } from '@/components/ui/input';
     import { router } from '@inertiajs/svelte';
     import { toast } from 'svelte-sonner';
+    import { generateUUID } from '@/lib/utils';
     import ArrowLeft from 'lucide-svelte/icons/arrow-left';
     import Check from 'lucide-svelte/icons/check';
     import Loader2 from 'lucide-svelte/icons/loader-2';
@@ -149,7 +150,7 @@
             const val = Number(adj.value) || 0;
             const applied = calculatePreviewAmount(adj);
             return {
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 source: 'preset',
                 source_id: adj.id,
                 type: adj.type,

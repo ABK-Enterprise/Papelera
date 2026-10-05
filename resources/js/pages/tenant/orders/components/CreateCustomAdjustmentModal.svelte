@@ -12,6 +12,7 @@
     import { Label } from '@/components/ui/label';
     import { router } from '@inertiajs/svelte';
     import { toast } from 'svelte-sonner';
+    import { generateUUID } from '@/lib/utils';
     import ArrowLeft from 'lucide-svelte/icons/arrow-left';
     import Percent from 'lucide-svelte/icons/percent';
     import DollarSign from 'lucide-svelte/icons/dollar-sign';
@@ -112,7 +113,7 @@
 
         if (onAddLocal) {
             onAddLocal({
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 source: 'ad_hoc',
                 source_id: null,
                 type,
