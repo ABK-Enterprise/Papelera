@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { untrack } from 'svelte';
     import {
         Dialog,
         DialogContent,
@@ -58,7 +59,9 @@
 
     function handleBack() {
         open = false;
-        onBack?.();
+        setTimeout(() => {
+            onBack?.();
+        }, 50);
     }
 
     let adjustments = $state<PresetAdjustment[]>([]);
@@ -69,22 +72,28 @@
     let selectedIds = $state<number[]>([]);
     let errorMessage = $state<string | null>(null);
     let fetchController: AbortController | null = null;
+    let wasOpen = false;
 
     // Fetch active adjustments on open and pre-select currently applied presets
     $effect(() => {
-        if (open) {
-            fetchAdjustments();
-            searchQuery = '';
-            initialSelectedPresetIds = Array.from(
-                new Set(
-                    (currentAdjustments || [])
-                        .filter((adj: any) => adj.source === 'preset' && adj.source_id)
-                        .map((adj: any) => Number(adj.source_id))
-                )
-            );
-            selectedIds = [...initialSelectedPresetIds];
-            errorMessage = null;
-        } else {
+        const isOpen = open;
+        if (isOpen && !wasOpen) {
+            wasOpen = true;
+            untrack(() => {
+                fetchAdjustments();
+                searchQuery = '';
+                initialSelectedPresetIds = Array.from(
+                    new Set(
+                        (currentAdjustments || [])
+                            .filter((adj: any) => adj.source === 'preset' && adj.source_id)
+                            .map((adj: any) => Number(adj.source_id))
+                    )
+                );
+                selectedIds = [...initialSelectedPresetIds];
+                errorMessage = null;
+            });
+        } else if (!isOpen && wasOpen) {
+            wasOpen = false;
             if (fetchController) {
                 fetchController.abort();
                 fetchController = null;
@@ -106,8 +115,9 @@
         isLoading = true;
         errorMessage = null;
         try {
-            const url = orderDate
-                ? `/tenant/configuracion/recargos-descuentos/activos?date=${encodeURIComponent(orderDate)}`
+            const effectiveDate = untrack(() => orderDate);
+            const url = effectiveDate
+                ? `/tenant/configuracion/recargos-descuentos/activos?date=${encodeURIComponent(effectiveDate)}`
                 : '/tenant/configuracion/recargos-descuentos/activos';
             const res = await fetch(url, {
                 signal,

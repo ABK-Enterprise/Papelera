@@ -517,3 +517,39 @@ test('store and update auto-derives starts_at and ends_at bounding box from spec
         ->and($adjustment->ends_at?->toDateString())->toBe('2026-11-20')
         ->and($adjustment->specific_dates)->toBe(['2026-11-02', '2026-11-20']);
 });
+
+test('tenant can fetch active adjustments valid for today and date', function () {
+    TenantPriceAdjustment::create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Descuento Lunes',
+        'type' => 'discount',
+        'calculation_type' => 'percentage',
+        'value' => 10,
+        'starts_at' => '2026-10-01',
+        'ends_at' => '2026-10-31',
+        'days_of_week' => [1],
+        'is_active' => true,
+    ]);
+
+    $response = $this->actingAs($this->adminUser)
+        ->getJson(route('tenant.price-adjustments.active'));
+
+    $response->assertSuccessful();
+    $data = $response->json();
+    expect($data)->toBeArray()
+        ->and(count($data))->toBe(1)
+        ->and($data[0]['name'])->toBe('Descuento Lunes')
+        ->and(isset($data[0]['is_valid_today']))->toBeTrue();
+});
+
+test('activeAdjustments returns 403 when user lacks recargos_descuentos.ver permission', function () {
+    $userWithoutPermission = User::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'email_verified_at' => now(),
+    ]);
+
+    $response = $this->actingAs($userWithoutPermission)
+        ->getJson(route('tenant.price-adjustments.active'));
+
+    $response->assertForbidden();
+});

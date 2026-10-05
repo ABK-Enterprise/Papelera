@@ -28,12 +28,16 @@
 
     function handleChooseCreate() {
         open = false;
-        onCreate?.();
+        setTimeout(() => {
+            onCreate?.();
+        }, 50);
     }
 
     function handleChooseExisting() {
         open = false;
-        onSelectExisting?.();
+        setTimeout(() => {
+            onSelectExisting?.();
+        }, 50);
     }
 
     function handleClose() {
