@@ -222,16 +222,6 @@
     <DialogContent class="max-w-xl p-5 sm:p-6 space-y-4 rounded-2xl max-h-[90vh] flex flex-col">
         <DialogHeader class="shrink-0 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                {#if onBack}
-                    <button
-                        type="button"
-                        onclick={handleBack}
-                        class="size-8 rounded-lg border border-border/70 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer shrink-0 mr-1"
-                        aria-label="Volver a elegir ajuste"
-                    >
-                        <ArrowLeft class="size-4" />
-                    </button>
-                {/if}
                 <div class="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     <Sliders class="size-4" />
                 </div>
@@ -372,7 +362,8 @@
                     <span>Aplicando...</span>
                 {:else}
                     <Check class="size-3.5" />
-                    <span>Aplicar seleccionados ({selectedIds.length})</span>
+                    <span class="sm:hidden">Aplicar ({selectedIds.length})</span>
+                    <span class="hidden sm:inline">Aplicar seleccionados ({selectedIds.length})</span>
                 {/if}
             </Button>
         </DialogFooter>

@@ -264,3 +264,70 @@ test('invoiced or terminal orders strictly forbid price update action', function
 
     $deliveredResponse->assertStatus(422);
 });
+
+test('updating order prices preserves and recalculates price adjustments correctly', function () {
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'order_number' => 'ORD-501',
+        'customer_name' => $this->customer->name,
+        'status' => 'preparado',
+        'fiscal_status' => 'sin_facturar',
+        'subtotal_amount' => 2000.00,
+        'shipping_cost' => 500.00,
+        'discount_total' => 200.00,
+        'surcharge_total' => 100.00,
+        'price_adjustments' => [
+            [
+                'id' => 'adj-1',
+                'type' => 'discount',
+                'name' => 'Descuento 10%',
+                'calculation_type' => 'percentage',
+                'value' => 10.0,
+                'applied_amount' => 200.00,
+            ],
+            [
+                'id' => 'adj-2',
+                'type' => 'surcharge',
+                'name' => 'Flete especial',
+                'calculation_type' => 'fixed',
+                'value' => 100.00,
+                'applied_amount' => 100.00,
+            ],
+        ],
+        'total_amount' => 2400.00,
+        'debt_amount' => 2400.00,
+        'price_review_pending' => true,
+    ]);
+
+    $item = CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $this->product->id,
+        'packaging_type' => 'unit',
+        'quantity' => 2,
+        'unit_price' => 1000.00,
+        'subtotal' => 2000.00,
+    ]);
+
+    // Product price increases from 1000 to 1500 -> subtotal becomes 3000.00
+    $this->product->update(['price' => 1500.00]);
+
+    $response = $this->actingAs($this->user)
+        ->postJson(route('tenant.orders.update-prices', $order));
+
+    $response->assertOk();
+    $order->refresh();
+    $item->refresh();
+
+    // 10% discount on 3000.00 is 300.00; fixed surcharge is 100.00
+    // total = 3000 (subtotal) + 500 (shipping) + 100 (surcharge) - 300 (discount) = 3300.00
+    expect($order->price_review_pending)->toBeFalse()
+        ->and((float) $item->unit_price)->toBe(1500.00)
+        ->and((float) $item->subtotal)->toBe(3000.00)
+        ->and((float) $order->subtotal_amount)->toBe(3000.00)
+        ->and((float) $order->discount_total)->toBe(300.00)
+        ->and((float) $order->surcharge_total)->toBe(100.00)
+        ->and((float) $order->price_adjustments[0]['applied_amount'])->toBe(300.00)
+        ->and((float) $order->total_amount)->toBe(3300.00)
+        ->and((float) $order->debt_amount)->toBe(3300.00);
+});

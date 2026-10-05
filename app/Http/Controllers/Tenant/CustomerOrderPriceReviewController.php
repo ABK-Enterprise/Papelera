@@ -95,14 +95,38 @@ class CustomerOrderPriceReviewController extends Controller
                 $customerDiscountAmount = round($newSubtotal * ($customerDiscountPct / 100), 2);
             }
 
+            // Recalculate percentage adjustments for the new subtotal, and sum totals
+            $currentAdjustments = $order->price_adjustments ?: [];
+            $discountTotal = 0.00;
+            $surchargeTotal = 0.00;
+            $updatedAdjustments = [];
+
+            foreach ($currentAdjustments as $adj) {
+                if (($adj['calculation_type'] ?? '') === 'percentage') {
+                    $pct = (float) ($adj['value'] ?? 0);
+                    $adj['applied_amount'] = round($newSubtotal * ($pct / 100), 2);
+                }
+
+                if (($adj['type'] ?? '') === 'discount') {
+                    $discountTotal += (float) ($adj['applied_amount'] ?? 0);
+                } else {
+                    $surchargeTotal += (float) ($adj['applied_amount'] ?? 0);
+                }
+
+                $updatedAdjustments[] = $adj;
+            }
+
             $shippingCost = (float) $order->shipping_cost;
-            $newTotalAmount = round($newSubtotal - $customerDiscountAmount + $shippingCost, 2);
+            $newTotalAmount = max(0.00, round($newSubtotal - $customerDiscountAmount + $shippingCost + $surchargeTotal - $discountTotal, 2));
             $diff = round($newTotalAmount - $oldTotal, 2);
-            $newDebt = max(0, round((float) $order->debt_amount + $diff, 2));
+            $newDebt = max(0.00, round((float) $order->debt_amount + $diff, 2));
 
             $order->update([
-                'subtotal_amount' => $newSubtotal,
+                'subtotal_amount' => round($newSubtotal, 2),
                 'customer_discount_amount' => $customerDiscountAmount,
+                'price_adjustments' => $updatedAdjustments,
+                'discount_total' => round($discountTotal, 2),
+                'surcharge_total' => round($surchargeTotal, 2),
                 'total_amount' => $newTotalAmount,
                 'debt_amount' => $newDebt,
                 'price_review_pending' => false,
@@ -129,7 +153,7 @@ class CustomerOrderPriceReviewController extends Controller
                         'amount' => abs($diff),
                         'balance_after' => $newBalance,
                         'reference_number' => $order->order_number,
-                        'notes' => 'Diferencia por variación de catálogo: ' . ($diff > 0 ? "+$diff" : "$diff"),
+                        'notes' => 'Diferencia por variación de catálogo: '.($diff > 0 ? "+$diff" : "$diff"),
                     ]);
                 }
             }
