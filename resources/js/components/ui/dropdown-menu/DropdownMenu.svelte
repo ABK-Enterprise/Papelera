@@ -42,6 +42,6 @@
     });
 </script>
 
-<div class={cn('relative', className)} bind:this={menuElement}>
+<div class={cn('relative', className)} data-state={open ? 'open' : 'closed'} bind:this={menuElement}>
     {@render children?.()}
 </div>

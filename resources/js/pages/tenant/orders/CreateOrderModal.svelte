@@ -2157,6 +2157,9 @@
 <SelectExistingAdjustmentModal
     bind:open={isSelectExistingAdjustmentModalOpen}
     netProductsAmount={computedTotals.finalTotal}
+    onBack={() => {
+        isChooseAdjustmentModalOpen = true;
+    }}
     onApplyLocal={(newAdjs) => {
         priceAdjustments = [...priceAdjustments, ...newAdjs];
     }}
@@ -2165,6 +2168,9 @@
 <CreateCustomAdjustmentModal
     bind:open={isCreateAdjustmentModalOpen}
     netProductsAmount={computedTotals.finalTotal}
+    onBack={() => {
+        isChooseAdjustmentModalOpen = true;
+    }}
     onAddLocal={(newAdj) => {
         priceAdjustments = [...priceAdjustments, newAdj];
     }}

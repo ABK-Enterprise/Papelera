@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { Button } from '@/components/ui/button';
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
@@ -88,7 +87,7 @@
 <div class="flex flex-col gap-3">
     {#each paginatedOrders as order (order.id)}
         <div
-            class="flex flex-col min-h-[56px] gap-3 rounded-2xl border bg-card p-4 shadow-2xs transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 active:scale-[0.99] cursor-pointer select-none {order.price_review_pending ? 'border-amber-500/80 bg-amber-500/5 ring-1 ring-amber-500/30' : 'border-border/70'}"
+            class="relative flex flex-col min-h-[56px] gap-3 rounded-2xl border bg-card p-4 shadow-2xs transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:z-10 has-[[data-state=open]]:z-30 active:scale-[0.99] cursor-pointer select-none {order.price_review_pending ? 'border-amber-500/80 bg-amber-500/5 ring-1 ring-amber-500/30' : 'border-border/70'}"
             onclick={() => onSelectOrder(order)}
             onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelectOrder(order)}
             role="button"
@@ -186,23 +185,12 @@
                 </span>
             </div>
 
-            <!-- Footer: Total & Botones con Simetría (ambos min-h-[44px]) -->
+            <!-- Footer: Total & Botón de Opciones (min-h-[44px]) -->
             <div class="flex items-center justify-between pt-1 gap-2" onclick={(e) => e.stopPropagation()}>
                 <span class="font-bold text-base text-primary tabular-nums">
                     {formatPrice(order.total_amount)}
                 </span>
                 <div class="flex items-center gap-2 shrink-0">
-                    <Button
-                        type="button"
-                        size="sm"
-                        variant="tertiary"
-                        class="min-h-[44px] px-3.5 text-xs gap-1.5 font-medium rounded-xl cursor-pointer"
-                        onclick={() => onSelectOrder(order)}
-                    >
-                        <Eye class="h-3.5 w-3.5" />
-                        <span>Ver detalle</span>
-                    </Button>
-
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             {#snippet children(props)}
@@ -223,18 +211,18 @@
                         <DropdownMenuContent align="end" class="w-56 shadow-lg rounded-xl">
                             <DropdownMenuItem
                                 onclick={() => onSelectOrder(order)}
-                                class="flex items-center gap-2 cursor-pointer text-xs font-medium"
+                                class="flex items-center justify-start text-left gap-2 cursor-pointer text-xs font-medium"
                             >
-                                <Eye class="size-3.5 text-muted-foreground" />
+                                <Eye class="size-3.5 text-muted-foreground shrink-0" />
                                 <span>Ver detalle</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 disabled={order.status === 'entregado' || order.status === 'cancelado' || order.fiscal_status === 'facturado'}
                                 onclick={() => onEditPrices?.(order)}
-                                class="flex items-center gap-2 cursor-pointer text-xs font-medium {order.status === 'entregado' || order.status === 'cancelado' || order.fiscal_status === 'facturado' ? 'opacity-50 cursor-not-allowed' : ''}"
+                                class="flex items-center justify-start text-left gap-2 cursor-pointer text-xs font-medium {order.status === 'entregado' || order.status === 'cancelado' || order.fiscal_status === 'facturado' ? 'opacity-50 cursor-not-allowed' : ''}"
                             >
-                                <Pencil class="size-3.5 text-muted-foreground" />
-                                <span>Editar precio de los productos</span>
+                                <Pencil class="size-3.5 text-muted-foreground shrink-0" />
+                                <span class="text-left">Editar precio de los productos</span>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

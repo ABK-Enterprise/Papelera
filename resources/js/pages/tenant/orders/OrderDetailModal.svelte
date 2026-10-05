@@ -1206,6 +1206,9 @@
             orderId={order.id}
             orderDate={order.created_at}
             netProductsAmount={netProductsSubtotal}
+            onBack={() => {
+                isChooseAdjustmentModalOpen = true;
+            }}
             onSuccess={(updatedOrder) => {
                 if (order && updatedOrder) {
                     order = {
@@ -1223,6 +1226,9 @@
             orderId={order.id}
             orderNumber={order.order_number}
             netProductsAmount={netProductsSubtotal}
+            onBack={() => {
+                isChooseAdjustmentModalOpen = true;
+            }}
             onSuccess={(updatedOrder) => {
                 if (order && updatedOrder) {
                     order = {

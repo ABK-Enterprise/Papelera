@@ -70,6 +70,18 @@
         );
     });
 
+    const orderSubtotal = $derived.by(() => {
+        if (!order?.items || order.items.length === 0) return 0;
+        return order.items.reduce(
+            (sum, item) =>
+                sum +
+                (Number(item.subtotal) ||
+                    Number(item.quantity) * Number(item.unit_price) ||
+                    0),
+            0
+        );
+    });
+
     function formatCurrency(amount: number | string): string {
         return new Intl.NumberFormat('es-AR', {
             style: 'currency',
@@ -179,11 +191,48 @@
                     </p>
                 </div>
             {:else}
-                <div class="space-y-2">
+                <div class="space-y-2.5">
                     {#each order.items as item (item.id)}
                         {@const productName = item.product_name || item.product?.name || 'Producto'}
                         {@const productSku = item.sku || item.product?.sku}
-                        <div class="flex items-center justify-between gap-3 p-3.5 rounded-xl border border-border/70 bg-card hover:bg-muted/30 transition-colors">
+
+                        <!-- Mobile Card (< sm) -->
+                        <div class="sm:hidden flex flex-col gap-2 p-3.5 rounded-xl border border-border/70 bg-card shadow-2xs">
+                            <!-- Renglón 1: Nombre producto arriba izquierda -->
+                            <span class="text-xs font-bold text-foreground leading-snug">
+                                {productName}
+                            </span>
+
+                            <!-- Renglón 2: Debajo del nombre el SKU -->
+                            {#if productSku}
+                                <span class="text-[11px] font-mono text-muted-foreground tabular-nums -mt-1">
+                                    SKU: {productSku}
+                                </span>
+                            {/if}
+
+                            <!-- Renglón 3 e inferior: precio y cantidad, y botón de editar con lápiz abajo a la derecha -->
+                            <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-border/40">
+                                <span class="text-xs text-muted-foreground tabular-nums">
+                                    precio: <strong class="text-foreground font-semibold">{formatCurrency(item.unit_price)}</strong> | cant: <strong class="text-foreground font-semibold">{item.quantity}</strong>
+                                </span>
+
+                                {#if !isOrderImmutable}
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        class="min-h-[38px] size-9 p-0 rounded-xl cursor-pointer text-primary border-primary/30 hover:bg-primary/10 flex items-center justify-center shrink-0"
+                                        aria-label="Editar precio de {productName}"
+                                        onclick={() => handleOpenEditPrice(item)}
+                                    >
+                                        <Pencil class="size-3.5" />
+                                    </Button>
+                                {/if}
+                            </div>
+                        </div>
+
+                        <!-- Desktop Row (>= sm) -->
+                        <div class="hidden sm:flex items-center justify-between gap-3 p-3.5 rounded-xl border border-border/70 bg-card hover:bg-muted/30 transition-colors">
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-1.5 flex-wrap">
                                     <span class="text-xs font-bold text-foreground">
@@ -207,34 +256,33 @@
                                 </div>
                             </div>
 
-                            <div class="flex items-center gap-3 shrink-0">
-                                <div class="text-right">
-                                    <span class="text-[11px] text-muted-foreground block">Subtotal:</span>
-                                    <span class="text-xs font-bold tabular-nums text-foreground">
-                                        {formatCurrency(item.subtotal)}
-                                    </span>
-                                </div>
-
-                                {#if !isOrderImmutable}
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        class="min-h-[38px] px-2.5 rounded-xl text-xs gap-1.5 font-medium cursor-pointer text-primary border-primary/30 hover:bg-primary/10"
-                                        onclick={() => handleOpenEditPrice(item)}
-                                    >
-                                        <Pencil class="size-3.5" />
-                                        <span class="hidden sm:inline">Modificar</span>
-                                    </Button>
-                                {/if}
-                            </div>
+                            {#if !isOrderImmutable}
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    class="min-h-[38px] px-3 rounded-xl text-xs gap-1.5 font-medium cursor-pointer text-primary border-primary/30 hover:bg-primary/10 shrink-0"
+                                    onclick={() => handleOpenEditPrice(item)}
+                                >
+                                    <Pencil class="size-3.5" />
+                                    <span>Modificar</span>
+                                </Button>
+                            {/if}
                         </div>
                     {/each}
                 </div>
             {/if}
         </DialogBody>
 
-        <DialogFooter class="flex justify-end pt-2 border-t border-border/70 shrink-0">
+        <!-- Footer: [separador, subtotal, botón de cerrar] -->
+        <DialogFooter class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-border/70 shrink-0">
+            <div class="flex items-center justify-between sm:justify-start gap-2">
+                <span class="text-xs text-muted-foreground font-medium">Subtotal productos:</span>
+                <span class="text-sm font-bold text-foreground tabular-nums">
+                    {formatCurrency(orderSubtotal)}
+                </span>
+            </div>
+
             <Button
                 type="button"
                 variant="outline"

@@ -12,6 +12,7 @@
     import { Label } from '@/components/ui/label';
     import { router } from '@inertiajs/svelte';
     import { toast } from 'svelte-sonner';
+    import ArrowLeft from 'lucide-svelte/icons/arrow-left';
     import Percent from 'lucide-svelte/icons/percent';
     import DollarSign from 'lucide-svelte/icons/dollar-sign';
     import PlusCircle from 'lucide-svelte/icons/plus-circle';
@@ -29,6 +30,7 @@
         netProductsAmount = 0,
         onSuccess = undefined,
         onAddLocal = undefined,
+        onBack = undefined,
     }: {
         open: boolean;
         orderId?: number | null;
@@ -36,7 +38,13 @@
         netProductsAmount?: number;
         onSuccess?: ((updatedOrder: any) => void) | undefined;
         onAddLocal?: ((adjustment: any) => void) | undefined;
+        onBack?: (() => void) | undefined;
     } = $props();
+
+    function handleBack() {
+        open = false;
+        onBack?.();
+    }
 
     let isSubmitting = $state(false);
     let type = $state<'discount' | 'surcharge'>('discount');
@@ -169,11 +177,21 @@
     <DialogContent class="sm:max-w-md max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
         <DialogHeader class="p-4 sm:p-5 border-b border-border/60 shrink-0 flex items-center justify-between bg-card">
             <div class="flex items-center gap-2 min-w-0">
+                {#if onBack}
+                    <button
+                        type="button"
+                        onclick={handleBack}
+                        class="size-8 rounded-lg border border-border/70 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer shrink-0 mr-1"
+                        aria-label="Volver a elegir ajuste"
+                    >
+                        <ArrowLeft class="size-4" />
+                    </button>
+                {/if}
                 <div class="size-8 rounded-lg {type === 'discount' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'} flex items-center justify-center shrink-0">
                     <Tag class="size-4" />
                 </div>
                 <DialogTitle class="text-base sm:text-lg font-bold text-foreground truncate">
-                    Nuevo Ajuste en Pedido #{orderNumber}
+                    {orderNumber ? `Nuevo Ajuste en Pedido #${orderNumber}` : 'Nuevo Ajuste en Pedido'}
                 </DialogTitle>
             </div>
             <button
@@ -337,15 +355,28 @@
         </DialogBody>
 
         <DialogFooter class="p-4 sm:p-5 border-t border-border/60 shrink-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 bg-card">
-            <Button
-                type="button"
-                variant="outline"
-                disabled={isSubmitting}
-                class="min-h-[44px] px-4 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer w-full sm:w-auto"
-                onclick={() => (open = false)}
-            >
-                Cancelar
-            </Button>
+            {#if onBack}
+                <Button
+                    type="button"
+                    variant="outline"
+                    disabled={isSubmitting}
+                    class="min-h-[44px] px-4 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer w-full sm:w-auto gap-1.5"
+                    onclick={handleBack}
+                >
+                    <ArrowLeft class="size-3.5" />
+                    <span>Volver</span>
+                </Button>
+            {:else}
+                <Button
+                    type="button"
+                    variant="outline"
+                    disabled={isSubmitting}
+                    class="min-h-[44px] px-4 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer w-full sm:w-auto"
+                    onclick={() => (open = false)}
+                >
+                    Cancelar
+                </Button>
+            {/if}
             <Button
                 type="button"
                 variant="default"

@@ -11,6 +11,7 @@
     import { Input } from '@/components/ui/input';
     import { router } from '@inertiajs/svelte';
     import { toast } from 'svelte-sonner';
+    import ArrowLeft from 'lucide-svelte/icons/arrow-left';
     import Check from 'lucide-svelte/icons/check';
     import Loader2 from 'lucide-svelte/icons/loader-2';
     import Search from 'lucide-svelte/icons/search';
@@ -37,6 +38,7 @@
         orderDate?: string | null;
         onSuccess?: (updatedOrder: any) => void;
         onApplyLocal?: (adjustments: any[]) => void;
+        onBack?: () => void;
         onclose?: () => void;
     }
 
@@ -47,8 +49,14 @@
         orderDate = null,
         onSuccess = undefined,
         onApplyLocal = undefined,
+        onBack = undefined,
         onclose = undefined,
     }: Props = $props();
+
+    function handleBack() {
+        open = false;
+        onBack?.();
+    }
 
     let adjustments = $state<PresetAdjustment[]>([]);
     let isLoading = $state(false);
@@ -212,8 +220,18 @@
 
 <Dialog bind:open>
     <DialogContent class="max-w-xl p-5 sm:p-6 space-y-4 rounded-2xl max-h-[90vh] flex flex-col">
-        <DialogHeader class="shrink-0">
+        <DialogHeader class="shrink-0 flex items-center justify-between">
             <div class="flex items-center gap-2">
+                {#if onBack}
+                    <button
+                        type="button"
+                        onclick={handleBack}
+                        class="size-8 rounded-lg border border-border/70 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer shrink-0 mr-1"
+                        aria-label="Volver a elegir ajuste"
+                    >
+                        <ArrowLeft class="size-4" />
+                    </button>
+                {/if}
                 <div class="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     <Sliders class="size-4" />
                 </div>
@@ -321,15 +339,28 @@
         </DialogBody>
 
         <DialogFooter class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:justify-end sm:w-auto pt-2 border-t border-border/70 shrink-0">
-            <Button
-                type="button"
-                variant="outline"
-                class="min-h-[44px] rounded-xl text-xs font-medium cursor-pointer"
-                disabled={isSubmitting}
-                onclick={handleClose}
-            >
-                Cancelar
-            </Button>
+            {#if onBack}
+                <Button
+                    type="button"
+                    variant="outline"
+                    class="min-h-[44px] rounded-xl text-xs font-medium cursor-pointer gap-1.5"
+                    disabled={isSubmitting}
+                    onclick={handleBack}
+                >
+                    <ArrowLeft class="size-3.5" />
+                    <span>Volver</span>
+                </Button>
+            {:else}
+                <Button
+                    type="button"
+                    variant="outline"
+                    class="min-h-[44px] rounded-xl text-xs font-medium cursor-pointer"
+                    disabled={isSubmitting}
+                    onclick={handleClose}
+                >
+                    Cancelar
+                </Button>
+            {/if}
             <Button
                 type="button"
                 class="min-h-[44px] rounded-xl text-xs font-semibold gap-1.5 cursor-pointer"

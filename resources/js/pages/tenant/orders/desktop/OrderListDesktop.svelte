@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { Button } from '@/components/ui/button';
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
@@ -90,7 +89,7 @@
             tabindex="0"
             onclick={() => onSelectOrder(order)}
             onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelectOrder(order)}
-            class="flex items-center justify-between p-4 rounded-2xl border bg-card shadow-xs hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-border transition-all duration-200 gap-4 cursor-pointer select-none {order.price_review_pending ? 'border-amber-500/80 bg-amber-500/5 ring-1 ring-amber-500/30' : 'border-border/70'}"
+            class="relative flex items-center justify-between p-4 rounded-2xl border bg-card shadow-xs hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-border hover:z-10 has-[[data-state=open]]:z-30 transition-all duration-200 gap-4 cursor-pointer select-none {order.price_review_pending ? 'border-amber-500/80 bg-amber-500/5 ring-1 ring-amber-500/30' : 'border-border/70'}"
         >
             <!-- Lado Izquierdo: Icono + Número de Pedido y Fecha -->
             <div class="flex items-center gap-3.5 min-w-[200px]">
@@ -195,7 +194,7 @@
                 {/if}
             </div>
 
-            <!-- Monto Total y Botones con Simetría (ambos min-h-[40px]) -->
+            <!-- Monto Total y Botón de Opciones -->
             <div class="flex items-center gap-2.5 shrink-0" onclick={(e) => e.stopPropagation()}>
                 <div class="text-right min-w-[125px] shrink-0 pr-1">
                     <span class="text-xs text-muted-foreground block">Total:</span>
@@ -203,17 +202,6 @@
                         {formatPrice(order.total_amount)}
                     </span>
                 </div>
-
-                <Button
-                    type="button"
-                    size="sm"
-                    variant="tertiary"
-                    class="min-h-[40px] px-3.5 text-xs gap-1.5 font-medium rounded-xl cursor-pointer"
-                    onclick={() => onSelectOrder(order)}
-                >
-                    <Eye class="h-3.5 w-3.5" />
-                    <span>Ver detalle</span>
-                </Button>
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -235,18 +223,18 @@
                     <DropdownMenuContent align="end" class="w-56 shadow-lg rounded-xl">
                         <DropdownMenuItem
                             onclick={() => onSelectOrder(order)}
-                            class="flex items-center gap-2 cursor-pointer text-xs font-medium"
+                            class="flex items-center justify-start text-left gap-2 cursor-pointer text-xs font-medium"
                         >
-                            <Eye class="size-3.5 text-muted-foreground" />
+                            <Eye class="size-3.5 text-muted-foreground shrink-0" />
                             <span>Ver detalle</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             disabled={order.status === 'entregado' || order.status === 'cancelado' || order.fiscal_status === 'facturado'}
                             onclick={() => onEditPrices?.(order)}
-                            class="flex items-center gap-2 cursor-pointer text-xs font-medium {order.status === 'entregado' || order.status === 'cancelado' || order.fiscal_status === 'facturado' ? 'opacity-50 cursor-not-allowed' : ''}"
+                            class="flex items-center justify-start text-left gap-2 cursor-pointer text-xs font-medium {order.status === 'entregado' || order.status === 'cancelado' || order.fiscal_status === 'facturado' ? 'opacity-50 cursor-not-allowed' : ''}"
                         >
-                            <Pencil class="size-3.5 text-muted-foreground" />
-                            <span>Editar precio de los productos</span>
+                            <Pencil class="size-3.5 text-muted-foreground shrink-0" />
+                            <span class="text-left">Editar precio de los productos</span>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
