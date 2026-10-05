@@ -41,6 +41,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Copiar binario oficial de Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 # 4. Configurar directorio de trabajo
 WORKDIR /var/www/html
 
