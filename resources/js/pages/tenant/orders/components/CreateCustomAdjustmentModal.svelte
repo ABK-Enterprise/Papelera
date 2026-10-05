@@ -46,7 +46,7 @@
         open = false;
         setTimeout(() => {
             onBack?.();
-        }, 50);
+        }, 180);
     }
 
     let isSubmitting = $state(false);

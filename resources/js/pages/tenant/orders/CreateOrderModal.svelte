@@ -5,6 +5,8 @@
     import IconContainer from '@/components/common/IconContainer.svelte';
     import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
+    import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
+    import { toast } from 'svelte-sonner';
 
     import { Link, router } from '@inertiajs/svelte';
     import { fade, scale } from 'svelte/transition';
@@ -695,15 +697,19 @@
         return Math.round(computedTotals.finalTotal * (pct / 100) * 100) / 100;
     });
 
+    function getAdjustmentAppliedAmount(adj: any, productsSubtotal: number): number {
+        const val = Number(adj.value) || 0;
+        if (adj.calculation_type === 'percentage') {
+            return Math.round(productsSubtotal * (val / 100) * 100) / 100;
+        }
+        return Math.round(val * 100) / 100;
+    }
+
     let adjustmentsTotals = $derived.by(() => {
         let disc = 0;
         let sur = 0;
         for (const adj of priceAdjustments) {
-            const val = Number(adj.value) || 0;
-            const applied = adj.calculation_type === 'percentage'
-                ? Math.round(computedTotals.finalTotal * (val / 100) * 100) / 100
-                : val;
-            adj.applied_amount = applied;
+            const applied = getAdjustmentAppliedAmount(adj, computedTotals.finalTotal);
             if (adj.type === 'discount') {
                 disc += applied;
             } else {
@@ -729,8 +735,20 @@
         )
     );
 
-    function removePriceAdjustment(id: string) {
-        priceAdjustments = priceAdjustments.filter((a) => a.id !== id);
+    let isDeleteAdHocModalOpen = $state(false);
+    let adHocToDelete = $state<any | null>(null);
+
+    function confirmDeleteAdHoc(adj: any) {
+        adHocToDelete = adj;
+        isDeleteAdHocModalOpen = true;
+    }
+
+    function executeDeleteAdHoc() {
+        if (!adHocToDelete) return;
+        priceAdjustments = priceAdjustments.filter((a) => a.id !== adHocToDelete.id);
+        toast.success('Ajuste al vuelo eliminado.');
+        isDeleteAdHocModalOpen = false;
+        adHocToDelete = null;
     }
 
     function resetForm() {
@@ -842,7 +860,10 @@
                 paid_amount: numericPaidAmount,
                 payment_reference: null,
                 apply_customer_discount: applyCustomerDiscount,
-                price_adjustments: priceAdjustments,
+                price_adjustments: priceAdjustments.map((adj) => ({
+                    ...adj,
+                    applied_amount: getAdjustmentAppliedAmount(adj, computedTotals.finalTotal),
+                })),
                 show_account_in_receipt: showAccountInReceipt,
                 mp_qr_checkout: shouldChargeWithQr ? true : undefined,
                 items: payloadItems,
@@ -1814,16 +1835,18 @@
                                     </div>
                                     <div class="flex items-center gap-2 shrink-0">
                                         <span class="font-bold font-sans tabular-nums {adj.type === 'discount' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}">
-                                            {adj.type === 'discount' ? '-' : '+'}{formatPrice(adj.applied_amount)}
+                                            {adj.type === 'discount' ? '-' : '+'}{formatPrice(getAdjustmentAppliedAmount(adj, computedTotals.finalTotal))}
                                         </span>
-                                        <button
-                                            type="button"
-                                            class="size-6 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors cursor-pointer"
-                                            onclick={() => removePriceAdjustment(adj.id)}
-                                            title="Eliminar ajuste"
-                                        >
-                                            <Trash2 class="size-3" />
-                                        </button>
+                                        {#if adj.source === 'ad_hoc'}
+                                            <button
+                                                type="button"
+                                                class="size-6 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors cursor-pointer"
+                                                onclick={() => confirmDeleteAdHoc(adj)}
+                                                title="Eliminar ajuste al vuelo"
+                                            >
+                                                <Trash2 class="size-3" />
+                                            </button>
+                                        {/if}
                                     </div>
                                 </div>
                             {/each}
@@ -2150,8 +2173,14 @@
 
 <ChooseAdjustmentActionModal
     bind:open={isChooseAdjustmentModalOpen}
-    onCreate={() => (isCreateAdjustmentModalOpen = true)}
-    onSelectExisting={() => (isSelectExistingAdjustmentModalOpen = true)}
+    onCreate={() => {
+        isChooseAdjustmentModalOpen = false;
+        isCreateAdjustmentModalOpen = true;
+    }}
+    onSelectExisting={() => {
+        isChooseAdjustmentModalOpen = false;
+        isSelectExistingAdjustmentModalOpen = true;
+    }}
 />
 
 <SelectExistingAdjustmentModal
@@ -2159,6 +2188,7 @@
     netProductsAmount={computedTotals.finalTotal}
     currentAdjustments={priceAdjustments}
     onBack={() => {
+        isSelectExistingAdjustmentModalOpen = false;
         isChooseAdjustmentModalOpen = true;
     }}
     onApplyLocal={(syncedPresets) => {
@@ -2171,11 +2201,23 @@
     bind:open={isCreateAdjustmentModalOpen}
     netProductsAmount={computedTotals.finalTotal}
     onBack={() => {
+        isCreateAdjustmentModalOpen = false;
         isChooseAdjustmentModalOpen = true;
     }}
     onAddLocal={(newAdj) => {
         priceAdjustments = [...priceAdjustments, newAdj];
     }}
+/>
+
+<!-- Modal de Confirmación para Eliminar Ajuste al Vuelo -->
+<ConfirmActionModal
+    bind:open={isDeleteAdHocModalOpen}
+    title="¿Eliminar ajuste al vuelo?"
+    description="Esta acción no se puede deshacer. Se removerá este ajuste personalizado del pedido. Si lo requerís más adelante, deberás crearlo nuevamente."
+    confirmText="Eliminar"
+    cancelText="Cancelar"
+    variant="destructive"
+    onconfirm={executeDeleteAdHoc}
 />
 
 <style>

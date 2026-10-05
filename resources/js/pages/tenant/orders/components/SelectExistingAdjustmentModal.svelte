@@ -61,7 +61,7 @@
         open = false;
         setTimeout(() => {
             onBack?.();
-        }, 50);
+        }, 180);
     }
 
     let adjustments = $state<PresetAdjustment[]>([]);
@@ -157,7 +157,8 @@
 
     const hasChanges = $derived.by(() => {
         if (selectedIds.length !== initialSelectedPresetIds.length) return true;
-        return selectedIds.some((id) => !initialSelectedPresetIds.includes(id));
+        const currentSet = new Set(selectedIds);
+        return initialSelectedPresetIds.some((id) => !currentSet.has(id));
     });
 
     function toggleSelect(id: number) {
@@ -190,7 +191,7 @@
         onclose?.();
     }
 
-    function handleApply() {
+    async function handleApply() {
         if (!hasChanges || isSubmitting) return;
 
         const selectedList = adjustments.filter((adj) => selectedIds.includes(adj.id));
@@ -226,6 +227,7 @@
         if (onApplyLocal) {
             onApplyLocal(mappedAdjustments);
             toast.success('Ajustes del pedido actualizados.');
+            initialSelectedPresetIds = [...selectedIds];
             handleClose();
             return;
         }
@@ -235,31 +237,39 @@
         isSubmitting = true;
         errorMessage = null;
 
-        router.post(
-            `/tenant/pedidos/${orderId}/ajustes/sincronizar`,
-            {
-                preset_ids: selectedIds,
-            },
-            {
-                preserveScroll: true,
-                preserveState: true,
-                onSuccess: (pageProps: any) => {
-                    toast.success('Ajustes del pedido actualizados correctamente.');
-                    onSuccess?.(pageProps?.props?.order);
-                    handleClose();
+        const csrfToken =
+            (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '';
+
+        try {
+            const res = await fetch(`/tenant/pedidos/${orderId}/ajustes/sincronizar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
                 },
-                onError: (errors) => {
-                    errorMessage =
-                        errors.order ||
-                        errors.preset_ids ||
-                        Object.values(errors)[0] ||
-                        'Error al sincronizar los ajustes seleccionados.';
-                },
-                onFinish: () => {
-                    isSubmitting = false;
-                },
+                body: JSON.stringify({
+                    preset_ids: selectedIds,
+                }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || data.error || 'Error al sincronizar los ajustes seleccionados.');
             }
-        );
+
+            toast.success('Ajustes del pedido actualizados correctamente.');
+            initialSelectedPresetIds = [...selectedIds];
+            if (data.order) {
+                onSuccess?.(data.order);
+            }
+            handleClose();
+        } catch (err: any) {
+            errorMessage = err?.message || 'Error al sincronizar los ajustes seleccionados.';
+        } finally {
+            isSubmitting = false;
+        }
     }
 </script>
 

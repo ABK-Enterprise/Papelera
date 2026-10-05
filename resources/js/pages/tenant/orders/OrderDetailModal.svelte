@@ -33,6 +33,7 @@
     import User from 'lucide-svelte/icons/user';
     import Lock from 'lucide-svelte/icons/lock';
     import Loader2 from 'lucide-svelte/icons/loader-2';
+    import Trash2 from 'lucide-svelte/icons/trash-2';
     import Wallet from 'lucide-svelte/icons/wallet';
     import XCircle from 'lucide-svelte/icons/x-circle';
     import { toast } from 'svelte-sonner';
@@ -115,9 +116,56 @@
     let isChooseAdjustmentModalOpen = $state(false);
     let isCustomAdjustmentModalOpen = $state(false);
     let isSelectExistingAdjustmentModalOpen = $state(false);
+    let isDeleteAdHocModalOpen = $state(false);
+    let adHocToDelete = $state<any | null>(null);
+    let isDeletingAdHoc = $state(false);
     let pendingStatus = $state<string | null>(null);
     let isEmittingCreditNote = $state(false);
     let isResolvingPrices = $state(false);
+
+    function confirmDeleteAdHoc(adj: any) {
+        adHocToDelete = adj;
+        isDeleteAdHocModalOpen = true;
+    }
+
+    async function executeDeleteAdHoc() {
+        if (!order || !adHocToDelete) return;
+        isDeletingAdHoc = true;
+        const csrfToken =
+            (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '';
+
+        try {
+            const res = await fetch(`/tenant/pedidos/${order.id}/ajustes/${adHocToDelete.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || data.error || 'Error al eliminar el ajuste al vuelo.');
+            }
+
+            toast.success('Ajuste al vuelo eliminado correctamente.');
+            if (data.order) {
+                order = {
+                    ...order,
+                    ...data.order,
+                };
+            }
+            router.reload({ only: ['orders'], preserveScroll: true, preserveState: true });
+            isDeleteAdHocModalOpen = false;
+            adHocToDelete = null;
+        } catch (err: any) {
+            toast.error(err?.message || 'No se pudo eliminar el ajuste al vuelo.');
+        } finally {
+            isDeletingAdHoc = false;
+        }
+    }
 
     let netProductsSubtotal = $derived(
         order?.items?.reduce((acc, it) => acc + Number(it.subtotal || 0), 0) ?? 0
@@ -766,10 +814,20 @@
                                             <p class="text-[11px] text-muted-foreground truncate mt-0.5">{adj.reason}</p>
                                         {/if}
                                     </div>
-                                    <div class="text-right shrink-0 font-sans tabular-nums">
+                                    <div class="flex items-center gap-2 shrink-0 font-sans tabular-nums">
                                         <span class="font-bold {adj.type === 'discount' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}">
                                             {adj.type === 'discount' ? '-' : '+'}{formatPrice(adj.applied_amount)}
                                         </span>
+                                        {#if adj.source === 'ad_hoc' && order.status !== 'cancelado' && order.status !== 'entregado' && order.fiscal_status !== 'facturado' && hasPermission('pedidos.editar')}
+                                            <button
+                                                type="button"
+                                                class="size-6 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors cursor-pointer"
+                                                onclick={() => confirmDeleteAdHoc(adj)}
+                                                title="Eliminar ajuste al vuelo"
+                                            >
+                                                <Trash2 class="size-3" />
+                                            </button>
+                                        {/if}
                                     </div>
                                 </div>
                             {/each}
@@ -1206,11 +1264,29 @@
             }}
         />
 
+        <!-- Modal de Confirmación para Eliminar Ajuste al Vuelo -->
+        <ConfirmActionModal
+            bind:open={isDeleteAdHocModalOpen}
+            title="¿Eliminar ajuste al vuelo?"
+            description="Esta acción no se puede deshacer. Se removerá este ajuste del pedido y se recalcularán los totales de forma inmediata. Si lo requerís más adelante, deberás crearlo nuevamente."
+            confirmText="Eliminar"
+            cancelText="Cancelar"
+            variant="destructive"
+            loading={isDeletingAdHoc}
+            onconfirm={executeDeleteAdHoc}
+        />
+
         <!-- Modal de Elección de Ajuste -->
         <ChooseAdjustmentActionModal
             bind:open={isChooseAdjustmentModalOpen}
-            onCreate={() => (isCustomAdjustmentModalOpen = true)}
-            onSelectExisting={() => (isSelectExistingAdjustmentModalOpen = true)}
+            onCreate={() => {
+                isChooseAdjustmentModalOpen = false;
+                isCustomAdjustmentModalOpen = true;
+            }}
+            onSelectExisting={() => {
+                isChooseAdjustmentModalOpen = false;
+                isSelectExistingAdjustmentModalOpen = true;
+            }}
         />
 
         <!-- Modal de Ajuste Existente del Catálogo -->
@@ -1221,6 +1297,7 @@
             netProductsAmount={netProductsSubtotal}
             currentAdjustments={order.price_adjustments || []}
             onBack={() => {
+                isSelectExistingAdjustmentModalOpen = false;
                 isChooseAdjustmentModalOpen = true;
             }}
             onSuccess={(updatedOrder) => {
@@ -1230,7 +1307,7 @@
                         ...updatedOrder,
                     };
                 }
-                router.reload({ only: ['orders'] });
+                router.reload({ only: ['orders'], preserveScroll: true, preserveState: true });
             }}
         />
 
@@ -1241,6 +1318,7 @@
             orderNumber={order.order_number}
             netProductsAmount={netProductsSubtotal}
             onBack={() => {
+                isCustomAdjustmentModalOpen = false;
                 isChooseAdjustmentModalOpen = true;
             }}
             onSuccess={(updatedOrder) => {
@@ -1250,7 +1328,7 @@
                         ...updatedOrder,
                     };
                 }
-                router.reload({ only: ['orders'] });
+                router.reload({ only: ['orders'], preserveScroll: true, preserveState: true });
             }}
         />
     {/if}

@@ -452,3 +452,101 @@ test('syncing an order with legacy duplicate presets purges the duplicates and h
         ->and((float) $order->discount_total)->toBe(100.0)
         ->and((float) $order->total_amount)->toBe(900.0);
 });
+
+test('can delete an ad-hoc adjustment and recalculate totals', function () {
+    $product = Product::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'price' => 1000,
+    ]);
+
+    $order = CustomerOrder::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'no_facturado',
+        'total_amount' => 850,
+        'discount_total' => 150,
+        'shipping_cost' => 0,
+        'price_adjustments' => [
+            [
+                'id' => 'ad-hoc-uuid-1',
+                'source' => 'ad_hoc',
+                'source_id' => null,
+                'type' => 'discount',
+                'name' => 'Descuento Especial',
+                'calculation_type' => 'fixed',
+                'value' => 150,
+                'applied_amount' => 150,
+                'reason' => 'Cliente fiel',
+                'show_in_receipt' => true,
+            ],
+        ],
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $product->id,
+        'product_name' => $product->name,
+        'quantity' => 1,
+        'unit_price' => 1000,
+        'subtotal' => 1000,
+    ]);
+
+    $this->actingAs($this->adminUser)
+        ->deleteJson("/tenant/pedidos/{$order->id}/ajustes/ad-hoc-uuid-1")
+        ->assertOk()
+        ->assertJson([
+            'success' => true,
+        ]);
+
+    $order->refresh();
+
+    expect($order->price_adjustments)->toBeEmpty()
+        ->and((float) $order->discount_total)->toBe(0.0)
+        ->and((float) $order->total_amount)->toBe(1000.0);
+});
+
+test('cannot delete an adjustment if order is terminal or facturado', function () {
+    $terminalOrder = CustomerOrder::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'status' => 'entregado',
+        'fiscal_status' => 'no_facturado',
+        'total_amount' => 900,
+        'price_adjustments' => [
+            [
+                'id' => 'ad-hoc-uuid-1',
+                'source' => 'ad_hoc',
+                'type' => 'discount',
+                'name' => 'Desc',
+                'calculation_type' => 'fixed',
+                'value' => 100,
+                'applied_amount' => 100,
+            ],
+        ],
+    ]);
+
+    $this->actingAs($this->adminUser)
+        ->deleteJson("/tenant/pedidos/{$terminalOrder->id}/ajustes/ad-hoc-uuid-1")
+        ->assertStatus(422);
+
+    $facturadoOrder = CustomerOrder::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'facturado',
+        'total_amount' => 900,
+        'price_adjustments' => [
+            [
+                'id' => 'ad-hoc-uuid-2',
+                'source' => 'ad_hoc',
+                'type' => 'discount',
+                'name' => 'Desc',
+                'calculation_type' => 'fixed',
+                'value' => 100,
+                'applied_amount' => 100,
+            ],
+        ],
+    ]);
+
+    $this->actingAs($this->adminUser)
+        ->deleteJson("/tenant/pedidos/{$facturadoOrder->id}/ajustes/ad-hoc-uuid-2")
+        ->assertStatus(422);
+});

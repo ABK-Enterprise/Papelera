@@ -30,14 +30,14 @@
         open = false;
         setTimeout(() => {
             onCreate?.();
-        }, 50);
+        }, 180);
     }
 
     function handleChooseExisting() {
         open = false;
         setTimeout(() => {
             onSelectExisting?.();
-        }, 50);
+        }, 180);
     }
 
     function handleClose() {
