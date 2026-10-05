@@ -44,6 +44,15 @@
         return initialImageUrl || null;
     });
 
+    $effect(() => {
+        if (!file && localPreviewUrl) {
+            URL.revokeObjectURL(localPreviewUrl);
+            localPreviewUrl = null;
+            optimizedSizeKb = null;
+            originalSizeKb = null;
+        }
+    });
+
     onDestroy(() => {
         if (localPreviewUrl) {
             URL.revokeObjectURL(localPreviewUrl);

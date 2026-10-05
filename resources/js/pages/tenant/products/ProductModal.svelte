@@ -4,13 +4,13 @@
         Dialog,
         DialogBody,
         DialogContent,
-        DialogDescription,
         DialogFooter,
         DialogHeader,
         DialogTitle,
     } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import ProductImageUploader from '@/components/tenant/products/ProductImageUploader.svelte';
     import SaleTypeChangeAlertDialog from '@/components/common/SaleTypeChangeAlertDialog.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import { router, useForm } from '@inertiajs/svelte';
@@ -18,7 +18,6 @@
     import Package from 'lucide-svelte/icons/package';
     import Scale from 'lucide-svelte/icons/scale';
     import Sparkles from 'lucide-svelte/icons/sparkles';
-    import UploadCloud from 'lucide-svelte/icons/upload-cloud';
     import X from 'lucide-svelte/icons/x';
 
     export interface CategoryOption {
@@ -49,6 +48,7 @@
         units_per_package?: number;
         package_quantity?: number;
         image_url?: string | null;
+        image_position?: { zoom?: number; x?: number; y?: number } | null;
         is_active?: boolean;
         is_incomplete?: boolean;
     }
@@ -84,7 +84,10 @@
         min_stock: 5,
         units_per_package: 1,
         package_quantity: 1,
+        image: null as File | null,
+        remove_image: false,
         image_url: '',
+        image_position: null as { zoom?: number; x?: number; y?: number } | null,
         is_active: true,
     });
 
@@ -92,6 +95,14 @@
     let initialSaleType = $state<'unit' | 'weight'>('unit');
     let isConfirmAlertOpen = $state(false);
     let isProductIncomplete = $derived(mode === 'edit' && Boolean(product?.is_incomplete || !product?.category_id || Number(product?.price) <= 0));
+
+    $effect(() => {
+        if (!open) {
+            lastLoadedProductId = null;
+            form.image = null;
+            form.remove_image = false;
+        }
+    });
 
     $effect(() => {
         if (product && product.id !== lastLoadedProductId) {
@@ -110,13 +121,19 @@
             form.min_stock = product.min_stock ?? 5;
             form.units_per_package = product.units_per_package ?? product.package_quantity ?? 1;
             form.package_quantity = product.package_quantity ?? product.units_per_package ?? 1;
+            form.image = null;
+            form.remove_image = false;
             form.image_url = product.image_url ?? '';
+            form.image_position = (product as any).image_position ?? null;
             form.is_active = product.is_active !== undefined ? Boolean(product.is_active) : true;
             form.clearErrors();
         } else if (!product && lastLoadedProductId !== null) {
             lastLoadedProductId = null;
             initialSaleType = 'unit';
             form.reset();
+            form.image = null;
+            form.remove_image = false;
+            form.image_position = null;
             form.warehouse_id = warehouses.find(w => w.is_default)?.id ?? (warehouses[0]?.id ?? '');
             form.clearErrors();
         } else if (!product && !form.warehouse_id && warehouses.length > 0) {
@@ -149,13 +166,26 @@
         }
 
         if (mode === 'edit' && product?.id) {
-            form.put(`/tenant/productos/${product.id}`, {
-                onSuccess: () => {
-                    isConfirmAlertOpen = false;
-                    open = false;
-                    onsuccess?.();
-                },
-            });
+            if (form.image) {
+                form.transform((data) => ({
+                    ...data,
+                    _method: 'put',
+                })).post(`/tenant/productos/${product.id}`, {
+                    onSuccess: () => {
+                        isConfirmAlertOpen = false;
+                        open = false;
+                        onsuccess?.();
+                    },
+                });
+            } else {
+                form.put(`/tenant/productos/${product.id}`, {
+                    onSuccess: () => {
+                        isConfirmAlertOpen = false;
+                        open = false;
+                        onsuccess?.();
+                    },
+                });
+            }
         } else {
             form.post('/tenant/productos', {
                 onSuccess: () => {
@@ -199,9 +229,6 @@
                     <DialogTitle class="text-xl font-bold text-foreground">
                         {mode === 'edit' ? 'Editar Producto' : 'Crear Producto'}
                     </DialogTitle>
-                    <DialogDescription class="text-xs text-muted-foreground mt-0.5">
-                        {mode === 'edit' ? 'Modifica los parámetros y precios del catálogo.' : 'Ingresa los detalles para incorporar el artículo al catálogo.'}
-                    </DialogDescription>
                 </div>
             </div>
             <button
@@ -218,46 +245,25 @@
         <!-- 2. Body -->
         <DialogBody>
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-                <!-- Columna Izquierda: Empaque, Multimedia & Resumen Visual (5/12) -->
+                <!-- Columna Izquierda: Imagen, Empaque & Resumen Visual (5/12) -->
                 <div class="md:col-span-5 space-y-4">
                     <div class="space-y-1">
                         <h3 class="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
                             <Package class="size-4 text-primary" />
-                            Empaque & Multimedia
+                            Imagen y empaque
                         </h3>
-                        <p class="text-[11px] text-muted-foreground">
-                            Configura la vista previa del artículo y su presentación por bulto.
-                        </p>
                     </div>
 
-                    <!-- Preview de Imagen -->
-                    <div class="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-2xl bg-card hover:bg-muted/40 transition-colors p-4 min-h-[180px] relative overflow-hidden group">
-                        {#if form.image_url}
-                            <img
-                                src={form.image_url}
-                                alt={form.name || 'Producto'}
-                                class="w-full h-40 object-contain rounded-xl"
-                                onerror={() => (form.image_url = '')}
-                            />
-                        {:else}
-                            <div class="size-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-2 group-hover:scale-105 transition-transform border border-primary/20">
-                                <UploadCloud class="size-6" />
-                            </div>
-                            <p class="text-xs font-semibold text-foreground text-center">URL de imagen o foto</p>
-                            <p class="text-[10px] text-muted-foreground text-center mt-0.5">JPG, PNG, WebP o enlace web</p>
-                        {/if}
-                    </div>
-
-                    <!-- Input URL Imagen -->
-                    <div class="space-y-1">
-                        <Label for="prod-modal-image" class="text-xs font-semibold text-muted-foreground">Enlace de Imagen</Label>
-                        <Input
-                            id="prod-modal-image"
-                            bind:value={form.image_url}
-                            placeholder="https://ejemplo.com/foto.jpg"
-                            class="h-8 text-xs bg-background"
-                        />
-                    </div>
+                    <!-- Product Image Uploader -->
+                    <ProductImageUploader
+                        initialImageUrl={product?.image_url ?? null}
+                        initialPosition={(product as any)?.image_position ?? null}
+                        bind:file={form.image}
+                        bind:position={form.image_position}
+                        bind:removeImage={form.remove_image}
+                        error={form.errors.image}
+                        disabled={form.processing}
+                    />
 
                     <!-- Bento Card Cálculo de Bulto -->
                     <div class="p-3.5 rounded-xl bg-primary/5 border border-primary/20 space-y-2">
