@@ -101,6 +101,19 @@ class CustomerOrderAdjustmentController extends Controller
             $appliedNames = [];
 
             foreach ($itemsToApply as $item) {
+                if (($item['source'] ?? null) === 'preset' && ! empty($item['source_id'])) {
+                    $sourceId = (int) $item['source_id'];
+                    $alreadyExists = collect($currentAdjustments)->contains(function ($adj) use ($sourceId) {
+                        return ($adj['source'] ?? null) === 'preset' && (int) ($adj['source_id'] ?? 0) === $sourceId;
+                    });
+
+                    if ($alreadyExists) {
+                        throw ValidationException::withMessages([
+                            'adjustments' => ['El recargo o descuento comercial ya se encuentra aplicado a este pedido.'],
+                        ]);
+                    }
+                }
+
                 $val = (float) $item['value'];
                 if ($item['calculation_type'] === 'percentage') {
                     $appliedAmount = round($netProductsAmount * ($val / 100), 2);
@@ -257,7 +270,10 @@ class CustomerOrderAdjustmentController extends Controller
             $existingPresetsBySourceId = [];
             foreach ($currentAdjustments as $adj) {
                 if (($adj['source'] ?? null) === 'preset' && ! empty($adj['source_id'])) {
-                    $existingPresetsBySourceId[(int) $adj['source_id']] = $adj;
+                    $sourceId = (int) $adj['source_id'];
+                    if (! isset($existingPresetsBySourceId[$sourceId])) {
+                        $existingPresetsBySourceId[$sourceId] = $adj;
+                    }
                 } else {
                     $adHocAdjustments[] = $adj;
                 }

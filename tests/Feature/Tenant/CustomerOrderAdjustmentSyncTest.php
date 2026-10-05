@@ -314,3 +314,141 @@ test('cannot sync adjustments on invoiced or terminal order', function () {
         ->assertStatus(422)
         ->assertJsonValidationErrors(['order']);
 });
+
+test('store rejects adding a preset that already exists on the order', function () {
+    $product = Product::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'price' => 1000,
+    ]);
+
+    $preset = TenantPriceAdjustment::create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Descuento Efectivo',
+        'type' => 'discount',
+        'calculation_type' => 'percentage',
+        'value' => 10,
+        'is_active' => true,
+    ]);
+
+    $order = CustomerOrder::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'sin_facturar',
+        'subtotal_amount' => 1000,
+        'total_amount' => 900,
+        'discount_total' => 100,
+        'shipping_cost' => 0,
+        'price_adjustments' => [
+            [
+                'id' => 'preset-uuid-1',
+                'source' => 'preset',
+                'source_id' => $preset->id,
+                'type' => 'discount',
+                'name' => $preset->name,
+                'calculation_type' => 'percentage',
+                'value' => 10,
+                'applied_amount' => 100,
+                'reason' => null,
+                'show_in_receipt' => true,
+            ],
+        ],
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $product->id,
+        'product_name' => $product->name,
+        'quantity' => 1,
+        'unit_price' => 1000,
+        'subtotal' => 1000,
+    ]);
+
+    $this->actingAs($this->adminUser)
+        ->postJson("/tenant/pedidos/{$order->id}/ajustes", [
+            'source' => 'preset',
+            'source_id' => $preset->id,
+            'type' => 'discount',
+            'name' => $preset->name,
+            'calculation_type' => 'percentage',
+            'value' => 10,
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['adjustments']);
+});
+
+test('syncing an order with legacy duplicate presets purges the duplicates and heals totals', function () {
+    $product = Product::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'price' => 1000,
+    ]);
+
+    $preset = TenantPriceAdjustment::create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Descuento Efectivo 10%',
+        'type' => 'discount',
+        'calculation_type' => 'percentage',
+        'value' => 10,
+        'is_active' => true,
+    ]);
+
+    // Order with duplicate presets (e.g. legacy dirty state)
+    $order = CustomerOrder::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'sin_facturar',
+        'subtotal_amount' => 1000,
+        'total_amount' => 800, // corrupted total reflecting 2x discount
+        'discount_total' => 200,
+        'shipping_cost' => 0,
+        'price_adjustments' => [
+            [
+                'id' => 'preset-uuid-1',
+                'source' => 'preset',
+                'source_id' => $preset->id,
+                'type' => 'discount',
+                'name' => $preset->name,
+                'calculation_type' => 'percentage',
+                'value' => 10,
+                'applied_amount' => 100,
+                'reason' => null,
+                'show_in_receipt' => true,
+            ],
+            [
+                'id' => 'preset-uuid-2',
+                'source' => 'preset',
+                'source_id' => $preset->id,
+                'type' => 'discount',
+                'name' => $preset->name,
+                'calculation_type' => 'percentage',
+                'value' => 10,
+                'applied_amount' => 100,
+                'reason' => null,
+                'show_in_receipt' => true,
+            ],
+        ],
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $product->id,
+        'product_name' => $product->name,
+        'quantity' => 1,
+        'unit_price' => 1000,
+        'subtotal' => 1000,
+    ]);
+
+    // Syncing with target preset 1
+    $this->actingAs($this->adminUser)
+        ->postJson("/tenant/pedidos/{$order->id}/ajustes/sincronizar", [
+            'preset_ids' => [$preset->id],
+        ])
+        ->assertOk();
+
+    $order->refresh();
+
+    // Must be purged to exactly 1 preset, keeping original uuid-1
+    expect($order->price_adjustments)->toHaveCount(1)
+        ->and($order->price_adjustments[0]['id'])->toBe('preset-uuid-1')
+        ->and((float) $order->discount_total)->toBe(100.0)
+        ->and((float) $order->total_amount)->toBe(900.0);
+});

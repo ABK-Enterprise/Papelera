@@ -108,6 +108,7 @@ class StoreCustomerOrderRequest extends FormRequest
             }
 
             if (is_array($this->price_adjustments)) {
+                $seenPresetIds = [];
                 foreach ($this->price_adjustments as $idx => $adj) {
                     $calcType = $adj['calculation_type'] ?? null;
                     $val = (float) ($adj['value'] ?? 0);
@@ -116,9 +117,17 @@ class StoreCustomerOrderRequest extends FormRequest
                     } elseif ($calcType === 'fixed' && $val > 100000000) {
                         $validator->errors()->add("price_adjustments.{$idx}.value", 'El monto fijo de ajuste no puede superar $100.000.000.');
                     }
+
+                    if (($adj['source'] ?? null) === 'preset' && ! empty($adj['source_id'])) {
+                        $sourceId = (int) $adj['source_id'];
+                        if (in_array($sourceId, $seenPresetIds, true)) {
+                            $validator->errors()->add('price_adjustments', 'No se puede aplicar el mismo ajuste del catálogo más de una vez.');
+                        } else {
+                            $seenPresetIds[] = $sourceId;
+                        }
+                    }
                 }
             }
         });
     }
 }
-

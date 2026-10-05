@@ -68,21 +68,41 @@
     let initialSelectedPresetIds = $state<number[]>([]);
     let selectedIds = $state<number[]>([]);
     let errorMessage = $state<string | null>(null);
+    let fetchController: AbortController | null = null;
 
     // Fetch active adjustments on open and pre-select currently applied presets
     $effect(() => {
         if (open) {
             fetchAdjustments();
             searchQuery = '';
-            initialSelectedPresetIds = (currentAdjustments || [])
-                .filter((adj: any) => adj.source === 'preset' && adj.source_id)
-                .map((adj: any) => Number(adj.source_id));
+            initialSelectedPresetIds = Array.from(
+                new Set(
+                    (currentAdjustments || [])
+                        .filter((adj: any) => adj.source === 'preset' && adj.source_id)
+                        .map((adj: any) => Number(adj.source_id))
+                )
+            );
             selectedIds = [...initialSelectedPresetIds];
             errorMessage = null;
+        } else {
+            if (fetchController) {
+                fetchController.abort();
+                fetchController = null;
+            }
         }
     });
 
     async function fetchAdjustments() {
+        if (fetchController) {
+            fetchController.abort();
+        }
+        fetchController = new AbortController();
+        const signal = fetchController.signal;
+
+        const timeoutId = setTimeout(() => {
+            fetchController?.abort();
+        }, 8000);
+
         isLoading = true;
         errorMessage = null;
         try {
@@ -90,17 +110,26 @@
                 ? `/tenant/configuracion/recargos-descuentos/activos?date=${encodeURIComponent(orderDate)}`
                 : '/tenant/configuracion/recargos-descuentos/activos';
             const res = await fetch(url, {
+                signal,
+                credentials: 'same-origin',
                 headers: {
                     Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
                 },
             });
+            clearTimeout(timeoutId);
             if (!res.ok) {
                 throw new Error('No se pudieron cargar los ajustes comerciales.');
             }
             const data = await res.json();
             adjustments = Array.isArray(data) ? data : [];
         } catch (err: any) {
-            errorMessage = err?.message || 'Error al cargar los recargos y descuentos.';
+            clearTimeout(timeoutId);
+            if (err?.name === 'AbortError') {
+                errorMessage = 'La carga de ajustes comerciales excedió el tiempo de espera. Por favor reintentá.';
+            } else {
+                errorMessage = err?.message || 'Error al cargar los recargos y descuentos.';
+            }
         } finally {
             isLoading = false;
         }
@@ -250,8 +279,17 @@
             </div>
 
             {#if errorMessage}
-                <div class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-xs text-destructive font-medium">
-                    {errorMessage}
+                <div class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-xs text-destructive font-medium flex items-center justify-between gap-2">
+                    <span class="min-w-0 flex-1">{errorMessage}</span>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        class="min-h-[32px] h-8 text-xs shrink-0 cursor-pointer"
+                        onclick={() => fetchAdjustments()}
+                    >
+                        Reintentar
+                    </Button>
                 </div>
             {/if}
 

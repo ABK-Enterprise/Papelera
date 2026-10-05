@@ -123,6 +123,19 @@
         order?.items?.reduce((acc, it) => acc + Number(it.subtotal || 0), 0) ?? 0
     );
 
+    let displayedAdjustments = $derived.by(() => {
+        if (!Array.isArray(order?.price_adjustments)) return [];
+        const seenPresets = new Set<number>();
+        return order.price_adjustments.filter((adj: any) => {
+            if (adj.source === 'preset' && adj.source_id) {
+                const sid = Number(adj.source_id);
+                if (seenPresets.has(sid)) return false;
+                seenPresets.add(sid);
+            }
+            return true;
+        });
+    });
+
     function resolveKeepPrices() {
         if (!order || isResolvingPrices) return;
         isResolvingPrices = true;
@@ -738,9 +751,9 @@
                         {/if}
                     </div>
 
-                    {#if Array.isArray(order.price_adjustments) && order.price_adjustments.length > 0}
+                    {#if displayedAdjustments.length > 0}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {#each order.price_adjustments as adj}
+                            {#each displayedAdjustments as adj}
                                 <div class="p-2.5 rounded-xl border flex items-center justify-between text-xs {adj.type === 'discount' ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-amber-500/5 border-amber-500/20'}">
                                     <div class="min-w-0 pr-2">
                                         <div class="flex items-center gap-1.5">
