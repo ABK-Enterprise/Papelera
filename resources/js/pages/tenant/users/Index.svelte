@@ -74,21 +74,18 @@
     }
 </script>
 
-<AppHead title="Personal y Empleados - Comercio" />
+<AppHead title="Personal del Comercio" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
     <!-- Encabezado y Acciones Principales -->
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <div class="flex items-center gap-2.5">
-                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Personal y Empleados</h1>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Personal del Comercio</h1>
                 <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums">
                     {users.length} {users.length === 1 ? 'miembro' : 'miembros'}
                 </span>
             </div>
-            <p class="mt-1 text-sm text-muted-foreground">
-                Gestiona los accesos y roles del equipo de trabajo en tu comercio.
-            </p>
         </div>
         <div class="flex flex-wrap items-center justify-end gap-2.5">
             <Link href="/tenant/roles">

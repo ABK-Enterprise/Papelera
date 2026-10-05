@@ -109,9 +109,6 @@
                 <UserCheck class="size-7 text-primary" />
                 Directorio de Clientes
             </h1>
-            <p class="text-sm text-muted-foreground mt-0.5">
-                Gestión de cuentas de clientes, condiciones fiscales, control de morosidad y ventas.
-            </p>
         </div>
 
         <div class="flex items-center justify-end gap-2.5 w-full sm:w-auto">
