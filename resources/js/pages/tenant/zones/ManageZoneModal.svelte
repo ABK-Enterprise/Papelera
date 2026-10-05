@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+    import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
@@ -113,9 +113,6 @@
                     <DialogTitle class="text-lg font-semibold text-foreground">
                         {mode === 'create' ? 'Nueva Zona de Envío' : 'Editar Zona de Envío'}
                     </DialogTitle>
-                    <DialogDescription class="text-xs text-muted-foreground">
-                        Configura la distancia de referencia y el porcentaje de recargo para el flete.
-                    </DialogDescription>
                 </div>
             </div>
         </DialogHeader>

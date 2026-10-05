@@ -4,7 +4,6 @@
         Dialog,
         DialogBody,
         DialogContent,
-        DialogDescription,
         DialogFooter,
         DialogHeader,
         DialogTitle,
@@ -116,11 +115,6 @@
                         <DialogTitle class="text-lg font-bold text-foreground">
                             {mode === 'create' ? 'Nuevo Depósito' : 'Editar Depósito'}
                         </DialogTitle>
-                        <DialogDescription class="text-xs text-muted-foreground mt-0.5">
-                            {mode === 'create'
-                                ? 'Define un nuevo espacio físico o depósito para control de inventario.'
-                                : 'Modifica los parámetros y ubicación del depósito seleccionado.'}
-                        </DialogDescription>
                     </div>
                 </div>
             </DialogHeader>
