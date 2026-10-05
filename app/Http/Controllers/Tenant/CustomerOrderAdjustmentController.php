@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerAccountMovement;
 use App\Models\CustomerOrder;
+use App\Models\TenantPriceAdjustment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -197,6 +198,176 @@ class CustomerOrderAdjustmentController extends Controller
         }
 
         return back()->with('success', 'Ajuste agregado exitosamente al pedido.');
+    }
+
+    /**
+     * Atomically synchronize preset price adjustments for an existing order.
+     */
+    public function syncPresets(Request $request, CustomerOrder $customerOrder): JsonResponse|RedirectResponse
+    {
+        $tenantId = $request->user()->tenant_id;
+        $userId = $request->user()->id;
+
+        if ($customerOrder->tenant_id !== $tenantId) {
+            abort(404);
+        }
+
+        if ($customerOrder->fiscal_status === 'facturado') {
+            throw ValidationException::withMessages([
+                'order' => ['El pedido posee un comprobante con CAE emitido. Debe emitirse la Nota de Crédito correspondiente antes de modificar montos.'],
+            ]);
+        }
+
+        if ($customerOrder->isTerminal()) {
+            throw ValidationException::withMessages([
+                'order' => ["El pedido {$customerOrder->order_number} se encuentra en estado definitivo ({$customerOrder->status}) y no admite modificaciones."],
+            ]);
+        }
+
+        $validated = $request->validate([
+            'preset_ids' => ['present', 'array'],
+            'preset_ids.*' => ['integer'],
+        ]);
+
+        $targetPresetIds = array_values(array_unique(array_map('intval', $validated['preset_ids'])));
+
+        // Load active tenant price adjustments for the target IDs
+        $availablePresets = [];
+        if (! empty($targetPresetIds)) {
+            $availablePresets = TenantPriceAdjustment::where('tenant_id', $tenantId)
+                ->whereIn('id', $targetPresetIds)
+                ->where('is_active', true)
+                ->get()
+                ->keyBy('id');
+        }
+
+        $order = DB::transaction(function () use ($customerOrder, $targetPresetIds, $availablePresets, $tenantId, $userId) {
+            /** @var CustomerOrder $lockedOrder */
+            $lockedOrder = CustomerOrder::where('id', $customerOrder->id)
+                ->where('tenant_id', $tenantId)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $oldTotal = (float) $lockedOrder->total_amount;
+            $netProductsAmount = (float) $lockedOrder->items()->sum('subtotal');
+            $currentAdjustments = $lockedOrder->price_adjustments ?: [];
+
+            // Separate ad_hoc adjustments from existing presets
+            $adHocAdjustments = [];
+            $existingPresetsBySourceId = [];
+            foreach ($currentAdjustments as $adj) {
+                if (($adj['source'] ?? null) === 'preset' && ! empty($adj['source_id'])) {
+                    $existingPresetsBySourceId[(int) $adj['source_id']] = $adj;
+                } else {
+                    $adHocAdjustments[] = $adj;
+                }
+            }
+
+            // Reconcile presets
+            $syncedPresets = [];
+            foreach ($targetPresetIds as $presetId) {
+                if (isset($existingPresetsBySourceId[$presetId])) {
+                    $existing = $existingPresetsBySourceId[$presetId];
+                    if (($existing['calculation_type'] ?? '') === 'percentage') {
+                        $val = (float) ($existing['value'] ?? 0);
+                        $existing['applied_amount'] = round($netProductsAmount * ($val / 100), 2);
+                    }
+                    $syncedPresets[] = $existing;
+                } elseif (isset($availablePresets[$presetId])) {
+                    $preset = $availablePresets[$presetId];
+                    $val = (float) $preset->value;
+                    if ($preset->calculation_type === 'percentage') {
+                        $appliedAmount = round($netProductsAmount * ($val / 100), 2);
+                    } else {
+                        $appliedAmount = round($val, 2);
+                    }
+
+                    $syncedPresets[] = [
+                        'id' => (string) Str::uuid(),
+                        'source' => 'preset',
+                        'source_id' => $preset->id,
+                        'type' => $preset->type,
+                        'name' => $preset->name,
+                        'calculation_type' => $preset->calculation_type,
+                        'value' => $val,
+                        'applied_amount' => $appliedAmount,
+                        'reason' => ! empty($preset->reason) ? trim($preset->reason) : null,
+                        'show_in_receipt' => true,
+                    ];
+                }
+            }
+
+            $finalAdjustments = array_merge($adHocAdjustments, $syncedPresets);
+
+            // Recalculate totals
+            $discountTotal = 0.00;
+            $surchargeTotal = 0.00;
+            foreach ($finalAdjustments as $adj) {
+                if (($adj['type'] ?? '') === 'discount') {
+                    $discountTotal += (float) ($adj['applied_amount'] ?? 0);
+                } else {
+                    $surchargeTotal += (float) ($adj['applied_amount'] ?? 0);
+                }
+            }
+
+            $newTotal = max(0.00, round($netProductsAmount + (float) $lockedOrder->shipping_cost + $surchargeTotal - $discountTotal, 2));
+            $diff = round($newTotal - $oldTotal, 2);
+
+            $lockedOrder->price_adjustments = array_values($finalAdjustments);
+            $lockedOrder->discount_total = round($discountTotal, 2);
+            $lockedOrder->surcharge_total = round($surchargeTotal, 2);
+            $lockedOrder->total_amount = $newTotal;
+
+            if ($lockedOrder->customer_id) {
+                $newDebt = max(0.00, round((float) $lockedOrder->debt_amount + $diff, 2));
+                $lockedOrder->debt_amount = $newDebt;
+
+                if (abs($diff) >= 0.01) {
+                    /** @var Customer $customer */
+                    $customer = Customer::where('id', $lockedOrder->customer_id)
+                        ->where('tenant_id', $tenantId)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($customer) {
+                        $newBalance = round((float) $customer->current_balance + $diff, 2);
+
+                        CustomerAccountMovement::create([
+                            'tenant_id' => $tenantId,
+                            'customer_id' => $customer->id,
+                            'customer_order_id' => $lockedOrder->id,
+                            'created_by_user_id' => $userId,
+                            'type' => 'adjustment',
+                            'description' => "Sincronización de recargos y descuentos en Pedido {$lockedOrder->order_number}",
+                            'amount' => abs($diff),
+                            'balance_after' => $newBalance,
+                            'payment_method' => 'ajuste',
+                            'reference_number' => "SYNC-ADJ-{$lockedOrder->order_number}",
+                            'notes' => 'Ajuste de saldo automático por sincronización de políticas comerciales.',
+                        ]);
+
+                        $customer->update(['current_balance' => $newBalance]);
+                    }
+                }
+            }
+
+            $lockedOrder->save();
+
+            return $lockedOrder;
+        });
+
+        $freshOrder = $order->fresh(['items.product', 'customer']);
+        event(new CustomerOrderAdjustmentsUpdated($freshOrder));
+
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Ajustes del pedido actualizados con éxito.',
+                'order' => $freshOrder,
+            ]);
+        }
+
+        return back()->with('success', 'Ajustes del pedido actualizados con éxito.');
     }
 
     /**

@@ -2157,11 +2157,13 @@
 <SelectExistingAdjustmentModal
     bind:open={isSelectExistingAdjustmentModalOpen}
     netProductsAmount={computedTotals.finalTotal}
+    currentAdjustments={priceAdjustments}
     onBack={() => {
         isChooseAdjustmentModalOpen = true;
     }}
-    onApplyLocal={(newAdjs) => {
-        priceAdjustments = [...priceAdjustments, ...newAdjs];
+    onApplyLocal={(syncedPresets) => {
+        const adHocs = priceAdjustments.filter((a) => a.source === 'ad_hoc');
+        priceAdjustments = [...adHocs, ...syncedPresets];
     }}
 />
 

@@ -1206,6 +1206,7 @@
             orderId={order.id}
             orderDate={order.created_at}
             netProductsAmount={netProductsSubtotal}
+            currentAdjustments={order.price_adjustments || []}
             onBack={() => {
                 isChooseAdjustmentModalOpen = true;
             }}

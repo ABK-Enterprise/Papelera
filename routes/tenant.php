@@ -202,6 +202,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('pedidos/{customerOrder}/actualizar-precios', [CustomerOrderPriceReviewController::class, 'updatePrices'])->name('orders.update-prices')->middleware('tenant.permission:pedidos.editar_estado');
             Route::patch('pedidos/{customerOrder}/visibilidad-remito', [CustomerOrderReceiptController::class, 'updateVisibility'])->name('orders.receipt-visibility')->middleware('tenant.permission:pedidos.ver');
             Route::post('pedidos/{customerOrder}/ajustes', [CustomerOrderAdjustmentController::class, 'store'])->name('orders.adjustments.store')->middleware('tenant.permission:pedidos.editar_estado');
+            Route::post('pedidos/{customerOrder}/ajustes/sincronizar', [CustomerOrderAdjustmentController::class, 'syncPresets'])->name('orders.adjustments.sync')->middleware('tenant.permission:pedidos.editar_estado');
             Route::delete('pedidos/{customerOrder}/ajustes/{adjustmentId}', [CustomerOrderAdjustmentController::class, 'destroy'])->name('orders.adjustments.destroy')->middleware('tenant.permission:pedidos.editar_estado');
             Route::put('pedidos/{customerOrder}/items/{orderItem}/precio', [CustomerOrderItemPriceController::class, 'updatePrice'])->name('orders.items.update-price')->middleware('tenant.permission:pedidos.editar_estado');
 

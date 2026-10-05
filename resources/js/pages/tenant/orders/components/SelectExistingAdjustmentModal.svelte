@@ -37,6 +37,7 @@
         orderId?: number | null;
         netProductsAmount?: number;
         orderDate?: string | null;
+        currentAdjustments?: any[];
         onSuccess?: (updatedOrder: any) => void;
         onApplyLocal?: (adjustments: any[]) => void;
         onBack?: () => void;
@@ -48,6 +49,7 @@
         orderId = null,
         netProductsAmount = 0,
         orderDate = null,
+        currentAdjustments = [],
         onSuccess = undefined,
         onApplyLocal = undefined,
         onBack = undefined,
@@ -63,15 +65,19 @@
     let isLoading = $state(false);
     let isSubmitting = $state(false);
     let searchQuery = $state('');
+    let initialSelectedPresetIds = $state<number[]>([]);
     let selectedIds = $state<number[]>([]);
     let errorMessage = $state<string | null>(null);
 
-    // Fetch active adjustments on open
+    // Fetch active adjustments on open and pre-select currently applied presets
     $effect(() => {
         if (open) {
             fetchAdjustments();
             searchQuery = '';
-            selectedIds = [];
+            initialSelectedPresetIds = (currentAdjustments || [])
+                .filter((adj: any) => adj.source === 'preset' && adj.source_id)
+                .map((adj: any) => Number(adj.source_id));
+            selectedIds = [...initialSelectedPresetIds];
             errorMessage = null;
         }
     });
@@ -110,6 +116,11 @@
         );
     });
 
+    const hasChanges = $derived.by(() => {
+        if (selectedIds.length !== initialSelectedPresetIds.length) return true;
+        return selectedIds.some((id) => !initialSelectedPresetIds.includes(id));
+    });
+
     function toggleSelect(id: number) {
         if (selectedIds.includes(id)) {
             selectedIds = selectedIds.filter((item) => item !== id);
@@ -141,14 +152,24 @@
     }
 
     function handleApply() {
-        if (selectedIds.length === 0 || isSubmitting) return;
+        if (!hasChanges || isSubmitting) return;
 
         const selectedList = adjustments.filter((adj) => selectedIds.includes(adj.id));
-        if (selectedList.length === 0) return;
 
         const mappedAdjustments = selectedList.map((adj) => {
+            const existing = (currentAdjustments || []).find(
+                (a: any) => a.source === 'preset' && Number(a.source_id) === adj.id
+            );
             const val = Number(adj.value) || 0;
             const applied = calculatePreviewAmount(adj);
+            if (existing) {
+                return {
+                    ...existing,
+                    value: val,
+                    applied_amount: applied,
+                };
+            }
+
             return {
                 id: generateUUID(),
                 source: 'preset',
@@ -165,11 +186,7 @@
 
         if (onApplyLocal) {
             onApplyLocal(mappedAdjustments);
-            toast.success(
-                mappedAdjustments.length === 1
-                    ? 'Ajuste agregado al pedido.'
-                    : `${mappedAdjustments.length} ajustes agregados al pedido.`
-            );
+            toast.success('Ajustes del pedido actualizados.');
             handleClose();
             return;
         }
@@ -180,36 +197,24 @@
         errorMessage = null;
 
         router.post(
-            `/tenant/pedidos/${orderId}/ajustes`,
+            `/tenant/pedidos/${orderId}/ajustes/sincronizar`,
             {
-                adjustments: mappedAdjustments.map((a) => ({
-                    source: 'preset',
-                    source_id: a.source_id,
-                    type: a.type,
-                    name: a.name,
-                    calculation_type: a.calculation_type,
-                    value: a.value,
-                    reason: a.reason,
-                    show_in_receipt: true,
-                })),
+                preset_ids: selectedIds,
             },
             {
                 preserveScroll: true,
                 preserveState: true,
                 onSuccess: (pageProps: any) => {
-                    toast.success(
-                        mappedAdjustments.length === 1
-                            ? 'Ajuste aplicado correctamente al pedido.'
-                            : `${mappedAdjustments.length} ajustes aplicados correctamente.`
-                    );
+                    toast.success('Ajustes del pedido actualizados correctamente.');
                     onSuccess?.(pageProps?.props?.order);
                     handleClose();
                 },
                 onError: (errors) => {
                     errorMessage =
                         errors.order ||
+                        errors.preset_ids ||
                         Object.values(errors)[0] ||
-                        'Error al aplicar los ajustes seleccionados.';
+                        'Error al sincronizar los ajustes seleccionados.';
                 },
                 onFinish: () => {
                     isSubmitting = false;
@@ -355,16 +360,20 @@
             <Button
                 type="button"
                 class="min-h-[44px] rounded-xl text-xs font-semibold gap-1.5 cursor-pointer"
-                disabled={selectedIds.length === 0 || isSubmitting}
+                disabled={!hasChanges || isSubmitting}
                 onclick={handleApply}
             >
                 {#if isSubmitting}
                     <Loader2 class="size-3.5 animate-spin" />
-                    <span>Aplicando...</span>
+                    <span>Guardando...</span>
                 {:else}
                     <Check class="size-3.5" />
-                    <span class="sm:hidden">Aplicar ({selectedIds.length})</span>
-                    <span class="hidden sm:inline">Aplicar seleccionados ({selectedIds.length})</span>
+                    {#if selectedIds.length > 0}
+                        <span class="sm:hidden">Aplicar ({selectedIds.length})</span>
+                        <span class="hidden sm:inline">Aplicar seleccionados ({selectedIds.length})</span>
+                    {:else}
+                        <span>Guardar cambios</span>
+                    {/if}
                 {/if}
             </Button>
         </DialogFooter>
