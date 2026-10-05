@@ -51,14 +51,15 @@ class CustomerOrderFiscalController extends Controller
 
             return back()->with('success', 'Factura electrónica emitida exitosamente.');
         } catch (ArcaException $e) {
+            $publicMsg = ArcaErrorTranslator::sanitizePublicMessage($e->getMessage());
             if ($request->wantsJson()) {
                 return response()->json([
-                    'message' => $e->getMessage(),
-                    'error' => $e->getMessage(),
+                    'message' => $publicMsg,
+                    'error' => $publicMsg,
                 ], 422);
             }
 
-            return back()->withErrors(['fiscal_error' => $e->getMessage()])->with('error', $e->getMessage());
+            return back()->withErrors(['fiscal_error' => $publicMsg])->with('error', $publicMsg);
         } catch (\Throwable $e) {
             $translatedMsg = ArcaErrorTranslator::translate('SoapFault', $e->getMessage());
 
@@ -94,14 +95,15 @@ class CustomerOrderFiscalController extends Controller
 
             return back()->with('success', 'Nota de Crédito electrónica emitida exitosamente.');
         } catch (ArcaException $e) {
+            $publicMsg = ArcaErrorTranslator::sanitizePublicMessage($e->getMessage());
             if ($request->wantsJson()) {
                 return response()->json([
-                    'message' => $e->getMessage(),
-                    'error' => $e->getMessage(),
+                    'message' => $publicMsg,
+                    'error' => $publicMsg,
                 ], 422);
             }
 
-            return back()->withErrors(['fiscal_error' => $e->getMessage()])->with('error', $e->getMessage());
+            return back()->withErrors(['fiscal_error' => $publicMsg])->with('error', $publicMsg);
         } catch (\Throwable $e) {
             $translatedMsg = ArcaErrorTranslator::translate('SoapFault', $e->getMessage());
 

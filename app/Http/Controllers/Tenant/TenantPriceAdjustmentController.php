@@ -134,7 +134,9 @@ class TenantPriceAdjustmentController extends Controller
                 return $data;
             });
 
-        return response()->json($adjustments);
+        $totalConfigured = TenantPriceAdjustment::where('tenant_id', $tenantId)->count();
+
+        return response()->json($adjustments)->header('X-Total-Configured', (string) $totalConfigured);
     }
 
     protected function ensureBelongsToTenant(TenantPriceAdjustment $adjustment, int $tenantId): void

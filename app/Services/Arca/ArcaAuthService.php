@@ -3,6 +3,7 @@
 namespace App\Services\Arca;
 
 use App\Exceptions\ArcaAuthenticationException;
+use App\Models\ArcaAccessTicket;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -12,8 +13,11 @@ use SoapFault;
 class ArcaAuthService
 {
     protected string $environment;
+
     protected string $wsaaUrl;
+
     protected string $wsaaWsdl;
+
     protected int $cacheTtl;
 
     protected ?SoapClient $customSoapClient = null;
@@ -21,7 +25,8 @@ class ArcaAuthService
     public function __construct(?SoapClient $customSoapClient = null)
     {
         $this->customSoapClient = $customSoapClient;
-        $this->environment = config('arca.environment', 'testing');
+        $rawEnv = strtolower(trim((string) config('arca.environment', 'testing')));
+        $this->environment = in_array($rawEnv, ['production', 'prod'], true) ? 'production' : 'testing';
         $this->wsaaUrl = $this->environment === 'production'
             ? config('arca.wsaa.production_url')
             : config('arca.wsaa.homologation_url');
@@ -167,7 +172,7 @@ class ArcaAuthService
                 }
             }
 
-            Log::error('ARCA WSAA SoapFault: ' . $sf->getMessage(), [
+            Log::error('ARCA WSAA SoapFault: '.$sf->getMessage(), [
                 'faultcode' => $sf->faultcode ?? null,
                 'faultstring' => $sf->faultstring ?? null,
                 'environment' => $this->environment,
@@ -185,7 +190,7 @@ class ArcaAuthService
                 throw $e;
             }
 
-            Log::error('ARCA WSAA Error Inesperado: ' . $e->getMessage(), [
+            Log::error('ARCA WSAA Error Inesperado: '.$e->getMessage(), [
                 'cuit' => $cuit,
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -230,14 +235,14 @@ class ArcaAuthService
         $generationTime = Carbon::now()->subMinutes(10)->format('Y-m-d\TH:i:sP');
         $expirationTime = Carbon::now()->addMinutes(10)->format('Y-m-d\TH:i:sP');
 
-        return '<?xml version="1.0" encoding="UTF-8"?>' . "\n" .
-            '<loginTicketRequest version="1.0">' . "\n" .
-            '    <header>' . "\n" .
-            "        <uniqueId>{$uniqueId}</uniqueId>\n" .
-            "        <generationTime>{$generationTime}</generationTime>\n" .
-            "        <expirationTime>{$expirationTime}</expirationTime>\n" .
-            "    </header>\n" .
-            "    <service>{$service}</service>\n" .
+        return '<?xml version="1.0" encoding="UTF-8"?>'."\n".
+            '<loginTicketRequest version="1.0">'."\n".
+            '    <header>'."\n".
+            "        <uniqueId>{$uniqueId}</uniqueId>\n".
+            "        <generationTime>{$generationTime}</generationTime>\n".
+            "        <expirationTime>{$expirationTime}</expirationTime>\n".
+            "    </header>\n".
+            "    <service>{$service}</service>\n".
             '</loginTicketRequest>';
     }
 
@@ -364,10 +369,10 @@ class ArcaAuthService
         try {
             $cuit = $ticket['cuit'] ?? $this->resolveCuit();
             $uniqueId = ! empty($ticket['unique_id']) ? (string) $ticket['unique_id'] : (string) time();
-            $tokenPreview = ! empty($ticket['token']) ? substr((string) $ticket['token'], 0, 8) . '...' : null;
+            $tokenPreview = ! empty($ticket['token']) ? substr((string) $ticket['token'], 0, 8).'...' : null;
 
             // Mark previous active tickets for this cuit/service as expired
-            \App\Models\ArcaAccessTicket::where('cuit', $cuit)
+            ArcaAccessTicket::where('cuit', $cuit)
                 ->where('service', $service)
                 ->where('environment', $this->environment)
                 ->where('status', 'active')
@@ -376,7 +381,7 @@ class ArcaAuthService
             $generatedAt = ! empty($ticket['generation']) ? Carbon::parse($ticket['generation']) : now();
             $expiresAt = ! empty($ticket['expiration']) ? Carbon::parse($ticket['expiration']) : now()->addSeconds($this->cacheTtl);
 
-            \App\Models\ArcaAccessTicket::create([
+            ArcaAccessTicket::create([
                 'tenant_id' => auth()->user()?->tenant_id,
                 'cuit' => $cuit,
                 'unique_id' => $uniqueId,
@@ -388,7 +393,7 @@ class ArcaAuthService
                 'status' => 'active',
             ]);
         } catch (\Throwable $e) {
-            Log::warning('Failed to persist ARCA ticket to history table: ' . $e->getMessage());
+            Log::warning('Failed to persist ARCA ticket to history table: '.$e->getMessage());
         }
     }
 
@@ -431,17 +436,18 @@ class ArcaAuthService
 
         $envKey = $this->environment === 'production' ? 'production' : 'testing';
 
-        // 1. Direct Base64 environment variable
-        $base64 = config("arca.{$envKey}.cert_base64");
+        // 1. Direct Base64 environment variable (current environment or production fallback)
+        $base64 = config("arca.{$envKey}.cert_base64") ?: config('arca.production.cert_base64');
         if (! empty($base64)) {
-            $decoded = base64_decode((string) $base64, true);
+            $cleanBase64 = trim((string) $base64, " \t\n\r\0\x0B\"'");
+            $decoded = base64_decode($cleanBase64, true);
             if ($decoded !== false && ! empty(trim($decoded))) {
                 return $decoded;
             }
         }
 
-        // 2. Direct PEM text environment variable
-        $content = config("arca.{$envKey}.cert_content");
+        // 2. Direct PEM text environment variable (current environment or production fallback)
+        $content = config("arca.{$envKey}.cert_content") ?: config('arca.production.cert_content');
         if (! empty($content) && ! empty(trim((string) $content))) {
             return (string) $content;
         }
@@ -450,7 +456,7 @@ class ArcaAuthService
         $path = config("arca.{$envKey}.cert_path");
         if (! empty($path)) {
             if (! file_exists((string) $path)) {
-                throw new ArcaAuthenticationException("El certificado de ARCA no existe en la ruta: {$path}");
+                throw new ArcaAuthenticationException('El certificado digital de ARCA no está cargado o no fue configurado correctamente en el sistema.');
             }
             $fileContent = file_get_contents((string) $path);
             if ($fileContent !== false) {
@@ -467,7 +473,7 @@ class ArcaAuthService
             }
         }
 
-        throw new ArcaAuthenticationException('El certificado de ARCA no existe o no pudo ser resuelto desde variables de entorno ni rutas de archivo.');
+        throw new ArcaAuthenticationException('El certificado digital de ARCA no está cargado o no fue configurado correctamente en el sistema.');
     }
 
     /**
@@ -483,17 +489,18 @@ class ArcaAuthService
 
         $envKey = $this->environment === 'production' ? 'production' : 'testing';
 
-        // 1. Direct Base64 environment variable
-        $base64 = config("arca.{$envKey}.key_base64");
+        // 1. Direct Base64 environment variable (current environment or production fallback)
+        $base64 = config("arca.{$envKey}.key_base64") ?: config('arca.production.key_base64');
         if (! empty($base64)) {
-            $decoded = base64_decode((string) $base64, true);
+            $cleanBase64 = trim((string) $base64, " \t\n\r\0\x0B\"'");
+            $decoded = base64_decode($cleanBase64, true);
             if ($decoded !== false && ! empty(trim($decoded))) {
                 return $decoded;
             }
         }
 
-        // 2. Direct PEM text environment variable
-        $content = config("arca.{$envKey}.key_content");
+        // 2. Direct PEM text environment variable (current environment or production fallback)
+        $content = config("arca.{$envKey}.key_content") ?: config('arca.production.key_content');
         if (! empty($content) && ! empty(trim((string) $content))) {
             return (string) $content;
         }
@@ -502,7 +509,7 @@ class ArcaAuthService
         $path = config("arca.{$envKey}.key_path");
         if (! empty($path)) {
             if (! file_exists((string) $path)) {
-                throw new ArcaAuthenticationException("La clave privada de ARCA no existe en la ruta: {$path}");
+                throw new ArcaAuthenticationException('La clave privada de ARCA no está cargada o no fue configurada correctamente en el sistema.');
             }
             $fileContent = file_get_contents((string) $path);
             if ($fileContent !== false) {
@@ -519,7 +526,7 @@ class ArcaAuthService
             }
         }
 
-        throw new ArcaAuthenticationException('La clave privada de ARCA no existe o no pudo ser resuelta desde variables de entorno ni rutas de archivo.');
+        throw new ArcaAuthenticationException('La clave privada de ARCA no está cargada o no fue configurada correctamente en el sistema.');
     }
 
     /**
@@ -542,7 +549,7 @@ class ArcaAuthService
 
         // If it looks like a path (starts with / or ./ or contains / or \ or ends with .crt/.key), but doesn't exist
         if (str_contains($input, '/') || str_contains($input, '\\') || str_ends_with($input, '.crt') || str_ends_with($input, '.key')) {
-            throw new ArcaAuthenticationException("El {$typeLabel} de ARCA no existe en la ruta: {$input}");
+            throw new ArcaAuthenticationException("El {$typeLabel} de ARCA no está cargado o no fue configurado correctamente en el sistema.");
         }
 
         // Attempt Base64 decode
@@ -579,11 +586,11 @@ class ArcaAuthService
     protected function validateCertificates(string $certPath, string $keyPath): void
     {
         if (! file_exists($certPath) && ! str_contains($certPath, '-----BEGIN')) {
-            throw new ArcaAuthenticationException("El certificado de ARCA no existe en la ruta: {$certPath}");
+            throw new ArcaAuthenticationException('El certificado digital de ARCA no está cargado o no fue configurado correctamente en el sistema.');
         }
 
         if (! file_exists($keyPath) && ! str_contains($keyPath, '-----BEGIN')) {
-            throw new ArcaAuthenticationException("La clave privada de ARCA no existe en la ruta: {$keyPath}");
+            throw new ArcaAuthenticationException('La clave privada de ARCA no está cargada o no fue configurada correctamente en el sistema.');
         }
     }
 }

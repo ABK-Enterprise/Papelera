@@ -1,4 +1,4 @@
-FROM php:8.4-cli-bookworm
+FROM dunglas/frankenphp:1-php8.4-bookworm
 
 # Variables de entorno para Node, Composer y Chromium/PDF
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -10,28 +10,20 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LARAVEL_PDF_NO_SANDBOX=true \
     LARAVEL_PDF_NODE_MODULES_PATH=/var/www/html/node_modules
 
-# 1. Instalar dependencias del sistema, extensiones de PHP y Chromium para PDFs
+# 1. Instalar dependencias del sistema y Chromium para PDFs
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     unzip \
-    libpq-dev \
     postgresql-client \
-    libzip-dev \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    libwebp-dev \
-    libicu-dev \
-    libxml2-dev \
-    openssl \
-    ca-certificates \
     chromium \
     fonts-liberation \
     fonts-noto-color-emoji \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install -j$(nproc) \
-    pdo \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# 2. Instalar extensiones PHP necesarias para Laravel y Spatie
+RUN install-php-extensions \
     pdo_pgsql \
     pgsql \
     zip \
@@ -40,12 +32,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     soap \
     pcntl \
     exif \
-    gd \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# 2. Instalar Composer oficial
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+    gd
 
 # 3. Instalar Node.js y pnpm
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
@@ -68,10 +55,13 @@ RUN pnpm install --frozen-lockfile --dangerously-allow-all-builds || pnpm instal
 # 7. Copiar el resto del código de la aplicación
 COPY . .
 
-# 8. Generar autoloader optimizado de Composer
+# 8. Copiar configuración de Caddyfile para FrankenPHP
+COPY Caddyfile /etc/caddy/Caddyfile
+
+# 9. Generar autoloader optimizado de Composer
 RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
 
-# 9. Compilar los assets con Vite + Svelte (inyectando build args desde Render)
+# 10. Compilar los assets con Vite + Svelte (inyectando build args desde Railway)
 ARG VITE_BROADCASTER=pusher
 ARG VITE_PUSHER_APP_KEY
 ARG VITE_PUSHER_APP_CLUSTER=sa1
@@ -80,13 +70,13 @@ ENV VITE_BROADCASTER=$VITE_BROADCASTER \
     VITE_PUSHER_APP_CLUSTER=$VITE_PUSHER_APP_CLUSTER
 RUN pnpm run build
 
-# 10. Permisos para storage y bootstrap/cache
+# 11. Permisos para storage y bootstrap/cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod +x /var/www/html/docker/entrypoint.sh
 
-# 11. Puerto por defecto expuesto
+# 12. Puerto por defecto expuesto
 EXPOSE 8080
 
-# 12. Script de inicio
+# 13. Script de inicio
 ENTRYPOINT ["/var/www/html/docker/entrypoint.sh"]

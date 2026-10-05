@@ -24,17 +24,17 @@ afterEach(function () {
 });
 
 test('it throws exception when certificate or key file does not exist', function () {
-    $service = new ArcaAuthService();
+    $service = new ArcaAuthService;
 
     $service->getAccessTicket(
         cuit: '20463191280',
         certPath: '/non/existent/cert.crt',
         keyPath: '/non/existent/key.key'
     );
-})->throws(ArcaAuthenticationException::class, 'El certificado de ARCA no existe');
+})->throws(ArcaAuthenticationException::class, 'El certificado digital de ARCA no está cargado');
 
 test('it creates valid TRA XML with required tags and clock skew adjustment', function () {
-    $service = new ArcaAuthService();
+    $service = new ArcaAuthService;
     $reflection = new ReflectionClass($service);
     $method = $reflection->getMethod('createTraXml');
     $method->setAccessible(true);
@@ -51,7 +51,7 @@ test('it creates valid TRA XML with required tags and clock skew adjustment', fu
 });
 
 test('it correctly parses loginTicketResponse XML into ticket array', function () {
-    $service = new ArcaAuthService();
+    $service = new ArcaAuthService;
     $reflection = new ReflectionClass($service);
     $method = $reflection->getMethod('parseLoginTicketResponse');
     $method->setAccessible(true);
@@ -99,7 +99,7 @@ test('it reuses cached ticket without calling WSAA when ticket is still valid', 
     $mockSoapClient = Mockery::mock(SoapClient::class);
     $mockSoapClient->shouldNotReceive('loginCms');
 
-    $service = new ArcaAuthService();
+    $service = new ArcaAuthService;
     $service->setSoapClient($mockSoapClient);
 
     $retrievedTicket = $service->getAccessTicket($cuit, service: $serviceName);
@@ -120,7 +120,7 @@ test('it calls WSAA loginCms, parses response, and saves ticket in cache when ca
             <destination>SERIALNUMBER=CUIT 20463191280</destination>
             <uniqueId>987654321</uniqueId>
             <generationTime>2026-09-13T14:50:00-03:00</generationTime>
-            <expirationTime>' . Carbon::now()->addHours(11)->toIso8601String() . '</expirationTime>
+            <expirationTime>'.Carbon::now()->addHours(11)->toIso8601String().'</expirationTime>
         </header>
         <credentials>
             <token>NEW_FRESH_TOKEN_789</token>
@@ -136,7 +136,7 @@ test('it calls WSAA loginCms, parses response, and saves ticket in cache when ca
         }))
         ->andReturn((object) ['loginCmsReturn' => $fakeXmlResponse]);
 
-    $service = new ArcaAuthService();
+    $service = new ArcaAuthService;
     $service->setSoapClient($mockSoapClient);
 
     $ticket = $service->getAccessTicket($cuit, service: $serviceName);
@@ -155,7 +155,7 @@ test('it throws ArcaAuthenticationException when SoapFault occurs and no disk fa
         ->once()
         ->andThrow(new SoapFault('ns1:cms.bad.signature', 'Firma digital inválida'));
 
-    $service = new ArcaAuthService();
+    $service = new ArcaAuthService;
     $service->setSoapClient($mockSoapClient);
 
     $service->getAccessTicket($cuit, service: $serviceName);
@@ -181,7 +181,7 @@ test('it recovers ticket from persistent disk cache when Laravel cache was flush
     $mockSoapClient = Mockery::mock(SoapClient::class);
     $mockSoapClient->shouldNotReceive('loginCms');
 
-    $service = new ArcaAuthService();
+    $service = new ArcaAuthService;
     $service->setSoapClient($mockSoapClient);
 
     $ticket = $service->getAccessTicket($cuit, service: $serviceName);
@@ -210,7 +210,7 @@ test('it handles coe.alreadyAuthenticated by recovering existing ticket from dis
         ->once()
         ->andThrow(new SoapFault('ns1:coe.alreadyAuthenticated', 'El CEE ya posee un TA valido para el acceso al WSN solicitado'));
 
-    $service = new ArcaAuthService();
+    $service = new ArcaAuthService;
     $service->setSoapClient($mockSoapClient);
 
     $ticket = $service->requestNewTicketFromWsaa(
@@ -271,7 +271,7 @@ test('it resolves and authenticates with WSAA in production using base64 credent
         'arca.production.key_path' => null,
     ]);
 
-    $service = new ArcaAuthService();
+    $service = new ArcaAuthService;
 
     expect($service->resolveCertificateContent())->toBe($certContent)
         ->and($service->resolvePrivateKeyContent())->toBe($keyContent)
@@ -281,10 +281,10 @@ test('it resolves and authenticates with WSAA in production using base64 credent
     <loginTicketResponse version="1.0">
         <header>
             <source>CN=wsaa, O=AFIP, C=AR</source>
-            <destination>SERIALNUMBER=CUIT ' . $cuit . '</destination>
+            <destination>SERIALNUMBER=CUIT '.$cuit.'</destination>
             <uniqueId>555666777</uniqueId>
-            <generationTime>' . Carbon::now()->subMinutes(5)->toIso8601String() . '</generationTime>
-            <expirationTime>' . Carbon::now()->addHours(11)->toIso8601String() . '</expirationTime>
+            <generationTime>'.Carbon::now()->subMinutes(5)->toIso8601String().'</generationTime>
+            <expirationTime>'.Carbon::now()->addHours(11)->toIso8601String().'</expirationTime>
         </header>
         <credentials>
             <token>PROD_BASE64_TOKEN_999</token>
@@ -325,7 +325,7 @@ test('it resolves and authenticates with WSAA in production using raw PEM conten
         'arca.production.key_path' => null,
     ]);
 
-    $service = new ArcaAuthService();
+    $service = new ArcaAuthService;
 
     expect($service->resolveCertificateContent())->toBe($certContent)
         ->and($service->resolvePrivateKeyContent())->toBe($keyContent);
@@ -334,10 +334,10 @@ test('it resolves and authenticates with WSAA in production using raw PEM conten
     <loginTicketResponse version="1.0">
         <header>
             <source>CN=wsaa, O=AFIP, C=AR</source>
-            <destination>SERIALNUMBER=CUIT ' . $cuit . '</destination>
+            <destination>SERIALNUMBER=CUIT '.$cuit.'</destination>
             <uniqueId>111222333</uniqueId>
-            <generationTime>' . Carbon::now()->subMinutes(5)->toIso8601String() . '</generationTime>
-            <expirationTime>' . Carbon::now()->addHours(11)->toIso8601String() . '</expirationTime>
+            <generationTime>'.Carbon::now()->subMinutes(5)->toIso8601String().'</generationTime>
+            <expirationTime>'.Carbon::now()->addHours(11)->toIso8601String().'</expirationTime>
         </header>
         <credentials>
             <token>PROD_PEM_TOKEN_111</token>
@@ -368,7 +368,7 @@ test('it prioritizes explicit override over base64 and pem content', function ()
         'arca.production.cert_content' => $certContent,
     ]);
 
-    $service = new ArcaAuthService();
+    $service = new ArcaAuthService;
 
     expect($service->resolveCertificateContent($fakeCert))->toBe($fakeCert)
         ->and($service->resolveCertificateContent())->toBe($certContent);

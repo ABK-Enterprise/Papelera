@@ -10,7 +10,7 @@ return [
     | or production web services. Defaults to 'testing'.
     |
     */
-    'environment' => env('ARCA_ENVIRONMENT', 'testing'),
+    'environment' => env('ARCA_ENVIRONMENT', env('ARCA_ENV', 'testing')),
 
     /*
     |--------------------------------------------------------------------------
@@ -77,15 +77,15 @@ return [
     |
     */
     'testing' => [
-        'cuit' => (string) env('ARCA_TESTING_CUIT', '20463191280'),
+        'cuit' => (string) env('ARCA_TESTING_CUIT', env('ARCA_CUIT', '20463191280')),
         'punto_venta' => (int) env('ARCA_TESTING_PTO_VTA', 1),
-        'cert_base64' => env('ARCA_TESTING_CERT_BASE64'),
-        'cert_content' => env('ARCA_TESTING_CERT_CONTENT'),
-        'cert_path' => env('ARCA_TESTING_CERT_PATH', storage_path('app/arca/MiPedidoCSR.crt')),
-        'key_base64' => env('ARCA_TESTING_KEY_BASE64'),
-        'key_content' => env('ARCA_TESTING_KEY_CONTENT'),
-        'key_path' => env('ARCA_TESTING_KEY_PATH', storage_path('app/arca/Papelera.key')),
-        'passphrase' => env('ARCA_TESTING_PASSPHRASE', ''),
+        'cert_base64' => env('ARCA_TESTING_CERT_BASE64', env('ARCA_CERT_BASE64')),
+        'cert_content' => env('ARCA_TESTING_CERT_CONTENT', env('ARCA_CERT_CONTENT')),
+        'cert_path' => env('ARCA_TESTING_CERT_PATH', env('ARCA_CERT_PATH', file_exists(storage_path('app/arca/MiPedidoCSR.crt')) ? storage_path('app/arca/MiPedidoCSR.crt') : null)),
+        'key_base64' => env('ARCA_TESTING_KEY_BASE64', env('ARCA_KEY_BASE64')),
+        'key_content' => env('ARCA_TESTING_KEY_CONTENT', env('ARCA_KEY_CONTENT')),
+        'key_path' => env('ARCA_TESTING_KEY_PATH', env('ARCA_KEY_PATH', file_exists(storage_path('app/arca/Papelera.key')) ? storage_path('app/arca/Papelera.key') : null)),
+        'passphrase' => env('ARCA_TESTING_PASSPHRASE', env('ARCA_PASSPHRASE', '')),
     ],
 
     /*

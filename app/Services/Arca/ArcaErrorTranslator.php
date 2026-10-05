@@ -5,10 +5,53 @@ namespace App\Services\Arca;
 class ArcaErrorTranslator
 {
     /**
+     * Sanitize any exception or raw message so it never leaks filesystem paths or internal server details.
+     */
+    public static function sanitizePublicMessage(?string $message): string
+    {
+        if (empty($message)) {
+            return 'Ocurrió un inconveniente con el servicio fiscal de ARCA.';
+        }
+
+        $normalized = strtolower($message);
+
+        if (
+            str_contains($normalized, 'certificado') ||
+            str_contains($normalized, 'clave privada') ||
+            str_contains($normalized, 'no existe en la ruta') ||
+            str_contains($normalized, '/var/www') ||
+            str_contains($normalized, 'storage/') ||
+            str_contains($normalized, '.crt') ||
+            str_contains($normalized, '.key')
+        ) {
+            return 'El certificado digital de ARCA no está cargado o no fue configurado correctamente en el sistema.';
+        }
+
+        if (
+            str_contains($normalized, 'soapfault') ||
+            str_contains($normalized, 'timeout') ||
+            str_contains($normalized, 'timed out') ||
+            str_contains($normalized, 'could not connect to host') ||
+            str_contains($normalized, 'connection reset')
+        ) {
+            return 'El servicio fiscal de ARCA no responde temporalmente. El pedido fue resguardado para reintentar.';
+        }
+
+        return $message;
+    }
+
+    /**
      * Translate an ARCA/AFIP error code or SoapFault to a user-friendly, domain-specific message.
      */
     public static function translate(int|string $code, ?string $originalMessage = null): string
     {
+        if (! empty($originalMessage)) {
+            $sanitized = self::sanitizePublicMessage($originalMessage);
+            if ($sanitized !== $originalMessage) {
+                return $sanitized;
+            }
+        }
+
         $normalizedCode = is_numeric($code) ? (int) $code : strtolower(trim((string) $code));
         $normalizedMsg = strtolower($originalMessage ?? '');
 
@@ -33,7 +76,7 @@ class ArcaErrorTranslator
             10246, '10246' => 'La condición frente al IVA del receptor es obligatoria conforme a la RG 5616 de ARCA.',
             602, '602' => 'El comprobante consultado no fue emitido previamente en ARCA.',
             default => ! empty($originalMessage)
-                ? "Error fiscal de ARCA (Código {$code}): {$originalMessage}"
+                ? 'Error fiscal de ARCA (Código '.$code.'): '.self::sanitizePublicMessage($originalMessage)
                 : "Error fiscal de ARCA (Código {$code})",
         };
     }

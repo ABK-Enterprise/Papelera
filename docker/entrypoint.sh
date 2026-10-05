@@ -27,5 +27,6 @@ echo "Creando symlink de storage..."
 php artisan storage:link || true
 
 PORT_TO_USE=${PORT:-8080}
-echo "Arrancando servidor Laravel en el puerto $PORT_TO_USE..."
-exec php artisan serve --host=0.0.0.0 --port=$PORT_TO_USE
+export PORT=$PORT_TO_USE
+echo "Arrancando FrankenPHP en el puerto $PORT_TO_USE..."
+exec frankenphp run --config /etc/caddy/Caddyfile

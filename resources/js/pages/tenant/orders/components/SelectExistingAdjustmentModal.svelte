@@ -65,6 +65,7 @@
     }
 
     let adjustments = $state<PresetAdjustment[]>([]);
+    let totalConfigured = $state<number | null>(null);
     let isLoading = $state(false);
     let isSubmitting = $state(false);
     let searchQuery = $state('');
@@ -131,8 +132,16 @@
             if (!res.ok) {
                 throw new Error('No se pudieron cargar los ajustes comerciales.');
             }
+            const totalHeader = res.headers.get('X-Total-Configured');
             const data = await res.json();
-            adjustments = Array.isArray(data) ? data : [];
+            adjustments = Array.isArray(data) ? data : (Array.isArray(data?.adjustments) ? data.adjustments : []);
+            if (totalHeader !== null && !isNaN(parseInt(totalHeader, 10))) {
+                totalConfigured = parseInt(totalHeader, 10);
+            } else if (typeof data?.total_configured === 'number') {
+                totalConfigured = data.total_configured;
+            } else {
+                totalConfigured = adjustments.length;
+            }
         } catch (err: any) {
             clearTimeout(timeoutId);
             if (err?.name === 'AbortError') {
@@ -298,7 +307,12 @@
                 />
             </div>
 
-            {#if errorMessage}
+            {#if isLoading}
+                <div class="py-12 flex flex-col items-center justify-center text-muted-foreground gap-2">
+                    <Loader2 class="size-6 animate-spin text-primary" />
+                    <span class="text-xs">Cargando catálogo de ajustes...</span>
+                </div>
+            {:else if errorMessage && (totalConfigured === null || totalConfigured > 0)}
                 <div class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-xs text-destructive font-medium flex items-center justify-between gap-2">
                     <span class="min-w-0 flex-1">{errorMessage}</span>
                     <Button
@@ -311,21 +325,24 @@
                         Reintentar
                     </Button>
                 </div>
-            {/if}
-
-            {#if isLoading}
-                <div class="py-12 flex flex-col items-center justify-center text-muted-foreground gap-2">
-                    <Loader2 class="size-6 animate-spin text-primary" />
-                    <span class="text-xs">Cargando catálogo de ajustes...</span>
-                </div>
-            {:else if filteredAdjustments.length === 0}
-                <div class="py-10 text-center rounded-xl border border-dashed border-border/80 bg-muted/20 p-6">
+            {:else if totalConfigured === 0}
+                <div class="py-10 text-center rounded-xl border border-dashed border-border/80 bg-muted/20 p-6 space-y-2">
                     <Tag class="size-8 mx-auto text-muted-foreground/60 mb-2" />
                     <p class="text-xs font-semibold text-foreground">
-                        {searchQuery ? 'No se encontraron ajustes con ese criterio' : 'No hay ajustes comerciales activos'}
+                        No hay ajustes cargados en el comercio.
                     </p>
                     <p class="text-[11px] text-muted-foreground mt-1">
                         Podés configurar recargos y descuentos desde la configuración del comercio.
+                    </p>
+                </div>
+            {:else if filteredAdjustments.length === 0}
+                <div class="py-10 text-center rounded-xl border border-dashed border-border/80 bg-muted/20 p-6 space-y-2">
+                    <Tag class="size-8 mx-auto text-muted-foreground/60 mb-2" />
+                    <p class="text-xs font-semibold text-foreground">
+                        {searchQuery ? 'No se encontraron ajustes con ese criterio' : 'No hay ajustes comerciales activos para esta fecha'}
+                    </p>
+                    <p class="text-[11px] text-muted-foreground mt-1">
+                        {searchQuery ? 'Probá con otra palabra o limpiá el filtro de búsqueda.' : 'Los ajustes existentes se encuentran desactivados o fuera de su fecha de vigencia.'}
                     </p>
                 </div>
             {:else}

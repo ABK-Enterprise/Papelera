@@ -18,4 +18,9 @@ class ArcaException extends RuntimeException
     {
         return $this->arcaCode;
     }
+
+    public function getErrorCode(): ?string
+    {
+        return $this->arcaCode;
+    }
 }

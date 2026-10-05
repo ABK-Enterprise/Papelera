@@ -346,10 +346,11 @@ class EmitFiscalInvoiceAction
                 return $fiscalInvoice;
             });
         } catch (ArcaException $e) {
+            $publicMsg = ArcaErrorTranslator::sanitizePublicMessage($e->getMessage());
             if ($order->canBeFiscalInvoiced()) {
                 $order->update([
                     'fiscal_status' => 'error_fiscal',
-                    'fiscal_error_message' => $e->getMessage(),
+                    'fiscal_error_message' => $publicMsg,
                 ]);
             }
             throw $e;
