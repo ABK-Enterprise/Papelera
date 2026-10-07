@@ -155,14 +155,14 @@
                     <!-- Monto -->
                     <div class="space-y-1.5">
                         <div class="flex items-center justify-between">
-                            <Label for="payment-amount" class="text-xs font-semibold text-foreground">
+                            <Label for="payment-amount" class="text-sm font-medium text-foreground">
                                 Monto a cobrar <span class="text-destructive">*</span>
                             </Label>
                             {#if currentBalanceNum > 0}
                                 <button
                                     type="button"
                                     onclick={setFullAmount}
-                                    class="text-[11px] text-primary hover:underline font-medium tabular-nums"
+                                    class="text-xs text-primary hover:underline font-medium tabular-nums"
                                 >
                                     Cobro total ({formatPrice(currentBalanceNum)})
                                 </button>
@@ -191,13 +191,13 @@
 
                     <!-- Método de pago -->
                     <div class="space-y-1.5">
-                        <Label for="payment-method" class="text-xs font-semibold text-foreground">
+                        <Label for="payment-method" class="text-sm font-medium text-foreground">
                             Método de Pago <span class="text-destructive">*</span>
                         </Label>
                         <select
                             id="payment-method"
                             bind:value={paymentMethod}
-                            class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs"
+                            class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs"
                         >
 
                             <option value="efectivo">Efectivo</option>
@@ -211,27 +211,27 @@
 
                     <!-- Nro Comprobante / Referencia -->
                     <div class="space-y-1.5">
-                        <Label for="payment-ref" class="text-xs font-semibold text-foreground">
+                        <Label for="payment-ref" class="text-sm font-medium text-foreground">
                             Nro. de Comprobante / Transacción (Opcional)
                         </Label>
                         <Input
                             id="payment-ref"
                             bind:value={referenceNumber}
                             placeholder="ej. TRF-994821 o Recibo 0001"
-                            class="h-9 text-xs tabular-nums"
+                            class="h-9 text-sm tabular-nums"
                         />
                     </div>
 
                     <!-- Notas -->
                     <div class="space-y-1.5">
-                        <Label for="payment-notes" class="text-xs font-semibold text-foreground">
+                        <Label for="payment-notes" class="text-sm font-medium text-foreground">
                             Observaciones (Opcional)
                         </Label>
                         <Input
                             id="payment-notes"
                             bind:value={notes}
                             placeholder="Detalle o nota interna..."
-                            class="h-9 text-xs"
+                            class="h-9 text-sm"
                         />
                     </div>
                 </form>
@@ -243,7 +243,7 @@
                     variant="outline"
                     onclick={handleClose}
                     disabled={isSubmitting}
-                    class="min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium border-border/70"
                 >
                     Cancelar
                 </Button>
@@ -251,7 +251,7 @@
                     type="submit"
                     form="record-payment-form"
                     disabled={isSubmitting || amountNum <= 0}
-                    class="min-h-[44px] px-4 rounded-xl text-sm font-semibold gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white min-w-32 shadow-xs"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white min-w-32 shadow-xs"
                 >
                     <Check class="size-3.5" />
                     <span>Confirmar cobro</span>

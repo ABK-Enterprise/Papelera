@@ -117,7 +117,7 @@
                             </span>
                         {/if}
 
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-muted text-muted-foreground border border-border/50">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-muted text-muted-foreground border border-border/50">
                             {formatTaxCondition(customer.tax_condition)}
                         </span>
 
@@ -137,13 +137,13 @@
                     <!-- Fila 2: CUIT/DNI, Teléfono y Email -->
                     <div class="flex items-center gap-2.5 flex-wrap">
                         {#if customer.tax_id}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 font-sans tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 font-mono tabular-nums">
                                 <strong>CUIT/DNI:</strong> {customer.tax_id}
                             </span>
                         {/if}
 
                         {#if customer.phone}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 font-sans tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 tabular-nums">
                                 <Phone class="size-3.5 text-muted-foreground" />
                                 {customer.phone}
                             </span>
@@ -157,7 +157,7 @@
                         {/if}
 
                         {#if Number(customer.credit_limit) > 0}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 border border-blue-500/20 font-sans tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 border border-blue-500/20 tabular-nums">
                                 <CreditCard class="size-3.5" />
                                 Límite: {formatCurrency(customer.credit_limit)}
                             </span>
@@ -182,7 +182,7 @@
                         {#if customer.created_at}
                             <div class="flex items-center gap-1 shrink-0 ml-auto sm:ml-0">
                                 <Calendar class="size-3.5 text-muted-foreground/70" />
-                                <span>Alta: {formatDate(customer.created_at)}</span>
+                                <span class="text-xs font-mono tabular-nums">Alta: {formatDate(customer.created_at)}</span>
                             </div>
                         {/if}
                     </div>
@@ -194,7 +194,7 @@
                 <Button
                     variant="tertiary"
                     size="sm"
-                    class="min-h-[38px] px-3.5 text-xs gap-1.5 font-semibold rounded-xl"
+                    class="min-h-[38px] px-3.5 text-sm gap-1.5 font-medium rounded-xl"
                 >
                     <span>Gestionar</span>
                     <ChevronRight class="size-4" />
@@ -211,7 +211,7 @@
                 No hay clientes que coincidan con la búsqueda o todavía no has registrado clientes en tu comercio.
             </p>
             {#if hasPermission('clientes.crear')}
-                <Button class="mt-4 gap-2 font-semibold" onclick={onOpenCreate}>
+                <Button class="mt-4 gap-2 min-h-[38px] text-sm font-medium rounded-xl" onclick={onOpenCreate}>
                     <Plus class="h-4 w-4" />
                     Añadir Primer Cliente
                 </Button>

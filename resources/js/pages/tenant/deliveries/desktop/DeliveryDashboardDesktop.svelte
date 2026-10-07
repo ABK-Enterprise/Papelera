@@ -134,7 +134,7 @@
                 <Banknote class="size-5" />
             </div>
             <div>
-                <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Efectivo en Mano</p>
+                <p class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Efectivo en Mano</p>
                 <p class="text-lg font-bold tabular-nums text-foreground">
                     ${Number(shiftSummary.cash_total).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                 </p>
@@ -146,7 +146,7 @@
                 <QrCode class="size-5" />
             </div>
             <div>
-                <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Transferencias / QR</p>
+                <p class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Transferencias / QR</p>
                 <p class="text-lg font-bold tabular-nums text-foreground">
                     ${Number(shiftSummary.transfer_total).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                 </p>
@@ -158,7 +158,7 @@
                 <PackageCheck class="size-5" />
             </div>
             <div>
-                <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Entregados Hoy</p>
+                <p class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Entregados Hoy</p>
                 <p class="text-lg font-bold tabular-nums text-foreground">
                     {shiftSummary.delivered_count} <span class="text-xs font-normal text-muted-foreground">pedidos</span>
                 </p>
@@ -170,7 +170,7 @@
                 <PackageCheck class="size-5" />
             </div>
             <div>
-                <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Pedidos Disponibles</p>
+                <p class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Pedidos Disponibles</p>
                 <p class="text-lg font-bold tabular-nums text-foreground">
                     {availableOrders.length} <span class="text-xs font-normal text-muted-foreground">en bolsa</span>
                 </p>
@@ -396,11 +396,11 @@
                                     <span class="text-sm font-semibold text-foreground">{order.customer_name}</span>
 
                                     {#if Number(order.debt_amount) <= 0}
-                                        <Badge variant="outline" class="text-[11px] font-bold text-emerald-600 border-emerald-500/30">
+                                        <Badge variant="outline" class="text-xs font-bold text-emerald-600 border-emerald-500/30">
                                             PAGADO
                                         </Badge>
                                     {:else}
-                                        <Badge variant="outline" class="text-[11px] font-bold text-rose-600 border-rose-500/30 tabular-nums">
+                                        <Badge variant="outline" class="text-xs font-bold text-rose-600 border-rose-500/30 tabular-nums">
                                             A COBRAR: ${Number(order.debt_amount).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                                         </Badge>
                                     {/if}

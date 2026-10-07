@@ -120,7 +120,7 @@
                 <button
                     type="button"
                     onclick={() => (localStatus = opt.value)}
-                    class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {isSelected
+                    class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-sm transition-all {isSelected
                         ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
                         : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
                 >
@@ -150,7 +150,7 @@
                 <button
                     type="button"
                     onclick={() => (localSortBy = sortOpt.value)}
-                    class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {isSelected
+                    class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-sm transition-all {isSelected
                         ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
                         : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
                 >

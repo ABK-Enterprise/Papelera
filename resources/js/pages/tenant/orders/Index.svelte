@@ -294,10 +294,10 @@
                                         <span class="font-bold text-foreground tabular-nums">#{ord.order_number}</span>
                                         <span class="truncate text-muted-foreground">· {ord.customer_name}</span>
                                     </div>
-                                    <span class="text-[10px] text-muted-foreground/80">{ord.created_at}</span>
+                                    <span class="text-xs text-muted-foreground/80">{ord.created_at}</span>
                                 </div>
                                 <div class="flex items-center gap-2 shrink-0">
-                                    <span class="rounded-full px-2 py-0.5 text-[10px] font-semibold border {badge.class}">
+                                    <span class="rounded-full px-2 py-0.5 text-xs font-semibold border {badge.class}">
                                         {badge.label}
                                     </span>
                                     <span class="tabular-nums font-semibold text-foreground text-xs">{formatPrice(ord.total_amount)}</span>
@@ -319,7 +319,7 @@
                     >
                         <SlidersHorizontal class="h-4 w-4 text-foreground" />
                         {#if activeFiltersCount > 0}
-                            <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums shadow-xs">
+                            <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground tabular-nums shadow-xs">
                                 {activeFiltersCount}
                             </span>
                         {/if}
@@ -343,7 +343,7 @@
                 <select
                     bind:value={selectedStatus}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[160px]"
+                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[160px]"
                 >
                     <option value="all">Todos los estados ({stats.total})</option>
                     <option value="en_preparacion">En Preparación ({stats.en_preparacion})</option>

@@ -336,13 +336,13 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                             <div class="space-y-1.5">
-                                <Label for="doc-type" class="text-xs font-semibold text-foreground">
+                                <Label for="doc-type" class="text-sm font-medium text-foreground">
                                     Tipo Doc.
                                 </Label>
                                 <select
                                     id="doc-type"
                                     bind:value={docTipo}
-                                    class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-xs text-foreground shadow-2xs focus:outline-none focus:ring-1 focus:ring-primary"
+                                    class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm font-medium text-foreground shadow-2xs focus:outline-none focus:ring-1 focus:ring-primary"
                                 >
                                     <option value="96">DNI</option>
                                     <option value="80">CUIT</option>
@@ -350,7 +350,7 @@
                             </div>
 
                             <div class="sm:col-span-2 space-y-1.5">
-                                <Label for="doc-number" class="text-xs font-semibold text-foreground">
+                                <Label for="doc-number" class="text-sm font-medium text-foreground">
                                     Número de {docTipo === '96' ? 'DNI' : 'CUIT'} *
                                 </Label>
                                 <Input
@@ -359,7 +359,7 @@
                                     placeholder={docTipo === '96' ? 'Ej: 35123456' : 'Ej: 20351234569'}
                                     value={docNro}
                                     oninput={handleDocInput}
-                                    class="h-10 text-xs font-sans tabular-nums {docError ? 'border-destructive focus-visible:ring-destructive' : ''}"
+                                    class="h-10 text-sm font-medium font-sans tabular-nums {docError ? 'border-destructive focus-visible:ring-destructive' : ''}"
                                 />
                             </div>
                         </div>
@@ -377,7 +377,7 @@
             <Button
                 type="button"
                 variant="outline"
-                class="min-h-[44px] px-5 rounded-xl font-semibold w-full sm:w-auto cursor-pointer"
+                class="min-h-[44px] px-5 rounded-xl text-sm font-semibold w-full sm:w-auto cursor-pointer"
                 onclick={() => (open = false)}
                 disabled={isSubmitting}
             >
@@ -386,7 +386,7 @@
             <Button
                 type="button"
                 variant="default"
-                class="min-h-[44px] px-5 rounded-xl font-bold w-full sm:w-auto gap-2 shadow-xs cursor-pointer"
+                class="min-h-[44px] px-5 rounded-xl text-sm font-semibold w-full sm:w-auto gap-2 shadow-xs cursor-pointer"
                 onclick={submitEmitInvoice}
                 disabled={isSubmitting || totalAmount <= 0}
             >

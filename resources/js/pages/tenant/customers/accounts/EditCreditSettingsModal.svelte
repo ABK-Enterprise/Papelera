@@ -130,7 +130,7 @@
                 <form id="edit-credit-settings-form" onsubmit={handleOpenConfirm} class="space-y-4">
                     <!-- Límite de Crédito -->
                     <div class="space-y-1.5">
-                        <Label for="credit-limit-input" class="text-xs font-semibold text-foreground">
+                        <Label for="credit-limit-input" class="text-sm font-medium text-foreground">
                             Límite de crédito máximo
                         </Label>
                         <div class="relative">
@@ -146,14 +146,14 @@
                                 required
                             />
                         </div>
-                        <p class="text-[11px] text-muted-foreground">
+                        <p class="text-xs text-muted-foreground">
                             Tope máximo de deuda permitida antes de emitir alertas en pedidos.
                         </p>
                     </div>
 
                     <!-- Días de Vencimiento -->
                     <div class="space-y-1.5">
-                        <Label for="credit-due-days" class="text-xs font-semibold text-foreground">
+                        <Label for="credit-due-days" class="text-sm font-medium text-foreground">
                             Plazo de vencimiento predeterminado
                         </Label>
                         <Input
@@ -162,10 +162,10 @@
                             min="1"
                             max="365"
                             bind:value={creditDueDays}
-                            class="h-9 text-xs tabular-nums font-semibold"
+                            class="h-9 text-sm tabular-nums font-medium"
                             required
                         />
-                        <p class="text-[11px] text-muted-foreground">
+                        <p class="text-xs text-muted-foreground">
                             Cantidad de días desde la compra a crédito para la fecha límite de cobro.
                         </p>
                     </div>
@@ -183,7 +183,7 @@
                                     <AlertTriangle class="size-3.5 text-amber-600" />
                                     Marcar como cliente moroso
                                 </span>
-                                <p class="text-muted-foreground text-[11px]">
+                                <p class="text-muted-foreground text-xs">
                                     Muestra alertas destacadas y advertencias de riesgo en la creación de pedidos.
                                 </p>
                             </div>
@@ -198,7 +198,7 @@
                     variant="outline"
                     onclick={handleClose}
                     disabled={isSubmitting}
-                    class="min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium border-border/70"
                 >
                     Cancelar
                 </Button>
@@ -206,7 +206,7 @@
                     type="submit"
                     form="edit-credit-settings-form"
                     disabled={isSubmitting}
-                    class="min-h-[44px] px-4 rounded-xl text-sm font-semibold gap-1.5 min-w-32 shadow-xs"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium gap-1.5 min-w-32 shadow-xs"
                 >
                     <Check class="size-3.5" />
                     <span>Guardar cambios</span>

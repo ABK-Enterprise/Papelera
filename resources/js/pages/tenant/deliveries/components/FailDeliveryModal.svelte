@@ -115,7 +115,7 @@
 
                 <!-- Motivo de Fallo -->
                 <div class="space-y-1.5">
-                    <Label for="failure-reason" class="text-xs font-medium text-foreground">Motivo de no entrega</Label>
+                    <Label for="failure-reason" class="text-sm font-medium text-foreground">Motivo de no entrega</Label>
                     <select
                         id="failure-reason"
                         bind:value={failureReason}
@@ -129,7 +129,7 @@
 
                 <!-- Observaciones adicionales -->
                 <div class="space-y-1.5">
-                    <Label for="failure-notes" class="text-xs font-medium text-foreground">Detalles u observaciones</Label>
+                    <Label for="failure-notes" class="text-sm font-medium text-foreground">Detalles u observaciones</Label>
                     <Textarea
                         id="failure-notes"
                         rows={3}
@@ -154,7 +154,7 @@
         <DialogFooter class="p-5 sm:p-6 pt-3 border-t border-border/50 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 shrink-0">
             <Button
                 variant="secondary"
-                class="w-full sm:w-auto h-11 min-h-[44px] px-4 font-semibold"
+                class="w-full sm:w-auto h-11 min-h-[44px] px-4 text-sm font-semibold"
                 onclick={handleClose}
                 disabled={isSubmitting}
             >
@@ -162,7 +162,7 @@
             </Button>
             <Button
                 variant="destructive"
-                class="w-full sm:w-auto h-11 min-h-[44px] px-6 font-semibold gap-2"
+                class="w-full sm:w-auto h-11 min-h-[44px] px-6 text-sm font-semibold gap-2"
                 onclick={handleSubmit}
                 disabled={isSubmitting}
             >

@@ -128,7 +128,7 @@
             margin-bottom: 14px;
         }
         .section-title {
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -140,7 +140,7 @@
             border-collapse: collapse;
         }
         .client-table td {
-            font-size: 11px;
+            font-size: 11.5px;
             padding: 2px 0;
             vertical-align: top;
         }
@@ -187,8 +187,8 @@
             margin-bottom: 16px;
         }
         .allocations-table th {
-            font-size: 10px;
-            font-weight: 700;
+            font-size: 11px;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: #475569;
@@ -199,7 +199,7 @@
         .allocations-table td {
             padding: 8px 10px;
             border-bottom: 1px solid #e2e8f0;
-            font-size: 11px;
+            font-size: 12px;
         }
         .text-left { text-align: left; }
         .text-center { text-align: center; }
@@ -210,7 +210,7 @@
             padding: 10px 12px;
             background: #f8fafc;
             border-left: 3px solid #64748b;
-            font-size: 10px;
+            font-size: 11px;
             color: #475569;
         }
 
@@ -224,7 +224,7 @@
             text-align: center;
             border-top: 1px solid #94a3b8;
             padding-top: 4px;
-            font-size: 10px;
+            font-size: 11px;
             color: #475569;
         }
     </style>

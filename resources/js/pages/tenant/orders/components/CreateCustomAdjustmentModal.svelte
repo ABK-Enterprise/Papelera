@@ -200,11 +200,11 @@
         <DialogBody class="p-4 sm:p-5 space-y-4 flex-1 overflow-y-auto w-full box-border">
             <!-- Tipo de Ajuste: Descuento o Recargo -->
             <div class="space-y-1.5">
-                <Label class="text-xs font-semibold text-foreground">Tipo de Ajuste</Label>
+                <Label class="text-sm font-medium text-foreground">Tipo de Ajuste</Label>
                 <div class="grid grid-cols-2 gap-2">
                     <button
                         type="button"
-                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer {type === 'discount' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500 shadow-xs' : 'bg-card text-muted-foreground border-border hover:bg-muted/50'}"
+                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-all cursor-pointer {type === 'discount' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500 shadow-xs' : 'bg-card text-muted-foreground border-border hover:bg-muted/50'}"
                         onclick={() => (type = 'discount')}
                     >
                         <MinusCircle class="size-4" />
@@ -212,7 +212,7 @@
                     </button>
                     <button
                         type="button"
-                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer {type === 'surcharge' ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500 shadow-xs' : 'bg-card text-muted-foreground border-border hover:bg-muted/50'}"
+                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-all cursor-pointer {type === 'surcharge' ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500 shadow-xs' : 'bg-card text-muted-foreground border-border hover:bg-muted/50'}"
                         onclick={() => (type = 'surcharge')}
                     >
                         <PlusCircle class="size-4" />
@@ -223,7 +223,7 @@
 
             <!-- Nombre Identificativo -->
             <div class="space-y-1.5">
-                <Label for="adj-name" class="text-xs font-semibold text-foreground">
+                <Label for="adj-name" class="text-sm font-medium text-foreground">
                     Nombre o Concepto <span class="text-muted-foreground font-normal">(Opcional)</span>
                 </Label>
                 <Input
@@ -231,17 +231,17 @@
                     type="text"
                     bind:value={name}
                     placeholder={type === 'discount' ? 'Ej. Descuento comercial por volumen' : 'Ej. Flete express / Seguro de carga'}
-                    class="min-h-[44px] rounded-xl text-xs sm:text-sm"
+                    class="min-h-[44px] rounded-xl text-sm font-medium"
                 />
             </div>
 
             <!-- Modo de Cálculo: Porcentaje o Fijo -->
             <div class="space-y-1.5">
-                <Label class="text-xs font-semibold text-foreground">Método de Cálculo</Label>
+                <Label class="text-sm font-medium text-foreground">Método de Cálculo</Label>
                 <div class="grid grid-cols-2 gap-2">
                     <button
                         type="button"
-                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer {calculationType === 'percentage' ? 'bg-primary/10 text-primary border-primary shadow-xs' : 'bg-card text-muted-foreground border-border hover:bg-muted/50'}"
+                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-all cursor-pointer {calculationType === 'percentage' ? 'bg-primary/10 text-primary border-primary shadow-xs' : 'bg-card text-muted-foreground border-border hover:bg-muted/50'}"
                         onclick={() => {
                             calculationType = 'percentage';
                             if (Number(value) > 100) value = 100;
@@ -252,7 +252,7 @@
                     </button>
                     <button
                         type="button"
-                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer {calculationType === 'fixed' ? 'bg-primary/10 text-primary border-primary shadow-xs' : 'bg-card text-muted-foreground border-border hover:bg-muted/50'}"
+                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-all cursor-pointer {calculationType === 'fixed' ? 'bg-primary/10 text-primary border-primary shadow-xs' : 'bg-card text-muted-foreground border-border hover:bg-muted/50'}"
                         onclick={() => {
                             calculationType = 'fixed';
                             if (Number(value) > 100_000_000) value = 100_000_000;
@@ -266,7 +266,7 @@
 
             <!-- Valor Numérico -->
             <div class="space-y-1.5">
-                <Label for="adj-value" class="text-xs font-semibold text-foreground">
+                <Label for="adj-value" class="text-sm font-medium text-foreground">
                     Valor a aplicar
                 </Label>
                 <div class="relative">
@@ -285,7 +285,7 @@
                             });
                         }}
                         placeholder={calculationType === 'percentage' ? '15.00' : '2500.00'}
-                        class="min-h-[44px] rounded-xl text-xs sm:text-sm font-sans tabular-nums pr-10 {formErrors.value ? 'border-destructive' : ''}"
+                        class="min-h-[44px] rounded-xl text-sm font-medium font-sans tabular-nums pr-10 {formErrors.value ? 'border-destructive' : ''}"
                     />
                     <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-muted-foreground">
                         {#if calculationType === 'percentage'}
@@ -296,7 +296,7 @@
                     </div>
                 </div>
                 {#if formErrors.value}
-                    <p class="text-[11px] text-destructive">{formErrors.value}</p>
+                    <p class="text-xs text-destructive">{formErrors.value}</p>
                 {/if}
             </div>
 
@@ -304,13 +304,13 @@
             {#if numericValue > 0}
                 <div class="w-full box-border p-3 rounded-xl border {type === 'discount' ? 'bg-emerald-500/5 border-emerald-500/30' : 'bg-amber-500/5 border-amber-500/30'} flex items-center justify-between text-xs font-sans tabular-nums">
                     <div>
-                        <span class="text-muted-foreground block text-[11px]">Impacto sobre el pedido:</span>
+                        <span class="text-muted-foreground block text-xs">Impacto sobre el pedido:</span>
                         <span class="font-bold {type === 'discount' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}">
                             {type === 'discount' ? '-' : '+'}{formatCurrency(calculatedAmount)}
                         </span>
                     </div>
                     {#if netProductsAmount > 0}
-                        <div class="text-right text-[11px] text-muted-foreground">
+                        <div class="text-right text-xs text-muted-foreground">
                             <span>Base neta: {formatCurrency(netProductsAmount)}</span>
                         </div>
                     {/if}
@@ -319,7 +319,7 @@
 
             <!-- Motivo / Justificación (Opcional) -->
             <div class="space-y-1.5">
-                <Label for="adj-reason" class="text-xs font-semibold text-foreground">
+                <Label for="adj-reason" class="text-sm font-medium text-foreground">
                     Motivo o Justificación <span class="text-muted-foreground font-normal">(Opcional)</span>
                 </Label>
                 <textarea
@@ -327,7 +327,7 @@
                     bind:value={reason}
                     rows="2"
                     placeholder="Detalle o justificación para el cliente o auditoría..."
-                    class="w-full rounded-xl border border-input bg-background px-3 py-2 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                    class="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
                 ></textarea>
             </div>
 
@@ -340,7 +340,7 @@
                 />
                 <div class="flex items-center gap-1.5">
                     <FileText class="size-3.5 text-primary shrink-0" />
-                    <span class="text-xs font-medium text-foreground">
+                    <span class="text-sm font-medium text-foreground">
                         Imprimir este concepto en el remito / comprobante
                     </span>
                 </div>
@@ -353,7 +353,7 @@
                     type="button"
                     variant="outline"
                     disabled={isSubmitting}
-                    class="min-h-[44px] px-4 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer w-full sm:w-auto gap-1.5"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto gap-1.5"
                     onclick={handleBack}
                 >
                     <ArrowLeft class="size-3.5" />
@@ -364,7 +364,7 @@
                     type="button"
                     variant="outline"
                     disabled={isSubmitting}
-                    class="min-h-[44px] px-4 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer w-full sm:w-auto"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto"
                     onclick={() => (open = false)}
                 >
                     Cancelar
@@ -374,7 +374,7 @@
                 type="button"
                 variant="default"
                 disabled={isSubmitting || numericValue <= 0}
-                class="min-h-[44px] px-5 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer w-full sm:w-auto gap-2"
+                class="min-h-[44px] px-5 rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto gap-2"
                 onclick={handleSubmit}
             >
                 {#if isSubmitting}

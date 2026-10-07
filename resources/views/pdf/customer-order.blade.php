@@ -19,7 +19,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: #0f172a;
             background: #ffffff;
-            font-size: 11px;
+            font-size: 12px;
             line-height: 1.35;
         }
         .page-container {
@@ -79,7 +79,7 @@
             margin-bottom: 2px;
         }
         .tenant-meta {
-            font-size: 9.5px;
+            font-size: 11px;
             color: #475569;
             line-height: 1.3;
         }
@@ -120,13 +120,13 @@
             margin-top: 2px;
         }
         .doc-date {
-            font-size: 10px;
+            font-size: 11px;
             color: #64748b;
             margin-top: 2px;
             margin-bottom: 4px;
         }
         .doc-meta {
-            font-size: 9.5px;
+            font-size: 11px;
             color: #334155;
             line-height: 1.3;
         }
@@ -144,7 +144,7 @@
             border-collapse: collapse;
         }
         .customer-table td {
-            font-size: 9.5px;
+            font-size: 11.5px;
             color: #334155;
             padding: 2.5px 4px;
             vertical-align: top;
@@ -180,8 +180,8 @@
         }
         .items-table th {
             padding: 6px 8px;
-            font-size: 9px;
-            font-weight: 700;
+            font-size: 11px;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: #334155;
@@ -191,7 +191,7 @@
         }
         .items-table td {
             padding: 7px 8px;
-            font-size: 10px;
+            font-size: 12px;
             border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
         }
@@ -219,18 +219,18 @@
         .product-name {
             font-weight: 600;
             color: #0f172a;
-            font-size: 10.5px;
+            font-size: 12.5px;
             line-height: 1.25;
         }
         .product-sku {
-            font-size: 9px;
+            font-size: 10.5px;
             color: #64748b;
             margin-top: 1.5px;
         }
         .badge-bulto {
             display: inline-block;
-            padding: 1px 4px;
-            font-size: 8.5px;
+            padding: 2px 5px;
+            font-size: 10px;
             font-weight: 600;
             color: #0369a1;
             background-color: #e0f2fe;
@@ -268,7 +268,7 @@
         }
         .totals-table td {
             padding: 2.5px 0;
-            font-size: 10px;
+            font-size: 11.5px;
         }
         .totals-label {
             color: #475569;
@@ -297,7 +297,7 @@
 
         .watermark-footer {
             text-align: center;
-            font-size: 8.5px;
+            font-size: 10px;
             color: #94a3b8;
             letter-spacing: 0.3px;
             border-top: 1px solid #e2e8f0;
@@ -477,10 +477,10 @@
                 @if($order->show_account_in_receipt && $order->customer)
                     <div style="display: table-cell; vertical-align: bottom; width: 55%; text-align: left;">
                         <div class="account-box" style="border: 1px solid #cbd5e1; border-radius: 5px; background-color: #f8fafc; padding: 6px 10px; width: 95%;">
-                            <div style="font-size: 9.5px; font-weight: 800; color: #0f172a; text-transform: uppercase; margin-bottom: 4px; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px;">
+                            <div style="font-size: 11.5px; font-weight: 800; color: #0f172a; text-transform: uppercase; margin-bottom: 4px; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px;">
                                 Estado de Cuenta Corriente
                             </div>
-                            <table style="width: 100%; border-collapse: collapse; font-size: 9.5px;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 11.5px;">
                                 <tr>
                                     <td style="color: #475569; padding: 1.5px 0;">Límite de Crédito:</td>
                                     <td style="text-align: right; font-weight: 600; color: #0f172a;" class="tabular-nums">

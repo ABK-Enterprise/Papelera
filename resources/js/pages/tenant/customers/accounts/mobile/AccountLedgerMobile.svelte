@@ -100,12 +100,12 @@
                                 {cust.name}
                             </h3>
                             {#if cust.is_defaulter}
-                                <span class="text-[9px] font-bold text-amber-700 bg-amber-500/15 dark:text-amber-400 px-1.5 py-0.2 rounded">
+                                <span class="text-xs font-semibold text-amber-700 bg-amber-500/15 dark:text-amber-400 px-1.5 py-0.5 rounded">
                                     Moroso
                                 </span>
                             {/if}
                         </div>
-                        <p class="text-[11px] text-muted-foreground tabular-nums mt-0.5">
+                        <p class="text-xs text-muted-foreground font-mono tabular-nums mt-0.5">
                             {cust.tax_id ? `CUIT ${cust.tax_id}` : 'Sin CUIT'}
                         </p>
                     </div>
@@ -115,13 +115,13 @@
                     <span class="text-sm font-bold tabular-nums block {balanceNum > 0 ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400'}">
                         {formatPrice(balanceNum)}
                     </span>
-                    <span class="text-[10px] text-muted-foreground">Saldo Deudor</span>
+                    <span class="text-xs text-muted-foreground">Saldo Deudor</span>
                 </div>
             </div>
 
             <!-- Mini Barra de Crédito -->
             <div class="space-y-1 pt-1 border-t border-border/50">
-                <div class="flex items-center justify-between text-[11px] text-muted-foreground tabular-nums">
+                <div class="flex items-center justify-between text-xs text-muted-foreground tabular-nums">
                     <span>Límite: {formatPrice(limitNum)}</span>
                     <span class="font-medium text-foreground">Disp: {formatPrice(cust.available_credit ?? Math.max(0, limitNum - balanceNum))}</span>
                 </div>
@@ -133,7 +133,7 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-between text-[11px] text-primary pt-0.5 font-medium">
+            <div class="flex items-center justify-between text-xs text-primary pt-0.5 font-medium">
                 <span>Gestionar cuenta y cobros</span>
                 <ChevronRight class="size-3.5" />
             </div>
@@ -144,7 +144,7 @@
         <div class="py-12 text-center rounded-2xl bg-card border border-border p-6 space-y-2">
             <CreditCard class="size-8 text-muted-foreground mx-auto opacity-50" />
             <h4 class="text-xs font-semibold text-foreground">No se encontraron clientes</h4>
-            <p class="text-[11px] text-muted-foreground">
+            <p class="text-xs text-muted-foreground">
                 Intenta modificar los términos de búsqueda o filtros.
             </p>
         </div>
@@ -224,7 +224,7 @@
                                 isDrawerOpen = false;
                                 if (cust) onOpenAdjustment(cust);
                             }}
-                            class="min-h-[40px] h-10 text-xs font-semibold rounded-xl gap-1.5"
+                            class="min-h-[40px] h-10 text-sm font-semibold rounded-xl gap-1.5"
                         >
                             <Sliders class="size-3.5" />
                             <span>Ajustar Saldo</span>
@@ -237,7 +237,7 @@
                                 isDrawerOpen = false;
                                 if (cust) onOpenCreditSettings(cust);
                             }}
-                            class="min-h-[40px] h-10 text-xs font-semibold rounded-xl gap-1.5"
+                            class="min-h-[40px] h-10 text-sm font-semibold rounded-xl gap-1.5"
                         >
                             <ShieldCheck class="size-3.5" />
                             <span>Límites</span>
@@ -279,9 +279,9 @@
                                         {isPayment ? '-' : '+'}{formatPrice(mov.amount)}
                                     </span>
                                 </div>
-                                <div class="flex items-center justify-between text-[11px] text-muted-foreground tabular-nums">
+                                <div class="flex items-center justify-between text-xs font-mono tabular-nums text-muted-foreground">
                                     <span>{formatDate(mov.created_at)}</span>
-                                    <span>Saldo: <strong class="text-foreground">{formatPrice(mov.balance_after)}</strong></span>
+                                    <span class="font-sans">Saldo: <strong class="text-foreground font-mono">{formatPrice(mov.balance_after)}</strong></span>
                                 </div>
                             </div>
                         {/each}

@@ -72,7 +72,7 @@
                     <span class="text-sm font-semibold text-foreground">
                         Crear
                     </span>
-                    <span class="text-[11px] text-muted-foreground mt-0.5">
+                    <span class="text-xs text-muted-foreground mt-0.5">
                         Al vuelo
                     </span>
                 </button>
@@ -88,7 +88,7 @@
                     <span class="text-sm font-semibold text-foreground">
                         Seleccionar existente
                     </span>
-                    <span class="text-[11px] text-muted-foreground mt-0.5">
+                    <span class="text-xs text-muted-foreground mt-0.5">
                         Del catálogo
                     </span>
                 </button>
@@ -99,7 +99,7 @@
             <Button
                 type="button"
                 variant="outline"
-                class="min-h-[44px] rounded-xl text-xs font-medium cursor-pointer w-full sm:w-auto"
+                class="min-h-[44px] rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto"
                 onclick={handleClose}
             >
                 Cancelar

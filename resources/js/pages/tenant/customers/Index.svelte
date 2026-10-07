@@ -113,13 +113,13 @@
 
         <div class="flex items-center justify-end gap-2.5 w-full sm:w-auto">
             <a href="/tenant/clientes/cuentas-corrientes" class="inline-flex">
-                <Button variant="secondary" class="min-h-[40px] px-3.5 gap-2 rounded-xl text-xs font-semibold shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
+                <Button variant="secondary" class="min-h-[38px] px-3.5 gap-2 rounded-xl text-sm font-medium shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
                     <Banknote class="size-3.5" />
                     <span>Cuentas Corrientes</span>
                 </Button>
             </a>
             {#if hasPermission('clientes.crear')}
-                <Button class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs" onclick={() => (showCreateModal = true)}>
+                <Button class="min-h-[38px] px-4 gap-2 rounded-xl text-sm font-medium shadow-xs" onclick={() => (showCreateModal = true)}>
                     <Plus class="h-4 w-4" />
                     <span>Añadir Cliente</span>
                 </Button>
@@ -151,20 +151,20 @@
                                 <div class="flex flex-col min-w-0">
                                     <span class="truncate font-medium text-foreground">{cust.name}</span>
                                     {#if cust.tax_id}
-                                        <span class="text-[11px] text-muted-foreground tabular-nums">CUIT: {cust.tax_id}</span>
+                                        <span class="text-xs font-mono tabular-nums text-muted-foreground">CUIT: {cust.tax_id}</span>
                                     {/if}
                                 </div>
                                 <div class="flex items-center gap-1.5 shrink-0">
                                     {#if cust.is_defaulter}
-                                        <span class="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive border border-destructive/20">
+                                        <span class="rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive border border-destructive/20">
                                             Moroso
                                         </span>
                                     {:else if cust.is_active}
-                                        <span class="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                        <span class="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                             Activo
                                         </span>
                                     {:else}
-                                        <span class="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground border border-border">
+                                        <span class="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground border border-border">
                                             Inactivo
                                         </span>
                                     {/if}
@@ -186,7 +186,7 @@
                     >
                         <SlidersHorizontal class="h-4 w-4 text-foreground" />
                         {#if activeFiltersCount > 0}
-                            <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums shadow-xs">
+                            <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground tabular-nums shadow-xs">
                                 {activeFiltersCount}
                             </span>
                         {/if}
@@ -200,7 +200,7 @@
                 <select
                     bind:value={selectedTaxCondition}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[140px]"
+                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[140px]"
                 >
                     <option value="">Condición IVA: Todas</option>
                     <option value="consumidor_final">Consumidor Final</option>
@@ -213,7 +213,7 @@
                 <select
                     bind:value={selectedStatus}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[130px]"
+                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[130px]"
                 >
                     <option value="">Estado: Todos</option>
                     <option value="active">Solo Activos</option>
@@ -224,7 +224,7 @@
                 <select
                     bind:value={selectedDefaulter}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[130px]"
+                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[130px]"
                 >
                     <option value="">Morosos: Todos</option>
                     <option value="yes">Solo Morosos</option>
@@ -232,7 +232,7 @@
                 </select>
 
                 {#if hasActiveFilters}
-                    <Button variant="ghost" size="sm" class="h-10 px-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 gap-1.5 rounded-xl transition-all" onclick={resetFilters}>
+                    <Button variant="ghost" size="sm" class="min-h-[38px] h-10 px-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 gap-1.5 rounded-xl transition-all" onclick={resetFilters}>
                         <RotateCcw class="size-3.5" />
                         <span>Limpiar</span>
                     </Button>

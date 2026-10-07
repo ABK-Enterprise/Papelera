@@ -21,6 +21,11 @@
             height: 100%;
             overflow: hidden;
             background-color: #0f172a;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #f8fafc;
+            -webkit-font-smoothing: antialiased;
         }
         iframe {
             width: 100%;
@@ -28,13 +33,25 @@
             border: none;
             display: block;
         }
+        .fallback-message {
+            color: #f8fafc;
+            padding: 24px;
+            font-size: 14px;
+            line-height: 1.5;
+            text-align: center;
+        }
+        .fallback-link {
+            color: #38bdf8;
+            text-decoration: underline;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
     <iframe src="{{ $streamUrl }}" title="{{ $title ?? 'Documento PDF' }}">
-        <p style="color: #ffffff; padding: 24px; font-family: sans-serif; text-align: center;">
+        <p class="fallback-message">
             Tu navegador no soporta la visualización directa de documentos PDF.
-            <a href="{{ $streamUrl }}" style="color: #38bdf8; text-decoration: underline;">Haz clic aquí para abrir o descargar el documento.</a>
+            <a href="{{ $streamUrl }}" class="fallback-link">Haz clic aquí para abrir o descargar el documento.</a>
         </p>
     </iframe>
 </body>

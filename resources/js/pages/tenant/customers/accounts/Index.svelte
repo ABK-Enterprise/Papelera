@@ -70,7 +70,7 @@
 
         <div class="flex items-center justify-end gap-2.5 w-full sm:w-auto">
             <a href="/tenant/clientes" class="inline-flex">
-                <Button variant="secondary" class="min-h-[40px] px-3.5 gap-2 text-xs font-semibold rounded-xl shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
+                <Button variant="secondary" class="min-h-[38px] px-3.5 gap-2 text-sm font-medium rounded-xl shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
                     <ArrowLeft class="size-3.5" />
                     <span>Directorio de Clientes</span>
                 </Button>

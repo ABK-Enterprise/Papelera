@@ -19,7 +19,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: #0f172a;
             background: #ffffff;
-            font-size: 10px;
+            font-size: 12px;
             line-height: 1.35;
         }
         .page-container {
@@ -96,7 +96,7 @@
             color: #0f172a;
         }
         .letter-code {
-            font-size: 8px;
+            font-size: 10px;
             font-weight: 800;
             color: #334155;
             margin-top: 2px;
@@ -113,13 +113,13 @@
             margin-bottom: 3px;
         }
         .tenant-legal {
-            font-size: 9.5px;
+            font-size: 11px;
             font-weight: 600;
             color: #334155;
             margin-bottom: 2px;
         }
         .tenant-detail {
-            font-size: 9px;
+            font-size: 11px;
             color: #475569;
             margin-bottom: 1.5px;
         }
@@ -132,7 +132,7 @@
             margin-bottom: 5px;
         }
         .meta-row {
-            font-size: 9px;
+            font-size: 11px;
             color: #334155;
             margin-bottom: 1.5px;
         }
@@ -148,7 +148,7 @@
             padding: 5px 8px;
             border-radius: 4px;
             margin-bottom: 8px;
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 600;
         }
 
@@ -166,7 +166,7 @@
         }
         .receptor-table td {
             vertical-align: top;
-            font-size: 9px;
+            font-size: 11.5px;
             color: #334155;
             padding: 1.5px 4px;
         }
@@ -181,8 +181,8 @@
         .items-table th {
             background-color: #f1f5f9;
             color: #334155;
-            font-size: 8.5px;
-            font-weight: 700;
+            font-size: 11px;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             padding: 5px 6px;
@@ -191,7 +191,7 @@
         }
         .items-table td {
             padding: 5px 6px;
-            font-size: 9.5px;
+            font-size: 12px;
             color: #0f172a;
             border-bottom: 1px solid #e2e8f0;
             vertical-align: middle;
@@ -258,7 +258,7 @@
             padding-left: 8px !important;
         }
         .arca-badge {
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 800;
             color: #0f172a;
             text-transform: uppercase;
@@ -272,13 +272,13 @@
             margin-bottom: 2px;
         }
         .cae-due {
-            font-size: 9px;
+            font-size: 11px;
             color: #334155;
             font-weight: 600;
             margin-bottom: 4px;
         }
         .afip-disclaimer {
-            font-size: 7.5px;
+            font-size: 11px;
             color: #64748b;
             line-height: 1.2;
             border-top: 1px solid #e2e8f0;
@@ -302,7 +302,7 @@
         }
         .totals-table td {
             padding: 2.5px 0;
-            font-size: 9.5px;
+            font-size: 11.5px;
         }
         .totals-table .label {
             color: #475569;
@@ -324,7 +324,7 @@
 
         .watermark-footer {
             text-align: center;
-            font-size: 8.5px;
+            font-size: 10px;
             color: #94a3b8;
             letter-spacing: 0.3px;
             border-top: 1px solid #e2e8f0;

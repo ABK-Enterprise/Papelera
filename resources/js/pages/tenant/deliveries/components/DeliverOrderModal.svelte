@@ -305,7 +305,7 @@
                 <!-- Modalidad de Liquidación / Pago -->
                 {#if debt > 0}
                     <div class="space-y-2">
-                        <Label class="text-xs font-medium text-foreground">Modalidad de cobro</Label>
+                        <Label class="text-sm font-medium text-foreground">Modalidad de cobro</Label>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <button
                                 type="button"
@@ -315,7 +315,7 @@
                                 <Banknote class="size-4.5 text-primary shrink-0" />
                                 <div>
                                     <p class="text-xs font-semibold">Cobrar en el acto</p>
-                                    <p class="text-[11px] opacity-80">Efectivo o transferencia</p>
+                                    <p class="text-xs opacity-80">Efectivo o transferencia</p>
                                 </div>
                             </button>
 
@@ -330,7 +330,7 @@
                                 <CreditCard class="size-4.5 text-amber-500 shrink-0" />
                                 <div>
                                     <p class="text-xs font-semibold">Cuenta Corriente</p>
-                                    <p class="text-[11px] opacity-80">{order.customer_has_credit ? 'Cargar a crédito' : 'Sin crédito habilitado'}</p>
+                                    <p class="text-xs opacity-80">{order.customer_has_credit ? 'Cargar a crédito' : 'Sin crédito habilitado'}</p>
                                 </div>
                             </button>
                         </div>
@@ -340,7 +340,7 @@
                     {#if paymentMode === 'paid_now'}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl border border-border/80 bg-background/40">
                             <div class="space-y-1.5">
-                                <Label for="delivery-payment-method" class="text-xs font-medium text-foreground">Método de cobro</Label>
+                                <Label for="delivery-payment-method" class="text-sm font-medium text-foreground">Método de cobro</Label>
                                 <select
                                     id="delivery-payment-method"
                                     bind:value={paymentMethod}
@@ -355,7 +355,7 @@
                             </div>
 
                             <div class="space-y-1.5">
-                                <Label for="delivery-amount" class="text-xs font-medium text-foreground">
+                                <Label for="delivery-amount" class="text-sm font-medium text-foreground">
                                     {paymentMethod === 'efectivo' && !hasAccount ? 'Monto recibido (Efectivo)' : 'Monto cobrado'}
                                 </Label>
                                 <div class="relative">
@@ -384,7 +384,7 @@
                             {#if paymentMethod === 'mercadopago'}
                                 <div class="col-span-1 sm:col-span-2 space-y-3 pt-1">
                                     <div class="space-y-1.5">
-                                        <Label class="text-xs font-medium text-foreground">¿Cómo abona con Mercado Pago?</Label>
+                                        <Label class="text-sm font-medium text-foreground">¿Cómo abona con Mercado Pago?</Label>
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                             <button
                                                 type="button"
@@ -394,7 +394,7 @@
                                                 <QrCode class="size-4.5 text-sky-500 shrink-0" />
                                                 <div>
                                                     <p class="text-xs font-semibold">QR en el acto</p>
-                                                    <p class="text-[11px] opacity-80">Escanea desde la app</p>
+                                                    <p class="text-xs opacity-80">Escanea desde la app</p>
                                                 </div>
                                             </button>
 
@@ -406,7 +406,7 @@
                                                 <ArrowRightLeft class="size-4.5 text-sky-500 shrink-0" />
                                                 <div>
                                                     <p class="text-xs font-semibold">Transfirió por Alias</p>
-                                                    <p class="text-[11px] opacity-80">Muestra comprobante</p>
+                                                    <p class="text-xs opacity-80">Muestra comprobante</p>
                                                 </div>
                                             </button>
                                         </div>
@@ -423,13 +423,13 @@
                                                 <QrCode class="size-4.5" />
                                                 <span>Generar y Mostrar QR</span>
                                             </Button>
-                                            <p class="text-[11px] text-muted-foreground text-center">
+                                            <p class="text-xs text-muted-foreground text-center">
                                                 Al escanear y abonar, el sistema detecta la acreditación en vivo y finaliza la entrega automáticamente.
                                             </p>
                                         </div>
                                     {:else}
                                         <div class="space-y-1.5">
-                                            <Label for="delivery-ref-mp" class="text-xs font-medium text-foreground">
+                                            <Label for="delivery-ref-mp" class="text-sm font-medium text-foreground">
                                                 Nº Comprobante / Transacción (opcional)
                                             </Label>
                                             <Input
@@ -439,7 +439,7 @@
                                                 bind:value={referenceNumber}
                                                 class="h-11 min-h-[44px] bg-background border-border/80"
                                             />
-                                            <p class="text-[11px] text-muted-foreground">
+                                            <p class="text-xs text-muted-foreground">
                                                 Opcional. Puedes anotar el número de operación o comprobante provisto por el cliente.
                                             </p>
                                         </div>
@@ -475,15 +475,15 @@
 
                             {#if paymentMethod !== 'efectivo' && paymentMethod !== 'mercadopago'}
                                 <div class="col-span-1 sm:col-span-2 space-y-1.5">
-                                    <Label for="delivery-ref" class="text-xs font-medium text-foreground">Nº Comprobante / Transacción (opcional)</Label>
-                                    <Input
-                                        id="delivery-ref"
-                                        type="text"
-                                        placeholder="Ej: TRANSF-987213"
-                                        bind:value={referenceNumber}
-                                        class="h-11 min-h-[44px] bg-background border-border/80"
-                                    />
-                                </div>
+                                     <Label for="delivery-ref" class="text-sm font-medium text-foreground">Nº Comprobante / Transacción (opcional)</Label>
+                                     <Input
+                                         id="delivery-ref"
+                                         type="text"
+                                         placeholder="Ej: TRANSF-987213"
+                                         bind:value={referenceNumber}
+                                         class="h-11 min-h-[44px] bg-background border-border/80"
+                                     />
+                                 </div>
                             {/if}
                         </div>
                     {/if}
@@ -498,10 +498,10 @@
                         <div class="p-4 rounded-2xl border border-border/80 bg-background/40 space-y-3">
                             <div class="flex items-center justify-between gap-3">
                                 <div class="space-y-0.5">
-                                    <Label for="switch-extra-balance" class="text-xs font-semibold text-foreground cursor-pointer">
+                                    <Label for="switch-extra-balance" class="text-sm font-medium text-foreground cursor-pointer">
                                         ¿Cobrar saldo a favor / saldar cuenta corriente?
                                     </Label>
-                                    <p class="text-[11px] text-muted-foreground">
+                                    <p class="text-xs text-muted-foreground">
                                         Cobrar un importe adicional para acreditarlo en la cuenta corriente del cliente
                                     </p>
                                 </div>
@@ -511,7 +511,7 @@
                             {#if collectExtraBalance}
                                 <div class="pt-3 border-t border-border/50 grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div class="space-y-1.5">
-                                        <Label for="extra-payment-method" class="text-xs font-medium text-foreground">Método de cobro</Label>
+                                        <Label for="extra-payment-method" class="text-sm font-medium text-foreground">Método de cobro</Label>
                                         <select
                                             id="extra-payment-method"
                                             bind:value={paymentMethod}
@@ -526,7 +526,7 @@
                                     </div>
 
                                     <div class="space-y-1.5">
-                                        <Label for="extra-amount" class="text-xs font-medium text-foreground">Monto a cobrar</Label>
+                                        <Label for="extra-amount" class="text-sm font-medium text-foreground">Monto a cobrar</Label>
                                         <div class="relative">
                                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
                                             <Input
@@ -564,7 +564,7 @@
 
                                     {#if paymentMethod === 'mercadopago'}
                                         <div class="col-span-1 sm:col-span-2 space-y-1.5">
-                                            <Label for="extra-ref-mp" class="text-xs font-medium text-foreground">
+                                            <Label for="extra-ref-mp" class="text-sm font-medium text-foreground">
                                                 Nº Comprobante / Transacción (opcional)
                                             </Label>
                                             <Input
@@ -574,13 +574,13 @@
                                                 bind:value={referenceNumber}
                                                 class="h-11 min-h-[44px] bg-background border-border/80"
                                             />
-                                            <p class="text-[11px] text-muted-foreground">
+                                            <p class="text-xs text-muted-foreground">
                                                 Opcional. Puedes anotar el número de operación o comprobante si deseas dejar constancia.
                                             </p>
                                         </div>
                                     {:else if paymentMethod !== 'efectivo'}
                                         <div class="col-span-1 sm:col-span-2 space-y-1.5">
-                                            <Label for="extra-ref" class="text-xs font-medium text-foreground">Nº Comprobante / Transacción (opcional)</Label>
+                                            <Label for="extra-ref" class="text-sm font-medium text-foreground">Nº Comprobante / Transacción (opcional)</Label>
                                             <Input
                                                 id="extra-ref"
                                                 type="text"
@@ -598,7 +598,7 @@
 
                 <!-- Observaciones de la entrega -->
                 <div class="space-y-1.5">
-                    <Label for="delivery-notes" class="text-xs font-medium text-foreground">Observaciones de entrega</Label>
+                    <Label for="delivery-notes" class="text-sm font-medium text-foreground">Observaciones de entrega</Label>
                     <Textarea
                         id="delivery-notes"
                         rows={2}
@@ -620,14 +620,14 @@
         <DialogFooter class="p-5 sm:p-6 pt-3 border-t border-border/50 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 shrink-0">
             <Button
                 variant="secondary"
-                class="w-full sm:w-auto h-11 min-h-[44px] px-4 font-semibold"
+                class="w-full sm:w-auto h-11 min-h-[44px] px-4 text-sm font-semibold"
                 onclick={handleClose}
                 disabled={isSubmitting}
             >
                 Cancelar
             </Button>
             <Button
-                class="w-full sm:w-auto h-11 min-h-[44px] px-6 font-semibold gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+                class="w-full sm:w-auto h-11 min-h-[44px] px-6 text-sm font-semibold gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
                 onclick={triggerSubmit}
                 disabled={isSubmitting}
             >

@@ -127,7 +127,7 @@
             <div class="p-2.5 rounded-xl bg-background/60 border border-border/50 flex items-center gap-2">
                 <Banknote class="size-4 text-emerald-500 shrink-0" />
                 <div class="min-w-0">
-                    <p class="text-[10px] text-muted-foreground">Efectivo</p>
+                    <p class="text-xs text-muted-foreground">Efectivo</p>
                     <p class="text-xs font-bold tabular-nums text-foreground truncate">
                         ${Number(shiftSummary.cash_total).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                     </p>
@@ -137,7 +137,7 @@
             <div class="p-2.5 rounded-xl bg-background/60 border border-border/50 flex items-center gap-2">
                 <QrCode class="size-4 text-primary shrink-0" />
                 <div class="min-w-0">
-                    <p class="text-[10px] text-muted-foreground">Transfer / QR</p>
+                    <p class="text-xs text-muted-foreground">Transfer / QR</p>
                     <p class="text-xs font-bold tabular-nums text-foreground truncate">
                         ${Number(shiftSummary.transfer_total).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                     </p>
@@ -159,7 +159,7 @@
             onclick={() => (activeTab = 'my_route')}
         >
             <span>Mis pedidos</span>
-            <span class="text-[11px] font-sans tabular-nums opacity-80">({myRouteOrders.length})</span>
+            <span class="text-xs font-sans tabular-nums opacity-80">({myRouteOrders.length})</span>
         </button>
 
         <button
@@ -168,7 +168,7 @@
             onclick={() => (activeTab = 'available')}
         >
             <span>Disponibles</span>
-            <span class="text-[11px] font-sans tabular-nums opacity-80">({availableOrders.length})</span>
+            <span class="text-xs font-sans tabular-nums opacity-80">({availableOrders.length})</span>
         </button>
 
         <button
@@ -177,7 +177,7 @@
             onclick={() => (activeTab = 'failed')}
         >
             <span>No entregados</span>
-            <span class="text-[11px] font-sans tabular-nums opacity-80">({failedOrders.length})</span>
+            <span class="text-xs font-sans tabular-nums opacity-80">({failedOrders.length})</span>
         </button>
     </div>
 
@@ -209,11 +209,11 @@
                             </div>
 
                             {#if Number(order.debt_amount) <= 0}
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 shrink-0">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 shrink-0">
                                     PAGADO
                                 </span>
                             {:else}
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[11px] font-bold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 tabular-nums shrink-0">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 tabular-nums shrink-0">
                                     A COBRAR: ${Number(order.debt_amount).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                                 </span>
                             {/if}
@@ -350,9 +350,9 @@
                                 <div class="flex items-center justify-between gap-1">
                                     <span class="text-xs font-sans font-bold text-primary tabular-nums">#{order.order_number}</span>
                                     {#if Number(order.debt_amount) <= 0}
-                                        <Badge variant="outline" class="text-[10px] font-bold text-emerald-600">PAGADO</Badge>
+                                        <Badge variant="outline" class="text-xs font-bold text-emerald-600">PAGADO</Badge>
                                     {:else}
-                                        <Badge variant="outline" class="text-[10px] font-bold text-rose-600 tabular-nums">
+                                        <Badge variant="outline" class="text-xs font-bold text-rose-600 tabular-nums">
                                             ${Number(order.debt_amount).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                                         </Badge>
                                     {/if}
@@ -401,7 +401,7 @@
                                 <h4 class="text-sm font-bold text-foreground truncate">{order.customer_name}</h4>
                             </div>
 
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[11px] font-bold bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30 shrink-0">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30 shrink-0">
                                 {order.delivery_failure_reason ? (failureReasonLabels[order.delivery_failure_reason] || order.delivery_failure_reason) : 'No entregado'}
                             </span>
                         </div>
@@ -441,11 +441,11 @@
                         <div class="flex items-center justify-between text-xs pt-1 border-t border-border/40">
                             <span class="text-muted-foreground tabular-nums">Total: ${Number(order.total_amount).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
                             {#if Number(order.debt_amount) <= 0}
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                                     PAGADO
                                 </span>
                             {:else}
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 tabular-nums">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 tabular-nums">
                                     Deuda: ${Number(order.debt_amount).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                                 </span>
                             {/if}

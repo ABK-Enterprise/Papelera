@@ -113,7 +113,7 @@
 
                 <!-- Selección de Destino Bento -->
                 <div class="space-y-2.5">
-                    <Label class="text-xs font-medium text-foreground">Destino de la gestión</Label>
+                    <Label class="text-sm font-medium text-foreground">Destino de la gestión</Label>
                     <div class="grid grid-cols-1 gap-2.5">
                         <!-- Opción 1: En Preparación -->
                         <button
@@ -128,9 +128,9 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-foreground">Volver a Depósito / En Preparación</span>
+                                    <span class="text-sm font-semibold text-foreground">Volver a Depósito / En Preparación</span>
                                     {#if destination === 'en_preparacion'}
-                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary uppercase">Seleccionado</span>
+                                        <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-primary/20 text-primary uppercase">Seleccionado</span>
                                     {/if}
                                 </div>
                                 <p class="text-xs text-muted-foreground mt-0.5 leading-relaxed">
@@ -152,9 +152,9 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-foreground">Cancelar Pedido Definitivamente</span>
+                                    <span class="text-sm font-semibold text-foreground">Cancelar Pedido Definitivamente</span>
                                     {#if destination === 'cancelado'}
-                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-destructive/20 text-destructive uppercase">Seleccionado</span>
+                                        <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-destructive/20 text-destructive uppercase">Seleccionado</span>
                                     {/if}
                                 </div>
                                 <p class="text-xs text-muted-foreground mt-0.5 leading-relaxed">
@@ -167,7 +167,7 @@
 
                 <!-- Textarea de Observaciones -->
                 <div class="space-y-1.5">
-                    <Label for="reschedule-reason" class="text-xs font-medium text-foreground">Motivo u observaciones (opcional)</Label>
+                    <Label for="reschedule-reason" class="text-sm font-medium text-foreground">Motivo u observaciones (opcional)</Label>
                     <Textarea
                         id="reschedule-reason"
                         rows={2}
@@ -189,7 +189,7 @@
         <DialogFooter class="p-5 sm:p-6 pt-3 border-t border-border/50 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 shrink-0">
             <Button
                 variant="secondary"
-                class="w-full sm:w-auto h-11 min-h-[44px] px-4 font-semibold"
+                class="w-full sm:w-auto h-11 min-h-[44px] px-4 text-sm font-semibold"
                 onclick={handleClose}
                 disabled={isSubmitting}
             >
@@ -199,7 +199,7 @@
             {#if destination === 'cancelado'}
                 <Button
                     variant="destructive"
-                    class="w-full sm:w-auto h-11 min-h-[44px] px-6 font-semibold gap-2 shadow-xs"
+                    class="w-full sm:w-auto h-11 min-h-[44px] px-6 text-sm font-semibold gap-2 shadow-xs"
                     onclick={handleSubmit}
                     disabled={isSubmitting}
                 >
@@ -214,7 +214,7 @@
             {:else}
                 <Button
                     variant="default"
-                    class="w-full sm:w-auto h-11 min-h-[44px] px-6 font-semibold gap-2 shadow-xs"
+                    class="w-full sm:w-auto h-11 min-h-[44px] px-6 text-sm font-semibold gap-2 shadow-xs"
                     onclick={handleSubmit}
                     disabled={isSubmitting}
                 >

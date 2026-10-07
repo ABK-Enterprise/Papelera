@@ -151,7 +151,7 @@
                     bind:value={customerSearchQuery}
                     onfocus={() => (isDropdownOpen = true)}
                     placeholder="Buscar cliente para ver cuenta corriente (Nombre, CUIT, Teléfono)..."
-                    class="h-10 w-full rounded-2xl border border-input bg-card pl-10 pr-9 text-xs font-normal text-foreground placeholder:text-muted-foreground shadow-2xs focus:ring-1 focus:ring-primary outline-none transition-all"
+                    class="h-10 w-full rounded-2xl border border-input bg-card pl-10 pr-9 text-sm font-normal text-foreground placeholder:text-muted-foreground shadow-2xs focus:ring-1 focus:ring-primary outline-none transition-all"
                 />
                 {#if customerSearchQuery}
                     <button
@@ -182,20 +182,20 @@
                                             {cust.name}
                                         </span>
                                         {#if cust.is_defaulter}
-                                            <span class="text-[10px] font-bold text-amber-700 bg-amber-500/15 dark:text-amber-400 px-1.5 py-0.5 rounded">
+                                            <span class="text-xs font-semibold text-amber-700 bg-amber-500/15 dark:text-amber-400 px-1.5 py-0.5 rounded">
                                                 Moroso
                                             </span>
                                         {/if}
                                     </div>
-                                    <p class="text-[11px] text-muted-foreground mt-0.5 tabular-nums">
+                                    <p class="text-xs text-muted-foreground mt-0.5 font-mono tabular-nums">
                                         {cust.tax_id || 'Sin CUIT'} • {cust.phone || 'Sin tel.'}
                                     </p>
                                 </div>
                                 <div class="text-right shrink-0">
-                                    <span class="font-bold tabular-nums text-xs block {Number(cust.current_balance) > 0 ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400'}">
+                                    <span class="font-semibold tabular-nums text-sm block {Number(cust.current_balance) > 0 ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400'}">
                                         {formatPrice(cust.current_balance)}
                                     </span>
-                                    <span class="text-[10px] text-muted-foreground">Saldo</span>
+                                    <span class="text-xs text-muted-foreground">Saldo</span>
                                 </div>
                             </button>
                         {/each}
@@ -250,42 +250,42 @@
                                                 {mov.description}
                                             </h3>
                                             {#if mov.order}
-                                                <span class="text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded tabular-nums">
+                                                <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded tabular-nums">
                                                     {mov.order.order_number}
                                                 </span>
                                             {/if}
                                             {#if mov.payment_method}
-                                                <span class="text-[10px] font-medium tracking-wide uppercase bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                                <span class="text-xs font-medium tracking-wide uppercase bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                                                     {mov.payment_method}
                                                 </span>
                                             {/if}
                                             {#if mov.reference_number}
-                                                <span class="text-[11px] text-muted-foreground tabular-nums">
+                                                <span class="text-xs text-muted-foreground tabular-nums">
                                                     Ref: {mov.reference_number}
                                                 </span>
                                             {/if}
                                         </div>
 
-                                        <div class="flex items-center gap-2 text-[11px] text-muted-foreground tabular-nums flex-wrap">
+                                        <div class="flex items-center gap-2 text-xs font-mono tabular-nums text-muted-foreground flex-wrap">
                                             <span>{formatDate(mov.created_at)}</span>
                                             {#if mov.created_by}
                                                 <span>•</span>
-                                                <span>Por: {mov.created_by.name}</span>
+                                                <span class="font-sans">Por: {mov.created_by.name}</span>
                                             {/if}
                                             {#if mov.notes}
                                                 <span>•</span>
-                                                <span class="italic font-normal">"{mov.notes}"</span>
+                                                <span class="italic font-normal font-sans">"{mov.notes}"</span>
                                             {/if}
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="text-right sm:shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 flex sm:flex-col justify-between sm:justify-center items-end">
-                                    <span class="text-xs font-bold tabular-nums {isPayment ? 'text-emerald-600 dark:text-emerald-400' : isCharge ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'}">
+                                    <span class="text-sm font-semibold tabular-nums {isPayment ? 'text-emerald-600 dark:text-emerald-400' : isCharge ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'}">
                                         {isPayment ? '-' : '+'}{formatPrice(mov.amount)}
                                     </span>
-                                    <span class="text-[10px] text-muted-foreground tabular-nums mt-0.5">
-                                        Saldo: <strong class="text-foreground">{formatPrice(mov.balance_after)}</strong>
+                                    <span class="text-xs text-muted-foreground tabular-nums mt-0.5">
+                                        Saldo: <strong class="text-foreground font-semibold">{formatPrice(mov.balance_after)}</strong>
                                     </span>
                                 </div>
                             </div>
@@ -295,7 +295,7 @@
                     <div class="py-12 text-center rounded-2xl bg-muted/15 border border-dashed border-border/80 p-6 space-y-2">
                         <History class="size-8 text-muted-foreground mx-auto opacity-50" />
                         <h4 class="text-xs font-semibold text-foreground">Sin movimientos registrados</h4>
-                        <p class="text-[11px] text-muted-foreground max-w-sm mx-auto">
+                        <p class="text-xs text-muted-foreground max-w-sm mx-auto">
                             Este cliente aún no registra compras a crédito ni abonos en su cuenta corriente.
                         </p>
                     </div>
@@ -325,14 +325,14 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <h2 class="text-base font-bold text-foreground truncate">{selectedCustomer.name}</h2>
                             {#if selectedCustomer.is_defaulter}
-                                <span class="text-[10px] font-bold text-amber-700 bg-amber-500/15 dark:text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <span class="text-xs font-semibold text-amber-700 bg-amber-500/15 dark:text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
                                     <AlertTriangle class="size-3" />
                                     Moroso
                                 </span>
                             {/if}
                         </div>
-                        <p class="text-xs text-muted-foreground mt-0.5 tabular-nums">
-                            {selectedCustomer.tax_id ? `CUIT ${selectedCustomer.tax_id}` : 'Sin CUIT'} • <span class="capitalize">{selectedCustomer.tax_condition.replace('_', ' ')}</span>
+                        <p class="text-xs text-muted-foreground mt-0.5 font-mono tabular-nums">
+                            {selectedCustomer.tax_id ? `CUIT ${selectedCustomer.tax_id}` : 'Sin CUIT'} • <span class="capitalize font-sans">{selectedCustomer.tax_condition.replace('_', ' ')}</span>
                         </p>
                     </div>
                 </div>
@@ -360,7 +360,7 @@
                     <div class="space-y-1.5 pt-2 border-t border-border/60">
                         <div class="flex items-center justify-between text-xs tabular-nums">
                             <span class="text-muted-foreground">Límite de crédito:</span>
-                            <span class="font-semibold text-foreground">{formatPrice(creditLimitNum)}</span>
+                            <span class="text-sm font-semibold text-foreground tabular-nums">{formatPrice(creditLimitNum)}</span>
                         </div>
                         
                         <div class="h-2 w-full bg-muted rounded-full overflow-hidden">
@@ -370,9 +370,9 @@
                             ></div>
                         </div>
 
-                        <div class="flex items-center justify-between text-[11px] text-muted-foreground tabular-nums">
+                        <div class="flex items-center justify-between text-xs text-muted-foreground tabular-nums">
                             <span>Uso: {creditUsagePercent}%</span>
-                            <span>Disponible: <strong class="text-foreground">{formatPrice(selectedCustomer.available_credit ?? Math.max(0, creditLimitNum - currentBalanceNum))}</strong></span>
+                            <span>Disponible: <strong class="text-foreground text-sm font-semibold tabular-nums">{formatPrice(selectedCustomer.available_credit ?? Math.max(0, creditLimitNum - currentBalanceNum))}</strong></span>
                         </div>
                     </div>
 
@@ -387,7 +387,7 @@
                     {#if hasPermission('cobranzas.crear')}
                         <Button
                             onclick={() => onOpenPayment(selectedCustomer!)}
-                            class="w-full h-10 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-sm"
+                            class="w-full min-h-[38px] h-10 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-xl shadow-sm"
                         >
                             <Banknote class="size-4" />
                             <span>Registrar Cobro / Abono</span>
@@ -399,7 +399,7 @@
                             <Button
                                 variant="secondary"
                                 onclick={() => onOpenAdjustment(selectedCustomer!)}
-                                class="min-h-[40px] h-10 gap-1.5 text-xs font-semibold rounded-xl"
+                                class="min-h-[38px] h-10 gap-1.5 text-sm font-medium rounded-xl"
                             >
                                 <Sliders class="size-3.5" />
                                 <span>Ajustar Saldo</span>
@@ -408,7 +408,7 @@
                             <Button
                                 variant="outline"
                                 onclick={() => onOpenCreditSettings(selectedCustomer!)}
-                                class="min-h-[40px] h-10 gap-1.5 text-xs font-semibold rounded-xl"
+                                class="min-h-[38px] h-10 gap-1.5 text-sm font-medium rounded-xl"
                             >
                                 <ShieldCheck class="size-3.5" />
                                 <span>Editar Límites</span>
@@ -420,7 +420,7 @@
 
                 <!-- Datos de Contacto Directo -->
                 <div class="p-3.5 rounded-2xl bg-muted/20 border border-border/60 space-y-2 text-xs">
-                    <div class="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Datos de Contacto</div>
+                    <div class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Datos de Contacto</div>
                     <div class="text-foreground space-y-1.5">
                         <p class="flex items-center gap-2 truncate text-muted-foreground">
                             <MapPin class="size-3.5 text-primary shrink-0" />

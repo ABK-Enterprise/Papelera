@@ -259,7 +259,7 @@
                             Seleccionar todos los disponibles
                         </label>
                     </div>
-                    <span class="text-[11px] text-muted-foreground">
+                    <span class="text-xs text-muted-foreground">
                         {selectedItems.length} seleccionados
                     </span>
                 </div>
@@ -285,7 +285,7 @@
                                                 {item.product_name}
                                             </h4>
                                             {#if item.sku}
-                                                <span class="text-[11px] font-sans tabular-nums text-muted-foreground">
+                                                <span class="text-xs font-sans tabular-nums text-muted-foreground">
                                                     SKU: {item.sku}
                                                 </span>
                                             {/if}
@@ -295,7 +295,7 @@
                                             <span class="text-xs font-bold font-sans tabular-nums text-foreground block">
                                                 {formatPrice(item.unit_price)}
                                             </span>
-                                            <span class="text-[10px] text-muted-foreground tabular-nums">
+                                            <span class="text-xs text-muted-foreground tabular-nums">
                                                 {#if isExhausted}
                                                     <strong class="text-muted-foreground">Totalmente devuelto</strong>
                                                 {:else}
@@ -310,11 +310,11 @@
                                         <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/50">
                                             <!-- Destino físico -->
                                             <div class="flex items-center gap-2">
-                                                <label for="dest_{index}" class="text-[11px] font-semibold text-muted-foreground">Destino:</label>
+                                                <label for="dest_{index}" class="text-xs font-semibold text-muted-foreground">Destino:</label>
                                                 <select
                                                     id="dest_{index}"
                                                     bind:value={item.destination}
-                                                    class="h-8 rounded-lg border border-border/80 bg-background px-2 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 cursor-pointer shadow-2xs"
+                                                    class="h-8 rounded-lg border border-border/80 bg-background px-2 text-sm font-semibold text-foreground focus:outline-none focus:border-primary-500 cursor-pointer shadow-2xs"
                                                 >
                                                     <option value="restock">Reingreso a stock</option>
                                                     <option value="scrap">Merma / Dañado (Scrap)</option>
@@ -338,7 +338,7 @@
                                                     min={item.packaging_type === 'kg' ? 0.1 : (item.packaging_type === 'gram' ? 50 : 1)}
                                                     max={item.max_quantity}
                                                     bind:value={item.quantity}
-                                                    class="w-14 h-full text-xs font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    class="w-14 h-full text-sm font-semibold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                 />
 
                                                 <button
@@ -352,7 +352,7 @@
                                             </div>
 
                                             <!-- Subtotal de devolución -->
-                                            <div class="text-right font-sans tabular-nums text-xs font-bold text-primary shrink-0 ml-auto sm:ml-0">
+                                            <div class="text-right font-sans tabular-nums text-sm font-semibold text-primary shrink-0 ml-auto sm:ml-0">
                                                 {formatPrice(item.quantity * item.unit_price)}
                                             </div>
                                         </div>
@@ -365,7 +365,7 @@
 
                 <!-- Campo de Observaciones -->
                 <div class="space-y-1.5 pt-2">
-                    <label for="return-notes" class="text-xs font-semibold text-foreground">
+                    <label for="return-notes" class="text-sm font-medium text-foreground">
                         Motivo / Notas de la Devolución (Opcional)
                     </label>
                     <textarea
@@ -373,7 +373,7 @@
                         bind:value={notes}
                         placeholder="Ej. Producto devuelto por falla de empaque o error de pedido..."
                         rows="2"
-                        class="w-full rounded-xl border border-border/80 bg-background p-2.5 text-xs text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs"
+                        class="w-full rounded-xl border border-border/80 bg-background p-2.5 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs"
                     ></textarea>
                 </div>
             </div>
@@ -383,7 +383,7 @@
                 <div class="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/60">
                     <div>
                         <span class="text-xs text-muted-foreground font-medium block">Total de Devolución:</span>
-                        <span class="text-[11px] text-muted-foreground">
+                        <span class="text-xs text-muted-foreground">
                             {order.customer_id ? 'Se acreditará a la cuenta corriente del cliente.' : 'Comprobante de devolución para cliente ocasional.'}
                         </span>
                     </div>
@@ -396,7 +396,7 @@
                     <Button
                         type="button"
                         variant="outline"
-                        class="min-h-[44px] px-4 rounded-xl text-xs font-semibold shrink-0 cursor-pointer"
+                        class="min-h-[44px] px-4 rounded-xl text-sm font-semibold shrink-0 cursor-pointer"
                         onclick={closeModal}
                         disabled={isSubmitting}
                     >
@@ -406,7 +406,7 @@
                     <Button
                         type="button"
                         variant="default"
-                        class="min-h-[44px] px-5 rounded-xl text-xs font-semibold gap-2 shadow-xs bg-amber-600 hover:bg-amber-700 text-white shrink-0 cursor-pointer disabled:opacity-50"
+                        class="min-h-[44px] px-5 rounded-xl text-sm font-semibold gap-2 shadow-xs bg-amber-600 hover:bg-amber-700 text-white shrink-0 cursor-pointer disabled:opacity-50"
                         onclick={handleSubmit}
                         disabled={isSubmitting || selectedItems.length === 0}
                     >

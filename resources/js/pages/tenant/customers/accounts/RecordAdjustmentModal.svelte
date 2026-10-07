@@ -158,7 +158,7 @@
                 <form id="record-adjustment-form" onsubmit={handleSubmit} class="space-y-4 pt-1">
                     <!-- Selector Tipo de Ajuste -->
                     <div class="space-y-1.5">
-                        <Label class="text-xs font-semibold text-foreground">
+                        <Label class="text-sm font-medium text-foreground">
                             Efecto sobre la deuda
                         </Label>
                         <div class="grid grid-cols-2 gap-2">
@@ -168,7 +168,7 @@
                                 class="p-2.5 rounded-xl border text-xs font-semibold transition-all flex flex-col items-center gap-1 {type === 'credit' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500' : 'border-border bg-background text-muted-foreground hover:text-foreground'}"
                             >
                                 <span>- Descuento / Crédito</span>
-                                <span class="text-[10px] font-normal opacity-80">Reduce el saldo deudor</span>
+                                <span class="text-xs font-normal opacity-80">Reduce el saldo deudor</span>
                             </button>
                             <button
                                 type="button"
@@ -176,14 +176,14 @@
                                 class="p-2.5 rounded-xl border text-xs font-semibold transition-all flex flex-col items-center gap-1 {type === 'debit' ? 'border-rose-500 bg-rose-500/10 text-rose-700 dark:text-rose-300 ring-1 ring-rose-500' : 'border-border bg-background text-muted-foreground hover:text-foreground'}"
                             >
                                 <span>+ Cargo / Débito</span>
-                                <span class="text-[10px] font-normal opacity-80">Incrementa la deuda</span>
+                                <span class="text-xs font-normal opacity-80">Incrementa la deuda</span>
                             </button>
                         </div>
                     </div>
 
                     <!-- Monto -->
                     <div class="space-y-1.5">
-                        <Label for="adjust-amount" class="text-xs font-semibold text-foreground">
+                        <Label for="adjust-amount" class="text-sm font-medium text-foreground">
                             Monto a ajustar <span class="text-destructive">*</span>
                         </Label>
                         <div class="relative">
@@ -209,28 +209,28 @@
 
                     <!-- Motivo -->
                     <div class="space-y-1.5">
-                        <Label for="adjust-desc" class="text-xs font-semibold text-foreground">
+                        <Label for="adjust-desc" class="text-sm font-medium text-foreground">
                             Motivo del ajuste <span class="text-destructive">*</span>
                         </Label>
                         <Input
                             id="adjust-desc"
                             bind:value={description}
                             placeholder="ej. Quita por pronto pago / Recargo por financiamiento"
-                            class="h-9 text-xs"
+                            class="h-9 text-sm"
                             required
                         />
                     </div>
 
                     <!-- Observaciones -->
                     <div class="space-y-1.5">
-                        <Label for="adjust-notes" class="text-xs font-semibold text-foreground">
+                        <Label for="adjust-notes" class="text-sm font-medium text-foreground">
                             Observaciones (Opcional)
                         </Label>
                         <Input
                             id="adjust-notes"
                             bind:value={notes}
                             placeholder="Aprobado por administración..."
-                            class="h-9 text-xs"
+                            class="h-9 text-sm"
                         />
                     </div>
                 </form>
@@ -242,7 +242,7 @@
                     variant="outline"
                     onclick={handleClose}
                     disabled={isSubmitting}
-                    class="min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium border-border/70"
                 >
                     Cancelar
                 </Button>
@@ -250,7 +250,7 @@
                     type="submit"
                     form="record-adjustment-form"
                     disabled={isSubmitting || amountNum <= 0 || !description.trim()}
-                    class="min-h-[44px] px-4 rounded-xl text-sm font-semibold gap-1.5 min-w-32 shadow-xs"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium gap-1.5 min-w-32 shadow-xs"
                 >
                     <Check class="size-3.5" />
                     <span>Aplicar ajuste</span>

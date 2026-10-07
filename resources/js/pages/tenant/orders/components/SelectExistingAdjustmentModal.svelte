@@ -303,7 +303,7 @@
                     type="search"
                     placeholder="Buscar por nombre o motivo..."
                     bind:value={searchQuery}
-                    class="pl-9 min-h-[44px] rounded-xl text-xs"
+                    class="pl-9 min-h-[44px] rounded-xl text-sm font-medium"
                 />
             </div>
 
@@ -331,7 +331,7 @@
                     <p class="text-xs font-semibold text-foreground">
                         No hay ajustes cargados en el comercio.
                     </p>
-                    <p class="text-[11px] text-muted-foreground mt-1">
+                    <p class="text-xs text-muted-foreground mt-1">
                         Podés configurar recargos y descuentos desde la configuración del comercio.
                     </p>
                 </div>
@@ -341,7 +341,7 @@
                     <p class="text-xs font-semibold text-foreground">
                         {searchQuery ? 'No se encontraron ajustes con ese criterio' : 'No hay ajustes comerciales activos para esta fecha'}
                     </p>
-                    <p class="text-[11px] text-muted-foreground mt-1">
+                    <p class="text-xs text-muted-foreground mt-1">
                         {searchQuery ? 'Probá con otra palabra o limpiá el filtro de búsqueda.' : 'Los ajustes existentes se encuentran desactivados o fuera de su fecha de vigencia.'}
                     </p>
                 </div>
@@ -363,29 +363,29 @@
 
                                 <div class="min-w-0 flex-1">
                                     <div class="flex items-center gap-1.5 flex-wrap">
-                                        <span class="text-xs font-bold text-foreground">
+                                        <span class="text-sm font-semibold text-foreground">
                                             {adj.name}
                                         </span>
 
                                         <!-- Badge Tipo -->
-                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold {adj.type === 'discount' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'bg-amber-500/10 text-amber-700 dark:text-amber-400'}">
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-semibold {adj.type === 'discount' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'bg-amber-500/10 text-amber-700 dark:text-amber-400'}">
                                             {adj.type === 'discount' ? 'Descuento' : 'Recargo'}
                                         </span>
 
                                         <!-- Badge Vigencia -->
                                         {#if adj.is_valid_today}
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
                                                 Aplica hoy
                                             </span>
                                         {:else}
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-muted text-muted-foreground">
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-medium bg-muted text-muted-foreground">
                                                 Programado
                                             </span>
                                         {/if}
                                     </div>
 
                                     {#if adj.reason}
-                                        <p class="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
+                                        <p class="text-xs text-muted-foreground line-clamp-1 mt-0.5">
                                             {adj.reason}
                                         </p>
                                     {/if}
@@ -394,11 +394,11 @@
 
                             <!-- Valor y Previsualización -->
                             <div class="text-right shrink-0">
-                                <div class="text-xs font-bold tabular-nums text-foreground">
+                                <div class="text-sm font-semibold tabular-nums text-foreground">
                                     {adj.calculation_type === 'percentage' ? `${adj.value}%` : formatCurrency(adj.value)}
                                 </div>
                                 {#if netProductsAmount > 0}
-                                    <div class="text-[11px] font-semibold tabular-nums {adj.type === 'discount' ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}">
+                                    <div class="text-xs font-semibold tabular-nums {adj.type === 'discount' ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}">
                                         {adj.type === 'discount' ? '-' : '+'}{formatCurrency(previewAmount)}
                                     </div>
                                 {/if}
@@ -414,7 +414,7 @@
                 <Button
                     type="button"
                     variant="outline"
-                    class="min-h-[44px] rounded-xl text-xs font-medium cursor-pointer gap-1.5"
+                    class="min-h-[44px] rounded-xl text-sm font-semibold cursor-pointer gap-1.5"
                     disabled={isSubmitting}
                     onclick={handleBack}
                 >
@@ -425,7 +425,7 @@
                 <Button
                     type="button"
                     variant="outline"
-                    class="min-h-[44px] rounded-xl text-xs font-medium cursor-pointer"
+                    class="min-h-[44px] rounded-xl text-sm font-semibold cursor-pointer"
                     disabled={isSubmitting}
                     onclick={handleClose}
                 >
@@ -434,7 +434,7 @@
             {/if}
             <Button
                 type="button"
-                class="min-h-[44px] rounded-xl text-xs font-semibold gap-1.5 cursor-pointer"
+                class="min-h-[44px] rounded-xl text-sm font-semibold gap-1.5 cursor-pointer"
                 disabled={!hasChanges || isSubmitting}
                 onclick={handleApply}
             >

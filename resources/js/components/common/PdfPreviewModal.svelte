@@ -108,7 +108,7 @@
                         type="button"
                         onclick={handleGenerate}
                         disabled={isGenerating}
-                        class="min-h-[44px] px-6 gap-2 rounded-xl text-sm font-semibold shadow-xs"
+                        class="min-h-[44px] px-6 gap-2 rounded-xl text-sm font-medium shadow-xs"
                     >
                         {#if isGenerating}
                             <Loader2 class="size-4.5 animate-spin" />
@@ -146,12 +146,11 @@
                     <Button
                         type="button"
                         variant="ghost"
-                        size="sm"
                         onclick={handleReload}
-                        class="min-h-[38px] w-full sm:w-auto px-3 text-xs text-muted-foreground hover:text-foreground gap-1.5 rounded-xl justify-center"
+                        class="min-h-[44px] w-full sm:w-auto px-4 text-sm font-medium text-muted-foreground hover:text-foreground gap-2 rounded-xl justify-center"
                         title="Recargar documento"
                     >
-                        <RefreshCw class="size-3.5" />
+                        <RefreshCw class="size-4" />
                         <span>Recargar documento</span>
                     </Button>
                 </div>
@@ -165,7 +164,7 @@
                             <Button
                                 type="button"
                                 variant="secondary"
-                                class="w-full sm:w-auto min-h-[44px] px-3 sm:px-4 gap-1.5 sm:gap-2 rounded-xl text-xs sm:text-sm font-semibold justify-center"
+                                class="w-full sm:w-auto min-h-[44px] px-3 sm:px-4 gap-2 rounded-xl text-sm font-medium justify-center"
                             >
                                 <ExternalLink class="size-4 text-primary shrink-0" />
                                 <span class="sm:hidden">Abrir</span>
@@ -176,7 +175,7 @@
                         <a href={downloadUrl} download class="w-full sm:w-auto">
                             <Button
                                 type="button"
-                                class="w-full sm:w-auto min-h-[44px] px-3 sm:px-5 gap-1.5 sm:gap-2 rounded-xl text-xs sm:text-sm font-semibold shadow-xs justify-center"
+                                class="w-full sm:w-auto min-h-[44px] px-4 sm:px-5 gap-2 rounded-xl text-sm font-medium shadow-xs justify-center"
                             >
                                 <Download class="size-4 shrink-0" />
                                 <span class="sm:hidden">Descargar</span>
@@ -190,7 +189,7 @@
                 <Button
                     type="button"
                     variant="outline"
-                    class="w-full sm:w-auto min-h-[44px] px-4 sm:px-4 rounded-xl text-sm font-semibold justify-center order-2 sm:order-1"
+                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-medium justify-center order-2 sm:order-1"
                     onclick={() => (open = false)}
                 >
                     Cerrar

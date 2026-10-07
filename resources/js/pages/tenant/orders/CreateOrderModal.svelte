@@ -958,7 +958,7 @@
                         </h3>
 
                         {#if selectedCustomer}
-                            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                                 <UserCheck class="size-3" />
                                 Cliente Registrado
                             </span>
@@ -967,7 +967,7 @@
 
                     <!-- Buscador Autocomplete de Clientes con SearchCombobox -->
                     <div class="space-y-1">
-                        <Label class="text-xs font-semibold text-foreground mb-1 block">
+                        <Label class="text-sm font-medium text-foreground mb-1 block">
                             Buscar Cliente Registrado o Escribir Nuevo
                         </Label>
                         <SearchCombobox
@@ -983,7 +983,7 @@
                             }}
                             onselect={selectCustomerFromSearch}
                             onclear={clearCustomerSelection}
-                            inputClass="h-9 text-xs font-medium"
+                            inputClass="h-9 text-sm font-medium"
                         >
                             {#snippet itemSnippet(cust)}
                                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-3 w-full py-0.5">
@@ -995,7 +995,7 @@
                                                 <HighlightMatch text={cust.name} query={customerSearchQuery} />
                                             </span>
                                             {#if cust.is_defaulter}
-                                                <span class="shrink-0 inline-flex items-center gap-0.5 text-[9px] font-bold text-rose-600 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20 mt-0.5">
+                                                <span class="shrink-0 inline-flex items-center gap-0.5 text-xs font-semibold text-rose-600 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20 mt-0.5">
                                                     Moroso
                                                 </span>
                                             {/if}
@@ -1004,17 +1004,17 @@
                                         <!-- Row 2: Tax ID + Tax condition -->
                                         <div class="flex flex-wrap items-center gap-1.5">
                                             {#if cust.tax_id}
-                                                <span class="text-[10px] font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground shrink-0">
+                                                <span class="text-xs font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground shrink-0">
                                                     <HighlightMatch text={cust.tax_id} query={customerSearchQuery} />
                                                 </span>
                                             {/if}
-                                            <span class="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                            <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                                                 {cust.tax_condition.replace('_', ' ')}
                                             </span>
                                         </div>
 
                                         <!-- Row 3: Contact -->
-                                        <p class="text-[11px] text-muted-foreground line-clamp-1 break-words">
+                                        <p class="text-xs text-muted-foreground line-clamp-1 break-words">
                                             {cust.phone || 'Sin teléfono'} • {cust.address || 'Sin dirección'}
                                         </p>
                                     </div>
@@ -1054,7 +1054,7 @@
                                     Descuento habitual del cliente: <strong class="text-primary font-bold font-sans tabular-nums">{customerDiscountPercentage}%</strong>
                                 </span>
                             </div>
-                            <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground shrink-0">
+                            <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-foreground shrink-0">
                                 <input
                                     type="checkbox"
                                     bind:checked={applyCustomerDiscount}
@@ -1067,33 +1067,33 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-1">
                         <div class="sm:col-span-5 space-y-1">
-                            <Label for="cust-name" class="text-xs font-semibold text-foreground">
+                            <Label for="cust-name" class="text-sm font-medium text-foreground">
                                 Nombre / Razón Social <span class="text-destructive">*</span>
                             </Label>
                             <Input
                                 id="cust-name"
                                 bind:value={customerName}
                                 placeholder="ej. Ana García / Librería Central"
-                                class="h-9 text-xs font-medium"
+                                class="h-9 text-sm font-medium"
                                 required
                             />
                         </div>
                         <div class="sm:col-span-3 space-y-1">
-                            <Label for="cust-phone" class="text-xs font-semibold text-foreground">Teléfono / Contacto</Label>
+                            <Label for="cust-phone" class="text-sm font-medium text-foreground">Teléfono / Contacto</Label>
                             <Input
                                 id="cust-phone"
                                 bind:value={customerPhone}
                                 placeholder="+54 9 11 4455-6677"
-                                class="h-9 text-xs"
+                                class="h-9 text-sm font-medium"
                             />
                         </div>
                         <div class="sm:col-span-4 space-y-1">
-                            <Label for="cust-address" class="text-xs font-semibold text-foreground">Dirección de Entrega</Label>
+                            <Label for="cust-address" class="text-sm font-medium text-foreground">Dirección de Entrega</Label>
                             <Input
                                 id="cust-address"
                                 bind:value={deliveryAddress}
                                 placeholder="Dirección o Retiro en local"
-                                class="h-9 text-xs"
+                                class="h-9 text-sm font-medium"
                             />
                         </div>
                     </div>
@@ -1101,14 +1101,14 @@
                     <!-- Selector de Depósito de Despacho si hay depósitos -->
                     {#if warehouses && warehouses.length > 0}
                         <div class="pt-3 mt-1.5 border-t border-border/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                            <Label for="order-warehouse" class="text-xs font-semibold text-foreground flex items-center gap-1.5 shrink-0">
+                            <Label for="order-warehouse" class="text-sm font-medium text-foreground flex items-center gap-1.5 shrink-0">
                                 <Warehouse class="size-3.5 text-primary" />
                                 Depósito de Origen / Despacho:
                             </Label>
                             <select
                                 id="order-warehouse"
                                 bind:value={selectedWarehouseId}
-                                class="h-10 w-full sm:w-64 rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                class="h-10 w-full sm:w-64 rounded-xl border border-border/80 bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
                                 <option value={null}>Depósito Principal (Automático)</option>
                                 {#each warehouses as wh}
@@ -1120,14 +1120,14 @@
 
                     <!-- Selector de Zona de Envío / Flete -->
                     <div class="pt-3 mt-1.5 border-t border-border/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                        <Label for="order-shipping-zone" class="text-xs font-semibold text-foreground flex items-center gap-1.5 shrink-0">
+                        <Label for="order-shipping-zone" class="text-sm font-medium text-foreground flex items-center gap-1.5 shrink-0">
                             <MapPin class="size-3.5 text-primary" />
                             Zona de Envío / Flete:
                         </Label>
                         <select
                             id="order-shipping-zone"
                             bind:value={selectedShippingZoneId}
-                            class="h-10 w-full sm:w-64 rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                            class="h-10 w-full sm:w-64 rounded-xl border border-border/80 bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                         >
                             <option value={null}>Sin envío / Retiro en local ($0.00)</option>
                             {#each shippingZones as zone}
@@ -1174,14 +1174,14 @@
                                                     <HighlightMatch text={prod.name} query={searchQuery} />
                                                 </span>
                                                 {#if prod.sale_type === 'weight'}
-                                                    <span class="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-medium text-sky-600 bg-sky-500/10 px-1.5 py-0.2 rounded border border-sky-500/20">
+                                                    <span class="shrink-0 inline-flex items-center gap-0.5 text-xs font-medium text-sky-600 bg-sky-500/10 px-1.5 py-0.2 rounded border border-sky-500/20">
                                                         <Scale class="size-2.5" />
                                                         Pesaje
                                                     </span>
                                                 {/if}
                                             </div>
                                             {#if prod.sku}
-                                                <div class="text-[11px] font-sans tabular-nums text-muted-foreground mt-0.5">
+                                                <div class="text-xs font-sans tabular-nums text-muted-foreground mt-0.5">
                                                     SKU: <HighlightMatch text={prod.sku} query={searchQuery} />
                                                 </div>
                                             {/if}
@@ -1192,7 +1192,7 @@
                                             <span class="font-bold font-sans tabular-nums text-primary text-xs sm:text-sm block">
                                                 {formatPrice(Number(prod.price))}
                                             </span>
-                                            <span class="text-[10px] font-sans tabular-nums text-muted-foreground block mt-0.5 whitespace-nowrap">
+                                            <span class="text-xs font-sans tabular-nums text-muted-foreground block mt-0.5 whitespace-nowrap">
                                                 {#if prod.sale_type === 'weight'}
                                                     Stock: {prod.stock} Kg
                                                 {:else}
@@ -1219,7 +1219,7 @@
                                                     <Plus class="size-3.5 shrink-0" />
                                                     <span>Crear "{searchQuery.trim()}" (al vuelo)</span>
                                                 </span>
-                                                <span class="text-[10px] bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0">
+                                                <span class="text-xs bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0">
                                                     Incompleto
                                                 </span>
                                             </button>
@@ -1388,7 +1388,7 @@
                                         <div class="flex items-center gap-1.5 {item.is_on_the_fly ? 'w-full sm:w-auto min-w-0' : 'shrink-0'}">
                                             {#if item.is_on_the_fly}
                                                 <div class="flex flex-wrap items-center gap-1.5 w-full sm:w-auto min-w-0">
-                                                    <label for="otf_price_{index}" class="text-xs font-semibold text-muted-foreground whitespace-nowrap">Precio unitario:</label>
+                                                    <label for="otf_price_{index}" class="text-sm font-medium text-foreground whitespace-nowrap">Precio unitario:</label>
                                                     <input
                                                         id="otf_price_{index}"
                                                         type="number"
@@ -1397,7 +1397,7 @@
                                                         bind:value={item.unit_price}
                                                         oninput={() => { item.regular_price = Number(item.unit_price) || 0; }}
                                                         placeholder="0.00"
-                                                        class="h-8 w-full sm:w-28 min-w-[70px] max-w-[140px] rounded-lg border border-border/80 bg-background px-2 text-xs font-bold font-sans tabular-nums text-foreground focus:outline-none focus:border-primary-500"
+                                                        class="h-8 w-full sm:w-28 min-w-[70px] max-w-[140px] rounded-lg border border-border/80 bg-background px-2 text-sm font-bold font-sans tabular-nums text-foreground focus:outline-none focus:border-primary-500"
                                                     />
                                                 </div>
                                             {:else if hasBulkDiscount}
@@ -1435,7 +1435,7 @@
                                             <div class="flex items-center gap-1.5 text-sm text-muted-foreground shrink-0">
                                                 <span>Stock: <strong class="font-sans tabular-nums {item.stock < 0 ? 'text-destructive font-bold' : 'text-foreground'}">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
                                                 {#if item.stock < 0}
-                                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20 shrink-0">
+                                                    <span class="inline-flex items-center gap-1 text-xs font-bold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20 shrink-0">
                                                         Crítico
                                                     </span>
                                                 {:else if isAtStockLimit}
@@ -1492,7 +1492,7 @@
                                         <select
                                             value={item.packaging_type}
                                             onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                            class="h-9 rounded-xl border border-border/80 bg-background px-2 text-xs font-semibold text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer flex-1 w-full sm:w-auto min-w-[68px] sm:min-w-[94px] sm:px-2.5"
+                                            class="h-9 rounded-xl border border-border/80 bg-background px-2 text-sm font-semibold text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer flex-1 w-full sm:w-auto min-w-[68px] sm:min-w-[94px] sm:px-2.5"
                                         >
                                             {#if item.sale_type === 'weight'}
                                                 <option value="gram">Gramos</option>
@@ -1530,7 +1530,7 @@
                                                         item.discount_percentage = Number(val) || 0;
                                                     }
                                                 }}
-                                                class="h-9 rounded-xl border border-border/80 bg-background px-2 text-xs font-semibold text-foreground min-w-[90px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                                                class="h-9 rounded-xl border border-border/80 bg-background px-2 text-sm font-semibold text-foreground min-w-[90px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
                                                 title="Descuento individual por producto"
                                             >
                                                 <option value={0}>Desc. 0%</option>
@@ -1563,7 +1563,7 @@
                                                             });
                                                         }}
                                                         placeholder="0"
-                                                        class="h-9 w-14 rounded-xl border border-border/80 bg-background px-2 text-xs font-bold font-sans tabular-nums text-foreground focus:outline-none focus:border-primary-500 text-center"
+                                                        class="h-9 w-14 rounded-xl border border-border/80 bg-background px-2 text-sm font-semibold font-sans tabular-nums text-foreground focus:outline-none focus:border-primary-500 text-center"
                                                         title="Porcentaje de descuento personalizado (0-100%)"
                                                     />
                                                     <span class="text-xs font-bold text-muted-foreground">%</span>
@@ -1595,7 +1595,7 @@
                                                 bind:value={item.quantity}
                                                 onblur={() => handleQuantityBlur(index)}
                                                 onpaste={(e) => handleQuantityPaste(index, e)}
-                                                class="w-7 sm:w-16 min-w-[28px] flex-1 sm:flex-initial h-8 sm:h-9 text-xs sm:text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none {item.quantity > maxAllowed ? 'text-amber-600 dark:text-amber-400 font-extrabold' : ''}"
+                                                class="w-7 sm:w-16 min-w-[28px] flex-1 sm:flex-initial h-8 sm:h-9 text-sm font-bold font-sans tabular-nums text-center bg-transparent border-0 outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none {item.quantity > maxAllowed ? 'text-amber-600 dark:text-amber-400 font-extrabold' : ''}"
                                             />
 
                                             <button
@@ -1613,7 +1613,7 @@
 
                                 <!-- Advertencia de stock insuficiente / saldo negativo -->
                                 {#if !item.is_on_the_fly && (item.stock <= 0 || getItemQuantityBase(item) > item.stock)}
-                                    <div class="flex items-center gap-1.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
+                                    <div class="flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
                                         <AlertTriangle class="size-3.5 shrink-0" />
                                         <span>Stock insuficiente en depósito ({item.stock}). La venta registrará saldo negativo.</span>
                                     </div>
@@ -1621,7 +1621,7 @@
 
                                 <!-- Advertencia de exceso temporal durante el tipeo -->
                                 {#if item.quantity > maxAllowed}
-                                    <div class="flex items-center gap-1.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
+                                    <div class="flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
                                         <AlertTriangle class="size-3.5 shrink-0" />
                                         <span>La cantidad supera el stock disponible (máximo {maxAllowed} {item.sale_type === 'weight' ? (item.packaging_type === 'gram' ? 'g' : 'Kg') : 'u'}).</span>
                                     </div>
@@ -1635,7 +1635,7 @@
                             <div class="rounded-xl border border-dashed p-8 text-center bg-card/40 text-muted-foreground text-xs space-y-1">
                                 <ShoppingBag class="mx-auto size-7 text-muted-foreground/40 mb-1" />
                                 <p class="font-semibold text-foreground">El pedido está vacío</p>
-                                <p class="text-[11px]">Escribe en el buscador superior para seleccionar y agregar productos al pedido.</p>
+                                <p class="text-xs">Escribe en el buscador superior para seleccionar y agregar productos al pedido.</p>
                             </div>
                         {/if}
                     </div>
@@ -1664,7 +1664,7 @@
                             />
                             <div class="min-w-0">
                                 <span class="text-xs font-medium block">Cuenta Corriente</span>
-                                <span class="text-[11px] text-muted-foreground block font-normal">
+                                <span class="text-xs text-muted-foreground block font-normal">
                                     {!selectedCustomerId ? 'Disponible solo para clientes registrados' : 'Se suma al saldo deudor del cliente'}
                                 </span>
                             </div>
@@ -1682,7 +1682,7 @@
                             />
                             <div class="min-w-0">
                                 <span class="text-xs font-medium block">Cobro Total</span>
-                                <span class="text-[11px] text-muted-foreground block font-normal">Abonado al momento, no genera deuda</span>
+                                <span class="text-xs text-muted-foreground block font-normal">Abonado al momento, no genera deuda</span>
                             </div>
                         </label>
 
@@ -1698,7 +1698,7 @@
                             />
                             <div class="min-w-0">
                                 <span class="text-xs font-medium block">Pago Parcial / Seña</span>
-                                <span class="text-[11px] text-muted-foreground block font-normal">Entrega anticipada + saldo a cobrar</span>
+                                <span class="text-xs text-muted-foreground block font-normal">Entrega anticipada + saldo a cobrar</span>
                             </div>
                         </label>
                     </div>
@@ -1706,13 +1706,13 @@
                     {#if paymentType === 'contado' || paymentType === 'parcial'}
                         <div class="pt-2.5 mt-1 border-t border-border/50 space-y-3">
                             <div class="space-y-1.5">
-                                <Label for="order-payment-method" class="text-xs font-semibold text-foreground">
+                                <Label for="order-payment-method" class="text-sm font-medium text-foreground">
                                     Medio de Pago
                                 </Label>
                                 <select
                                     id="order-payment-method"
                                     bind:value={paymentMethod}
-                                    class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                    class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                                 >
                                     <option value="efectivo">Efectivo</option>
                                     <option value="transferencia">Transferencia Bancaria</option>
@@ -1727,10 +1727,10 @@
                                 <div class="space-y-1.5 bg-background/80 p-3 rounded-xl border border-border/80">
                                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                                         <div>
-                                            <Label for="order-paid-amount" class="text-xs font-semibold text-foreground">
+                                            <Label for="order-paid-amount" class="text-sm font-medium text-foreground">
                                                 Monto cobrado anticipadamente
                                             </Label>
-                                            <p class="text-[11px] text-muted-foreground">
+                                            <p class="text-xs text-muted-foreground">
                                                 Deuda restante que quedará pendiente:
                                                 <span class="font-semibold tabular-nums text-foreground">
                                                     {formatPrice(Math.max(0, grandTotal - (Number(paidAmount) || 0)))}
@@ -1754,7 +1754,7 @@
                                                 }}
                                                 placeholder={`ej. ${(grandTotal / 2).toFixed(2)}`}
                                                 bind:value={paidAmount}
-                                                class="h-10 text-xs rounded-xl font-sans tabular-nums"
+                                                class="h-10 text-sm font-medium rounded-xl font-sans tabular-nums"
                                             />
                                         </div>
                                     </div>
@@ -1771,7 +1771,7 @@
                                             </div>
                                             <div class="min-w-0">
                                                 <p class="text-xs font-bold text-foreground">Cobro Inmediato con QR</p>
-                                                <p class="text-[11px] text-muted-foreground">Generar el código QR en pantalla al crear el pedido para cobrarlo en el momento</p>
+                                                <p class="text-xs text-muted-foreground">Generar el código QR en pantalla al crear el pedido para cobrarlo en el momento</p>
                                             </div>
                                         </div>
                                         <input
@@ -1781,7 +1781,7 @@
                                         />
                                     </label>
                                     {#if chargeWithQr}
-                                        <div class="text-[11px] font-medium text-sky-800 dark:text-sky-200 bg-sky-500/10 px-2.5 py-1.5 rounded-lg border border-sky-500/20">
+                                        <div class="text-xs font-medium text-sky-800 dark:text-sky-200 bg-sky-500/10 px-2.5 py-1.5 rounded-lg border border-sky-500/20">
                                             {#if paymentType === 'contado'}
                                                 Se abrirá el QR para cobrar el total de <strong class="tabular-nums">{formatPrice(grandTotal)}</strong>.
                                             {:else}
@@ -1826,11 +1826,11 @@
                                         <div class="flex items-center gap-1.5">
                                             <span class="font-semibold text-foreground truncate">{adj.name}</span>
                                             {#if adj.calculation_type === 'percentage'}
-                                                <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-sans tabular-nums font-medium">%{adj.value}</span>
+                                                <span class="text-xs px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-sans tabular-nums font-medium">%{adj.value}</span>
                                             {/if}
                                         </div>
                                         {#if adj.reason}
-                                            <p class="text-[11px] text-muted-foreground truncate mt-0.5">{adj.reason}</p>
+                                            <p class="text-xs text-muted-foreground truncate mt-0.5">{adj.reason}</p>
                                         {/if}
                                     </div>
                                     <div class="flex items-center gap-2 shrink-0">
@@ -1852,7 +1852,7 @@
                             {/each}
                         </div>
                     {:else}
-                        <p class="text-[11px] text-muted-foreground">
+                        <p class="text-xs text-muted-foreground">
                             Podés aplicar recargos o descuentos especiales a este pedido (fletes, bonificaciones, promociones).
                         </p>
                     {/if}
@@ -1867,7 +1867,7 @@
                             />
                             <div class="flex items-center gap-1.5">
                                 <SlidersHorizontal class="size-3 text-muted-foreground shrink-0" />
-                                <span class="text-xs font-medium text-foreground">
+                                <span class="text-sm font-medium text-foreground">
                                     Incluir resumen de cuenta corriente en el remito impreso
                                 </span>
                             </div>
@@ -1877,13 +1877,13 @@
 
                 <!-- Bento Card 4: Notas Adicionales -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-1.5">
-                    <Label for="order-notes" class="text-xs font-semibold text-foreground">Notas / Instrucciones de Entrega</Label>
+                    <Label for="order-notes" class="text-sm font-medium text-foreground">Notas / Instrucciones de Entrega</Label>
                     <textarea
                         id="order-notes"
                         bind:value={notes}
                         rows="2"
                         placeholder="ej. Entregar por la mañana, timbre 2B, empaquetar con cinta reforzada..."
-                        class="w-full rounded-xl border border-border/80 bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
+                        class="w-full rounded-xl border border-border/80 bg-background p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                     ></textarea>
                 </div>
 
@@ -1999,13 +1999,13 @@
         <DialogBody class="space-y-4 py-1">
             {#if mobileDiscountItemIndex !== null && items[mobileDiscountItemIndex]}
                 <div class="p-2.5 rounded-xl bg-muted/40 border border-border/60 text-xs">
-                    <span class="text-muted-foreground block text-[10px]">Producto:</span>
+                    <span class="text-muted-foreground block text-xs">Producto:</span>
                     <strong class="text-foreground font-semibold line-clamp-1">{items[mobileDiscountItemIndex].product_name}</strong>
                 </div>
             {/if}
             <!-- Grid de presets rápidos (touch targets mínimos de 44px) -->
             <div class="space-y-1.5">
-                <Label class="text-xs font-semibold text-foreground">Porcentajes Predefinidos</Label>
+                <Label class="text-sm font-medium text-foreground">Porcentajes Predefinidos</Label>
                 <div class="grid grid-cols-4 gap-2">
                     {#each [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100] as preset}
                         <button
@@ -2039,7 +2039,7 @@
             <!-- Input de porcentaje personalizado -->
             {#if isMobileDiscountCustom || mobileDiscountPreset === 'custom'}
                 <div class="space-y-1.5 p-3 rounded-xl bg-muted/30 border border-border/70">
-                    <Label for="custom-discount-input" class="text-xs font-semibold text-foreground">Porcentaje personalizado</Label>
+                    <Label for="custom-discount-input" class="text-sm font-medium text-foreground">Porcentaje personalizado</Label>
                     <div class="flex items-center gap-2">
                         <Input
                             id="custom-discount-input"
@@ -2067,14 +2067,14 @@
             <Button
                 type="button"
                 variant="outline"
-                class="min-h-[44px] w-full rounded-xl text-xs font-semibold"
+                class="min-h-[44px] w-full rounded-xl text-sm font-semibold"
                 onclick={() => (isMobileDiscountModalOpen = false)}
             >
                 Cancelar
             </Button>
             <Button
                 type="button"
-                class="min-h-[44px] w-full rounded-xl text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+                class="min-h-[44px] w-full rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
                 onclick={applyMobileDiscount}
             >
                 Aplicar Descuento
@@ -2096,12 +2096,12 @@
         <DialogBody class="space-y-4 py-1">
             {#if editingUnitsItemIndex !== null && items[editingUnitsItemIndex]}
                 <div class="p-2.5 rounded-xl bg-muted/40 border border-border/60 text-xs">
-                    <span class="text-muted-foreground block text-[10px]">Producto:</span>
+                    <span class="text-muted-foreground block text-xs">Producto:</span>
                     <strong class="text-foreground font-semibold line-clamp-1">{items[editingUnitsItemIndex].product_name}</strong>
                 </div>
             {/if}
             <div class="space-y-2">
-                <Label for="units-per-package-input" class="text-xs font-semibold text-foreground">
+                <Label for="units-per-package-input" class="text-sm font-medium text-foreground">
                     Cantidad de unidades por bulto
                 </Label>
                 <Input
@@ -2123,14 +2123,14 @@
             <Button
                 type="button"
                 variant="outline"
-                class="min-h-[44px] w-full rounded-xl text-xs font-semibold"
+                class="min-h-[44px] w-full rounded-xl text-sm font-semibold"
                 onclick={() => (isUnitsModalOpen = false)}
             >
                 Cancelar
             </Button>
             <Button
                 type="button"
-                class="min-h-[44px] w-full rounded-xl text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+                class="min-h-[44px] w-full rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
                 onclick={saveUnitsPerPackage}
             >
                 Guardar

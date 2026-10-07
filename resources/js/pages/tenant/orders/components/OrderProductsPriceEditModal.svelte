@@ -199,13 +199,13 @@
                         <!-- Mobile Card (< sm) -->
                         <div class="sm:hidden flex flex-col gap-2 p-3.5 rounded-xl border border-border/70 bg-card shadow-2xs">
                             <!-- Renglón 1: Nombre producto arriba izquierda -->
-                            <span class="text-xs font-bold text-foreground leading-snug">
+                            <span class="text-sm font-semibold text-foreground leading-snug">
                                 {productName}
                             </span>
 
                             <!-- Renglón 2: Debajo del nombre el SKU -->
                             {#if productSku}
-                                <span class="text-[11px] font-mono text-muted-foreground tabular-nums -mt-1">
+                                <span class="text-xs font-mono text-muted-foreground tabular-nums -mt-0.5">
                                     SKU: {productSku}
                                 </span>
                             {/if}
@@ -235,11 +235,11 @@
                         <div class="hidden sm:flex items-center justify-between gap-3 p-3.5 rounded-xl border border-border/70 bg-card hover:bg-muted/30 transition-colors">
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-1.5 flex-wrap">
-                                    <span class="text-xs font-bold text-foreground">
+                                    <span class="text-sm font-semibold text-foreground">
                                         {productName}
                                     </span>
                                     {#if productSku}
-                                        <span class="text-[11px] font-mono text-muted-foreground tabular-nums">
+                                        <span class="text-xs font-mono text-muted-foreground tabular-nums">
                                             ({productSku})
                                         </span>
                                     {/if}
@@ -261,7 +261,7 @@
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    class="min-h-[38px] px-3 rounded-xl text-xs gap-1.5 font-medium cursor-pointer text-primary border-primary/30 hover:bg-primary/10 shrink-0"
+                                    class="min-h-[38px] px-3 rounded-xl text-sm gap-1.5 font-semibold cursor-pointer text-primary border-primary/30 hover:bg-primary/10 shrink-0"
                                     onclick={() => handleOpenEditPrice(item)}
                                 >
                                     <Pencil class="size-3.5" />
@@ -286,7 +286,7 @@
             <Button
                 type="button"
                 variant="outline"
-                class="min-h-[44px] rounded-xl text-xs font-medium cursor-pointer w-full sm:w-auto"
+                class="min-h-[44px] rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto"
                 onclick={handleClose}
             >
                 Cerrar

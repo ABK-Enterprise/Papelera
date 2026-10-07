@@ -560,7 +560,7 @@
                         <div class="space-y-0.5">
                             <strong class="font-bold block">Inconveniente de facturación ARCA:</strong>
                             <p class="leading-relaxed">{order.fiscal_error_message}</p>
-                            <p class="text-[11px] text-muted-foreground pt-1">
+                            <p class="text-xs text-muted-foreground pt-1">
                                 Puedes reintentar la emisión con el botón «Facturar ARCA» al pie de la ventana.
                             </p>
                         </div>
@@ -579,11 +579,11 @@
                                     <strong class="font-bold text-foreground text-sm font-sans tabular-nums">
                                         {order.active_fiscal_invoice.formatted_number || `Comprobante Nº ${order.active_fiscal_invoice.numero_comprobante}`}
                                     </strong>
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+                                    <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
                                         CAE Oficial
                                     </span>
                                 </div>
-                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground mt-0.5 font-sans tabular-nums text-[11px]">
+                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground mt-0.5 font-sans tabular-nums text-xs">
                                     <span>CAE: <strong class="text-foreground">{order.active_fiscal_invoice.cae}</strong></span>
                                     <span>Vencimiento CAE: <strong class="text-foreground">{formatDateOnly(order.active_fiscal_invoice.cae_due_date)}</strong></span>
                                 </div>
@@ -698,7 +698,7 @@
                                             {/if}
                                         </div>
                                         {#if item.product?.price && Math.abs(Number(item.product.price) - Number(item.unit_price)) >= 0.01}
-                                            <span class="text-[11px] text-amber-600 dark:text-amber-400 font-semibold block mt-0.5">
+                                            <span class="text-xs text-amber-600 dark:text-amber-400 font-semibold block mt-0.5">
                                                 Catálogo actual: {formatPrice(item.product.price)}
                                             </span>
                                         {/if}
@@ -713,8 +713,8 @@
 
                     <!-- Tabla en Desktop (hidden sm:block) -->
                     <div class="hidden sm:block rounded-xl border overflow-hidden">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-muted/40 text-muted-foreground border-b">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b">
                                 <tr>
                                     <th class="p-2.5">Producto</th>
                                     <th class="p-2.5">Presentación</th>
@@ -729,20 +729,20 @@
                                         <td class="p-2.5 font-medium text-foreground">
                                             {item.product?.name || `Producto #${item.product_id}`}
                                             {#if item.product?.sku}
-                                                <span class="text-[10px] text-muted-foreground block font-sans tabular-nums">SKU: {item.product.sku}</span>
+                                                <span class="text-xs text-muted-foreground block font-sans tabular-nums">SKU: {item.product.sku}</span>
                                             {/if}
                                         </td>
                                         <td class="p-2.5 text-muted-foreground">
                                             {#if item.packaging_type === 'gram'}
-                                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-600 dark:text-sky-400">
+                                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-sky-600 dark:text-sky-400">
                                                     Gramos (g)
                                                 </span>
                                             {:else if item.packaging_type === 'kg'}
-                                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-600 dark:text-sky-400">
+                                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-sky-600 dark:text-sky-400">
                                                     Kilogramos (Kg)
                                                 </span>
                                             {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
-                                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
+                                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-primary">
                                                     Bulto (x{item.units_per_package || 1})
                                                 </span>
                                             {:else}
@@ -752,14 +752,14 @@
                                         <td class="p-2.5 text-center font-bold font-sans tabular-nums">
                                             {#if item.packaging_type === 'gram'}
                                                 {item.quantity} g
-                                                <span class="text-[10px] text-muted-foreground block font-normal">
+                                                <span class="text-xs text-muted-foreground block font-normal">
                                                     ({item.quantity / 1000} Kg)
                                                 </span>
                                             {:else if item.packaging_type === 'kg'}
                                                 {item.quantity} Kg
                                             {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
                                                 {item.quantity} {item.quantity === 1 ? 'bulto' : 'bultos'}
-                                                <span class="text-[10px] text-muted-foreground block font-normal">
+                                                <span class="text-xs text-muted-foreground block font-normal">
                                                     ({item.quantity * (item.units_per_package || 1)})
                                                 </span>
                                             {:else}
@@ -769,7 +769,7 @@
                                         <td class="p-2.5 text-right font-sans tabular-nums">
                                             <div>{formatPrice(item.unit_price)}</div>
                                             {#if item.product?.price && Math.abs(Number(item.product.price) - Number(item.unit_price)) >= 0.01}
-                                                <span class="text-[10px] text-amber-600 dark:text-amber-400 block font-normal tabular-nums">
+                                                <span class="text-xs text-amber-600 dark:text-amber-400 block font-normal tabular-nums">
                                                     Catálogo: {formatPrice(item.product.price)}
                                                 </span>
                                             {/if}
@@ -794,7 +794,7 @@
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                class="h-8 px-3 rounded-lg text-[13px] font-semibold gap-1.5 text-primary border-primary/40 hover:bg-primary/10 cursor-pointer shadow-2xs"
+                                class="h-8 px-3 rounded-lg text-sm font-semibold gap-1.5 text-primary border-primary/40 hover:bg-primary/10 cursor-pointer shadow-2xs"
                                 onclick={() => (isChooseAdjustmentModalOpen = true)}
                             >
                                 <Plus class="size-3.5" />
@@ -811,11 +811,11 @@
                                         <div class="flex items-center gap-1.5">
                                             <span class="font-semibold text-foreground truncate">{adj.name || (adj.type === 'discount' ? 'Descuento' : 'Recargo')}</span>
                                             {#if adj.calculation_type === 'percentage'}
-                                                <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-sans tabular-nums font-medium">%{adj.value}</span>
+                                                <span class="text-xs px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-sans tabular-nums font-medium">%{adj.value}</span>
                                             {/if}
                                         </div>
                                         {#if adj.reason}
-                                            <p class="text-[11px] text-muted-foreground truncate mt-0.5">{adj.reason}</p>
+                                            <p class="text-xs text-muted-foreground truncate mt-0.5">{adj.reason}</p>
                                         {/if}
                                     </div>
                                     <div class="flex items-center gap-2 shrink-0 font-sans tabular-nums">

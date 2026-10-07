@@ -103,7 +103,7 @@
         <DialogFooter class="p-5 sm:p-6 pt-3 border-t border-border/50 flex items-center justify-end shrink-0">
             <Button
                 variant="secondary"
-                class="w-full sm:w-auto h-11 min-h-[44px] px-6 font-semibold"
+                class="w-full sm:w-auto h-11 min-h-[44px] px-6 text-sm font-semibold"
                 onclick={handleClose}
             >
                 Cerrar

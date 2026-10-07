@@ -159,7 +159,7 @@
         <form onsubmit={submit} class="space-y-4 pt-4">
             <!-- Nombre o Razón Social -->
             <div class="space-y-1.5">
-                <Label for="create-customer-name" class="text-xs font-semibold">
+                <Label for="create-customer-name" class="text-sm font-medium text-foreground">
                     Nombre / Razón Social <span class="text-destructive">*</span>
                 </Label>
                 <Input
@@ -177,12 +177,12 @@
             <!-- CUIT / DNI y Condición Fiscal -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div class="space-y-1.5">
-                    <Label for="create-customer-tax-id" class="text-xs font-semibold">CUIT / DNI</Label>
+                    <Label for="create-customer-tax-id" class="text-sm font-medium text-foreground">CUIT / DNI</Label>
                     <Input
                         id="create-customer-tax-id"
                         bind:value={form.tax_id}
                         placeholder="ej. 30-71234567-9"
-                        class="h-9 text-sm"
+                        class="h-9 text-sm font-mono tabular-nums"
                     />
                     {#if form.errors.tax_id}
                         <p class="text-xs text-destructive">{form.errors.tax_id}</p>
@@ -190,7 +190,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="create-customer-tax-condition" class="text-xs font-semibold">
+                    <Label for="create-customer-tax-condition" class="text-sm font-medium text-foreground">
                         Condición Fiscal (IVA) <span class="text-destructive">*</span>
                     </Label>
                     <select
@@ -214,7 +214,7 @@
             <!-- Teléfono y Email -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div class="space-y-1.5">
-                    <Label for="create-customer-phone" class="text-xs font-semibold flex items-center gap-1.5">
+                    <Label for="create-customer-phone" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <Phone class="h-3.5 w-3.5 text-muted-foreground" />
                         Teléfono / WhatsApp
                     </Label>
@@ -230,7 +230,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="create-customer-email" class="text-xs font-semibold flex items-center gap-1.5">
+                    <Label for="create-customer-email" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <Mail class="h-3.5 w-3.5 text-muted-foreground" />
                         Correo Electrónico
                     </Label>
@@ -249,7 +249,7 @@
 
             <!-- Dirección Comercial / Entrega -->
             <div class="space-y-1.5">
-                <Label for="create-customer-address" class="text-xs font-semibold flex items-center gap-1.5">
+                <Label for="create-customer-address" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                     <MapPin class="h-3.5 w-3.5 text-muted-foreground" />
                     Dirección Comercial / Entrega
                 </Label>
@@ -267,7 +267,7 @@
             <!-- Provincia, Departamento y Localidad / Barrio -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div class="space-y-1.5">
-                    <Label for="create-customer-province" class="text-xs font-semibold">Provincia</Label>
+                    <Label for="create-customer-province" class="text-sm font-medium text-foreground">Provincia</Label>
                     <select
                         id="create-customer-province"
                         bind:value={form.province}
@@ -285,7 +285,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="create-customer-department" class="text-xs font-semibold">Departamento / Partido</Label>
+                    <Label for="create-customer-department" class="text-sm font-medium text-foreground">Departamento / Partido</Label>
                     <select
                         id="create-customer-department"
                         bind:value={selectedDepartmentId}
@@ -310,11 +310,11 @@
 
                 <div class="space-y-1.5">
                     <div class="flex items-center justify-between">
-                        <Label for="create-customer-city" class="text-xs font-semibold">Localidad / Barrio</Label>
+                        <Label for="create-customer-city" class="text-sm font-medium text-foreground">Localidad / Barrio</Label>
                         <button
                             type="button"
                             onclick={() => (isManualCity = !isManualCity)}
-                            class="text-[11px] text-primary hover:underline cursor-pointer"
+                            class="text-xs text-primary hover:underline cursor-pointer"
                         >
                             {isManualCity ? 'Elegir de lista' : 'Ingreso manual'}
                         </button>
@@ -356,7 +356,7 @@
             <!-- Límite de Crédito & Descuento Habitual & Flags -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 p-3.5 rounded-xl border bg-muted/15">
                 <div class="space-y-1.5">
-                    <Label for="create-customer-credit" class="text-xs font-semibold flex items-center gap-1.5">
+                    <Label for="create-customer-credit" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <CreditCard class="h-3.5 w-3.5 text-muted-foreground" />
                         Límite de crédito
                     </Label>
@@ -374,12 +374,12 @@
                             });
                         }}
                         placeholder="0.00"
-                        class="h-9 text-sm font-sans tabular-nums"
+                        class="h-9 text-sm tabular-nums"
                     />
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="create-customer-discount" class="text-xs font-semibold flex items-center gap-1.5">
+                    <Label for="create-customer-discount" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <Percent class="h-3.5 w-3.5 text-primary" />
                         Descuento habitual
                     </Label>
@@ -397,12 +397,12 @@
                             });
                         }}
                         placeholder="0.00"
-                        class="h-9 text-sm font-sans tabular-nums font-semibold text-primary"
+                        class="h-9 text-sm tabular-nums font-semibold text-primary"
                     />
                 </div>
 
                 <div class="flex flex-col justify-center gap-2 pt-1">
-                    <label class="flex items-center gap-2 text-xs font-semibold text-foreground cursor-pointer">
+                    <label class="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer">
                         <input
                             type="checkbox"
                             bind:checked={form.is_defaulter}
@@ -415,7 +415,7 @@
                     </label>
 
 
-                    <label class="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer">
+                    <label class="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer">
                         <input
                             type="checkbox"
                             bind:checked={form.is_active}
@@ -428,7 +428,7 @@
 
             <!-- Observaciones / Notas -->
             <div class="space-y-1.5">
-                <Label for="create-customer-notes" class="text-xs font-semibold">
+                <Label for="create-customer-notes" class="text-sm font-medium text-foreground">
                     Notas Internas / Preferencias de Entrega
                 </Label>
                 <textarea
@@ -446,10 +446,10 @@
 
             <!-- Footer: Botones -->
             <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-border mt-6">
-                <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold">
+                <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-medium">
                     Cancelar
                 </Button>
-                <Button type="submit" disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-32">
+                <Button type="submit" disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-medium min-w-32">
                     {form.processing ? 'Registrando...' : 'Registrar Cliente'}
                 </Button>
             </div>

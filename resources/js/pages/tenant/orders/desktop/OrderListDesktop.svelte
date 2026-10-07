@@ -96,7 +96,7 @@
                     <div class="flex items-center gap-2">
                         <span class="font-semibold text-base text-foreground tabular-nums">{order.order_number}</span>
                         {#if order.price_review_pending}
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/40">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/40">
                                 <AlertTriangle class="h-3 w-3 text-amber-600 shrink-0" />
                                 <span>Revisar precios</span>
                             </span>
@@ -185,7 +185,7 @@
                         Error Fiscal
                     </span>
                 {:else}
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium tracking-wide bg-muted text-muted-foreground border border-border/60">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium tracking-wide bg-muted text-muted-foreground border border-border/60">
                         Sin Facturar
                     </span>
                 {/if}
