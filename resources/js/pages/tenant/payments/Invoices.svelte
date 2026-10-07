@@ -376,8 +376,8 @@
         bind:open={isPdfModalOpen}
         title={`Factura ${selectedInvoiceForPdf.formatted_number}`}
         orderNumber={selectedInvoiceForPdf.formatted_number}
-        previewUrl={`/tenant/cobranzas/facturas/${selectedInvoiceForPdf.id}/previsualizar-pdf`}
-        viewerUrl={`/tenant/cobranzas/facturas/${selectedInvoiceForPdf.id}/visor`}
-        downloadUrl={`/tenant/cobranzas/facturas/${selectedInvoiceForPdf.id}/pdf`}
+        previewUrl={`/tenant/cobranzas/facturas/${selectedInvoiceForPdf.id}/previsualizar-pdf?v=${selectedInvoiceForPdf.updated_at ? new Date(selectedInvoiceForPdf.updated_at).getTime() : Date.now()}`}
+        viewerUrl={`/tenant/cobranzas/facturas/${selectedInvoiceForPdf.id}/visor?v=${selectedInvoiceForPdf.updated_at ? new Date(selectedInvoiceForPdf.updated_at).getTime() : Date.now()}`}
+        downloadUrl={`/tenant/cobranzas/facturas/${selectedInvoiceForPdf.id}/pdf?v=${selectedInvoiceForPdf.updated_at ? new Date(selectedInvoiceForPdf.updated_at).getTime() : Date.now()}`}
     />
 {/if}

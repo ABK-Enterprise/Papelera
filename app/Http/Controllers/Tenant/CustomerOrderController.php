@@ -867,7 +867,7 @@ class CustomerOrderController extends Controller
             abort(403);
         }
 
-        $customerOrder->load(['items.product', 'customer', 'tenant']);
+        $customerOrder = $customerOrder->fresh(['items.product', 'customer', 'tenant']) ?? $customerOrder;
 
         $logoBase64 = app(\App\Services\TenantLogoService::class)->getBase64Logo($customerOrder->tenant);
 
@@ -881,8 +881,19 @@ class CustomerOrderController extends Controller
                 author: $customerOrder->tenant?->name ?? 'Papelera',
                 creator: config('app.name', 'Papelera'),
             )
+            ->headers([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ])
             ->name("pedido-{$customerOrder->order_number}.pdf")
-            ->download();
+            ->download()
+            ->toResponse($request)
+            ->withHeaders([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ]);
     }
 
     /**
@@ -894,7 +905,7 @@ class CustomerOrderController extends Controller
             abort(403);
         }
 
-        $customerOrder->load(['items.product', 'customer', 'tenant']);
+        $customerOrder = $customerOrder->fresh(['items.product', 'customer', 'tenant']) ?? $customerOrder;
 
         $logoBase64 = app(\App\Services\TenantLogoService::class)->getBase64Logo($customerOrder->tenant);
 
@@ -908,7 +919,18 @@ class CustomerOrderController extends Controller
                 author: $customerOrder->tenant?->name ?? 'Papelera',
                 creator: config('app.name', 'Papelera'),
             )
-            ->inline("pedido-{$customerOrder->order_number}.pdf");
+            ->headers([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ])
+            ->inline("pedido-{$customerOrder->order_number}.pdf")
+            ->toResponse($request)
+            ->withHeaders([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ]);
     }
 
     /**
@@ -920,9 +942,12 @@ class CustomerOrderController extends Controller
             abort(403);
         }
 
-        return view('pdf.viewer', [
+        return response()->view('pdf.viewer', [
             'title' => "Comprobante de Pedido - {$customerOrder->order_number}",
             'streamUrl' => route('tenant.orders.preview-pdf', $customerOrder),
+        ])->withHeaders([
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma' => 'no-cache',
         ]);
     }
 

@@ -137,8 +137,8 @@ class CustomerOrderFiscalController extends Controller
 
         $qrBase64 = $qrService->generateForInvoice($invoice);
 
-        $order->loadMissing(['items.product', 'customer', 'tenant']);
-        $invoice->loadMissing(['associatedInvoice']);
+        $order = $order->fresh(['items.product', 'customer', 'tenant']) ?? $order;
+        $invoice = $invoice->fresh(['associatedInvoice']) ?? $invoice;
         $tenant = $order->tenant;
 
         return Pdf::view('pdf.fiscal-invoice', compact('order', 'invoice', 'qrBase64', 'tenant'))
@@ -148,8 +148,19 @@ class CustomerOrderFiscalController extends Controller
                 author: $tenant?->name ?? 'Papelera',
                 creator: config('app.name', 'Papelera'),
             )
+            ->headers([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ])
             ->name("factura-{$invoice->formatted_number}.pdf")
-            ->download();
+            ->download()
+            ->toResponse($request)
+            ->withHeaders([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ]);
     }
 
     /**
@@ -171,8 +182,8 @@ class CustomerOrderFiscalController extends Controller
 
         $qrBase64 = $qrService->generateForInvoice($invoice);
 
-        $order->loadMissing(['items.product', 'customer', 'tenant']);
-        $invoice->loadMissing(['associatedInvoice']);
+        $order = $order->fresh(['items.product', 'customer', 'tenant']) ?? $order;
+        $invoice = $invoice->fresh(['associatedInvoice']) ?? $invoice;
         $tenant = $order->tenant;
 
         return Pdf::view('pdf.fiscal-invoice', compact('order', 'invoice', 'qrBase64', 'tenant'))
@@ -182,7 +193,18 @@ class CustomerOrderFiscalController extends Controller
                 author: $tenant?->name ?? 'Papelera',
                 creator: config('app.name', 'Papelera'),
             )
-            ->inline("factura-{$invoice->formatted_number}.pdf");
+            ->headers([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ])
+            ->inline("factura-{$invoice->formatted_number}.pdf")
+            ->toResponse($request)
+            ->withHeaders([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ]);
     }
 
     /**
@@ -202,9 +224,12 @@ class CustomerOrderFiscalController extends Controller
             abort(404, 'El pedido no cuenta con una factura fiscal aprobada.');
         }
 
-        return view('pdf.viewer', [
+        return response()->view('pdf.viewer', [
             'title' => ($invoice->isCreditNote() ? 'Nota de Crédito' : 'Factura')." - {$invoice->formatted_number}",
             'streamUrl' => route('tenant.customer-orders.fiscal-invoice.preview', $order),
+        ])->withHeaders([
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma' => 'no-cache',
         ]);
     }
 }

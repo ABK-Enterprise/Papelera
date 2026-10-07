@@ -561,6 +561,9 @@
                     </div>
                 </div>
             </div>
+            <div class="watermark-footer">
+                Generado por {{ $tenantModel->name ?? config('app.name', 'Papelera') }}
+            </div>
         </div>
     </div>
 </body>

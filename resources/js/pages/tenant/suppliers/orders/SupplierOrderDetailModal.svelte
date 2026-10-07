@@ -58,6 +58,7 @@
     let isReceiveModalOpen = $state(false);
     let isCancelModalOpen = $state(false);
     let isPdfModalOpen = $state(false);
+    let orderVersion = $derived(order?.updated_at ? new Date(order.updated_at).getTime() : Date.now());
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
@@ -448,9 +449,9 @@
             bind:open={isPdfModalOpen}
             title="Orden de Compra"
             orderNumber={order.order_number}
-            previewUrl={`/tenant/proveedores/ordenes/${order.id}/previsualizar-pdf`}
-            viewerUrl={`/tenant/proveedores/ordenes/${order.id}/visor`}
-            downloadUrl={`/tenant/proveedores/ordenes/${order.id}/pdf`}
+            previewUrl={`/tenant/proveedores/ordenes/${order.id}/previsualizar-pdf?v=${orderVersion}`}
+            viewerUrl={`/tenant/proveedores/ordenes/${order.id}/visor?v=${orderVersion}`}
+            downloadUrl={`/tenant/proveedores/ordenes/${order.id}/pdf?v=${orderVersion}`}
         />
     {/if}
 {/if}

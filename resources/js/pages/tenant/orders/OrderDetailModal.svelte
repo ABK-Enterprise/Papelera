@@ -171,6 +171,10 @@
         order?.items?.reduce((acc, it) => acc + Number(it.subtotal || 0), 0) ?? 0
     );
 
+    let orderVersion = $derived(
+        order?.updated_at ? new Date(order.updated_at).getTime() : Date.now()
+    );
+
     let displayedAdjustments = $derived.by(() => {
         if (!Array.isArray(order?.price_adjustments)) return [];
         const seenPresets = new Set<number>();
@@ -1191,9 +1195,9 @@
             bind:open={isPdfModalOpen}
             title="Comprobante de Pedido"
             orderNumber={order.order_number}
-            previewUrl={`/tenant/pedidos/${order.id}/previsualizar-pdf`}
-            viewerUrl={`/tenant/pedidos/${order.id}/visor`}
-            downloadUrl={`/tenant/pedidos/${order.id}/pdf`}
+            previewUrl={`/tenant/pedidos/${order.id}/previsualizar-pdf?v=${orderVersion}`}
+            viewerUrl={`/tenant/pedidos/${order.id}/visor?v=${orderVersion}`}
+            downloadUrl={`/tenant/pedidos/${order.id}/pdf?v=${orderVersion}`}
         />
 
         <!-- Modal de Facturación Electrónica ARCA -->
@@ -1210,9 +1214,9 @@
             bind:open={isFiscalPdfModalOpen}
             title="Factura Electrónica ARCA"
             orderNumber={order.order_number}
-            previewUrl={`/tenant/pedidos/${order.id}/factura-previsualizar`}
-            viewerUrl={`/tenant/pedidos/${order.id}/factura-visor`}
-            downloadUrl={`/tenant/pedidos/${order.id}/factura-pdf`}
+            previewUrl={`/tenant/pedidos/${order.id}/factura-previsualizar?v=${orderVersion}`}
+            viewerUrl={`/tenant/pedidos/${order.id}/factura-visor?v=${orderVersion}`}
+            downloadUrl={`/tenant/pedidos/${order.id}/factura-pdf?v=${orderVersion}`}
         />
 
         <!-- Modal de Cobro QR Presencial Mercado Pago -->

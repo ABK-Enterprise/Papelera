@@ -358,7 +358,7 @@ class SupplierOrderController extends Controller
             abort(403);
         }
 
-        $supplierOrder->load(['items.product', 'supplier', 'tenant']);
+        $supplierOrder = $supplierOrder->fresh(['items.product', 'supplier', 'tenant']) ?? $supplierOrder;
 
         $tenant = $supplierOrder->tenant ?? $request->user()?->tenant;
 
@@ -373,8 +373,19 @@ class SupplierOrderController extends Controller
                 author: $tenant?->name ?? 'Papelera',
                 creator: config('app.name', 'Papelera'),
             )
+            ->headers([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ])
             ->name("orden-compra-{$supplierOrder->order_number}.pdf")
-            ->download();
+            ->download()
+            ->toResponse($request)
+            ->withHeaders([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ]);
     }
 
     /**
@@ -386,7 +397,7 @@ class SupplierOrderController extends Controller
             abort(403);
         }
 
-        $supplierOrder->load(['items.product', 'supplier', 'tenant']);
+        $supplierOrder = $supplierOrder->fresh(['items.product', 'supplier', 'tenant']) ?? $supplierOrder;
         $tenant = $supplierOrder->tenant ?? $request->user()?->tenant;
 
         return \Spatie\LaravelPdf\Facades\Pdf::view('pdf.supplier-order', [
@@ -400,7 +411,18 @@ class SupplierOrderController extends Controller
                 author: $tenant?->name ?? 'Papelera',
                 creator: config('app.name', 'Papelera'),
             )
-            ->inline("orden-compra-{$supplierOrder->order_number}.pdf");
+            ->headers([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ])
+            ->inline("orden-compra-{$supplierOrder->order_number}.pdf")
+            ->toResponse($request)
+            ->withHeaders([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ]);
     }
 
     /**
@@ -412,9 +434,12 @@ class SupplierOrderController extends Controller
             abort(403);
         }
 
-        return view('pdf.viewer', [
+        return response()->view('pdf.viewer', [
             'title' => "Orden de Compra - {$supplierOrder->order_number}",
             'streamUrl' => route('tenant.suppliers.orders.preview-pdf', $supplierOrder),
+        ])->withHeaders([
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma' => 'no-cache',
         ]);
     }
 }

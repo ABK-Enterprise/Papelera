@@ -279,8 +279,19 @@ class PaymentCollectionController extends Controller
                 author: $receipt->tenant?->name ?? 'Papelera',
                 creator: config('app.name', 'Papelera'),
             )
+            ->headers([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ])
             ->name("recibo-{$receipt->receipt_number}.pdf")
-            ->download();
+            ->download()
+            ->toResponse($request)
+            ->withHeaders([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ]);
     }
 
     /**
@@ -292,13 +303,13 @@ class PaymentCollectionController extends Controller
             abort(403);
         }
 
-        $receipt->load([
+        $receipt = $receipt->fresh([
             'tenant',
             'customer',
             'createdByUser:id,name',
             'cancelledByUser:id,name',
             'orderAllocations.order:id,order_number,total_amount,debt_amount',
-        ]);
+        ]) ?? $receipt;
 
         return Pdf::view('pdf.receipt', [
             'receipt' => $receipt,
@@ -309,7 +320,18 @@ class PaymentCollectionController extends Controller
                 author: $receipt->tenant?->name ?? 'Papelera',
                 creator: config('app.name', 'Papelera'),
             )
-            ->inline("recibo-{$receipt->receipt_number}.pdf");
+            ->headers([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ])
+            ->inline("recibo-{$receipt->receipt_number}.pdf")
+            ->toResponse($request)
+            ->withHeaders([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ]);
     }
 
     /**
@@ -321,9 +343,12 @@ class PaymentCollectionController extends Controller
             abort(403);
         }
 
-        return view('pdf.viewer', [
+        return response()->view('pdf.viewer', [
             'title' => "Recibo de Cobro - {$receipt->receipt_number}",
             'streamUrl' => route('tenant.payments.receipts.preview-pdf', $receipt),
+        ])->withHeaders([
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma' => 'no-cache',
         ]);
     }
 
@@ -416,8 +441,8 @@ class PaymentCollectionController extends Controller
 
         $qrBase64 = $qrService->generateForInvoice($fiscalInvoice);
 
-        $order->loadMissing(['items.product', 'customer', 'tenant']);
-        $fiscalInvoice->loadMissing(['associatedInvoice']);
+        $order = $order->fresh(['items.product', 'customer', 'tenant']) ?? $order;
+        $fiscalInvoice = $fiscalInvoice->fresh(['associatedInvoice']) ?? $fiscalInvoice;
         $tenant = $order->tenant;
         $invoice = $fiscalInvoice;
 
@@ -428,8 +453,19 @@ class PaymentCollectionController extends Controller
                 author: $tenant?->name ?? 'Papelera',
                 creator: config('app.name', 'Papelera'),
             )
+            ->headers([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ])
             ->name("factura-{$invoice->formatted_number}.pdf")
-            ->download();
+            ->download()
+            ->toResponse($request)
+            ->withHeaders([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ]);
     }
 
     /**
@@ -448,8 +484,8 @@ class PaymentCollectionController extends Controller
 
         $qrBase64 = $qrService->generateForInvoice($fiscalInvoice);
 
-        $order->loadMissing(['items.product', 'customer', 'tenant']);
-        $fiscalInvoice->loadMissing(['associatedInvoice']);
+        $order = $order->fresh(['items.product', 'customer', 'tenant']) ?? $order;
+        $fiscalInvoice = $fiscalInvoice->fresh(['associatedInvoice']) ?? $fiscalInvoice;
         $tenant = $order->tenant;
         $invoice = $fiscalInvoice;
 
@@ -460,7 +496,18 @@ class PaymentCollectionController extends Controller
                 author: $tenant?->name ?? 'Papelera',
                 creator: config('app.name', 'Papelera'),
             )
-            ->inline("factura-{$invoice->formatted_number}.pdf");
+            ->headers([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ])
+            ->inline("factura-{$invoice->formatted_number}.pdf")
+            ->toResponse($request)
+            ->withHeaders([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT',
+            ]);
     }
 
     /**
@@ -472,9 +519,12 @@ class PaymentCollectionController extends Controller
             abort(403);
         }
 
-        return view('pdf.viewer', [
+        return response()->view('pdf.viewer', [
             'title' => ($fiscalInvoice->isCreditNote() ? 'Nota de Crédito' : 'Factura') . " - {$fiscalInvoice->formatted_number}",
             'streamUrl' => route('tenant.payments.invoices.preview-pdf', $fiscalInvoice),
+        ])->withHeaders([
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma' => 'no-cache',
         ]);
     }
 }

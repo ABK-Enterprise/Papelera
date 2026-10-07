@@ -323,9 +323,9 @@
         bind:open={isPdfModalOpen}
         title="Recibo de Cobro"
         orderNumber={selectedReceiptForPdf.receipt_number}
-        previewUrl={`/tenant/cobranzas/recibos/${selectedReceiptForPdf.id}/previsualizar-pdf`}
-        viewerUrl={`/tenant/cobranzas/recibos/${selectedReceiptForPdf.id}/visor`}
-        downloadUrl={`/tenant/cobranzas/recibos/${selectedReceiptForPdf.id}/pdf`}
+        previewUrl={`/tenant/cobranzas/recibos/${selectedReceiptForPdf.id}/previsualizar-pdf?v=${selectedReceiptForPdf.updated_at ? new Date(selectedReceiptForPdf.updated_at).getTime() : Date.now()}`}
+        viewerUrl={`/tenant/cobranzas/recibos/${selectedReceiptForPdf.id}/visor?v=${selectedReceiptForPdf.updated_at ? new Date(selectedReceiptForPdf.updated_at).getTime() : Date.now()}`}
+        downloadUrl={`/tenant/cobranzas/recibos/${selectedReceiptForPdf.id}/pdf?v=${selectedReceiptForPdf.updated_at ? new Date(selectedReceiptForPdf.updated_at).getTime() : Date.now()}`}
     />
 {/if}
 
