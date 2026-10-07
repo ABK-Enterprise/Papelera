@@ -2,16 +2,9 @@
     import AppPagination from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
-    import {
-        DropdownMenu,
-        DropdownMenuContent,
-        DropdownMenuItem,
-        DropdownMenuTrigger,
-    } from '@/components/ui/dropdown-menu';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Calendar from 'lucide-svelte/icons/calendar';
     import Eye from 'lucide-svelte/icons/eye';
-    import MoreHorizontal from 'lucide-svelte/icons/more-horizontal';
     import Package from 'lucide-svelte/icons/package';
     import Pencil from 'lucide-svelte/icons/pencil';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
@@ -69,6 +62,10 @@
             currency: 'ARS',
             minimumFractionDigits: 2,
         }).format(Number(amount));
+    }
+
+    function canEditPrices(order: OrderData): boolean {
+        return !(order.status === 'entregado' || order.status === 'cancelado' || order.fiscal_status === 'facturado');
     }
 
     function formatDate(dateStr: string) {
@@ -176,7 +173,7 @@
 
             <!-- Cliente y Artículos -->
             <div class="flex items-center justify-between text-xs pt-1.5 border-t border-border/40">
-                <span class="font-medium text-foreground flex items-center gap-1 truncate max-w-[180px]">
+                <span class="font-medium text-sm text-foreground flex items-center gap-1.5 truncate max-w-[200px]">
                     <User class="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     {order.customer_name}
                 </span>
@@ -185,47 +182,32 @@
                 </span>
             </div>
 
-            <!-- Footer: Total & Botón de Opciones (min-h-[44px]) -->
+            <!-- Footer: Total & Botones de Acción Táctiles Directos (min-h-[44px] min-w-[44px]) -->
             <div class="flex items-center justify-between pt-1 gap-2" onclick={(e) => e.stopPropagation()}>
                 <span class="font-bold text-base text-primary tabular-nums">
                     {formatPrice(order.total_amount)}
                 </span>
                 <div class="flex items-center gap-2 shrink-0">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            {#snippet children(props)}
-                                <button
-                                    {...props}
-                                    type="button"
-                                    onclick={(e) => {
-                                        e.stopPropagation();
-                                        props.onclick?.(e);
-                                    }}
-                                    class="size-11 min-h-[44px] rounded-xl border border-border/80 bg-background/80 shadow-2xs hover:bg-muted hover:border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center shrink-0"
-                                    aria-label="Más opciones"
-                                >
-                                    <MoreHorizontal class="size-4" />
-                                </button>
-                            {/snippet}
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" class="w-56 shadow-lg rounded-xl">
-                            <DropdownMenuItem
-                                onclick={() => onSelectOrder(order)}
-                                class="flex items-center justify-start text-left gap-2 cursor-pointer text-xs font-medium"
-                            >
-                                <Eye class="size-3.5 text-muted-foreground shrink-0" />
-                                <span>Ver detalle</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                disabled={order.status === 'entregado' || order.status === 'cancelado' || order.fiscal_status === 'facturado'}
-                                onclick={() => onEditPrices?.(order)}
-                                class="flex items-center justify-start text-left gap-2 cursor-pointer text-xs font-medium {order.status === 'entregado' || order.status === 'cancelado' || order.fiscal_status === 'facturado' ? 'opacity-50 cursor-not-allowed' : ''}"
-                            >
-                                <Pencil class="size-3.5 text-muted-foreground shrink-0" />
-                                <span class="text-left">Editar precio de los productos</span>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <button
+                        type="button"
+                        onclick={() => onSelectOrder(order)}
+                        class="size-11 min-h-[44px] min-w-[44px] rounded-xl border border-border/80 bg-background/80 shadow-2xs hover:bg-muted hover:border-border text-foreground transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                        aria-label="Ver detalle"
+                        title="Ver detalle"
+                    >
+                        <Eye class="size-4.5 text-muted-foreground" />
+                    </button>
+
+                    <button
+                        type="button"
+                        disabled={!canEditPrices(order)}
+                        onclick={() => onEditPrices?.(order)}
+                        class="size-11 min-h-[44px] min-w-[44px] rounded-xl border border-border/80 bg-background/80 shadow-2xs hover:bg-muted hover:border-border text-foreground transition-colors flex items-center justify-center shrink-0 {!canEditPrices(order) ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'cursor-pointer'}"
+                        aria-label="Editar precios de productos"
+                        title={!canEditPrices(order) ? 'No se pueden editar precios en pedidos entregados, cancelados o facturados' : 'Editar precios de productos'}
+                    >
+                        <Pencil class="size-4.5 text-muted-foreground" />
+                    </button>
                 </div>
             </div>
         </div>
