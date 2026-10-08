@@ -348,26 +348,7 @@
             text-align: right;
         }
 
-        /* Sección Final: Total a Pagar (cuando se aplica saldo a favor) */
-        .summary-section-to-pay {
-            background: #ffffff;
-            border-top: 2px solid #0f172a;
-            padding: 7px 12px;
-        }
-        .summary-to-pay-label {
-            font-size: 15px;
-            font-weight: 800;
-            color: #0f172a;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            text-align: left;
-        }
-        .summary-to-pay-value {
-            font-size: 17px;
-            font-weight: 900;
-            color: #0f172a;
-            text-align: right;
-        }
+
 
         .watermark-footer {
             text-align: center;
@@ -642,37 +623,20 @@
                 <!-- 2. Sección Central: Total del Pedido -->
                 <div class="summary-section-total">
                     <table class="summary-total-table">
-                        <tr>
-                            <td class="summary-total-label">TOTAL DEL PEDIDO:</td>
-                            <td class="summary-total-value tabular-nums">${{ number_format((float) $order->total_amount, 2, ',', '.') }}</td>
-                        </tr>
                         @if($order->show_credit_applied_in_receipt && (float) $order->credit_balance_applied > 0)
                             <tr>
-                                <td class="summary-label text-green" style="padding-top: 4px;">Saldo a Favor Aplicado:</td>
-                                <td class="summary-value tabular-nums text-green" style="padding-top: 4px;">
+                                <td class="summary-label text-green" style="font-size: 13.5px; padding-bottom: 4px;">Saldo a Favor Aplicado:</td>
+                                <td class="summary-value tabular-nums text-green" style="font-size: 14px; padding-bottom: 4px;">
                                     -${{ number_format((float) $order->credit_balance_applied, 2, ',', '.') }}
                                 </td>
                             </tr>
                         @endif
+                        <tr>
+                            <td class="summary-total-label">TOTAL DEL PEDIDO:</td>
+                            <td class="summary-total-value tabular-nums">${{ number_format((float) $order->total_amount, 2, ',', '.') }}</td>
+                        </tr>
                     </table>
                 </div>
-
-                <!-- 3. Sección Final: Total a Pagar (si aplica descuento de saldo a favor) -->
-                @if($order->show_credit_applied_in_receipt && (float) $order->credit_balance_applied > 0)
-                    @php
-                        $totalToPay = max(0.00, round((float) $order->total_amount - (float) $order->credit_balance_applied, 2));
-                    @endphp
-                    <div class="summary-section-to-pay">
-                        <table class="summary-total-table">
-                            <tr>
-                                <td class="summary-to-pay-label">TOTAL A PAGAR:</td>
-                                <td class="summary-to-pay-value tabular-nums">
-                                    ${{ number_format($totalToPay, 2, ',', '.') }}
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                @endif
             </div>
             <div class="watermark-footer">
                 Generado por: {{ $order->tenant?->legal_name ?: ($order->tenant?->name ?? 'Papelera') }}

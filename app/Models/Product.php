@@ -187,8 +187,10 @@ class Product extends Model
      */
     public function syncConsolidatedStock(): void
     {
-        $totalStock = (float) ($this->productWarehouses()->sum('stock') ?? 0.0);
-        $this->update(['stock' => $totalStock]);
+        if ($this->productWarehouses()->exists()) {
+            $totalStock = (float) ($this->productWarehouses()->sum('stock') ?? 0.0);
+            $this->update(['stock' => $totalStock]);
+        }
     }
 
 

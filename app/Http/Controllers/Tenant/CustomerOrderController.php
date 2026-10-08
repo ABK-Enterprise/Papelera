@@ -358,11 +358,16 @@ class CustomerOrderController extends Controller
             $discountTotal = round($discountTotal, 2);
             $surchargeTotal = round($surchargeTotal, 2);
 
-            $totalAmount = max(0.00, round($netProductsAmount + $shippingCost + $surchargeTotal - $discountTotal, 2));
+            $grossTotal = max(0.00, round($netProductsAmount + $shippingCost + $surchargeTotal - $discountTotal, 2));
+
+            $availableCredit = ($customer && (float) $customer->current_balance < 0)
+                ? abs((float) $customer->current_balance)
+                : 0.00;
 
             $creditBalanceApplied = (float) $request->input('credit_balance_applied', 0);
-            $creditBalanceApplied = min($totalAmount, max(0.00, round($creditBalanceApplied, 2)));
-            $remainingToPay = max(0.00, round($totalAmount - $creditBalanceApplied, 2));
+            $creditBalanceApplied = min($grossTotal, $availableCredit, max(0.00, round($creditBalanceApplied, 2)));
+
+            $finalOrderTotal = max(0.00, round($grossTotal - $creditBalanceApplied, 2));
             $showCreditAppliedInReceipt = $creditBalanceApplied > 0 && $request->boolean('show_credit_applied_in_receipt');
 
             $paymentType = $request->input('payment_type') ?: 'cuenta_corriente';
@@ -373,7 +378,7 @@ class CustomerOrderController extends Controller
             $paidAmount = 0.00;
             $targetQrAmount = null;
 
-            if ($creditBalanceApplied >= $totalAmount) {
+            if ($creditBalanceApplied >= $grossTotal) {
                 // El saldo a favor cubre el 100% del pedido
                 $paidAmount = 0.00;
                 $orderDebt = 0.00;
@@ -384,21 +389,21 @@ class CustomerOrderController extends Controller
                 // y deuda activa. El recibo oficial se registrará cuando MP confirme la acreditación.
                 $paidAmount = 0.00;
                 $targetQrAmount = ($paymentType === 'parcial')
-                    ? min($remainingToPay, max(0.01, round((float) $request->input('paid_amount', 0), 2)))
-                    : $remainingToPay;
-                $orderDebt = $remainingToPay;
+                    ? min($finalOrderTotal, max(0.01, round((float) $request->input('paid_amount', 0), 2)))
+                    : $finalOrderTotal;
+                $orderDebt = $finalOrderTotal;
                 $paymentStatus = 'pendiente';
             } elseif ($paymentType === 'contado') {
-                $paidAmount = $remainingToPay;
+                $paidAmount = $finalOrderTotal;
                 $orderDebt = 0.00;
                 $paymentStatus = 'cobrado';
             } elseif ($paymentType === 'parcial') {
                 $inputPaid = (float) $request->input('paid_amount', 0);
-                $paidAmount = min($remainingToPay, max(0.00, round($inputPaid, 2)));
-                $orderDebt = round($remainingToPay - $paidAmount, 2);
+                $paidAmount = min($finalOrderTotal, max(0.00, round($inputPaid, 2)));
+                $orderDebt = round($finalOrderTotal - $paidAmount, 2);
                 $paymentStatus = ($orderDebt <= 0) ? 'cobrado' : ($paidAmount > 0 || $creditBalanceApplied > 0 ? 'parcial' : 'pendiente');
             } else {
-                $orderDebt = $remainingToPay;
+                $orderDebt = $finalOrderTotal;
                 $paymentStatus = ($orderDebt <= 0) ? 'cobrado' : ($creditBalanceApplied > 0 ? 'parcial' : 'pendiente');
             }
 
@@ -425,7 +430,7 @@ class CustomerOrderController extends Controller
                 'discount_total' => $discountTotal,
                 'surcharge_total' => $surchargeTotal,
                 'credit_balance_applied' => $creditBalanceApplied,
-                'total_amount' => $totalAmount,
+                'total_amount' => $finalOrderTotal,
                 'notes' => $request->validated('notes'),
             ]);
 
@@ -551,17 +556,17 @@ class CustomerOrderController extends Controller
                     $dueDate = now()->addDays($dueDays)->toDateString();
                     $currentBalance = (float) $customer->current_balance;
 
-                    $tempBalance = round($currentBalance + $totalAmount, 2);
-                    if ($creditBalanceApplied >= $totalAmount) {
+                    $tempBalance = round($currentBalance + $grossTotal, 2);
+                    if ($creditBalanceApplied >= $grossTotal) {
                         $chargeDesc = "Venta (Saldo a favor aplicado) - Pedido {$orderNumber}";
                         $chargePaymentMethod = 'saldo_a_favor';
                     } elseif ($creditBalanceApplied > 0) {
-                        $chargeDesc = ($paidAmount >= $remainingToPay)
+                        $chargeDesc = ($paidAmount >= $finalOrderTotal)
                             ? "Venta (Saldo a favor parcial) - Pedido {$orderNumber}"
                             : "Venta a crédito (Saldo a favor parcial) - Pedido {$orderNumber}";
                         $chargePaymentMethod = ($paidAmount > 0) ? $paymentMethod : 'cuenta_corriente';
                     } else {
-                        $chargeDesc = ($paidAmount >= $totalAmount)
+                        $chargeDesc = ($paidAmount >= $grossTotal)
                             ? "Venta - Pedido {$orderNumber}"
                             : "Venta a crédito - Pedido {$orderNumber}";
                         $chargePaymentMethod = ($paidAmount > 0) ? $paymentMethod : 'cuenta_corriente';
@@ -574,7 +579,7 @@ class CustomerOrderController extends Controller
                         'created_by_user_id' => $userId,
                         'type' => 'charge',
                         'description' => $chargeDesc,
-                        'amount' => $totalAmount,
+                        'amount' => $grossTotal,
                         'balance_after' => $tempBalance,
                         'due_date' => $dueDate,
                         'payment_method' => $chargePaymentMethod,
@@ -586,7 +591,7 @@ class CustomerOrderController extends Controller
 
                     if ($paidAmount > 0) {
                         $finalBalance = round($tempBalance - $paidAmount, 2);
-                        $paymentDesc = ($paidAmount >= $totalAmount)
+                        $paymentDesc = ($paidAmount >= $finalOrderTotal)
                             ? "Cobro de contado ({$paymentMethod}) - Pedido {$orderNumber}"
                             : "Pago parcial / seña ({$paymentMethod}) - Pedido {$orderNumber}";
 

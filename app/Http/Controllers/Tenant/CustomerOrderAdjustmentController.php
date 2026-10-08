@@ -149,7 +149,7 @@ class CustomerOrderAdjustmentController extends Controller
                 }
             }
 
-            $newTotal = max(0.00, round($netProductsAmount + (float) $lockedOrder->shipping_cost + $surchargeTotal - $discountTotal, 2));
+            $newTotal = max(0.00, round($netProductsAmount + (float) $lockedOrder->shipping_cost + $surchargeTotal - $discountTotal - (float) $lockedOrder->credit_balance_applied, 2));
             $diff = round($newTotal - $oldTotal, 2);
 
             $lockedOrder->price_adjustments = $currentAdjustments;
@@ -326,7 +326,7 @@ class CustomerOrderAdjustmentController extends Controller
                 }
             }
 
-            $newTotal = max(0.00, round($netProductsAmount + (float) $lockedOrder->shipping_cost + $surchargeTotal - $discountTotal, 2));
+            $newTotal = max(0.00, round($netProductsAmount + (float) $lockedOrder->shipping_cost + $surchargeTotal - $discountTotal - (float) $lockedOrder->credit_balance_applied, 2));
             $diff = round($newTotal - $oldTotal, 2);
 
             $lockedOrder->price_adjustments = array_values($finalAdjustments);
@@ -445,7 +445,7 @@ class CustomerOrderAdjustmentController extends Controller
                 }
             }
 
-            $newTotal = max(0.00, round($netProductsAmount + (float) $lockedOrder->shipping_cost + $surchargeTotal - $discountTotal, 2));
+            $newTotal = max(0.00, round($netProductsAmount + (float) $lockedOrder->shipping_cost + $surchargeTotal - $discountTotal - (float) $lockedOrder->credit_balance_applied, 2));
             $diff = round($newTotal - $oldTotal, 2);
 
             $lockedOrder->price_adjustments = array_values($filteredAdjustments);

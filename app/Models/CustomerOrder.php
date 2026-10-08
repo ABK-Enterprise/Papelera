@@ -170,16 +170,16 @@ class CustomerOrder extends Model
         $applied = (float) $this->credit_balance_applied;
         $total = (float) $this->total_amount;
 
-        if ($applied > 0 && $applied >= $total) {
+        if ($applied > 0 && $total <= 0.00) {
             return 'Saldo a Favor';
-        }
-
-        if ($this->payment_status === 'cobrado' && (float) $this->debt_amount <= 0) {
-            return 'Contado';
         }
 
         if ($applied > 0 && (float) $this->debt_amount > 0) {
             return 'Saldo a Favor / Cta. Cte.';
+        }
+
+        if ($this->payment_status === 'cobrado' && (float) $this->debt_amount <= 0) {
+            return $applied > 0 ? 'Saldo a Favor / Contado' : 'Contado';
         }
 
         if ($this->payment_status === 'parcial') {

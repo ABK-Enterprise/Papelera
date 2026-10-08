@@ -341,7 +341,7 @@ test('receipt pdf renders credit balance applied and total to pay when sub-item 
         'customer_name' => $favorCustomer->name,
         'status' => 'en_preparacion',
         'fiscal_status' => 'sin_facturar',
-        'total_amount' => 10000.00,
+        'total_amount' => 6000.00,
         'credit_balance_applied' => 4000.00,
         'show_account_in_receipt' => true,
         'show_credit_applied_in_receipt' => true,
@@ -369,11 +369,53 @@ test('receipt pdf renders credit balance applied and total to pay when sub-item 
         ->toContain('Saldo a favor disponible:')
         ->toContain('$5.000,00');
 
-    // Totales: muestra Total del Pedido, Saldo a Favor Aplicado y Total a Pagar
+    // Totales: muestra Total del Pedido con monto neto afectado ($6.000,00) y Saldo a Favor Aplicado
     expect($html)->toContain('TOTAL DEL PEDIDO:')
-        ->toContain('$10.000,00')
+        ->toContain('$6.000,00')
         ->toContain('Saldo a Favor Aplicado:')
         ->toContain('-$4.000,00')
-        ->toContain('TOTAL A PAGAR:')
-        ->toContain('$6.000,00');
+        ->and($html)->not->toContain('TOTAL A PAGAR:');
+});
+
+test('receipt pdf renders affected total even when show_credit_applied_in_receipt is disabled', function () {
+    $favorCustomer = Customer::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Cliente Con Saldo Oculto',
+        'current_balance' => -5000.00,
+    ]);
+
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $favorCustomer->id,
+        'order_number' => 'ORD-PDF-CRED-02',
+        'customer_name' => $favorCustomer->name,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'sin_facturar',
+        'total_amount' => 6000.00,
+        'credit_balance_applied' => 4000.00,
+        'show_account_in_receipt' => false,
+        'show_credit_applied_in_receipt' => false, // Desactivado
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $this->product->id,
+        'packaging_type' => 'unit',
+        'quantity' => 2,
+        'unit_price' => 5000.00,
+        'subtotal' => 10000.00,
+    ]);
+
+    $order->load(['customer', 'items.product', 'tenant']);
+
+    $html = View::make('pdf.customer-order', [
+        'order' => $order,
+        'logoBase64' => null,
+    ])->render();
+
+    // TOTAL DEL PEDIDO debe ser el precio afectado ($6.000,00)
+    expect($html)->toContain('TOTAL DEL PEDIDO:')
+        ->toContain('$6.000,00')
+        ->and($html)->not->toContain('Saldo a Favor Aplicado:')
+        ->and($html)->not->toContain('TOTAL A PAGAR:');
 });

@@ -726,7 +726,7 @@
         };
     });
 
-    let grandTotal = $derived(
+    let grossTotal = $derived(
         Math.max(
             0,
             Math.round(
@@ -755,11 +755,12 @@
     );
     const hasAvailableCredit = $derived(availableCustomerCredit > 0);
     const effectiveCreditBalanceApplied = $derived(
-        useCreditBalance ? Math.min(Number(creditBalanceApplied) || 0, availableCustomerCredit, grandTotal) : 0
+        useCreditBalance ? Math.min(Number(creditBalanceApplied) || 0, availableCustomerCredit, grossTotal) : 0
     );
-    const remainingToPay = $derived(
-        Math.max(0, Math.round((grandTotal - effectiveCreditBalanceApplied) * 100) / 100)
+    let grandTotal = $derived(
+        Math.max(0, Math.round((grossTotal - effectiveCreditBalanceApplied) * 100) / 100)
     );
+    const remainingToPay = $derived(grandTotal);
     const canShowCreditAppliedInReceipt = $derived(
         useCreditBalance && effectiveCreditBalanceApplied > 0
     );
@@ -782,7 +783,7 @@
         if (!hasAvailableCredit) return;
         useCreditBalance = !useCreditBalance;
         if (useCreditBalance) {
-            creditBalanceApplied = Math.min(availableCustomerCredit, grandTotal);
+            creditBalanceApplied = Math.min(availableCustomerCredit, grossTotal);
             showCreditAppliedInReceipt = true;
         } else {
             creditBalanceApplied = 0;
@@ -792,29 +793,35 @@
 
     function applyFullCreditBalance() {
         if (!hasAvailableCredit) return;
-        creditBalanceApplied = Math.min(availableCustomerCredit, grandTotal);
-        toast.success(`Se aplicó el total posible de saldo a favor: ${formatPrice(creditBalanceApplied)}`);
+        creditBalanceApplied = Math.min(availableCustomerCredit, grossTotal);
+        toast.success(`Se aplicó el saldo a favor: ${formatPrice(creditBalanceApplied)}`);
     }
 
     function openEditCreditBalanceModal() {
         editCreditMode = 'fixed';
-        editCreditFixedValue = effectiveCreditBalanceApplied;
-        editCreditPercentageValue = grandTotal > 0 ? Math.min(100, Math.round((effectiveCreditBalanceApplied / grandTotal) * 100)) : 0;
+        const currentTarget = effectiveCreditBalanceApplied > 0 ? effectiveCreditBalanceApplied : Math.min(availableCustomerCredit, grossTotal);
+        editCreditFixedValue = currentTarget;
+        editCreditPercentageValue = availableCustomerCredit > 0
+            ? Math.min(100, Math.max(0, Math.round((currentTarget / availableCustomerCredit) * 100)))
+            : 0;
         isCreditBalanceModalOpen = true;
     }
 
     function saveCreditBalanceEdit() {
         let target = 0;
         if (editCreditMode === 'fixed') {
-            target = Number(editCreditFixedValue) || 0;
+            target = Math.max(0, Number(editCreditFixedValue) || 0);
         } else {
             const pct = Math.max(0, Math.min(100, Number(editCreditPercentageValue) || 0));
-            target = Math.round(grandTotal * (pct / 100) * 100) / 100;
+            target = Math.round(availableCustomerCredit * (pct / 100) * 100) / 100;
         }
-        const maxPossible = Math.min(availableCustomerCredit, grandTotal);
-        if (target > maxPossible) {
-            toast.warning(`El monto supera el límite disponible (${formatPrice(maxPossible)}). Se ajustó al máximo.`);
-            target = maxPossible;
+        if (target > availableCustomerCredit) {
+            toast.warning(`El monto supera el saldo a favor disponible (${formatPrice(availableCustomerCredit)}). Se ajustó al máximo disponible.`);
+            target = availableCustomerCredit;
+        }
+        if (target > grossTotal) {
+            toast.warning(`El monto supera el total del pedido (${formatPrice(grossTotal)}). Se imputará hasta cubrir el pedido.`);
+            target = grossTotal;
         }
         creditBalanceApplied = Math.max(0, target);
         isCreditBalanceModalOpen = false;
@@ -1959,7 +1966,7 @@
                                 </div>
                             </div>
 
-                            {#if effectiveCreditBalanceApplied >= grandTotal}
+                            {#if effectiveCreditBalanceApplied >= grossTotal}
                                 <div class="text-xs font-medium text-emerald-800 dark:text-emerald-200 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
                                     El saldo a favor cubre el 100% del pedido. No quedará deuda pendiente.
                                 </div>
@@ -1997,7 +2004,7 @@
                                             Mostrar uso de saldo a favor en el remito impreso
                                         </span>
                                         <span class="text-xs text-muted-foreground block">
-                                            Muestra en el pie de totales el saldo a favor descontado y el total a pagar final.
+                                            Muestra en el bloque de totales la línea de saldo a favor imputado.
                                         </span>
                                         {#if !canShowCreditAppliedInReceipt}
                                             <span class="text-xs text-amber-600 dark:text-amber-400 block mt-0.5">
@@ -2154,10 +2161,10 @@
                     {/if}
 
                     {#if effectiveCreditBalanceApplied > 0}
-                        <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-foreground border-t border-border/60 pt-2 mt-1">
-                            <span>Total del Pedido:</span>
-                            <span class="font-sans tabular-nums">
-                                {formatPrice(grandTotal)}
+                        <div class="flex items-center justify-between text-xs sm:text-sm font-medium text-muted-foreground border-t border-border/60 pt-2 mt-1">
+                            <span>Total Bruto del Pedido:</span>
+                            <span class="font-bold font-sans tabular-nums text-foreground">
+                                {formatPrice(grossTotal)}
                             </span>
                         </div>
                         <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400 font-sans tabular-nums pt-0.5">
@@ -2165,14 +2172,14 @@
                             <span>-{formatPrice(effectiveCreditBalanceApplied)}</span>
                         </div>
                         <div class="flex flex-wrap items-baseline justify-between gap-2 border-t border-border/60 pt-2 mt-1 w-full">
-                            <span class="text-xs sm:text-sm font-bold text-foreground">Total a Pagar:</span>
+                            <span class="text-xs sm:text-sm font-bold text-foreground">Total del Pedido:</span>
                             <span class="text-lg sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
-                                {formatPrice(remainingToPay)}
+                                {formatPrice(grandTotal)}
                             </span>
                         </div>
                     {:else}
                         <div class="flex flex-wrap items-baseline justify-between gap-2 border-t border-border/60 pt-2 mt-1 w-full">
-                            <span class="text-xs sm:text-sm font-bold text-foreground">Total a Pagar:</span>
+                            <span class="text-xs sm:text-sm font-bold text-foreground">Total del Pedido:</span>
                             <span class="text-lg sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
                                 {formatPrice(grandTotal)}
                             </span>
@@ -2494,20 +2501,27 @@
                             type="number"
                             step="0.01"
                             min="0"
-                            max={Math.min(availableCustomerCredit, grandTotal)}
+                            max={availableCustomerCredit}
                             bind:value={editCreditFixedValue}
+                            oninput={(e) => {
+                                const target = e.target as HTMLInputElement;
+                                const val = Number(target.value) || 0;
+                                if (val > availableCustomerCredit) {
+                                    editCreditFixedValue = availableCustomerCredit;
+                                }
+                            }}
                             placeholder="0.00"
                             class="h-10 pl-7 text-sm font-bold font-sans tabular-nums"
                         />
                     </div>
                     <p class="text-xs text-muted-foreground">
-                        Máximo disponible para este pedido: <strong class="tabular-nums text-foreground">{formatPrice(Math.min(availableCustomerCredit, grandTotal))}</strong>
+                        Saldo a favor disponible del cliente: <strong class="tabular-nums text-foreground">{formatPrice(availableCustomerCredit)}</strong>
                     </p>
                 </div>
             {:else}
                 <div class="space-y-2">
                     <Label for="credit-pct-input" class="text-sm font-medium text-foreground">
-                        Porcentaje del total del pedido a cubrir
+                        Porcentaje del saldo a favor a utilizar
                     </Label>
                     <div class="relative">
                         <Input
@@ -2517,13 +2531,22 @@
                             min="0"
                             max="100"
                             bind:value={editCreditPercentageValue}
+                            oninput={(e) => {
+                                const target = e.target as HTMLInputElement;
+                                const val = Number(target.value) || 0;
+                                if (val > 100) {
+                                    editCreditPercentageValue = 100;
+                                } else if (val < 0) {
+                                    editCreditPercentageValue = 0;
+                                }
+                            }}
                             placeholder="100"
                             class="h-10 pr-7 text-sm font-bold font-sans tabular-nums"
                         />
                         <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">%</span>
                     </div>
                     <p class="text-xs text-muted-foreground">
-                        Equivalente: <strong class="tabular-nums text-foreground">{formatPrice(Math.round(grandTotal * (Number(editCreditPercentageValue || 0) / 100) * 100) / 100)}</strong>
+                        Equivalente: <strong class="tabular-nums text-foreground">{formatPrice(Math.round(availableCustomerCredit * (Math.max(0, Math.min(100, Number(editCreditPercentageValue || 0))) / 100) * 100) / 100)}</strong> de saldo a favor disponible ({formatPrice(availableCustomerCredit)})
                     </p>
                 </div>
             {/if}

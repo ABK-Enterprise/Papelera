@@ -144,7 +144,7 @@ test('T3: fully covered order with credit balance creates paid order without deb
 
     $order = CustomerOrder::where('customer_id', $creditCustomer->id)->latest('id')->first();
     expect($order)->not->toBeNull()
-        ->and((float) $order->total_amount)->toEqual(2000.00)
+        ->and((float) $order->total_amount)->toEqual(0.00)
         ->and((float) $order->credit_balance_applied)->toEqual(2000.00)
         ->and((float) $order->debt_amount)->toEqual(0.00)
         ->and($order->payment_status)->toBe('cobrado')
@@ -199,7 +199,7 @@ test('T4: partial credit balance coverage leaves remaining debt in account ledge
 
     $order = CustomerOrder::where('customer_id', $creditCustomer->id)->latest('id')->first();
     expect($order)->not->toBeNull()
-        ->and((float) $order->total_amount)->toEqual(6000.00)
+        ->and((float) $order->total_amount)->toEqual(2000.00)
         ->and((float) $order->credit_balance_applied)->toEqual(4000.00)
         ->and((float) $order->debt_amount)->toEqual(2000.00)
         ->and($order->payment_status)->toBe('parcial')
@@ -242,7 +242,7 @@ test('T5: partial credit balance coverage plus immediate cash payment marks orde
 
     $order = CustomerOrder::where('customer_id', $creditCustomer->id)->latest('id')->first();
     expect($order)->not->toBeNull()
-        ->and((float) $order->total_amount)->toEqual(5000.00)
+        ->and((float) $order->total_amount)->toEqual(2000.00)
         ->and((float) $order->credit_balance_applied)->toEqual(3000.00)
         ->and((float) $order->debt_amount)->toEqual(0.00)
         ->and($order->payment_status)->toBe('cobrado');
