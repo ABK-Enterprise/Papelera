@@ -174,19 +174,16 @@
 <AppHead title="Historial y Auditoría de Recibos" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1440px] mx-auto w-full">
-    <!-- Header del Módulo con separación estándar mb-6 / gap-6 -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <!-- Header del Módulo Escalonado -->
+    <div class="flex flex-col items-start gap-3">
         <div>
             <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
                 <ReceiptText class="size-7 text-primary" />
                 Historial de Recibos
             </h1>
-            <p class="text-xs sm:text-sm text-muted-foreground mt-1">
-                Trazabilidad completa de cobros emitidos, métodos de pago y auditoría de comprobantes.
-            </p>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div>
             <Button
                 variant="secondary"
                 class="h-11 px-4 rounded-xl font-semibold gap-2 shadow-xs min-h-[44px]"

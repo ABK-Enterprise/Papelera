@@ -60,15 +60,15 @@
 <AppHead title="Cuentas Corrientes - Clientes" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
-    <!-- Header Operativo Limpio (Sin Bento KPI cards decorativas) -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/50">
+    <!-- Header Operativo Limpio Escalonado -->
+    <div class="flex flex-col items-start gap-3 pb-2 border-b border-border/50">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
                 Cuentas Corrientes
             </h1>
         </div>
 
-        <div class="flex items-center justify-end gap-2.5 w-full sm:w-auto">
+        <div>
             <a href="/tenant/clientes" class="inline-flex">
                 <Button variant="secondary" class="min-h-[38px] px-3.5 gap-2 text-sm font-medium rounded-xl shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
                     <ArrowLeft class="size-3.5" />
@@ -76,7 +76,6 @@
                 </Button>
             </a>
         </div>
-
     </div>
 
 

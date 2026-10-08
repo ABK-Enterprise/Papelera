@@ -93,19 +93,21 @@
 <AppHead title="Alta de Producto - Comercio" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-6xl mx-auto w-full">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
+    <!-- Header Escalonado -->
+    <div class="flex flex-col items-start gap-3">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
                 Alta de Producto
             </h1>
         </div>
-        <Link href="/tenant/productos">
-            <Button class="gap-2 text-sm rounded-xl font-medium min-h-[42px] h-auto py-2.5 px-4 shadow-2xs leading-snug text-center flex items-center justify-center">
-                <ArrowLeft class="size-4 shrink-0" />
-                <span>Volver al catálogo</span>
-            </Button>
-        </Link>
+        <div>
+            <Link href="/tenant/productos">
+                <Button variant="secondary" class="gap-2 text-sm rounded-xl font-medium min-h-[42px] h-auto py-2 px-4 shadow-2xs leading-snug text-center flex items-center justify-center border border-border/80">
+                    <ArrowLeft class="size-4 shrink-0" />
+                    <span>Volver al catálogo</span>
+                </Button>
+            </Link>
+        </div>
     </div>
 
 
