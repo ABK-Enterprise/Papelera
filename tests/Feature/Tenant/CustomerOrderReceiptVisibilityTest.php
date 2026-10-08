@@ -268,10 +268,10 @@ test('receipt pdf template renders customer credit account and filtered adjustme
     ])->render();
 
     // Debe mostrarse el resumen de cuenta corriente
-    expect($html)->toContain('Estado de Cuenta Corriente')
-        ->toContain('Límite de Crédito:')
-        ->toContain('Saldo Actual Deudor:')
-        ->toContain('Crédito Disponible:');
+    expect($html)->toContain('ESTADO EN CUENTA CORRIENTE')
+        ->toContain('Límite de crédito asignado:')
+        ->toContain('Saldo de la cuenta (actual):')
+        ->toContain('Crédito disponible luego de la compra:');
 
     // Debe mostrarse el ajuste visible
     expect($html)->toContain('Promoción Especial Miércoles');

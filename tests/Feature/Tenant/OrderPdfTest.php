@@ -233,7 +233,7 @@ test('customer order pdf blade view renders modern A4 structure with header, cus
     expect($html)->toContain('page-footer')
         ->toContain('totals-box')
         ->toContain('SUBTOTAL:')
-        ->toContain('TOTAL:')
+        ->toContain('TOTAL DEL PEDIDO:')
         ->toContain('$15.000,00')
         ->toContain('watermark-footer')
         ->toContain('Generado por');
@@ -287,7 +287,7 @@ test('customer order pdf calculates bulk discounts and customer discounts correc
     expect($html)->toContain('$1.500,00')
         ->toContain('Descuento por bulto:')
         ->toContain('SUBTOTAL:')
-        ->toContain('TOTAL:');
+        ->toContain('TOTAL DEL PEDIDO:');
 });
 
 test('authenticated user can access customer order html viewer shell with favicon', function () {

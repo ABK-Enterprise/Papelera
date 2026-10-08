@@ -19,7 +19,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: #0f172a;
             background: #ffffff;
-            font-size: 12px;
+            font-size: 13px;
             line-height: 1.35;
         }
         .page-container {
@@ -70,7 +70,7 @@
             display: block;
         }
         .tenant-name {
-            font-size: 13px;
+            font-size: 14.5px;
             font-weight: 800;
             color: #0f172a;
             text-transform: uppercase;
@@ -79,7 +79,7 @@
             margin-bottom: 2px;
         }
         .tenant-meta {
-            font-size: 11px;
+            font-size: 11.5px;
             color: #475569;
             line-height: 1.3;
         }
@@ -106,26 +106,26 @@
 
         /* Metadatos Derecha */
         .doc-title {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 900;
             color: #0f172a;
             letter-spacing: -0.4px;
             text-transform: uppercase;
         }
         .doc-number {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
             color: #0f172a;
             margin-top: 2px;
         }
         .doc-date {
-            font-size: 11px;
+            font-size: 11.5px;
             color: #64748b;
             margin-top: 2px;
             margin-bottom: 4px;
         }
         .doc-meta {
-            font-size: 11px;
+            font-size: 11.5px;
             color: #334155;
             line-height: 1.3;
         }
@@ -143,7 +143,7 @@
             border-collapse: collapse;
         }
         .customer-table td {
-            font-size: 11.5px;
+            font-size: 12px;
             color: #334155;
             padding: 2.5px 4px;
             vertical-align: top;
@@ -179,7 +179,7 @@
         }
         .items-table th {
             padding: 6px 8px;
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -190,7 +190,7 @@
         }
         .items-table td {
             padding: 7px 8px;
-            font-size: 12px;
+            font-size: 12.5px;
             border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
         }
@@ -218,18 +218,18 @@
         .product-name {
             font-weight: 600;
             color: #0f172a;
-            font-size: 12.5px;
+            font-size: 13px;
             line-height: 1.25;
         }
         .product-sku {
-            font-size: 10.5px;
+            font-size: 11px;
             color: #64748b;
             margin-top: 1.5px;
         }
         .badge-bulto {
             display: inline-block;
             padding: 2px 5px;
-            font-size: 10px;
+            font-size: 10.5px;
             font-weight: 600;
             color: #0369a1;
             background-color: #e0f2fe;
@@ -242,39 +242,34 @@
             font-feature-settings: "tnum";
         }
 
-        /* Sticky Footer y Recuadro de Totales a la Derecha */
-        .totals-container {
+        /* Recuadro Unificado: Subtotal, Descuentos, Total y Cuenta Corriente */
+        .unified-summary-card {
             width: 100%;
-            display: table;
-            margin-bottom: 6px;
-        }
-        .totals-box-wrapper {
-            display: table-cell;
-            text-align: right;
-        }
-        .totals-box {
-            display: inline-block;
-            width: 260px;
             border: 1.5px solid #0f172a;
             border-radius: 6px;
             background: #ffffff;
-            padding: 6px 10px;
-            text-align: left;
+            margin-bottom: 6px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            overflow: hidden;
         }
-        .totals-table {
+        .summary-section-top {
+            padding: 6px 12px;
+        }
+        .summary-table {
             width: 100%;
             border-collapse: collapse;
         }
-        .totals-table td {
+        .summary-table td {
             padding: 2.5px 0;
-            font-size: 11.5px;
+            font-size: 12px;
         }
-        .totals-label {
+        .summary-label {
             color: #475569;
             font-weight: 600;
             text-align: left;
         }
-        .totals-value {
+        .summary-value {
             text-align: right;
             font-weight: 600;
             color: #0f172a;
@@ -282,21 +277,107 @@
         .text-green {
             color: #16a34a !important;
         }
-        .total-highlight-row {
-            border-top: 1.5px solid #0f172a;
-            margin-top: 3px;
-            padding-top: 4px;
+        .text-danger {
+            color: #dc2626 !important;
         }
-        .total-highlight-row td {
-            font-size: 13px !important;
-            font-weight: 800 !important;
-            color: #0f172a !important;
-            padding-top: 4px;
+
+        /* Sección Central: Total del Pedido */
+        .summary-section-total {
+            background: #f8fafc;
+            border-top: 1px solid #cbd5e1;
+            padding: 6px 12px;
+        }
+        .summary-total-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .summary-total-label {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            text-align: left;
+        }
+        .summary-total-value {
+            font-size: 15px;
+            font-weight: 900;
+            color: #0f172a;
+            text-align: right;
+        }
+
+        /* Sección Inferior: Estado en Cuenta Corriente */
+        .summary-section-account {
+            border-top: 2px solid #0f172a;
+            background: #ffffff;
+            padding: 6px 12px 8px 12px;
+        }
+        .summary-account-title {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 800;
+            color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 5px;
+            padding-bottom: 3px;
+            border-bottom: 1px dashed #cbd5e1;
+        }
+        .summary-account-title .account-info-icon {
+            display: inline-block;
+            font-weight: 900;
+            font-size: 11.5px;
+            margin-right: 2px;
+            color: #0284c7;
+        }
+        .summary-account-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .account-col-left {
+            width: 50%;
+            vertical-align: middle;
+            padding-right: 14px;
+        }
+        .account-divider-v {
+            width: 1px;
+            background-color: #cbd5e1;
+            padding: 0 !important;
+        }
+        .account-col-right {
+            width: 49%;
+            vertical-align: middle;
+            padding-left: 14px;
+            text-align: right;
+        }
+        .account-data-line {
+            margin: 2px 0;
+            font-size: 11.5px;
+        }
+        .account-data-label {
+            color: #475569;
+            font-weight: 500;
+        }
+        .account-data-value {
+            color: #0f172a;
+            font-weight: 700;
+            margin-left: 4px;
+        }
+        .account-available-label {
+            font-size: 11.5px;
+            color: #475569;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 1px;
+        }
+        .account-available-value {
+            font-size: 14px;
+            font-weight: 800;
         }
 
         .watermark-footer {
             text-align: center;
-            font-size: 10px;
+            font-size: 10.5px;
             color: #94a3b8;
             letter-spacing: 0.3px;
             border-top: 1px solid #e2e8f0;
@@ -472,93 +553,103 @@
 
         <!-- 4. Pie de Página (Sticky Footer anclado al margen inferior) -->
         <div class="page-footer">
-            <div class="totals-container">
-                @if($order->show_account_in_receipt && $order->customer)
-                    <div style="display: table-cell; vertical-align: bottom; width: 55%; text-align: left;">
-                        <div class="account-box" style="border: 1px solid #cbd5e1; border-radius: 5px; background-color: #f8fafc; padding: 6px 10px; width: 95%;">
-                            <div style="font-size: 11.5px; font-weight: 800; color: #0f172a; text-transform: uppercase; margin-bottom: 4px; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px;">
-                                Estado de Cuenta Corriente
-                            </div>
-                            <table style="width: 100%; border-collapse: collapse; font-size: 11.5px;">
-                                <tr>
-                                    <td style="color: #475569; padding: 1.5px 0;">Límite de Crédito:</td>
-                                    <td style="text-align: right; font-weight: 600; color: #0f172a;" class="tabular-nums">
-                                        ${{ number_format((float) ($order->customer->credit_limit ?? 0), 2, ',', '.') }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="color: #475569; padding: 1.5px 0;">Saldo Actual Deudor:</td>
-                                    <td style="text-align: right; font-weight: 600; color: #0f172a;" class="tabular-nums">
-                                        ${{ number_format((float) ($order->customer->current_balance ?? 0), 2, ',', '.') }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="color: #475569; padding: 1.5px 0;">Crédito Disponible:</td>
-                                    <td style="text-align: right; font-weight: 700; color: {{ ((float) ($order->customer->credit_limit ?? 0) - (float) ($order->customer->current_balance ?? 0)) >= 0 ? '#16a34a' : '#dc2626' }};" class="tabular-nums">
-                                        ${{ number_format(max(0, (float) ($order->customer->credit_limit ?? 0) - (float) ($order->customer->current_balance ?? 0)), 2, ',', '.') }}
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                @endif
-                <div class="totals-box-wrapper">
-                    <div class="totals-box">
-                        <table class="totals-table">
+            <div class="unified-summary-card totals-box">
+                <!-- 1. Sección Superior: Subtotal, Descuentos y Recargos -->
+                <div class="summary-section-top">
+                    <table class="summary-table">
+                        <tr>
+                            <td class="summary-label">SUBTOTAL:</td>
+                            <td class="summary-value tabular-nums">${{ number_format($rawItemsSubtotal, 2, ',', '.') }}</td>
+                        </tr>
+
+                        @if($bulkDiscountTotal > 0)
                             <tr>
-                                <td class="totals-label">SUBTOTAL:</td>
-                                <td class="totals-value tabular-nums">${{ number_format($rawItemsSubtotal, 2, ',', '.') }}</td>
+                                <td class="summary-label text-green">Descuento por bulto:</td>
+                                <td class="summary-value tabular-nums text-green">-${{ number_format($bulkDiscountTotal, 2, ',', '.') }}</td>
                             </tr>
+                        @endif
 
-                            @if($bulkDiscountTotal > 0)
-                                <tr>
-                                    <td class="totals-label text-green">Descuento por bulto:</td>
-                                    <td class="totals-value tabular-nums text-green">-${{ number_format($bulkDiscountTotal, 2, ',', '.') }}</td>
-                                </tr>
-                            @endif
+                        @if($customerDiscountPct > 0)
+                            <tr>
+                                <td class="summary-label text-green">Descuento cliente (%{{ number_format($customerDiscountPct, 1, ',', '.') }}):</td>
+                                <td class="summary-value tabular-nums text-green">-${{ number_format($customerDiscountAmount, 2, ',', '.') }}</td>
+                            </tr>
+                        @endif
 
-                            @if($customerDiscountPct > 0)
-                                <tr>
-                                    <td class="totals-label text-green">Descuento cliente (%{{ number_format($customerDiscountPct, 1, ',', '.') }}):</td>
-                                    <td class="totals-value tabular-nums text-green">-${{ number_format($customerDiscountAmount, 2, ',', '.') }}</td>
-                                </tr>
-                            @endif
+                        @if(!empty($order->price_adjustments) && is_array($order->price_adjustments))
+                            @foreach($order->price_adjustments as $adj)
+                                @if(!empty($adj['show_in_receipt']))
+                                    @php
+                                        $isDisc = ($adj['type'] ?? '') === 'discount';
+                                        $appliedVal = (float) ($adj['applied_amount'] ?? 0);
+                                        $adjName = $adj['name'] ?? ($isDisc ? 'Descuento' : 'Recargo');
+                                        if (($adj['calculation_type'] ?? '') === 'percentage') {
+                                            $adjName .= ' (%' . number_format((float) ($adj['value'] ?? 0), 1, ',', '.') . ')';
+                                        }
+                                    @endphp
+                                    <tr>
+                                        <td class="summary-label {{ $isDisc ? 'text-green' : '' }}">{{ $adjName }}:</td>
+                                        <td class="summary-value tabular-nums {{ $isDisc ? 'text-green' : '' }}">
+                                            {{ $isDisc ? '-' : '+' }}${{ number_format($appliedVal, 2, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        @endif
 
-                            @if(!empty($order->price_adjustments) && is_array($order->price_adjustments))
-                                @foreach($order->price_adjustments as $adj)
-                                    @if(!empty($adj['show_in_receipt']))
-                                        @php
-                                            $isDisc = ($adj['type'] ?? '') === 'discount';
-                                            $appliedVal = (float) ($adj['applied_amount'] ?? 0);
-                                            $adjName = $adj['name'] ?? ($isDisc ? 'Descuento' : 'Recargo');
-                                            if (($adj['calculation_type'] ?? '') === 'percentage') {
-                                                $adjName .= ' (%' . number_format((float) ($adj['value'] ?? 0), 1, ',', '.') . ')';
-                                            }
-                                        @endphp
-                                        <tr>
-                                            <td class="totals-label {{ $isDisc ? 'text-green' : '' }}">{{ $adjName }}:</td>
-                                            <td class="totals-value tabular-nums {{ $isDisc ? 'text-green' : '' }}">
-                                                {{ $isDisc ? '-' : '+' }}${{ number_format($appliedVal, 2, ',', '.') }}
-                                            </td>
-                                        </tr>
-                                    @endif
-                                @endforeach
-                            @endif
+                        @if((float) ($order->shipping_cost ?? 0) > 0)
+                            <tr>
+                                <td class="summary-label">Costo de envío ({{ $order->shipping_zone_name ?? 'Zona' }}):</td>
+                                <td class="summary-value tabular-nums">${{ number_format((float) $order->shipping_cost, 2, ',', '.') }}</td>
+                            </tr>
+                        @endif
+                    </table>
+                </div>
 
-                            @if((float) ($order->shipping_cost ?? 0) > 0)
-                                <tr>
-                                    <td class="totals-label">Costo de envío ({{ $order->shipping_zone_name ?? 'Zona' }}):</td>
-                                    <td class="totals-value tabular-nums">${{ number_format((float) $order->shipping_cost, 2, ',', '.') }}</td>
-                                </tr>
-                            @endif
+                <!-- 2. Sección Central: Total del Pedido -->
+                <div class="summary-section-total">
+                    <table class="summary-total-table">
+                        <tr>
+                            <td class="summary-total-label">TOTAL DEL PEDIDO:</td>
+                            <td class="summary-total-value tabular-nums">${{ number_format((float) $order->total_amount, 2, ',', '.') }}</td>
+                        </tr>
+                    </table>
+                </div>
 
-                            <tr class="total-highlight-row">
-                                <td class="totals-label">TOTAL:</td>
-                                <td class="totals-value tabular-nums">${{ number_format((float) $order->total_amount, 2, ',', '.') }}</td>
+                <!-- 3. Sección Inferior: Estado en Cuenta Corriente (si aplica) -->
+                @if($order->show_account_in_receipt && $order->customer)
+                    @php
+                        $creditLimit = (float) ($order->customer->credit_limit ?? 0);
+                        $currentBalance = (float) ($order->customer->current_balance ?? 0);
+                        $availableCredit = max(0, round($creditLimit - $currentBalance, 2));
+                    @endphp
+                    <div class="summary-section-account">
+                        <div class="summary-account-title">
+                            <span class="account-info-icon">&#9432;</span> ESTADO EN CUENTA CORRIENTE
+                        </div>
+                        <table class="summary-account-table">
+                            <tr>
+                                <td class="account-col-left">
+                                    <div class="account-data-line">
+                                        <span class="account-data-label">Límite de crédito asignado:</span>
+                                        <span class="account-data-value tabular-nums">${{ number_format($creditLimit, 2, ',', '.') }}</span>
+                                    </div>
+                                    <div class="account-data-line">
+                                        <span class="account-data-label">Saldo de la cuenta (actual):</span>
+                                        <span class="account-data-value tabular-nums">${{ number_format($currentBalance, 2, ',', '.') }}</span>
+                                    </div>
+                                </td>
+                                <td class="account-divider-v"></td>
+                                <td class="account-col-right">
+                                    <span class="account-available-label">Crédito disponible luego de la compra:</span>
+                                    <span class="account-available-value tabular-nums {{ $availableCredit > 0 ? 'text-green' : 'text-danger' }}">
+                                        ${{ number_format($availableCredit, 2, ',', '.') }}
+                                    </span>
+                                </td>
                             </tr>
                         </table>
                     </div>
-                </div>
+                @endif
             </div>
             <div class="watermark-footer">
                 Generado por {{ $tenantModel->name ?? config('app.name', 'Papelera') }}
