@@ -163,7 +163,7 @@
                                         </span>
                                     {/if}
                                     {#if selectedCustomer?.id === cust.id}
-                                        <span class="inline-flex items-center gap-1 font-semibold text-primary bg-primary/15 px-1.5 py-0.5 rounded-md font-sans text-[11px]">
+                                        <span class="inline-flex items-center gap-1 font-semibold text-primary bg-primary/15 px-1.5 py-0.5 rounded-md font-sans text-xs">
                                             <Check class="size-3" /> Seleccionado
                                         </span>
                                     {/if}
@@ -237,7 +237,7 @@
                             type="button"
                             variant="outline"
                             size="sm"
-                            class="h-8.5 px-3 text-xs gap-1.5 rounded-xl font-semibold font-sans"
+                            class="min-h-[36px] px-3 text-sm font-medium gap-1.5 rounded-xl font-sans"
                             onclick={() => onToggleSelectAllOrders?.()}
                         >
                             {#if isAllSelected}
@@ -332,7 +332,7 @@
                         <Button
                             type="button"
                             variant="default"
-                            class="min-h-[46px] h-auto py-3 px-5 rounded-xl font-bold text-xs sm:text-sm font-sans shadow-sm gap-2 leading-snug text-center flex items-center justify-center"
+                            class="min-h-[44px] h-auto py-2.5 px-5 rounded-xl text-sm font-medium font-sans shadow-sm gap-2 leading-snug text-center flex items-center justify-center"
                             disabled={selectedOrderIds.length === 0}
                             onclick={() => onOpenPaymentModal?.()}
                         >

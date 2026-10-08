@@ -53,7 +53,7 @@
                 <!-- Fila Superior: Nº Recibo + Estado + Menú '...' -->
                 <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center gap-2 min-w-0 flex-wrap">
-                        <span class="font-bold text-base text-foreground font-sans tabular-nums">
+                        <span class="font-bold text-xs text-foreground font-mono tabular-nums">
                             {rc.receipt_number}
                         </span>
                         {#if rc.is_cancelled}
@@ -86,14 +86,14 @@
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" class="w-48 shadow-lg">
                             <DropdownMenuItem
-                                class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
+                                class="flex items-center gap-2 text-sm font-medium cursor-pointer py-2.5"
                                 onclick={() => onViewDetail?.(rc)}
                             >
                                 <Eye class="size-4 text-muted-foreground" />
                                 <span>Ver detalle</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
+                                class="flex items-center gap-2 text-sm font-medium cursor-pointer py-2.5"
                                 onclick={() => onPreviewPdf?.(rc)}
                             >
                                 <Printer class="size-4 text-muted-foreground" />
@@ -102,7 +102,7 @@
                             {#if !rc.is_cancelled}
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
-                                    class="flex items-center gap-2 text-xs font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5"
+                                    class="flex items-center gap-2 text-sm font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5"
                                     onclick={() => onRequestVoid?.(rc)}
                                 >
                                     <Ban class="size-4 text-destructive" />
@@ -134,7 +134,7 @@
                         </div>
 
                         <div class="shrink-0">
-                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full border border-primary/20 bg-primary/10 text-primary uppercase inline-block">
+                            <span class="text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border border-primary/20 bg-primary/10 text-primary inline-block">
                                 {rc.payment_method}
                             </span>
                         </div>
@@ -143,7 +143,7 @@
                     <!-- Pedidos Imputados (Máx 1 en Mobile + indicador '+ X') / Referencia -->
                     {#if rc.orders && rc.orders.length > 0}
                         <div class="flex items-center gap-1.5 flex-wrap pt-0.5">
-                            <span class="text-xs font-semibold font-sans tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
+                            <span class="text-xs font-mono font-semibold tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
                                 {rc.orders[0].order_number}
                             </span>
                             {#if rc.orders.length > 1}
@@ -159,7 +159,7 @@
                         <div class="flex items-center gap-1.5 pt-0.5">
                             <span class="text-xs font-medium text-muted-foreground">Ref:</span>
                             <span
-                                class="text-xs font-mono text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md border border-border/50 truncate max-w-[200px] inline-block"
+                                class="text-xs font-mono tabular-nums text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md border border-border/50 truncate max-w-[200px] inline-block"
                                 title={rc.reference_number}
                             >
                                 {truncateRef(rc.reference_number, 14)}
@@ -172,7 +172,7 @@
                 <div class="pt-2.5 border-t border-border/60 flex items-center justify-between gap-3">
                     <div>
                         <span class="text-xs text-muted-foreground block">Monto total</span>
-                        <span class="text-lg font-bold font-sans tabular-nums text-foreground block">
+                        <span class="text-sm font-bold tabular-nums text-foreground block">
                             {formatPrice(rc.amount)}
                         </span>
                     </div>
@@ -180,7 +180,7 @@
                     <Button
                         type="button"
                         variant="secondary"
-                        class="h-11 min-h-[44px] px-4 text-xs font-semibold rounded-xl gap-1.5 cursor-pointer shrink-0"
+                        class="h-11 min-h-[44px] px-4 text-sm font-medium rounded-xl gap-1.5 cursor-pointer shrink-0"
                         onclick={() => onViewDetail?.(rc)}
                     >
                         <Eye class="size-4 text-muted-foreground" />

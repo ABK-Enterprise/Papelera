@@ -49,10 +49,11 @@
                     <div class="flex items-center gap-3">
                         <IconContainer size="md" variant="primary" icon="solar:shield-user-bold-duotone" />
                         <div>
-                            <CardTitle class="text-base font-semibold text-foreground">{role.name}</CardTitle>
+                            <CardTitle class="text-sm font-semibold text-foreground">{role.name}</CardTitle>
                             <CardDescription class="text-xs text-muted-foreground flex items-center gap-1 mt-0.5 tabular-nums">
                                 <Users class="h-3 w-3" />
-                                <span>{role.users_count} {role.users_count === 1 ? 'usuario asignado' : 'usuarios asignados'}</span>
+                                <span class="text-xs font-bold tabular-nums">{role.users_count}</span>
+                                <span>{role.users_count === 1 ? 'usuario asignado' : 'usuarios asignados'}</span>
                             </CardDescription>
                         </div>
                     </div>
@@ -62,7 +63,7 @@
             <CardContent class="space-y-4 pt-0">
                 <div class="flex items-center justify-between rounded-xl bg-muted/40 p-2.5 text-xs text-muted-foreground">
                     <span class="font-medium">Permisos habilitados:</span>
-                    <Badge variant="secondary" class="font-medium text-xs tracking-wide text-foreground px-2 py-0.5 tabular-nums">
+                    <Badge variant="secondary" class="font-bold text-xs tracking-wide text-foreground px-2 py-0.5 tabular-nums">
                         {role.permissions_count} permisos
                     </Badge>
                 </div>
@@ -71,7 +72,7 @@
                     <Link
                         href={`/tenant/roles/${role.id}/edit`}
                         onclick={(e) => e.stopPropagation()}
-                        class="flex-1 inline-flex items-center justify-center min-h-[40px] w-full gap-1.5 rounded-xl border border-primary/30 bg-primary/15 text-foreground hover:bg-primary/25 dark:text-sky-100 dark:border-primary/40 text-xs font-semibold transition-colors shadow-2xs"
+                        class="flex-1 inline-flex items-center justify-center min-h-[38px] w-full gap-1.5 rounded-xl border border-primary/30 bg-primary/15 text-foreground hover:bg-primary/25 dark:text-sky-100 dark:border-primary/40 text-sm font-medium transition-colors shadow-2xs"
                     >
                         <Edit2 class="h-3.5 w-3.5" />
                         <span>Editar rol</span>
@@ -84,7 +85,7 @@
                             e.stopPropagation();
                             ondelete(role);
                         }}
-                        class="min-h-[40px] min-w-[40px] px-3 gap-1.5 rounded-xl text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive justify-center"
+                        class="min-h-[38px] min-w-[38px] px-3 gap-1.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 hover:text-destructive justify-center"
                     >
                         <Trash2 class="h-3.5 w-3.5" />
                         <span class="sr-only">Eliminar</span>

@@ -49,14 +49,14 @@
                         <IconContainer size="md" variant="primary" icon="solar:box-minimalistic-bold-duotone" />
                         <div>
                             <div class="flex items-center gap-2">
-                                <CardTitle class="text-base font-semibold text-foreground">{wh.name}</CardTitle>
+                                <CardTitle class="text-sm font-semibold text-foreground">{wh.name}</CardTitle>
                                 {#if wh.is_default}
-                                    <Badge variant="default" class="h-5 text-xs font-semibold px-2">
+                                    <Badge variant="default" class="h-5 text-xs font-medium tracking-wide px-2">
                                         Principal
                                     </Badge>
                                 {/if}
                                 {#if !wh.is_active}
-                                    <Badge variant="secondary" class="h-5 text-xs font-medium px-2">
+                                    <Badge variant="secondary" class="h-5 text-xs font-medium tracking-wide px-2">
                                         Inactivo
                                     </Badge>
                                 {/if}
@@ -76,7 +76,7 @@
                             <Building2 class="h-3.5 w-3.5 text-muted-foreground" />
                             <span>Sucursal:</span>
                         </span>
-                        <span class="font-semibold text-foreground truncate max-w-[180px] text-right">
+                        <span class="font-semibold text-foreground truncate max-w-[180px] text-right text-sm">
                             {wh.branch?.name ? wh.branch.name : 'Independiente'}
                         </span>
                     </div>
@@ -87,7 +87,7 @@
                                 <MapPin class="h-3.5 w-3.5 text-muted-foreground" />
                                 <span>Dirección:</span>
                             </span>
-                            <span class="truncate max-w-[180px] text-right">{wh.address}</span>
+                            <span class="truncate max-w-[180px] text-right text-sm text-muted-foreground">{wh.address}</span>
                         </div>
                     {/if}
 
@@ -103,7 +103,7 @@
                     <Button
                         variant="tertiary"
                         onclick={() => onedit?.(wh)}
-                        class="flex-1 inline-flex items-center justify-center min-h-[40px] w-full gap-1.5 rounded-xl text-xs font-semibold"
+                        class="flex-1 inline-flex items-center justify-center min-h-[38px] w-full gap-1.5 rounded-xl text-sm font-medium"
                     >
                         <Edit2 class="h-3.5 w-3.5" />
                         <span>Editar depósito</span>
@@ -114,7 +114,7 @@
                             variant="ghost"
                             size="sm"
                             onclick={() => ondelete?.(wh)}
-                            class="min-h-[40px] min-w-[40px] px-3 gap-1.5 rounded-xl text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive justify-center"
+                            class="min-h-[38px] min-w-[38px] px-3 gap-1.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 hover:text-destructive justify-center"
                         >
                             <Trash2 class="h-3.5 w-3.5" />
                             <span class="sr-only">Eliminar depósito</span>

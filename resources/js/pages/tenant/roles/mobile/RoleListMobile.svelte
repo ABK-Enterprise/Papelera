@@ -49,14 +49,15 @@
                     <div class="flex items-center gap-3">
                         <IconContainer size="md" variant="primary" icon="solar:shield-user-bold-duotone" />
                         <div>
-                            <span class="font-semibold text-foreground text-sm">{role.name}</span>
+                            <span class="text-sm font-semibold text-foreground">{role.name}</span>
                             <div class="flex items-center gap-1 text-xs text-muted-foreground mt-0.5 tabular-nums">
                                 <Users class="h-3 w-3" />
-                                <span>{role.users_count} {role.users_count === 1 ? 'usuario' : 'usuarios'}</span>
+                                <span class="text-xs font-bold tabular-nums">{role.users_count}</span>
+                                <span>{role.users_count === 1 ? 'usuario' : 'usuarios'}</span>
                             </div>
                         </div>
                     </div>
-                    <Badge variant="secondary" class="h-5 text-xs font-semibold tracking-wide px-2 tabular-nums">
+                    <Badge variant="secondary" class="h-5 text-xs font-bold tracking-wide px-2 tabular-nums">
                         {role.permissions_count} permisos
                     </Badge>
                 </div>
@@ -65,7 +66,7 @@
                     <Link
                         href={`/tenant/roles/${role.id}/edit`}
                         onclick={(e) => e.stopPropagation()}
-                        class="flex-1 inline-flex items-center justify-center min-h-[44px] w-full gap-2 rounded-xl text-xs font-semibold border border-primary/30 bg-primary/15 text-foreground hover:bg-primary/25 dark:text-sky-100 dark:border-primary/40 transition-colors shadow-2xs"
+                        class="flex-1 inline-flex items-center justify-center min-h-[44px] w-full gap-2 rounded-xl text-sm font-medium border border-primary/30 bg-primary/15 text-foreground hover:bg-primary/25 dark:text-sky-100 dark:border-primary/40 transition-colors shadow-2xs"
                     >
                         <Edit2 class="h-4 w-4" />
                         <span>Editar rol</span>
@@ -73,7 +74,7 @@
 
                     <Button
                         variant="destructive"
-                        class="min-h-[44px] min-w-[44px] px-3.5 gap-2 rounded-xl text-xs font-medium justify-center"
+                        class="min-h-[44px] min-w-[44px] px-3.5 gap-2 rounded-xl text-sm font-medium justify-center"
                         onclick={(e) => {
                             e.stopPropagation();
                             ondelete(role);

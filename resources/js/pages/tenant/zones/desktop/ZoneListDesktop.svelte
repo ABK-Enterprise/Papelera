@@ -32,7 +32,7 @@
                 <!-- Fila 1 (Span 2): Nombre de la Zona + Badge de Estado -->
                 <div class="col-span-2 flex items-start justify-between gap-3 border-b border-border/60 pb-3">
                     <div class="min-w-0 flex-1">
-                        <h3 class="text-base sm:text-lg font-bold text-foreground truncate" title={zone.name}>
+                        <h3 class="text-sm font-semibold text-foreground truncate" title={zone.name}>
                             {zone.name}
                         </h3>
                         {#if zone.orders_count !== undefined && zone.orders_count > 0}
@@ -44,11 +44,11 @@
                     </div>
                     <div>
                         {#if zone.is_active}
-                            <Badge variant="outline" class="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold text-[11px] px-2.5 py-0.5 rounded-full">
+                            <Badge variant="outline" class="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
                                 Activa
                             </Badge>
                         {:else}
-                            <Badge variant="outline" class="border-muted-foreground/30 bg-muted text-muted-foreground font-semibold text-[11px] px-2.5 py-0.5 rounded-full">
+                            <Badge variant="outline" class="border-muted-foreground/30 bg-muted text-muted-foreground text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
                                 Inactiva
                             </Badge>
                         {/if}
@@ -57,22 +57,22 @@
 
                 <!-- Fila 2, Columna 1: Distancia (ej. 20 km) -->
                 <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-card/50 p-3 flex flex-col justify-center">
-                    <span class="text-[11px] font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
+                    <span class="text-xs font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
                         <Navigation class="size-3 text-primary" />
                         Distancia
                     </span>
-                    <span class="text-base font-bold tabular-nums text-foreground mt-1">
+                    <span class="text-sm font-bold tabular-nums text-foreground mt-1">
                         {Number(zone.distance_km).toFixed(1)} <span class="text-xs font-medium text-muted-foreground">km</span>
                     </span>
                 </div>
 
                 <!-- Fila 2, Columna 2: Porcentaje de Recargo (ej. 5%) -->
                 <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-card/50 p-3 flex flex-col justify-center">
-                    <span class="text-[11px] font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
+                    <span class="text-xs font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
                         <Percent class="size-3 text-primary" />
                         Recargo
                     </span>
-                    <span class="text-base font-bold tabular-nums text-primary mt-1">
+                    <span class="text-sm font-bold tabular-nums text-primary mt-1">
                         +{Number(zone.surcharge_percentage).toFixed(2)}%
                     </span>
                 </div>
@@ -83,7 +83,7 @@
                 <Button
                     variant="tertiary"
                     size="sm"
-                    class="h-9 px-3.5 rounded-xl text-xs font-semibold gap-1.5 min-h-[36px]"
+                    class="min-h-[38px] px-3.5 rounded-xl text-sm font-medium gap-1.5"
                     onclick={(e) => {
                         e.stopPropagation();
                         onedit(zone);
@@ -95,7 +95,7 @@
                 <Button
                     variant="destructive"
                     size="sm"
-                    class="h-9 px-3.5 rounded-xl text-xs font-semibold gap-1.5 min-h-[36px] bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                    class="min-h-[38px] px-3.5 rounded-xl text-sm font-medium gap-1.5 bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-destructive-foreground transition-colors"
                     onclick={(e) => {
                         e.stopPropagation();
                         ondelete(zone);

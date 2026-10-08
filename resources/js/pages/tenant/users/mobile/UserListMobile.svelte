@@ -57,7 +57,7 @@
                         </IconContainer>
                         <div class="flex flex-col">
                             <div class="flex items-center gap-1.5">
-                                <span class="font-semibold text-foreground text-sm">{user.name}</span>
+                                <span class="text-sm font-medium text-foreground">{user.name}</span>
                                 {#if currentUserId === user.id}
                                     <Badge variant="secondary" class="h-4.5 text-xs px-1.5 font-medium tracking-wide">Tú</Badge>
                                 {/if}
@@ -68,12 +68,12 @@
                 </div>
 
                 <div class="space-y-1.5 pt-1">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Rol Asignado</span>
+                    <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Rol Asignado</span>
                     <div class="flex flex-wrap gap-1.5">
                         {#each user.roles as role}
                             <Badge
                                 variant={role.name === 'admin' ? 'default' : 'outline'}
-                                class="h-6 text-xs font-semibold tracking-wide rounded-md px-2"
+                                class="h-6 text-xs font-medium tracking-wide rounded-md px-2"
                             >
                                 {role.name}
                             </Badge>
@@ -88,7 +88,7 @@
                     <Link
                         href={`/tenant/usuarios/${user.id}/edit`}
                         onclick={(e) => e.stopPropagation()}
-                        class="flex-1 inline-flex items-center justify-center min-h-[44px] w-full gap-2 rounded-xl text-xs font-semibold border border-primary/30 bg-primary/15 text-foreground hover:bg-primary/25 dark:text-sky-100 dark:border-primary/40 transition-colors shadow-2xs"
+                        class="flex-1 inline-flex items-center justify-center min-h-[44px] w-full gap-2 rounded-xl text-sm font-medium border border-primary/30 bg-primary/15 text-foreground hover:bg-primary/25 dark:text-sky-100 dark:border-primary/40 transition-colors shadow-2xs"
                     >
                         <Edit2 class="h-4 w-4" />
                         <span>Editar</span>
@@ -97,7 +97,7 @@
                     {#if currentUserId !== user.id}
                         <Button
                             variant="destructive"
-                            class="min-h-[44px] min-w-[44px] px-3.5 gap-2 rounded-xl text-xs font-medium justify-center"
+                            class="min-h-[44px] min-w-[44px] px-3.5 gap-2 rounded-xl text-sm font-medium justify-center"
                             onclick={(e) => {
                                 e.stopPropagation();
                                 ondelete(user);

@@ -131,7 +131,7 @@
         <div class="flex items-center justify-end gap-3">
             <Link
                 href="/tenant/usuarios"
-                class="inline-flex items-center justify-center min-h-[44px] min-w-36 px-5 rounded-xl font-semibold border border-border/80 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-xs transition-colors shadow-2xs"
+                class="inline-flex items-center justify-center min-h-[44px] min-w-36 px-5 rounded-xl font-medium border border-border/80 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-sm transition-colors shadow-2xs"
             >
                 Cancelar
             </Link>
@@ -139,7 +139,7 @@
             <Button
                 type="submit"
                 disabled={form.processing}
-                class="min-h-[44px] min-w-36 px-5 gap-2 rounded-xl font-semibold text-xs shadow-xs"
+                class="min-h-[44px] min-w-36 px-5 gap-2 rounded-xl font-medium text-sm shadow-xs"
             >
                 {#if form.processing}
                     <Spinner class="mr-2" />

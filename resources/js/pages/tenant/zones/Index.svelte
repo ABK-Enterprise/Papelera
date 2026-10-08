@@ -88,7 +88,7 @@
     <div class="flex items-center justify-end w-full">
         <Button
             variant="default"
-            class="min-h-[40px] sm:min-h-[44px] px-4 sm:px-5 rounded-xl font-semibold gap-2 shadow-xs text-xs sm:text-sm w-auto cursor-pointer"
+            class="min-h-[44px] px-4 sm:px-5 rounded-xl text-sm font-medium gap-2 shadow-xs w-auto cursor-pointer"
             onclick={openCreateModal}
         >
             <Plus class="size-4" />

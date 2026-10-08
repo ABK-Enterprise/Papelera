@@ -81,7 +81,7 @@
         <button
             type="button"
             onclick={() => (activeTab = 'customers')}
-            class="py-2.5 px-2 rounded-lg text-xs font-semibold transition-all duration-150 {activeTab === 'customers'
+            class="py-2.5 px-2 rounded-lg text-sm font-medium transition-all duration-150 {activeTab === 'customers'
                 ? 'bg-card text-foreground shadow-2xs'
                 : 'text-muted-foreground hover:text-foreground'}"
         >
@@ -91,7 +91,7 @@
         <button
             type="button"
             onclick={() => (activeTab = 'orders')}
-            class="py-2.5 px-2 rounded-lg text-xs font-semibold transition-all duration-150 {activeTab === 'orders'
+            class="py-2.5 px-2 rounded-lg text-sm font-medium transition-all duration-150 {activeTab === 'orders'
                 ? 'bg-card text-foreground shadow-2xs'
                 : 'text-muted-foreground hover:text-foreground'}"
         >
@@ -101,7 +101,7 @@
         <button
             type="button"
             onclick={() => (activeTab = 'receipts')}
-            class="py-2.5 px-2 rounded-lg text-xs font-semibold transition-all duration-150 {activeTab === 'receipts'
+            class="py-2.5 px-2 rounded-lg text-sm font-medium transition-all duration-150 {activeTab === 'receipts'
                 ? 'bg-card text-foreground shadow-2xs'
                 : 'text-muted-foreground hover:text-foreground'}"
         >
@@ -135,15 +135,15 @@
                         >
                             <div class="flex items-start justify-between gap-2">
                                 <div class="space-y-1 min-w-0">
-                                    <span class="font-bold text-xs text-foreground block truncate">
+                                    <span class="font-bold text-sm text-foreground block truncate">
                                         {cust.name}
                                     </span>
-                                    <div class="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                                    <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
                                         {#if cust.tax_id}
                                             <span>CUIT: {cust.tax_id}</span>
                                         {/if}
                                         {#if cust.unpaid_orders_count && cust.unpaid_orders_count > 0}
-                                            <span class="font-semibold text-amber-600 bg-amber-500/10 px-1.5 py-0.2 rounded">
+                                            <span class="font-semibold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded text-xs">
                                                 {cust.unpaid_orders_count} ped.
                                             </span>
                                         {/if}
@@ -151,11 +151,11 @@
                                 </div>
 
                                 <div class="text-right shrink-0">
-                                    <span class="text-xs font-bold font-sans tabular-nums text-rose-600 dark:text-rose-400">
+                                    <span class="text-sm font-bold font-sans tabular-nums text-rose-600 dark:text-rose-400">
                                         {formatPrice(cust.current_balance)}
                                     </span>
-                                    <span class="text-[10px] text-primary font-semibold flex items-center justify-end gap-0.5 mt-0.5">
-                                        Ver pedidos <ArrowRight class="size-2.5" />
+                                    <span class="text-xs text-primary font-medium flex items-center justify-end gap-0.5 mt-0.5">
+                                        Ver pedidos <ArrowRight class="size-3" />
                                     </span>
                                 </div>
                             </div>
@@ -172,14 +172,14 @@
             {#if !selectedCustomer}
                 <Card class="p-8 text-center rounded-2xl border border-dashed border-border bg-card">
                     <User class="size-8 text-muted-foreground mx-auto mb-2 opacity-60" />
-                    <h3 class="text-xs font-bold text-foreground">Ningún cliente seleccionado</h3>
-                    <p class="text-[11px] text-muted-foreground mt-1 mb-3">
+                    <h3 class="text-sm font-semibold text-foreground">Ningún cliente seleccionado</h3>
+                    <p class="text-xs text-muted-foreground mt-1 mb-3">
                         Selecciona un cliente para gestionar sus pedidos impagos.
                     </p>
                     <Button
                         variant="secondary"
                         size="sm"
-                        class="min-h-[40px]"
+                        class="min-h-[44px] text-sm font-medium"
                         onclick={() => (activeTab = 'customers')}
                     >
                         Ir a lista de clientes
@@ -189,9 +189,9 @@
                 <!-- Cabecera del Cliente -->
                 <div class="p-3 rounded-xl bg-card border border-border/80 flex items-center justify-between">
                     <div>
-                        <span class="text-xs font-bold text-foreground block">{selectedCustomer.name}</span>
-                        <span class="text-[11px] text-muted-foreground">
-                            Deuda: <strong class="text-rose-600 font-sans tabular-nums">{formatPrice(selectedCustomer.current_balance)}</strong>
+                        <span class="text-sm font-semibold text-foreground block">{selectedCustomer.name}</span>
+                        <span class="text-xs text-muted-foreground">
+                            Deuda: <strong class="text-sm font-bold text-rose-600 font-sans tabular-nums">{formatPrice(selectedCustomer.current_balance)}</strong>
                         </span>
                     </div>
 
@@ -200,7 +200,7 @@
                             type="button"
                             variant="outline"
                             size="sm"
-                            class="h-8 px-2 text-[11px] gap-1"
+                            class="min-h-[36px] px-2.5 text-xs font-medium gap-1"
                             onclick={() => onToggleSelectAllOrders?.()}
                         >
                             {#if isAllSelected}
@@ -244,22 +244,22 @@
 
                                         <div class="space-y-0.5">
                                             <div class="flex items-center gap-1.5">
-                                                <span class="font-bold text-xs text-foreground">{order.order_number}</span>
+                                                <span class="font-bold text-xs font-mono tabular-nums text-foreground">{order.order_number}</span>
                                                 {#if order.shipping_zone}
-                                                    <span class="text-[9px] font-semibold text-primary bg-primary/10 px-1 py-0.2 rounded">
+                                                    <span class="text-xs font-semibold uppercase tracking-wider text-primary bg-primary/10 px-1.5 py-0.5 rounded">
                                                         {order.shipping_zone.name}
                                                     </span>
                                                 {/if}
                                             </div>
-                                            <span class="text-[10px] text-muted-foreground block">
+                                            <span class="text-xs text-muted-foreground block">
                                                 Total: {formatPrice(order.total_amount)}
                                             </span>
                                         </div>
                                     </div>
 
                                     <div class="text-right shrink-0">
-                                        <span class="text-[9px] uppercase font-semibold text-muted-foreground block">Deuda</span>
-                                        <span class="text-xs font-bold font-sans tabular-nums text-rose-600 dark:text-rose-400">
+                                        <span class="text-xs uppercase font-semibold text-muted-foreground block">Deuda</span>
+                                        <span class="text-sm font-bold font-sans tabular-nums text-rose-600 dark:text-rose-400">
                                             {formatPrice(order.debt_amount)}
                                         </span>
                                     </div>
@@ -273,10 +273,10 @@
                 {#if unpaidOrders.length > 0}
                     <div class="fixed bottom-0 inset-x-0 p-3 bg-card/95 backdrop-blur-md border-t border-border shadow-lg z-40 flex items-center justify-between gap-3">
                         <div>
-                            <span class="text-[11px] text-muted-foreground block">
+                            <span class="text-xs text-muted-foreground block">
                                 Seleccionados: <strong>{selectedOrderIds.length}</strong>
                             </span>
-                            <span class="text-xs font-bold text-foreground font-sans tabular-nums">
+                            <span class="text-sm font-bold text-foreground font-sans tabular-nums">
                                 {formatPrice(selectedOrdersTotalDebt)}
                             </span>
                         </div>
@@ -285,7 +285,7 @@
                             <Button
                                 type="button"
                                 variant="default"
-                                class="min-h-[46px] h-auto py-3 px-5 rounded-xl font-bold text-xs sm:text-sm shadow-sm gap-2 leading-snug text-center flex items-center justify-center"
+                                class="min-h-[44px] h-auto py-2.5 px-5 rounded-xl text-sm font-medium shadow-sm gap-2 leading-snug text-center flex items-center justify-center"
                                 disabled={selectedOrderIds.length === 0}
                                 onclick={() => onOpenPaymentModal?.()}
                             >

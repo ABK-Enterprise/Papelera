@@ -101,7 +101,7 @@
                         {#snippet item(r)}
                             <div class="flex items-center justify-between gap-3 w-full min-w-0">
                                 <span class="truncate font-medium text-foreground">{r.name}</span>
-                                <div class="flex items-center gap-2 text-[11px] text-muted-foreground shrink-0 tabular-nums">
+                                <div class="flex items-center gap-2 text-xs text-muted-foreground shrink-0 tabular-nums">
                                     <span>{r.permissions_count} perm.</span>
                                     <span>·</span>
                                     <span>{r.users_count} {r.users_count === 1 ? 'usuario' : 'usuarios'}</span>
@@ -130,7 +130,7 @@
             <Shield class="size-8 text-muted-foreground/50 mb-2 stroke-[1.5]" />
             <h3 class="text-sm font-semibold text-foreground">No se encontraron perfiles de roles</h3>
             <p class="text-xs text-muted-foreground mt-1">Intenta con otro término o borra el filtro de búsqueda.</p>
-            <Button variant="outline" size="sm" class="mt-4 text-xs" onclick={() => (searchTerm = '')}>
+            <Button variant="outline" size="sm" class="mt-4 text-xs min-h-[36px]" onclick={() => (searchTerm = '')}>
                 Limpiar búsqueda
             </Button>
         </div>

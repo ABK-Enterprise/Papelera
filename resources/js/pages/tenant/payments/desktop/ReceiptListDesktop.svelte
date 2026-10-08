@@ -72,11 +72,11 @@
                         <ReceiptText class="size-5 text-primary" />
                     </div>
                     <div class="flex flex-col gap-1">
-                        <span class="font-bold text-base text-foreground tabular-nums font-sans">
+                        <span class="font-bold text-sm text-foreground tabular-nums font-mono">
                             {rc.receipt_number}
                         </span>
                         <div>
-                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full border border-primary/20 bg-primary/10 text-primary uppercase inline-block">
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full border border-primary/20 bg-primary/10 text-primary uppercase tracking-wider inline-block">
                                 {rc.payment_method}
                             </span>
                         </div>
@@ -107,7 +107,7 @@
                         <!-- Fila 1: Primeros 2 pedidos -->
                         <div class="flex items-center gap-1.5 flex-wrap">
                             {#each rc.orders.slice(0, 2) as ord (ord.id)}
-                                <span class="text-xs font-semibold font-sans tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
+                                <span class="text-xs font-mono font-semibold tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
                                     {ord.order_number}
                                 </span>
                             {/each}
@@ -116,7 +116,7 @@
                         <!-- Fila 2: 3er pedido + indicador '+ X' si hay más -->
                         {#if rc.orders.length > 2}
                             <div class="flex items-center gap-1.5 flex-wrap">
-                                <span class="text-xs font-semibold font-sans tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
+                                <span class="text-xs font-mono font-semibold tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
                                     {rc.orders[2].order_number}
                                 </span>
                                 {#if rc.orders.length > 3}
@@ -131,7 +131,7 @@
                         {/if}
                     {:else if rc.reference_number}
                         <span
-                            class="text-xs font-mono text-muted-foreground bg-muted/50 px-2 py-1 rounded-lg border border-border/50 max-w-[150px] truncate inline-block"
+                            class="text-xs font-mono tabular-nums text-muted-foreground bg-muted/50 px-2 py-1 rounded-lg border border-border/50 max-w-[150px] truncate inline-block"
                             title={rc.reference_number}
                         >
                             {truncateRef(rc.reference_number, 14)}
@@ -160,7 +160,7 @@
                 <!-- Lado Derecho: Monto y Menú '...' -->
                 <div class="flex items-center gap-4 shrink-0">
                     <div class="text-right">
-                        <span class="font-bold text-base sm:text-lg text-foreground tabular-nums text-right font-sans block">
+                        <span class="text-sm font-bold tabular-nums text-foreground text-right block">
                             {formatPrice(rc.amount)}
                         </span>
                     </div>
@@ -181,14 +181,14 @@
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" class="w-48 shadow-lg">
                             <DropdownMenuItem
-                                class="flex items-center gap-2 text-xs font-semibold cursor-pointer py-2.5 px-3"
+                                class="flex items-center gap-2 text-sm font-medium cursor-pointer py-2.5 px-3"
                                 onclick={() => onViewDetail?.(rc)}
                             >
                                 <Eye class="size-4 text-muted-foreground" />
                                 <span>Ver detalle</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                class="flex items-center gap-2 text-xs font-semibold cursor-pointer py-2.5 px-3"
+                                class="flex items-center gap-2 text-sm font-medium cursor-pointer py-2.5 px-3"
                                 onclick={() => onPreviewPdf?.(rc)}
                             >
                                 <Printer class="size-4 text-muted-foreground" />
@@ -197,7 +197,7 @@
                             {#if !rc.is_cancelled && hasPermission('cobranzas.anular')}
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
-                                    class="flex items-center gap-2 text-xs font-semibold text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5 px-3"
+                                    class="flex items-center gap-2 text-sm font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5 px-3"
                                     onclick={() => onRequestVoid?.(rc)}
                                 >
                                     <Ban class="size-4 text-destructive" />

@@ -24,15 +24,15 @@
             <div class="grid grid-cols-2 gap-2.5">
                 <!-- Fila 1: Nombre y Badge -->
                 <div class="col-span-2 flex items-center justify-between gap-2 border-b border-border/60 pb-2.5">
-                    <h3 class="text-base font-bold text-foreground truncate">
+                    <h3 class="text-sm font-semibold text-foreground truncate">
                         {zone.name}
                     </h3>
                     {#if zone.is_active}
-                        <Badge variant="outline" class="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold text-[10px] px-2 py-0.5 rounded-full">
+                        <Badge variant="outline" class="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold px-2 py-0.5 rounded-full">
                             Activa
                         </Badge>
                     {:else}
-                        <Badge variant="outline" class="border-muted-foreground/30 bg-muted text-muted-foreground font-semibold text-[10px] px-2 py-0.5 rounded-full">
+                        <Badge variant="outline" class="border-muted-foreground/30 bg-muted text-muted-foreground text-xs font-semibold px-2 py-0.5 rounded-full">
                             Inactiva
                         </Badge>
                     {/if}
@@ -40,18 +40,18 @@
 
                 <!-- Fila 2, Col 1: Distancia -->
                 <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-card/50 p-2.5 flex flex-col justify-center">
-                    <span class="text-[10px] font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
+                    <span class="text-xs font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
                         <Navigation class="size-3 text-primary" />
                         Distancia
                     </span>
                     <span class="text-sm font-bold tabular-nums text-foreground mt-0.5">
-                        {Number(zone.distance_km).toFixed(1)} <span class="text-[11px] font-normal text-muted-foreground">km</span>
+                        {Number(zone.distance_km).toFixed(1)} <span class="text-xs font-normal text-muted-foreground">km</span>
                     </span>
                 </div>
 
                 <!-- Fila 2, Col 2: Recargo -->
                 <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-card/50 p-2.5 flex flex-col justify-center">
-                    <span class="text-[10px] font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
+                    <span class="text-xs font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
                         <Percent class="size-3 text-primary" />
                         Recargo
                     </span>
@@ -66,7 +66,7 @@
                 <Button
                     variant="tertiary"
                     size="sm"
-                    class="h-10 rounded-xl text-xs font-semibold gap-1.5 w-full min-h-[40px]"
+                    class="rounded-xl text-sm font-medium gap-1.5 w-full min-h-[44px]"
                     onclick={() => onedit(zone)}
                 >
                     <Pencil class="size-3.5" />
@@ -75,7 +75,7 @@
                 <Button
                     variant="destructive"
                     size="sm"
-                    class="h-10 rounded-xl text-xs font-semibold gap-1.5 w-full min-h-[40px] bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                    class="rounded-xl text-sm font-medium gap-1.5 w-full min-h-[44px] bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-destructive-foreground transition-colors"
                     onclick={() => ondelete(zone)}
                 >
                     <Trash2 class="size-3.5" />

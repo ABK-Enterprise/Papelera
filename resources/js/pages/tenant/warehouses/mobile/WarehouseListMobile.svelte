@@ -30,14 +30,14 @@
                         <IconContainer size="md" variant="primary" icon="solar:box-minimalistic-bold-duotone" />
                         <div>
                             <div class="flex items-center gap-1.5 flex-wrap">
-                                <span class="font-semibold text-foreground text-sm">{wh.name}</span>
+                                <span class="text-sm font-semibold text-foreground">{wh.name}</span>
                                 {#if wh.is_default}
-                                    <Badge variant="default" class="h-5 text-[10px] font-bold px-1.5">
+                                    <Badge variant="default" class="h-5 text-xs font-medium px-2">
                                         Principal
                                     </Badge>
                                 {/if}
                                 {#if !wh.is_active}
-                                    <Badge variant="secondary" class="h-5 text-[10px] text-muted-foreground px-1.5">
+                                    <Badge variant="secondary" class="h-5 text-xs font-medium px-2">
                                         Inactivo
                                     </Badge>
                                 {/if}
@@ -75,7 +75,7 @@
                     <Button
                         variant="tertiary"
                         onclick={() => onedit?.(wh)}
-                        class="flex-1 inline-flex items-center justify-center min-h-[44px] w-full gap-2 rounded-xl text-xs font-semibold"
+                        class="flex-1 inline-flex items-center justify-center min-h-[44px] w-full gap-2 rounded-xl text-sm font-medium"
                     >
                         <Edit2 class="h-4 w-4" />
                         <span>Editar depósito</span>
@@ -84,7 +84,7 @@
                     {#if !wh.is_default}
                         <Button
                             variant="destructive"
-                            class="min-h-[44px] min-w-[44px] px-3.5 gap-2 rounded-xl text-xs font-medium justify-center"
+                            class="min-h-[44px] min-w-[44px] px-3.5 gap-2 rounded-xl text-sm font-medium justify-center"
                             onclick={() => ondelete?.(wh)}
                         >
                             <Trash2 class="h-4 w-4" />

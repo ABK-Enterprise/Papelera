@@ -122,10 +122,10 @@
                             <div class="flex items-center justify-between gap-3 w-full min-w-0">
                                 <div class="flex flex-col min-w-0">
                                     <span class="truncate font-medium text-foreground">{u.name}</span>
-                                    <span class="text-[11px] text-muted-foreground truncate">{u.email}</span>
+                                    <span class="text-xs text-muted-foreground truncate">{u.email}</span>
                                 </div>
                                 {#if u.roles && u.roles.length > 0}
-                                    <span class="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary shrink-0">
+                                    <span class="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary shrink-0">
                                         {u.roles[0].name}
                                     </span>
                                 {/if}

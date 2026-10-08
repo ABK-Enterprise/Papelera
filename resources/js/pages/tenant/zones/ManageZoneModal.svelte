@@ -119,7 +119,7 @@
 
         <form onsubmit={handleSubmit} class="space-y-4">
             <div class="space-y-1.5">
-                <Label for="zone-name" class="text-xs font-semibold text-foreground">Nombre de la Zona</Label>
+                <Label for="zone-name" class="text-sm font-medium text-foreground">Nombre de la Zona</Label>
                 <Input
                     id="zone-name"
                     type="text"
@@ -132,7 +132,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div class="space-y-1.5">
-                    <Label for="zone-distance" class="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <Label for="zone-distance" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <Navigation class="size-3.5 text-muted-foreground" />
                         Distancia
                     </Label>
@@ -147,12 +147,12 @@
                             class="h-11 rounded-xl bg-background border-border/80 pr-12 text-sm tabular-nums font-medium"
                             required
                         />
-                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground">km</span>
+                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground">km</span>
                     </div>
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="zone-surcharge" class="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <Label for="zone-surcharge" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <Percent class="size-3.5 text-muted-foreground" />
                         Recargo
                     </Label>
@@ -168,15 +168,15 @@
                             class="h-11 rounded-xl bg-background border-border/80 pr-10 text-sm tabular-nums font-medium"
                             required
                         />
-                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground">%</span>
+                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground">%</span>
                     </div>
                 </div>
             </div>
 
             <div class="flex items-center justify-between p-3 rounded-xl border border-border/60 bg-muted/20">
                 <div class="space-y-0.5">
-                    <p class="text-xs font-semibold text-foreground">Estado Operativo</p>
-                    <p class="text-[11px] text-muted-foreground">Habilitar esta zona para su selección en nuevos pedidos</p>
+                    <p class="text-sm font-medium text-foreground">Estado Operativo</p>
+                    <p class="text-xs text-muted-foreground">Habilitar esta zona para su selección en nuevos pedidos</p>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" bind:checked={isActive} class="sr-only peer" />
@@ -188,7 +188,7 @@
                 <Button
                     type="button"
                     variant="outline"
-                    class="h-11 px-5 rounded-xl font-medium min-h-[44px]"
+                    class="min-h-[44px] px-5 rounded-xl text-sm font-medium border-border/70 hover:bg-muted/60 transition-colors"
                     onclick={onclose}
                     disabled={isSubmitting}
                 >
@@ -197,7 +197,7 @@
                 <Button
                     type="submit"
                     variant="default"
-                    class="h-11 px-5 rounded-xl font-semibold min-h-[44px]"
+                    class="min-h-[44px] px-5 rounded-xl text-sm font-medium shadow-xs"
                     disabled={!isValid || isSubmitting}
                 >
                     {isSubmitting ? 'Guardando...' : (mode === 'create' ? 'Guardar Zona' : 'Actualizar Cambios')}

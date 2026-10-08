@@ -113,10 +113,10 @@
                             <div class="flex items-center justify-between gap-3 w-full min-w-0">
                                 <div class="flex flex-col min-w-0">
                                     <span class="truncate font-medium text-foreground">{w.name}</span>
-                                    <span class="text-[11px] font-sans tabular-nums text-muted-foreground truncate">{w.code} {w.branch?.name ? `· ${w.branch.name}` : ''}</span>
+                                    <span class="text-xs font-sans tabular-nums text-muted-foreground truncate">{w.code} {w.branch?.name ? `· ${w.branch.name}` : ''}</span>
                                 </div>
                                 {#if w.is_default}
-                                    <span class="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary shrink-0">
+                                    <span class="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary shrink-0">
                                         Principal
                                     </span>
                                 {/if}

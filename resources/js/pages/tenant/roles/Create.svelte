@@ -152,7 +152,7 @@
                                     <button
                                         type="button"
                                         onclick={() => togglePermission(perm.name)}
-                                        class="flex min-h-[44px] items-center gap-3 rounded-xl border p-2.5 sm:px-3.5 text-left text-xs cursor-pointer select-none transition-all {isChecked
+                                        class="flex min-h-[44px] items-center gap-3 rounded-xl border p-2.5 sm:px-3.5 text-left text-sm cursor-pointer select-none transition-all {isChecked
                                             ? 'border-primary bg-primary/10 text-foreground shadow-2xs font-semibold'
                                             : 'border-border/80 bg-card hover:bg-muted/60 text-muted-foreground'}"
                                     >
@@ -162,10 +162,10 @@
                                             {/if}
                                         </div>
                                         <div class="flex-1 min-w-0 flex items-center justify-between gap-2">
-                                            <span class="text-xs leading-tight break-words {isChecked ? 'text-foreground font-semibold' : 'text-muted-foreground'}">
+                                            <span class="text-sm leading-snug break-words {isChecked ? 'text-foreground font-medium' : 'text-muted-foreground'}">
                                                 {getPermissionLabel(perm.name)}
                                             </span>
-                                            <span class="text-[10px] font-sans text-muted-foreground/60 tabular-nums shrink-0 hidden sm:inline-block">
+                                            <span class="text-xs font-mono text-muted-foreground/70 shrink-0 hidden sm:inline-block">
                                                 {perm.name}
                                             </span>
                                         </div>
@@ -196,14 +196,14 @@
         <div class="flex items-center justify-end gap-3">
             <Link
                 href="/tenant/roles"
-                class="inline-flex items-center justify-center min-h-[44px] min-w-36 px-5 rounded-xl font-semibold border border-border/80 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-xs transition-colors shadow-2xs"
+                class="inline-flex items-center justify-center min-h-[44px] min-w-36 px-5 rounded-xl font-medium border border-border/80 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-sm transition-colors shadow-2xs"
             >
                 Cancelar
             </Link>
             <Button
                 type="submit"
                 disabled={form.processing}
-                class="min-h-[44px] min-w-36 px-5 gap-2 rounded-xl font-semibold text-xs shadow-xs"
+                class="min-h-[44px] min-w-36 px-5 gap-2 rounded-xl font-medium text-sm shadow-xs"
             >
                 {form.processing ? 'Guardando...' : 'Crear rol'}
             </Button>

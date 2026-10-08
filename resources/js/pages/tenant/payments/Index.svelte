@@ -129,7 +129,7 @@
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
             <Button
                 variant="secondary"
-                class="h-11 px-4 rounded-xl font-semibold gap-2 shadow-xs min-h-[44px] w-full sm:w-auto justify-center"
+                class="h-11 px-4 rounded-xl text-sm font-medium gap-2 shadow-xs min-h-[44px] w-full sm:w-auto justify-center"
                 onclick={() => router.get('/tenant/cobranzas/facturas')}
             >
                 <FileText class="size-4" />
@@ -138,7 +138,7 @@
 
             <Button
                 variant="secondary"
-                class="h-11 px-4 rounded-xl font-semibold gap-2 shadow-xs min-h-[44px] w-full sm:w-auto justify-center"
+                class="h-11 px-4 rounded-xl text-sm font-medium gap-2 shadow-xs min-h-[44px] w-full sm:w-auto justify-center"
                 onclick={() => router.get('/tenant/cobranzas/recibos')}
             >
                 <History class="size-4" />

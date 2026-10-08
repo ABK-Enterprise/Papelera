@@ -122,7 +122,7 @@
             <DialogBody class="p-5 sm:p-6 space-y-4">
                 <!-- Nombre del Depósito -->
                 <div class="space-y-1.5">
-                    <Label for="wh-name" class="text-xs font-semibold">
+                    <Label for="wh-name" class="text-sm font-medium text-foreground">
                         Nombre del Depósito <span class="text-destructive">*</span>
                     </Label>
                     <Input
@@ -133,13 +133,13 @@
                         class="h-10 text-sm font-medium rounded-xl"
                     />
                     {#if form.errors.name}
-                        <p class="text-[11px] font-medium text-destructive">{form.errors.name}</p>
+                        <p class="text-xs font-medium text-destructive">{form.errors.name}</p>
                     {/if}
                 </div>
 
                 <!-- Código Identificador -->
                 <div class="space-y-1.5">
-                    <Label for="wh-code" class="text-xs font-semibold">
+                    <Label for="wh-code" class="text-sm font-medium text-foreground">
                         Código / Identificador <span class="text-destructive">*</span>
                     </Label>
                     <Input
@@ -150,14 +150,14 @@
                         class="h-10 text-sm font-sans tabular-nums uppercase rounded-xl"
                     />
                     {#if form.errors.code}
-                        <p class="text-[11px] font-medium text-destructive">{form.errors.code}</p>
+                        <p class="text-xs font-medium text-destructive">{form.errors.code}</p>
                     {/if}
                 </div>
 
                 <!-- Sucursal Vinculada -->
                 {#if branches.length > 0}
                     <div class="space-y-1.5">
-                        <Label for="wh-branch" class="text-xs font-semibold flex items-center gap-1.5">
+                        <Label for="wh-branch" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                             <Building2 class="size-3.5 text-muted-foreground" />
                             <span>Sucursal Vinculada</span>
                         </Label>
@@ -165,7 +165,7 @@
                             <select
                                 id="wh-branch"
                                 bind:value={form.branch_id}
-                                class="w-full h-10 rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                class="w-full h-10 rounded-xl border border-border/80 bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
 
                                 <option value={null}>Sin sucursal asignada (Depósito Independiente)</option>
@@ -178,14 +178,14 @@
 
                         </div>
                         {#if form.errors.branch_id}
-                            <p class="text-[11px] font-medium text-destructive">{form.errors.branch_id}</p>
+                            <p class="text-xs font-medium text-destructive">{form.errors.branch_id}</p>
                         {/if}
                     </div>
                 {/if}
 
                 <!-- Dirección Física -->
                 <div class="space-y-1.5">
-                    <Label for="wh-address" class="text-xs font-semibold flex items-center gap-1.5">
+                    <Label for="wh-address" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <MapPin class="size-3.5 text-muted-foreground" />
                         <span>Dirección / Ubicación Física</span>
                     </Label>
@@ -193,10 +193,10 @@
                         id="wh-address"
                         bind:value={form.address}
                         placeholder="Ej: Calle Principal 1234, Galpón 4"
-                        class="h-10 text-xs rounded-xl"
+                        class="h-10 text-sm rounded-xl"
                     />
                     {#if form.errors.address}
-                        <p class="text-[11px] font-medium text-destructive">{form.errors.address}</p>
+                        <p class="text-xs font-medium text-destructive">{form.errors.address}</p>
                     {/if}
                 </div>
 
@@ -206,10 +206,10 @@
                         <!-- Switch 1: Activo -->
                         <div class="flex items-center justify-between sm:justify-center gap-3">
                             <div class="flex flex-col">
-                                <Label for="wh-switch-active" class="text-xs font-semibold cursor-pointer text-foreground">
+                                <Label for="wh-switch-active" class="text-sm font-medium cursor-pointer text-foreground">
                                     Depósito activo
                                 </Label>
-                                <span class="text-[11px] text-muted-foreground">Operativo en sistema</span>
+                                <span class="text-xs text-muted-foreground">Operativo en sistema</span>
                             </div>
                             <Switch
                                 id="wh-switch-active"
@@ -224,10 +224,10 @@
                         <!-- Switch 2: Principal -->
                         <div class="flex items-center justify-between sm:justify-center gap-3">
                             <div class="flex flex-col">
-                                <Label for="wh-switch-default" class="text-xs font-semibold cursor-pointer text-foreground">
+                                <Label for="wh-switch-default" class="text-sm font-medium cursor-pointer text-foreground">
                                     Depósito principal
                                 </Label>
-                                <span class="text-[11px] text-muted-foreground">Por defecto para stock</span>
+                                <span class="text-xs text-muted-foreground">Por defecto para stock</span>
                             </div>
                             <Switch
                                 id="wh-switch-default"
@@ -250,7 +250,7 @@
                 <Button
                     type="submit"
                     disabled={form.processing}
-                    class="min-h-[44px] px-6 rounded-xl text-sm font-semibold shadow-xs min-w-[150px]"
+                    class="min-h-[44px] px-6 rounded-xl text-sm font-medium shadow-xs min-w-[150px]"
                 >
                     {form.processing ? 'Guardando...' : mode === 'create' ? 'Crear depósito' : 'Guardar cambios'}
                 </Button>
