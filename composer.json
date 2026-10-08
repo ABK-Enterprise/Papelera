@@ -16,6 +16,7 @@
         "laravel/chisel": "^0.1.0",
         "laravel/fortify": "^1.37.2",
         "laravel/framework": "^13.17",
+        "laravel/octane": "^2.21",
         "laravel/reverb": "^1.11",
         "laravel/scout": "^11.5",
         "laravel/socialite": "^5.30",

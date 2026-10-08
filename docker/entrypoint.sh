@@ -28,5 +28,5 @@ php artisan storage:link || true
 
 PORT_TO_USE=${PORT:-8080}
 export PORT=$PORT_TO_USE
-echo "Arrancando FrankenPHP en el puerto $PORT_TO_USE..."
-exec frankenphp run --config /etc/caddy/Caddyfile
+echo "Arrancando Laravel Octane (FrankenPHP Worker Mode) en el puerto $PORT_TO_USE..."
+exec php artisan octane:start --server=frankenphp --host=0.0.0.0 --port="$PORT_TO_USE" --workers="${OCTANE_WORKERS:-2}" --max-requests="${OCTANE_MAX_REQUESTS:-1000}"
