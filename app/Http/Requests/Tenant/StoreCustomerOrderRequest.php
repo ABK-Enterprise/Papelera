@@ -60,6 +60,8 @@ class StoreCustomerOrderRequest extends FormRequest
             'items.*.units_per_package' => ['nullable', 'numeric', 'min:1'],
             'items.*.apply_customer_discount' => ['nullable', 'boolean'],
             'show_account_in_receipt' => ['nullable', 'boolean'],
+            'show_credit_applied_in_receipt' => ['nullable', 'boolean'],
+            'credit_balance_applied' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
             'price_adjustments' => ['nullable', 'array'],
             'price_adjustments.*.id' => ['nullable', 'string'],
             'price_adjustments.*.source' => ['nullable', 'string', 'in:preset,ad_hoc'],
@@ -84,6 +86,35 @@ class StoreCustomerOrderRequest extends FormRequest
                     'payment_type',
                     'Los clientes ocasionales o no registrados no pueden operar con cuenta corriente. Debe seleccionarse Cobro Total o Pago Parcial.'
                 );
+            }
+
+            $creditApplied = (float) $this->input('credit_balance_applied', 0);
+            if ($creditApplied > 0) {
+                if (empty($this->customer_id)) {
+                    $validator->errors()->add(
+                        'credit_balance_applied',
+                        'No se puede aplicar saldo a favor a un cliente no registrado.'
+                    );
+                } else {
+                    $customer = \App\Models\Customer::where('id', $this->customer_id)
+                        ->where('tenant_id', $this->user()->tenant_id)
+                        ->first();
+
+                    if (! $customer || (float) $customer->current_balance >= 0) {
+                        $validator->errors()->add(
+                            'credit_balance_applied',
+                            'El cliente seleccionado no posee saldo a favor en su cuenta corriente.'
+                        );
+                    } else {
+                        $availableCredit = abs((float) $customer->current_balance);
+                        if ($creditApplied > round($availableCredit, 2) + 0.01) {
+                            $validator->errors()->add(
+                                'credit_balance_applied',
+                                'El monto imputado ($'.number_format($creditApplied, 2, ',', '.').') supera el saldo a favor disponible del cliente ($'.number_format($availableCredit, 2, ',', '.').').'
+                            );
+                        }
+                    }
+                }
             }
 
             if ($this->boolean('mp_qr_checkout')) {

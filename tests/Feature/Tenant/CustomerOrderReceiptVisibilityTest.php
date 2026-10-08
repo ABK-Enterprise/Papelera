@@ -267,15 +267,113 @@ test('receipt pdf template renders customer credit account and filtered adjustme
         'logoBase64' => null,
     ])->render();
 
-    // Debe mostrarse el resumen de cuenta corriente
-    expect($html)->toContain('ESTADO EN CUENTA CORRIENTE')
-        ->toContain('Límite de crédito asignado:')
-        ->toContain('Saldo de la cuenta (actual):')
-        ->toContain('Crédito disponible luego de la compra:');
+    // Debe mostrarse el resumen de cuenta corriente en la ficha del cliente
+    expect($html)->toContain('Estado Cta. Cte.:')
+        ->toContain('[ A DEBER ]')
+        ->toContain('Saldo deudor actual:')
+        ->and($html)->not->toContain('ESTADO EN CUENTA CORRIENTE');
 
     // Debe mostrarse el ajuste visible
     expect($html)->toContain('Promoción Especial Miércoles');
 
     // NO debe mostrarse el ajuste oculto en el remito
     expect($html)->not->toContain('Recargo Interno Confidencial');
+});
+
+test('can update show_credit_applied_in_receipt only if order applied credit balance', function () {
+    // 1. Pedido SIN saldo a favor aplicado: se fuerza a false
+    $orderNoCredit = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'order_number' => 'ORD-NOCRED-01',
+        'customer_name' => $this->customer->name,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'sin_facturar',
+        'total_amount' => 10000.00,
+        'credit_balance_applied' => 0.00,
+        'show_credit_applied_in_receipt' => false,
+    ]);
+
+    $res1 = $this->actingAs($this->user)
+        ->patchJson("/tenant/pedidos/{$orderNoCredit->id}/visibilidad-remito", [
+            'show_credit_applied_in_receipt' => true,
+        ]);
+
+    $res1->assertOk();
+    $orderNoCredit->refresh();
+    expect($orderNoCredit->show_credit_applied_in_receipt)->toBeFalse();
+
+    // 2. Pedido CON saldo a favor aplicado: se permite activar
+    $orderWithCredit = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'order_number' => 'ORD-WITHCRED-01',
+        'customer_name' => $this->customer->name,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'sin_facturar',
+        'total_amount' => 10000.00,
+        'credit_balance_applied' => 3000.00,
+        'show_credit_applied_in_receipt' => false,
+    ]);
+
+    $res2 = $this->actingAs($this->user)
+        ->patchJson("/tenant/pedidos/{$orderWithCredit->id}/visibilidad-remito", [
+            'show_credit_applied_in_receipt' => true,
+        ]);
+
+    $res2->assertOk();
+    $orderWithCredit->refresh();
+    expect($orderWithCredit->show_credit_applied_in_receipt)->toBeTrue();
+});
+
+test('receipt pdf renders credit balance applied and total to pay when sub-item 2 is active', function () {
+    $favorCustomer = Customer::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Cliente Con Saldo a Favor',
+        'current_balance' => -5000.00,
+        'credit_limit' => 20000.00,
+    ]);
+
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $favorCustomer->id,
+        'order_number' => 'ORD-PDF-CRED-01',
+        'customer_name' => $favorCustomer->name,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'sin_facturar',
+        'total_amount' => 10000.00,
+        'credit_balance_applied' => 4000.00,
+        'show_account_in_receipt' => true,
+        'show_credit_applied_in_receipt' => true,
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $this->product->id,
+        'packaging_type' => 'unit',
+        'quantity' => 2,
+        'unit_price' => 5000.00,
+        'subtotal' => 10000.00,
+    ]);
+
+    $order->load(['customer', 'items.product', 'tenant']);
+
+    $html = View::make('pdf.customer-order', [
+        'order' => $order,
+        'logoBase64' => null,
+    ])->render();
+
+    // Ficha del cliente: muestra estado A FAVOR
+    expect($html)->toContain('Estado Cta. Cte.:')
+        ->toContain('[ A FAVOR ]')
+        ->toContain('Saldo a favor disponible:')
+        ->toContain('$5.000,00');
+
+    // Totales: muestra Total del Pedido, Saldo a Favor Aplicado y Total a Pagar
+    expect($html)->toContain('TOTAL DEL PEDIDO:')
+        ->toContain('$10.000,00')
+        ->toContain('Saldo a Favor Aplicado:')
+        ->toContain('-$4.000,00')
+        ->toContain('TOTAL A PAGAR:')
+        ->toContain('$6.000,00');
 });

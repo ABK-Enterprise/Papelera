@@ -90,7 +90,7 @@ class CustomerOrderController extends Controller
 
         $availableCustomers = Customer::query()
             ->where('is_active', true)
-            ->select('id', 'name', 'tax_id', 'tax_condition', 'phone', 'address', 'discount_percentage', 'is_defaulter')
+            ->select('id', 'name', 'tax_id', 'tax_condition', 'phone', 'address', 'discount_percentage', 'is_defaulter', 'current_balance', 'credit_limit')
             ->orderBy('name')
             ->get();
 
@@ -360,6 +360,11 @@ class CustomerOrderController extends Controller
 
             $totalAmount = max(0.00, round($netProductsAmount + $shippingCost + $surchargeTotal - $discountTotal, 2));
 
+            $creditBalanceApplied = (float) $request->input('credit_balance_applied', 0);
+            $creditBalanceApplied = min($totalAmount, max(0.00, round($creditBalanceApplied, 2)));
+            $remainingToPay = max(0.00, round($totalAmount - $creditBalanceApplied, 2));
+            $showCreditAppliedInReceipt = $creditBalanceApplied > 0 && $request->boolean('show_credit_applied_in_receipt');
+
             $paymentType = $request->input('payment_type') ?: 'cuenta_corriente';
             $paymentMethod = $request->input('payment_method') ?: 'efectivo';
             $paymentReference = $request->input('payment_reference');
@@ -368,28 +373,33 @@ class CustomerOrderController extends Controller
             $paidAmount = 0.00;
             $targetQrAmount = null;
 
-            if ($mpQrCheckout && $paymentMethod === 'mercadopago') {
+            if ($creditBalanceApplied >= $totalAmount) {
+                // El saldo a favor cubre el 100% del pedido
+                $paidAmount = 0.00;
+                $orderDebt = 0.00;
+                $paymentStatus = 'cobrado';
+            } elseif ($mpQrCheckout && $paymentMethod === 'mercadopago') {
                 // Cobro presencial inmediato con Mercado Pago QR:
                 // No se emite recibo preliminar en store(). El pedido queda con status 'pendiente'
                 // y deuda activa. El recibo oficial se registrará cuando MP confirme la acreditación.
                 $paidAmount = 0.00;
                 $targetQrAmount = ($paymentType === 'parcial')
-                    ? min($totalAmount, max(0.01, round((float) $request->input('paid_amount', 0), 2)))
-                    : $totalAmount;
-                $orderDebt = $totalAmount;
+                    ? min($remainingToPay, max(0.01, round((float) $request->input('paid_amount', 0), 2)))
+                    : $remainingToPay;
+                $orderDebt = $remainingToPay;
                 $paymentStatus = 'pendiente';
             } elseif ($paymentType === 'contado') {
-                $paidAmount = $totalAmount;
+                $paidAmount = $remainingToPay;
                 $orderDebt = 0.00;
                 $paymentStatus = 'cobrado';
             } elseif ($paymentType === 'parcial') {
                 $inputPaid = (float) $request->input('paid_amount', 0);
-                $paidAmount = min($totalAmount, max(0.00, round($inputPaid, 2)));
-                $orderDebt = round($totalAmount - $paidAmount, 2);
-                $paymentStatus = $paidAmount >= $totalAmount ? 'cobrado' : ($paidAmount > 0 ? 'parcial' : 'pendiente');
+                $paidAmount = min($remainingToPay, max(0.00, round($inputPaid, 2)));
+                $orderDebt = round($remainingToPay - $paidAmount, 2);
+                $paymentStatus = ($orderDebt <= 0) ? 'cobrado' : ($paidAmount > 0 || $creditBalanceApplied > 0 ? 'parcial' : 'pendiente');
             } else {
-                $orderDebt = $totalAmount;
-                $paymentStatus = 'pendiente';
+                $orderDebt = $remainingToPay;
+                $paymentStatus = ($orderDebt <= 0) ? 'cobrado' : ($creditBalanceApplied > 0 ? 'parcial' : 'pendiente');
             }
 
             $order = CustomerOrder::create([
@@ -411,8 +421,10 @@ class CustomerOrderController extends Controller
                 'shipping_cost' => $shippingCost,
                 'price_adjustments' => $processedAdjustments,
                 'show_account_in_receipt' => $request->boolean('show_account_in_receipt'),
+                'show_credit_applied_in_receipt' => $showCreditAppliedInReceipt,
                 'discount_total' => $discountTotal,
                 'surcharge_total' => $surchargeTotal,
+                'credit_balance_applied' => $creditBalanceApplied,
                 'total_amount' => $totalAmount,
                 'notes' => $request->validated('notes'),
             ]);
@@ -540,9 +552,20 @@ class CustomerOrderController extends Controller
                     $currentBalance = (float) $customer->current_balance;
 
                     $tempBalance = round($currentBalance + $totalAmount, 2);
-                    $chargeDesc = ($paidAmount >= $totalAmount)
-                        ? "Venta - Pedido {$orderNumber}"
-                        : "Venta a crédito - Pedido {$orderNumber}";
+                    if ($creditBalanceApplied >= $totalAmount) {
+                        $chargeDesc = "Venta (Saldo a favor aplicado) - Pedido {$orderNumber}";
+                        $chargePaymentMethod = 'saldo_a_favor';
+                    } elseif ($creditBalanceApplied > 0) {
+                        $chargeDesc = ($paidAmount >= $remainingToPay)
+                            ? "Venta (Saldo a favor parcial) - Pedido {$orderNumber}"
+                            : "Venta a crédito (Saldo a favor parcial) - Pedido {$orderNumber}";
+                        $chargePaymentMethod = ($paidAmount > 0) ? $paymentMethod : 'cuenta_corriente';
+                    } else {
+                        $chargeDesc = ($paidAmount >= $totalAmount)
+                            ? "Venta - Pedido {$orderNumber}"
+                            : "Venta a crédito - Pedido {$orderNumber}";
+                        $chargePaymentMethod = ($paidAmount > 0) ? $paymentMethod : 'cuenta_corriente';
+                    }
 
                     $chargeMov = CustomerAccountMovement::create([
                         'tenant_id' => $tenantId,
@@ -554,7 +577,7 @@ class CustomerOrderController extends Controller
                         'amount' => $totalAmount,
                         'balance_after' => $tempBalance,
                         'due_date' => $dueDate,
-                        'payment_method' => ($paidAmount > 0) ? $paymentMethod : 'cuenta_corriente',
+                        'payment_method' => $chargePaymentMethod,
                         'reference_number' => $orderNumber,
                         'notes' => $order->notes,
                     ]);

@@ -35,7 +35,9 @@
         order_number: string;
         customer_id?: number | null;
         customer_name: string;
+        credit_balance_applied?: number | string | null;
         show_account_in_receipt?: boolean;
+        show_credit_applied_in_receipt?: boolean;
         price_adjustments?: PriceAdjustmentItem[] | null;
         customer?: {
             id: number;
@@ -57,16 +59,24 @@
 
     let isSaving = $state(false);
 
-    // Estado local para cuenta corriente
+    // Estado local para cuenta corriente y saldo a favor
     let showAccount = $state(false);
+    let showCreditApplied = $state(false);
 
     // Mapa reactivo de visibilidad de ajustes id -> boolean
     let visibilityMap = $state<Record<string, boolean>>({});
+
+    const canShowCreditApplied = $derived(
+        Boolean(order?.customer_id) && Number(order?.credit_balance_applied ?? 0) > 0
+    );
 
     // Sincronizar estado cuando se abre el modal o cambia la orden
     $effect(() => {
         if (open && order) {
             showAccount = Boolean(order.show_account_in_receipt);
+            showCreditApplied = canShowCreditApplied
+                ? Boolean(order.show_credit_applied_in_receipt)
+                : false;
             const map: Record<string, boolean> = {};
             if (Array.isArray(order.price_adjustments)) {
                 order.price_adjustments.forEach((adj) => {
@@ -145,6 +155,7 @@
             `/tenant/pedidos/${order.id}/visibilidad-remito`,
             {
                 show_account_in_receipt: showAccount,
+                show_credit_applied_in_receipt: canShowCreditApplied ? showCreditApplied : false,
                 adjustments_visibility: visibilityMap,
             },
             {
@@ -155,6 +166,7 @@
                     toast.success('Configuración de remito guardada con éxito.');
                     if (order) {
                         order.show_account_in_receipt = showAccount;
+                        order.show_credit_applied_in_receipt = canShowCreditApplied ? showCreditApplied : false;
                         if (Array.isArray(order.price_adjustments)) {
                             order.price_adjustments.forEach((adj) => {
                                 if (adj.id && visibilityMap[adj.id] !== undefined) {
@@ -196,6 +208,7 @@
             <div class="rounded-xl border border-border/70 divide-y divide-border/60 bg-card overflow-hidden">
                 <!-- 1. Nodo Cuenta Corriente -->
                 <div class="p-3.5 sm:p-4 {order?.customer_id ? 'hover:bg-muted/30 transition-colors' : 'bg-muted/20 opacity-60'}">
+                    <!-- Sub-item 1: Resumen de Cuenta Corriente en Encabezado de Cliente -->
                     <label class="flex items-start gap-3 {order?.customer_id ? 'cursor-pointer' : 'cursor-not-allowed'}">
                         <input
                             type="checkbox"
@@ -205,10 +218,10 @@
                         />
                         <div class="flex-1 min-w-0">
                             <span class="text-sm sm:text-base font-semibold text-foreground block">
-                                Datos de Cuenta Corriente
+                                Datos de Cuenta Corriente (Encabezado)
                             </span>
                             <p class="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                                Imprime en el pie del remito el límite de crédito, saldo deudor actual y saldo disponible.
+                                Imprime en la ficha del cliente el estado de cuenta y el saldo disponible.
                             </p>
                             {#if !order?.customer_id}
                                 <div class="mt-1.5 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
@@ -218,9 +231,11 @@
                             {:else if order?.customer}
                                 <div class="mt-2.5 grid grid-cols-2 gap-3 p-3 rounded-xl bg-muted/40 text-sm font-sans tabular-nums border border-border/40">
                                     <div>
-                                        <span class="text-xs text-muted-foreground block font-medium">Saldo Deudor:</span>
-                                        <span class="text-sm font-bold text-foreground">
-                                            {formatCurrency(order.customer.current_balance ?? 0)}
+                                        <span class="text-xs text-muted-foreground block font-medium">
+                                            {Number(order.customer.current_balance ?? 0) < 0 ? 'Saldo a Favor:' : 'Saldo Deudor:'}
+                                        </span>
+                                        <span class="text-sm font-bold {Number(order.customer.current_balance ?? 0) < 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground'}">
+                                            {formatCurrency(Math.abs(Number(order.customer.current_balance ?? 0)))}
                                         </span>
                                     </div>
                                     <div>
@@ -233,6 +248,31 @@
                             {/if}
                         </div>
                     </label>
+
+                    <!-- Sub-item 2: Imputación de Saldo a Favor en Totales -->
+                    <div class="mt-3 ml-7 pl-3 border-l-2 border-border/60">
+                        <label class="flex items-start gap-3 {canShowCreditApplied ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}">
+                            <input
+                                type="checkbox"
+                                disabled={!canShowCreditApplied}
+                                bind:checked={showCreditApplied}
+                                class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                            />
+                            <div class="flex-1 min-w-0">
+                                <span class="text-sm font-medium text-foreground block">
+                                    Mostrar uso de saldo a favor en el remito
+                                </span>
+                                <p class="text-xs text-muted-foreground mt-0.5">
+                                    Imprime en el desglose de totales el monto de saldo a favor descontado y el total a pagar final.
+                                </p>
+                                {#if !canShowCreditApplied}
+                                    <span class="text-xs text-amber-600 dark:text-amber-400 mt-1 block">
+                                        No disponible: Este pedido no utilizó saldo a favor de cuenta corriente.
+                                    </span>
+                                {/if}
+                            </div>
+                        </label>
+                    </div>
                 </div>
 
                 <!-- 2. Nodo Descuentos (Padre con Hijos) -->

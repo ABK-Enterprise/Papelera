@@ -157,6 +157,48 @@
             padding-top: 4px !important;
             margin-top: 2px;
         }
+        .customer-row-account {
+            border-top: 1px solid #cbd5e1;
+            padding-top: 5px !important;
+            padding-bottom: 3px !important;
+            margin-top: 3px;
+        }
+        .account-inline-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .account-inline-status {
+            width: 48%;
+            font-size: 12px;
+            vertical-align: middle;
+            color: #334155;
+        }
+        .account-inline-divider {
+            width: 1px;
+            background-color: #cbd5e1;
+            padding: 0 !important;
+        }
+        .account-inline-amount {
+            width: 51%;
+            text-align: right;
+            font-size: 12px;
+            vertical-align: middle;
+            color: #334155;
+        }
+        .badge-account-favor {
+            color: #15803d;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+        }
+        .badge-account-deudor {
+            color: #b91c1c;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+        }
+        .badge-account-neutral {
+            color: #475569;
+            font-weight: 700;
+        }
 
         /* Tabla de Ítems */
         .items-table {
@@ -306,69 +348,25 @@
             text-align: right;
         }
 
-        /* Sección Inferior: Estado en Cuenta Corriente */
-        .summary-section-account {
-            border-top: 2px solid #0f172a;
+        /* Sección Final: Total a Pagar (cuando se aplica saldo a favor) */
+        .summary-section-to-pay {
             background: #ffffff;
-            padding: 7px 12px 9px 12px;
+            border-top: 2px solid #0f172a;
+            padding: 7px 12px;
         }
-        .summary-account-title {
-            text-align: center;
-            font-size: 13px;
+        .summary-to-pay-label {
+            font-size: 15px;
             font-weight: 800;
-            color: #334155;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 6px;
-            padding-bottom: 4px;
-            border-bottom: 1px dashed #cbd5e1;
-        }
-        .summary-account-title .account-info-icon {
-            display: inline-block;
-            font-weight: 900;
-            font-size: 13.5px;
-            margin-right: 2px;
-            color: #0284c7;
-        }
-        .summary-account-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .account-col-left {
-            width: 50%;
-            vertical-align: middle;
-            padding-right: 16px;
-            border-right: 1px solid #cbd5e1;
-        }
-        .account-col-right {
-            width: 50%;
-            vertical-align: middle;
-            padding-left: 16px;
-            text-align: right;
-        }
-        .account-data-line {
-            margin: 2.5px 0;
-            font-size: 13.5px;
-        }
-        .account-data-label {
-            color: #475569;
-            font-weight: 500;
-        }
-        .account-data-value {
             color: #0f172a;
-            font-weight: 700;
-            margin-left: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            text-align: left;
         }
-        .account-available-label {
-            font-size: 13.5px;
-            color: #475569;
-            font-weight: 600;
-            display: block;
-            margin-bottom: 2px;
-        }
-        .account-available-value {
-            font-size: 16px;
-            font-weight: 800;
+        .summary-to-pay-value {
+            font-size: 17px;
+            font-weight: 900;
+            color: #0f172a;
+            text-align: right;
         }
 
         .watermark-footer {
@@ -462,6 +460,45 @@
                             <strong>Observaciones:</strong> {{ $order->notes ?: ($order->payment_status === 'cobrado' ? 'PAGADO' : 'Sin observaciones') }}
                         </td>
                     </tr>
+                    @if($order->show_account_in_receipt && $order->customer)
+                        @php
+                            $currentBalance = (float) ($order->customer->current_balance ?? 0);
+                            $isFavor = $currentBalance < 0;
+                            $isDeudor = $currentBalance > 0;
+                            $absBalance = abs($currentBalance);
+                        @endphp
+                        <tr>
+                            <td colspan="3" class="customer-row-account">
+                                <table class="account-inline-table">
+                                    <tr>
+                                        <td class="account-inline-status">
+                                            <strong>Estado Cta. Cte.:</strong>
+                                            @if($isFavor)
+                                                <span class="badge-account-favor">[ A FAVOR ]</span>
+                                            @elseif($isDeudor)
+                                                <span class="badge-account-deudor">[ A DEBER ]</span>
+                                            @else
+                                                <span class="badge-account-neutral">[ AL DÍA ]</span>
+                                            @endif
+                                        </td>
+                                        <td class="account-inline-divider"></td>
+                                        <td class="account-inline-amount">
+                                            @if($isFavor)
+                                                <strong>Saldo a favor disponible:</strong>
+                                                <span class="tabular-nums font-bold text-green">${{ number_format($absBalance, 2, ',', '.') }}</span>
+                                            @elseif($isDeudor)
+                                                <strong>Saldo deudor actual:</strong>
+                                                <span class="tabular-nums font-bold text-danger">${{ number_format($absBalance, 2, ',', '.') }}</span>
+                                            @else
+                                                <strong>Saldo actual:</strong>
+                                                <span class="tabular-nums font-bold">$0,00</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    @endif
                 </table>
             </div>
 
@@ -609,37 +646,28 @@
                             <td class="summary-total-label">TOTAL DEL PEDIDO:</td>
                             <td class="summary-total-value tabular-nums">${{ number_format((float) $order->total_amount, 2, ',', '.') }}</td>
                         </tr>
+                        @if($order->show_credit_applied_in_receipt && (float) $order->credit_balance_applied > 0)
+                            <tr>
+                                <td class="summary-label text-green" style="padding-top: 4px;">Saldo a Favor Aplicado:</td>
+                                <td class="summary-value tabular-nums text-green" style="padding-top: 4px;">
+                                    -${{ number_format((float) $order->credit_balance_applied, 2, ',', '.') }}
+                                </td>
+                            </tr>
+                        @endif
                     </table>
                 </div>
 
-                <!-- 3. Sección Inferior: Estado en Cuenta Corriente (si aplica) -->
-                @if($order->show_account_in_receipt && $order->customer)
+                <!-- 3. Sección Final: Total a Pagar (si aplica descuento de saldo a favor) -->
+                @if($order->show_credit_applied_in_receipt && (float) $order->credit_balance_applied > 0)
                     @php
-                        $creditLimit = (float) ($order->customer->credit_limit ?? 0);
-                        $currentBalance = (float) ($order->customer->current_balance ?? 0);
-                        $availableCredit = max(0, round($creditLimit - $currentBalance, 2));
+                        $totalToPay = max(0.00, round((float) $order->total_amount - (float) $order->credit_balance_applied, 2));
                     @endphp
-                    <div class="summary-section-account">
-                        <div class="summary-account-title">
-                            <span class="account-info-icon">&#9432;</span> ESTADO EN CUENTA CORRIENTE
-                        </div>
-                        <table class="summary-account-table">
+                    <div class="summary-section-to-pay">
+                        <table class="summary-total-table">
                             <tr>
-                                <td class="account-col-left">
-                                    <div class="account-data-line">
-                                        <span class="account-data-label">Límite de crédito asignado:</span>
-                                        <span class="account-data-value tabular-nums">${{ number_format($creditLimit, 2, ',', '.') }}</span>
-                                    </div>
-                                    <div class="account-data-line">
-                                        <span class="account-data-label">Saldo de la cuenta (actual):</span>
-                                        <span class="account-data-value tabular-nums">${{ number_format($currentBalance, 2, ',', '.') }}</span>
-                                    </div>
-                                </td>
-                                <td class="account-col-right">
-                                    <span class="account-available-label">Crédito disponible luego de la compra:</span>
-                                    <span class="account-available-value tabular-nums {{ $availableCredit > 0 ? 'text-green' : 'text-danger' }}">
-                                        ${{ number_format($availableCredit, 2, ',', '.') }}
-                                    </span>
+                                <td class="summary-to-pay-label">TOTAL A PAGAR:</td>
+                                <td class="summary-to-pay-value tabular-nums">
+                                    ${{ number_format($totalToPay, 2, ',', '.') }}
                                 </td>
                             </tr>
                         </table>

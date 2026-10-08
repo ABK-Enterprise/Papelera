@@ -57,8 +57,10 @@ use Illuminate\Support\Carbon;
     'price_review_pending',
     'price_adjustments',
     'show_account_in_receipt',
+    'show_credit_applied_in_receipt',
     'discount_total',
     'surcharge_total',
+    'credit_balance_applied',
     'notes',
 ])]
 class CustomerOrder extends Model
@@ -68,6 +70,7 @@ class CustomerOrder extends Model
 
     protected $appends = [
         'has_pending_credit_note',
+        'derived_payment_condition',
     ];
 
     public const ALLOWED_TRANSITIONS = [
@@ -109,8 +112,10 @@ class CustomerOrder extends Model
             'customer_discount_amount' => 'decimal:2',
             'discount_total' => 'decimal:2',
             'surcharge_total' => 'decimal:2',
+            'credit_balance_applied' => 'decimal:2',
             'price_review_pending' => 'boolean',
             'show_account_in_receipt' => 'boolean',
+            'show_credit_applied_in_receipt' => 'boolean',
             'price_adjustments' => 'array',
         ];
     }
@@ -158,12 +163,23 @@ class CustomerOrder extends Model
     }
 
     /**
-     * Infer the commercial payment condition from payment status and debt.
+     * Infer the commercial payment condition from payment status, debt and credit balance applied.
      */
     public function getDerivedPaymentConditionAttribute(): string
     {
-        if ($this->payment_status === 'cobrado') {
+        $applied = (float) $this->credit_balance_applied;
+        $total = (float) $this->total_amount;
+
+        if ($applied > 0 && $applied >= $total) {
+            return 'Saldo a Favor';
+        }
+
+        if ($this->payment_status === 'cobrado' && (float) $this->debt_amount <= 0) {
             return 'Contado';
+        }
+
+        if ($applied > 0 && (float) $this->debt_amount > 0) {
+            return 'Saldo a Favor / Cta. Cte.';
         }
 
         if ($this->payment_status === 'parcial') {
@@ -229,6 +245,7 @@ class CustomerOrder extends Model
                     'price_adjustments',
                     'customer_discount_amount',
                     'customer_discount_percentage',
+                    'credit_balance_applied',
                 ];
 
                 if ($order->isDirty($financialFields) && ! $order->isDirty('fiscal_status')) {

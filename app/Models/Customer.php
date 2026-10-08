@@ -54,6 +54,8 @@ class Customer extends Model
 
     protected $appends = [
         'available_credit',
+        'has_credit_balance',
+        'credit_balance_available',
     ];
 
     protected function casts(): array
@@ -68,13 +70,24 @@ class Customer extends Model
         ];
     }
 
-
     public function getAvailableCreditAttribute(): float
     {
         $limit = (float) $this->credit_limit;
         $balance = (float) $this->current_balance;
 
         return max(0, round($limit - $balance, 2));
+    }
+
+    public function getHasCreditBalanceAttribute(): bool
+    {
+        return (float) $this->current_balance < 0;
+    }
+
+    public function getCreditBalanceAvailableAttribute(): float
+    {
+        $bal = (float) $this->current_balance;
+
+        return $bal < 0 ? abs($bal) : 0.00;
     }
 
     public function tenant(): BelongsTo
