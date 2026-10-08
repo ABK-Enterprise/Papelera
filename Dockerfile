@@ -10,15 +10,20 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LARAVEL_PDF_NO_SANDBOX=true \
     LARAVEL_PDF_NODE_MODULES_PATH=/var/www/html/node_modules
 
-# 1. Instalar dependencias del sistema y Chromium para PDFs
+# 1. Instalar dependencias del sistema, Chromium para PDFs y repositorio oficial de PostgreSQL
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     unzip \
-    postgresql-client \
+    gnupg \
     chromium \
     fonts-liberation \
     fonts-noto-color-emoji \
+    && install -d /etc/apt/keyrings \
+    && curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/keyrings/postgresql.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/postgresql.gpg] http://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends postgresql-client \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

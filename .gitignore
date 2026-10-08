@@ -21,7 +21,7 @@ walkthrough.md
 errores.md
 mercado-pago-recursos
 
-public/fonts
+public/fonts/*.ttf
 /rediseño-modo-oscuro
 
 # Wayfinder Generated Files
