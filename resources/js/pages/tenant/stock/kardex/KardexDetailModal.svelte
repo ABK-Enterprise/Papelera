@@ -133,7 +133,7 @@
                         <div class="font-semibold text-foreground text-sm tabular-nums">
                             {movement.previous_stock} ➔ {movement.current_stock}
                         </div>
-                        <span class="text-[11px] text-muted-foreground tabular-nums">
+                        <span class="text-xs text-muted-foreground tabular-nums">
                             {movement.type === 'income' ? `(+${movement.quantity} unidades)` : `(-${movement.quantity} unidades)`}
                         </span>
                     </div>

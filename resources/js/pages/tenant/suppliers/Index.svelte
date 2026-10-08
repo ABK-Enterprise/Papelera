@@ -125,16 +125,16 @@
                                 <div class="flex flex-col min-w-0">
                                     <span class="truncate font-medium text-foreground">{supp.name}</span>
                                     {#if supp.contact_number}
-                                        <span class="text-[11px] text-muted-foreground tabular-nums">{supp.contact_number}</span>
+                                        <span class="text-xs font-mono text-muted-foreground tabular-nums">{supp.contact_number}</span>
                                     {/if}
                                 </div>
                                 <div class="flex items-center gap-1.5 shrink-0">
                                     {#if supp.is_active}
-                                        <span class="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                        <span class="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                             Activo
                                         </span>
                                     {:else}
-                                        <span class="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground border border-border">
+                                        <span class="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground border border-border">
                                             Inactivo
                                         </span>
                                     {/if}
@@ -156,7 +156,7 @@
                     >
                         <SlidersHorizontal class="h-4 w-4 text-foreground" />
                         {#if activeFiltersCount > 0}
-                            <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums shadow-xs">
+                            <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground tabular-nums shadow-xs">
                                 {activeFiltersCount}
                             </span>
                         {/if}

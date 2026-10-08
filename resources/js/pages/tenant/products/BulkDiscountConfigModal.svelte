@@ -93,7 +93,7 @@
                             min="0"
                             max="100"
                             bind:value={discountValue}
-                            class="pl-9 text-base tabular-nums font-semibold"
+                            class="pl-9 text-sm tabular-nums font-semibold"
                             placeholder="0.00"
                             required
                         />
@@ -101,21 +101,21 @@
                 </div>
 
                 <div class="rounded-xl border border-border/60 bg-muted/30 p-3.5 text-xs text-muted-foreground space-y-1.5">
-                    <p class="font-medium text-foreground flex items-center gap-1.5">
+                    <p class="text-xs font-medium text-foreground flex items-center gap-1.5">
                         <Tag class="size-3.5 text-primary" />
                         ¿Cómo funciona este ajuste?
                     </p>
-                    <p>
+                    <p class="text-xs text-muted-foreground">
                         Todos los productos con la regla <span class="font-semibold text-foreground">"Heredar global"</span> aplicarán automáticamente este <span class="font-semibold text-foreground tabular-nums">{discountValue}%</span> al venderse por bulto. Puedes sobrescribir este valor individualmente en cada producto.
                     </p>
                 </div>
             </div>
 
             <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-border">
-                <Button type="button" variant="outline" class="min-h-[44px] px-4 rounded-xl text-sm font-semibold" onclick={() => (open = false)} disabled={isSubmitting}>
+                <Button type="button" variant="outline" class="min-h-[44px] px-4 rounded-xl text-sm font-medium" onclick={() => (open = false)} disabled={isSubmitting}>
                     Cancelar
                 </Button>
-                <Button type="submit" disabled={isSubmitting} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold gap-1.5">
+                <Button type="submit" disabled={isSubmitting} class="min-h-[44px] px-4 rounded-xl text-sm font-medium gap-1.5">
                     <Check class="size-4" />
                     <span>Guardar configuración</span>
                 </Button>

@@ -70,7 +70,7 @@
                             {supplier.name}
                         </h4>
                         {#if supplier.created_at}
-                            <span class="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                            <span class="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                                 <Calendar class="size-3" />
                                 {formatDate(supplier.created_at)}
                             </span>
@@ -80,11 +80,11 @@
 
                 <div class="flex items-center gap-1.5 shrink-0">
                     {#if supplier.is_active}
-                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
                             Activo
                         </span>
                     {:else}
-                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-muted text-muted-foreground">
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-muted text-muted-foreground">
                             Inactivo
                         </span>
                     {/if}
@@ -96,13 +96,13 @@
             {#if supplier.contact_number || supplier.email}
                 <div class="flex items-center gap-2 flex-wrap pt-1 border-t border-border/40">
                     {#if supplier.contact_number}
-                        <span class="inline-flex items-center gap-1 text-[11px] font-sans tabular-nums bg-muted/60 px-2 py-0.5 rounded text-foreground">
+                        <span class="inline-flex items-center gap-1 text-xs font-mono tabular-nums bg-muted/60 px-2 py-0.5 rounded text-foreground">
                             <Phone class="size-3 text-muted-foreground" />
                             {supplier.contact_number}
                         </span>
                     {/if}
                     {#if supplier.email}
-                        <span class="inline-flex items-center gap-1 text-[11px] bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[200px]">
+                        <span class="inline-flex items-center gap-1 text-xs bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[200px]">
                             <Mail class="size-3 text-muted-foreground" />
                             {supplier.email}
                         </span>
@@ -125,7 +125,7 @@
             <Truck class="mx-auto h-10 w-10 text-muted-foreground/40 mb-2" />
             <p class="text-xs text-muted-foreground font-medium">No se encontraron proveedores.</p>
             {#if hasPermission('proveedores.crear')}
-                <Button size="sm" class="mt-3 gap-1.5 text-xs" onclick={onOpenCreate}>
+                <Button size="sm" class="mt-3 gap-1.5 min-h-[44px] text-sm font-medium" onclick={onOpenCreate}>
                     <Plus class="h-3.5 w-3.5" />
                     Añadir Proveedor
                 </Button>

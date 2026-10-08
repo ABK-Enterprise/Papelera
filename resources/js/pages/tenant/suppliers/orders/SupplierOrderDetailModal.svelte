@@ -247,11 +247,11 @@
                             <div class="p-3.5 rounded-xl border bg-muted/20 space-y-2.5">
                                 <div class="flex items-start justify-between gap-2">
                                     <div class="min-w-0 flex-1">
-                                        <h5 class="text-sm font-semibold text-foreground leading-tight">
+                                        <h5 class="text-sm font-medium text-foreground leading-tight">
                                             {item.product_name}
                                         </h5>
                                         {#if item.product?.sku}
-                                            <span class="text-xs text-muted-foreground font-sans tabular-nums block mt-0.5">
+                                            <span class="text-xs text-muted-foreground font-mono tabular-nums block mt-0.5">
                                                 SKU: {item.product.sku}
                                             </span>
                                         {/if}
@@ -267,7 +267,7 @@
                                     <div class="text-xs text-muted-foreground font-sans tabular-nums">
                                         {Number(item.unit_cost) > 0 ? formatPrice(item.unit_cost) : '-'} × {item.quantity} {item.product?.sale_type === 'weight' ? 'Kg' : 'unid.'}
                                     </div>
-                                    <div class="text-sm font-bold font-sans tabular-nums text-foreground">
+                                    <div class="text-sm font-bold tabular-nums text-foreground">
                                         {Number(item.subtotal) > 0 ? formatPrice(item.subtotal) : '-'}
                                     </div>
                                 </div>
@@ -277,8 +277,8 @@
 
                     <!-- Tabla en Desktop (hidden sm:block) -->
                     <div class="hidden sm:block rounded-xl border overflow-hidden">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-muted/40 text-muted-foreground border-b">
+                        <table class="w-full text-left text-sm font-medium">
+                            <thead class="bg-muted/40 text-muted-foreground border-b text-xs font-semibold uppercase tracking-wider">
                                 <tr>
                                     <th class="p-2.5">Producto</th>
                                     <th class="p-2.5 text-center">Cant. Solicitada</th>
@@ -288,20 +288,20 @@
                             </thead>
                             <tbody class="divide-y">
                                 {#each order.items ?? [] as item}
-                                    <tr>
-                                        <td class="p-2.5 font-medium text-foreground">
+                                    <tr class="text-sm font-medium">
+                                        <td class="p-2.5 text-foreground">
                                             {item.product_name}
                                             {#if item.product?.sku}
-                                                <span class="text-[10px] text-muted-foreground block font-sans tabular-nums">SKU: {item.product.sku}</span>
+                                                <span class="text-xs text-muted-foreground block font-mono tabular-nums">SKU: {item.product.sku}</span>
                                             {/if}
                                         </td>
-                                        <td class="p-2.5 text-center font-bold font-sans tabular-nums">
+                                        <td class="p-2.5 text-center font-sans tabular-nums">
                                             {item.quantity} {item.product?.sale_type === 'weight' ? 'Kg' : 'unid.'}
                                         </td>
                                         <td class="p-2.5 text-right font-sans tabular-nums">
                                             {Number(item.unit_cost) > 0 ? formatPrice(item.unit_cost) : '-'}
                                         </td>
-                                        <td class="p-2.5 text-right font-sans tabular-nums font-bold text-foreground">
+                                        <td class="p-2.5 text-right text-sm font-bold tabular-nums text-foreground">
                                             {Number(item.subtotal) > 0 ? formatPrice(item.subtotal) : '-'}
                                         </td>
                                     </tr>
@@ -313,7 +313,7 @@
                 </div>
 
                 {#if order.notes}
-                    <div class="p-2.5 rounded-lg bg-muted/20 border text-xs text-muted-foreground">
+                    <div class="p-2.5 rounded-lg bg-muted/20 border text-sm text-muted-foreground">
                         <strong class="text-foreground">Notas:</strong> {order.notes}
                     </div>
                 {/if}
@@ -323,9 +323,9 @@
                     <div class="p-3 rounded-xl bg-primary/5 border border-primary/20 flex flex-col sm:flex-row items-center justify-between gap-3">
                         <div>
                             <span class="text-xs font-bold text-foreground block">¿Llegó la mercadería al depósito?</span>
-                            <p class="text-[11px] text-muted-foreground">Al marcar como recibido, se sumará el stock de cada artículo en Kardex.</p>
+                            <p class="text-xs text-muted-foreground">Al marcar como recibido, se sumará el stock de cada artículo en Kardex.</p>
                         </div>
-                        <Button size="sm" class="font-bold gap-1.5 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white" onclick={promptReceive} disabled={isProcessing}>
+                        <Button size="sm" class="min-h-[38px] text-sm font-medium gap-1.5 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white" onclick={promptReceive} disabled={isProcessing}>
                             <PackageCheck class="size-4" />
                             Marcar como Recibido
                         </Button>
@@ -338,7 +338,7 @@
                     <Button
                         type="button"
                         variant="outline"
-                        class="min-h-[44px] px-3 rounded-xl text-xs sm:text-sm font-semibold text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-1.5 cursor-pointer {extraClass}"
+                        class="min-h-[44px] px-3 rounded-xl text-sm font-medium text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-1.5 cursor-pointer {extraClass}"
                         onclick={promptCancel}
                         disabled={isProcessing}
                     >
@@ -352,7 +352,7 @@
                 <Button
                     type="button"
                     variant="secondary"
-                    class="min-h-[44px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs cursor-pointer {extraClass}"
+                    class="min-h-[44px] px-3 rounded-xl text-sm font-medium gap-1.5 shadow-xs cursor-pointer {extraClass}"
                     onclick={() => (isPdfModalOpen = true)}
                 >
                     <Printer class="size-4 text-primary shrink-0" />
@@ -364,7 +364,7 @@
                 <Button
                     type="button"
                     variant="outline"
-                    class="min-h-[44px] px-3.5 rounded-xl text-xs sm:text-sm font-semibold shrink-0 cursor-pointer {extraClass}"
+                    class="min-h-[44px] px-3.5 rounded-xl text-sm font-medium shrink-0 cursor-pointer {extraClass}"
                     onclick={() => (open = false)}
                 >
                     <span class="break-words text-center leading-tight">Cerrar</span>
@@ -376,7 +376,7 @@
                 <!-- Fila de Costo Total (separado de los botones) -->
                 <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-border/40 min-w-0">
                     <span class="text-xs text-muted-foreground font-medium">Costo Total:</span>
-                    <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary">
+                    <span class="text-sm font-bold tabular-nums text-primary">
                         {formatPrice(order.total_cost)}
                     </span>
                 </div>

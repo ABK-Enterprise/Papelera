@@ -77,8 +77,8 @@
                 <div class="flex items-center gap-3">
                     <IconContainer size="lg" variant="primary" icon="solar:clipboard-list-bold-duotone" />
                     <div>
-                        <span class="font-bold text-sm font-sans tabular-nums text-foreground">{order.order_number}</span>
-                        <div class="flex items-center gap-1 text-[11px] text-muted-foreground">
+                        <span class="text-sm font-semibold font-sans tabular-nums text-foreground">{order.order_number}</span>
+                        <div class="flex items-center gap-1 text-xs text-muted-foreground">
                             <Calendar class="size-3" />
                             <span>{formatDate(order.created_at)}</span>
                         </div>
@@ -86,15 +86,15 @@
                 </div>
 
                 {#if order.status === 'solicitado'}
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                         Solicitado
                     </span>
                 {:else if order.status === 'recibido'}
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                         Recibido
                     </span>
                 {:else if order.status === 'cancelado'}
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                         Cancelado
                     </span>
                 {/if}
@@ -106,14 +106,14 @@
                     <Truck class="size-3 text-muted-foreground" />
                     {order.supplier?.name || 'Proveedor'}
                 </span>
-                <span class="font-sans tabular-nums font-bold text-sm text-foreground">
+                <span class="font-bold text-sm tabular-nums text-foreground">
                     {Number(order.total_cost) > 0 ? formatPrice(order.total_cost) : '-'}
                 </span>
             </div>
 
-            <div class="flex items-center justify-between text-[11px] text-muted-foreground">
+            <div class="flex items-center justify-between text-xs text-muted-foreground">
                 <span>{order.items?.length ?? 0} {order.items?.length === 1 ? 'producto' : 'productos'}</span>
-                <span class="border border-primary/30 bg-primary/15 text-foreground dark:text-sky-100 dark:border-primary/40 px-2.5 py-0.5 rounded-lg text-xs font-semibold flex items-center gap-0.5 shadow-2xs">
+                <span class="border border-primary/30 bg-primary/15 text-foreground dark:text-sky-100 dark:border-primary/40 px-2.5 py-0.5 rounded-lg text-xs font-medium flex items-center gap-0.5 shadow-2xs">
                     Ver detalle &rarr;
                 </span>
             </div>

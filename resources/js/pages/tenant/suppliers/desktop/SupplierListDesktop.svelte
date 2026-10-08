@@ -76,7 +76,7 @@
                 <div class="flex flex-col gap-1.5 min-w-0 flex-1">
                     <!-- Fila 1: Nombre Destacado + Badge de Estado -->
                     <div class="flex items-center gap-3">
-                        <h3 class="font-bold text-lg text-foreground group-hover:text-primary transition-colors truncate">
+                        <h3 class="font-medium text-sm text-foreground group-hover:text-primary transition-colors truncate">
                             {supplier.name}
                         </h3>
 
@@ -96,7 +96,7 @@
                     <!-- Fila 2: Badges de Contacto y Correo -->
                     <div class="flex items-center gap-2.5 flex-wrap">
                         {#if supplier.contact_number}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 font-sans tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-mono tabular-nums text-foreground/90 border border-border/40">
                                 <Phone class="size-3.5 text-muted-foreground" />
                                 {supplier.contact_number}
                             </span>
@@ -140,7 +140,7 @@
                 <Button
                     variant="tertiary"
                     size="sm"
-                    class="min-h-[38px] px-3.5 text-xs gap-1.5 font-semibold rounded-xl"
+                    class="min-h-[38px] px-3.5 text-sm gap-1.5 font-medium rounded-xl"
                 >
                     <span>Gestionar</span>
                     <ChevronRight class="size-4" />
@@ -157,7 +157,7 @@
                 No hay proveedores que coincidan con la búsqueda o aún no has añadido ninguno a tu comercio.
             </p>
             {#if hasPermission('proveedores.crear')}
-                <Button class="mt-4 gap-2 font-semibold" onclick={onOpenCreate}>
+                <Button class="mt-4 gap-2 min-h-[38px] text-sm font-medium" onclick={onOpenCreate}>
                     <Plus class="h-4 w-4" />
                     Añadir Primer Proveedor
                 </Button>

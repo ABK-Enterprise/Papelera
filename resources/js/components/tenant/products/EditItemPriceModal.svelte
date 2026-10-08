@@ -155,7 +155,7 @@
         <DialogBody class="space-y-4 py-1">
             {#if product}
                 <div class="p-3 rounded-xl bg-muted/40 border border-border/60 text-xs">
-                    <span class="text-muted-foreground block text-[11px]">Producto:</span>
+                    <span class="text-xs text-muted-foreground block">Producto:</span>
                     <strong class="text-foreground font-semibold text-sm">{product.name}</strong>
                     {#if product.sku}
                         <span class="ml-1 text-xs tabular-nums font-mono text-muted-foreground">({product.sku})</span>
@@ -164,7 +164,7 @@
             {/if}
             <!-- Precio Actual vs Nuevo Precio -->
             <div class="space-y-2">
-                <Label for="item-new-price" class="text-xs font-semibold text-foreground">
+                <Label for="item-new-price" class="text-sm font-medium text-foreground">
                     Nuevo precio unitario
                 </Label>
                 <div class="relative">
@@ -185,7 +185,7 @@
                                 newPriceInput = String(val);
                             });
                         }}
-                        class="pl-8 text-base font-semibold tabular-nums min-h-[44px] rounded-xl"
+                        class="pl-8 text-sm font-semibold tabular-nums min-h-[44px] rounded-xl"
                         autofocus
                     />
                 </div>
@@ -202,7 +202,7 @@
             <!-- Selector de Alcance (Solo visible en contexto de Pedido con ID de catálogo) -->
             {#if isOrderContext && product?.id}
                 <div class="space-y-2 pt-2 border-t border-border/70">
-                    <Label class="text-xs font-semibold text-foreground block">
+                    <Label class="text-sm font-medium text-foreground block">
                         Alcance del cambio de precio
                     </Label>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -215,7 +215,7 @@
                                 <ShoppingBag class="size-4 {updateMode === 'order_only' ? 'text-primary' : 'text-muted-foreground'}" />
                                 <span class="text-xs font-bold text-foreground">Solo en este pedido</span>
                             </div>
-                            <p class="text-[11px] text-muted-foreground leading-relaxed">
+                            <p class="text-xs text-muted-foreground leading-relaxed">
                                 Modifica el precio exclusivamente para esta orden. El catálogo base no sufre cambios.
                             </p>
                         </button>
@@ -229,7 +229,7 @@
                                 <Store class="size-4 {updateMode === 'catalog' ? 'text-primary' : 'text-muted-foreground'}" />
                                 <span class="text-xs font-bold text-foreground">Actualizar catálogo</span>
                             </div>
-                            <p class="text-[11px] text-muted-foreground leading-relaxed">
+                            <p class="text-xs text-muted-foreground leading-relaxed">
                                 Actualiza el precio oficial en el catálogo y alerta a pedidos en curso con este ítem.
                             </p>
                         </button>
@@ -259,7 +259,7 @@
             <Button
                 type="button"
                 variant="outline"
-                class="min-h-[44px] rounded-xl text-xs font-medium cursor-pointer"
+                class="min-h-[44px] rounded-xl text-sm font-medium cursor-pointer"
                 disabled={isSubmitting}
                 onclick={handleClose}
             >
@@ -267,7 +267,7 @@
             </Button>
             <Button
                 type="button"
-                class="min-h-[44px] rounded-xl text-xs font-semibold gap-1.5 cursor-pointer"
+                class="min-h-[44px] rounded-xl text-sm font-medium gap-1.5 cursor-pointer"
                 disabled={isSubmitting}
                 onclick={handleSubmit}
             >

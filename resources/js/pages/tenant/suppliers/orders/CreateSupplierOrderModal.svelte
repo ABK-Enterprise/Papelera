@@ -340,7 +340,7 @@
                     </h3>
 
                     <div class="space-y-1">
-                        <Label for="supplier-select" class="text-xs font-semibold text-foreground">
+                        <Label for="supplier-select" class="text-sm font-medium text-foreground">
                             Seleccionar Proveedor <span class="text-destructive">*</span>
                         </Label>
                         <select
@@ -403,12 +403,12 @@
                                                 {:else if prod.price !== undefined && prod.price !== null && prod.price !== ''}
                                                     {formatPrice(Number(prod.price))}
                                                 {:else}
-                                                    <span class="text-muted-foreground font-normal text-[11px]">$ 0,00</span>
+                                                    <span class="text-muted-foreground font-normal text-xs">$ 0,00</span>
                                                 {/if}
                                             </div>
                                         </div>
                                         <!-- Fila inferior: Metadatos -->
-                                        <div class="flex items-center gap-2 flex-wrap text-[10px] text-muted-foreground">
+                                        <div class="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
                                             {#if prod.sale_type === 'weight'}
                                                 <span class="font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded shrink-0">
                                                     Kg
@@ -477,7 +477,7 @@
                         <div class="flex flex-col items-center justify-center py-8 px-4 text-center rounded-xl border border-dashed border-border/70 bg-card/40">
                             <Package class="size-8 text-muted-foreground/50 mb-2" />
                             <p class="text-xs font-medium text-foreground">No hay productos añadidos a la orden</p>
-                            <p class="text-[11px] text-muted-foreground mt-0.5">Utiliza el buscador superior para seleccionar productos a solicitar</p>
+                            <p class="text-xs text-muted-foreground mt-0.5">Utiliza el buscador superior para seleccionar productos a solicitar</p>
                         </div>
                     {:else}
                         <div class="space-y-2.5">
@@ -498,7 +498,7 @@
                                                     {item.product_name}
                                                 </span>
                                                 {#if item.is_on_the_fly}
-                                                    <span class="text-[10px] font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20 shrink-0">
+                                                    <span class="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20 shrink-0">
                                                         Al vuelo
                                                     </span>
                                                 {/if}
@@ -547,9 +547,9 @@
                                     <div class="flex flex-wrap items-center gap-3 pt-1">
                                         <!-- Costo Unitario -->
                                         <div class="flex items-center gap-2 min-w-0">
-                                            <Label for={`prod-cost-${index}`} class="text-xs font-semibold text-muted-foreground whitespace-nowrap shrink-0">Costo:</Label>
+                                            <Label for={`prod-cost-${index}`} class="text-sm font-medium text-foreground whitespace-nowrap shrink-0">Costo:</Label>
                                             <div class="relative">
-                                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-sans tabular-nums font-medium pointer-events-none">$</span>
+                                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-sans tabular-nums font-medium pointer-events-none">$</span>
                                                 <Input
                                                     id={`prod-cost-${index}`}
                                                     type="number"
@@ -558,7 +558,7 @@
                                                     max="100000000"
                                                     bind:value={item.unit_cost}
                                                     placeholder="0.00"
-                                                    class="h-9 text-xs pl-6 font-sans tabular-nums text-right rounded-xl w-28 min-w-[96px]"
+                                                    class="h-9 text-sm font-medium font-sans tabular-nums pl-6 text-right rounded-xl w-28 min-w-[96px]"
                                                     required
                                                 />
                                             </div>
@@ -569,7 +569,7 @@
 
                                         <!-- Cantidad con stepper -->
                                         <div class="flex items-center gap-2 min-w-0">
-                                            <Label for={`prod-qty-${index}`} class="text-xs font-semibold text-muted-foreground whitespace-nowrap shrink-0">Cant.:</Label>
+                                            <Label for={`prod-qty-${index}`} class="text-sm font-medium text-foreground whitespace-nowrap shrink-0">Cant.:</Label>
                                             <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden">
                                                 <button
                                                     type="button"
@@ -611,7 +611,7 @@
                                                             item.quantity = Math.max(isWeight ? 0.01 : 1, Math.min(cleaned, 10000));
                                                         }
                                                     }}
-                                                    class="w-12 h-full text-xs font-bold font-sans tabular-nums text-center bg-transparent border-0 focus:ring-0 focus:outline-none p-0"
+                                                    class="w-12 h-full text-sm font-medium font-sans tabular-nums text-center bg-transparent border-0 focus:ring-0 focus:outline-none p-0"
                                                 />
                                                 <button
                                                     type="button"
@@ -627,8 +627,8 @@
 
                                         <!-- Subtotal inline a la derecha -->
                                         <div class="flex items-center gap-2 ml-auto shrink-0">
-                                            <span class="text-xs text-muted-foreground font-medium whitespace-nowrap">Subtotal:</span>
-                                            <span class="font-sans tabular-nums text-sm font-bold text-foreground">{formatPrice(lineSubtotal)}</span>
+                                            <span class="text-sm text-muted-foreground font-medium whitespace-nowrap">Subtotal:</span>
+                                            <span class="text-sm font-bold tabular-nums text-foreground">{formatPrice(lineSubtotal)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -639,7 +639,7 @@
 
                 <!-- Bento Card 3: Observaciones -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-2">
-                    <Label for="supplier-order-notes" class="text-xs font-semibold text-foreground break-words">
+                    <Label for="supplier-order-notes" class="text-sm font-medium text-foreground break-words">
                         Observaciones / Notas de Entrega <span class="text-muted-foreground font-normal whitespace-nowrap">(Opcional)</span>
                     </Label>
                     <textarea
@@ -664,7 +664,7 @@
                     <Button
                         type="button"
                         variant="outline"
-                        class="min-h-[44px] h-auto py-3 px-4 sm:px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto shadow-xs leading-snug text-center"
+                        class="min-h-[44px] h-auto py-3 px-4 sm:px-5 rounded-xl text-sm font-medium justify-center w-full sm:w-auto shadow-xs leading-snug text-center"
                         onclick={closeModal}
                     >
                         Cancelar
@@ -672,7 +672,7 @@
                     <Button
                         type="submit"
                         form="create-supplier-order-form"
-                        class="min-h-[44px] h-auto py-3 px-4 sm:px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto shadow-xs leading-snug text-center gap-1.5"
+                        class="min-h-[44px] h-auto py-3 px-4 sm:px-5 rounded-xl text-sm font-medium justify-center w-full sm:w-auto shadow-xs leading-snug text-center gap-1.5"
                         disabled={isSubmitting}
                     >
                         {#if isSubmitting}

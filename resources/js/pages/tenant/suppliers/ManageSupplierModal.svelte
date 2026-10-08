@@ -148,11 +148,11 @@
                     <div class="flex items-center gap-2">
                         <DialogTitle class="text-xl font-bold text-foreground">Gestión de Proveedor</DialogTitle>
                         {#if form.is_active}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                 Activo
                             </span>
                         {:else}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
                                 Inactivo
                             </span>
                         {/if}
@@ -257,7 +257,7 @@
             <form id="manage-supplier-form" onsubmit={submit} class="space-y-4">
                 <!-- Nombre o Razón Social -->
                 <div class="space-y-1.5">
-                    <Label for="manage-supplier-name" class="text-xs font-semibold">
+                    <Label for="manage-supplier-name" class="text-sm font-medium text-foreground">
                         Nombre o Razón Social <span class="text-destructive">*</span>
                     </Label>
                     <Input
@@ -275,7 +275,7 @@
                 <!-- Teléfono y Email -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div class="space-y-1.5">
-                        <Label for="manage-supplier-phone" class="text-xs font-semibold flex items-center gap-1.5">
+                        <Label for="manage-supplier-phone" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                             <Phone class="h-3.5 w-3.5 text-muted-foreground" />
                             Teléfono / Contacto
                         </Label>
@@ -283,7 +283,7 @@
                             id="manage-supplier-phone"
                             bind:value={form.contact_number}
                             placeholder="ej. +54 11 4321-8765"
-                            class="h-9 text-sm font-sans tabular-nums"
+                            class="h-9 text-sm font-mono tabular-nums"
                         />
                         {#if form.errors.contact_number}
                             <p class="text-xs text-destructive">{form.errors.contact_number}</p>
@@ -291,7 +291,7 @@
                     </div>
 
                     <div class="space-y-1.5">
-                        <Label for="manage-supplier-email" class="text-xs font-semibold flex items-center gap-1.5">
+                        <Label for="manage-supplier-email" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                             <Mail class="h-3.5 w-3.5 text-muted-foreground" />
                             Correo Electrónico
                         </Label>
@@ -310,7 +310,7 @@
 
                 <!-- Dirección -->
                 <div class="space-y-1.5">
-                    <Label for="manage-supplier-address" class="text-xs font-semibold flex items-center gap-1.5">
+                    <Label for="manage-supplier-address" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <MapPin class="h-3.5 w-3.5 text-muted-foreground" />
                         Dirección Comercial
                     </Label>
@@ -328,11 +328,11 @@
         </DialogBody>
 
         <DialogFooter class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2">
-            <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold">
+            <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-medium">
                 Cancelar
             </Button>
             {#if canEdit}
-                <Button type="submit" form="manage-supplier-form" disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-32">
+                <Button type="submit" form="manage-supplier-form" disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-medium min-w-32">
                     {form.processing ? 'Guardando...' : 'Guardar cambios'}
                 </Button>
             {/if}

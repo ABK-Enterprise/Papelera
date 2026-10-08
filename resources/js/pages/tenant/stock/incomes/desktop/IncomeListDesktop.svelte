@@ -119,21 +119,21 @@
         <div class="flex items-center gap-1.5">
             <button
                 type="button"
-                class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all {selectedPeriod === 'all' ? 'bg-primary text-primary-foreground shadow-2xs' : 'text-muted-foreground hover:bg-muted/80'}"
+                class="px-3.5 py-1.5 rounded-full text-sm font-medium transition-all {selectedPeriod === 'all' ? 'bg-primary text-primary-foreground shadow-2xs' : 'text-muted-foreground hover:bg-muted/80'}"
                 onclick={() => (selectedPeriod = 'all')}
             >
                 Todos ({movements.length})
             </button>
             <button
                 type="button"
-                class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all {selectedPeriod === 'week' ? 'bg-primary text-primary-foreground shadow-2xs' : 'text-muted-foreground hover:bg-muted/80'}"
+                class="px-3.5 py-1.5 rounded-full text-sm font-medium transition-all {selectedPeriod === 'week' ? 'bg-primary text-primary-foreground shadow-2xs' : 'text-muted-foreground hover:bg-muted/80'}"
                 onclick={() => (selectedPeriod = 'week')}
             >
                 Esta semana
             </button>
             <button
                 type="button"
-                class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all {selectedPeriod === 'month' ? 'bg-primary text-primary-foreground shadow-2xs' : 'text-muted-foreground hover:bg-muted/80'}"
+                class="px-3.5 py-1.5 rounded-full text-sm font-medium transition-all {selectedPeriod === 'month' ? 'bg-primary text-primary-foreground shadow-2xs' : 'text-muted-foreground hover:bg-muted/80'}"
                 onclick={() => (selectedPeriod = 'month')}
             >
                 Mes actual
@@ -147,7 +147,7 @@
                 type="text"
                 bind:value={searchTerm}
                 placeholder="Buscar por producto, notas..."
-                class="h-9 w-full rounded-full border border-input bg-background pl-8 pr-8 text-xs placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none transition-all"
+                class="h-9 w-full rounded-full border border-input bg-background pl-8 pr-8 text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none transition-all"
             />
             {#if searchTerm}
                 <button
@@ -182,12 +182,12 @@
                             </h3>
 
                             {#if mov.product?.sku}
-                                <span class="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-xs tracking-wide text-muted-foreground border border-border/50 tabular-nums">
-                                    SKU: {mov.product.sku}
-                                </span>
+                                <span class="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-xs font-mono tracking-wide text-muted-foreground border border-border/50 tabular-nums">
+                                     SKU: {mov.product.sku}
+                                 </span>
                             {/if}
 
-                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/50">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/50">
                                 <Tag class="size-3" />
                                 {formatReason(mov.reason)}
                             </span>
@@ -215,7 +215,7 @@
                                 <span>Registrado por: <strong class="text-foreground font-medium">{mov.user?.name ?? 'Sistema'}</strong></span>
                             </div>
                             <span class="text-border">•</span>
-                            <div class="flex items-center gap-1.5 text-xs tabular-nums">
+                            <div class="flex items-center gap-1.5 text-sm tabular-nums">
                                 <Calendar class="size-3.5 text-muted-foreground/70" />
                                 <span>{formatDate(mov.created_at)}</span>
                             </div>
@@ -233,7 +233,7 @@
                         </span>
 
                         <!-- Progresión de Stock (Antes -> Después) -->
-                        <div class="flex items-center gap-1 text-xs tabular-nums text-muted-foreground">
+                        <div class="flex items-center gap-1 text-sm tabular-nums text-muted-foreground">
                             <span>Stock:</span>
                             <span class="text-muted-foreground font-semibold">{mov.previous_stock}</span>
                             <ArrowRight class="size-3 text-muted-foreground/60" />
@@ -256,6 +256,6 @@
     <!-- Footer Informativo -->
     <div class="flex items-center justify-between text-xs text-muted-foreground px-2">
         <span>Mostrando <strong>{filteredMovements.length}</strong> de <strong>{movements.length}</strong> movimientos de ingreso</span>
-        <span class="text-[11px] tabular-nums">Kardex Incomes</span>
+        <span class="text-xs tabular-nums">Kardex Incomes</span>
     </div>
 </div>

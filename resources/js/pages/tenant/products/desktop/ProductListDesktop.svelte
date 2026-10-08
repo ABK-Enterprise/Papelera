@@ -146,7 +146,7 @@
                             loading="lazy"
                         />
                         {#if isWeighable}
-                            <span class="absolute bottom-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-1 py-0.5 rounded-tl tabular-nums z-10">
+                            <span class="absolute bottom-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-1.5 py-0.5 rounded-tl tabular-nums z-10">
                                 Kg
                             </span>
                         {/if}
@@ -209,22 +209,22 @@
                     <!-- Código de Barras / SKU / Categoría / Packaging | Stock -->
                     <div class="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                         {#if product.barcode}
-                            <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs tabular-nums tracking-wide">
+                            <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs font-mono tabular-nums tracking-wide">
                                 BAR: <HighlightMatch text={product.barcode} query={searchQuery} />
                             </span>
                         {/if}
                         {#if product.sku}
-                            <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs tabular-nums tracking-wide">
+                            <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs font-mono tabular-nums tracking-wide">
                                 SKU: <HighlightMatch text={product.sku} query={searchQuery} />
                             </span>
                         {/if}
 
                         {#if product.category}
-                            <span>
-                                Cat: <strong class="text-foreground font-medium">{product.category.name}</strong>
+                            <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                Cat: <strong class="text-foreground font-semibold">{product.category.name}</strong>
                             </span>
                         {:else}
-                            <span class="text-amber-600 dark:text-amber-400 font-medium">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
                                 Sin categoría
                             </span>
                         {/if}
@@ -233,12 +233,12 @@
 
                         <!-- Packaging y Stock físico unificados en la misma línea -->
                         {#if isWeighable}
-                            <span class="inline-flex items-center gap-1 text-xs bg-muted/60 px-1.5 py-0.5 rounded text-foreground tabular-nums tracking-wide">
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider bg-muted/60 px-1.5 py-0.5 rounded text-foreground tabular-nums">
                                 <Layers class="h-3 w-3 text-primary" />
                                 1 Bulto = {product.package_quantity || product.units_per_package || 1} Kg
                             </span>
                         {:else if product.units_per_package && product.units_per_package > 1}
-                            <span class="inline-flex items-center gap-1 text-xs bg-muted/60 px-1.5 py-0.5 rounded text-foreground tabular-nums tracking-wide">
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider bg-muted/60 px-1.5 py-0.5 rounded text-foreground tabular-nums">
                                 <Layers class="h-3 w-3 text-primary" />
                                 1 Bulto = {product.units_per_package} unid.
                             </span>
@@ -248,24 +248,24 @@
 
                         <!-- Estado y cantidad de stock físico -->
                         {#if product.stock <= 0}
-                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-sm font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 tabular-nums">
                                 <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
                                 Stock: Agotado
                             </span>
                         {:else if product.stock <= product.min_stock}
-                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-sm font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 tabular-nums">
                                 <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
                                 Stock: {product.stock} {isWeighable ? 'Kg' : 'unid.'} (Bajo)
                             </span>
                         {:else}
-                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-sm font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 tabular-nums">
                                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                                 Stock: {product.stock} {isWeighable ? 'Kg' : 'unid.'}
                             </span>
                         {/if}
 
                         <span class="text-muted-foreground/40 font-light select-none">|</span>
-                        <span class="text-xs text-muted-foreground tabular-nums">
+                        <span class="text-xs font-medium text-muted-foreground tabular-nums">
                             {product.warehouses_count === 1 ? '1 depósito' : `${product.warehouses_count ?? 0} depósitos`}
                         </span>
                     </div>
@@ -278,16 +278,16 @@
                 <!-- Precios -->
                 <div class="flex flex-col items-end text-right">
                     <span class="text-xs text-muted-foreground font-medium">Precio unitario</span>
-                    <span class="font-semibold text-base text-foreground tabular-nums">
+                    <span class="text-sm font-semibold text-foreground tabular-nums">
                         {formatPrice(product.price)} {isWeighable ? '/Kg' : ''}
                     </span>
                     {#if (product.effective_bulk_discount_percentage ?? 0) > 0}
-                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 tabular-nums">
+                        <span class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 tabular-nums">
                             Bulto (-{product.effective_bulk_discount_percentage}%): {formatPrice(product.bulk_discount_price ?? product.price)}
                         </span>
                     {/if}
                     {#if Number(product.cost_price) > 0}
-                        <span class="text-xs text-muted-foreground tabular-nums">
+                        <span class="text-xs font-medium text-muted-foreground tabular-nums">
                             Costo: {formatPrice(product.cost_price)}
                         </span>
                     {/if}
@@ -315,7 +315,7 @@
                                         <Link
                                             {...props}
                                             href={`/tenant/productos/${product.id}/editar`}
-                                            class="{props.class} flex items-center gap-2 text-xs font-medium cursor-pointer"
+                                            class="{props.class} flex items-center gap-2 text-sm font-medium cursor-pointer"
                                         >
                                             <Edit2 class="h-3.5 w-3.5 text-muted-foreground" />
                                             <span>{isIncomplete ? 'Completar datos' : 'Editar producto'}</span>
@@ -327,7 +327,7 @@
                                     {#snippet children(props)}
                                         <button
                                             type="button"
-                                            class="{props.class} w-full flex items-center gap-2 text-xs font-medium cursor-pointer"
+                                            class="{props.class} w-full flex items-center gap-2 text-sm font-medium cursor-pointer"
                                             onclick={() => promptEditPrice(product)}
                                         >
                                             <Tag class="h-3.5 w-3.5 text-muted-foreground" />
@@ -346,7 +346,7 @@
                                     {#snippet children(props)}
                                         <button
                                             type="button"
-                                            class="{props.class} w-full flex items-center text-destructive focus:text-destructive focus:bg-destructive/10 gap-2 text-xs font-medium cursor-pointer"
+                                            class="{props.class} w-full flex items-center text-destructive focus:text-destructive focus:bg-destructive/10 gap-2 text-sm font-medium cursor-pointer"
                                             onclick={() => {
                                                 promptDelete(product);
                                             }}

@@ -118,11 +118,11 @@
                                 <span class="truncate font-medium text-foreground">
                                     <HighlightMatch text={item.product_name} query={searchTerm} />
                                 </span>
-                                <span class="text-[11px] text-muted-foreground">
-                                    {item.warehouse_name} • SKU: <HighlightMatch text={item.product_sku || 'N/A'} query={searchTerm} />
+                                <span class="text-xs text-muted-foreground">
+                                    {item.warehouse_name} • SKU: <span class="font-mono tabular-nums"><HighlightMatch text={item.product_sku || 'N/A'} query={searchTerm} /></span>
                                 </span>
                             </div>
-                            <span class="text-xs font-semibold tabular-nums text-primary shrink-0">
+                            <span class="text-sm font-semibold tabular-nums text-primary shrink-0">
                                 {formatNumber(item.stock, item.product_sale_type === 'weight')} {item.product_sale_type === 'weight' ? 'kg' : 'u.'}
                             </span>
                         </div>
@@ -136,7 +136,7 @@
                 <select
                     bind:value={selectedWarehouseId}
                     onchange={onfilterchange}
-                    class="h-10 rounded-xl border border-input bg-card px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[110px] max-w-[190px] cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
+                    class="h-10 rounded-xl border border-input bg-card px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[110px] max-w-[190px] cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
                 >
                     <option value="">Todos los Depósitos</option>
                     {#each warehouses as wh (wh.id)}
@@ -150,7 +150,7 @@
                 <select
                     bind:value={selectedCategoryId}
                     onchange={onfilterchange}
-                    class="h-10 rounded-xl border border-input bg-card px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[110px] max-w-[180px] cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
+                    class="h-10 rounded-xl border border-input bg-card px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[110px] max-w-[180px] cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
                 >
                     <option value="">Todas las Categorías</option>
                     {#each categories as cat (cat.id)}
@@ -162,7 +162,7 @@
                 <select
                     bind:value={selectedStockStatus}
                     onchange={onfilterchange}
-                    class="h-10 rounded-xl border border-input bg-card px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[100px] max-w-[130px] cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
+                    class="h-10 rounded-xl border border-input bg-card px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[100px] max-w-[130px] cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
                 >
                     <option value="">Todos los Estados</option>
                     <option value="in_stock">Con stock</option>
@@ -222,14 +222,14 @@
                                 </h3>
                                 <div class="flex items-center gap-2 mt-1 flex-wrap">
                                     {#if item.product_sku}
-                                        <Badge variant="outline" class="text-[11px] font-sans tabular-nums px-1.5 py-0">
+                                        <Badge variant="outline" class="text-xs font-mono tabular-nums px-1.5 py-0">
                                             <HighlightMatch text={item.product_sku} query={searchTerm} />
                                         </Badge>
                                     {/if}
 
                                     {#if item.category_name}
                                         <span class="text-xs text-muted-foreground truncate max-w-[140px]">
-                                            {item.category_name}
+                                             {item.category_name}
                                         </span>
                                     {/if}
                                 </div>
@@ -237,15 +237,15 @@
 
                             <!-- Badge de Estado de Stock en este depósito -->
                             {#if isOutOfStock}
-                                <Badge variant="destructive" class="text-[11px] font-semibold shrink-0">
+                                <Badge variant="destructive" class="text-xs font-medium shrink-0">
                                     Sin Stock
                                 </Badge>
                             {:else if isLowStock}
-                                <Badge class="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[11px] font-semibold shrink-0">
+                                <Badge class="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-xs font-medium shrink-0">
                                     Stock Bajo
                                 </Badge>
                             {:else}
-                                <Badge variant="secondary" class="text-[11px] font-semibold shrink-0 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                                <Badge variant="secondary" class="text-xs font-medium shrink-0 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
                                     Disponible
                                 </Badge>
                             {/if}
@@ -258,7 +258,7 @@
                                 <span class="truncate">{item.warehouse_name}</span>
                             </div>
                             {#if item.aisle_location}
-                                <div class="flex items-center gap-1 text-[11px] bg-muted/60 px-2 py-0.5 rounded-md font-sans tabular-nums">
+                                <div class="flex items-center gap-1 text-xs bg-muted/60 px-2 py-0.5 rounded-md font-sans tabular-nums">
                                     <MapPin class="size-3 text-muted-foreground" />
                                     <span>{item.aisle_location}</span>
                                 </div>

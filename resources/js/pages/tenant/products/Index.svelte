@@ -274,7 +274,7 @@
                                     <HighlightMatch text={prod.name} query={tableFilters.filters.search} />
                                 </span>
                                 {#if prod.sku}
-                                    <span class="text-[11px] text-muted-foreground tabular-nums">
+                                    <span class="text-xs font-mono text-muted-foreground tabular-nums">
                                         SKU: <HighlightMatch text={prod.sku} query={tableFilters.filters.search} />
                                     </span>
                                 {/if}
@@ -300,7 +300,7 @@
                 <select
                     bind:value={tableFilters.filters.category_id}
                     onchange={applyFilters}
-                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[115px] max-w-[140px]"
+                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[120px] max-w-[150px]"
                 >
                     <option value={null}>Todas las Categorías</option>
                     {#each categories as cat}
@@ -312,7 +312,7 @@
                 <select
                     bind:value={tableFilters.filters.stock_status}
                     onchange={applyFilters}
-                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[105px] max-w-[130px]"
+                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
                 >
                     <option value="">Stock: Todos</option>
                     <option value="in_stock">En Stock ({stats.in_stock})</option>
@@ -324,7 +324,7 @@
                 <select
                     bind:value={tableFilters.filters.info_status}
                     onchange={applyFilters}
-                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[105px] max-w-[130px]"
+                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
                 >
                     <option value="">Datos: Todos</option>
                     <option value="complete">Completos</option>
@@ -335,7 +335,7 @@
                 <select
                     bind:value={tableFilters.filters.discount}
                     onchange={applyFilters}
-                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[135px]"
+                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[115px] max-w-[145px]"
                 >
                     <option value="all">Descuento: Todos</option>
                     <option value="with_discount">Con descuento</option>
@@ -347,7 +347,7 @@
                     <Button
                         variant="outline"
                         size="sm"
-                        class="h-10 px-3 text-xs font-semibold gap-1.5 shrink-0 rounded-xl border shadow-2xs transition-colors bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25 animate-in fade-in zoom-in-95 duration-200"
+                        class="h-10 px-3 text-sm font-medium gap-1.5 shrink-0 rounded-xl border shadow-2xs transition-colors bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25 animate-in fade-in zoom-in-95 duration-200"
                         onclick={resetFilters}
                         title="Limpiar filtros activos"
                     >
@@ -379,7 +379,7 @@
                                     <HighlightMatch text={prod.name} query={tableFilters.filters.search} />
                                 </span>
                                 {#if prod.sku}
-                                    <span class="text-[11px] text-muted-foreground tabular-nums">
+                                    <span class="text-xs font-mono text-muted-foreground tabular-nums">
                                         SKU: <HighlightMatch text={prod.sku} query={tableFilters.filters.search} />
                                     </span>
                                 {/if}
@@ -401,7 +401,7 @@
             >
                 <SlidersHorizontal class="h-4 w-4 text-foreground" />
                 {#if activeFiltersCount > 0}
-                    <span class="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums shadow-xs">
+                    <span class="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground tabular-nums shadow-xs">
                         {activeFiltersCount}
                     </span>
                 {/if}

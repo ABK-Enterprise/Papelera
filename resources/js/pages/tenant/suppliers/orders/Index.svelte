@@ -253,7 +253,7 @@
                     >
                         <SlidersHorizontal class="h-4 w-4 text-foreground" />
                         {#if activeFiltersCount > 0}
-                            <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums shadow-xs">
+                            <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground tabular-nums shadow-xs">
                                 {activeFiltersCount}
                             </span>
                         {/if}

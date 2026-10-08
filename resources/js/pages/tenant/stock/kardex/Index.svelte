@@ -169,7 +169,7 @@
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
                             <span class="truncate font-medium text-foreground">{prod.name}</span>
                             {#if prod.sku}
-                                <span class="text-[11px] text-muted-foreground tabular-nums shrink-0">SKU: {prod.sku}</span>
+                                <span class="text-xs font-mono text-muted-foreground tabular-nums shrink-0">SKU: {prod.sku}</span>
                             {/if}
                         </div>
                     {/snippet}
@@ -188,7 +188,7 @@
                 >
                     <SlidersHorizontal class="h-4 w-4 text-foreground" />
                     {#if activeFiltersCount > 0}
-                        <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums shadow-xs">
+                        <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground tabular-nums shadow-xs">
                             {activeFiltersCount}
                         </span>
                     {/if}

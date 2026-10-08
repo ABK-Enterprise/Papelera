@@ -73,7 +73,7 @@
                                     </span>
                                 {/if}
                                 {#if mov.warehouse}
-                                    <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-muted/80 text-foreground border border-border/70 shadow-2xs">
+                                    <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-semibold bg-muted/80 text-foreground border border-border/70 shadow-2xs">
                                         <Building2 class="size-2.5 text-muted-foreground shrink-0" />
                                         {mov.warehouse.name}
                                     </span>
@@ -82,7 +82,7 @@
                         </div>
                     </div>
 
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0 tabular-nums">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0 tabular-nums">
                         <ArrowUpRight class="size-3" />
                         -{mov.quantity}
                     </span>
@@ -91,13 +91,13 @@
                 <!-- Detalles de Stock y Motivo -->
                 <div class="grid grid-cols-2 gap-2 pt-3 text-xs">
                     <div>
-                        <span class="text-muted-foreground block text-[11px]">Stock resultante</span>
-                        <span class="font-semibold text-foreground tabular-nums">{mov.current_stock}</span>
-                        <span class="text-muted-foreground text-[10px] tabular-nums"> (previo: {mov.previous_stock})</span>
+                        <span class="text-muted-foreground block text-xs">Stock resultante</span>
+                        <span class="text-sm font-bold text-foreground tabular-nums">{mov.current_stock}</span>
+                        <span class="text-muted-foreground text-xs tabular-nums"> (previo: {mov.previous_stock})</span>
                     </div>
                     <div>
-                        <span class="text-muted-foreground block text-[11px]">Motivo</span>
-                        <span class={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                        <span class="text-muted-foreground block text-xs">Motivo</span>
+                        <span class={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${
                             mov.reason === 'merma_devolucion_cliente'
                                 ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30'
                                 : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
@@ -112,7 +112,7 @@
                 </div>
 
                 <!-- Footer: Responsable y Fecha -->
-                <div class="flex items-center justify-between pt-3 mt-3 border-t border-border/40 text-[11px] text-muted-foreground">
+                <div class="flex items-center justify-between pt-3 mt-3 border-t border-border/40 text-xs text-muted-foreground">
                     <div class="flex items-center gap-1.5 truncate">
                         <User class="size-3 text-muted-foreground/70" />
                         <span>{mov.user?.name ?? 'Sistema'}</span>
@@ -124,7 +124,7 @@
                 </div>
 
                 {#if mov.notes}
-                    <div class="mt-2 text-[11px] text-muted-foreground bg-muted/40 p-2 rounded-lg">
+                    <div class="mt-2 text-xs text-muted-foreground bg-muted/40 p-2 rounded-lg">
                         <span class="font-medium text-foreground">Nota:</span> {mov.notes}
                     </div>
                 {/if}

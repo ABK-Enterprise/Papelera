@@ -168,7 +168,7 @@
             <form id="create-income-form" onsubmit={handleSubmit} class="space-y-4">
                 <!-- Selección de Producto con SearchCombobox -->
                 <div class="space-y-1.5">
-                    <Label class="text-xs font-semibold text-foreground">
+                    <Label class="text-sm font-medium text-foreground">
                         Producto *
                     </Label>
                     <SearchCombobox
@@ -185,7 +185,7 @@
                                 <div class="min-w-0">
                                     <span class="font-medium text-foreground truncate block">{product.name}</span>
                                     {#if product.sku}
-                                        <span class="text-[11px] text-muted-foreground tabular-nums">SKU: {product.sku}</span>
+                                        <span class="text-xs text-muted-foreground tabular-nums">SKU: {product.sku}</span>
                                     {/if}
                                 </div>
                                 <span class="text-xs text-muted-foreground tabular-nums shrink-0">
@@ -209,7 +209,7 @@
                 <!-- Depósito Destino -->
                 {#if warehouses.length > 0}
                     <div class="space-y-1.5">
-                        <Label for="income-warehouse" class="text-xs font-semibold text-foreground">
+                        <Label for="income-warehouse" class="text-sm font-medium text-foreground">
                             Depósito Destino *
                         </Label>
                         <select
@@ -231,7 +231,7 @@
 
                 <!-- Cantidad a Ingresar -->
                 <div class="space-y-1.5">
-                    <Label for="income-qty" class="text-xs font-semibold text-foreground">
+                    <Label for="income-qty" class="text-sm font-medium text-foreground">
                         Cantidad a Ingresar *
                     </Label>
                     <Input
@@ -257,7 +257,7 @@
 
                 <!-- Motivo del Ingreso -->
                 <div class="space-y-1.5">
-                    <Label for="income-reason" class="text-xs font-semibold text-foreground">
+                    <Label for="income-reason" class="text-sm font-medium text-foreground">
                         Motivo / Concepto *
                     </Label>
                     <select
@@ -279,7 +279,7 @@
                 {#if form.reason === 'transferencia_deposito'}
                     <!-- Depósito de Origen -->
                     <div class="space-y-1.5">
-                        <Label for="income-origin-warehouse" class="text-xs font-semibold text-foreground">
+                        <Label for="income-origin-warehouse" class="text-sm font-medium text-foreground">
                             Depósito de Origen *
                         </Label>
                         <select
@@ -307,17 +307,17 @@
                     {#if originWarehouse && destWarehouse}
                         <div class="p-3.5 rounded-xl bg-primary-500/5 border border-primary-500/20 flex items-center justify-between gap-2.5">
                             <div class="min-w-0 flex-1">
-                                <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Sale de</span>
+                                <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider block">Sale de</span>
                                 <span class="text-xs sm:text-sm font-semibold text-foreground truncate block">{originWarehouse.name}</span>
                             </div>
                             <div class="flex flex-col items-center justify-center shrink-0 px-2">
                                 <ArrowRight class="size-4 text-primary-500" />
-                                <span class="text-[10px] font-bold text-primary-600 dark:text-primary-400 tabular-nums">
+                                <span class="text-xs font-bold text-primary-600 dark:text-primary-400 tabular-nums">
                                     {form.quantity || 0} u.
                                 </span>
                             </div>
                             <div class="min-w-0 flex-1 text-right">
-                                <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Ingresa en</span>
+                                <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider block">Ingresa en</span>
                                 <span class="text-xs sm:text-sm font-semibold text-foreground truncate block">{destWarehouse.name}</span>
                             </div>
                         </div>
@@ -326,7 +326,7 @@
 
                 <!-- Notas / Observaciones -->
                 <div class="space-y-1.5">
-                    <Label for="income-notes" class="text-xs font-semibold text-foreground">
+                    <Label for="income-notes" class="text-sm font-medium text-foreground">
                         Notas u Observaciones
                     </Label>
                     <textarea
@@ -351,7 +351,7 @@
                     variant="outline"
                     onclick={closeModal}
                     disabled={form.processing}
-                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70 whitespace-nowrap cursor-pointer"
+                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-medium border-border/70 whitespace-nowrap cursor-pointer"
                 >
                     Cancelar
                 </Button>
@@ -359,7 +359,7 @@
                     type="submit"
                     form="create-income-form"
                     disabled={form.processing || !form.product_id}
-                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs whitespace-nowrap cursor-pointer"
+                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs whitespace-nowrap cursor-pointer"
                 >
                     {#if form.processing}
                         <Loader2 class="size-3.5 animate-spin mr-1.5 shrink-0" />

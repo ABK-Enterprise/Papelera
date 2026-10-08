@@ -83,7 +83,7 @@
                         </div>
                     </div>
 
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold tabular-nums shrink-0 {mov.type === 'income' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'}">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-bold tabular-nums shrink-0 {mov.type === 'income' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'}">
                         {mov.type === 'income' ? `+${mov.quantity}` : `-${mov.quantity}`}
                     </span>
                 </div>
@@ -91,29 +91,29 @@
                 <!-- Detalle de Balance y Motivo -->
                 <div class="grid grid-cols-2 gap-2 pt-3 text-xs">
                     <div>
-                        <span class="text-muted-foreground block text-[11px]">Balance stock</span>
-                        <div class="text-xs tabular-nums">
-                            <span class="text-muted-foreground">{mov.previous_stock}</span>
-                            <span class="text-muted-foreground mx-0.5">➔</span>
-                            <span class="font-bold text-foreground">{mov.current_stock}</span>
+                        <span class="text-muted-foreground block text-xs">Balance stock</span>
+                        <div class="text-sm font-bold tabular-nums">
+                            <span class="text-muted-foreground font-semibold">{mov.previous_stock}</span>
+                            <span class="text-muted-foreground mx-0.5 font-normal">➔</span>
+                            <span class="text-foreground">{mov.current_stock}</span>
                         </div>
                     </div>
                     <div>
-                        <span class="text-muted-foreground block text-[11px]">Motivo</span>
-                        <span class="font-medium text-foreground capitalize truncate block">
+                        <span class="text-muted-foreground block text-xs">Motivo</span>
+                        <span class="text-xs font-semibold text-foreground capitalize truncate block">
                             {mov.reason ? mov.reason.replace(/_/g, ' ') : 'Operación'}
                         </span>
                     </div>
                 </div>
 
                 <!-- Footer: Responsable, Fecha y Botón Ver Detalle -->
-                <div class="flex items-center justify-between pt-3 mt-3 border-t border-border/40 text-[11px] text-muted-foreground">
+                <div class="flex items-center justify-between pt-3 mt-3 border-t border-border/40 text-xs text-muted-foreground">
                     <div class="flex flex-col gap-0.5 min-w-0">
                         <div class="flex items-center gap-1 text-foreground font-medium truncate">
                             <User class="size-3 text-muted-foreground/70" />
                             <span>{mov.user?.name ?? 'Sistema'}</span>
                         </div>
-                        <div class="flex items-center gap-1 text-[10px] text-muted-foreground tabular-nums">
+                        <div class="flex items-center gap-1 text-xs text-muted-foreground tabular-nums">
                             <Calendar class="size-3 text-muted-foreground/70" />
                             <span>{formatDate(mov.created_at)}</span>
                         </div>
@@ -123,7 +123,7 @@
                         variant="tertiary"
                         size="sm"
                         onclick={() => onSelectMovement(mov)}
-                        class="min-h-[44px] text-xs px-3.5 rounded-xl shrink-0 font-medium"
+                        class="min-h-[44px] text-sm px-3.5 rounded-xl shrink-0 font-medium cursor-pointer"
                     >
                         <Eye class="size-3.5 mr-1.5" />
                         <span>Ver detalle</span>

@@ -210,7 +210,7 @@
             <form id="transfer-stock-form" onsubmit={handleSubmit} class="space-y-4">
                 <!-- Selección de Producto con SearchCombobox -->
                 <div class="space-y-1.5">
-                    <Label class="text-xs font-semibold text-foreground">
+                    <Label class="text-sm font-medium text-foreground">
                         Producto a transferir *
                     </Label>
                     <SearchCombobox
@@ -227,7 +227,7 @@
                                 <div class="min-w-0">
                                     <span class="font-medium text-foreground truncate block">{product.name}</span>
                                     {#if product.sku}
-                                        <span class="text-[11px] text-muted-foreground tabular-nums">SKU: {product.sku}</span>
+                                        <span class="text-xs text-muted-foreground tabular-nums">SKU: {product.sku}</span>
                                     {/if}
                                 </div>
                                 {#if product.stock !== undefined}
@@ -247,7 +247,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-end gap-2.5 sm:gap-3">
                     <!-- Depósito Origen -->
                     <div class="w-full sm:flex-1 min-w-0 space-y-1.5">
-                        <Label for="transfer-origin" class="text-xs font-semibold text-foreground">
+                        <Label for="transfer-origin" class="text-sm font-medium text-foreground">
                             Depósito Origen *
                         </Label>
                         <select
@@ -276,7 +276,7 @@
 
                     <!-- Depósito Destino -->
                     <div class="w-full sm:flex-1 min-w-0 space-y-1.5">
-                        <Label for="transfer-destination" class="text-xs font-semibold text-foreground">
+                        <Label for="transfer-destination" class="text-sm font-medium text-foreground">
                             Depósito Destino *
                         </Label>
                         <select
@@ -305,17 +305,17 @@
                 {#if originWarehouse && destinationWarehouse}
                     <div class="p-3.5 rounded-xl bg-primary-500/5 border border-primary-500/20 flex items-center justify-between gap-2.5">
                         <div class="min-w-0 flex-1">
-                            <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Sale de</span>
+                            <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider block">Sale de</span>
                             <span class="text-xs sm:text-sm font-semibold text-foreground truncate block">{originWarehouse.name}</span>
                         </div>
                         <div class="flex flex-col items-center justify-center shrink-0 px-2">
                             <ArrowRight class="size-4 text-primary-500" />
-                            <span class="text-[10px] font-bold text-primary-600 dark:text-primary-400 tabular-nums">
+                            <span class="text-xs font-bold text-primary-600 dark:text-primary-400 tabular-nums">
                                 {form.quantity || 0} u.
                             </span>
                         </div>
                         <div class="min-w-0 flex-1 text-right">
-                            <span class="text-[11px] font-medium text-muted-foreground uppercase tracking-wider block">Ingresa en</span>
+                            <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider block">Ingresa en</span>
                             <span class="text-xs sm:text-sm font-semibold text-foreground truncate block">{destinationWarehouse.name}</span>
                         </div>
                     </div>
@@ -342,7 +342,7 @@
 
                     <!-- Derecha: Cantidad con Counter Modificable (Stepper) -->
                     <div class="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
-                        <Label for="transfer-qty" class="text-xs font-semibold text-foreground whitespace-nowrap">
+                        <Label for="transfer-qty" class="text-sm font-medium text-foreground whitespace-nowrap">
                             Cantidad:
                         </Label>
                         <div class="flex items-center border border-border/80 rounded-xl bg-background shadow-2xs h-9 overflow-hidden">
@@ -374,7 +374,7 @@
                                         form.quantity = 10000;
                                     }
                                 }}
-                                class="w-16 h-full text-center text-xs font-semibold text-foreground focus:outline-none tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-transparent"
+                                class="w-16 h-full text-center text-sm font-semibold text-foreground focus:outline-none tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-transparent"
                                 required
                             />
                             <button
@@ -406,9 +406,9 @@
                     </div>
                 {/if}
 
-                <!-- Notas / Observaciones -->
+                <!-- Motivo / Observaciones -->
                 <div class="space-y-1.5">
-                    <Label for="transfer-notes" class="text-xs font-semibold text-foreground">
+                    <Label for="transfer-notes" class="text-sm font-medium text-foreground">
                         Motivo / Observaciones
                     </Label>
                     <textarea
@@ -432,7 +432,7 @@
                     variant="outline"
                     onclick={closeModal}
                     disabled={form.processing}
-                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70 whitespace-nowrap cursor-pointer"
+                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-medium border-border/70 whitespace-nowrap cursor-pointer"
                 >
                     Cancelar
                 </Button>
@@ -440,7 +440,7 @@
                     type="submit"
                     form="transfer-stock-form"
                     disabled={form.processing || !form.product_id || !form.origin_warehouse_id || !form.destination_warehouse_id || !form.quantity}
-                    class="w-full sm:w-auto min-h-[44px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-2xs whitespace-nowrap cursor-pointer"
+                    class="w-full sm:w-auto min-h-[44px] px-4 gap-2 rounded-xl text-sm font-medium shadow-2xs whitespace-nowrap cursor-pointer"
                 >
                     {#if form.processing}
                         <Loader2 class="size-4 animate-spin shrink-0" />

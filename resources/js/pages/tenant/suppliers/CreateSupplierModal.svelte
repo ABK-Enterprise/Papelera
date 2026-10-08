@@ -83,7 +83,7 @@
             <form id="create-supplier-form" onsubmit={submit} class="space-y-4">
                 <!-- Nombre del proveedor -->
                 <div class="space-y-1.5">
-                    <Label for="create-supplier-name" class="text-xs font-semibold">
+                    <Label for="create-supplier-name" class="text-sm font-medium text-foreground">
                         Nombre o Razón Social <span class="text-destructive">*</span>
                     </Label>
                     <Input
@@ -101,7 +101,7 @@
                 <!-- Teléfono / Contacto y Correo -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div class="space-y-1.5">
-                        <Label for="create-supplier-phone" class="text-xs font-semibold flex items-center gap-1.5">
+                        <Label for="create-supplier-phone" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                             <Phone class="h-3.5 w-3.5 text-muted-foreground" />
                             Teléfono / Contacto
                         </Label>
@@ -109,7 +109,7 @@
                             id="create-supplier-phone"
                             bind:value={form.contact_number}
                             placeholder="ej. +54 11 4321-8765"
-                            class="h-9 text-sm font-sans tabular-nums"
+                            class="h-9 text-sm font-mono tabular-nums"
                         />
                         {#if form.errors.contact_number}
                             <p class="text-xs text-destructive">{form.errors.contact_number}</p>
@@ -117,7 +117,7 @@
                     </div>
 
                     <div class="space-y-1.5">
-                        <Label for="create-supplier-email" class="text-xs font-semibold flex items-center gap-1.5">
+                        <Label for="create-supplier-email" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                             <Mail class="h-3.5 w-3.5 text-muted-foreground" />
                             Correo Electrónico
                         </Label>
@@ -136,7 +136,7 @@
 
                 <!-- Dirección comercial -->
                 <div class="space-y-1.5">
-                    <Label for="create-supplier-address" class="text-xs font-semibold flex items-center gap-1.5">
+                    <Label for="create-supplier-address" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <MapPin class="h-3.5 w-3.5 text-muted-foreground" />
                         Dirección Comercial
                     </Label>
@@ -171,12 +171,12 @@
                             <div class="flex items-center justify-between gap-1">
                                 <span class="font-semibold text-foreground">Proveedor Activo</span>
                                 {#if form.is_active}
-                                    <span class="text-[10px] font-bold text-primary">Activo</span>
+                                    <span class="text-xs font-bold text-primary">Activo</span>
                                 {:else}
-                                    <span class="text-[10px] font-bold text-muted-foreground">Inactivo</span>
+                                    <span class="text-xs font-bold text-muted-foreground">Inactivo</span>
                                 {/if}
                             </div>
-                            <span class="text-muted-foreground block text-[11px]">Disponible para selección en compras y pedidos.</span>
+                            <span class="text-muted-foreground block text-xs">Disponible para selección en compras y pedidos.</span>
                         </div>
                     </div>
                 </div>
@@ -184,10 +184,10 @@
         </DialogBody>
 
         <DialogFooter>
-            <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold">
+            <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-medium">
                 Cancelar
             </Button>
-            <Button type="submit" form="create-supplier-form" disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-32">
+            <Button type="submit" form="create-supplier-form" disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-medium min-w-32">
                 {form.processing ? 'Creando...' : 'Crear proveedor'}
             </Button>
         </DialogFooter>

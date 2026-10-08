@@ -215,7 +215,7 @@
         <div class="w-full overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="border-b border-border/60 bg-muted/10 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    <tr class="border-b border-border/60 bg-muted/10 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                         <th class="py-3.5 px-6 text-left min-w-[140px]">Fecha y hora</th>
                         <th class="py-3.5 px-6 text-left min-w-[200px]">Producto</th>
                         <th class="py-3.5 px-6 text-center min-w-[100px]">Tipo</th>
@@ -225,7 +225,7 @@
                         <th class="py-3.5 px-6 text-right min-w-[110px]">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-border/40 text-xs text-foreground">
+                <tbody class="divide-y divide-border/40 text-sm font-medium text-foreground">
                     {#if filteredMovements.length === 0}
                         <tr>
                             <td colspan="7" class="py-12 text-center text-muted-foreground">
@@ -242,7 +242,7 @@
                             <tr class="hover:bg-muted/30 transition-colors group">
                                 <!-- Fecha -->
                                 <td class="py-4 px-6 text-muted-foreground whitespace-nowrap text-left">
-                                    <div class="flex items-center gap-1.5 text-xs tabular-nums">
+                                    <div class="flex items-center gap-1.5 text-sm tabular-nums">
                                         <Calendar class="size-3.5 text-muted-foreground/60" />
                                         <span>{formatDate(mov.created_at)}</span>
                                     </div>
@@ -257,7 +257,7 @@
                                         <div class="min-w-0">
                                              <div class="font-semibold text-foreground truncate max-w-xs leading-snug">{mov.product?.name ?? 'Producto eliminado'}</div>
                                             {#if mov.product?.sku}
-                                                <div class="text-xs text-muted-foreground tabular-nums tracking-wide">SKU: {mov.product.sku}</div>
+                                                <div class="text-xs font-mono text-muted-foreground tabular-nums tracking-wide">SKU: {mov.product.sku}</div>
                                             {/if}
                                         </div>
                                     </div>
@@ -279,18 +279,18 @@
                                 </td>
 
                                 <!-- Cantidad -->
-                                <td class="py-4 px-6 text-right whitespace-nowrap font-semibold text-xs tabular-nums {mov.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+                                <td class="py-4 px-6 text-right whitespace-nowrap font-semibold text-sm tabular-nums {mov.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
                                     {mov.type === 'income' ? `+${mov.quantity}` : `-${mov.quantity}`} u.
                                 </td>
 
                                 <!-- Stock Resultante -->
-                                <td class="py-4 px-6 text-right whitespace-nowrap tabular-nums">
+                                <td class="py-4 px-6 text-right whitespace-nowrap text-sm font-semibold tabular-nums">
                                     <span class="font-semibold text-foreground">{mov.current_stock}</span>
-                                    <span class="text-[10px] text-muted-foreground block font-sans">antes: {mov.previous_stock}</span>
+                                    <span class="text-xs text-muted-foreground block font-sans font-normal tabular-nums">antes: {mov.previous_stock}</span>
                                 </td>
 
                                 <!-- Responsable -->
-                                <td class="py-4 px-6 text-muted-foreground whitespace-nowrap text-left">
+                                <td class="py-4 px-6 text-muted-foreground whitespace-nowrap text-left text-sm">
                                     <div class="flex items-center gap-1.5">
                                         <User class="size-3 text-muted-foreground/60" />
                                         <span>{mov.user?.name ?? 'Sistema'}</span>
@@ -303,15 +303,12 @@
                                         variant="tertiary"
                                         size="sm"
                                         onclick={() => onSelectMovement(mov)}
-                                        class="min-h-[40px] text-xs gap-1.5 rounded-xl font-medium px-3.5"
+                                        class="min-h-[40px] text-sm gap-1.5 rounded-xl font-medium px-3.5 cursor-pointer"
                                     >
                                         <Eye class="size-3.5" />
                                         <span>Ver detalle</span>
                                     </Button>
                                 </td>
-
-
-
                             </tr>
                         {/each}
                     {/if}
