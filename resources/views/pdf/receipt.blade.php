@@ -81,7 +81,6 @@
         .receipt-number {
             font-size: 15px;
             font-weight: 700;
-            font-family: monospace;
             color: #0f172a;
             margin-top: 2px;
         }
@@ -166,7 +165,6 @@
             font-size: 24px;
             font-weight: 900;
             color: #0f172a;
-            font-family: monospace;
         }
         .payment-method-tag {
             font-size: 12px;
@@ -334,7 +332,7 @@
         <tr>
             <td style="padding: 10px 14px; vertical-align: middle;">
                 <div style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase;">Importe Percibido</div>
-                <div style="font-size: 26px; font-weight: 900; color: #0f172a; font-family: monospace; margin-top: 2px;">
+                <div style="font-size: 26px; font-weight: 900; color: #0f172a; margin-top: 2px;">
                     $ {{ number_format((float) $receipt->amount, 2, ',', '.') }}
                 </div>
             </td>
@@ -366,7 +364,7 @@
             <tbody>
                 @foreach($receipt->orderAllocations as $allocation)
                     <tr>
-                        <td class="text-left font-mono">
+                        <td class="text-left">
                             <strong>{{ $allocation->order->order_number ?? "PED-{$allocation->customer_order_id}" }}</strong>
                         </td>
                         <td class="text-right">

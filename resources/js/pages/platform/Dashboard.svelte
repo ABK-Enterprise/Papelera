@@ -159,7 +159,7 @@
                                     <Building2 class="size-3.5 text-primary shrink-0" />
                                     <span class="font-semibold truncate">{item.name}</span>
                                     {#if item.cuit_tax_id}
-                                        <span class="text-xs text-muted-foreground font-mono tabular-nums">({item.cuit_tax_id})</span>
+                                        <span class="text-xs text-muted-foreground tabular-nums">({item.cuit_tax_id})</span>
                                     {/if}
                                 {:else}
                                     <Boxes class="size-3.5 text-primary shrink-0" />

@@ -55,7 +55,7 @@
                     <span class="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider border {tone.bg} {tone.text} {tone.border}">
                         {log.action}
                     </span>
-                    <div class="flex items-center gap-1.5 text-xs font-mono tabular-nums text-muted-foreground">
+                    <div class="flex items-center gap-1.5 text-xs tabular-nums text-muted-foreground">
                         <Clock class="size-3.5 text-muted-foreground shrink-0" />
                         <span>{log.created_at}</span>
                     </div>
@@ -74,7 +74,7 @@
                             {log.tenant.name}
                         </span>
                         <span class="text-muted-foreground/40">•</span>
-                        <span class="text-xs font-mono tabular-nums text-muted-foreground">
+                        <span class="text-xs tabular-nums text-muted-foreground">
                             ID: {log.tenant.id}
                         </span>
                     {:else}

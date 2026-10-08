@@ -251,7 +251,7 @@
                                             {item.product_name}
                                         </h5>
                                         {#if item.product?.sku}
-                                            <span class="text-xs text-muted-foreground font-mono tabular-nums block mt-0.5">
+                                            <span class="text-xs text-muted-foreground tabular-nums block mt-0.5">
                                                 SKU: {item.product.sku}
                                             </span>
                                         {/if}
@@ -292,7 +292,7 @@
                                         <td class="p-2.5 text-foreground">
                                             {item.product_name}
                                             {#if item.product?.sku}
-                                                <span class="text-xs text-muted-foreground block font-mono tabular-nums">SKU: {item.product.sku}</span>
+                                                <span class="text-xs text-muted-foreground block tabular-nums">SKU: {item.product.sku}</span>
                                             {/if}
                                         </td>
                                         <td class="p-2.5 text-center font-sans tabular-nums">

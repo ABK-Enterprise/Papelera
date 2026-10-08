@@ -419,7 +419,7 @@
                                                 </span>
                                             {/if}
                                             {#if prod.sku}
-                                                <span class="font-mono">
+                                                <span class="tabular-nums">
                                                     SKU: <HighlightMatch text={prod.sku} query={searchQuery} />
                                                 </span>
                                             {/if}
@@ -503,7 +503,7 @@
                                                     </span>
                                                 {/if}
                                                 {#if item.sku}
-                                                    <span class="text-sm font-mono tabular-nums bg-muted px-2 py-0.5 rounded text-muted-foreground shrink-0">
+                                                    <span class="text-sm tabular-nums bg-muted px-2 py-0.5 rounded text-muted-foreground shrink-0">
                                                         {item.sku}
                                                     </span>
                                                 {/if}

@@ -125,7 +125,7 @@
                                 <div class="flex flex-col min-w-0">
                                     <span class="truncate font-medium text-foreground">{supp.name}</span>
                                     {#if supp.contact_number}
-                                        <span class="text-xs font-mono text-muted-foreground tabular-nums">{supp.contact_number}</span>
+                                        <span class="text-xs text-muted-foreground tabular-nums">{supp.contact_number}</span>
                                     {/if}
                                 </div>
                                 <div class="flex items-center gap-1.5 shrink-0">

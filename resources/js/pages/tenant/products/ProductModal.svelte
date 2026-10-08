@@ -358,7 +358,7 @@
                                         id="modal-prod-sku"
                                         bind:value={form.sku}
                                         placeholder="ej. RES-A4-75"
-                                        class="h-10 text-sm rounded-xl font-mono tabular-nums"
+                                        class="h-10 text-sm rounded-xl font-sans tabular-nums"
                                     />
                                     {#if form.errors.sku}
                                         <p class="text-xs text-destructive">{form.errors.sku}</p>

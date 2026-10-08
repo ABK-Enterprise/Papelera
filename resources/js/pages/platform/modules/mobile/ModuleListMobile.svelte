@@ -63,7 +63,7 @@
                         <IconContainer size="md" variant="primary" icon={iconName} />
                         <div class="min-w-0">
                             <h3 class="font-semibold text-foreground text-sm leading-snug truncate">{mod.name}</h3>
-                            <Badge variant="outline" class="text-xs font-mono tracking-wide tabular-nums bg-muted/50 px-2 py-0.5 mt-0.5">
+                            <Badge variant="outline" class="text-xs tracking-wide tabular-nums bg-muted/50 px-2 py-0.5 mt-0.5">
                                 {mod.code}
                             </Badge>
                         </div>

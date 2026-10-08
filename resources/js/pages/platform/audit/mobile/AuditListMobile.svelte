@@ -54,7 +54,7 @@
                 <span class="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold uppercase tracking-wider border {tone.bg} {tone.text} {tone.border} line-clamp-1">
                     {log.action}
                 </span>
-                <div class="flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground shrink-0 pt-0.5">
+                <div class="flex items-center gap-1 text-xs tabular-nums text-muted-foreground shrink-0 pt-0.5">
                     <Clock class="size-3 text-muted-foreground" />
                     <span>{log.created_at}</span>
                 </div>

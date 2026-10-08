@@ -158,7 +158,7 @@
                     <span class="text-xs text-muted-foreground block">Producto:</span>
                     <strong class="text-foreground font-semibold text-sm">{product.name}</strong>
                     {#if product.sku}
-                        <span class="ml-1 text-xs tabular-nums font-mono text-muted-foreground">({product.sku})</span>
+                        <span class="ml-1 text-xs tabular-nums text-muted-foreground">({product.sku})</span>
                     {/if}
                 </div>
             {/if}

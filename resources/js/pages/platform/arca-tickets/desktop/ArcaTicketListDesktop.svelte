@@ -32,7 +32,7 @@
                 </div>
                 <div class="space-y-0.5">
                     <div class="flex items-center gap-2">
-                        <span class="font-bold text-sm text-foreground font-mono tabular-nums">
+                        <span class="font-bold text-sm text-foreground tabular-nums">
                             #{ticket.unique_id}
                         </span>
                         {#if ticket.status === 'active'}
@@ -47,7 +47,7 @@
                         {/if}
                     </div>
                     {#if ticket.token_preview}
-                        <span class="text-xs font-mono tabular-nums text-muted-foreground block truncate max-w-[200px]">
+                        <span class="text-xs tabular-nums text-muted-foreground block truncate max-w-[200px]">
                             Token: {ticket.token_preview}
                         </span>
                     {/if}
@@ -74,7 +74,7 @@
 
             <!-- Columna 4: CUIT y Servicio -->
             <div class="text-right min-w-[130px] space-y-0.5">
-                <span class="text-xs font-mono tabular-nums text-muted-foreground block">
+                <span class="text-xs tabular-nums text-muted-foreground block">
                     CUIT: {ticket.cuit}
                 </span>
                 <Badge variant="outline" class="text-xs uppercase tracking-wider font-semibold py-0.5 px-2">

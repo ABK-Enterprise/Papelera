@@ -102,7 +102,7 @@
                                 {formatTaxCondition(customer.tax_condition)}
                             </span>
                             {#if customer.created_at}
-                                <span class="text-xs font-mono tabular-nums text-muted-foreground flex items-center gap-1">
+                                <span class="text-xs tabular-nums text-muted-foreground flex items-center gap-1">
                                     <Calendar class="size-3" />
                                     {formatDate(customer.created_at)}
                                 </span>
@@ -134,7 +134,7 @@
             <!-- CUIT, Teléfono y Email -->
             <div class="flex items-center gap-2 flex-wrap pt-1 border-t border-border/40">
                 {#if customer.tax_id}
-                    <span class="inline-flex items-center gap-1 text-xs font-mono tabular-nums bg-muted/60 px-2 py-0.5 rounded text-foreground font-semibold">
+                    <span class="inline-flex items-center gap-1 text-xs tabular-nums bg-muted/60 px-2 py-0.5 rounded text-foreground font-semibold">
                         CUIT: {customer.tax_id}
                     </span>
                 {/if}

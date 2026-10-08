@@ -87,8 +87,8 @@
                                     {/if}
                                 </div>
                                 <p class="text-xs text-muted-foreground mt-0.5">
-                                    <span class="font-mono tabular-nums">{tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}</span>
-                                    • Alta: <span class="font-mono tabular-nums">{formatDate(tenant.created_at)}</span>
+                                    <span class="tabular-nums">{tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}</span>
+                                    • Alta: <span class="tabular-nums">{formatDate(tenant.created_at)}</span>
                                 </p>
                             </div>
                         </div>
@@ -145,7 +145,7 @@
                     </IconContainer>
                     <div>
                         <h3 class="font-bold text-base text-foreground leading-snug">{selectedTenant.name}</h3>
-                        <span class="text-xs font-mono tabular-nums text-muted-foreground">
+                        <span class="text-xs tabular-nums text-muted-foreground">
                             {selectedTenant.cuit_tax_id ? `CUIT: ${selectedTenant.cuit_tax_id}` : `ID: MER-${selectedTenant.id.toString().padStart(5, '0')}`}
                         </span>
                     </div>
@@ -201,7 +201,7 @@
             <!-- Fecha de alta -->
             <div class="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-xl border border-border/50 bg-muted/20">
                 <Icon icon="solar:calendar-bold-duotone" class="size-4 text-muted-foreground/70" />
-                <span>Fecha de alta: <span class="font-mono tabular-nums">{formatDate(selectedTenant.created_at)}</span></span>
+                <span>Fecha de alta: <span class="tabular-nums">{formatDate(selectedTenant.created_at)}</span></span>
             </div>
 
             <!-- Módulos Contratados -->

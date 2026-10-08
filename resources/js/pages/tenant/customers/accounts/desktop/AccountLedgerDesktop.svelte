@@ -187,7 +187,7 @@
                                             </span>
                                         {/if}
                                     </div>
-                                    <p class="text-xs text-muted-foreground mt-0.5 font-mono tabular-nums">
+                                    <p class="text-xs text-muted-foreground mt-0.5 tabular-nums">
                                         {cust.tax_id || 'Sin CUIT'} • {cust.phone || 'Sin tel.'}
                                     </p>
                                 </div>
@@ -266,15 +266,15 @@
                                             {/if}
                                         </div>
 
-                                        <div class="flex items-center gap-2 text-xs font-mono tabular-nums text-muted-foreground flex-wrap">
+                                        <div class="flex items-center gap-2 text-xs tabular-nums text-muted-foreground flex-wrap">
                                             <span>{formatDate(mov.created_at)}</span>
                                             {#if mov.created_by}
                                                 <span>•</span>
-                                                <span class="font-sans">Por: {mov.created_by.name}</span>
+                                                <span>Por: {mov.created_by.name}</span>
                                             {/if}
                                             {#if mov.notes}
                                                 <span>•</span>
-                                                <span class="italic font-normal font-sans">"{mov.notes}"</span>
+                                                <span class="italic font-normal">"{mov.notes}"</span>
                                             {/if}
                                         </div>
                                     </div>
@@ -331,8 +331,8 @@
                                 </span>
                             {/if}
                         </div>
-                        <p class="text-xs text-muted-foreground mt-0.5 font-mono tabular-nums">
-                            {selectedCustomer.tax_id ? `CUIT ${selectedCustomer.tax_id}` : 'Sin CUIT'} • <span class="capitalize font-sans">{selectedCustomer.tax_condition.replace('_', ' ')}</span>
+                        <p class="text-xs text-muted-foreground mt-0.5 tabular-nums">
+                            {selectedCustomer.tax_id ? `CUIT ${selectedCustomer.tax_id}` : 'Sin CUIT'} • <span class="capitalize">{selectedCustomer.tax_condition.replace('_', ' ')}</span>
                         </p>
                     </div>
                 </div>

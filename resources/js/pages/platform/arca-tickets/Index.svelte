@@ -151,7 +151,7 @@
                 <div class="rounded-lg border border-border/70 bg-muted/30 p-4 space-y-1.5">
                     <span class="text-xs text-muted-foreground block font-medium">Código del Ticket (WSAA Unique ID)</span>
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums">
+                        <span class="text-xl sm:text-2xl font-bold text-foreground tabular-nums">
                             #{activeTicket.unique_id}
                         </span>
                         <Button
@@ -171,7 +171,7 @@
                         </Button>
                     </div>
                     {#if activeTicket.token_preview}
-                        <span class="text-xs font-mono tabular-nums text-muted-foreground/80 block truncate">
+                        <span class="text-xs tabular-nums text-muted-foreground/80 block truncate">
                             Preview Token: {activeTicket.token_preview}
                         </span>
                     {/if}
@@ -182,7 +182,7 @@
                     <span class="text-xs text-muted-foreground block font-medium">Vigencia y Tiempo Restante</span>
                     <div class="flex items-center gap-2">
                         <Clock class="size-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                        <span class="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums">
+                        <span class="text-xl sm:text-2xl font-bold text-foreground tabular-nums">
                             {formattedRemainingTime}
                         </span>
                     </div>
@@ -206,7 +206,7 @@
                     <Calendar class="size-3.5" />
                     <span>Vencimiento: {activeTicket.expires_at ?? 'No registrada'}</span>
                 </div>
-                <div class="font-mono tabular-nums">
+                <div class="tabular-nums">
                     CUIT Emisor: {activeTicket.cuit}
                 </div>
             </div>

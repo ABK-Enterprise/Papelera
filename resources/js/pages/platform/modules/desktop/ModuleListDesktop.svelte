@@ -60,7 +60,7 @@
                 <div class="flex justify-between items-start mb-3.5">
                     <IconContainer size="md" variant="primary" icon={iconName} />
 
-                    <Badge variant="outline" class="text-xs font-mono tracking-wide tabular-nums bg-muted/50 px-2 py-0.5">
+                    <Badge variant="outline" class="text-xs tracking-wide tabular-nums bg-muted/50 px-2 py-0.5">
                         {mod.code}
                     </Badge>
                 </div>

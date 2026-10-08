@@ -54,7 +54,7 @@
                     </IconContainer>
                     <div>
                         <DialogTitle class="text-base font-bold text-foreground leading-snug">{tenant.name}</DialogTitle>
-                        <span class="text-xs font-mono tabular-nums text-muted-foreground">
+                        <span class="text-xs tabular-nums text-muted-foreground">
                             {tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}
                         </span>
                     </div>
@@ -107,7 +107,7 @@
                 <!-- Fecha de alta -->
                 <div class="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-xl border border-border/50 bg-muted/20">
                     <Icon icon="solar:calendar-bold-duotone" class="size-4 text-muted-foreground/70" />
-                    <span>Fecha de alta: <span class="font-mono tabular-nums">{formatDate(tenant.created_at)}</span></span>
+                    <span>Fecha de alta: <span class="tabular-nums">{formatDate(tenant.created_at)}</span></span>
                 </div>
 
                 <!-- Módulos contratados -->

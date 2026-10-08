@@ -182,7 +182,7 @@
                             </h3>
 
                             {#if mov.product?.sku}
-                                <span class="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-xs font-mono tracking-wide text-muted-foreground border border-border/50 tabular-nums">
+                                <span class="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-xs tracking-wide text-muted-foreground border border-border/50 tabular-nums">
                                      SKU: {mov.product.sku}
                                  </span>
                             {/if}

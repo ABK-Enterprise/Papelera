@@ -418,7 +418,7 @@
 
                         {#if product.sku}
                             <span class="text-muted-foreground/40 font-light select-none">|</span>
-                            <span class="text-xs font-mono text-muted-foreground tracking-wide truncate tabular-nums">
+                            <span class="text-xs text-muted-foreground tracking-wide truncate tabular-nums">
                                 <HighlightMatch text={product.sku} query={searchQuery} />
                             </span>
                         {/if}

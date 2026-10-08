@@ -181,7 +181,7 @@
                             />
                             <div class="space-y-1">
                                 <span class="text-sm font-semibold leading-none">{mod.name}</span>
-                                <span class="font-mono text-xs text-muted-foreground block">({mod.code})</span>
+                                <span class="text-xs text-muted-foreground block">({mod.code})</span>
                                 {#if mod.description}
                                     <p class="text-xs text-muted-foreground">{mod.description}</p>
                                 {/if}

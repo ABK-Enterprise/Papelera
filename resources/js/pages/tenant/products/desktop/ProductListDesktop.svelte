@@ -209,12 +209,12 @@
                     <!-- Código de Barras / SKU / Categoría / Packaging | Stock -->
                     <div class="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                         {#if product.barcode}
-                            <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs font-mono tabular-nums tracking-wide">
+                            <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs tabular-nums tracking-wide">
                                 BAR: <HighlightMatch text={product.barcode} query={searchQuery} />
                             </span>
                         {/if}
                         {#if product.sku}
-                            <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs font-mono tabular-nums tracking-wide">
+                            <span class="bg-muted/60 px-1.5 py-0.5 rounded text-xs tabular-nums tracking-wide">
                                 SKU: <HighlightMatch text={product.sku} query={searchQuery} />
                             </span>
                         {/if}

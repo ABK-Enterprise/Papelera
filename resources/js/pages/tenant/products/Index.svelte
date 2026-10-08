@@ -274,7 +274,7 @@
                                     <HighlightMatch text={prod.name} query={tableFilters.filters.search} />
                                 </span>
                                 {#if prod.sku}
-                                    <span class="text-xs font-mono text-muted-foreground tabular-nums">
+                                    <span class="text-xs text-muted-foreground tabular-nums">
                                         SKU: <HighlightMatch text={prod.sku} query={tableFilters.filters.search} />
                                     </span>
                                 {/if}
@@ -379,7 +379,7 @@
                                     <HighlightMatch text={prod.name} query={tableFilters.filters.search} />
                                 </span>
                                 {#if prod.sku}
-                                    <span class="text-xs font-mono text-muted-foreground tabular-nums">
+                                    <span class="text-xs text-muted-foreground tabular-nums">
                                         SKU: <HighlightMatch text={prod.sku} query={tableFilters.filters.search} />
                                     </span>
                                 {/if}

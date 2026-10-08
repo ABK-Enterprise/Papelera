@@ -72,7 +72,7 @@
                         <ReceiptText class="size-5 text-primary" />
                     </div>
                     <div class="flex flex-col gap-1">
-                        <span class="font-bold text-sm text-foreground tabular-nums font-mono">
+                        <span class="font-bold text-sm text-foreground tabular-nums">
                             {rc.receipt_number}
                         </span>
                         <div>
@@ -107,7 +107,7 @@
                         <!-- Fila 1: Primeros 2 pedidos -->
                         <div class="flex items-center gap-1.5 flex-wrap">
                             {#each rc.orders.slice(0, 2) as ord (ord.id)}
-                                <span class="text-xs font-mono font-semibold tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
+                                <span class="text-xs font-semibold tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
                                     {ord.order_number}
                                 </span>
                             {/each}
@@ -116,7 +116,7 @@
                         <!-- Fila 2: 3er pedido + indicador '+ X' si hay más -->
                         {#if rc.orders.length > 2}
                             <div class="flex items-center gap-1.5 flex-wrap">
-                                <span class="text-xs font-mono font-semibold tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
+                                <span class="text-xs font-semibold tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
                                     {rc.orders[2].order_number}
                                 </span>
                                 {#if rc.orders.length > 3}
@@ -131,7 +131,7 @@
                         {/if}
                     {:else if rc.reference_number}
                         <span
-                            class="text-xs font-mono tabular-nums text-muted-foreground bg-muted/50 px-2 py-1 rounded-lg border border-border/50 max-w-[150px] truncate inline-block"
+                            class="text-xs tabular-nums text-muted-foreground bg-muted/50 px-2 py-1 rounded-lg border border-border/50 max-w-[150px] truncate inline-block"
                             title={rc.reference_number}
                         >
                             {truncateRef(rc.reference_number, 14)}

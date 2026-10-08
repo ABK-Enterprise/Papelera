@@ -375,8 +375,17 @@
     * {
         @apply border-border outline-ring/50;
     }
+    html,
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground font-sans;
+        font-family: var(--font-sans);
+    }
+    button,
+    input,
+    optgroup,
+    select,
+    textarea {
+        font-family: inherit;
     }
     select {
         appearance: none;

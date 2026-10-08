@@ -115,7 +115,6 @@
         .doc-number {
             font-size: 13px;
             font-weight: 700;
-            font-family: monospace;
             color: #0f172a;
             margin-top: 2px;
         }

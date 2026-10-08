@@ -87,7 +87,7 @@
                             <span class="font-semibold text-foreground truncate block">{item.name}</span>
                             <span class="text-xs text-muted-foreground">{item.permissions?.length ?? 0} permisos asignados</span>
                         </div>
-                        <span class="text-xs font-mono bg-muted/70 px-1.5 py-0.5 rounded text-muted-foreground tabular-nums shrink-0 font-medium">
+                        <span class="text-xs bg-muted/70 px-1.5 py-0.5 rounded text-muted-foreground tabular-nums shrink-0 font-medium">
                             {item.code}
                         </span>
                     </div>

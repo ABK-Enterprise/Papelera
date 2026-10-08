@@ -47,7 +47,7 @@
                     </div>
 
                     <div class="inline-flex items-center justify-center gap-1.5 self-center px-3 py-1 rounded-full text-xs font-semibold bg-destructive/10 text-destructive border border-destructive/20 mb-2">
-                        <span class="font-mono tabular-nums font-bold">Error {status}</span>
+                        <span class="tabular-nums font-bold">Error {status}</span>
                         <span>•</span>
                         <span>Acceso restringido</span>
                     </div>

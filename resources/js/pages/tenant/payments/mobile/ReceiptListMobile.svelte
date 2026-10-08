@@ -53,7 +53,7 @@
                 <!-- Fila Superior: Nº Recibo + Estado + Menú '...' -->
                 <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center gap-2 min-w-0 flex-wrap">
-                        <span class="font-bold text-xs text-foreground font-mono tabular-nums">
+                        <span class="font-bold text-xs text-foreground tabular-nums">
                             {rc.receipt_number}
                         </span>
                         {#if rc.is_cancelled}
@@ -143,7 +143,7 @@
                     <!-- Pedidos Imputados (Máx 1 en Mobile + indicador '+ X') / Referencia -->
                     {#if rc.orders && rc.orders.length > 0}
                         <div class="flex items-center gap-1.5 flex-wrap pt-0.5">
-                            <span class="text-xs font-mono font-semibold tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
+                            <span class="text-xs font-semibold tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
                                 {rc.orders[0].order_number}
                             </span>
                             {#if rc.orders.length > 1}
@@ -159,7 +159,7 @@
                         <div class="flex items-center gap-1.5 pt-0.5">
                             <span class="text-xs font-medium text-muted-foreground">Ref:</span>
                             <span
-                                class="text-xs font-mono tabular-nums text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md border border-border/50 truncate max-w-[200px] inline-block"
+                                class="text-xs tabular-nums text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md border border-border/50 truncate max-w-[200px] inline-block"
                                 title={rc.reference_number}
                             >
                                 {truncateRef(rc.reference_number, 14)}

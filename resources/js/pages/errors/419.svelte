@@ -51,7 +51,7 @@
                     </div>
 
                     <div class="inline-flex items-center justify-center gap-1.5 self-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 mb-2">
-                        <span class="font-mono tabular-nums font-bold">Estado {status}</span>
+                        <span class="tabular-nums font-bold">Estado {status}</span>
                         <span>•</span>
                         <span>Autenticación</span>
                     </div>

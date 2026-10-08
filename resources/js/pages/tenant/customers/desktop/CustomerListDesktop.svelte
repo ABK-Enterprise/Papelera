@@ -137,7 +137,7 @@
                     <!-- Fila 2: CUIT/DNI, Teléfono y Email -->
                     <div class="flex items-center gap-2.5 flex-wrap">
                         {#if customer.tax_id}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 font-mono tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 tabular-nums">
                                 <strong>CUIT/DNI:</strong> {customer.tax_id}
                             </span>
                         {/if}
@@ -182,7 +182,7 @@
                         {#if customer.created_at}
                             <div class="flex items-center gap-1 shrink-0 ml-auto sm:ml-0">
                                 <Calendar class="size-3.5 text-muted-foreground/70" />
-                                <span class="text-xs font-mono tabular-nums">Alta: {formatDate(customer.created_at)}</span>
+                                <span class="text-xs tabular-nums">Alta: {formatDate(customer.created_at)}</span>
                             </div>
                         {/if}
                     </div>

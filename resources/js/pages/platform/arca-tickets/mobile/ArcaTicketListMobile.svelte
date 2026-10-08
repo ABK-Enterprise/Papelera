@@ -29,7 +29,7 @@
             <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 min-w-0">
                     <KeyRound class="size-4 text-primary shrink-0" />
-                    <span class="font-bold text-sm text-foreground font-mono tabular-nums truncate">
+                    <span class="font-bold text-sm text-foreground tabular-nums truncate">
                         #{ticket.unique_id}
                     </span>
                 </div>
@@ -47,7 +47,7 @@
             </div>
 
             {#if ticket.token_preview}
-                <div class="text-xs font-mono tabular-nums text-muted-foreground truncate">
+                <div class="text-xs tabular-nums text-muted-foreground truncate">
                     Token: {ticket.token_preview}
                 </div>
             {/if}
@@ -77,7 +77,7 @@
 
             <!-- CUIT y Servicio -->
             <div class="flex items-center justify-between gap-2 pt-2 border-t border-border/30 text-xs">
-                <span class="text-muted-foreground font-mono tabular-nums">CUIT: {ticket.cuit}</span>
+                <span class="text-muted-foreground tabular-nums">CUIT: {ticket.cuit}</span>
                 <Badge variant="outline" class="text-xs uppercase tracking-wider font-semibold py-0.5 px-2">
                     {ticket.service}
                 </Badge>

@@ -151,7 +151,7 @@
                                 <div class="flex flex-col min-w-0">
                                     <span class="truncate font-medium text-foreground">{cust.name}</span>
                                     {#if cust.tax_id}
-                                        <span class="text-xs font-mono tabular-nums text-muted-foreground">CUIT: {cust.tax_id}</span>
+                                        <span class="text-xs tabular-nums text-muted-foreground">CUIT: {cust.tax_id}</span>
                                     {/if}
                                 </div>
                                 <div class="flex items-center gap-1.5 shrink-0">

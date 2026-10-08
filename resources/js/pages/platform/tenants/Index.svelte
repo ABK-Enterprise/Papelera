@@ -182,7 +182,7 @@
                         <div class="flex items-center justify-between gap-3 w-full">
                             <div class="min-w-0">
                                 <span class="font-semibold text-foreground truncate block">{item.name}</span>
-                                <span class="text-xs text-muted-foreground tabular-nums font-mono">
+                                <span class="text-xs text-muted-foreground tabular-nums">
                                     {item.cuit_tax_id ? `CUIT: ${item.cuit_tax_id}` : `ID: MER-${item.id.toString().padStart(5, '0')}`}
                                 </span>
                             </div>

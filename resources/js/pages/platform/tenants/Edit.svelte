@@ -180,7 +180,7 @@
                                     </span>
                                 {/if}
                             </div>
-                            <span class="font-mono text-xs {isSelected ? 'text-primary/80' : 'text-muted-foreground/70'} block">
+                            <span class="text-xs {isSelected ? 'text-primary/80' : 'text-muted-foreground/70'} block">
                                 Código: {mod.code}
                             </span>
                             {#if mod.description}

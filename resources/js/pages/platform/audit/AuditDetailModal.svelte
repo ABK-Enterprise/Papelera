@@ -121,7 +121,7 @@
                     <div class="flex items-center gap-2">
                         <Clock class="size-4 text-muted-foreground shrink-0" />
                         <span class="text-muted-foreground">Fecha:</span>
-                        <span class="text-xs font-mono tabular-nums text-foreground">{log.created_at}</span>
+                        <span class="text-xs tabular-nums text-foreground">{log.created_at}</span>
                     </div>
 
                     {#if log.tenant}
@@ -142,7 +142,7 @@
                         <div class="flex items-center gap-2 sm:col-span-2">
                             <Globe class="size-4 text-muted-foreground shrink-0" />
                             <span class="text-muted-foreground">Origen IP:</span>
-                            <span class="font-mono text-muted-foreground tabular-nums text-xs">{log.ip_address}</span>
+                            <span class="text-muted-foreground tabular-nums text-xs">{log.ip_address}</span>
                         </div>
                     {/if}
                 </div>

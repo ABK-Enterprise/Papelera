@@ -122,7 +122,7 @@
                         <div class="space-y-1">
                             <span class="text-muted-foreground font-medium block">Código de Autorización Electrónica (CAE):</span>
                             <div class="flex items-center gap-2">
-                                <span class="font-mono font-bold text-sm text-foreground tabular-nums">
+                                <span class="font-bold text-sm text-foreground tabular-nums">
                                     {invoice.cae}
                                 </span>
                                 <button
@@ -194,7 +194,7 @@
                             <span class="text-muted-foreground font-medium block">
                                 {invoice.doc_tipo === 80 ? 'CUIT' : (invoice.doc_tipo === 96 ? 'DNI' : 'Documento')}:
                             </span>
-                            <span class="font-semibold font-mono text-foreground text-sm block mt-0.5 tabular-nums">
+                            <span class="font-semibold text-foreground text-sm block mt-0.5 tabular-nums">
                                 {invoice.doc_nro}
                             </span>
                         </div>

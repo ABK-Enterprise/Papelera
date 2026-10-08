@@ -159,12 +159,12 @@
                                     {inv.customer_order.order_number}
                                 </span>
                             {/if}
-                            <span class="text-muted-foreground font-mono tabular-nums text-xs">
+                            <span class="text-muted-foreground tabular-nums text-xs">
                                 {formatDate(inv.issue_date)}
                             </span>
                         </div>
 
-                        <span class="font-mono text-xs text-muted-foreground/80 tabular-nums truncate max-w-[140px]" title={`CAE: ${inv.cae}`}>
+                        <span class="text-xs text-muted-foreground/80 tabular-nums truncate max-w-[140px]" title={`CAE: ${inv.cae}`}>
                             CAE: {inv.cae}
                         </span>
                     </div>

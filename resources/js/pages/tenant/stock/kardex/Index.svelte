@@ -169,7 +169,7 @@
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
                             <span class="truncate font-medium text-foreground">{prod.name}</span>
                             {#if prod.sku}
-                                <span class="text-xs font-mono text-muted-foreground tabular-nums shrink-0">SKU: {prod.sku}</span>
+                                <span class="text-xs text-muted-foreground tabular-nums shrink-0">SKU: {prod.sku}</span>
                             {/if}
                         </div>
                     {/snippet}

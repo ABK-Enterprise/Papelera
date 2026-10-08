@@ -96,7 +96,7 @@
             {#if supplier.contact_number || supplier.email}
                 <div class="flex items-center gap-2 flex-wrap pt-1 border-t border-border/40">
                     {#if supplier.contact_number}
-                        <span class="inline-flex items-center gap-1 text-xs font-mono tabular-nums bg-muted/60 px-2 py-0.5 rounded text-foreground">
+                        <span class="inline-flex items-center gap-1 text-xs tabular-nums bg-muted/60 px-2 py-0.5 rounded text-foreground">
                             <Phone class="size-3 text-muted-foreground" />
                             {supplier.contact_number}
                         </span>

@@ -215,7 +215,7 @@
                             {mpAccount?.nickname || '—'}
                         </span>
                         {#if mpAccount?.cuit}
-                            <span class="text-xs text-muted-foreground font-mono tabular-nums">
+                            <span class="text-xs text-muted-foreground tabular-nums">
                                 CUIT: {mpAccount.cuit}
                             </span>
                         {/if}

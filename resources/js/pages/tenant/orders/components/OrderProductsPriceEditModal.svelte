@@ -205,7 +205,7 @@
 
                             <!-- Renglón 2: Debajo del nombre el SKU -->
                             {#if productSku}
-                                <span class="text-xs font-mono text-muted-foreground tabular-nums -mt-0.5">
+                                <span class="text-xs text-muted-foreground tabular-nums -mt-0.5">
                                     SKU: {productSku}
                                 </span>
                             {/if}
@@ -239,7 +239,7 @@
                                         {productName}
                                     </span>
                                     {#if productSku}
-                                        <span class="text-xs font-mono text-muted-foreground tabular-nums">
+                                        <span class="text-xs text-muted-foreground tabular-nums">
                                             ({productSku})
                                         </span>
                                     {/if}

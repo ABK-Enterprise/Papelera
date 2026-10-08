@@ -60,7 +60,7 @@
                     <IconContainer size="md" variant="primary" icon={iconName} />
                     <div class="min-w-0">
                         <DialogTitle class="text-base font-bold text-foreground leading-snug truncate">{module.name}</DialogTitle>
-                        <Badge variant="outline" class="text-xs font-mono tracking-wide tabular-nums bg-muted/50 px-2 py-0.5 mt-0.5">
+                        <Badge variant="outline" class="text-xs tracking-wide tabular-nums bg-muted/50 px-2 py-0.5 mt-0.5">
                             {module.code}
                         </Badge>
                     </div>

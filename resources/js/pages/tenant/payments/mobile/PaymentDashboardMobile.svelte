@@ -244,7 +244,7 @@
 
                                         <div class="space-y-0.5">
                                             <div class="flex items-center gap-1.5">
-                                                <span class="font-bold text-xs font-mono tabular-nums text-foreground">{order.order_number}</span>
+                                                <span class="font-bold text-xs tabular-nums text-foreground">{order.order_number}</span>
                                                 {#if order.shipping_zone}
                                                     <span class="text-xs font-semibold uppercase tracking-wider text-primary bg-primary/10 px-1.5 py-0.5 rounded">
                                                         {order.shipping_zone.name}
@@ -324,7 +324,7 @@
                     {#each recentReceipts as rc}
                         <div class="p-3 rounded-xl border bg-card border-border/80 space-y-1 shadow-2xs">
                             <div class="flex items-center justify-between">
-                                <span class="font-bold text-xs text-foreground font-sans">{rc.receipt_number}</span>
+                                <span class="font-bold text-xs tabular-nums text-foreground font-sans">{rc.receipt_number}</span>
                                 {#if rc.is_cancelled}
                                     <span class="text-xs font-bold text-destructive bg-destructive/10 px-1.5 py-0.2 rounded line-through">
                                         ANULADO
@@ -345,7 +345,7 @@
                             {#if rc.order_allocations && rc.order_allocations.length > 0}
                                 <div class="flex flex-wrap gap-1 mt-0.5">
                                     {#each rc.order_allocations as alloc}
-                                        <span class="text-xs font-mono font-semibold tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground border border-border/50">
+                                        <span class="text-xs font-semibold tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground border border-border/50">
                                             {alloc.order.order_number}
                                         </span>
                                     {/each}

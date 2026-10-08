@@ -105,7 +105,7 @@
                                 </span>
                             {/if}
                         </div>
-                        <p class="text-xs text-muted-foreground font-mono tabular-nums mt-0.5">
+                        <p class="text-xs text-muted-foreground tabular-nums mt-0.5">
                             {cust.tax_id ? `CUIT ${cust.tax_id}` : 'Sin CUIT'}
                         </p>
                     </div>
@@ -279,9 +279,9 @@
                                         {isPayment ? '-' : '+'}{formatPrice(mov.amount)}
                                     </span>
                                 </div>
-                                <div class="flex items-center justify-between text-xs font-mono tabular-nums text-muted-foreground">
+                                <div class="flex items-center justify-between text-xs tabular-nums text-muted-foreground">
                                     <span>{formatDate(mov.created_at)}</span>
-                                    <span class="font-sans">Saldo: <strong class="text-foreground font-mono">{formatPrice(mov.balance_after)}</strong></span>
+                                    <span>Saldo: <strong class="text-foreground">{formatPrice(mov.balance_after)}</strong></span>
                                 </div>
                             </div>
                         {/each}

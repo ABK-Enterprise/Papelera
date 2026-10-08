@@ -165,7 +165,7 @@
                                             <span class="text-sm leading-snug break-words {isChecked ? 'text-foreground font-medium' : 'text-muted-foreground'}">
                                                 {getPermissionLabel(perm.name)}
                                             </span>
-                                            <span class="text-xs font-mono text-muted-foreground/70 shrink-0 hidden sm:inline-block">
+                                            <span class="text-xs tabular-nums text-muted-foreground/70 shrink-0 hidden sm:inline-block">
                                                 {perm.name}
                                             </span>
                                         </div>

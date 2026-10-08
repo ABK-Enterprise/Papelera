@@ -257,7 +257,7 @@
                                         <div class="min-w-0">
                                              <div class="font-semibold text-foreground truncate max-w-xs leading-snug">{mov.product?.name ?? 'Producto eliminado'}</div>
                                             {#if mov.product?.sku}
-                                                <div class="text-xs font-mono text-muted-foreground tabular-nums tracking-wide">SKU: {mov.product.sku}</div>
+                                                <div class="text-xs text-muted-foreground tabular-nums tracking-wide">SKU: {mov.product.sku}</div>
                                             {/if}
                                         </div>
                                     </div>

@@ -107,7 +107,7 @@
                                     <HighlightMatch text={item.product_name} query={searchTerm} />
                                 </span>
                                 <span class="text-xs text-muted-foreground">
-                                    {item.warehouse_name} • SKU: <span class="font-mono tabular-nums"><HighlightMatch text={item.product_sku || 'N/A'} query={searchTerm} /></span>
+                                    {item.warehouse_name} • SKU: <span class="tabular-nums"><HighlightMatch text={item.product_sku || 'N/A'} query={searchTerm} /></span>
                                 </span>
                             </div>
                             <span class="text-xs font-semibold tabular-nums text-primary shrink-0">
@@ -200,7 +200,7 @@
                                 </h3>
                                 <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
                                     {#if item.product_sku}
-                                        <Badge variant="outline" class="text-xs font-mono tabular-nums px-1.5 py-0">
+                                        <Badge variant="outline" class="text-xs tabular-nums px-1.5 py-0">
                                             <HighlightMatch text={item.product_sku} query={searchTerm} />
                                         </Badge>
                                     {/if}

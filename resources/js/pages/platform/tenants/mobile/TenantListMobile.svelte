@@ -62,7 +62,7 @@
                         </IconContainer>
                         <div class="flex flex-col min-w-0">
                             <span class="font-semibold text-foreground text-sm leading-snug truncate">{tenant.name}</span>
-                            <span class="text-xs font-mono tabular-nums text-muted-foreground">
+                            <span class="text-xs tabular-nums text-muted-foreground">
                                 {tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}
                             </span>
                         </div>
@@ -87,7 +87,7 @@
                             <Icon icon="solar:users-group-rounded-bold-duotone" class="size-3.5 text-muted-foreground/80 shrink-0" />
                             <span>Usuarios <strong class="text-foreground font-semibold">{tenant.users_count ?? 0}</strong></span>
                         </div>
-                        <div class="flex items-center gap-1.5 text-xs font-mono tabular-nums text-muted-foreground/80">
+                        <div class="flex items-center gap-1.5 text-xs tabular-nums text-muted-foreground/80">
                             <Icon icon="solar:calendar-bold-duotone" class="size-3.5 text-muted-foreground/70" />
                             <span>{formatDate(tenant.created_at)}</span>
                         </div>

@@ -183,7 +183,7 @@
                     </div>
                     <div class="min-w-0">
                         <div class="flex items-center gap-2">
-                            <DialogTitle class="text-base sm:text-lg font-bold font-sans text-foreground truncate">
+                            <DialogTitle class="text-base sm:text-lg font-bold font-sans tabular-nums text-foreground truncate">
                                 Recibo {receipt.receipt_number}
                             </DialogTitle>
                             {#if receipt.is_cancelled}
@@ -306,7 +306,7 @@
                             {/if}
                         </div>
                         {#if receipt.reference_number}
-                            <p class="text-xs sm:text-sm font-mono font-semibold text-foreground break-all select-all pt-0.5">
+                            <p class="text-xs sm:text-sm font-semibold tabular-nums text-foreground break-all select-all pt-0.5">
                                 {receipt.reference_number}
                             </p>
                         {:else}

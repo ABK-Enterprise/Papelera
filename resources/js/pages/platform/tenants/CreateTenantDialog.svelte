@@ -227,7 +227,7 @@
                                             </span>
                                         {/if}
                                     </div>
-                                    <span class="font-mono text-xs text-muted-foreground block">({mod.code})</span>
+                                    <span class="text-xs text-muted-foreground block">({mod.code})</span>
                                     {#if mod.description}
                                         <p class="text-xs text-muted-foreground line-clamp-1">{mod.description}</p>
                                     {/if}
