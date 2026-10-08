@@ -171,7 +171,7 @@
                         </Button>
                     </div>
                     {#if activeTicket.token_preview}
-                        <span class="text-[11px] font-mono text-muted-foreground/80 block truncate">
+                        <span class="text-xs font-mono tabular-nums text-muted-foreground/80 block truncate">
                             Preview Token: {activeTicket.token_preview}
                         </span>
                     {/if}
@@ -221,7 +221,7 @@
                 <div class="space-y-1">
                     <div class="flex items-center gap-2">
                         <h2 class="text-base font-bold text-foreground">Sin Ticket de Acceso Activo</h2>
-                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-muted text-muted-foreground border border-border">
+                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-muted text-muted-foreground border border-border">
                             Inactivo
                         </span>
                     </div>

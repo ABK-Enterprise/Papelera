@@ -115,13 +115,13 @@
                     <div class="flex items-center gap-2">
                         <User class="size-4 text-muted-foreground shrink-0" />
                         <span class="text-muted-foreground">Operador:</span>
-                        <span class="font-medium text-foreground truncate">{log.user_name ?? 'Sistema'}</span>
+                        <span class="text-sm font-medium text-foreground truncate">{log.user_name ?? 'Sistema'}</span>
                     </div>
 
                     <div class="flex items-center gap-2">
                         <Clock class="size-4 text-muted-foreground shrink-0" />
                         <span class="text-muted-foreground">Fecha:</span>
-                        <span class="font-medium text-foreground tabular-nums">{log.created_at}</span>
+                        <span class="text-xs font-mono tabular-nums text-foreground">{log.created_at}</span>
                     </div>
 
                     {#if log.tenant}
@@ -142,7 +142,7 @@
                         <div class="flex items-center gap-2 sm:col-span-2">
                             <Globe class="size-4 text-muted-foreground shrink-0" />
                             <span class="text-muted-foreground">Origen IP:</span>
-                            <span class="font-mono text-muted-foreground tabular-nums text-[11px]">{log.ip_address}</span>
+                            <span class="font-mono text-muted-foreground tabular-nums text-xs">{log.ip_address}</span>
                         </div>
                     {/if}
                 </div>
@@ -201,7 +201,7 @@
             <Button
                 type="button"
                 variant="outline"
-                class="w-full sm:w-auto min-h-[44px] px-6 font-medium"
+                class="w-full sm:w-auto min-h-[44px] px-6 text-sm font-medium"
                 onclick={() => handleOpenChange(false)}
             >
                 Cerrar

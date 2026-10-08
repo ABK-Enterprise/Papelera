@@ -196,7 +196,7 @@
 
                     <Button
                         variant="outline"
-                        class="min-h-[40px] px-4 rounded-xl text-xs font-semibold text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-2 shrink-0 cursor-pointer"
+                        class="min-h-[44px] px-4 rounded-xl text-sm font-medium text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-2 shrink-0 cursor-pointer"
                         onclick={() => (isDisconnectModalOpen = true)}
                     >
                         <Unlink class="size-4" />
@@ -215,7 +215,7 @@
                             {mpAccount?.nickname || '—'}
                         </span>
                         {#if mpAccount?.cuit}
-                            <span class="text-[11px] text-muted-foreground font-sans tabular-nums">
+                            <span class="text-xs text-muted-foreground font-mono tabular-nums">
                                 CUIT: {mpAccount.cuit}
                             </span>
                         {/if}
@@ -229,7 +229,7 @@
                         <span class="text-sm font-semibold text-foreground truncate" title={mpAccount?.email ?? ''}>
                             {mpAccount?.email || '—'}
                         </span>
-                        <span class="text-[11px] text-muted-foreground">
+                        <span class="text-xs text-muted-foreground">
                             Cuenta receptora de cobros
                         </span>
                     </div>
@@ -240,7 +240,7 @@
             <Card class="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs">
                 <form onsubmit={handleUpdatePos} class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                     <div class="space-y-1.5 flex-1 max-w-md">
-                        <Label for="pos_id" class="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-1.5">
+                        <Label for="pos_id" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                             <Store class="size-4 text-primary" />
                             Código de Caja / Punto de Venta (POS)
                         </Label>
@@ -260,7 +260,7 @@
                         type="submit"
                         variant="secondary"
                         disabled={isUpdatingPos || currentPosId === mpAccount?.pos_id}
-                        class="min-h-[40px] px-4 rounded-xl font-semibold gap-2 shadow-xs shrink-0 cursor-pointer"
+                        class="min-h-[44px] px-4 rounded-xl text-sm font-medium gap-2 shadow-xs shrink-0 cursor-pointer"
                     >
                         <Save class="size-4" />
                         <span>{isUpdatingPos ? 'Guardando...' : 'Guardar Caja'}</span>

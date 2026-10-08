@@ -83,7 +83,7 @@
                         <span class="font-bold text-base text-foreground font-sans tabular-nums">
                             {inv.formatted_number}
                         </span>
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full border uppercase shrink-0 {getCbteBadgeStyle(inv.cbte_tipo)}">
+                        <span class="text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0 {getCbteBadgeStyle(inv.cbte_tipo)}">
                             {getCbteName(inv.cbte_tipo, inv.cbte_letter)}
                         </span>
                     </div>
@@ -145,7 +145,7 @@
                             <span class="font-sans font-bold text-base tabular-nums block {isCreditNote ? 'text-destructive' : 'text-foreground'}">
                                 {isCreditNote ? '-' : ''}{formatPrice(inv.importe_total)}
                             </span>
-                            <span class="text-[10px] text-muted-foreground block tabular-nums">
+                            <span class="text-xs text-muted-foreground block tabular-nums font-medium">
                                 Neto: {formatPrice(inv.importe_neto)}
                             </span>
                         </div>
@@ -155,16 +155,16 @@
                     <div class="flex items-center justify-between gap-2 pt-1 border-t border-border/50 text-xs">
                         <div class="flex items-center gap-1.5 flex-wrap">
                             {#if inv.customer_order}
-                                <span class="font-semibold tabular-nums px-1.5 py-0.5 rounded bg-muted text-foreground border border-border/60 text-[11px]">
+                                <span class="font-semibold tabular-nums px-1.5 py-0.5 rounded bg-muted text-foreground border border-border/60 text-xs">
                                     {inv.customer_order.order_number}
                                 </span>
                             {/if}
-                            <span class="text-muted-foreground tabular-nums text-[11px]">
+                            <span class="text-muted-foreground font-mono tabular-nums text-xs">
                                 {formatDate(inv.issue_date)}
                             </span>
                         </div>
 
-                        <span class="font-mono text-[10px] text-muted-foreground/80 tabular-nums truncate max-w-[140px]" title={`CAE: ${inv.cae}`}>
+                        <span class="font-mono text-xs text-muted-foreground/80 tabular-nums truncate max-w-[140px]" title={`CAE: ${inv.cae}`}>
                             CAE: {inv.cae}
                         </span>
                     </div>
@@ -174,7 +174,7 @@
                 <div class="pt-1">
                     <Button
                         variant="secondary"
-                        class="w-full min-h-[44px] h-11 rounded-xl text-xs font-semibold gap-2 shadow-2xs justify-center"
+                        class="w-full min-h-[44px] h-11 rounded-xl text-sm font-medium gap-2 shadow-2xs justify-center"
                         onclick={() => onViewDetail?.(inv)}
                     >
                         <Eye class="size-4" />

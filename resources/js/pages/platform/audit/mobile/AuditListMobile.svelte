@@ -51,10 +51,10 @@
         <div class="rounded-xl border border-border/70 bg-card p-4 space-y-3 shadow-2xs">
             <!-- Header con Acción y Fecha -->
             <div class="flex items-start justify-between gap-2">
-                <span class="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold border {tone.bg} {tone.text} {tone.border} line-clamp-1">
+                <span class="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold uppercase tracking-wider border {tone.bg} {tone.text} {tone.border} line-clamp-1">
                     {log.action}
                 </span>
-                <div class="flex items-center gap-1 text-[11px] text-muted-foreground tabular-nums shrink-0 pt-0.5">
+                <div class="flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground shrink-0 pt-0.5">
                     <Clock class="size-3 text-muted-foreground" />
                     <span>{log.created_at}</span>
                 </div>
@@ -77,11 +77,11 @@
             <div class="pt-1 flex items-center justify-between gap-3 border-t border-border/50 pt-2.5">
                 <div class="flex items-center gap-2 min-w-0">
                     <User class="size-3.5 text-muted-foreground shrink-0" />
-                    <span class="text-xs font-medium text-foreground truncate">
+                    <span class="text-sm font-medium text-foreground truncate">
                         {log.user_name ?? 'Sistema'}
                     </span>
                     {#if log.user_role}
-                        <Badge variant="outline" class="text-[9px] uppercase tracking-wider font-semibold py-0 px-1 shrink-0">
+                        <Badge variant="outline" class="text-xs uppercase tracking-wider font-semibold py-0.5 px-1.5 shrink-0">
                             {log.user_role}
                         </Badge>
                     {/if}
@@ -90,7 +90,7 @@
                 <Button
                     type="button"
                     variant="outline"
-                    class="min-h-[40px] px-4 gap-1.5 font-medium shrink-0"
+                    class="min-h-[44px] px-4 gap-1.5 text-sm font-medium shrink-0"
                     onclick={() => onview(log)}
                 >
                     <Eye class="size-4" />

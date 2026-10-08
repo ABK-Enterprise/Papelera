@@ -145,7 +145,7 @@
                         {:else}
                             <div class="flex flex-col items-center justify-center gap-1 text-center select-none px-2">
                                 <ImageOff class="size-5 text-muted-foreground/60 group-hover:text-primary/70 transition-colors" />
-                                <span class="text-[11px] font-medium text-muted-foreground tracking-tight leading-tight">
+                                <span class="text-xs font-medium text-muted-foreground tracking-tight leading-tight">
                                     Sin imagen
                                 </span>
                             </div>
@@ -168,11 +168,10 @@
                     <Button
                         type="button"
                         variant="outline"
-                        size="sm"
                         onclick={() => (showLogoModal = true)}
-                        class="mt-2 min-h-[36px] text-xs font-semibold gap-1.5 rounded-lg"
+                        class="mt-2 min-h-[44px] text-sm font-medium gap-1.5 rounded-xl"
                     >
-                        <Pencil class="size-3 text-primary" />
+                        <Pencil class="size-3.5 text-primary" />
                         <span>{logoUrl ? 'Cambiar logo' : 'Subir logo'}</span>
                     </Button>
                 </div>
@@ -180,7 +179,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
-                    <Label for="company-name" class="text-xs font-semibold">
+                    <Label for="company-name" class="text-sm font-medium text-foreground">
                         Nombre de Fantasía <span class="text-destructive">*</span>
                     </Label>
                     <Input
@@ -196,7 +195,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="company-legal-name" class="text-xs font-semibold">
+                    <Label for="company-legal-name" class="text-sm font-medium text-foreground">
                         Razón Social
                     </Label>
                     <Input
@@ -211,7 +210,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="company-cuit" class="text-xs font-semibold flex items-center gap-1.5">
+                    <Label for="company-cuit" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <FileText class="size-3.5 text-muted-foreground" />
                         CUIT del Comercio
                     </Label>
@@ -228,7 +227,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="company-tax-condition" class="text-xs font-semibold">
+                    <Label for="company-tax-condition" class="text-sm font-medium text-foreground">
                         Condición frente al IVA <span class="text-destructive">*</span>
                     </Label>
                     <select
@@ -247,7 +246,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="company-point-of-sale" class="text-xs font-semibold">
+                    <Label for="company-point-of-sale" class="text-sm font-medium text-foreground">
                         Punto de Venta de ARCA
                     </Label>
                     <Input
@@ -278,7 +277,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="sm:col-span-2 space-y-1.5">
-                    <Label for="company-address" class="text-xs font-semibold">
+                    <Label for="company-address" class="text-sm font-medium text-foreground">
                         Dirección (Calle, Número, Piso/Depto)
                     </Label>
                     <Input
@@ -293,7 +292,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="company-city" class="text-xs font-semibold">
+                    <Label for="company-city" class="text-sm font-medium text-foreground">
                         Ciudad / Localidad
                     </Label>
                     <Input
@@ -308,7 +307,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="company-state" class="text-xs font-semibold">
+                    <Label for="company-state" class="text-sm font-medium text-foreground">
                         Provincia
                     </Label>
                     <Input
@@ -350,7 +349,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="company-postal-code" class="text-xs font-semibold">
+                    <Label for="company-postal-code" class="text-sm font-medium text-foreground">
                         Código Postal
                     </Label>
                     <Input
@@ -375,7 +374,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
-                    <Label for="company-phone" class="text-xs font-semibold flex items-center gap-1.5">
+                    <Label for="company-phone" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <Phone class="size-3.5 text-muted-foreground" />
                         Teléfono Comercial
                     </Label>
@@ -391,7 +390,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="company-email" class="text-xs font-semibold flex items-center gap-1.5">
+                    <Label for="company-email" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <Mail class="size-3.5 text-muted-foreground" />
                         Email Comercial
                     </Label>
@@ -408,7 +407,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="company-iibb" class="text-xs font-semibold">
+                    <Label for="company-iibb" class="text-sm font-medium text-foreground">
                         N° de Ingresos Brutos (IIBB)
                     </Label>
                     <Input
@@ -423,7 +422,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="company-start-date" class="text-xs font-semibold flex items-center gap-1.5">
+                    <Label for="company-start-date" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <Calendar class="size-3.5 text-muted-foreground" />
                         Inicio de Actividades
                     </Label>
@@ -445,7 +444,7 @@
             <Button
                 type="submit"
                 disabled={form.processing}
-                class="min-h-[40px] px-5 rounded-xl font-medium flex items-center gap-2 shadow-xs cursor-pointer"
+                class="min-h-[44px] px-5 rounded-xl text-sm font-medium flex items-center gap-2 shadow-xs cursor-pointer"
             >
                 {#if form.processing}
                     <Loader2 class="size-4 animate-spin" />

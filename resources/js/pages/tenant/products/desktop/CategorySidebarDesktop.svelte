@@ -192,7 +192,7 @@
                     <span>Ver más ({Math.min(batchSize, categories.length - visibleLimit)})</span>
                 </button>
             {:else}
-                <span class="text-muted-foreground/60 text-[11px]">Todas mostradas</span>
+                <span class="text-xs text-muted-foreground/80">Todas mostradas</span>
             {/if}
 
             {#if visibleLimit > initialLimit}

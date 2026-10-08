@@ -111,9 +111,9 @@
                     </div>
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2">
-                            <span class="font-semibold text-foreground truncate max-w-xs">{product.name}</span>
+                            <span class="text-sm font-semibold text-foreground truncate max-w-xs">{product.name}</span>
                             {#if product.is_critical || product.stock < 0}
-                                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-600 text-white uppercase tracking-wider">
+                                <span class="px-1.5 py-0.5 rounded text-xs font-semibold bg-rose-600 text-white uppercase tracking-wider">
                                     Crítico
                                 </span>
                             {/if}
@@ -154,12 +154,12 @@
             <!-- Columna: Stock Actual -->
             <td class="py-3.5 px-6">
                 {#if product.is_critical || product.stock < 0}
-                    <span class="inline-flex items-center gap-1 rounded-md border border-rose-600/40 bg-rose-600/25 px-2.5 py-1 text-xs font-extrabold tabular-nums text-rose-800 dark:text-rose-200">
+                    <span class="inline-flex items-center gap-1 rounded-md border border-rose-600/40 bg-rose-600/25 px-2.5 py-1 text-sm font-bold tabular-nums text-rose-800 dark:text-rose-200">
                         <span class="size-1.5 rounded-full bg-rose-600 animate-pulse"></span>
                         {product.stock} {product.stock === 1 ? 'unidad' : 'unidades'}
                     </span>
                 {:else}
-                    <span class="inline-flex items-center gap-1 rounded-md border border-rose-500/30 bg-rose-500/20 px-2.5 py-1 text-xs font-bold tabular-nums text-rose-700 dark:text-rose-300">
+                    <span class="inline-flex items-center gap-1 rounded-md border border-rose-500/30 bg-rose-500/20 px-2.5 py-1 text-sm font-bold tabular-nums text-rose-700 dark:text-rose-300">
                         <span class="size-1.5 rounded-full bg-rose-500"></span>
                         {product.stock} {product.stock === 1 ? 'unidad' : 'unidades'}
                     </span>
@@ -168,7 +168,7 @@
 
             <!-- Columna: Stock Mínimo -->
             <td class="py-3.5 px-6 text-right">
-                <span class="text-xs font-semibold tabular-nums text-foreground">
+                <span class="text-sm font-bold tabular-nums text-foreground">
                     {product.min_stock} {product.min_stock === 1 ? 'unidad' : 'unidades'}
                 </span>
             </td>
@@ -197,7 +197,7 @@
                 <Button
                     variant="outline"
                     size="sm"
-                    class="min-h-[36px] px-3 gap-1 rounded-lg text-xs font-medium cursor-pointer"
+                    class="min-h-[36px] px-3 gap-1 rounded-lg text-sm font-medium cursor-pointer"
                     disabled={currentPage <= 1}
                     onclick={() => currentPage--}
                 >
@@ -212,7 +212,7 @@
                 <Button
                     variant="outline"
                     size="sm"
-                    class="min-h-[36px] px-3 gap-1 rounded-lg text-xs font-medium cursor-pointer"
+                    class="min-h-[36px] px-3 gap-1 rounded-lg text-sm font-medium cursor-pointer"
                     disabled={currentPage >= totalPages}
                     onclick={() => currentPage++}
                 >

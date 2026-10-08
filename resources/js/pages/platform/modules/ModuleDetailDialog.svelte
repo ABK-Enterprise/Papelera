@@ -60,7 +60,7 @@
                     <IconContainer size="md" variant="primary" icon={iconName} />
                     <div class="min-w-0">
                         <DialogTitle class="text-base font-bold text-foreground leading-snug truncate">{module.name}</DialogTitle>
-                        <Badge variant="outline" class="text-xs tracking-wide tabular-nums bg-muted/50 px-2 py-0.5 mt-0.5">
+                        <Badge variant="outline" class="text-xs font-mono tracking-wide tabular-nums bg-muted/50 px-2 py-0.5 mt-0.5">
                             {module.code}
                         </Badge>
                     </div>
@@ -75,7 +75,7 @@
                 {#if module.description}
                     <div class="p-3.5 rounded-xl border border-border/60 bg-muted/20">
                         <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1">Descripción</span>
-                        <p class="text-xs text-foreground leading-relaxed">{module.description}</p>
+                        <p class="text-sm text-foreground leading-relaxed">{module.description}</p>
                     </div>
                 {/if}
 
@@ -108,7 +108,7 @@
             <DialogFooter class="pt-3 border-t border-border/50">
                 <DialogClose class="w-full" asChild>
                     {#snippet children({ onClick })}
-                        <Button variant="outline" class="w-full min-h-[44px] rounded-xl font-semibold" onclick={onClick}>
+                        <Button variant="outline" class="w-full min-h-[44px] rounded-xl text-sm font-medium" onclick={onClick}>
                             Cerrar
                         </Button>
                     {/snippet}

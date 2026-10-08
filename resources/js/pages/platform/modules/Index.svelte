@@ -85,9 +85,9 @@
                     <div class="flex items-center justify-between gap-2 w-full">
                         <div class="min-w-0">
                             <span class="font-semibold text-foreground truncate block">{item.name}</span>
-                            <span class="text-[11px] text-muted-foreground">{item.permissions?.length ?? 0} permisos asignados</span>
+                            <span class="text-xs text-muted-foreground">{item.permissions?.length ?? 0} permisos asignados</span>
                         </div>
-                        <span class="text-[10px] bg-muted/70 px-1.5 py-0.5 rounded text-muted-foreground tabular-nums shrink-0 font-medium">
+                        <span class="text-xs font-mono bg-muted/70 px-1.5 py-0.5 rounded text-muted-foreground tabular-nums shrink-0 font-medium">
                             {item.code}
                         </span>
                     </div>

@@ -35,19 +35,19 @@
                 </div>
 
                 {#if ticket.status === 'active'}
-                    <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
                         <span class="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                         Activo
                     </span>
                 {:else}
-                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium bg-muted text-muted-foreground border border-border/60 shrink-0">
+                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-muted text-muted-foreground border border-border/60 shrink-0">
                         Vencido
                     </span>
                 {/if}
             </div>
 
             {#if ticket.token_preview}
-                <div class="text-[11px] font-mono text-muted-foreground truncate">
+                <div class="text-xs font-mono tabular-nums text-muted-foreground truncate">
                     Token: {ticket.token_preview}
                 </div>
             {/if}
@@ -76,9 +76,9 @@
             </div>
 
             <!-- CUIT y Servicio -->
-            <div class="flex items-center justify-between gap-2 pt-2 border-t border-border/30 text-[11px]">
-                <span class="text-muted-foreground font-mono">CUIT: {ticket.cuit}</span>
-                <Badge variant="outline" class="text-[9px] uppercase tracking-wider font-semibold py-0 px-1.5">
+            <div class="flex items-center justify-between gap-2 pt-2 border-t border-border/30 text-xs">
+                <span class="text-muted-foreground font-mono tabular-nums">CUIT: {ticket.cuit}</span>
+                <Badge variant="outline" class="text-xs uppercase tracking-wider font-semibold py-0.5 px-2">
                     {ticket.service}
                 </Badge>
             </div>

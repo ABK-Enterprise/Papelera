@@ -277,8 +277,8 @@
         {#if isOptimizing}
             <div class="flex flex-col items-center justify-center py-8 space-y-2">
                 <RefreshCw class="size-8 text-primary animate-spin" />
-                <p class="text-xs font-semibold text-foreground">Optimizando imagen...</p>
-                <p class="text-[11px] text-muted-foreground">Redimensionando a WebP para máxima velocidad</p>
+                <p class="text-sm font-semibold text-foreground">Optimizando imagen...</p>
+                <p class="text-xs text-muted-foreground">Redimensionando a WebP para máxima velocidad</p>
             </div>
         {:else if activePreview}
             <!-- Image Loaded State -->
@@ -293,11 +293,11 @@
 
                 <!-- Size Metrics Pill -->
                 {#if optimizedSizeKb}
-                    <div class="mt-2.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[11px] font-semibold tabular-nums">
+                    <div class="mt-2.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold tabular-nums">
                         <span>WebP optimizado:</span>
                         <span>{optimizedSizeKb} KB</span>
                         {#if originalSizeKb && originalSizeKb > optimizedSizeKb}
-                            <span class="text-muted-foreground line-through text-[10px]">{originalSizeKb} KB</span>
+                            <span class="text-muted-foreground line-through text-xs tabular-nums">{originalSizeKb} KB</span>
                         {/if}
                     </div>
                 {/if}
@@ -308,8 +308,8 @@
                 <div class="size-14 rounded-2xl bg-destructive/10 text-destructive flex items-center justify-center border border-destructive/20">
                     <ImageOff class="size-7" />
                 </div>
-                <p class="text-xs font-semibold text-foreground">Imagen marcada para eliminar</p>
-                <p class="text-[11px] text-muted-foreground max-w-xs">
+                <p class="text-sm font-semibold text-foreground">Imagen marcada para eliminar</p>
+                <p class="text-xs text-muted-foreground max-w-xs">
                     Al guardar los cambios, la foto actual se borrará definitivamente del catálogo.
                 </p>
             </div>
@@ -320,14 +320,14 @@
                     <UploadCloud class="size-7" />
                 </div>
                 <div class="space-y-0.5">
-                    <p class="text-xs sm:text-sm font-semibold text-foreground">
+                    <p class="text-sm font-semibold text-foreground">
                         Subir imagen o capturar foto
                     </p>
-                    <p class="text-[11px] text-muted-foreground">
+                    <p class="text-xs text-muted-foreground">
                         Arrastrá un archivo o hacé clic para explorar
                     </p>
                 </div>
-                <div class="inline-flex items-center gap-2 pt-1 text-[10px] font-medium text-muted-foreground">
+                <div class="inline-flex items-center gap-2 pt-1 text-xs font-medium text-muted-foreground">
                     <span class="px-2 py-0.5 rounded-md bg-muted border border-border/60">JPG</span>
                     <span class="px-2 py-0.5 rounded-md bg-muted border border-border/60">PNG</span>
                     <span class="px-2 py-0.5 rounded-md bg-muted border border-border/60">WebP</span>

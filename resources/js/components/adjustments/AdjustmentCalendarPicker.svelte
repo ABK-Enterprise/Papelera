@@ -313,7 +313,7 @@
                     type="button"
                     onclick={() => toggleWeekdayInActiveYear(day.id)}
                     {disabled}
-                    class={`min-h-[42px] sm:min-h-[44px] min-w-0 w-full flex flex-col items-center justify-center rounded-xl border text-[11px] sm:text-xs font-medium transition-colors cursor-pointer select-none touch-manipulation px-0.5 sm:px-1 ${
+                    class={`min-h-[42px] sm:min-h-[44px] min-w-0 w-full flex flex-col items-center justify-center rounded-xl border text-xs sm:text-sm font-medium tabular-nums transition-colors cursor-pointer select-none touch-manipulation px-0.5 sm:px-1 ${
                         status === 'all'
                             ? 'bg-primary text-primary-foreground border-primary shadow-2xs font-semibold'
                             : status === 'some'

@@ -348,10 +348,10 @@
                                             <Icon icon={sub.icon} class="size-4.5" />
                                         </div>
                                         <div class="space-y-0.5">
-                                            <p class="text-xs font-semibold leading-none {sub.active ? 'text-primary' : 'text-foreground'}">
+                                            <p class="text-sm font-semibold leading-none {sub.active ? 'text-primary' : 'text-foreground'}">
                                                 {sub.title}
                                             </p>
-                                            <p class="text-[11px] text-muted-foreground leading-snug">
+                                            <p class="text-xs text-muted-foreground leading-snug">
                                                 {sub.description}
                                             </p>
                                         </div>

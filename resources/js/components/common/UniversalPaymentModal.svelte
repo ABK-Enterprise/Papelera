@@ -262,15 +262,15 @@
                             <User class="size-4" />
                         </div>
                         <div>
-                            <span class="text-xs font-bold text-foreground block">{customer.name}</span>
-                            <span class="text-[11px] text-muted-foreground">
+                            <span class="text-sm font-semibold text-foreground block">{customer.name}</span>
+                            <span class="text-xs text-muted-foreground">
                                 {customer.tax_id ? `CUIT: ${customer.tax_id}` : 'Cliente Registrado'}
                             </span>
                         </div>
                     </div>
 
                     <div class="text-left sm:text-right">
-                        <span class="text-[10px] uppercase font-semibold text-muted-foreground block">Saldo en Cuenta</span>
+                        <span class="text-xs uppercase font-semibold text-muted-foreground block">Saldo en Cuenta</span>
                         <span class="text-sm sm:text-base font-bold font-sans tabular-nums {Number(customer.current_balance) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600'}">
                             {formatPrice(customer.current_balance || 0)}
                         </span>
@@ -282,14 +282,14 @@
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
                 <div class="sm:col-span-6 space-y-1.5">
                     <div class="flex items-center justify-between">
-                        <Label for="receipt-amount" class="text-xs font-semibold text-foreground">
+                        <Label for="receipt-amount" class="text-sm font-medium text-foreground">
                             Monto a Cobrar <span class="text-destructive">*</span>
                         </Label>
                         {#if totalOrdersDebt > 0 || (customer && Number(customer.current_balance) > 0)}
                             <button
                                 type="button"
                                 onclick={setFullTotalDebt}
-                                class="text-[11px] font-semibold text-primary hover:underline cursor-pointer"
+                                class="text-xs font-semibold text-primary hover:underline cursor-pointer"
                             >
                                 Total ({formatPrice(totalOrdersDebt || customer?.current_balance || 0)})
                             </button>
@@ -312,13 +312,13 @@
                 </div>
 
                 <div class="sm:col-span-6 space-y-1.5">
-                    <Label for="receipt-method" class="text-xs font-semibold text-foreground">
+                    <Label for="receipt-method" class="text-sm font-medium text-foreground">
                         Método de Pago <span class="text-destructive">*</span>
                     </Label>
                     <select
                         id="receipt-method"
                         bind:value={paymentMethod}
-                        class="h-11 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                        class="h-11 w-full rounded-xl border border-border/80 bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                         required
                     >
                         {#each paymentMethods as m}
@@ -331,7 +331,7 @@
             <!-- Fila 2: Referencia y Notas -->
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
                 <div class="sm:col-span-6 space-y-1.5">
-                    <Label for="receipt-ref" class="text-xs font-semibold text-foreground">
+                    <Label for="receipt-ref" class="text-sm font-medium text-foreground">
                         Nº de Referencia / Transacción / Cheque
                     </Label>
                     <Input
@@ -339,18 +339,18 @@
                         type="text"
                         bind:value={referenceNumber}
                         placeholder="Ej. TRF-889911, CHQ-4455"
-                        class="h-10 rounded-xl bg-background border-border/80 text-xs font-medium text-foreground"
+                        class="h-10 rounded-xl bg-background border-border/80 text-sm font-medium text-foreground"
                     />
                 </div>
 
                 <div class="sm:col-span-6 space-y-1.5">
-                    <Label for="receipt-notes" class="text-xs font-semibold text-foreground">Observaciones</Label>
+                    <Label for="receipt-notes" class="text-sm font-medium text-foreground">Observaciones</Label>
                     <Input
                         id="receipt-notes"
                         type="text"
                         bind:value={notes}
                         placeholder="Comentarios adicionales del cobro..."
-                        class="h-10 rounded-xl bg-background border-border/80 text-xs text-foreground"
+                        class="h-10 rounded-xl bg-background border-border/80 text-sm text-foreground"
                     />
                 </div>
             </div>
@@ -370,7 +370,7 @@
                             type="button"
                             variant="ghost"
                             size="sm"
-                            class="h-7 px-2 text-[11px] text-primary gap-1"
+                            class="h-8 px-2.5 text-xs text-primary gap-1"
                             onclick={() => applyFifoDistribution(parsedAmount)}
                         >
                             <ArrowDownUp class="size-3" />
@@ -384,17 +384,17 @@
                                 <div class="space-y-0.5">
                                     <div class="flex items-center gap-2">
                                         <span class="font-bold text-foreground">{item.order_number}</span>
-                                        <span class="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                        <span class="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground tabular-nums">
                                             Total: {formatPrice(item.total_amount)}
                                         </span>
                                     </div>
-                                    <span class="text-[11px] text-muted-foreground">
+                                    <span class="text-xs text-muted-foreground">
                                         Deuda pendiente: <strong class="text-rose-600 dark:text-rose-400 font-sans tabular-nums">{formatPrice(item.debt_amount)}</strong>
                                     </span>
                                 </div>
 
                                 <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                                    <span class="text-[11px] font-semibold text-muted-foreground">Monto imputado:</span>
+                                    <span class="text-xs font-semibold text-muted-foreground">Monto imputado:</span>
                                     <div class="relative w-32">
                                         <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">$</span>
                                         <Input
@@ -404,7 +404,7 @@
                                             max={item.debt_amount}
                                             value={item.amount}
                                             oninput={(e) => handleManualAllocationChange(idx, Number((e.target as HTMLInputElement).value) || 0)}
-                                            class="h-8 rounded-lg bg-background border-border/80 pl-6 text-xs font-bold font-sans tabular-nums text-right"
+                                            class="h-8 rounded-lg bg-background border-border/80 pl-6 text-sm font-bold font-sans tabular-nums text-right"
                                         />
                                     </div>
                                 </div>
@@ -418,12 +418,12 @@
                             Total Imputado: <strong class="font-sans tabular-nums">{formatPrice(allocatedTotal)}</strong>
                         </span>
                         {#if hasDiscrepancy}
-                            <span class="font-bold text-[11px] flex items-center gap-1">
+                            <span class="font-semibold text-xs flex items-center gap-1 tabular-nums">
                                 <AlertCircle class="size-3.5" />
                                 Discrepancia: {formatPrice(Math.abs(allocatedTotal - parsedAmount))}
                             </span>
                         {:else}
-                            <span class="text-emerald-600 dark:text-emerald-400 font-semibold text-[11px] flex items-center gap-1">
+                            <span class="text-emerald-600 dark:text-emerald-400 font-semibold text-xs flex items-center gap-1">
                                 <Check class="size-3.5" />
                                 Montos balanceados al 100%
                             </span>

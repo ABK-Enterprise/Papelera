@@ -52,10 +52,10 @@
             <!-- Columna 1: Acción y Fecha -->
             <div class="flex items-center gap-3 min-w-[220px]">
                 <div class="space-y-1">
-                    <span class="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold border {tone.bg} {tone.text} {tone.border}">
+                    <span class="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider border {tone.bg} {tone.text} {tone.border}">
                         {log.action}
                     </span>
-                    <div class="flex items-center gap-1.5 text-xs text-muted-foreground tabular-nums">
+                    <div class="flex items-center gap-1.5 text-xs font-mono tabular-nums text-muted-foreground">
                         <Clock class="size-3.5 text-muted-foreground shrink-0" />
                         <span>{log.created_at}</span>
                     </div>
@@ -74,7 +74,7 @@
                             {log.tenant.name}
                         </span>
                         <span class="text-muted-foreground/40">•</span>
-                        <span class="text-[11px] text-muted-foreground tabular-nums">
+                        <span class="text-xs font-mono tabular-nums text-muted-foreground">
                             ID: {log.tenant.id}
                         </span>
                     {:else}
@@ -87,12 +87,12 @@
             <div class="min-w-[170px] space-y-1 text-right sm:text-left">
                 <div class="flex items-center gap-1.5">
                     <User class="size-3.5 text-muted-foreground shrink-0" />
-                    <span class="text-xs font-medium text-foreground truncate max-w-[140px]">
+                    <span class="text-sm font-medium text-foreground truncate max-w-[140px]">
                         {log.user_name ?? 'Sistema'}
                     </span>
                 </div>
                 {#if log.user_role}
-                    <Badge variant="outline" class="text-[10px] uppercase tracking-wider font-semibold py-0 px-1.5">
+                    <Badge variant="outline" class="text-xs uppercase tracking-wider font-semibold py-0.5 px-1.5">
                         {log.user_role}
                     </Badge>
                 {/if}
@@ -104,7 +104,7 @@
                     type="button"
                     variant="outline"
                     size="sm"
-                    class="min-h-[36px] px-3.5 gap-1.5 font-medium shadow-2xs hover:bg-accent"
+                    class="min-h-[38px] px-3.5 gap-1.5 text-sm font-medium shadow-2xs hover:bg-accent"
                     onclick={() => onview(log)}
                 >
                     <Eye class="size-3.5" />

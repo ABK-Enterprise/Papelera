@@ -62,19 +62,19 @@
                         </IconContainer>
                         <div class="flex flex-col min-w-0">
                             <span class="font-semibold text-foreground text-sm leading-snug truncate">{tenant.name}</span>
-                            <span class="text-xs text-muted-foreground tabular-nums">
+                            <span class="text-xs font-mono tabular-nums text-muted-foreground">
                                 {tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}
                             </span>
                         </div>
                     </div>
 
                     {#if tenant.is_active}
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
                             <span class="size-1.5 rounded-full bg-emerald-500"></span>
                             Activo
                         </span>
                     {:else}
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0">
                             <span class="size-1.5 rounded-full bg-rose-500"></span>
                             Suspendido
                         </span>
@@ -87,7 +87,7 @@
                             <Icon icon="solar:users-group-rounded-bold-duotone" class="size-3.5 text-muted-foreground/80 shrink-0" />
                             <span>Usuarios <strong class="text-foreground font-semibold">{tenant.users_count ?? 0}</strong></span>
                         </div>
-                        <div class="flex items-center gap-1.5 text-[11px] text-muted-foreground/80">
+                        <div class="flex items-center gap-1.5 text-xs font-mono tabular-nums text-muted-foreground/80">
                             <Icon icon="solar:calendar-bold-duotone" class="size-3.5 text-muted-foreground/70" />
                             <span>{formatDate(tenant.created_at)}</span>
                         </div>
@@ -122,7 +122,7 @@
                 <div class="flex items-center gap-2 border-t border-border/40 pt-3">
                     <Button
                         variant="outline"
-                        class="min-h-[44px] flex-1 gap-1.5 rounded-xl text-xs font-medium border-border/70 justify-center"
+                        class="min-h-[44px] flex-1 gap-1.5 rounded-xl text-sm font-medium border-border/70 justify-center"
                         onclick={() => openDetail(tenant)}
                     >
                         <Icon icon="solar:eye-bold-duotone" class="size-4" />
@@ -131,7 +131,7 @@
                     <Link href={`/platform/tenants/${tenant.id}/edit`} class="flex-1">
                         <Button
                             variant="default"
-                            class="min-h-[44px] w-full gap-1.5 rounded-xl text-xs font-medium justify-center"
+                            class="min-h-[44px] w-full gap-1.5 rounded-xl text-sm font-medium justify-center"
                         >
                             <Icon icon="solar:pen-new-square-bold-duotone" class="size-3.5" />
                             <span>Editar</span>

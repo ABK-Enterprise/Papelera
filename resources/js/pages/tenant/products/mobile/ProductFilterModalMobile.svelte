@@ -278,7 +278,7 @@
                             <h4 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                 Seleccionar categoría
                             </h4>
-                            <span class="text-[11px] text-muted-foreground tabular-nums">
+                            <span class="text-xs font-medium text-muted-foreground tabular-nums">
                                 {categories.length} {categories.length === 1 ? 'categoría' : 'categorías'}
                             </span>
                         </div>
@@ -305,7 +305,7 @@
                         >
                             <span>Todas las categorías</span>
                             <div class="flex items-center gap-2">
-                                <span class="text-xs text-muted-foreground tabular-nums">({stats.total})</span>
+                                <span class="text-xs font-medium text-muted-foreground tabular-nums">({stats.total})</span>
                                 {#if localCategoryId === null}
                                     <Check class="h-4 w-4 text-primary shrink-0 stroke-[2.5]" />
                                 {/if}
@@ -323,7 +323,7 @@
                                 >
                                     <span class="truncate">{cat.name}</span>
                                     <div class="flex items-center gap-2 shrink-0">
-                                        <span class="text-xs text-muted-foreground tabular-nums">({cat.products_count ?? 0})</span>
+                                        <span class="text-xs font-medium text-muted-foreground tabular-nums">({cat.products_count ?? 0})</span>
                                         {#if localCategoryId === cat.id}
                                             <Check class="h-4 w-4 text-primary shrink-0 stroke-[2.5]" />
                                         {/if}
@@ -345,7 +345,7 @@
                                         <span>Ver más ({Math.min(categoryBatchSize, categories.length - categoryVisibleLimit)})</span>
                                     </button>
                                 {:else}
-                                    <span class="text-muted-foreground/60 text-[11px]">Todas mostradas</span>
+                                    <span class="text-xs text-muted-foreground/80">Todas mostradas</span>
                                 {/if}
 
                                 {#if categoryVisibleLimit > categoryInitialLimit}
@@ -380,7 +380,7 @@
                         >
                             <span>Todos los niveles de stock</span>
                             <div class="flex items-center gap-2">
-                                <span class="text-xs text-muted-foreground tabular-nums">({stats.total})</span>
+                                <span class="text-xs font-medium text-muted-foreground tabular-nums">({stats.total})</span>
                                 {#if localStockStatus === ''}
                                     <Check class="h-4 w-4 text-primary shrink-0 stroke-[2.5]" />
                                 {/if}
@@ -400,7 +400,7 @@
                                 <span>En Stock disponible</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="text-xs text-muted-foreground tabular-nums">({stats.in_stock})</span>
+                                <span class="text-xs font-medium text-muted-foreground tabular-nums">({stats.in_stock})</span>
                                 {#if localStockStatus === 'in_stock'}
                                     <Check class="h-4 w-4 text-primary shrink-0 stroke-[2.5]" />
                                 {/if}
@@ -420,7 +420,7 @@
                                 <span>Bajo Stock (Alerta)</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="text-xs text-muted-foreground tabular-nums">({stats.low_stock})</span>
+                                <span class="text-xs font-medium text-muted-foreground tabular-nums">({stats.low_stock})</span>
                                 {#if localStockStatus === 'low_stock'}
                                     <Check class="h-4 w-4 text-primary shrink-0 stroke-[2.5]" />
                                 {/if}
@@ -440,7 +440,7 @@
                                 <span>Agotado / Sin stock</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="text-xs text-muted-foreground tabular-nums">({stats.out_of_stock})</span>
+                                <span class="text-xs font-medium text-muted-foreground tabular-nums">({stats.out_of_stock})</span>
                                 {#if localStockStatus === 'out_of_stock'}
                                     <Check class="h-4 w-4 text-primary shrink-0 stroke-[2.5]" />
                                 {/if}
@@ -497,7 +497,7 @@
                                 <span>Incompletos (Faltan datos)</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="text-xs text-muted-foreground tabular-nums">({incompleteCount})</span>
+                                <span class="text-xs font-medium text-muted-foreground tabular-nums">({incompleteCount})</span>
                                 {#if localInfoStatus === 'incomplete'}
                                     <Check class="h-4 w-4 text-primary shrink-0 stroke-[2.5]" />
                                 {/if}

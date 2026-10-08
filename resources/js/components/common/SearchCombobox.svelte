@@ -276,11 +276,11 @@
                                 {@render itemSnippet(item, i)}
                             {:else}
                                 <div class="flex flex-col min-w-0 flex-1 text-left">
-                                    <span class="truncate font-medium text-xs">
+                                    <span class="truncate font-medium text-sm">
                                         <HighlightMatch text={item.name ?? item.title ?? item.product_name ?? item.code ?? JSON.stringify(item)} query={value} />
                                     </span>
                                     {#if item.sku ?? item.product_sku}
-                                        <span class="text-[10px] text-muted-foreground font-sans tabular-nums">
+                                        <span class="text-xs text-muted-foreground font-mono tabular-nums">
                                             SKU: <HighlightMatch text={item.sku ?? item.product_sku} query={value} />
                                         </span>
                                     {/if}

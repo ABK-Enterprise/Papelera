@@ -364,7 +364,7 @@
                     <p class="text-xs sm:text-sm font-semibold text-foreground">
                         {activeDisplayImage ? 'Reemplazar con otra imagen' : 'Subir imagen o foto'}
                     </p>
-                    <p class="text-[11px] text-muted-foreground">
+                    <p class="text-xs text-muted-foreground">
                         Arrastrá un archivo o hacé clic para explorar (JPG, PNG, WebP hasta 15 MB)
                     </p>
                 </div>

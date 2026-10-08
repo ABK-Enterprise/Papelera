@@ -134,7 +134,7 @@
                             {inv.formatted_number}
                         </span>
                         <div>
-                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full border uppercase inline-block {getCbteBadgeStyle(inv.cbte_tipo)}">
+                            <span class="text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border inline-block {getCbteBadgeStyle(inv.cbte_tipo)}">
                                 {getCbteName(inv.cbte_tipo, inv.cbte_letter)}
                             </span>
                         </div>
@@ -159,7 +159,7 @@
                                 {inv.customer_order.order_number}
                             </span>
                         {/if}
-                        <span class="text-xs text-muted-foreground font-sans tabular-nums">
+                        <span class="text-xs text-muted-foreground font-mono tabular-nums">
                             {formatDate(inv.issue_date)}
                         </span>
                     </div>
@@ -186,7 +186,7 @@
                     <span class="font-sans font-bold text-base sm:text-lg tabular-nums block {isCreditNote ? 'text-destructive' : 'text-foreground'}">
                         {isCreditNote ? '-' : ''}{formatPrice(inv.importe_total)}
                     </span>
-                    <span class="text-[11px] text-muted-foreground block font-sans tabular-nums">
+                    <span class="text-xs text-muted-foreground block font-sans tabular-nums font-medium">
                         Neto: {formatPrice(inv.importe_neto)}
                     </span>
                 </div>
@@ -196,7 +196,7 @@
                     <Button
                         variant="outline"
                         size="sm"
-                        class="h-9 px-3 rounded-xl text-xs font-semibold gap-1.5 shadow-2xs min-h-[36px]"
+                        class="h-9 px-3 rounded-xl text-sm font-medium gap-1.5 shadow-2xs min-h-[36px]"
                         onclick={() => onViewDetail?.(inv)}
                     >
                         <Eye class="size-3.5" />

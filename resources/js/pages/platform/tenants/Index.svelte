@@ -182,17 +182,17 @@
                         <div class="flex items-center justify-between gap-3 w-full">
                             <div class="min-w-0">
                                 <span class="font-semibold text-foreground truncate block">{item.name}</span>
-                                <span class="text-[11px] text-muted-foreground tabular-nums">
+                                <span class="text-xs text-muted-foreground tabular-nums font-mono">
                                     {item.cuit_tax_id ? `CUIT: ${item.cuit_tax_id}` : `ID: MER-${item.id.toString().padStart(5, '0')}`}
                                 </span>
                             </div>
                             {#if item.is_active}
-                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
                                     <span class="size-1.5 rounded-full bg-emerald-500"></span>
                                     Activo
                                 </span>
                             {:else}
-                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0">
+                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0">
                                     <span class="size-1.5 rounded-full bg-rose-500"></span>
                                     Suspendido
                                 </span>
@@ -242,7 +242,7 @@
                 <Button
                     variant="outline"
                     onclick={resetAllFilters}
-                    class="mt-4 text-xs font-medium rounded-xl"
+                    class="mt-4 min-h-[38px] text-sm font-medium rounded-xl"
                 >
                     Limpiar todos los filtros
                 </Button>

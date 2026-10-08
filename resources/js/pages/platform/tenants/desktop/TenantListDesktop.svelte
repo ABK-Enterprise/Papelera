@@ -75,20 +75,20 @@
                                 <div class="flex items-center gap-2.5">
                                     <h3 class="font-semibold text-base text-foreground truncate">{tenant.name}</h3>
                                     {#if tenant.is_active}
-                                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                             <span class="size-1.5 rounded-full bg-emerald-500"></span>
                                             Activo
                                         </span>
                                     {:else}
-                                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
                                             <span class="size-1.5 rounded-full bg-rose-500"></span>
                                             Suspendido
                                         </span>
                                     {/if}
                                 </div>
-                                <p class="text-xs text-muted-foreground tabular-nums mt-0.5">
-                                    {tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}
-                                    • Alta: {formatDate(tenant.created_at)}
+                                <p class="text-xs text-muted-foreground mt-0.5">
+                                    <span class="font-mono tabular-nums">{tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}</span>
+                                    • Alta: <span class="font-mono tabular-nums">{formatDate(tenant.created_at)}</span>
                                 </p>
                             </div>
                         </div>
@@ -110,7 +110,7 @@
                                 <Button
                                     variant={selectedTenant?.id === tenant.id ? 'default' : 'outline'}
                                     size="sm"
-                                    class="min-h-[38px] gap-1.5 rounded-xl text-xs font-medium border-border/70"
+                                    class="min-h-[38px] gap-1.5 rounded-xl text-sm font-medium border-border/70"
                                     onclick={() => toggleDetail(tenant)}
                                 >
                                     <Icon icon="solar:eye-bold-duotone" class="size-4" />
@@ -121,7 +121,7 @@
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        class="min-h-[38px] gap-1.5 rounded-xl text-xs font-medium border-border/70"
+                                        class="min-h-[38px] gap-1.5 rounded-xl text-sm font-medium border-border/70"
                                     >
                                         <Icon icon="solar:pen-new-square-bold-duotone" class="size-3.5" />
                                         <span>Editar</span>
@@ -145,7 +145,7 @@
                     </IconContainer>
                     <div>
                         <h3 class="font-bold text-base text-foreground leading-snug">{selectedTenant.name}</h3>
-                        <span class="text-xs text-muted-foreground tabular-nums">
+                        <span class="text-xs font-mono tabular-nums text-muted-foreground">
                             {selectedTenant.cuit_tax_id ? `CUIT: ${selectedTenant.cuit_tax_id}` : `ID: MER-${selectedTenant.id.toString().padStart(5, '0')}`}
                         </span>
                     </div>
@@ -164,12 +164,12 @@
             <div class="flex items-center justify-between p-3 rounded-xl bg-muted/40 border border-border/50">
                 <span class="text-xs font-medium text-muted-foreground">Estado del comercio</span>
                 {#if selectedTenant.is_active}
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                         <span class="size-1.5 rounded-full bg-emerald-500"></span>
                         Activo
                     </span>
                 {:else}
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
                         <span class="size-1.5 rounded-full bg-rose-500"></span>
                         Suspendido
                     </span>
@@ -199,9 +199,9 @@
             </div>
 
             <!-- Fecha de alta -->
-            <div class="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-xl border border-border/50 bg-muted/20 tabular-nums">
+            <div class="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-xl border border-border/50 bg-muted/20">
                 <Icon icon="solar:calendar-bold-duotone" class="size-4 text-muted-foreground/70" />
-                <span>Fecha de alta: {formatDate(selectedTenant.created_at)}</span>
+                <span>Fecha de alta: <span class="font-mono tabular-nums">{formatDate(selectedTenant.created_at)}</span></span>
             </div>
 
             <!-- Módulos Contratados -->
@@ -221,7 +221,7 @@
             <!-- Acción Principal -->
             <div class="pt-2 border-t border-border/50">
                 <Link href={`/platform/tenants/${selectedTenant.id}/edit`} class="w-full">
-                    <Button class="w-full min-h-[40px] gap-2 rounded-xl font-medium shadow-sm">
+                    <Button class="w-full min-h-[40px] gap-2 rounded-xl text-sm font-medium shadow-sm">
                         <Edit2 class="size-4" />
                         <span>Editar datos del comercio</span>
                     </Button>

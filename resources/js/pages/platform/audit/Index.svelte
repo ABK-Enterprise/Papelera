@@ -195,7 +195,7 @@
                         type="button"
                         variant="ghost"
                         size="sm"
-                        class="min-h-[36px] gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+                        class="min-h-[38px] gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
                         onclick={clearFilters}
                     >
                         <X class="size-3.5" />
@@ -207,7 +207,7 @@
                     type="button"
                     variant="secondary"
                     size="sm"
-                    class="min-h-[36px] gap-1.5 text-xs font-medium"
+                    class="min-h-[38px] gap-1.5 text-sm font-medium"
                     onclick={applyFilters}
                 >
                     <Filter class="size-3.5" />
@@ -248,7 +248,7 @@
                         type="button"
                         variant="outline"
                         size="sm"
-                        class="min-h-[36px] font-medium"
+                        class="min-h-[38px] text-sm font-medium"
                         onclick={clearFilters}
                     >
                         Restablecer filtros

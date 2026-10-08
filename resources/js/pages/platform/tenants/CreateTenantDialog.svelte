@@ -99,7 +99,7 @@
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 bg-muted/20 p-3.5 rounded-lg border border-border/50">
                         <div class="space-y-1.5">
-                            <Label for="modal-tenant-name" class="text-xs font-medium">Nombre o Razón Social *</Label>
+                            <Label for="modal-tenant-name" class="text-sm font-medium text-foreground">Nombre o Razón Social *</Label>
                             <Input
                                 id="modal-tenant-name"
                                 bind:value={form.tenant.name}
@@ -113,7 +113,7 @@
                         </div>
 
                         <div class="space-y-1.5">
-                            <Label for="modal-tenant-cuit" class="text-xs font-medium">CUIT / Identificación Fiscal</Label>
+                            <Label for="modal-tenant-cuit" class="text-sm font-medium text-foreground">CUIT / Identificación Fiscal</Label>
                             <Input
                                 id="modal-tenant-cuit"
                                 bind:value={form.tenant.cuit_tax_id}
@@ -135,7 +135,7 @@
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 bg-muted/20 p-3.5 rounded-lg border border-border/50">
                         <div class="space-y-1.5">
-                            <Label for="modal-admin-name" class="text-xs font-medium">Nombre y Apellido *</Label>
+                            <Label for="modal-admin-name" class="text-sm font-medium text-foreground">Nombre y Apellido *</Label>
                             <Input
                                 id="modal-admin-name"
                                 bind:value={form.admin.name}
@@ -149,7 +149,7 @@
                         </div>
 
                         <div class="space-y-1.5">
-                            <Label for="modal-admin-email" class="text-xs font-medium">Email de Acceso *</Label>
+                            <Label for="modal-admin-email" class="text-sm font-medium text-foreground">Email de Acceso *</Label>
                             <Input
                                 id="modal-admin-email"
                                 type="email"
@@ -164,7 +164,7 @@
                         </div>
 
                         <div class="space-y-1.5">
-                            <Label for="modal-admin-password" class="text-xs font-medium">Contraseña Inicial *</Label>
+                            <Label for="modal-admin-password" class="text-sm font-medium text-foreground">Contraseña Inicial *</Label>
                             <Input
                                 id="modal-admin-password"
                                 type="password"
@@ -179,7 +179,7 @@
                         </div>
 
                         <div class="space-y-1.5">
-                            <Label for="modal-admin-password-confirm" class="text-xs font-medium">Confirmar Contraseña *</Label>
+                            <Label for="modal-admin-password-confirm" class="text-sm font-medium text-foreground">Confirmar Contraseña *</Label>
                             <Input
                                 id="modal-admin-password-confirm"
                                 type="password"
@@ -221,15 +221,15 @@
                                             {mod.name}
                                         </span>
                                         {#if isSelected}
-                                            <span class="inline-flex items-center text-[10px] font-bold text-primary shrink-0">
+                                            <span class="inline-flex items-center text-xs font-semibold text-primary shrink-0">
                                                 <Check class="size-2.5 mr-0.5" />
                                                 Activo
                                             </span>
                                         {/if}
                                     </div>
-                                    <span class="font-mono text-[10px] text-muted-foreground block">({mod.code})</span>
+                                    <span class="font-mono text-xs text-muted-foreground block">({mod.code})</span>
                                     {#if mod.description}
-                                        <p class="text-[11px] text-muted-foreground line-clamp-1">{mod.description}</p>
+                                        <p class="text-xs text-muted-foreground line-clamp-1">{mod.description}</p>
                                     {/if}
                                 </div>
                             </div>
@@ -246,10 +246,10 @@
         </DialogBody>
 
         <DialogFooter>
-            <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing} class="text-xs">
+            <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing} class="min-h-[38px] text-sm font-medium">
                 Cancelar
             </Button>
-            <Button type="submit" form="create-tenant-form" size="sm" disabled={form.processing} class="min-w-32 text-xs font-semibold">
+            <Button type="submit" form="create-tenant-form" size="sm" disabled={form.processing} class="min-h-[38px] min-w-32 text-sm font-medium">
                 {form.processing ? 'Creando...' : 'Crear comercio'}
             </Button>
         </DialogFooter>

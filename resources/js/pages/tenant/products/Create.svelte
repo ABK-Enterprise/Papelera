@@ -132,16 +132,16 @@
             <!-- Resumen de Bulto -->
             <div class="mt-5 p-4 rounded-2xl bg-primary/5 border border-primary/20 space-y-2.5">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-primary uppercase tracking-wide flex items-center gap-1.5">
+                    <span class="text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
                         <Sparkles class="size-3.5" />
                         Cálculo de bulto
                     </span>
                     {#if form.is_active}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                             Activo
                         </span>
                     {:else}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
                             Inactivo
                         </span>
                     {/if}
@@ -149,7 +149,7 @@
 
                 <div class="grid grid-cols-2 gap-3 pt-1 text-xs">
                     <div>
-                        <span class="text-[10px] text-muted-foreground block">
+                        <span class="text-xs font-medium text-muted-foreground block">
                             {form.sale_type === 'weight' ? 'Kg por bulto' : 'Unidades por bulto'}
                         </span>
                         <span class="font-semibold text-foreground tabular-nums">
@@ -157,8 +157,8 @@
                         </span>
                     </div>
                     <div>
-                        <span class="text-[10px] text-muted-foreground block">Precio del bulto</span>
-                        <span class="font-bold text-primary tabular-nums">
+                        <span class="text-xs font-medium text-muted-foreground block">Precio del bulto</span>
+                        <span class="text-sm font-bold text-primary tabular-nums">
                             {formatPrice(calculatedPackagePrice)}
                         </span>
                     </div>
@@ -197,7 +197,7 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                         <div class="sm:col-span-2 space-y-1">
-                            <Label for="create-prod-name" class="text-xs font-semibold">
+                            <Label for="create-prod-name" class="text-sm font-medium text-foreground">
                                 Nombre del Producto <span class="text-destructive">*</span>
                             </Label>
                             <Input
@@ -213,7 +213,7 @@
                         </div>
 
                         <div class="space-y-1">
-                            <Label for="create-prod-sku" class="text-xs font-semibold">SKU / Código</Label>
+                            <Label for="create-prod-sku" class="text-sm font-medium text-foreground">SKU / Código</Label>
                             <Input
                                 id="create-prod-sku"
                                 bind:value={form.sku}
@@ -226,7 +226,7 @@
                         </div>
 
                         <div class="space-y-1">
-                            <Label for="create-prod-cat" class="text-xs font-semibold">Categoría</Label>
+                            <Label for="create-prod-cat" class="text-sm font-medium text-foreground">Categoría</Label>
                             <select
                                 id="create-prod-cat"
                                 bind:value={form.category_id}
@@ -252,7 +252,7 @@
                     <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">2. Precios y facturación</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div class="space-y-1">
-                            <Label for="create-prod-price" class="text-xs font-semibold">
+                            <Label for="create-prod-price" class="text-sm font-medium text-foreground">
                                 Precio Venta ({form.sale_type === 'weight' ? '$ / Kg' : '$ / unid.'}) <span class="text-destructive">*</span>
                             </Label>
                             <div class="relative">
@@ -274,7 +274,7 @@
                         </div>
 
                         <div class="space-y-1">
-                            <Label for="create-prod-cost" class="text-xs font-semibold">
+                            <Label for="create-prod-cost" class="text-sm font-medium text-foreground">
                                 Costo ({form.sale_type === 'weight' ? '$ / Kg' : '$ / unid.'})
                             </Label>
                             <div class="relative">
@@ -295,7 +295,7 @@
                         </div>
 
                         <div class="space-y-1">
-                            <Label for="create-prod-iva" class="text-xs font-semibold">IVA (%)</Label>
+                            <Label for="create-prod-iva" class="text-sm font-medium text-foreground">IVA (%)</Label>
                             <select
                                 id="create-prod-iva"
                                 bind:value={form.iva_rate}
@@ -324,7 +324,7 @@
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="space-y-1">
-                            <Label for="create-prod-discount-type" class="text-xs font-semibold">Modalidad de Descuento</Label>
+                            <Label for="create-prod-discount-type" class="text-sm font-medium text-foreground">Modalidad de Descuento</Label>
                             <select
                                 id="create-prod-discount-type"
                                 bind:value={form.bulk_discount_type}
@@ -339,7 +339,7 @@
 
                         {#if form.bulk_discount_type === 'custom'}
                             <div class="space-y-1">
-                                <Label for="create-prod-custom-discount" class="text-xs font-semibold">
+                                <Label for="create-prod-custom-discount" class="text-sm font-medium text-foreground">
                                     Porcentaje Personalizado (%) <span class="text-destructive">*</span>
                                 </Label>
                                 <Input
@@ -368,7 +368,7 @@
 
                         {#if warehouses.length > 0}
                             <div class="space-y-1">
-                                <Label for="create-prod-warehouse" class="text-xs font-semibold">
+                                <Label for="create-prod-warehouse" class="text-sm font-medium text-foreground">
                                     Depósito Destino (Asignación de Stock Inicial)
                                 </Label>
                                 <select
@@ -379,7 +379,7 @@
 
                                     {#each warehouses as wh (wh.id)}
                                         <option value={wh.id}>
-                                            {wh.name} ({wh.code}) {wh.is_default ? '— Principal' : ''}
+                                             {wh.name} ({wh.code}) {wh.is_default ? '— Principal' : ''}
                                         </option>
                                     {/each}
                                 </select>
@@ -391,7 +391,7 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="space-y-1">
-                                <Label for="create-prod-stock" class="text-xs font-semibold">
+                                <Label for="create-prod-stock" class="text-sm font-medium text-foreground">
                                     Stock Inicial ({form.sale_type === 'weight' ? 'Kg' : 'unid.'})
                                 </Label>
                                 <Input
@@ -416,7 +416,7 @@
                             </div>
 
                             <div class="space-y-1">
-                                <Label for="create-prod-min-stock" class="text-xs font-semibold">
+                                <Label for="create-prod-min-stock" class="text-sm font-medium text-foreground">
                                     Alerta Stock Mínimo
                                 </Label>
                                 <Input
@@ -435,7 +435,7 @@
 
                             <div class="space-y-1">
                                 {#if form.sale_type === 'weight'}
-                                    <Label for="create-prod-units-pack" class="text-xs font-semibold">Kg por Bulto Cerrado</Label>
+                                    <Label for="create-prod-units-pack" class="text-sm font-medium text-foreground">Kg por Bulto Cerrado</Label>
                                     <Input
                                         id="create-prod-units-pack"
                                         type="number"
@@ -446,7 +446,7 @@
                                         placeholder="1"
                                     />
                                 {:else}
-                                    <Label for="create-prod-units-pack" class="text-xs font-semibold">Unidades por Bulto</Label>
+                                    <Label for="create-prod-units-pack" class="text-sm font-medium text-foreground">Unidades por Bulto</Label>
                                     <Input
                                         id="create-prod-units-pack"
                                         type="number"
@@ -471,7 +471,7 @@
                     <div class="space-y-3">
                         <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">4. Código de barras, descripción y estado</h3>
                         <div class="space-y-1">
-                            <Label for="create-prod-barcode" class="text-xs font-semibold">Código de Barras (EAN / UPC)</Label>
+                            <Label for="create-prod-barcode" class="text-sm font-medium text-foreground">Código de Barras (EAN / UPC)</Label>
                             <Input
                                 id="create-prod-barcode"
                                 bind:value={form.barcode}
@@ -481,7 +481,7 @@
                         </div>
 
                         <div class="space-y-1">
-                            <Label for="create-prod-desc" class="text-xs font-semibold">Descripción</Label>
+                            <Label for="create-prod-desc" class="text-sm font-medium text-foreground">Descripción</Label>
                             <textarea
                                 id="create-prod-desc"
                                 bind:value={form.description}
@@ -499,7 +499,7 @@
                                 bind:checked={form.is_active}
                                 class="size-4 rounded border-input text-primary focus:ring-primary"
                             />
-                            <Label for="create-prod-active" class="text-xs font-medium cursor-pointer">
+                            <Label for="create-prod-active" class="text-sm font-medium text-foreground cursor-pointer">
                                 Producto activo para ventas y pedidos
                             </Label>
                         </div>

@@ -110,7 +110,7 @@
             </CardHeader>
             <CardContent class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div class="space-y-1.5">
-                    <Label for="name" class="text-xs font-semibold text-foreground">Razón Social / Nombre Fantasía *</Label>
+                    <Label for="name" class="text-sm font-medium text-foreground">Razón Social / Nombre Fantasía *</Label>
                     <Input
                         id="name"
                         bind:value={form.name}
@@ -124,7 +124,7 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="cuit" class="text-xs font-semibold text-foreground">CUIT / Identificación Fiscal</Label>
+                    <Label for="cuit" class="text-sm font-medium text-foreground">CUIT / Identificación Fiscal</Label>
                     <Input
                         id="cuit"
                         bind:value={form.cuit_tax_id}
@@ -174,13 +174,13 @@
                                     {mod.name}
                                 </span>
                                 {#if isSelected}
-                                    <span class="inline-flex items-center gap-1 text-[11px] font-bold text-primary">
+                                    <span class="inline-flex items-center gap-1 text-xs font-semibold text-primary">
                                         <Check class="size-3" />
                                         Activo
                                     </span>
                                 {/if}
                             </div>
-                            <span class="font-mono text-[11px] {isSelected ? 'text-primary/80' : 'text-muted-foreground/70'} block">
+                            <span class="font-mono text-xs {isSelected ? 'text-primary/80' : 'text-muted-foreground/70'} block">
                                 Código: {mod.code}
                             </span>
                             {#if mod.description}
@@ -209,7 +209,7 @@
                         type="button"
                         variant="outline"
                         onclick={() => (showDeactivateModal = true)}
-                        class="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 border-rose-200 dark:border-rose-900/40 gap-1.5"
+                        class="min-h-[38px] text-sm font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 border-rose-200 dark:border-rose-900/40 gap-1.5"
                     >
                         <ShieldAlert class="size-3.5" />
                         <span>Desactivar comercio</span>
@@ -219,7 +219,7 @@
                         type="button"
                         variant="outline"
                         onclick={() => (showActivateModal = true)}
-                        class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/40 gap-1.5"
+                        class="min-h-[38px] text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/40 gap-1.5"
                     >
                         <ShieldCheck class="size-3.5" />
                         <span>Activar comercio</span>
@@ -230,14 +230,14 @@
             <!-- Botones a la Derecha (Cancelar y Guardar Cambios) -->
             <div class="flex items-center justify-end gap-3">
                 <Link href="/platform/tenants">
-                    <Button type="button" variant="outline" class="text-xs">
+                    <Button type="button" variant="outline" class="min-h-[38px] text-sm font-medium">
                         Cancelar
                     </Button>
                 </Link>
                 <Button
                     type="submit"
                     disabled={form.processing}
-                    class="text-xs font-semibold min-w-36"
+                    class="min-h-[38px] text-sm font-medium min-w-36"
                 >
                     {form.processing ? 'Guardando...' : 'Guardar Cambios'}
                 </Button>

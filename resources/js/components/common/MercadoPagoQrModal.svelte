@@ -452,7 +452,7 @@
                                 <User class="size-4 text-muted-foreground" />
                                 <span class="font-semibold text-foreground">{order.customer_name}</span>
                             </div>
-                            <span class="text-[11px] text-muted-foreground">
+                            <span class="text-xs text-muted-foreground">
                                 Total Pedido: <strong class="text-foreground">{formatCurrency(order.total_amount)}</strong>
                             </span>
                         </div>
@@ -460,14 +460,14 @@
 
                     <div class="space-y-1.5">
                         <div class="flex items-center justify-between">
-                            <Label for="qr-amount" class="text-xs font-semibold text-foreground">
+                            <Label for="qr-amount" class="text-sm font-medium text-foreground">
                                 Monto a Cobrar con QR
                             </Label>
                             {#if orderDebt > 0}
                                 <button
                                     type="button"
                                     onclick={() => (amountToCharge = orderDebt)}
-                                    class="text-[11px] font-semibold text-primary hover:underline cursor-pointer"
+                                    class="text-xs font-semibold text-primary hover:underline cursor-pointer"
                                 >
                                     Deuda ({formatCurrency(orderDebt)})
                                 </button>
@@ -486,7 +486,7 @@
                                 disabled={currentStep === 'generating'}
                             />
                         </div>
-                        <p class="text-[11px] text-muted-foreground">
+                        <p class="text-xs text-muted-foreground">
                             Puedes modificar el importe si el cliente realiza un pago parcial o adelanto a cuenta corriente.
                         </p>
                     </div>

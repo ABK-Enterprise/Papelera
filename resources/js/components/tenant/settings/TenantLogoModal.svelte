@@ -277,7 +277,7 @@
                     <p class="text-xs font-semibold text-foreground">
                         {selectedFile ? selectedFile.name : 'Haz clic o arrastra para cargar'}
                     </p>
-                    <p class="text-[11px] text-muted-foreground">
+                    <p class="text-xs text-muted-foreground">
                         JPG, PNG o WebP (máx. 5 MB)
                     </p>
                 </div>

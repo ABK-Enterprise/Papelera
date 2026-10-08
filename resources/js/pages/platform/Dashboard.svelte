@@ -159,15 +159,15 @@
                                     <Building2 class="size-3.5 text-primary shrink-0" />
                                     <span class="font-semibold truncate">{item.name}</span>
                                     {#if item.cuit_tax_id}
-                                        <span class="text-[10px] text-muted-foreground tabular-nums">({item.cuit_tax_id})</span>
+                                        <span class="text-xs text-muted-foreground font-mono tabular-nums">({item.cuit_tax_id})</span>
                                     {/if}
                                 {:else}
                                     <Boxes class="size-3.5 text-primary shrink-0" />
                                     <span class="font-semibold truncate">{item.name}</span>
-                                    <span class="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground tabular-nums">{item.code}</span>
+                                    <span class="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground tabular-nums">{item.code}</span>
                                 {/if}
                             </div>
-                            <span class="text-[10px] uppercase tracking-wider text-muted-foreground shrink-0 font-medium">
+                            <span class="text-xs uppercase tracking-wider text-muted-foreground shrink-0 font-medium">
                                 {item.type === 'tenant' ? 'Comercio' : 'Módulo'}
                             </span>
                         </div>

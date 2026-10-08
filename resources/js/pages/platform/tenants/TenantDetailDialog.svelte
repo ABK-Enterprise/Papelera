@@ -54,7 +54,7 @@
                     </IconContainer>
                     <div>
                         <DialogTitle class="text-base font-bold text-foreground leading-snug">{tenant.name}</DialogTitle>
-                        <span class="text-xs text-muted-foreground tabular-nums">
+                        <span class="text-xs font-mono tabular-nums text-muted-foreground">
                             {tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}
                         </span>
                     </div>
@@ -70,12 +70,12 @@
                 <div class="flex items-center justify-between p-3 rounded-xl bg-muted/40 border border-border/50">
                     <span class="text-xs font-medium text-muted-foreground">Estado del comercio</span>
                     {#if tenant.is_active}
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                             <span class="size-1.5 rounded-full bg-emerald-500"></span>
                             Activo
                         </span>
                     {:else}
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
                             <span class="size-1.5 rounded-full bg-rose-500"></span>
                             Suspendido
                         </span>
@@ -105,9 +105,9 @@
                 </div>
 
                 <!-- Fecha de alta -->
-                <div class="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-xl border border-border/50 bg-muted/20 tabular-nums">
+                <div class="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-xl border border-border/50 bg-muted/20">
                     <Icon icon="solar:calendar-bold-duotone" class="size-4 text-muted-foreground/70" />
-                    <span>Fecha de alta: {formatDate(tenant.created_at)}</span>
+                    <span>Fecha de alta: <span class="font-mono tabular-nums">{formatDate(tenant.created_at)}</span></span>
                 </div>
 
                 <!-- Módulos contratados -->
@@ -127,7 +127,7 @@
 
             <DialogFooter class="pt-3 border-t border-border/50">
                 <Link href={`/platform/tenants/${tenant.id}/edit`} class="w-full">
-                    <Button class="w-full min-h-[44px] gap-2 rounded-xl font-medium shadow-sm">
+                    <Button class="w-full min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-sm">
                         <Icon icon="solar:pen-new-square-bold-duotone" class="size-4" />
                         <span>Editar datos del comercio</span>
                     </Button>

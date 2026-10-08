@@ -129,7 +129,7 @@
                 >
                     <div class="flex flex-col min-w-0 pr-2">
                         <span class="truncate">{wh.name}</span>
-                        <span class="text-[11px] text-muted-foreground font-normal">{wh.code} {wh.is_default ? '• Principal' : ''}</span>
+                        <span class="text-xs text-muted-foreground font-medium tabular-nums">{wh.code} {wh.is_default ? '• Principal' : ''}</span>
                     </div>
                     {#if String(localWarehouseId) === String(wh.id)}
                         <Check class="size-4 text-primary shrink-0" />
@@ -181,7 +181,7 @@
             >
                 <div class="flex flex-col">
                     <span>Con stock</span>
-                    <span class="text-[11px] text-muted-foreground font-normal">Existencias mayores a 0</span>
+                    <span class="text-xs text-muted-foreground font-medium tabular-nums">Existencias mayores a 0</span>
                 </div>
                 {#if localStockStatus === 'in_stock'}
                     <Check class="size-4 text-primary shrink-0" />
@@ -194,7 +194,7 @@
             >
                 <div class="flex flex-col">
                     <span>Stock bajo</span>
-                    <span class="text-[11px] text-muted-foreground font-normal">Existencias menores o iguales al mínimo</span>
+                    <span class="text-xs text-muted-foreground font-medium tabular-nums">Existencias menores o iguales al mínimo</span>
                 </div>
                 {#if localStockStatus === 'low_stock'}
                     <Check class="size-4 text-primary shrink-0" />
@@ -207,7 +207,7 @@
             >
                 <div class="flex flex-col">
                     <span>Sin stock</span>
-                    <span class="text-[11px] text-muted-foreground font-normal">Existencias en 0</span>
+                    <span class="text-xs text-muted-foreground font-medium tabular-nums">Existencias en 0</span>
                 </div>
                 {#if localStockStatus === 'out_of_stock'}
                     <Check class="size-4 text-primary shrink-0" />

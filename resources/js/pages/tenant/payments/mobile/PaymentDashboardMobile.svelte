@@ -326,18 +326,18 @@
                             <div class="flex items-center justify-between">
                                 <span class="font-bold text-xs text-foreground font-sans">{rc.receipt_number}</span>
                                 {#if rc.is_cancelled}
-                                    <span class="text-[9px] font-bold text-destructive bg-destructive/10 px-1.5 py-0.2 rounded line-through">
+                                    <span class="text-xs font-bold text-destructive bg-destructive/10 px-1.5 py-0.2 rounded line-through">
                                         ANULADO
                                     </span>
                                 {:else}
-                                    <span class="text-[9px] font-semibold text-emerald-600 bg-emerald-500/10 px-1.5 py-0.2 rounded uppercase">
+                                    <span class="text-xs font-semibold text-emerald-600 bg-emerald-500/10 px-1.5 py-0.2 rounded uppercase">
                                         {rc.payment_method}
                                     </span>
                                 {/if}
                             </div>
 
                             {#if rc.customer}
-                                <span class="text-[11px] text-muted-foreground block truncate">
+                                <span class="text-xs text-muted-foreground block truncate">
                                     Cliente: <strong class="text-foreground">{rc.customer.name}</strong>
                                 </span>
                             {/if}
@@ -345,7 +345,7 @@
                             {#if rc.order_allocations && rc.order_allocations.length > 0}
                                 <div class="flex flex-wrap gap-1 mt-0.5">
                                     {#each rc.order_allocations as alloc}
-                                        <span class="text-[10px] font-mono font-semibold tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground border border-border/50">
+                                        <span class="text-xs font-mono font-semibold tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground border border-border/50">
                                             {alloc.order.order_number}
                                         </span>
                                     {/each}
@@ -353,7 +353,7 @@
                             {/if}
 
                             <div class="flex items-center justify-between text-xs pt-1 border-t border-border/40">
-                                <span class="text-[10px] text-muted-foreground">{formatDate(rc.created_at)}</span>
+                                <span class="text-xs text-muted-foreground">{formatDate(rc.created_at)}</span>
                                 <span class="font-bold font-sans tabular-nums text-foreground">
                                     {formatPrice(rc.amount)}
                                 </span>

@@ -194,7 +194,7 @@
                                 {item.receptor_name}
                             </span>
                         </div>
-                        <span class="font-sans font-semibold text-xs text-primary tabular-nums shrink-0 ml-2">
+                        <span class="font-sans font-bold text-sm text-primary tabular-nums shrink-0 ml-2">
                             {formatPrice(item.importe_total)}
                         </span>
                     </div>
@@ -212,7 +212,7 @@
         >
             <SlidersHorizontal class="size-4 text-foreground" />
             {#if activeFiltersCount > 0}
-                <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums shadow-xs">
+                <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground tabular-nums shadow-xs">
                     {activeFiltersCount}
                 </span>
             {/if}
@@ -252,7 +252,7 @@
                                     {item.receptor_name}
                                 </span>
                             </div>
-                            <span class="font-sans font-semibold text-xs text-primary tabular-nums shrink-0 ml-2">
+                            <span class="font-sans font-bold text-sm text-primary tabular-nums shrink-0 ml-2">
                                 {formatPrice(item.importe_total)}
                             </span>
                         </div>
@@ -315,7 +315,7 @@
             {#if hasActiveFilters}
                 <Button
                     variant="outline"
-                    class="h-11 px-3.5 rounded-xl gap-2 text-xs font-semibold shrink-0 min-h-[44px] transition-colors border shadow-2xs bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25"
+                    class="h-11 px-3.5 rounded-xl gap-2 text-sm font-medium shrink-0 min-h-[44px] transition-colors border shadow-2xs bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25"
                     onclick={resetFilters}
                     title="Limpiar filtros activos"
                 >

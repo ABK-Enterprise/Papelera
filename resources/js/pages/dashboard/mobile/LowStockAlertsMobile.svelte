@@ -106,9 +106,9 @@
                             </div>
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-1.5 flex-wrap">
-                                    <h4 class="font-semibold text-xs text-foreground truncate">{product.name}</h4>
+                                    <h4 class="text-sm font-semibold text-foreground truncate">{product.name}</h4>
                                     {#if isCrit}
-                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-600 text-white uppercase tracking-wider">
+                                        <span class="px-1.5 py-0.5 rounded text-xs font-semibold bg-rose-600 text-white uppercase tracking-wider">
                                             Crítico
                                         </span>
                                     {/if}
@@ -138,21 +138,21 @@
                     <!-- Fila de Depósito y Métricas de Stock -->
                     <div class="flex items-center justify-between gap-2 pt-0.5">
                         {#if product.warehouse}
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-background/80 text-foreground border border-border/80 shadow-2xs">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-background/80 text-foreground border border-border/80 shadow-2xs">
                                 <Building2 class="size-3 text-muted-foreground shrink-0" />
                                 {product.warehouse.name}
                             </span>
                         {:else}
-                            <span class="text-[11px] text-muted-foreground italic">General</span>
+                            <span class="text-xs text-muted-foreground italic">General</span>
                         {/if}
                     </div>
 
-                    <div class={`grid grid-cols-2 gap-2 rounded-lg bg-background/50 p-2 border text-xs ${
+                    <div class={`grid grid-cols-2 gap-2 rounded-lg bg-background/50 p-2 border ${
                         isCrit ? 'border-rose-600/25' : 'border-rose-500/15'
                     }`}>
                         <div class="flex flex-col">
-                            <span class="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">Stock actual</span>
-                            <span class={`font-bold tabular-nums ${
+                            <span class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Stock actual</span>
+                            <span class={`text-sm font-bold tabular-nums ${
                                 isCrit ? 'text-rose-700 dark:text-rose-300 font-extrabold' : 'text-rose-600 dark:text-rose-400'
                             }`}>
                                 {#if isCrit}
@@ -162,8 +162,8 @@
                             </span>
                         </div>
                         <div class="flex flex-col text-right">
-                            <span class="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">Stock mínimo</span>
-                            <span class="font-semibold tabular-nums text-foreground">
+                            <span class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Stock mínimo</span>
+                            <span class="text-sm font-bold tabular-nums text-foreground">
                                 {product.min_stock} {product.min_stock === 1 ? 'ud.' : 'uds.'}
                             </span>
                         </div>
@@ -182,7 +182,7 @@
                     <Button
                         variant="outline"
                         size="sm"
-                        class="min-h-[44px] px-3 gap-1 rounded-xl text-xs font-medium cursor-pointer"
+                        class="min-h-[44px] px-3 gap-1 rounded-xl text-sm font-medium cursor-pointer"
                         disabled={currentPage <= 1}
                         onclick={() => currentPage--}
                         aria-label="Página anterior"
@@ -198,7 +198,7 @@
                     <Button
                         variant="outline"
                         size="sm"
-                        class="min-h-[44px] px-3 gap-1 rounded-xl text-xs font-medium cursor-pointer"
+                        class="min-h-[44px] px-3 gap-1 rounded-xl text-sm font-medium cursor-pointer"
                         disabled={currentPage >= totalPages}
                         onclick={() => currentPage++}
                         aria-label="Página siguiente"

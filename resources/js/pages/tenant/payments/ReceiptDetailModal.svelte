@@ -353,7 +353,7 @@
                 {#if receipt.orders && receipt.orders.length > 0}
                     <div class="space-y-2">
                         <div class="flex items-center justify-between text-xs sm:text-sm">
-                            <h3 class="font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 text-xs sm:text-sm font-sans">
+                            <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 font-sans">
                                 <ShoppingBag class="size-4 text-primary shrink-0" />
                                 <span>Pedidos Imputados</span>
                             </h3>
@@ -372,7 +372,7 @@
                                         </span>
                                     </div>
                                     <div class="text-right shrink-0">
-                                        <span class="font-bold font-sans text-sm sm:text-base tabular-nums text-foreground">
+                                        <span class="text-sm font-bold tabular-nums text-foreground font-sans">
                                             {formatPrice(order.total_amount)}
                                         </span>
                                     </div>
@@ -385,7 +385,7 @@
                 <!-- Notas / Observaciones -->
                 {#if receipt.notes && receipt.notes.trim()}
                     <div class="p-3.5 rounded-xl bg-muted/30 border border-border/60 space-y-1 text-xs">
-                        <span class="font-semibold text-muted-foreground block text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground block flex items-center gap-1.5">
                             <FileText class="size-3.5" />
                             <span>Notas / Observaciones</span>
                         </span>

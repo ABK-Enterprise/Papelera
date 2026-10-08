@@ -99,7 +99,7 @@
             </CardHeader>
 
             <CardContent class="pb-2">
-                <div class="rounded-lg bg-muted/40 p-3 text-[11px] text-muted-foreground border border-border/40">
+                <div class="rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground border border-border/40">
                     Si consideras que esto es un error, por favor contacta al administrador del sistema indicando tu correo electrónico registrado.
                 </div>
             </CardContent>
