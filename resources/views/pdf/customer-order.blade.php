@@ -254,15 +254,15 @@
             overflow: hidden;
         }
         .summary-section-top {
-            padding: 6px 12px;
+            padding: 7px 12px;
         }
         .summary-table {
             width: 100%;
             border-collapse: collapse;
         }
         .summary-table td {
-            padding: 2.5px 0;
-            font-size: 12px;
+            padding: 3px 0;
+            font-size: 14px;
         }
         .summary-label {
             color: #475569;
@@ -285,14 +285,14 @@
         .summary-section-total {
             background: #f8fafc;
             border-top: 1px solid #cbd5e1;
-            padding: 6px 12px;
+            padding: 7px 12px;
         }
         .summary-total-table {
             width: 100%;
             border-collapse: collapse;
         }
         .summary-total-label {
-            font-size: 13.5px;
+            font-size: 15.5px;
             font-weight: 800;
             color: #0f172a;
             text-transform: uppercase;
@@ -300,7 +300,7 @@
             text-align: left;
         }
         .summary-total-value {
-            font-size: 15px;
+            font-size: 17px;
             font-weight: 900;
             color: #0f172a;
             text-align: right;
@@ -310,23 +310,23 @@
         .summary-section-account {
             border-top: 2px solid #0f172a;
             background: #ffffff;
-            padding: 6px 12px 8px 12px;
+            padding: 7px 12px 9px 12px;
         }
         .summary-account-title {
             text-align: center;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 800;
             color: #334155;
             text-transform: uppercase;
             letter-spacing: 0.8px;
-            margin-bottom: 5px;
-            padding-bottom: 3px;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
             border-bottom: 1px dashed #cbd5e1;
         }
         .summary-account-title .account-info-icon {
             display: inline-block;
             font-weight: 900;
-            font-size: 11.5px;
+            font-size: 13.5px;
             margin-right: 2px;
             color: #0284c7;
         }
@@ -337,22 +337,18 @@
         .account-col-left {
             width: 50%;
             vertical-align: middle;
-            padding-right: 14px;
-        }
-        .account-divider-v {
-            width: 1px;
-            background-color: #cbd5e1;
-            padding: 0 !important;
+            padding-right: 16px;
+            border-right: 1px solid #cbd5e1;
         }
         .account-col-right {
-            width: 49%;
+            width: 50%;
             vertical-align: middle;
-            padding-left: 14px;
+            padding-left: 16px;
             text-align: right;
         }
         .account-data-line {
-            margin: 2px 0;
-            font-size: 11.5px;
+            margin: 2.5px 0;
+            font-size: 13.5px;
         }
         .account-data-label {
             color: #475569;
@@ -364,24 +360,24 @@
             margin-left: 4px;
         }
         .account-available-label {
-            font-size: 11.5px;
+            font-size: 13.5px;
             color: #475569;
             font-weight: 600;
             display: block;
-            margin-bottom: 1px;
+            margin-bottom: 2px;
         }
         .account-available-value {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 800;
         }
 
         .watermark-footer {
             text-align: center;
-            font-size: 10.5px;
+            font-size: 11.5px;
             color: #94a3b8;
             letter-spacing: 0.3px;
             border-top: 1px solid #e2e8f0;
-            padding-top: 4px;
+            padding-top: 5px;
         }
     </style>
 </head>
@@ -639,7 +635,6 @@
                                         <span class="account-data-value tabular-nums">${{ number_format($currentBalance, 2, ',', '.') }}</span>
                                     </div>
                                 </td>
-                                <td class="account-divider-v"></td>
                                 <td class="account-col-right">
                                     <span class="account-available-label">Crédito disponible luego de la compra:</span>
                                     <span class="account-available-value tabular-nums {{ $availableCredit > 0 ? 'text-green' : 'text-danger' }}">
@@ -652,7 +647,7 @@
                 @endif
             </div>
             <div class="watermark-footer">
-                Generado por {{ $tenantModel->name ?? config('app.name', 'Papelera') }}
+                Generado por: {{ $order->tenant?->legal_name ?: ($order->tenant?->name ?? 'Papelera') }}
             </div>
         </div>
     </div>
