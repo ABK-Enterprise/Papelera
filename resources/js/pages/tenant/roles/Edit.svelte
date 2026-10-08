@@ -64,7 +64,7 @@
 <AppHead title="Editar Rol - Comercio" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-4xl mx-auto w-full">
-    <div class="flex flex-col items-start gap-3">
+    <div class="flex flex-col gap-3">
         <div class="flex items-center gap-3">
             <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Shield class="h-6 w-6 stroke-[1.75]" />
@@ -73,7 +73,7 @@
                 <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Editar rol</h1>
             </div>
         </div>
-        <div>
+        <div class="flex justify-end w-full">
             <Link
                 href="/tenant/roles"
                 class="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-xl border border-border/80 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-sm font-medium shadow-2xs transition-colors"

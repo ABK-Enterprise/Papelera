@@ -34,11 +34,11 @@
 <AppHead title="Nuevo Empleado - Comercio" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-2xl mx-auto w-full">
-    <div class="flex flex-col items-start gap-3">
+    <div class="flex flex-col gap-3">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Añadir empleado</h1>
         </div>
-        <div>
+        <div class="flex justify-end w-full">
             <Link
                 href="/tenant/usuarios"
                 class="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-xl border border-border/80 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-sm font-medium shadow-2xs transition-colors"

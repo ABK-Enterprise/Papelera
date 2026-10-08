@@ -141,15 +141,15 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-6xl mx-auto w-full">
     <!-- Header Escalonado -->
-    <div class="flex flex-col items-start gap-3">
+    <div class="flex flex-col gap-3">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
                 Editar Producto
             </h1>
         </div>
-        <div>
+        <div class="flex justify-end w-full">
             <Link href="/tenant/productos">
-                <Button variant="secondary" class="gap-2 text-sm rounded-xl font-medium min-h-[42px] h-auto py-2 px-4 shadow-2xs leading-snug text-center flex items-center justify-center border border-border/80">
+                <Button class="gap-2 text-sm rounded-xl font-medium min-h-[42px] h-auto py-2.5 px-4 shadow-2xs leading-snug text-center flex items-center justify-center dark:bg-secondary dark:text-secondary-foreground dark:border dark:border-border/80 dark:hover:bg-secondary/80">
                     <ArrowLeft class="size-4 shrink-0" />
                     <span>Volver al catálogo</span>
                 </Button>

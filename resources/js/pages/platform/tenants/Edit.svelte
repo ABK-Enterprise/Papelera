@@ -71,7 +71,7 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-4xl mx-auto w-full">
     <!-- Header Escalonado -->
-    <div class="flex flex-col items-start gap-3">
+    <div class="flex flex-col gap-3">
         <div class="flex items-center gap-3">
             <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
                 <Building2 class="size-5" />
@@ -81,19 +81,19 @@
                     <h1 class="text-2xl font-bold tracking-tight text-foreground">{tenant.name}</h1>
                     {#if form.is_active}
                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                            <span class="size-1.5 rounded-full bg-emerald-500"></span>
-                            Activo
+                          <span class="size-1.5 rounded-full bg-emerald-500"></span>
+                          Activo
                         </span>
                     {:else}
                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-                            <span class="size-1.5 rounded-full bg-rose-500"></span>
-                            Inactivo
+                          <span class="size-1.5 rounded-full bg-rose-500"></span>
+                          Inactivo
                         </span>
                     {/if}
                 </div>
             </div>
         </div>
-        <div>
+        <div class="flex justify-end w-full">
             <Link href="/platform/tenants">
                 <Button variant="outline" class="min-h-[40px] px-4 rounded-xl text-sm font-medium gap-2">
                     <ArrowLeft class="size-4" />

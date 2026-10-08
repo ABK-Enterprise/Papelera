@@ -175,7 +175,7 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1440px] mx-auto w-full">
     <!-- Header del Módulo Escalonado -->
-    <div class="flex flex-col items-start gap-3">
+    <div class="flex flex-col gap-3">
         <div>
             <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
                 <ReceiptText class="size-7 text-primary" />
@@ -183,7 +183,7 @@
             </h1>
         </div>
 
-        <div>
+        <div class="flex justify-end w-full">
             <Button
                 variant="secondary"
                 class="h-11 px-4 rounded-xl font-semibold gap-2 shadow-xs min-h-[44px]"

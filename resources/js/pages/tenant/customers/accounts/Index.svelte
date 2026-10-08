@@ -61,14 +61,14 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
     <!-- Header Operativo Limpio Escalonado -->
-    <div class="flex flex-col items-start gap-3 pb-2 border-b border-border/50">
+    <div class="flex flex-col gap-3 pb-2 border-b border-border/50">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
                 Cuentas Corrientes
             </h1>
         </div>
 
-        <div>
+        <div class="flex justify-end w-full">
             <a href="/tenant/clientes" class="inline-flex">
                 <Button variant="secondary" class="min-h-[38px] px-3.5 gap-2 text-sm font-medium rounded-xl shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
                     <ArrowLeft class="size-3.5" />

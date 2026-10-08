@@ -51,11 +51,11 @@
 <AppHead title="Nuevo Comercio - Plataforma" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-4xl mx-auto w-full">
-        <div class="flex flex-col items-start gap-3">
+        <div class="flex flex-col gap-3">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">Alta de Nuevo Comercio (Tenant)</h1>
             </div>
-            <div>
+            <div class="flex justify-end w-full">
                 <Link href="/platform/tenants">
                     <Button variant="outline" class="min-h-[40px] px-4 rounded-xl text-sm font-medium gap-2">
                         <ArrowLeft class="size-4" />
