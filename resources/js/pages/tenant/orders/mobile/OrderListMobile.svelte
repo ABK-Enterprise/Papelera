@@ -194,7 +194,7 @@
             <!-- Footer: Total & Botones de Acción Táctiles Directos (min-h-[44px] min-w-[44px]) -->
             <div class="flex items-center justify-between pt-1 gap-2" onclick={(e) => e.stopPropagation()}>
                 <span class="font-bold text-base text-primary tabular-nums">
-                    {formatPrice(order.total_amount)}
+                    {formatPrice(order.collectible_amount ?? order.total_amount)}
                 </span>
                 <div class="flex items-center gap-2 shrink-0">
                     {#if canCollect(order)}

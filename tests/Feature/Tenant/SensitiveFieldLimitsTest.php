@@ -244,3 +244,109 @@ test('collecting customer order rejects amounts over 100 million', function () {
     $response->assertUnprocessable()
         ->assertJsonValidationErrors(['amount']);
 });
+
+/*
+|--------------------------------------------------------------------------
+| Pedidos: Prohibición Estricta de Signos Especiales en Saldo y Deuda
+|--------------------------------------------------------------------------
+*/
+
+test('order creation rejects special characters and negative numbers in previous_debt_collected', function ($invalidValue) {
+    $customer = Customer::factory()->forTenant($this->tenant)->create([
+        'current_balance' => 5000,
+    ]);
+
+    $response = $this->actingAs($this->user)
+        ->postJson('/tenant/pedidos', [
+            'customer_id' => $customer->id,
+            'customer_name' => $customer->name,
+            'payment_type' => 'contado',
+            'payment_method' => 'efectivo',
+            'previous_debt_collected' => $invalidValue,
+            'items' => [
+                [
+                    'product_name' => 'Item Test',
+                    'unit_price' => 1000,
+                    'quantity' => 1,
+                    'packaging_type' => 'unidad',
+                ],
+            ],
+        ]);
+
+    $response->assertUnprocessable()
+        ->assertJsonValidationErrors(['previous_debt_collected']);
+})->with([
+    'double minus' => '--',
+    'negative' => '-500',
+    'plus sign' => '+500',
+    'hash symbol' => '10#5',
+    'slash symbol' => '10/5',
+]);
+
+test('order creation rejects special characters and negative numbers in credit_balance_applied', function ($invalidValue) {
+    $customer = Customer::factory()->forTenant($this->tenant)->create([
+        'current_balance' => -5000,
+    ]);
+
+    $response = $this->actingAs($this->user)
+        ->postJson('/tenant/pedidos', [
+            'customer_id' => $customer->id,
+            'customer_name' => $customer->name,
+            'payment_type' => 'cuenta_corriente',
+            'credit_balance_applied' => $invalidValue,
+            'items' => [
+                [
+                    'product_name' => 'Item Test',
+                    'unit_price' => 1000,
+                    'quantity' => 1,
+                    'packaging_type' => 'unidad',
+                ],
+            ],
+        ]);
+
+    $response->assertUnprocessable()
+        ->assertJsonValidationErrors(['credit_balance_applied']);
+})->with([
+    'double minus' => '--',
+    'negative' => '-500',
+    'plus sign' => '+500',
+    'hash symbol' => '10#5',
+    'slash symbol' => '10/5',
+]);
+
+test('order creation and receipt visibility modal persist show_debt_collected_in_receipt correctly', function () {
+    $customer = Customer::factory()->forTenant($this->tenant)->create([
+        'current_balance' => 5000,
+    ]);
+
+    $response = $this->actingAs($this->user)
+        ->postJson('/tenant/pedidos', [
+            'customer_id' => $customer->id,
+            'customer_name' => $customer->name,
+            'payment_type' => 'contado',
+            'payment_method' => 'efectivo',
+            'previous_debt_collected' => 2000,
+            'show_debt_collected_in_receipt' => true,
+            'items' => [
+                [
+                    'product_name' => 'Item Test',
+                    'unit_price' => 1000,
+                    'quantity' => 1,
+                    'packaging_type' => 'unidad',
+                ],
+            ],
+        ]);
+
+    $response->assertStatus(201);
+    $order = CustomerOrder::where('tenant_id', $this->tenant->id)->first();
+    expect($order->show_debt_collected_in_receipt)->toBeTrue();
+
+    // Actualizar visibilidad a false a través del endpoint de remito
+    $patchResponse = $this->actingAs($this->user)
+        ->patchJson("/tenant/pedidos/{$order->id}/visibilidad-remito", [
+            'show_debt_collected_in_receipt' => false,
+        ]);
+
+    $patchResponse->assertOk();
+    expect($order->fresh()->show_debt_collected_in_receipt)->toBeFalse();
+});

@@ -439,6 +439,7 @@ class CustomerOrderController extends Controller
                 'surcharge_total' => $surchargeTotal,
                 'credit_balance_applied' => $creditBalanceApplied,
                 'previous_debt_collected' => $previousDebtCollected,
+                'show_debt_collected_in_receipt' => $previousDebtCollected > 0 && $request->boolean('show_debt_collected_in_receipt'),
                 'total_amount' => $finalOrderTotal,
                 'notes' => $request->validated('notes'),
             ]);

@@ -772,6 +772,7 @@
     let isDebtBalanceModalOpen = $state(false);
     let collectPreviousDebt = $state(false);
     let previousDebtCollected = $state<number>(0);
+    let showDebtCollectedInReceipt = $state(false);
     let editDebtMode = $state<'fixed' | 'percentage'>('fixed');
     let editDebtFixedValue = $state<number | string>('');
     let editDebtPercentageValue = $state<number | string>('');
@@ -786,6 +787,9 @@
         paymentType === 'contado' && collectPreviousDebt
             ? Math.min(Math.max(0, Number(previousDebtCollected) || 0), availableCustomerDebt)
             : 0
+    );
+    const canShowDebtCollectedInReceipt = $derived(
+        collectPreviousDebt && effectivePreviousDebtCollected > 0
     );
 
     $effect(() => {
@@ -806,6 +810,13 @@
         if (paymentType !== 'contado' || !selectedCustomer || !hasAvailableDebt) {
             collectPreviousDebt = false;
             previousDebtCollected = 0;
+            showDebtCollectedInReceipt = false;
+        }
+    });
+
+    $effect(() => {
+        if (!canShowDebtCollectedInReceipt && showDebtCollectedInReceipt) {
+            showDebtCollectedInReceipt = false;
         }
     });
 
@@ -825,6 +836,56 @@
         if (!hasAvailableCredit) return;
         creditBalanceApplied = Math.min(availableCustomerCredit, grossTotal);
         toast.success(`Se aplicó el saldo a favor: ${formatPrice(creditBalanceApplied)}`);
+    }
+
+    function handleStrictPositiveNumericKeydown(e: KeyboardEvent, allowDecimal = true) {
+        if (['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter'].includes(e.key)) {
+            return;
+        }
+        if (e.ctrlKey || e.metaKey) {
+            return;
+        }
+        if (allowDecimal && (e.key === '.' || e.key === ',')) {
+            const input = e.currentTarget as HTMLInputElement;
+            if (input.value.includes('.') || input.value.includes(',')) {
+                e.preventDefault();
+            }
+            return;
+        }
+        if (!/^[0-9]$/.test(e.key)) {
+            e.preventDefault();
+        }
+    }
+
+    function handleStrictFixedAmountInput(e: Event, maxLimit: number, assign: (val: number | string) => void) {
+        const input = e.target as HTMLInputElement;
+        let clean = input.value.replace(/,/g, '.').replace(/[^0-9.]/g, '');
+        const parts = clean.split('.');
+        if (parts.length > 2) {
+            clean = parts[0] + '.' + parts.slice(1).join('');
+        }
+        if (clean.includes('.')) {
+            const [intPart, decPart] = clean.split('.');
+            clean = intPart + '.' + decPart.slice(0, 2);
+        }
+        const num = Number(clean) || 0;
+        if (num > maxLimit) {
+            clean = String(maxLimit);
+        }
+        input.value = clean;
+        assign(clean);
+    }
+
+    function handleStrictPercentageInput(e: Event, assign: (val: number | string) => void) {
+        const input = e.target as HTMLInputElement;
+        let clean = input.value.replace(/[^0-9]/g, '');
+        let num = Number(clean) || 0;
+        if (num > 100) {
+            num = 100;
+            clean = '100';
+        }
+        input.value = clean;
+        assign(clean);
     }
 
     function openEditCreditBalanceModal() {
@@ -862,8 +923,10 @@
         collectPreviousDebt = !collectPreviousDebt;
         if (collectPreviousDebt) {
             previousDebtCollected = availableCustomerDebt;
+            showDebtCollectedInReceipt = true;
         } else {
             previousDebtCollected = 0;
+            showDebtCollectedInReceipt = false;
         }
     }
 
@@ -939,6 +1002,10 @@
         creditBalanceApplied = 0;
         showCreditAppliedInReceipt = false;
         isCreditBalanceModalOpen = false;
+        collectPreviousDebt = false;
+        previousDebtCollected = 0;
+        showDebtCollectedInReceipt = false;
+        isDebtBalanceModalOpen = false;
     }
 
     function closeModal() {
@@ -1035,6 +1102,7 @@
                 credit_balance_applied: paymentType === 'cuenta_corriente' ? effectiveCreditBalanceApplied : 0,
                 previous_debt_collected: paymentType === 'contado' ? effectivePreviousDebtCollected : 0,
                 show_credit_applied_in_receipt: canShowCreditAppliedInReceipt ? showCreditAppliedInReceipt : false,
+                show_debt_collected_in_receipt: canShowDebtCollectedInReceipt ? showDebtCollectedInReceipt : false,
                 show_account_in_receipt: showAccountInReceipt,
                 mp_qr_checkout: shouldChargeWithQr ? true : undefined,
                 items: payloadItems,
@@ -2209,6 +2277,29 @@
                                 </span>
                             </div>
                         </label>
+
+                        <!-- Sub-item: Cobro de deuda previa en totales -->
+                        <label class="flex items-start gap-2.5 pt-1 {canShowDebtCollectedInReceipt ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}">
+                            <input
+                                type="checkbox"
+                                disabled={!canShowDebtCollectedInReceipt}
+                                bind:checked={showDebtCollectedInReceipt}
+                                class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                            />
+                            <div class="min-w-0">
+                                <span class="text-xs font-semibold text-foreground block">
+                                    Mostrar cobro de deuda anterior en el remito impreso
+                                </span>
+                                <span class="text-xs text-muted-foreground block">
+                                    Muestra en el bloque de totales la línea de cobro de deuda anterior.
+                                </span>
+                                {#if !canShowDebtCollectedInReceipt}
+                                    <span class="text-xs text-amber-600 dark:text-amber-400 block mt-0.5">
+                                        Disponible solo si se incluye cobro de deuda anterior al pedido.
+                                    </span>
+                                {/if}
+                            </div>
+                        </label>
                     </div>
                 {/if}
 
@@ -2692,18 +2783,11 @@
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">$</span>
                         <Input
                             id="credit-fixed-amount-input"
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            max={availableCustomerCredit}
+                            type="text"
+                            inputmode="decimal"
                             bind:value={editCreditFixedValue}
-                            oninput={(e) => {
-                                const target = e.target as HTMLInputElement;
-                                const val = Number(target.value) || 0;
-                                if (val > availableCustomerCredit) {
-                                    editCreditFixedValue = availableCustomerCredit;
-                                }
-                            }}
+                            onkeydown={(e) => handleStrictPositiveNumericKeydown(e, true)}
+                            oninput={(e) => handleStrictFixedAmountInput(e, availableCustomerCredit, (v) => editCreditFixedValue = v)}
                             placeholder="0.00"
                             class="h-10 pl-7 text-sm font-bold font-sans tabular-nums"
                         />
@@ -2720,20 +2804,11 @@
                     <div class="relative">
                         <Input
                             id="credit-pct-input"
-                            type="number"
-                            step="1"
-                            min="0"
-                            max="100"
+                            type="text"
+                            inputmode="numeric"
                             bind:value={editCreditPercentageValue}
-                            oninput={(e) => {
-                                const target = e.target as HTMLInputElement;
-                                const val = Number(target.value) || 0;
-                                if (val > 100) {
-                                    editCreditPercentageValue = 100;
-                                } else if (val < 0) {
-                                    editCreditPercentageValue = 0;
-                                }
-                            }}
+                            onkeydown={(e) => handleStrictPositiveNumericKeydown(e, false)}
+                            oninput={(e) => handleStrictPercentageInput(e, (v) => editCreditPercentageValue = v)}
                             placeholder="100"
                             class="h-10 pr-7 text-sm font-bold font-sans tabular-nums"
                         />
@@ -2803,20 +2878,11 @@
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">$</span>
                         <Input
                             id="debt-fixed-amount-input"
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            max={availableCustomerDebt}
+                            type="text"
+                            inputmode="decimal"
                             bind:value={editDebtFixedValue}
-                            oninput={(e) => {
-                                const target = e.target as HTMLInputElement;
-                                const val = Number(target.value) || 0;
-                                if (val > availableCustomerDebt) {
-                                    editDebtFixedValue = availableCustomerDebt;
-                                } else if (val < 0) {
-                                    editDebtFixedValue = 0;
-                                }
-                            }}
+                            onkeydown={(e) => handleStrictPositiveNumericKeydown(e, true)}
+                            oninput={(e) => handleStrictFixedAmountInput(e, availableCustomerDebt, (v) => editDebtFixedValue = v)}
                             placeholder="0.00"
                             class="h-10 pl-7 text-sm font-bold font-sans tabular-nums"
                         />
@@ -2833,20 +2899,11 @@
                     <div class="relative">
                         <Input
                             id="debt-pct-input"
-                            type="number"
-                            step="1"
-                            min="0"
-                            max="100"
+                            type="text"
+                            inputmode="numeric"
                             bind:value={editDebtPercentageValue}
-                            oninput={(e) => {
-                                const target = e.target as HTMLInputElement;
-                                const val = Number(target.value) || 0;
-                                if (val > 100) {
-                                    editDebtPercentageValue = 100;
-                                } else if (val < 0) {
-                                    editDebtPercentageValue = 0;
-                                }
-                            }}
+                            onkeydown={(e) => handleStrictPositiveNumericKeydown(e, false)}
+                            oninput={(e) => handleStrictPercentageInput(e, (v) => editDebtPercentageValue = v)}
                             placeholder="100"
                             class="h-10 pr-7 text-sm font-bold font-sans tabular-nums"
                         />

@@ -164,7 +164,7 @@ test('customer order pdf displays "AL DIA" when customer balance is zero', funct
         ->toContain('$0,00');
 });
 
-test('customer order pdf totals box breaks down previous debt collected and total abonado', function () {
+test('customer order pdf totals box breaks down previous debt collected and total abonado when show_debt_collected_in_receipt is true', function () {
     $order = CustomerOrder::create([
         'tenant_id' => $this->tenant->id,
         'customer_id' => $this->customer->id,
@@ -174,6 +174,7 @@ test('customer order pdf totals box breaks down previous debt collected and tota
         'status' => 'en_preparacion',
         'total_amount' => 7000.00,
         'previous_debt_collected' => 3000.00,
+        'show_debt_collected_in_receipt' => true,
     ]);
 
     CustomerOrderItem::create([
@@ -194,6 +195,37 @@ test('customer order pdf totals box breaks down previous debt collected and tota
         ->toContain('+$3.000,00')
         ->toContain('TOTAL ABONADO:')
         ->toContain('$10.000,00');
+});
+
+test('customer order pdf totals box hides previous debt breakdown when show_debt_collected_in_receipt is false but displays final total', function () {
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'order_number' => 'PED-COBRO-DEUDA-HIDDEN',
+        'customer_name' => 'Mariano Caminos',
+        'payment_type' => 'contado',
+        'status' => 'en_preparacion',
+        'total_amount' => 7000.00,
+        'previous_debt_collected' => 3000.00,
+        'show_debt_collected_in_receipt' => false,
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $this->product->id,
+        'quantity' => 1,
+        'unit_price' => 7000.00,
+        'subtotal' => 7000.00,
+    ]);
+
+    $order->load(['items.product', 'customer', 'tenant']);
+
+    $html = view('pdf.customer-order', ['order' => $order])->render();
+
+    expect($html)->toContain('TOTAL DEL PEDIDO:')
+        ->toContain('$10.000,00')
+        ->not->toContain('Cobro de Deuda Anterior:')
+        ->not->toContain('TOTAL ABONADO:');
 });
 
 test('controller passes previousBalance to pdf view in download and preview', function () {

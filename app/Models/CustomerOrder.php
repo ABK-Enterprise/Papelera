@@ -58,6 +58,7 @@ use Illuminate\Support\Carbon;
     'price_adjustments',
     'show_account_in_receipt',
     'show_credit_applied_in_receipt',
+    'show_debt_collected_in_receipt',
     'discount_total',
     'surcharge_total',
     'credit_balance_applied',
@@ -121,6 +122,7 @@ class CustomerOrder extends Model
             'price_review_pending' => 'boolean',
             'show_account_in_receipt' => 'boolean',
             'show_credit_applied_in_receipt' => 'boolean',
+            'show_debt_collected_in_receipt' => 'boolean',
             'price_adjustments' => 'array',
         ];
     }

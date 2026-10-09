@@ -22,6 +22,7 @@ class CustomerOrderReceiptController extends Controller
         $validated = $request->validate([
             'show_account_in_receipt' => ['nullable', 'boolean'],
             'show_credit_applied_in_receipt' => ['nullable', 'boolean'],
+            'show_debt_collected_in_receipt' => ['nullable', 'boolean'],
             'adjustments_visibility' => ['nullable', 'array'],
             'adjustments_visibility.*' => ['boolean'],
         ]);
@@ -33,6 +34,12 @@ class CustomerOrderReceiptController extends Controller
         if (array_key_exists('show_credit_applied_in_receipt', $validated)) {
             $customerOrder->show_credit_applied_in_receipt = ((float) $customerOrder->credit_balance_applied > 0)
                 ? (bool) $validated['show_credit_applied_in_receipt']
+                : false;
+        }
+
+        if (array_key_exists('show_debt_collected_in_receipt', $validated)) {
+            $customerOrder->show_debt_collected_in_receipt = ((float) $customerOrder->previous_debt_collected > 0)
+                ? (bool) $validated['show_debt_collected_in_receipt']
                 : false;
         }
 

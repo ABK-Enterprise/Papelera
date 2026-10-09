@@ -36,8 +36,10 @@
         customer_id?: number | null;
         customer_name: string;
         credit_balance_applied?: number | string | null;
+        previous_debt_collected?: number | string | null;
         show_account_in_receipt?: boolean;
         show_credit_applied_in_receipt?: boolean;
+        show_debt_collected_in_receipt?: boolean;
         price_adjustments?: PriceAdjustmentItem[] | null;
         customer?: {
             id: number;
@@ -59,9 +61,10 @@
 
     let isSaving = $state(false);
 
-    // Estado local para cuenta corriente y saldo a favor
+    // Estado local para cuenta corriente, saldo a favor y deuda previa
     let showAccount = $state(false);
     let showCreditApplied = $state(false);
+    let showDebtCollected = $state(false);
 
     // Mapa reactivo de visibilidad de ajustes id -> boolean
     let visibilityMap = $state<Record<string, boolean>>({});
@@ -70,12 +73,19 @@
         Boolean(order?.customer_id) && Number(order?.credit_balance_applied ?? 0) > 0
     );
 
+    const canShowDebtCollected = $derived(
+        Boolean(order?.customer_id) && Number(order?.previous_debt_collected ?? 0) > 0
+    );
+
     // Sincronizar estado cuando se abre el modal o cambia la orden
     $effect(() => {
         if (open && order) {
             showAccount = Boolean(order.show_account_in_receipt);
             showCreditApplied = canShowCreditApplied
                 ? Boolean(order.show_credit_applied_in_receipt)
+                : false;
+            showDebtCollected = canShowDebtCollected
+                ? Boolean(order.show_debt_collected_in_receipt)
                 : false;
             const map: Record<string, boolean> = {};
             if (Array.isArray(order.price_adjustments)) {
@@ -156,6 +166,7 @@
             {
                 show_account_in_receipt: showAccount,
                 show_credit_applied_in_receipt: canShowCreditApplied ? showCreditApplied : false,
+                show_debt_collected_in_receipt: canShowDebtCollected ? showDebtCollected : false,
                 adjustments_visibility: visibilityMap,
             },
             {
@@ -167,6 +178,7 @@
                     if (order) {
                         order.show_account_in_receipt = showAccount;
                         order.show_credit_applied_in_receipt = canShowCreditApplied ? showCreditApplied : false;
+                        order.show_debt_collected_in_receipt = canShowDebtCollected ? showDebtCollected : false;
                         if (Array.isArray(order.price_adjustments)) {
                             order.price_adjustments.forEach((adj) => {
                                 if (adj.id && visibilityMap[adj.id] !== undefined) {
@@ -268,6 +280,31 @@
                                 {#if !canShowCreditApplied}
                                     <span class="text-xs text-amber-600 dark:text-amber-400 mt-1 block">
                                         No disponible: Este pedido no utilizó saldo a favor de cuenta corriente.
+                                    </span>
+                                {/if}
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Sub-item 3: Cobro de Deuda Previa en Totales -->
+                    <div class="mt-3 ml-7 pl-3 border-l-2 border-border/60">
+                        <label class="flex items-start gap-3 {canShowDebtCollected ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}">
+                            <input
+                                type="checkbox"
+                                disabled={!canShowDebtCollected}
+                                bind:checked={showDebtCollected}
+                                class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                            />
+                            <div class="flex-1 min-w-0">
+                                <span class="text-sm font-medium text-foreground block">
+                                    Mostrar cobro de deuda previa en el remito
+                                </span>
+                                <p class="text-xs text-muted-foreground mt-0.5">
+                                    Imprime en el desglose de totales la línea de cobro de deuda anterior. Si se desmarca, el remito reflejará el importe total cobrado sin desglosar el ítem.
+                                </p>
+                                {#if !canShowDebtCollected}
+                                    <span class="text-xs text-amber-600 dark:text-amber-400 mt-1 block">
+                                        No disponible: Este pedido no incluyó cobro de deuda anterior.
                                     </span>
                                 {/if}
                             </div>

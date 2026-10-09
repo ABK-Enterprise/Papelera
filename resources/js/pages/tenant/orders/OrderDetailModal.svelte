@@ -1049,14 +1049,14 @@
 
                     <div class="flex items-center gap-1.5 shrink-0">
                         <span class="text-xs text-muted-foreground font-medium">Total:</span>
-                        <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary" title={formatPrice(order.total_amount)}>
-                            {formatPrice(order.total_amount)}
+                        <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary" title={formatPrice(order.collectible_amount ?? order.total_amount)}>
+                            {formatPrice(order.collectible_amount ?? order.total_amount)}
                         </span>
                         {#if order.has_previous_balance_impact}
                             <button
                                 type="button"
                                 onclick={() => (isBalanceImpactModalOpen = true)}
-                                class="size-6 rounded-md hover:bg-muted text-muted-foreground hover:text-primary transition-colors flex items-center justify-center cursor-pointer inline-flex align-middle ml-0.5"
+                                class="size-6 rounded-md border border-border/80 bg-muted/60 hover:bg-muted hover:border-primary/40 text-foreground hover:text-primary shadow-2xs transition-colors flex items-center justify-center cursor-pointer inline-flex align-middle ml-0.5"
                                 title="Ver desglose de monto facturable vs monto capaz de cobrar"
                                 aria-label="Ver desglose financiero"
                             >

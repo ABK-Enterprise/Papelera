@@ -61,8 +61,9 @@ class StoreCustomerOrderRequest extends FormRequest
             'items.*.apply_customer_discount' => ['nullable', 'boolean'],
             'show_account_in_receipt' => ['nullable', 'boolean'],
             'show_credit_applied_in_receipt' => ['nullable', 'boolean'],
-            'credit_balance_applied' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
-            'previous_debt_collected' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
+            'show_debt_collected_in_receipt' => ['nullable', 'boolean'],
+            'credit_balance_applied' => ['nullable', 'numeric', 'min:0', 'max:100000000', 'regex:/^\d+(?:\.\d{1,2})?$/'],
+            'previous_debt_collected' => ['nullable', 'numeric', 'min:0', 'max:100000000', 'regex:/^\d+(?:\.\d{1,2})?$/'],
             'price_adjustments' => ['nullable', 'array'],
             'price_adjustments.*.id' => ['nullable', 'string'],
             'price_adjustments.*.source' => ['nullable', 'string', 'in:preset,ad_hoc'],
@@ -210,7 +211,9 @@ class StoreCustomerOrderRequest extends FormRequest
         return [
             'paid_amount.max' => 'El importe abonado no puede superar los $100.000.000.',
             'credit_balance_applied.max' => 'El saldo a favor aplicado no puede superar los $100.000.000.',
+            'credit_balance_applied.regex' => 'El saldo a favor debe contener únicamente dígitos numéricos positivos sin signos especiales.',
             'previous_debt_collected.max' => 'El monto de cobro de deuda no puede superar los $100.000.000.',
+            'previous_debt_collected.regex' => 'El cobro de deuda previa debe contener únicamente dígitos numéricos positivos sin signos especiales.',
             'items.*.unit_price.max' => 'El precio unitario no puede superar los $100.000.000.',
             'items.*.quantity.max' => 'La cantidad de producto no puede superar los 100.000.000.',
         ];

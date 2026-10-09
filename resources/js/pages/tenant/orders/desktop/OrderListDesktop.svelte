@@ -205,7 +205,7 @@
                 <div class="text-right min-w-[120px] shrink-0 pr-1">
                     <span class="text-xs text-muted-foreground block">Total:</span>
                     <span class="font-bold text-base text-foreground tabular-nums">
-                        {formatPrice(order.total_amount)}
+                        {formatPrice(order.collectible_amount ?? order.total_amount)}
                     </span>
                 </div>
 
