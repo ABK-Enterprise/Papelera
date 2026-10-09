@@ -35,6 +35,12 @@ beforeEach(function () {
         'module_id' => $this->pedidosModule->id,
     ]);
 
+    $this->permCrearPedidos = Permission::create([
+        'name' => 'pedidos.crear',
+        'guard_name' => 'web',
+        'module_id' => $this->pedidosModule->id,
+    ]);
+
     $this->tenant->modules()->attach([$this->pedidosModule->id]);
 
     setPermissionsTeamId($this->tenant->id);
@@ -43,7 +49,7 @@ beforeEach(function () {
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,
     ]);
-    $this->role->givePermissionTo([$this->permVerPedidos]);
+    $this->role->givePermissionTo([$this->permVerPedidos, $this->permCrearPedidos]);
 
     $this->user = User::factory()->forTenant($this->tenant)->create();
     $this->user->assignRole($this->role);
@@ -260,4 +266,69 @@ test('controller passes previousBalance to pdf view in download and preview', fu
             && array_key_exists('previousBalance', $pdf->viewData)
             && $pdf->viewData['previousBalance'] === 1500.00;
     });
+});
+
+test('customer order creation captures customer_balance_before and customer_balance_after snapshots', function () {
+    $this->customer->update(['current_balance' => 4500.00]);
+
+    $response = $this->actingAs($this->user)
+        ->postJson(route('tenant.orders.store'), [
+            'customer_id' => $this->customer->id,
+            'customer_name' => 'Mariano Caminos',
+            'warehouse_id' => null,
+            'items' => [
+                [
+                    'product_id' => $this->product->id,
+                    'quantity' => 2,
+                    'unit_price' => 2000.00,
+                    'packaging_type' => 'unidad',
+                ],
+            ],
+            'payment_type' => 'cuenta_corriente',
+            'show_account_in_receipt' => true,
+        ]);
+
+    $response->assertStatus(201);
+
+    $createdOrder = CustomerOrder::where('customer_id', $this->customer->id)->latest('id')->first();
+    expect($createdOrder)->not->toBeNull()
+        ->and((float) $createdOrder->customer_balance_before)->toBe(4500.00)
+        ->and((float) $createdOrder->customer_balance_after)->toBe(8500.00);
+});
+
+test('customer order pdf prioritizes snapshot balances over modified live customer balance', function () {
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'order_number' => 'PED-SNAPSHOT-IMMUTABLE',
+        'customer_name' => 'Mariano Caminos',
+        'payment_type' => 'cuenta_corriente',
+        'status' => 'en_preparacion',
+        'total_amount' => 4000.00,
+        'customer_balance_before' => -5000.00,
+        'customer_balance_after' => -1000.00,
+        'show_account_in_receipt' => true,
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $this->product->id,
+        'quantity' => 2,
+        'unit_price' => 2000.00,
+        'subtotal' => 4000.00,
+    ]);
+
+    // Simulamos que meses después el cliente tiene un saldo completamente diferente
+    $this->customer->update(['current_balance' => 99999.00]);
+
+    $order->load(['items.product', 'customer', 'tenant']);
+
+    $html = view('pdf.customer-order', ['order' => $order])->render();
+
+    expect($html)->toContain('"A FAVOR"')
+        ->toContain('Saldo de cta. cte. antes:')
+        ->toContain('$5.000,00')
+        ->toContain('Saldo a favor actual:')
+        ->toContain('$1.000,00')
+        ->not->toContain('$99.999,00');
 });

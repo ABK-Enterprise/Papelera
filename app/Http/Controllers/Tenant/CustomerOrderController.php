@@ -386,6 +386,8 @@ class CustomerOrderController extends Controller
                 : 0.00;
             $previousDebtCollected = min($availableDebt, max(0.00, round($previousDebtCollected, 2)));
 
+            $customerBalanceBefore = $customer ? (float) $customer->current_balance : null;
+
             $paidAmount = 0.00;
             $targetQrAmount = null;
 
@@ -439,6 +441,7 @@ class CustomerOrderController extends Controller
                 'surcharge_total' => $surchargeTotal,
                 'credit_balance_applied' => $creditBalanceApplied,
                 'previous_debt_collected' => $previousDebtCollected,
+                'customer_balance_before' => $customerBalanceBefore,
                 'show_debt_collected_in_receipt' => $previousDebtCollected > 0 && $request->boolean('show_debt_collected_in_receipt'),
                 'total_amount' => $finalOrderTotal,
                 'notes' => $request->validated('notes'),
@@ -671,6 +674,9 @@ class CustomerOrderController extends Controller
                     } else {
                         $customer->update(['current_balance' => $tempBalance]);
                     }
+
+                    $customerBalanceAfter = (float) $customer->fresh()->current_balance;
+                    $order->update(['customer_balance_after' => $customerBalanceAfter]);
                 }
             }
 
@@ -1376,6 +1382,10 @@ class CustomerOrderController extends Controller
     {
         if (! $customerOrder->customer_id) {
             return 0.00;
+        }
+
+        if ($customerOrder->customer_balance_before !== null) {
+            return (float) $customerOrder->customer_balance_before;
         }
 
         $firstMovement = \App\Models\CustomerAccountMovement::where('customer_order_id', $customerOrder->id)

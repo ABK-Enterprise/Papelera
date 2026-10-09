@@ -63,6 +63,8 @@ use Illuminate\Support\Carbon;
     'surcharge_total',
     'credit_balance_applied',
     'previous_debt_collected',
+    'customer_balance_before',
+    'customer_balance_after',
     'notes',
 ])]
 class CustomerOrder extends Model
@@ -119,6 +121,8 @@ class CustomerOrder extends Model
             'surcharge_total' => 'decimal:2',
             'credit_balance_applied' => 'decimal:2',
             'previous_debt_collected' => 'decimal:2',
+            'customer_balance_before' => 'decimal:2',
+            'customer_balance_after' => 'decimal:2',
             'price_review_pending' => 'boolean',
             'show_account_in_receipt' => 'boolean',
             'show_credit_applied_in_receipt' => 'boolean',

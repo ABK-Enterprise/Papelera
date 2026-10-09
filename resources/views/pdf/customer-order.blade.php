@@ -449,14 +449,18 @@
                     </tr>
                     @if($order->show_account_in_receipt && $order->customer)
                         @php
-                            $currentBalance = (float) ($order->customer->current_balance ?? 0);
+                            $currentBalance = $order->customer_balance_after !== null
+                                ? (float) $order->customer_balance_after
+                                : (float) ($order->customer->current_balance ?? 0);
                             $isFavor = $currentBalance < 0;
                             $isDeudor = $currentBalance > 0;
                             $absBalance = abs($currentBalance);
 
-                            $prevBalance = isset($previousBalance)
-                                ? (float) $previousBalance
-                                : (float) ($order->customer->current_balance ?? 0);
+                            $prevBalance = $order->customer_balance_before !== null
+                                ? (float) $order->customer_balance_before
+                                : (isset($previousBalance)
+                                    ? (float) $previousBalance
+                                    : (float) ($order->customer->current_balance ?? 0));
                             $absPrevBalance = abs($prevBalance);
                         @endphp
                         <tr>
