@@ -620,7 +620,7 @@
                         @endif
                         @if($order->show_debt_collected_in_receipt && (float) ($order->previous_debt_collected ?? 0) > 0)
                             <tr>
-                                <td class="summary-total-label">TOTAL DEL PEDIDO:</td>
+                                <td class="summary-total-label">TOTAL:</td>
                                 <td class="summary-total-value tabular-nums">${{ number_format((float) $order->total_amount, 2, ',', '.') }}</td>
                             </tr>
                             <tr>
@@ -637,7 +637,7 @@
                             </tr>
                         @else
                             <tr>
-                                <td class="summary-total-label">TOTAL DEL PEDIDO:</td>
+                                <td class="summary-total-label">TOTAL:</td>
                                 <td class="summary-total-value tabular-nums">${{ number_format((float) ($order->total_amount + ($order->previous_debt_collected ?? 0)), 2, ',', '.') }}</td>
                             </tr>
                         @endif
@@ -653,13 +653,6 @@
                         $isFavor = $currentBalance < 0;
                         $isDeudor = $currentBalance > 0;
                         $absBalance = abs($currentBalance);
-
-                        $prevBalance = $order->customer_balance_before !== null
-                            ? (float) $order->customer_balance_before
-                            : (isset($previousBalance)
-                                ? (float) $previousBalance
-                                : (float) ($order->customer->current_balance ?? 0));
-                        $absPrevBalance = abs($prevBalance);
                     @endphp
                     <div class="summary-section-account">
                         <div class="summary-account-title">
@@ -680,10 +673,6 @@
                                     </div>
                                 </td>
                                 <td class="account-col-right">
-                                    <div class="account-amount-line">
-                                        <span style="color: #64748b;">Saldo de cta. cte. antes:</span>
-                                        <span class="tabular-nums font-semibold">${{ number_format($absPrevBalance, 2, ',', '.') }}</span>
-                                    </div>
                                     <div class="account-amount-line account-amount-line-current">
                                         @if($isFavor)
                                             <strong style="color: #0f172a;">Saldo a favor actual:</strong>

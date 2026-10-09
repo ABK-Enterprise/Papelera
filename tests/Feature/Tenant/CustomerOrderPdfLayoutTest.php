@@ -107,8 +107,7 @@ test('customer order pdf displays "A DEBER" with previous balance and current de
     ])->render();
 
     expect($html)->toContain('"A DEBER"')
-        ->toContain('Saldo de cta. cte. antes:')
-        ->toContain('$2.000,00')
+        ->not->toContain('Saldo de cta. cte. antes:')
         ->toContain('Saldo deudor actual:')
         ->toContain('$5.000,00')
         ->toContain('Generado por: Papelera San Nicolás SA');
@@ -136,8 +135,7 @@ test('customer order pdf displays "A FAVOR" with previous balance and current cr
     ])->render();
 
     expect($html)->toContain('"A FAVOR"')
-        ->toContain('Saldo de cta. cte. antes:')
-        ->toContain('$5.000,00')
+        ->not->toContain('Saldo de cta. cte. antes:')
         ->toContain('Saldo a favor actual:')
         ->toContain('$1.500,00');
 });
@@ -164,8 +162,7 @@ test('customer order pdf displays "AL DIA" when customer balance is zero', funct
     ])->render();
 
     expect($html)->toContain('"AL DIA"')
-        ->toContain('Saldo de cta. cte. antes:')
-        ->toContain('$0,00')
+        ->not->toContain('Saldo de cta. cte. antes:')
         ->toContain('Cuenta corriente al dia:')
         ->toContain('$0,00');
 });
@@ -195,7 +192,7 @@ test('customer order pdf totals box breaks down previous debt collected and tota
 
     $html = view('pdf.customer-order', ['order' => $order])->render();
 
-    expect($html)->toContain('TOTAL DEL PEDIDO:')
+    expect($html)->toContain('TOTAL:')
         ->toContain('$7.000,00')
         ->toContain('Cobro de Deuda Anterior:')
         ->toContain('+$3.000,00')
@@ -228,7 +225,7 @@ test('customer order pdf totals box hides previous debt breakdown when show_debt
 
     $html = view('pdf.customer-order', ['order' => $order])->render();
 
-    expect($html)->toContain('TOTAL DEL PEDIDO:')
+    expect($html)->toContain('TOTAL:')
         ->toContain('$10.000,00')
         ->not->toContain('Cobro de Deuda Anterior:')
         ->not->toContain('TOTAL ABONADO:');
@@ -326,8 +323,7 @@ test('customer order pdf prioritizes snapshot balances over modified live custom
     $html = view('pdf.customer-order', ['order' => $order])->render();
 
     expect($html)->toContain('"A FAVOR"')
-        ->toContain('Saldo de cta. cte. antes:')
-        ->toContain('$5.000,00')
+        ->not->toContain('Saldo de cta. cte. antes:')
         ->toContain('Saldo a favor actual:')
         ->toContain('$1.000,00')
         ->not->toContain('$99.999,00');

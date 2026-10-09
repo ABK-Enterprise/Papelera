@@ -267,11 +267,11 @@ test('receipt pdf template renders customer credit account and filtered adjustme
         'logoBase64' => null,
     ])->render();
 
-    // Debe mostrarse el resumen de cuenta corriente en la ficha del cliente
+    // Debe mostrarse el resumen de cuenta corriente en el recuadro informativo
     expect($html)->toContain('Estado Cta. Cte.:')
         ->toContain('"A DEBER"')
         ->toContain('Saldo deudor actual:')
-        ->and($html)->not->toContain('ESTADO EN CUENTA CORRIENTE');
+        ->toContain('ESTADO EN CUENTA CORRIENTE');
 
     // Debe mostrarse el ajuste visible
     expect($html)->toContain('Promoción Especial Miércoles');
@@ -369,8 +369,8 @@ test('receipt pdf renders credit balance applied and total to pay when sub-item 
         ->toContain('Saldo a favor actual:')
         ->toContain('$5.000,00');
 
-    // Totales: muestra Total del Pedido con monto neto afectado ($6.000,00) y Saldo a Favor Aplicado
-    expect($html)->toContain('TOTAL DEL PEDIDO:')
+    // Totales: muestra Total con monto neto afectado ($6.000,00) y Saldo a Favor Aplicado
+    expect($html)->toContain('TOTAL:')
         ->toContain('$6.000,00')
         ->toContain('Saldo a Favor Aplicado:')
         ->toContain('-$4.000,00')
@@ -413,8 +413,8 @@ test('receipt pdf renders affected total even when show_credit_applied_in_receip
         'logoBase64' => null,
     ])->render();
 
-    // TOTAL DEL PEDIDO debe ser el precio afectado ($6.000,00)
-    expect($html)->toContain('TOTAL DEL PEDIDO:')
+    // TOTAL debe ser el precio afectado ($6.000,00)
+    expect($html)->toContain('TOTAL:')
         ->toContain('$6.000,00')
         ->and($html)->not->toContain('Saldo a Favor Aplicado:')
         ->and($html)->not->toContain('TOTAL A PAGAR:');
