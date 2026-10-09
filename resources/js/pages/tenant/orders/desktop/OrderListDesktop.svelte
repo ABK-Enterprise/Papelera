@@ -8,6 +8,7 @@
     import Package from 'lucide-svelte/icons/package';
     import Pencil from 'lucide-svelte/icons/pencil';
     import Phone from 'lucide-svelte/icons/phone';
+    import ReceiptText from 'lucide-svelte/icons/receipt-text';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import User from 'lucide-svelte/icons/user';
 
@@ -27,6 +28,8 @@
         customer_phone?: string | null;
         customer_email?: string | null;
         status: string;
+        payment_status?: string | null;
+        debt_amount?: number | string;
         fiscal_status?: string | null;
         return_status?: string | null;
         price_review_pending?: boolean;
@@ -40,10 +43,12 @@
         orders = [],
         onSelectOrder,
         onEditPrices = undefined,
+        onCollectOrder = undefined,
     }: {
         orders: OrderSummary[];
         onSelectOrder: (order: OrderSummary) => void;
         onEditPrices?: (order: OrderSummary) => void;
+        onCollectOrder?: (order: OrderSummary) => void;
     } = $props();
 
     let page = $state(1);
@@ -60,6 +65,10 @@
 
     function canEditPrices(order: OrderSummary): boolean {
         return !(order.status === 'entregado' || order.status === 'cancelado' || order.fiscal_status === 'facturado');
+    }
+
+    function canCollect(order: OrderSummary): boolean {
+        return order.status !== 'cancelado' && order.payment_status !== 'cobrado';
     }
 
     function formatDate(dateStr: string): string {
@@ -201,6 +210,18 @@
                 </div>
 
                 <div class="flex flex-col gap-1.5 shrink-0 min-w-[130px]">
+                    {#if canCollect(order)}
+                        <button
+                            type="button"
+                            onclick={() => onCollectOrder?.(order)}
+                            class="w-full min-h-[32px] px-2.5 py-1 text-xs font-semibold rounded-lg border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
+                            title="Cobrar pedido"
+                        >
+                            <ReceiptText class="size-3.5 shrink-0" />
+                            <span>Cobrar</span>
+                        </button>
+                    {/if}
+
                     <button
                         type="button"
                         onclick={() => onSelectOrder(order)}

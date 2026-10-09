@@ -11,6 +11,7 @@ use App\Events\Tenant\CustomerOrderStatusUpdated;
 use App\Events\Tenant\LowStockAlertTriggered;
 use App\Events\Tenant\StockMovementRecorded;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\CollectCustomerOrderRequest;
 use App\Http\Requests\Tenant\StoreCustomerOrderRequest;
 use App\Http\Requests\Tenant\UpdateCustomerOrderStatusRequest;
 use App\Models\Customer;
@@ -1151,6 +1152,109 @@ class CustomerOrderController extends Controller
         );
 
         return $this->formatPaymentStatusResponse($customerOrder);
+    }
+
+    /**
+     * Registra un cobro directo para un pedido (Efectivo, Transferencia, QR, etc.)
+     * con opción de entrega simultánea en mostrador.
+     */
+    public function collect(
+        CollectCustomerOrderRequest $request,
+        CustomerOrder $customerOrder,
+        RegisterReceiptAction $registerReceiptAction
+    ): RedirectResponse|JsonResponse {
+        $tenantId = $request->user()->tenant_id;
+        $userId = $request->user()->id;
+
+        if ($customerOrder->tenant_id !== $tenantId) {
+            abort(404);
+        }
+
+        $receipt = DB::transaction(function () use ($request, $customerOrder, $tenantId, $userId, $registerReceiptAction) {
+            /** @var CustomerOrder $order */
+            $order = CustomerOrder::where('id', $customerOrder->id)
+                ->where('tenant_id', $tenantId)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($order->status === 'cancelado') {
+                throw ValidationException::withMessages([
+                    'order' => 'No se puede cobrar un pedido cancelado.',
+                ]);
+            }
+
+            if ($order->payment_status === 'cobrado') {
+                throw ValidationException::withMessages([
+                    'order' => 'El pedido ya se encuentra totalmente cobrado.',
+                ]);
+            }
+
+            $amount = (float) $request->validated('amount');
+            $paymentMethod = $request->validated('payment_method');
+            $orderDebt = (float) $order->debt_amount;
+            $hasAccount = $order->customer_id !== null;
+
+            // Clientes ocasionales sin cuenta corriente
+            if (! $hasAccount) {
+                if ($paymentMethod === 'efectivo') {
+                    // En efectivo para mostrador, si pagan con más se da vuelto en mano; se emite recibo por la deuda
+                    $amount = min($amount, $orderDebt);
+                } else {
+                    if ($amount > $orderDebt) {
+                        throw ValidationException::withMessages([
+                            'amount' => 'En cobros para clientes sin cuenta corriente, el importe no puede superar el saldo adeudado ($'.number_format($orderDebt, 2, ',', '.').').',
+                        ]);
+                    }
+                }
+            }
+
+            $allocationAmount = min($amount, $orderDebt);
+            $orderAllocations = [];
+            if ($allocationAmount > 0) {
+                $orderAllocations[] = [
+                    'order_id' => $order->id,
+                    'amount' => $allocationAmount,
+                ];
+            }
+
+            $notes = $request->validated('notes')
+                ?: ("Cobro de pedido N° {$order->order_number}".($request->boolean('mark_as_delivered') ? ' (Entregado en mostrador)' : ''));
+
+            $receipt = $registerReceiptAction->execute(
+                tenantId: $tenantId,
+                userId: $userId,
+                customerId: $order->customer_id,
+                amount: $amount,
+                paymentMethod: $paymentMethod,
+                referenceNumber: $request->validated('reference_number'),
+                notes: $notes,
+                orderAllocations: $orderAllocations,
+                allowSurplus: $hasAccount,
+            );
+
+            // Si se marcó como entregado y no está en estado terminal
+            if ($request->boolean('mark_as_delivered') && $order->status !== 'entregado') {
+                $oldStatus = $order->status;
+                $order->refresh();
+                $order->status = 'entregado';
+                $order->delivery_user_id = $userId;
+                $order->save();
+
+                broadcast(new CustomerOrderStatusUpdated($order, $oldStatus));
+            }
+
+            return $receipt;
+        });
+
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
+            return response()->json([
+                'message' => 'Cobro registrado correctamente.',
+                'order' => $customerOrder->refresh(),
+                'receipt' => $receipt,
+            ]);
+        }
+
+        return back()->with('success', "Cobro registrado correctamente para el pedido {$customerOrder->order_number}.");
     }
 
     /**

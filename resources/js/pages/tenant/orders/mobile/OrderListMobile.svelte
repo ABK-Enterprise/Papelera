@@ -7,6 +7,7 @@
     import Eye from 'lucide-svelte/icons/eye';
     import Package from 'lucide-svelte/icons/package';
     import Pencil from 'lucide-svelte/icons/pencil';
+    import ReceiptText from 'lucide-svelte/icons/receipt-text';
     import ShoppingBag from 'lucide-svelte/icons/shopping-bag';
     import User from 'lucide-svelte/icons/user';
 
@@ -32,6 +33,8 @@
         customer_phone: string | null;
         delivery_address: string | null;
         status: string;
+        payment_status?: string;
+        debt_amount?: string | number;
         fiscal_status?: string;
         return_status?: string;
         price_review_pending?: boolean;
@@ -45,10 +48,12 @@
         orders = [],
         onSelectOrder,
         onEditPrices = undefined,
+        onCollectOrder = undefined,
     }: {
         orders: OrderData[];
         onSelectOrder: (order: OrderData) => void;
         onEditPrices?: (order: OrderData) => void;
+        onCollectOrder?: (order: OrderData) => void;
     } = $props();
 
     let page = $state(1);
@@ -66,6 +71,10 @@
 
     function canEditPrices(order: OrderData): boolean {
         return !(order.status === 'entregado' || order.status === 'cancelado' || order.fiscal_status === 'facturado');
+    }
+
+    function canCollect(order: OrderData): boolean {
+        return order.status !== 'cancelado' && order.payment_status !== 'cobrado';
     }
 
     function formatDate(dateStr: string) {
@@ -188,6 +197,18 @@
                     {formatPrice(order.total_amount)}
                 </span>
                 <div class="flex items-center gap-2 shrink-0">
+                    {#if canCollect(order)}
+                        <button
+                            type="button"
+                            onclick={() => onCollectOrder?.(order)}
+                            class="size-11 min-h-[44px] min-w-[44px] rounded-xl border border-primary/40 bg-primary/10 shadow-2xs hover:bg-primary/20 text-primary transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                            aria-label="Cobrar pedido"
+                            title="Cobrar pedido"
+                        >
+                            <ReceiptText class="size-4.5" />
+                        </button>
+                    {/if}
+
                     <button
                         type="button"
                         onclick={() => onSelectOrder(order)}

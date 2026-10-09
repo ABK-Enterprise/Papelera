@@ -191,6 +191,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('pedidos/{customerOrder}/generar-qr-cobro', [CustomerOrderController::class, 'generateQr'])->name('orders.generate-qr')->middleware('tenant.permission:pedidos.ver');
             Route::get('pedidos/{customerOrder}/estado-pago', [CustomerOrderController::class, 'paymentStatus'])->name('orders.payment-status')->middleware('tenant.permission:pedidos.ver');
             Route::post('pedidos/{customerOrder}/reconciliar-pago', [CustomerOrderController::class, 'reconcilePayment'])->name('orders.reconcile-payment')->middleware('tenant.permission:pedidos.editar_estado');
+            Route::post('pedidos/{customerOrder}/cobrar', [CustomerOrderController::class, 'collect'])->name('orders.collect')->middleware('tenant.permission:pedidos.editar_estado');
             Route::post('pedidos/{customerOrder}/devolucion', [CustomerOrderReturnController::class, 'store'])->name('orders.return')->middleware('tenant.permission:pedidos.crear');
             Route::post('pedidos/{order}/facturar', [CustomerOrderFiscalController::class, 'emit'])->name('customer-orders.fiscal-invoice.emit')->middleware(['module:facturacion_arca', 'tenant.permission:facturas.emitir']);
             Route::post('pedidos/{order}/nota-credito', [CustomerOrderFiscalController::class, 'emitCreditNote'])->name('customer-orders.fiscal-credit-note.emit')->middleware(['module:facturacion_arca', 'tenant.permission:facturas.anular']);

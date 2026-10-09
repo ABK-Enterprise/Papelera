@@ -19,6 +19,7 @@
     import OrderListDesktop from './desktop/OrderListDesktop.svelte';
     import OrderListMobile from './mobile/OrderListMobile.svelte';
     import OrderProductsPriceEditModal from './components/OrderProductsPriceEditModal.svelte';
+    import CollectOrderModal from './components/CollectOrderModal.svelte';
 
     interface OrderItem {
         id: number;
@@ -104,10 +105,17 @@
     let selectedOrder = $state<OrderData | null>(null);
     let isPriceEditModalOpen = $state(false);
     let editingPriceOrder = $state<OrderData | null>(null);
+    let isCollectModalOpen = $state(false);
+    let collectingOrder = $state<OrderData | null>(null);
 
     function openOrderPriceEdit(order: OrderData) {
         editingPriceOrder = order;
         isPriceEditModalOpen = true;
+    }
+
+    function openCollectOrder(order: OrderData) {
+        collectingOrder = order;
+        isCollectModalOpen = true;
     }
 
     let tenantId = $derived(
@@ -365,14 +373,25 @@
 
     <!-- Lista Desktop -->
     <div class="hidden md:block">
-        <OrderListDesktop {orders} onSelectOrder={openOrderDetail} onEditPrices={openOrderPriceEdit} />
+        <OrderListDesktop {orders} onSelectOrder={openOrderDetail} onEditPrices={openOrderPriceEdit} onCollectOrder={openCollectOrder} />
     </div>
 
     <!-- Lista Mobile -->
     <div class="block md:hidden">
-        <OrderListMobile {orders} onSelectOrder={openOrderDetail} onEditPrices={openOrderPriceEdit} />
+        <OrderListMobile {orders} onSelectOrder={openOrderDetail} onEditPrices={openOrderPriceEdit} onCollectOrder={openCollectOrder} />
     </div>
 </div>
+
+<!-- Modal Unificado de Cobro de Pedido -->
+<CollectOrderModal
+    bind:open={isCollectModalOpen}
+    order={collectingOrder as any}
+    onSuccess={(updatedOrder) => {
+        if (selectedOrder && collectingOrder && selectedOrder.id === collectingOrder.id) {
+            selectedOrder = { ...selectedOrder, ...updatedOrder };
+        }
+    }}
+/>
 
 <!-- Modal de Edición de Precios de Productos del Pedido -->
 <OrderProductsPriceEditModal

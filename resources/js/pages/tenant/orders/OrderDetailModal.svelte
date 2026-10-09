@@ -2,7 +2,7 @@
     import { Button } from '@/components/ui/button';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import PdfPreviewModal from '@/components/common/PdfPreviewModal.svelte';
-    import MercadoPagoQrModal from '@/components/common/MercadoPagoQrModal.svelte';
+    import CollectOrderModal from './components/CollectOrderModal.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import CustomerOrderReturnModal from './CustomerOrderReturnModal.svelte';
     import EmitFiscalInvoiceModal from './EmitFiscalInvoiceModal.svelte';
@@ -111,7 +111,7 @@
     let isPdfModalOpen = $state(false);
     let isFiscalModalOpen = $state(false);
     let isFiscalPdfModalOpen = $state(false);
-    let isQrModalOpen = $state(false);
+    let isCollectModalOpen = $state(false);
     let isReceiptVisibilityModalOpen = $state(false);
     let isChooseAdjustmentModalOpen = $state(false);
     let isCustomAdjustmentModalOpen = $state(false);
@@ -417,9 +417,9 @@
         (hasPermission('facturas.consultar') || hasPermission('pedidos.ver'))
     );
     const hasFiscalAction = $derived(canEmitFiscal || hasFiscalPdf);
-    const hasQrPayment = $derived(
+    const canCollect = $derived(
         order?.status !== 'cancelado' &&
-        order?.status !== 'entregado' &&
+        order?.payment_status !== 'cobrado' &&
         Number(order?.debt_amount ?? order?.total_amount) > 0
     );
 </script>
@@ -981,17 +981,16 @@
                 {/if}
             {/snippet}
 
-            {#snippet btnQr(extraClass = '')}
-                {#if hasQrPayment}
+            {#snippet btnCobrar(extraClass = '')}
+                {#if canCollect}
                     <Button
                         type="button"
                         variant="default"
-                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs bg-sky-600 hover:bg-sky-700 text-white dark:bg-sky-600 dark:hover:bg-sky-700 shrink-0 cursor-pointer {extraClass}"
-                        onclick={() => (isQrModalOpen = true)}
+                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs bg-primary text-primary-foreground hover:bg-primary/90 shrink-0 cursor-pointer {extraClass}"
+                        onclick={() => (isCollectModalOpen = true)}
                     >
-                        <QrCode class="size-4 shrink-0" />
-                        <span class="hidden sm:inline">Cobro QR MP</span>
-                        <span class="inline sm:hidden">QR (MP)</span>
+                        <ReceiptText class="size-4 shrink-0" />
+                        <span>Cobrar</span>
                     </Button>
                 {/if}
             {/snippet}
@@ -1070,7 +1069,7 @@
 
                     <div class="flex items-center gap-2 shrink-0">
                         {@render btnCreditNote()}
-                        {@render btnQr()}
+                        {@render btnCobrar()}
                         {@render btnFiscal()}
                         {@render btnRemito()}
                         {@render btnCerrar()}
@@ -1131,18 +1130,18 @@
                             </div>
                         {/if}
                     {:else if order.status !== 'cancelado'}
-                        {#if hasQrPayment && hasFiscalAction}
-                            <!-- Grid 2x2: Fila 1 (Facturar ARCA + QR MP), Fila 2 (Remito + Cerrar) -->
+                        {#if canCollect && hasFiscalAction}
+                            <!-- Grid 2x2: Fila 1 (Facturar ARCA + Cobrar), Fila 2 (Remito + Cerrar) -->
                             <div class="grid grid-cols-[1.35fr_1fr] gap-2 w-full">
                                 {@render btnFiscal('w-full justify-center')}
-                                {@render btnQr('w-full justify-center')}
+                                {@render btnCobrar('w-full justify-center')}
                             </div>
                             <div class="grid grid-cols-2 gap-2 w-full">
                                 {@render btnRemito('w-full justify-center')}
                                 {@render btnCerrar('w-full justify-center')}
                             </div>
-                        {:else if hasQrPayment}
-                            {@render btnQr('w-full justify-center')}
+                        {:else if canCollect}
+                            {@render btnCobrar('w-full justify-center')}
                             <div class="grid grid-cols-2 gap-2 w-full">
                                 {@render btnRemito('w-full justify-center')}
                                 {@render btnCerrar('w-full justify-center')}
@@ -1219,9 +1218,9 @@
             downloadUrl={`/tenant/pedidos/${order.id}/factura-pdf?v=${orderVersion}`}
         />
 
-        <!-- Modal de Cobro QR Presencial Mercado Pago -->
-        <MercadoPagoQrModal
-            bind:open={isQrModalOpen}
+        <!-- Modal Unificado de Cobro de Pedido -->
+        <CollectOrderModal
+            bind:open={isCollectModalOpen}
             {order}
             onSuccess={(updatedOrder) => {
                 if (order && updatedOrder) {
