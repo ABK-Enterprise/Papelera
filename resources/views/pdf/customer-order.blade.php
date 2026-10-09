@@ -157,37 +157,6 @@
             padding-top: 4px !important;
             margin-top: 2px;
         }
-        .customer-row-account {
-            border-top: 1px solid #cbd5e1;
-            padding-top: 6px !important;
-            padding-bottom: 5px !important;
-            margin-top: 3px;
-        }
-        .account-inline-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .account-inline-status {
-            width: 44%;
-            font-size: 13.5px;
-            vertical-align: middle;
-            color: #1e293b;
-        }
-        .account-inline-divider {
-            width: 1px;
-            max-width: 1px;
-            min-width: 1px;
-            background-color: #cbd5e1;
-            padding: 0 !important;
-        }
-        .account-inline-amount {
-            width: 55%;
-            text-align: right;
-            font-size: 13.5px;
-            vertical-align: middle;
-            color: #1e293b;
-            padding-left: 8px !important;
-        }
         .account-amount-line {
             line-height: 1.4;
         }
@@ -354,6 +323,48 @@
             text-align: right;
         }
 
+        /* Sección Inferior: Estado en Cuenta Corriente */
+        .summary-section-account {
+            border-top: 1.5px solid #cbd5e1;
+            background: #ffffff;
+            padding: 7px 12px 9px 12px;
+        }
+        .summary-account-title {
+            text-align: center;
+            font-size: 12.5px;
+            font-weight: 800;
+            color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px dashed #cbd5e1;
+        }
+        .summary-account-title .account-info-icon {
+            display: inline-block;
+            font-weight: 900;
+            font-size: 13.5px;
+            margin-right: 3px;
+            color: #0284c7;
+        }
+        .summary-account-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .account-col-left {
+            width: 48%;
+            vertical-align: middle;
+            padding-right: 14px;
+            border-right: 1px solid #cbd5e1;
+            text-align: left;
+        }
+        .account-col-right {
+            width: 52%;
+            vertical-align: middle;
+            padding-left: 14px;
+            text-align: right;
+        }
+
 
 
         .watermark-footer {
@@ -447,60 +458,6 @@
                             <strong>Observaciones:</strong> {{ $order->notes ?: ($order->payment_status === 'cobrado' ? 'PAGADO' : 'Sin observaciones') }}
                         </td>
                     </tr>
-                    @if($order->show_account_in_receipt && $order->customer)
-                        @php
-                            $currentBalance = $order->customer_balance_after !== null
-                                ? (float) $order->customer_balance_after
-                                : (float) ($order->customer->current_balance ?? 0);
-                            $isFavor = $currentBalance < 0;
-                            $isDeudor = $currentBalance > 0;
-                            $absBalance = abs($currentBalance);
-
-                            $prevBalance = $order->customer_balance_before !== null
-                                ? (float) $order->customer_balance_before
-                                : (isset($previousBalance)
-                                    ? (float) $previousBalance
-                                    : (float) ($order->customer->current_balance ?? 0));
-                            $absPrevBalance = abs($prevBalance);
-                        @endphp
-                        <tr>
-                            <td colspan="3" class="customer-row-account">
-                                <table class="account-inline-table">
-                                    <tr>
-                                        <td class="account-inline-status">
-                                            <strong>Estado Cta. Cte.:</strong>
-                                            @if($isFavor)
-                                                <span class="badge-account-favor">"A FAVOR"</span>
-                                            @elseif($isDeudor)
-                                                <span class="badge-account-deudor">"A DEBER"</span>
-                                            @else
-                                                <span class="badge-account-neutral">"AL DIA"</span>
-                                            @endif
-                                        </td>
-                                        <td class="account-inline-divider"></td>
-                                        <td class="account-inline-amount">
-                                            <div class="account-amount-line">
-                                                <span style="color: #64748b;">Saldo de cta. cte. antes:</span>
-                                                <span class="tabular-nums font-semibold">${{ number_format($absPrevBalance, 2, ',', '.') }}</span>
-                                            </div>
-                                            <div class="account-amount-line">
-                                                @if($isFavor)
-                                                    <strong>Saldo a favor actual:</strong>
-                                                    <span class="tabular-nums font-bold text-green">${{ number_format($absBalance, 2, ',', '.') }}</span>
-                                                @elseif($isDeudor)
-                                                    <strong>Saldo deudor actual:</strong>
-                                                    <span class="tabular-nums font-bold text-danger">${{ number_format($absBalance, 2, ',', '.') }}</span>
-                                                @else
-                                                    <strong>Cuenta corriente al dia:</strong>
-                                                    <span class="tabular-nums font-bold">$0,00</span>
-                                                @endif
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                    @endif
                 </table>
             </div>
 
@@ -677,6 +634,64 @@
                         @endif
                     </table>
                 </div>
+
+                <!-- 3. Sección Inferior: Estado en Cuenta Corriente (si aplica) -->
+                @if($order->show_account_in_receipt && $order->customer)
+                    @php
+                        $currentBalance = $order->customer_balance_after !== null
+                            ? (float) $order->customer_balance_after
+                            : (float) ($order->customer->current_balance ?? 0);
+                        $isFavor = $currentBalance < 0;
+                        $isDeudor = $currentBalance > 0;
+                        $absBalance = abs($currentBalance);
+
+                        $prevBalance = $order->customer_balance_before !== null
+                            ? (float) $order->customer_balance_before
+                            : (isset($previousBalance)
+                                ? (float) $previousBalance
+                                : (float) ($order->customer->current_balance ?? 0));
+                        $absPrevBalance = abs($prevBalance);
+                    @endphp
+                    <div class="summary-section-account">
+                        <div class="summary-account-title">
+                            <span class="account-info-icon">&#9432;</span> ESTADO EN CUENTA CORRIENTE
+                        </div>
+                        <table class="summary-account-table">
+                            <tr>
+                                <td class="account-col-left">
+                                    <div style="font-size: 13.5px;">
+                                        <strong style="color: #0f172a;">Estado Cta. Cte.:</strong>
+                                        @if($isFavor)
+                                            <span class="badge-account-favor">"A FAVOR"</span>
+                                        @elseif($isDeudor)
+                                            <span class="badge-account-deudor">"A DEBER"</span>
+                                        @else
+                                            <span class="badge-account-neutral">"AL DIA"</span>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td class="account-col-right">
+                                    <div class="account-amount-line">
+                                        <span style="color: #64748b;">Saldo de cta. cte. antes:</span>
+                                        <span class="tabular-nums font-semibold">${{ number_format($absPrevBalance, 2, ',', '.') }}</span>
+                                    </div>
+                                    <div class="account-amount-line">
+                                        @if($isFavor)
+                                            <strong style="color: #0f172a;">Saldo a favor actual:</strong>
+                                            <span class="tabular-nums font-bold text-green">${{ number_format($absBalance, 2, ',', '.') }}</span>
+                                        @elseif($isDeudor)
+                                            <strong style="color: #0f172a;">Saldo deudor actual:</strong>
+                                            <span class="tabular-nums font-bold text-danger">${{ number_format($absBalance, 2, ',', '.') }}</span>
+                                        @else
+                                            <strong style="color: #0f172a;">Cuenta corriente al dia:</strong>
+                                            <span class="tabular-nums font-bold">$0,00</span>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                @endif
             </div>
             <div class="watermark-footer">
                 Generado por: {{ $order->tenant?->legal_name ?: ($order->tenant?->name ?? 'Papelera') }}
