@@ -19,6 +19,7 @@
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import Trash2 from 'lucide-svelte/icons/trash-2';
+    import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
 
     export interface ProductOption {
         id: number;
@@ -79,6 +80,7 @@
     let searchQuery = $state('');
     let isSubmitting = $state(false);
     let errorMessage = $state<string | null>(null);
+    let isConfirmAlertOpen = $state(false);
 
     // Búsqueda reactiva de productos
     let searchResults = $derived.by(() => {
@@ -189,75 +191,60 @@
         items = [];
         searchQuery = '';
         errorMessage = null;
+        isConfirmAlertOpen = false;
         onclose?.();
     }
 
-    async function handleSubmit() {
+    function promptConfirmSubmit() {
         if (!order) return;
         if (items.length === 0) {
             errorMessage = 'Debe seleccionar al menos un producto para agregar al pedido.';
             return;
         }
 
-        // Validación de precios positivos en ítems al vuelo
-        for (const it of items) {
-            if (it.unit_price <= 0) {
-                errorMessage = `El producto "${it.product_name}" debe tener un precio unitario mayor a cero.`;
-                return;
-            }
-        }
+        errorMessage = null;
+        isConfirmAlertOpen = true;
+    }
+
+    function executeSubmit() {
+        if (!order || items.length === 0) return;
 
         isSubmitting = true;
         errorMessage = null;
 
-        try {
-            const csrfToken =
-                (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '';
+        const payload = {
+            items: items.map((it) => ({
+                product_id: it.product_id,
+                product_name: it.is_on_the_fly ? it.product_name : undefined,
+                warehouse_id: order.warehouse_id || undefined,
+                packaging_type: it.packaging_type,
+                quantity: it.quantity,
+                unit_price: it.unit_price,
+                units_per_package: it.units_per_package,
+            })),
+        };
 
-            const payload = {
-                items: items.map((it) => ({
-                    product_id: it.product_id,
-                    product_name: it.is_on_the_fly ? it.product_name : undefined,
-                    warehouse_id: order.warehouse_id || undefined,
-                    packaging_type: it.packaging_type,
-                    quantity: it.quantity,
-                    unit_price: it.unit_price,
-                    units_per_package: it.units_per_package,
-                })),
-            };
-
-            const res = await fetch(`/tenant/pedidos/${order.id}/agregar-productos`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok || !data.success) {
-                const err = data.errors ? Object.values(data.errors).flat().join(' ') : data.message;
-                throw new Error(err || 'Error al agregar productos al pedido.');
-            }
-
-            toast.success(data.message || 'Productos agregados al pedido exitosamente.');
-
-            if (data.order) {
-                onSuccess?.(data.order);
-            }
-
-            router.reload({ only: ['orders', 'stats'] });
-            handleClose();
-        } catch (err: any) {
-            errorMessage = err.message || 'Ocurrió un error inesperado al procesar la solicitud.';
-            toast.error(errorMessage);
-        } finally {
-            isSubmitting = false;
-        }
+        router.post(`/tenant/pedidos/${order.id}/agregar-productos`, payload, {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.success('Productos agregados al pedido exitosamente.');
+                isConfirmAlertOpen = false;
+                open = false;
+                items = [];
+                searchQuery = '';
+                errorMessage = null;
+                onclose?.();
+            },
+            onError: (errors) => {
+                isConfirmAlertOpen = false;
+                const err = Object.values(errors).flat().join(' ');
+                errorMessage = err || 'Error al agregar productos al pedido.';
+                toast.error(errorMessage);
+            },
+            onFinish: () => {
+                isSubmitting = false;
+            },
+        });
     }
 </script>
 
@@ -274,8 +261,8 @@
                         Agregar productos al pedido
                     </DialogTitle>
                     {#if order}
-                        <p class="text-xs text-muted-foreground mt-0.5">
-                            Pedido #{order.order_number} • <strong class="text-foreground font-semibold">{order.customer_name}</strong>
+                        <p class="text-xs text-muted-foreground mt-0.5 tabular-nums">
+                            Pedido #{order.order_number}
                         </p>
                     {/if}
                 </div>
@@ -464,25 +451,18 @@
                                         </div>
                                     </div>
 
-                                    <!-- Precio Unitario y Subtotal -->
+                                    <!-- Precio Unitario y Subtotal (Solo lectura) -->
                                     <div class="space-y-1">
-                                        <label for="price-{index}" class="text-xs font-semibold text-muted-foreground block">
-                                            Precio unit. ($)
-                                        </label>
-                                        <div class="flex items-center gap-2">
-                                            <input
-                                                id="price-{index}"
-                                                type="number"
-                                                step="0.01"
-                                                min="0.01"
-                                                bind:value={item.unit_price}
-                                                class="w-full h-9 rounded-lg border border-border bg-background px-2.5 text-xs font-bold text-foreground tabular-nums focus:outline-none focus:ring-1 focus:ring-primary"
-                                            />
-                                            <div class="text-right shrink-0">
-                                                <span class="text-xs font-bold text-primary tabular-nums block whitespace-nowrap">
-                                                    {formatPrice(itemLineSubtotal)}
-                                                </span>
-                                            </div>
+                                        <span class="text-xs font-semibold text-muted-foreground block">
+                                            Precio unit. / Subtotal
+                                        </span>
+                                        <div class="flex items-center justify-between h-9 px-3 rounded-lg border border-border/70 bg-muted/30">
+                                            <span class="text-xs font-semibold text-foreground tabular-nums">
+                                                {formatPrice(item.unit_price)}
+                                            </span>
+                                            <span class="text-xs font-bold text-primary tabular-nums">
+                                                {formatPrice(itemLineSubtotal)}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -505,7 +485,7 @@
                     </div>
                     <div class="border-t border-border/60 my-1"></div>
                     <div class="flex items-center justify-between text-sm">
-                        <span class="font-bold text-foreground">Nuevo total proyectado:</span>
+                        <span class="font-bold text-foreground">Nuevo Total:</span>
                         <span class="font-bold tabular-nums text-primary text-base">{formatPrice(projectedNewTotal)}</span>
                     </div>
                 </div>
@@ -528,7 +508,7 @@
                 variant="default"
                 class="min-h-[44px] rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto gap-2"
                 disabled={items.length === 0 || isSubmitting}
-                onclick={handleSubmit}
+                onclick={promptConfirmSubmit}
             >
                 {#if isSubmitting}
                     <div class="size-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
@@ -541,3 +521,14 @@
         </DialogFooter>
     </DialogContent>
 </Dialog>
+
+<ConfirmActionModal
+    bind:open={isConfirmAlertOpen}
+    title="Confirmar adición de productos"
+    description="Si el pedido se irá a facturar, el monto de estos productos formará parte de la factura y de los impuestos. ¿Quieres continuar?"
+    confirmText="Aceptar"
+    cancelText="Cancelar"
+    variant="warning"
+    loading={isSubmitting}
+    onconfirm={executeSubmit}
+/>

@@ -128,8 +128,13 @@ class CustomerOrderItemsController extends Controller
 
                 $packagingType = $item['packaging_type'];
                 $quantity = (float) $item['quantity'];
-                $packageSize = ! empty($item['units_per_package']) ? (float) $item['units_per_package'] : (float) $product->package_size;
+                $packageSize = ! empty($item['units_per_package'])
+                    ? (float) $item['units_per_package']
+                    : (float) ($product->units_per_package ?: 1);
                 $targetWhId = $item['warehouse_id'] ?? $orderWarehouseId ?? $defaultWarehouseId;
+                if (! $targetWhId) {
+                    $targetWhId = Warehouse::where('tenant_id', $tenantId)->value('id');
+                }
 
                 if ($product->isWeighable()) {
                     if ($packagingType === 'gram') {
@@ -153,7 +158,10 @@ class CustomerOrderItemsController extends Controller
                     $basePrice = (float) $item['unit_price'];
                     $product->update(['price' => $basePrice]);
                 }
-                $unitPrice = ! empty($item['unit_price']) ? (float) $item['unit_price'] : ($isBulk ? (float) $product->bulk_discount_price : $basePrice);
+                $bulkPrice = isset($product->bulk_discount_price) && (float) $product->bulk_discount_price > 0
+                    ? (float) $product->bulk_discount_price
+                    : $basePrice;
+                $unitPrice = $isBulk ? $bulkPrice : $basePrice;
 
                 $itemDiscountPct = isset($item['discount_percentage'])
                     ? max(0.0, min(100.0, (float) $item['discount_percentage']))
