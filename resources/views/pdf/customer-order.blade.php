@@ -158,21 +158,28 @@
             margin-top: 2px;
         }
         .account-amount-line {
-            line-height: 1.4;
+            line-height: 1.45;
+            font-size: 15.5px;
+        }
+        .account-amount-line-current {
+            font-size: 16.5px;
         }
         .badge-account-favor {
             color: #15803d;
             font-weight: 800;
             letter-spacing: 0.3px;
+            font-size: 16px;
         }
         .badge-account-deudor {
             color: #b91c1c;
             font-weight: 800;
             letter-spacing: 0.3px;
+            font-size: 16px;
         }
         .badge-account-neutral {
             color: #475569;
             font-weight: 700;
+            font-size: 16px;
         }
 
         /* Tabla de Ítems */
@@ -327,24 +334,24 @@
         .summary-section-account {
             border-top: 1.5px solid #cbd5e1;
             background: #ffffff;
-            padding: 7px 12px 9px 12px;
+            padding: 8px 12px 10px 12px;
         }
         .summary-account-title {
             text-align: center;
-            font-size: 12.5px;
+            font-size: 14.5px;
             font-weight: 800;
             color: #334155;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 6px;
-            padding-bottom: 4px;
+            letter-spacing: 0.6px;
+            margin-bottom: 7px;
+            padding-bottom: 5px;
             border-bottom: 1px dashed #cbd5e1;
         }
         .summary-account-title .account-info-icon {
             display: inline-block;
             font-weight: 900;
-            font-size: 13.5px;
-            margin-right: 3px;
+            font-size: 16px;
+            margin-right: 4px;
             color: #0284c7;
         }
         .summary-account-table {
@@ -352,17 +359,19 @@
             border-collapse: collapse;
         }
         .account-col-left {
-            width: 48%;
+            width: 46%;
             vertical-align: middle;
             padding-right: 14px;
             border-right: 1px solid #cbd5e1;
             text-align: left;
+            font-size: 16px;
         }
         .account-col-right {
-            width: 52%;
+            width: 54%;
             vertical-align: middle;
             padding-left: 14px;
             text-align: right;
+            font-size: 16px;
         }
 
 
@@ -659,7 +668,7 @@
                         <table class="summary-account-table">
                             <tr>
                                 <td class="account-col-left">
-                                    <div style="font-size: 13.5px;">
+                                    <div>
                                         <strong style="color: #0f172a;">Estado Cta. Cte.:</strong>
                                         @if($isFavor)
                                             <span class="badge-account-favor">"A FAVOR"</span>
@@ -675,7 +684,7 @@
                                         <span style="color: #64748b;">Saldo de cta. cte. antes:</span>
                                         <span class="tabular-nums font-semibold">${{ number_format($absPrevBalance, 2, ',', '.') }}</span>
                                     </div>
-                                    <div class="account-amount-line">
+                                    <div class="account-amount-line account-amount-line-current">
                                         @if($isFavor)
                                             <strong style="color: #0f172a;">Saldo a favor actual:</strong>
                                             <span class="tabular-nums font-bold text-green">${{ number_format($absBalance, 2, ',', '.') }}</span>
