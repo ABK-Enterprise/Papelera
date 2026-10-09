@@ -300,12 +300,35 @@
                     id="add-order-products-combobox"
                     bind:value={searchQuery}
                     items={searchResults}
+                    filterLocally={false}
                     placeholder="Escriba el nombre del producto o código SKU..."
-                    itemText={(p) => p.name}
-                    itemSnippet={(p) => `${p.sku ? `SKU: ${p.sku} • ` : ''}Stock: ${p.stock} • ${formatPrice(p.price)}`}
+                    showDropdown={true}
+                    onsearch={(q) => (searchQuery = q)}
                     onselect={(p) => addProductToItems(p)}
+                    onclear={() => {
+                        searchQuery = '';
+                    }}
+                    inputClass="h-11 sm:h-10 min-h-[44px] sm:min-h-[40px] text-xs sm:text-sm font-medium w-full"
                 >
-                    {#snippet noResults()}
+                    {#snippet itemSnippet(prod)}
+                        <div class="flex items-start justify-between gap-2.5 w-full text-left py-0.5">
+                            <div class="min-w-0 flex-1">
+                                <p class="text-sm font-semibold text-foreground line-clamp-1 break-words">
+                                    {prod.name}
+                                </p>
+                                <div class="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
+                                    {#if prod.sku}
+                                        <span class="tabular-nums">SKU: {prod.sku}</span>
+                                    {/if}
+                                    <span class="tabular-nums">• Stock: {prod.stock}</span>
+                                </div>
+                            </div>
+                            <span class="text-xs font-bold text-foreground tabular-nums shrink-0">
+                                {formatPrice(prod.price)}
+                            </span>
+                        </div>
+                    {/snippet}
+                    {#snippet emptySnippet()}
                         <div class="p-3 text-center text-sm text-muted-foreground">
                             <p>No se encontraron productos coincidentes.</p>
                             {#if searchQuery.trim()}

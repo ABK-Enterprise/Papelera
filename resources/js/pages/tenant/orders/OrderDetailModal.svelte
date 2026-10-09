@@ -1037,8 +1037,8 @@
             <div class="flex flex-col gap-2.5 pt-3 border-t shrink-0">
                 <!-- Fila 1: Método de pago a la izquierda y Total a la derecha (simétricos) -->
                 <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-border/40 min-w-0">
-                    <div class="flex items-center gap-1.5 text-xs text-muted-foreground font-medium min-w-0">
-                        <Wallet class="size-4 shrink-0 text-muted-foreground" />
+                    <div class="flex items-center gap-2 text-sm text-muted-foreground font-medium min-w-0">
+                        <Wallet class="size-4.5 shrink-0 text-muted-foreground" />
                         <span class="hidden sm:inline truncate" title={order.derived_payment_condition || order.payment_condition || 'Contado'}>
                             {order.derived_payment_condition || order.payment_condition || 'Contado'}
                         </span>
@@ -1047,20 +1047,20 @@
                         </span>
                     </div>
 
-                    <div class="flex items-center gap-1.5 shrink-0">
-                        <span class="text-xs text-muted-foreground font-medium">Total:</span>
-                        <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary" title={formatPrice(order.collectible_amount ?? order.total_amount)}>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span class="text-sm text-muted-foreground font-medium">Total:</span>
+                        <span class="text-lg sm:text-xl font-bold font-sans tabular-nums text-primary" title={formatPrice(order.collectible_amount ?? order.total_amount)}>
                             {formatPrice(order.collectible_amount ?? order.total_amount)}
                         </span>
                         {#if order.has_previous_balance_impact}
                             <button
                                 type="button"
                                 onclick={() => (isBalanceImpactModalOpen = true)}
-                                class="size-6 rounded-md border border-border/80 bg-muted/60 hover:bg-muted hover:border-primary/40 text-foreground hover:text-primary shadow-2xs transition-colors flex items-center justify-center cursor-pointer inline-flex align-middle ml-0.5"
+                                class="size-7 sm:size-8 min-h-[28px] min-w-[28px] sm:min-h-[32px] sm:min-w-[32px] rounded-lg border border-border/90 bg-muted/80 hover:bg-muted hover:border-primary/50 text-foreground hover:text-primary shadow-2xs transition-colors flex items-center justify-center cursor-pointer inline-flex align-middle ml-1"
                                 title="Ver desglose de monto facturable vs monto capaz de cobrar"
                                 aria-label="Ver desglose financiero"
                             >
-                                <Eye class="size-3.5" />
+                                <Eye class="size-4 sm:size-4.5" />
                             </button>
                         {/if}
                     </div>
