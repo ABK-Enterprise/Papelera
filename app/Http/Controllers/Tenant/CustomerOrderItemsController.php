@@ -161,43 +161,100 @@ class CustomerOrderItemsController extends Controller
                 $bulkPrice = isset($product->bulk_discount_price) && (float) $product->bulk_discount_price > 0
                     ? (float) $product->bulk_discount_price
                     : $basePrice;
-                $unitPrice = $isBulk ? $bulkPrice : $basePrice;
+
+                // Si se proporcionó un precio unitario explícito (ej. modificado vía diálogo de lápiz), se respeta
+                if (! empty($item['unit_price']) && (float) $item['unit_price'] > 0) {
+                    $unitPrice = (float) $item['unit_price'];
+                } else {
+                    $unitPrice = $isBulk ? $bulkPrice : $basePrice;
+                }
 
                 $itemDiscountPct = isset($item['discount_percentage'])
                     ? max(0.0, min(100.0, (float) $item['discount_percentage']))
                     : 0.00;
 
-                $baseSubtotal = round($quantityBase * $unitPrice, 2);
-                $itemLineDiscountAmount = round($baseSubtotal * ($itemDiscountPct / 100), 2);
-                $netLineSubtotal = round($baseSubtotal - $itemLineDiscountAmount, 2);
-
                 $applyItemDiscount = isset($item['apply_customer_discount'])
                     ? (bool) $item['apply_customer_discount']
                     : (! $isBulk && $customerDiscountPct > 0);
 
-                $itemCustomerDiscountAmount = 0.00;
-                if ($applyItemDiscount && $customerDiscountPct > 0) {
-                    $itemCustomerDiscountAmount = round($netLineSubtotal * ($customerDiscountPct / 100), 2);
+                // 1. Actualizar retroactivamente el precio de otras presentaciones existentes de este producto si difiere
+                $otherExistingItems = CustomerOrderItem::where('customer_order_id', $lockedOrder->id)
+                    ->where('product_id', $productId)
+                    ->where('packaging_type', '!=', $packagingType)
+                    ->get();
+
+                foreach ($otherExistingItems as $otherItem) {
+                    if (abs((float) $otherItem->unit_price - $unitPrice) > 0.001) {
+                        $otherItem->unit_price = $unitPrice;
+                        $otherBaseSubtotal = round((float) $otherItem->quantity_base * $unitPrice, 2);
+                        $otherItemDiscountAmount = round($otherBaseSubtotal * ((float) ($otherItem->discount_percentage ?? 0) / 100), 2);
+                        $otherNetSubtotal = round($otherBaseSubtotal - $otherItemDiscountAmount, 2);
+                        $otherCustDiscount = 0.00;
+                        if ($otherItem->apply_customer_discount && $customerDiscountPct > 0) {
+                            $otherCustDiscount = round($otherNetSubtotal * ($customerDiscountPct / 100), 2);
+                        }
+                        $otherItem->discount_amount = round($otherItemDiscountAmount + $otherCustDiscount, 2);
+                        $otherItem->subtotal = round($otherNetSubtotal - $otherCustDiscount, 2);
+                        $otherItem->save();
+                    }
                 }
 
-                $finalItemSubtotal = round($netLineSubtotal - $itemCustomerDiscountAmount, 2);
-                $totalItemDiscount = round($itemLineDiscountAmount + $itemCustomerDiscountAmount, 2);
+                // 2. Verificar si el producto ya existe en el pedido con la misma presentación para sumar cantidades
+                $existingItem = CustomerOrderItem::where('customer_order_id', $lockedOrder->id)
+                    ->where('product_id', $productId)
+                    ->where('packaging_type', $packagingType)
+                    ->first();
 
-                // Crear ítem del pedido
-                CustomerOrderItem::create([
-                    'customer_order_id' => $lockedOrder->id,
-                    'product_id' => $productId,
-                    'warehouse_id' => $targetWhId,
-                    'packaging_type' => $packagingType,
-                    'units_per_package' => $packageSize,
-                    'quantity' => $quantity,
-                    'quantity_base' => $quantityBase,
-                    'unit_price' => $unitPrice,
-                    'apply_customer_discount' => $applyItemDiscount,
-                    'discount_percentage' => $itemDiscountPct,
-                    'discount_amount' => $totalItemDiscount,
-                    'subtotal' => $finalItemSubtotal,
-                ]);
+                if ($existingItem) {
+                    // Sumar cantidades existentes + nuevas
+                    $existingItem->quantity = round((float) $existingItem->quantity + $quantity, 3);
+                    $existingItem->quantity_base = round((float) $existingItem->quantity_base + $quantityBase, 3);
+                    $existingItem->unit_price = $unitPrice;
+                    $existingItem->apply_customer_discount = $applyItemDiscount;
+                    $existingItem->discount_percentage = $itemDiscountPct;
+
+                    $accumulatedBase = (float) $existingItem->quantity_base;
+                    $baseSubtotal = round($accumulatedBase * $unitPrice, 2);
+                    $itemLineDiscountAmount = round($baseSubtotal * ($itemDiscountPct / 100), 2);
+                    $netLineSubtotal = round($baseSubtotal - $itemLineDiscountAmount, 2);
+
+                    $itemCustomerDiscountAmount = 0.00;
+                    if ($applyItemDiscount && $customerDiscountPct > 0) {
+                        $itemCustomerDiscountAmount = round($netLineSubtotal * ($customerDiscountPct / 100), 2);
+                    }
+
+                    $existingItem->discount_amount = round($itemLineDiscountAmount + $itemCustomerDiscountAmount, 2);
+                    $existingItem->subtotal = round($netLineSubtotal - $itemCustomerDiscountAmount, 2);
+                    $existingItem->save();
+                } else {
+                    // Crear nuevo ítem del pedido
+                    $baseSubtotal = round($quantityBase * $unitPrice, 2);
+                    $itemLineDiscountAmount = round($baseSubtotal * ($itemDiscountPct / 100), 2);
+                    $netLineSubtotal = round($baseSubtotal - $itemLineDiscountAmount, 2);
+
+                    $itemCustomerDiscountAmount = 0.00;
+                    if ($applyItemDiscount && $customerDiscountPct > 0) {
+                        $itemCustomerDiscountAmount = round($netLineSubtotal * ($customerDiscountPct / 100), 2);
+                    }
+
+                    $finalItemSubtotal = round($netLineSubtotal - $itemCustomerDiscountAmount, 2);
+                    $totalItemDiscount = round($itemLineDiscountAmount + $itemCustomerDiscountAmount, 2);
+
+                    CustomerOrderItem::create([
+                        'customer_order_id' => $lockedOrder->id,
+                        'product_id' => $productId,
+                        'warehouse_id' => $targetWhId,
+                        'packaging_type' => $packagingType,
+                        'units_per_package' => $packageSize,
+                        'quantity' => $quantity,
+                        'quantity_base' => $quantityBase,
+                        'unit_price' => $unitPrice,
+                        'apply_customer_discount' => $applyItemDiscount,
+                        'discount_percentage' => $itemDiscountPct,
+                        'discount_amount' => $totalItemDiscount,
+                        'subtotal' => $finalItemSubtotal,
+                    ]);
+                }
 
                 // Actualizar inventario en almacén y maestro
                 if ($targetWhId) {

@@ -15,11 +15,14 @@
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Check from 'lucide-svelte/icons/check';
     import Minus from 'lucide-svelte/icons/minus';
+    import Package from 'lucide-svelte/icons/package';
     import PackagePlus from 'lucide-svelte/icons/package-plus';
+    import Pencil from 'lucide-svelte/icons/pencil';
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
+    import EditItemPriceModal from '@/components/tenant/products/EditItemPriceModal.svelte';
 
     export interface ProductOption {
         id: number;
@@ -58,6 +61,9 @@
         unit_price: number;
         regular_price: number;
         units_per_package: number;
+        is_already_in_order?: boolean;
+        existing_order_quantity?: number;
+        is_price_modified?: boolean;
     }
 
     interface Props {
@@ -81,6 +87,9 @@
     let isSubmitting = $state(false);
     let errorMessage = $state<string | null>(null);
     let isConfirmAlertOpen = $state(false);
+    let editingPriceItemIndex = $state<number | null>(null);
+    let isEditItemPriceModalOpen = $state(false);
+    let collidingModifiedProducts = $state<Array<{ name: string; oldPrice: number; newPrice: number }>>([]);
 
     // Búsqueda reactiva de productos
     let searchResults = $derived.by(() => {
@@ -123,6 +132,9 @@
             (it) => it.product_id === prod.id && it.packaging_type === defaultPackaging
         );
 
+        const existingInOrder = order?.items?.find((oi: any) => oi.product_id === prod.id);
+        const existingOrderQty = existingInOrder ? Number(existingInOrder.quantity) || 0 : 0;
+
         if (existingIndex !== -1) {
             items[existingIndex].quantity += 1;
         } else {
@@ -140,6 +152,9 @@
                     unit_price: regularPrice,
                     regular_price: regularPrice,
                     units_per_package: prod.units_per_package || prod.package_size || 1,
+                    is_already_in_order: !!existingInOrder,
+                    existing_order_quantity: existingOrderQty,
+                    is_price_modified: false,
                 },
                 ...items,
             ];
@@ -166,6 +181,9 @@
                 unit_price: 0,
                 regular_price: 0,
                 units_per_package: 1,
+                is_already_in_order: false,
+                existing_order_quantity: 0,
+                is_price_modified: false,
             },
             ...items,
         ];
@@ -185,6 +203,27 @@
         item.quantity = newQty;
     }
 
+    function openEditItemPriceDialog(index: number) {
+        editingPriceItemIndex = index;
+        isEditItemPriceModalOpen = true;
+    }
+
+    function handleOrderItemPriceUpdated(newPrice: number, mode: 'order_only' | 'catalog') {
+        if (editingPriceItemIndex === null || !items[editingPriceItemIndex]) return;
+        const it = items[editingPriceItemIndex];
+        it.unit_price = newPrice;
+        it.regular_price = newPrice;
+        it.is_price_modified = true;
+        if (mode === 'catalog' && it.product_id) {
+            const p = availableProducts.find((prod) => prod.id === it.product_id);
+            if (p) {
+                p.price = newPrice;
+            }
+        }
+        editingPriceItemIndex = null;
+        isEditItemPriceModalOpen = false;
+    }
+
     function handleClose() {
         if (isSubmitting) return;
         open = false;
@@ -192,6 +231,9 @@
         searchQuery = '';
         errorMessage = null;
         isConfirmAlertOpen = false;
+        editingPriceItemIndex = null;
+        isEditItemPriceModalOpen = false;
+        collidingModifiedProducts = [];
         onclose?.();
     }
 
@@ -203,6 +245,30 @@
         }
 
         errorMessage = null;
+
+        // Detectar productos coincidentes en el pedido cuyo precio haya sido modificado
+        const collisions: Array<{ name: string; oldPrice: number; newPrice: number }> = [];
+
+        for (const it of items) {
+            if (!it.product_id || !order.items) continue;
+            const existingOrderItem = order.items.find((oi: any) => oi.product_id === it.product_id);
+            if (!existingOrderItem) continue;
+
+            const oldPrice = Number(existingOrderItem.unit_price) || 0;
+            const newPrice = Number(it.unit_price) || 0;
+
+            if (Math.abs(newPrice - oldPrice) > 0.001) {
+                if (!collisions.some((c) => c.name === it.product_name)) {
+                    collisions.push({
+                        name: it.product_name,
+                        oldPrice,
+                        newPrice,
+                    });
+                }
+            }
+        }
+
+        collidingModifiedProducts = collisions;
         isConfirmAlertOpen = true;
     }
 
@@ -233,6 +299,9 @@
                 items = [];
                 searchQuery = '';
                 errorMessage = null;
+                editingPriceItemIndex = null;
+                isEditItemPriceModalOpen = false;
+                collidingModifiedProducts = [];
                 onclose?.();
             },
             onError: (errors) => {
@@ -341,11 +410,6 @@
                     <h3 class="text-sm font-bold text-foreground">
                         Productos a incorporar ({items.length})
                     </h3>
-                    {#if items.length > 0}
-                        <span class="text-xs text-muted-foreground">
-                            Subtotal nuevos: <strong class="text-primary font-bold tabular-nums">{formatPrice(newItemsSubtotal)}</strong>
-                        </span>
-                    {/if}
                 </div>
 
                 {#if items.length === 0}
@@ -358,57 +422,100 @@
                     <div class="space-y-2.5">
                         {#each items as item, index (item.id)}
                             {@const itemLineSubtotal = (Number(item.quantity) || 0) * (Number(item.unit_price) || 0)}
-                            <div class="p-3.5 rounded-xl border border-border/80 bg-card shadow-2xs space-y-2.5">
-                                <!-- Fila 1: Título, SKU y Botón Quitar -->
-                                <div class="flex items-start justify-between gap-2">
-                                    <div class="min-w-0 flex-1">
-                                        <div class="flex items-center gap-2 flex-wrap">
-                                            <h4 class="text-sm font-bold text-foreground line-clamp-1 break-words">
-                                                {item.product_name}
-                                            </h4>
-                                            {#if item.is_on_the_fly}
-                                                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/80">
-                                                    Al vuelo
+                            <div class="order-item-card flex flex-col gap-2.5 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
+                                <!-- Nivel 1: Información (Icono, Nombre, SKU, Badges, Botón Quitar, Precio Base con Lápiz y Stock) -->
+                                <div class="flex flex-col gap-2">
+                                    <div class="flex items-start justify-between gap-2.5 min-w-0">
+                                        <div class="flex items-start gap-2.5 min-w-0 flex-1">
+                                            <div class="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
+                                                <Package class="size-4" />
+                                            </div>
+                                            <div class="flex flex-wrap items-center gap-2 min-w-0 flex-1">
+                                                <h4 class="text-base font-bold text-foreground line-clamp-2 break-words">
+                                                    {item.product_name}
+                                                </h4>
+                                                {#if item.is_already_in_order}
+                                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 shrink-0">
+                                                        Ya en pedido ({item.existing_order_quantity} {item.sale_type === 'weight' ? 'Kg' : 'u'})
+                                                    </span>
+                                                {/if}
+                                                {#if item.is_on_the_fly}
+                                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/80">
+                                                        Al Vuelo
+                                                    </span>
+                                                {/if}
+                                                {#if item.sku}
+                                                    <span class="text-sm font-sans tabular-nums bg-muted px-2 py-0.5 rounded text-muted-foreground shrink-0">
+                                                        {item.sku}
+                                                    </span>
+                                                {/if}
+                                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 {item.sale_type === 'weight' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground border border-border/70'}">
+                                                    {item.sale_type === 'weight' ? 'Pesaje' : 'Unidad'}
                                                 </span>
-                                            {/if}
-                                            {#if item.sku}
-                                                <span class="text-xs font-medium px-1.5 py-0.5 rounded bg-muted text-muted-foreground tabular-nums">
-                                                    {item.sku}
-                                                </span>
-                                            {/if}
+                                            </div>
                                         </div>
-                                        <div class="text-xs text-muted-foreground mt-0.5">
-                                            Stock disponible: <span class="font-semibold tabular-nums text-foreground">{item.stock}</span> {item.sale_type === 'weight' ? 'Kg' : 'u'}
-                                        </div>
+
+                                        <button
+                                            type="button"
+                                            class="size-8 rounded-lg flex items-center justify-center bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-colors cursor-pointer shrink-0"
+                                            onclick={() => removeItem(index)}
+                                            title="Quitar producto"
+                                            aria-label="Quitar producto"
+                                        >
+                                            <Trash2 class="size-3.5" />
+                                        </button>
                                     </div>
 
-                                    <button
-                                        type="button"
-                                        class="size-8 rounded-lg flex items-center justify-center text-destructive hover:bg-destructive/10 transition-colors cursor-pointer shrink-0"
-                                        onclick={() => removeItem(index)}
-                                        title="Quitar producto"
-                                        aria-label="Quitar producto"
-                                    >
-                                        <Trash2 class="size-4" />
-                                    </button>
+                                    <!-- Metadatos de precio base y stock -->
+                                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm min-w-0">
+                                        <div class="flex items-center gap-1.5 shrink-0">
+                                            <span class="text-sm font-semibold text-foreground whitespace-nowrap font-sans tabular-nums">
+                                                {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
+                                            </span>
+                                            {#if !item.is_on_the_fly}
+                                                <button
+                                                    type="button"
+                                                    onclick={() => openEditItemPriceDialog(index)}
+                                                    class="inline-flex items-center justify-center size-6 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                                                    title="Modificar precio del producto"
+                                                    aria-label="Modificar precio del producto"
+                                                >
+                                                    <Pencil class="size-3" />
+                                                </button>
+                                            {/if}
+                                        </div>
+
+                                        <div class="flex items-center gap-1.5 text-sm text-muted-foreground shrink-0">
+                                            <span>Stock: <strong class="font-sans tabular-nums text-foreground">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <!-- Fila 2: Controles (Empaque, Cantidad, Precio y Subtotal) -->
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-end pt-1 border-t border-border/50">
-                                    <!-- Selector de Empaque -->
-                                    <div class="space-y-1">
-                                        <label for="packaging-{index}" class="text-xs font-semibold text-muted-foreground block">
-                                            Presentación
-                                        </label>
+                                <!-- Separador Horizontal (2px) -->
+                                <div class="border-t border-border/50 my-[2px]"></div>
+
+                                <!-- Nivel 2: Resultado (Subtotal alineado a la derecha) -->
+                                <div class="flex justify-end items-baseline gap-2 py-0.5">
+                                    <span class="font-sans tabular-nums text-base sm:text-lg font-bold text-foreground">
+                                        {formatPrice(itemLineSubtotal)}
+                                    </span>
+                                </div>
+
+                                <!-- Separador Horizontal (2px) -->
+                                <div class="border-t border-border/50 my-[2px]"></div>
+
+                                <!-- Nivel 3: Acciones [presentación y stepper de cantidad] -->
+                                <div class="flex flex-wrap items-center justify-between gap-2 w-full pt-0.5">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-semibold text-muted-foreground shrink-0">Presentación:</span>
                                         <select
-                                            id="packaging-{index}"
                                             bind:value={item.packaging_type}
-                                            class="w-full h-9 rounded-lg border border-border bg-background px-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                                            class="h-9 rounded-xl border border-border/80 bg-background px-2.5 text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                                         >
                                             {#if item.sale_type === 'weight'}
-                                                <option value="kg">Kilogramo (Kg)</option>
+                                                <option value="kg">Kg</option>
                                                 <option value="gram">Gramos</option>
-                                                <option value="bulto">Bulto cerrado</option>
+                                                <option value="bulto">Bulto</option>
                                             {:else}
                                                 <option value="unidad">Unidad</option>
                                                 <option value="bulto">Bulto ({item.units_per_package} u)</option>
@@ -418,51 +525,32 @@
                                         </select>
                                     </div>
 
-                                    <!-- Stepper de Cantidad -->
-                                    <div class="space-y-1">
-                                        <label for="qty-{index}" class="text-xs font-semibold text-muted-foreground block">
-                                            Cantidad
-                                        </label>
-                                        <div class="flex items-center h-9 rounded-lg border border-border bg-background overflow-hidden">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-semibold text-muted-foreground shrink-0">Cantidad:</span>
+                                        <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden">
                                             <button
                                                 type="button"
+                                                class="w-8 sm:w-9 h-full flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
                                                 onclick={() => updateQuantity(index, -1)}
-                                                class="px-2.5 h-full flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                                                 aria-label="Disminuir cantidad"
                                             >
                                                 <Minus class="size-3.5" />
                                             </button>
                                             <input
-                                                id="qty-{index}"
                                                 type="number"
                                                 step={item.sale_type === 'weight' ? '0.1' : '1'}
                                                 min="0.01"
                                                 bind:value={item.quantity}
-                                                class="w-full text-center text-xs font-bold text-foreground bg-transparent focus:outline-none tabular-nums"
+                                                class="w-12 sm:w-14 text-center text-sm font-bold text-foreground bg-transparent focus:outline-none tabular-nums"
                                             />
                                             <button
                                                 type="button"
+                                                class="w-8 sm:w-9 h-full flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
                                                 onclick={() => updateQuantity(index, 1)}
-                                                class="px-2.5 h-full flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                                                 aria-label="Aumentar cantidad"
                                             >
                                                 <Plus class="size-3.5" />
                                             </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Precio Unitario y Subtotal (Solo lectura) -->
-                                    <div class="space-y-1">
-                                        <span class="text-xs font-semibold text-muted-foreground block">
-                                            Precio unit. / Subtotal
-                                        </span>
-                                        <div class="flex items-center justify-between h-9 px-3 rounded-lg border border-border/70 bg-muted/30">
-                                            <span class="text-xs font-semibold text-foreground tabular-nums">
-                                                {formatPrice(item.unit_price)}
-                                            </span>
-                                            <span class="text-xs font-bold text-primary tabular-nums">
-                                                {formatPrice(itemLineSubtotal)}
-                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -515,7 +603,7 @@
                     <span>Guardando...</span>
                 {:else}
                     <Check class="size-4" />
-                    <span>Guardar y agregar productos</span>
+                    <span>Agregar productos</span>
                 {/if}
             </Button>
         </DialogFooter>
@@ -524,11 +612,41 @@
 
 <ConfirmActionModal
     bind:open={isConfirmAlertOpen}
-    title="Confirmar adición de productos"
-    description="Si el pedido se irá a facturar, el monto de estos productos formará parte de la factura y de los impuestos. ¿Quieres continuar?"
+    title={collidingModifiedProducts.length > 0 ? 'Actualización de precios en productos del pedido' : 'Confirmar adición de productos'}
+    description={collidingModifiedProducts.length > 0
+        ? 'Hay productos en el pedido que coinciden con los que querés agregar, y las modificaciones de precios se aplicarán en ellos también. Los productos coincidentes son:'
+        : 'Si el pedido se irá a facturar, el monto de estos productos formará parte de la factura y de los impuestos. ¿Quieres continuar?'}
     confirmText="Aceptar"
     cancelText="Cancelar"
     variant="warning"
     loading={isSubmitting}
     onconfirm={executeSubmit}
+>
+    {#if collidingModifiedProducts.length > 0}
+        <ul class="my-2.5 space-y-1.5 pl-4 list-disc text-xs sm:text-sm text-foreground font-medium">
+            {#each collidingModifiedProducts as p}
+                <li>
+                    <span class="font-bold">{p.name}</span>
+                    <span class="text-muted-foreground tabular-nums">
+                        ({formatPrice(p.oldPrice)} &rarr; {formatPrice(p.newPrice)})
+                    </span>
+                </li>
+            {/each}
+        </ul>
+        <p class="text-xs sm:text-sm text-muted-foreground pt-1.5 border-t border-border/60">
+            Si el pedido se irá a facturar, el monto de estos productos formará parte de la factura y de los impuestos. ¿Quieres continuar?
+        </p>
+    {/if}
+</ConfirmActionModal>
+
+<EditItemPriceModal
+    bind:open={isEditItemPriceModalOpen}
+    product={editingPriceItemIndex !== null && items[editingPriceItemIndex] ? {
+        id: items[editingPriceItemIndex].product_id,
+        name: items[editingPriceItemIndex].product_name,
+        price: items[editingPriceItemIndex].unit_price,
+        sku: items[editingPriceItemIndex].sku,
+    } : null}
+    isOrderContext={true}
+    onPriceUpdated={handleOrderItemPriceUpdated}
 />

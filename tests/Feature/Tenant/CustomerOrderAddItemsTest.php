@@ -325,3 +325,100 @@ test('order with percentage price adjustment scales applied_amount when new prod
         ->and((float) $order->total_amount)->toBe(18000.00)
         ->and((float) $order->price_adjustments[0]['applied_amount'])->toBe(2000.00);
 });
+
+test('merges quantities when adding an existing product with same packaging', function () {
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->warehouse->id,
+        'order_number' => 'PED-MERGE-001',
+        'customer_name' => 'Mariano Caminos',
+        'status' => 'en_preparacion',
+        'subtotal_amount' => 15000.00,
+        'total_amount' => 15000.00,
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $this->productA->id,
+        'warehouse_id' => $this->warehouse->id,
+        'packaging_type' => 'unidad',
+        'quantity' => 3,
+        'quantity_base' => 3,
+        'unit_price' => 5000.00,
+        'subtotal' => 15000.00,
+    ]);
+
+    $response = $this->actingAs($this->user)
+        ->postJson(route('tenant.orders.items.add', $order), [
+            'items' => [
+                [
+                    'product_id' => $this->productA->id,
+                    'quantity' => 5,
+                    'unit_price' => 5000.00,
+                    'packaging_type' => 'unidad',
+                ],
+            ],
+        ]);
+
+    $response->assertOk();
+
+    $order->refresh();
+    $items = $order->items;
+
+    // Solo debe haber 1 ítem en el pedido con la suma de cantidades (3 + 5 = 8)
+    expect($items)->toHaveCount(1)
+        ->and((float) $items[0]->quantity)->toBe(8.0)
+        ->and((float) $items[0]->unit_price)->toBe(5000.00)
+        ->and((float) $items[0]->subtotal)->toBe(40000.00)
+        ->and((float) $order->total_amount)->toBe(40000.00);
+});
+
+test('updates unit price retroactively when price of existing product is modified', function () {
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->warehouse->id,
+        'order_number' => 'PED-PRICE-001',
+        'customer_name' => 'Mariano Caminos',
+        'status' => 'en_preparacion',
+        'subtotal_amount' => 15000.00,
+        'total_amount' => 15000.00,
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $this->productA->id,
+        'warehouse_id' => $this->warehouse->id,
+        'packaging_type' => 'unidad',
+        'quantity' => 3,
+        'quantity_base' => 3,
+        'unit_price' => 5000.00,
+        'subtotal' => 15000.00,
+    ]);
+
+    // Agregamos 5 unidades pero a precio modificado de 6000
+    $response = $this->actingAs($this->user)
+        ->postJson(route('tenant.orders.items.add', $order), [
+            'items' => [
+                [
+                    'product_id' => $this->productA->id,
+                    'quantity' => 5,
+                    'unit_price' => 6000.00,
+                    'packaging_type' => 'unidad',
+                ],
+            ],
+        ]);
+
+    $response->assertOk();
+
+    $order->refresh();
+    $items = $order->items;
+
+    // Las 8 unidades deben quedar a precio 6000 retroactivamente (8 * 6000 = 48000)
+    expect($items)->toHaveCount(1)
+        ->and((float) $items[0]->quantity)->toBe(8.0)
+        ->and((float) $items[0]->unit_price)->toBe(6000.00)
+        ->and((float) $items[0]->subtotal)->toBe(48000.00)
+        ->and((float) $order->total_amount)->toBe(48000.00);
+});
