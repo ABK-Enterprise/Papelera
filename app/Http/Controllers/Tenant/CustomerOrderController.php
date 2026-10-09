@@ -956,6 +956,7 @@ class CustomerOrderController extends Controller
         return Pdf::view('pdf.customer-order', [
             'order' => $customerOrder,
             'logoBase64' => $logoBase64,
+            'previousBalance' => $this->resolvePreviousCustomerBalance($customerOrder),
         ])
             ->format('a4')
             ->meta(
@@ -994,6 +995,7 @@ class CustomerOrderController extends Controller
         return Pdf::view('pdf.customer-order', [
             'order' => $customerOrder,
             'logoBase64' => $logoBase64,
+            'previousBalance' => $this->resolvePreviousCustomerBalance($customerOrder),
         ])
             ->format('a4')
             ->meta(
@@ -1364,6 +1366,35 @@ class CustomerOrderController extends Controller
         } finally {
             $lock->release();
         }
+    }
+
+    /**
+     * Resuelve el saldo histórico de la cuenta corriente del cliente previo a este pedido.
+     */
+    private function resolvePreviousCustomerBalance(CustomerOrder $customerOrder): float
+    {
+        if (! $customerOrder->customer_id) {
+            return 0.00;
+        }
+
+        $firstMovement = \App\Models\CustomerAccountMovement::where('customer_order_id', $customerOrder->id)
+            ->where('type', 'charge')
+            ->orderBy('id', 'asc')
+            ->first();
+
+        if ($firstMovement) {
+            return round((float) $firstMovement->balance_after - (float) $firstMovement->amount, 2);
+        }
+
+        if ((float) $customerOrder->credit_balance_applied > 0) {
+            return round(-1 * (float) $customerOrder->credit_balance_applied, 2);
+        }
+
+        if ((float) $customerOrder->previous_debt_collected > 0) {
+            return round((float) $customerOrder->previous_debt_collected, 2);
+        }
+
+        return (float) ($customerOrder->customer?->current_balance ?? 0.00);
     }
 
     /**

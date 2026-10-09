@@ -143,7 +143,7 @@
             border-collapse: collapse;
         }
         .customer-table td {
-            font-size: 12px;
+            font-size: 13.5px;
             color: #334155;
             padding: 2.5px 4px;
             vertical-align: top;
@@ -159,8 +159,8 @@
         }
         .customer-row-account {
             border-top: 1px solid #cbd5e1;
-            padding-top: 5px !important;
-            padding-bottom: 3px !important;
+            padding-top: 6px !important;
+            padding-bottom: 5px !important;
             margin-top: 3px;
         }
         .account-inline-table {
@@ -168,22 +168,28 @@
             border-collapse: collapse;
         }
         .account-inline-status {
-            width: 48%;
-            font-size: 12px;
+            width: 44%;
+            font-size: 13.5px;
             vertical-align: middle;
-            color: #334155;
+            color: #1e293b;
         }
         .account-inline-divider {
             width: 1px;
+            max-width: 1px;
+            min-width: 1px;
             background-color: #cbd5e1;
             padding: 0 !important;
         }
         .account-inline-amount {
-            width: 51%;
+            width: 55%;
             text-align: right;
-            font-size: 12px;
+            font-size: 13.5px;
             vertical-align: middle;
-            color: #334155;
+            color: #1e293b;
+            padding-left: 8px !important;
+        }
+        .account-amount-line {
+            line-height: 1.4;
         }
         .badge-account-favor {
             color: #15803d;
@@ -221,7 +227,7 @@
         }
         .items-table th {
             padding: 6px 8px;
-            font-size: 11.5px;
+            font-size: 13px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -232,7 +238,7 @@
         }
         .items-table td {
             padding: 7px 8px;
-            font-size: 12.5px;
+            font-size: 14px;
             border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
         }
@@ -260,18 +266,18 @@
         .product-name {
             font-weight: 600;
             color: #0f172a;
-            font-size: 13px;
+            font-size: 14.5px;
             line-height: 1.25;
         }
         .product-sku {
-            font-size: 11px;
+            font-size: 12px;
             color: #64748b;
             margin-top: 1.5px;
         }
         .badge-bulto {
             display: inline-block;
             padding: 2px 5px;
-            font-size: 10.5px;
+            font-size: 11.5px;
             font-weight: 600;
             color: #0369a1;
             background-color: #e0f2fe;
@@ -304,7 +310,7 @@
         }
         .summary-table td {
             padding: 3px 0;
-            font-size: 14px;
+            font-size: 16px;
         }
         .summary-label {
             color: #475569;
@@ -334,7 +340,7 @@
             border-collapse: collapse;
         }
         .summary-total-label {
-            font-size: 15.5px;
+            font-size: 17.5px;
             font-weight: 800;
             color: #0f172a;
             text-transform: uppercase;
@@ -342,7 +348,7 @@
             text-align: left;
         }
         .summary-total-value {
-            font-size: 17px;
+            font-size: 19px;
             font-weight: 900;
             color: #0f172a;
             text-align: right;
@@ -432,8 +438,8 @@
                     </tr>
                     <!-- Fila 3: Correo electrónico, Condición de pago -->
                     <tr>
-                        <td colspan="2"><strong>Email:</strong> {{ $order->customer?->email ?? '-' }}</td>
-                        <td style="text-align: right;"><strong>Condición de Pago:</strong> {{ $order->derived_payment_condition }}</td>
+                        <td style="width: 45%;"><strong>Email:</strong> {{ $order->customer?->email ?? '-' }}</td>
+                        <td colspan="2" style="text-align: left;"><strong>Condición de Pago:</strong> {{ $order->derived_payment_condition }}</td>
                     </tr>
                     <!-- Fila 4: Observaciones con borde superior interno -->
                     <tr>
@@ -447,6 +453,11 @@
                             $isFavor = $currentBalance < 0;
                             $isDeudor = $currentBalance > 0;
                             $absBalance = abs($currentBalance);
+
+                            $prevBalance = isset($previousBalance)
+                                ? (float) $previousBalance
+                                : (float) ($order->customer->current_balance ?? 0);
+                            $absPrevBalance = abs($prevBalance);
                         @endphp
                         <tr>
                             <td colspan="3" class="customer-row-account">
@@ -455,25 +466,31 @@
                                         <td class="account-inline-status">
                                             <strong>Estado Cta. Cte.:</strong>
                                             @if($isFavor)
-                                                <span class="badge-account-favor">[ A FAVOR ]</span>
+                                                <span class="badge-account-favor">"A FAVOR"</span>
                                             @elseif($isDeudor)
-                                                <span class="badge-account-deudor">[ A DEBER ]</span>
+                                                <span class="badge-account-deudor">"A DEBER"</span>
                                             @else
-                                                <span class="badge-account-neutral">[ AL DÍA ]</span>
+                                                <span class="badge-account-neutral">"AL DIA"</span>
                                             @endif
                                         </td>
                                         <td class="account-inline-divider"></td>
                                         <td class="account-inline-amount">
-                                            @if($isFavor)
-                                                <strong>Saldo a favor disponible:</strong>
-                                                <span class="tabular-nums font-bold text-green">${{ number_format($absBalance, 2, ',', '.') }}</span>
-                                            @elseif($isDeudor)
-                                                <strong>Saldo deudor actual:</strong>
-                                                <span class="tabular-nums font-bold text-danger">${{ number_format($absBalance, 2, ',', '.') }}</span>
-                                            @else
-                                                <strong>Saldo actual:</strong>
-                                                <span class="tabular-nums font-bold">$0,00</span>
-                                            @endif
+                                            <div class="account-amount-line">
+                                                <span style="color: #64748b;">Saldo de cta. cte. antes:</span>
+                                                <span class="tabular-nums font-semibold">${{ number_format($absPrevBalance, 2, ',', '.') }}</span>
+                                            </div>
+                                            <div class="account-amount-line">
+                                                @if($isFavor)
+                                                    <strong>Saldo a favor actual:</strong>
+                                                    <span class="tabular-nums font-bold text-green">${{ number_format($absBalance, 2, ',', '.') }}</span>
+                                                @elseif($isDeudor)
+                                                    <strong>Saldo deudor actual:</strong>
+                                                    <span class="tabular-nums font-bold text-danger">${{ number_format($absBalance, 2, ',', '.') }}</span>
+                                                @else
+                                                    <strong>Cuenta corriente al dia:</strong>
+                                                    <span class="tabular-nums font-bold">$0,00</span>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                 </table>
@@ -625,8 +642,8 @@
                     <table class="summary-total-table">
                         @if($order->show_credit_applied_in_receipt && (float) $order->credit_balance_applied > 0)
                             <tr>
-                                <td class="summary-label text-green" style="font-size: 13.5px; padding-bottom: 4px;">Saldo a Favor Aplicado:</td>
-                                <td class="summary-value tabular-nums text-green" style="font-size: 14px; padding-bottom: 4px;">
+                                <td class="summary-label text-green" style="font-size: 15.5px; padding-bottom: 4px;">Saldo a Favor Aplicado:</td>
+                                <td class="summary-value tabular-nums text-green" style="font-size: 16px; padding-bottom: 4px;">
                                     -${{ number_format((float) $order->credit_balance_applied, 2, ',', '.') }}
                                 </td>
                             </tr>
@@ -635,6 +652,20 @@
                             <td class="summary-total-label">TOTAL DEL PEDIDO:</td>
                             <td class="summary-total-value tabular-nums">${{ number_format((float) $order->total_amount, 2, ',', '.') }}</td>
                         </tr>
+                        @if((float) ($order->previous_debt_collected ?? 0) > 0)
+                            <tr>
+                                <td class="summary-label text-danger" style="font-size: 15.5px; padding-top: 5px; border-top: 1px dashed #cbd5e1;">Cobro de Deuda Anterior:</td>
+                                <td class="summary-value tabular-nums text-danger" style="font-size: 16px; padding-top: 5px; border-top: 1px dashed #cbd5e1;">
+                                    +${{ number_format((float) $order->previous_debt_collected, 2, ',', '.') }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="summary-total-label" style="padding-top: 5px; font-size: 18.5px; color: #0f172a;">TOTAL ABONADO:</td>
+                                <td class="summary-total-value tabular-nums" style="padding-top: 5px; font-size: 20px; color: #0f172a;">
+                                    ${{ number_format((float) ($order->total_amount + $order->previous_debt_collected), 2, ',', '.') }}
+                                </td>
+                            </tr>
+                        @endif
                     </table>
                 </div>
             </div>
