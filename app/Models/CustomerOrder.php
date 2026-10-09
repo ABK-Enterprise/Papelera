@@ -61,6 +61,7 @@ use Illuminate\Support\Carbon;
     'discount_total',
     'surcharge_total',
     'credit_balance_applied',
+    'previous_debt_collected',
     'notes',
 ])]
 class CustomerOrder extends Model
@@ -71,6 +72,9 @@ class CustomerOrder extends Model
     protected $appends = [
         'has_pending_credit_note',
         'derived_payment_condition',
+        'billable_amount',
+        'collectible_amount',
+        'has_previous_balance_impact',
     ];
 
     public const ALLOWED_TRANSITIONS = [
@@ -113,6 +117,7 @@ class CustomerOrder extends Model
             'discount_total' => 'decimal:2',
             'surcharge_total' => 'decimal:2',
             'credit_balance_applied' => 'decimal:2',
+            'previous_debt_collected' => 'decimal:2',
             'price_review_pending' => 'boolean',
             'show_account_in_receipt' => 'boolean',
             'show_credit_applied_in_receipt' => 'boolean',
@@ -373,5 +378,20 @@ class CustomerOrder extends Model
     public function scopePaymentStatus(Builder $query, string $paymentStatus): Builder
     {
         return $query->where('payment_status', $paymentStatus);
+    }
+
+    public function getBillableAmountAttribute(): float
+    {
+        return round((float) $this->total_amount + (float) $this->credit_balance_applied, 2);
+    }
+
+    public function getCollectibleAmountAttribute(): float
+    {
+        return round((float) $this->total_amount + (float) $this->previous_debt_collected, 2);
+    }
+
+    public function getHasPreviousBalanceImpactAttribute(): bool
+    {
+        return (float) $this->credit_balance_applied > 0 || (float) $this->previous_debt_collected > 0;
     }
 }

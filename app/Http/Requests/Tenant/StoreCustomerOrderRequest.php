@@ -62,6 +62,7 @@ class StoreCustomerOrderRequest extends FormRequest
             'show_account_in_receipt' => ['nullable', 'boolean'],
             'show_credit_applied_in_receipt' => ['nullable', 'boolean'],
             'credit_balance_applied' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
+            'previous_debt_collected' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
             'price_adjustments' => ['nullable', 'array'],
             'price_adjustments.*.id' => ['nullable', 'string'],
             'price_adjustments.*.source' => ['nullable', 'string', 'in:preset,ad_hoc'],
@@ -90,7 +91,12 @@ class StoreCustomerOrderRequest extends FormRequest
 
             $creditApplied = (float) $this->input('credit_balance_applied', 0);
             if ($creditApplied > 0) {
-                if (empty($this->customer_id)) {
+                if ($this->payment_type !== 'cuenta_corriente') {
+                    $validator->errors()->add(
+                        'credit_balance_applied',
+                        'El uso de saldo a favor solo está permitido en la condición Cuenta Corriente.'
+                    );
+                } elseif (empty($this->customer_id)) {
                     $validator->errors()->add(
                         'credit_balance_applied',
                         'No se puede aplicar saldo a favor a un cliente no registrado.'
@@ -111,6 +117,40 @@ class StoreCustomerOrderRequest extends FormRequest
                             $validator->errors()->add(
                                 'credit_balance_applied',
                                 'El monto imputado ($'.number_format($creditApplied, 2, ',', '.').') supera el saldo a favor disponible del cliente ($'.number_format($availableCredit, 2, ',', '.').').'
+                            );
+                        }
+                    }
+                }
+            }
+
+            $debtCollected = (float) $this->input('previous_debt_collected', 0);
+            if ($debtCollected > 0) {
+                if ($this->payment_type !== 'contado') {
+                    $validator->errors()->add(
+                        'previous_debt_collected',
+                        'El cobro de deuda anterior solo está permitido en la condición Cobro Total.'
+                    );
+                } elseif (empty($this->customer_id)) {
+                    $validator->errors()->add(
+                        'previous_debt_collected',
+                        'No se puede cobrar deuda anterior a un cliente no registrado.'
+                    );
+                } else {
+                    $customer = \App\Models\Customer::where('id', $this->customer_id)
+                        ->where('tenant_id', $this->user()->tenant_id)
+                        ->first();
+
+                    if (! $customer || (float) $customer->current_balance <= 0) {
+                        $validator->errors()->add(
+                            'previous_debt_collected',
+                            'El cliente seleccionado no posee deuda pendiente en su cuenta corriente.'
+                        );
+                    } else {
+                        $availableDebt = (float) $customer->current_balance;
+                        if ($debtCollected > round($availableDebt, 2) + 0.01) {
+                            $validator->errors()->add(
+                                'previous_debt_collected',
+                                'El monto a cobrar ($'.number_format($debtCollected, 2, ',', '.').') supera la deuda pendiente del cliente ($'.number_format($availableDebt, 2, ',', '.').').'
                             );
                         }
                     }

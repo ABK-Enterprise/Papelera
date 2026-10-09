@@ -360,20 +360,30 @@ class CustomerOrderController extends Controller
 
             $grossTotal = max(0.00, round($netProductsAmount + $shippingCost + $surchargeTotal - $discountTotal, 2));
 
+            $paymentType = $request->input('payment_type') ?: 'cuenta_corriente';
+            $paymentMethod = $request->input('payment_method') ?: 'efectivo';
+            $paymentReference = $request->input('payment_reference');
+            $mpQrCheckout = (bool) $request->boolean('mp_qr_checkout');
+
             $availableCredit = ($customer && (float) $customer->current_balance < 0)
                 ? abs((float) $customer->current_balance)
                 : 0.00;
 
-            $creditBalanceApplied = (float) $request->input('credit_balance_applied', 0);
+            $creditBalanceApplied = ($paymentType === 'cuenta_corriente')
+                ? (float) $request->input('credit_balance_applied', 0)
+                : 0.00;
             $creditBalanceApplied = min($grossTotal, $availableCredit, max(0.00, round($creditBalanceApplied, 2)));
 
             $finalOrderTotal = max(0.00, round($grossTotal - $creditBalanceApplied, 2));
             $showCreditAppliedInReceipt = $creditBalanceApplied > 0 && $request->boolean('show_credit_applied_in_receipt');
 
-            $paymentType = $request->input('payment_type') ?: 'cuenta_corriente';
-            $paymentMethod = $request->input('payment_method') ?: 'efectivo';
-            $paymentReference = $request->input('payment_reference');
-            $mpQrCheckout = (bool) $request->boolean('mp_qr_checkout');
+            $availableDebt = ($customer && (float) $customer->current_balance > 0)
+                ? (float) $customer->current_balance
+                : 0.00;
+            $previousDebtCollected = ($paymentType === 'contado')
+                ? (float) $request->input('previous_debt_collected', 0)
+                : 0.00;
+            $previousDebtCollected = min($availableDebt, max(0.00, round($previousDebtCollected, 2)));
 
             $paidAmount = 0.00;
             $targetQrAmount = null;
@@ -385,16 +395,13 @@ class CustomerOrderController extends Controller
                 $paymentStatus = 'cobrado';
             } elseif ($mpQrCheckout && $paymentMethod === 'mercadopago') {
                 // Cobro presencial inmediato con Mercado Pago QR:
-                // No se emite recibo preliminar en store(). El pedido queda con status 'pendiente'
-                // y deuda activa. El recibo oficial se registrará cuando MP confirme la acreditación.
-                $paidAmount = 0.00;
                 $targetQrAmount = ($paymentType === 'parcial')
                     ? min($finalOrderTotal, max(0.01, round((float) $request->input('paid_amount', 0), 2)))
-                    : $finalOrderTotal;
+                    : round($finalOrderTotal + $previousDebtCollected, 2);
                 $orderDebt = $finalOrderTotal;
                 $paymentStatus = 'pendiente';
             } elseif ($paymentType === 'contado') {
-                $paidAmount = $finalOrderTotal;
+                $paidAmount = round($finalOrderTotal + $previousDebtCollected, 2);
                 $orderDebt = 0.00;
                 $paymentStatus = 'cobrado';
             } elseif ($paymentType === 'parcial') {
@@ -430,6 +437,7 @@ class CustomerOrderController extends Controller
                 'discount_total' => $discountTotal,
                 'surcharge_total' => $surchargeTotal,
                 'credit_balance_applied' => $creditBalanceApplied,
+                'previous_debt_collected' => $previousDebtCollected,
                 'total_amount' => $finalOrderTotal,
                 'notes' => $request->validated('notes'),
             ]);
@@ -442,6 +450,9 @@ class CustomerOrderController extends Controller
             if ($paidAmount > 0) {
                 $receiptNumber = app(TenantSequenceService::class)->nextReceiptNumber($tenantId);
                 $notesPrefix = ($paymentType === 'parcial') ? 'Pago parcial / seña' : 'Cobro de contado';
+                if ($previousDebtCollected > 0) {
+                    $notesPrefix .= ' (Incluye $'.number_format($previousDebtCollected, 2, ',', '.').' cancelación deuda previa)';
+                }
                 $receipt = Receipt::create([
                     'tenant_id' => $tenantId,
                     'customer_id' => $customerId,
@@ -458,7 +469,7 @@ class CustomerOrderController extends Controller
                     'tenant_id' => $tenantId,
                     'customer_order_id' => $order->id,
                     'receipt_id' => $receipt->id,
-                    'amount_applied' => $paidAmount,
+                    'amount_applied' => min($finalOrderTotal, $paidAmount),
                 ]);
 
                 $eventsToBroadcast[] = new CustomerOrderPaymentReceived($order, $receipt, (float) $paidAmount);
@@ -590,29 +601,71 @@ class CustomerOrderController extends Controller
                     $eventsToBroadcast[] = new CustomerAccountMovementRecorded($chargeMov);
 
                     if ($paidAmount > 0) {
-                        $finalBalance = round($tempBalance - $paidAmount, 2);
-                        $paymentDesc = ($paidAmount >= $finalOrderTotal)
-                            ? "Cobro de contado ({$paymentMethod}) - Pedido {$orderNumber}"
-                            : "Pago parcial / seña ({$paymentMethod}) - Pedido {$orderNumber}";
+                        if ($previousDebtCollected > 0) {
+                            // Movimiento 1: Pago de contado correspondiente al pedido
+                            $orderPaymentBalance = round($tempBalance - $finalOrderTotal, 2);
+                            $orderPayMov = CustomerAccountMovement::create([
+                                'tenant_id' => $tenantId,
+                                'customer_id' => $customer->id,
+                                'customer_order_id' => $order->id,
+                                'created_by_user_id' => $userId,
+                                'type' => 'payment',
+                                'description' => "Cobro de contado ({$paymentMethod}) - Pedido {$orderNumber}",
+                                'amount' => $finalOrderTotal,
+                                'balance_after' => $orderPaymentBalance,
+                                'due_date' => null,
+                                'payment_method' => $paymentMethod,
+                                'reference_number' => $paymentReference ?: $orderNumber,
+                                'notes' => $order->notes,
+                            ]);
+                            $orderPayMov->setRelation('customer', $customer);
+                            $eventsToBroadcast[] = new CustomerAccountMovementRecorded($orderPayMov);
 
-                        $payMov = CustomerAccountMovement::create([
-                            'tenant_id' => $tenantId,
-                            'customer_id' => $customer->id,
-                            'customer_order_id' => $order->id,
-                            'created_by_user_id' => $userId,
-                            'type' => 'payment',
-                            'description' => $paymentDesc,
-                            'amount' => $paidAmount,
-                            'balance_after' => $finalBalance,
-                            'due_date' => null,
-                            'payment_method' => $paymentMethod,
-                            'reference_number' => $paymentReference ?: $orderNumber,
-                            'notes' => $order->notes,
-                        ]);
-                        $payMov->setRelation('customer', $customer);
-                        $eventsToBroadcast[] = new CustomerAccountMovementRecorded($payMov);
+                            // Movimiento 2: Cancelación / Amortización de deuda histórica
+                            $finalBalance = round($orderPaymentBalance - $previousDebtCollected, 2);
+                            $debtPayMov = CustomerAccountMovement::create([
+                                'tenant_id' => $tenantId,
+                                'customer_id' => $customer->id,
+                                'customer_order_id' => $order->id,
+                                'created_by_user_id' => $userId,
+                                'type' => 'payment',
+                                'description' => "Cancelación de deuda previa ({$paymentMethod}) - Pedido {$orderNumber}",
+                                'amount' => $previousDebtCollected,
+                                'balance_after' => $finalBalance,
+                                'due_date' => null,
+                                'payment_method' => $paymentMethod,
+                                'reference_number' => $paymentReference ?: $orderNumber,
+                                'notes' => $order->notes,
+                            ]);
+                            $debtPayMov->setRelation('customer', $customer);
+                            $eventsToBroadcast[] = new CustomerAccountMovementRecorded($debtPayMov);
 
-                        $customer->update(['current_balance' => $finalBalance]);
+                            $customer->update(['current_balance' => $finalBalance]);
+                        } else {
+                            $finalBalance = round($tempBalance - $paidAmount, 2);
+                            $paymentDesc = ($paidAmount >= $finalOrderTotal)
+                                ? "Cobro de contado ({$paymentMethod}) - Pedido {$orderNumber}"
+                                : "Pago parcial / seña ({$paymentMethod}) - Pedido {$orderNumber}";
+
+                            $payMov = CustomerAccountMovement::create([
+                                'tenant_id' => $tenantId,
+                                'customer_id' => $customer->id,
+                                'customer_order_id' => $order->id,
+                                'created_by_user_id' => $userId,
+                                'type' => 'payment',
+                                'description' => $paymentDesc,
+                                'amount' => $paidAmount,
+                                'balance_after' => $finalBalance,
+                                'due_date' => null,
+                                'payment_method' => $paymentMethod,
+                                'reference_number' => $paymentReference ?: $orderNumber,
+                                'notes' => $order->notes,
+                            ]);
+                            $payMov->setRelation('customer', $customer);
+                            $eventsToBroadcast[] = new CustomerAccountMovementRecorded($payMov);
+
+                            $customer->update(['current_balance' => $finalBalance]);
+                        }
                     } else {
                         $customer->update(['current_balance' => $tempBalance]);
                     }

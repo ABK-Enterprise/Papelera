@@ -210,16 +210,14 @@ test('T4: partial credit balance coverage leaves remaining debt in account ledge
     expect((float) $creditCustomer->current_balance)->toEqual(2000.00);
 });
 
-test('T5: partial credit balance coverage plus immediate cash payment marks order as paid and creates receipt for cash part', function () {
+test('T5: credit balance usage is strictly restricted to cuenta_corriente payment type', function () {
     $creditCustomer = Customer::factory()->create([
         'tenant_id' => $this->tenant->id,
         'name' => 'Cliente Mixto',
         'current_balance' => -3000.00, // Saldo a favor de $3.000
     ]);
 
-    // Pedido total de $5.000.
-    // Saldo a favor: $3.000.
-    // Pago contado en efectivo del resto: $2.000.
+    // Intento de usar saldo a favor en condición 'contado' debe ser rechazado
     $response = $this->actingAs($this->user)
         ->postJson('/tenant/pedidos', [
             'customer_id' => $creditCustomer->id,
@@ -238,23 +236,8 @@ test('T5: partial credit balance coverage plus immediate cash payment marks orde
             ],
         ]);
 
-    $response->assertStatus(201);
-
-    $order = CustomerOrder::where('customer_id', $creditCustomer->id)->latest('id')->first();
-    expect($order)->not->toBeNull()
-        ->and((float) $order->total_amount)->toEqual(2000.00)
-        ->and((float) $order->credit_balance_applied)->toEqual(3000.00)
-        ->and((float) $order->debt_amount)->toEqual(0.00)
-        ->and($order->payment_status)->toBe('cobrado');
-
-    // Se emitió un recibo por los $2.000 en efectivo
-    $receipt = Receipt::where('tenant_id', $this->tenant->id)->first();
-    expect($receipt)->not->toBeNull()
-        ->and((float) $receipt->amount)->toEqual(2000.00);
-
-    // El saldo del cliente: -3000 (inicial) + 5000 (cargo) - 2000 (pago en efectivo) = 0.00
-    $creditCustomer->refresh();
-    expect((float) $creditCustomer->current_balance)->toEqual(0.00);
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['credit_balance_applied']);
 });
 
 test('T6: fiscal immutability blocks modifying credit_balance_applied on invoiced order', function () {
