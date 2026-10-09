@@ -612,7 +612,7 @@
 
 <ConfirmActionModal
     bind:open={isConfirmAlertOpen}
-    title={collidingModifiedProducts.length > 0 ? 'Actualización de precios en productos del pedido' : 'Confirmar adición de productos'}
+    title={collidingModifiedProducts.length > 0 ? 'Actualización de precios' : 'Confirmar adición de productos'}
     description={collidingModifiedProducts.length > 0
         ? 'Hay productos en el pedido que coinciden con los que querés agregar, y las modificaciones de precios se aplicarán en ellos también. Los productos coincidentes son:'
         : 'Si el pedido se irá a facturar, el monto de estos productos formará parte de la factura y de los impuestos. ¿Quieres continuar?'}
