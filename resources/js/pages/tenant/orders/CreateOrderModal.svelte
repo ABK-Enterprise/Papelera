@@ -24,6 +24,7 @@
     import UserCheck from 'lucide-svelte/icons/user-check';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Banknote from 'lucide-svelte/icons/banknote';
+    import Receipt from 'lucide-svelte/icons/receipt';
     import CreditCard from 'lucide-svelte/icons/credit-card';
     import X from 'lucide-svelte/icons/x';
     import AlertCircle from 'lucide-svelte/icons/alert-circle';
@@ -755,7 +756,9 @@
     );
     const hasAvailableCredit = $derived(availableCustomerCredit > 0);
     const effectiveCreditBalanceApplied = $derived(
-        useCreditBalance ? Math.min(Number(creditBalanceApplied) || 0, availableCustomerCredit, grossTotal) : 0
+        paymentType === 'cuenta_corriente' && useCreditBalance
+            ? Math.min(Number(creditBalanceApplied) || 0, availableCustomerCredit, grossTotal)
+            : 0
     );
     let grandTotal = $derived(
         Math.max(0, Math.round((grossTotal - effectiveCreditBalanceApplied) * 100) / 100)
@@ -765,8 +768,28 @@
         useCreditBalance && effectiveCreditBalanceApplied > 0
     );
 
+    // Cobro de Deuda Anterior de Cuenta Corriente (Solo en Cobro Total)
+    let isDebtBalanceModalOpen = $state(false);
+    let collectPreviousDebt = $state(false);
+    let previousDebtCollected = $state<number>(0);
+    let editDebtMode = $state<'fixed' | 'percentage'>('fixed');
+    let editDebtFixedValue = $state<number | string>('');
+    let editDebtPercentageValue = $state<number | string>('');
+
+    const availableCustomerDebt = $derived(
+        selectedCustomer && Number(selectedCustomer.current_balance ?? 0) > 0
+            ? Number(selectedCustomer.current_balance ?? 0)
+            : 0
+    );
+    const hasAvailableDebt = $derived(availableCustomerDebt > 0);
+    const effectivePreviousDebtCollected = $derived(
+        paymentType === 'contado' && collectPreviousDebt
+            ? Math.min(Math.max(0, Number(previousDebtCollected) || 0), availableCustomerDebt)
+            : 0
+    );
+
     $effect(() => {
-        if (!selectedCustomer || !hasAvailableCredit) {
+        if (paymentType !== 'cuenta_corriente' || !selectedCustomer || !hasAvailableCredit) {
             useCreditBalance = false;
             creditBalanceApplied = 0;
             showCreditAppliedInReceipt = false;
@@ -779,8 +802,15 @@
         }
     });
 
+    $effect(() => {
+        if (paymentType !== 'contado' || !selectedCustomer || !hasAvailableDebt) {
+            collectPreviousDebt = false;
+            previousDebtCollected = 0;
+        }
+    });
+
     function toggleUseCreditBalance() {
-        if (!hasAvailableCredit) return;
+        if (!hasAvailableCredit || paymentType !== 'cuenta_corriente') return;
         useCreditBalance = !useCreditBalance;
         if (useCreditBalance) {
             creditBalanceApplied = Math.min(availableCustomerCredit, grossTotal);
@@ -825,6 +855,48 @@
         }
         creditBalanceApplied = Math.max(0, target);
         isCreditBalanceModalOpen = false;
+    }
+
+    function toggleCollectPreviousDebt() {
+        if (!hasAvailableDebt || paymentType !== 'contado') return;
+        collectPreviousDebt = !collectPreviousDebt;
+        if (collectPreviousDebt) {
+            previousDebtCollected = availableCustomerDebt;
+        } else {
+            previousDebtCollected = 0;
+        }
+    }
+
+    function applyFullPreviousDebt() {
+        if (!hasAvailableDebt) return;
+        previousDebtCollected = availableCustomerDebt;
+        toast.success(`Se aplicó el cobro total de deuda: ${formatPrice(previousDebtCollected)}`);
+    }
+
+    function openEditDebtBalanceModal() {
+        editDebtMode = 'fixed';
+        const currentTarget = effectivePreviousDebtCollected > 0 ? effectivePreviousDebtCollected : availableCustomerDebt;
+        editDebtFixedValue = currentTarget;
+        editDebtPercentageValue = availableCustomerDebt > 0
+            ? Math.min(100, Math.max(0, Math.round((currentTarget / availableCustomerDebt) * 100)))
+            : 0;
+        isDebtBalanceModalOpen = true;
+    }
+
+    function saveDebtBalanceEdit() {
+        let target = 0;
+        if (editDebtMode === 'fixed') {
+            target = Math.max(0, Number(editDebtFixedValue) || 0);
+        } else {
+            const pct = Math.max(0, Math.min(100, Number(editDebtPercentageValue) || 0));
+            target = Math.round(availableCustomerDebt * (pct / 100) * 100) / 100;
+        }
+        if (target > availableCustomerDebt) {
+            toast.warning(`El monto supera la deuda del cliente (${formatPrice(availableCustomerDebt)}). Se ajustó al máximo disponible.`);
+            target = availableCustomerDebt;
+        }
+        previousDebtCollected = Math.max(0, target);
+        isDebtBalanceModalOpen = false;
     }
 
     let isDeleteAdHocModalOpen = $state(false);
@@ -960,7 +1032,8 @@
                     ...adj,
                     applied_amount: getAdjustmentAppliedAmount(adj, computedTotals.finalTotal),
                 })),
-                credit_balance_applied: effectiveCreditBalanceApplied,
+                credit_balance_applied: paymentType === 'cuenta_corriente' ? effectiveCreditBalanceApplied : 0,
+                previous_debt_collected: paymentType === 'contado' ? effectivePreviousDebtCollected : 0,
                 show_credit_applied_in_receipt: canShowCreditAppliedInReceipt ? showCreditAppliedInReceipt : false,
                 show_account_in_receipt: showAccountInReceipt,
                 mp_qr_checkout: shouldChargeWithQr ? true : undefined,
@@ -975,7 +1048,7 @@
 
                     if (shouldChargeWithQr && createdOrder) {
                         createdOrderForQr = createdOrder;
-                        targetQrAmountForModal = targetAmount || (paymentType === 'parcial' ? numericPaidAmount : grandTotal);
+                        targetQrAmountForModal = targetAmount || (paymentType === 'parcial' ? numericPaidAmount : (grandTotal + effectivePreviousDebtCollected));
                         isQrModalOpen = true;
                         open = false;
                         resetForm();
@@ -1881,7 +1954,7 @@
                                     {#if chargeWithQr}
                                         <div class="text-xs font-medium text-sky-800 dark:text-sky-200 bg-sky-500/10 px-2.5 py-1.5 rounded-lg border border-sky-500/20">
                                             {#if paymentType === 'contado'}
-                                                Se abrirá el QR para cobrar el total de <strong class="tabular-nums">{formatPrice(grandTotal)}</strong>.
+                                                Se abrirá el QR para cobrar el total de <strong class="tabular-nums">{formatPrice(grandTotal + effectivePreviousDebtCollected)}</strong>.
                                             {:else}
                                                 Se abrirá el QR para cobrar el anticipo de <strong class="tabular-nums">{formatPrice(Number(paidAmount) || 0)}</strong>.
                                             {/if}
@@ -1894,129 +1967,233 @@
                     {/if}
                 </div>
 
-                <!-- Bento Card: Saldo a Favor de Cuenta Corriente -->
-                <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
-                    <div class="flex items-center justify-between gap-2.5">
-                        <div class="flex items-center gap-2">
-                            <div class="size-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                                <Banknote class="size-3.5" />
+                {#if paymentType === 'cuenta_corriente'}
+                    <!-- Bento Card: Saldo a Favor de Cuenta Corriente (Solo en Cuenta Corriente) -->
+                    <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
+                        <div class="flex items-center justify-between gap-2.5">
+                            <div class="flex items-center gap-2">
+                                <div class="size-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                                    <Banknote class="size-3.5" />
+                                </div>
+                                <span class="text-xs font-bold text-foreground">Saldo a Favor en Cuenta Corriente</span>
                             </div>
-                            <span class="text-xs font-bold text-foreground">Saldo a Favor en Cuenta Corriente</span>
+                            {#if hasAvailableCredit}
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-sans tabular-nums">
+                                    Disponible: {formatPrice(availableCustomerCredit)}
+                                </span>
+                            {:else}
+                                <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/50">
+                                    Sin saldo a favor
+                                </span>
+                            {/if}
                         </div>
-                        {#if hasAvailableCredit}
-                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-sans tabular-nums">
-                                Disponible: {formatPrice(availableCustomerCredit)}
-                            </span>
-                        {:else}
-                            <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/50">
-                                Sin saldo a favor
-                            </span>
-                        {/if}
-                    </div>
 
-                    <!-- Switch / Checkbox de Activación -->
-                    <label class="flex items-center justify-between gap-3 p-3 rounded-xl border transition-all {hasAvailableCredit ? (useCreditBalance ? 'border-emerald-500/50 bg-emerald-500/5 shadow-2xs cursor-pointer' : 'border-border/80 bg-background/60 hover:bg-muted/40 cursor-pointer') : 'opacity-50 cursor-not-allowed bg-muted/20 border-border/50'}">
-                        <div class="min-w-0 flex-1">
-                            <span class="text-xs font-semibold text-foreground block">
-                                Usar saldo a favor de cuenta corriente
-                            </span>
-                            <span class="text-xs text-muted-foreground block font-normal">
-                                {!selectedCustomerId ? 'Disponible solo para clientes registrados' : (!hasAvailableCredit ? 'El cliente no posee saldo a favor disponible' : 'Deduce el importe directamente del crédito acumulado del cliente')}
-                            </span>
-                        </div>
-                        <input
-                            type="checkbox"
-                            checked={useCreditBalance}
-                            disabled={!hasAvailableCredit}
-                            onchange={toggleUseCreditBalance}
-                            class="size-4.5 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 shrink-0"
-                        />
-                    </label>
+                        <!-- Switch / Checkbox de Activación -->
+                        <label class="flex items-center justify-between gap-3 p-3 rounded-xl border transition-all {hasAvailableCredit ? (useCreditBalance ? 'border-emerald-500/50 bg-emerald-500/5 shadow-2xs cursor-pointer' : 'border-border/80 bg-background/60 hover:bg-muted/40 cursor-pointer') : 'opacity-50 cursor-not-allowed bg-muted/20 border-border/50'}">
+                            <div class="min-w-0 flex-1">
+                                <span class="text-xs font-semibold text-foreground block">
+                                    Usar saldo a favor de cuenta corriente
+                                </span>
+                                <span class="text-xs text-muted-foreground block font-normal">
+                                    {!selectedCustomerId ? 'Disponible solo para clientes registrados' : (!hasAvailableCredit ? 'El cliente no posee saldo a favor disponible' : 'Deduce el importe directamente del crédito acumulado del cliente')}
+                                </span>
+                            </div>
+                            <input
+                                type="checkbox"
+                                checked={useCreditBalance}
+                                disabled={!hasAvailableCredit}
+                                onchange={toggleUseCreditBalance}
+                                class="size-4.5 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 shrink-0"
+                            />
+                        </label>
 
-                    {#if useCreditBalance && hasAvailableCredit}
-                        <div class="p-3 rounded-xl border border-border/70 bg-background space-y-3">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                        {#if useCreditBalance && hasAvailableCredit}
+                            <div class="p-3 rounded-xl border border-border/70 bg-background space-y-3">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                                    <div class="min-w-0">
+                                        <span class="text-xs text-muted-foreground block font-medium">Monto a Imputar:</span>
+                                        <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-emerald-600 dark:text-emerald-400">
+                                            {formatPrice(effectiveCreditBalanceApplied)}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            class="min-h-[38px] px-3 rounded-xl text-xs font-semibold cursor-pointer"
+                                            onclick={applyFullCreditBalance}
+                                            title="Imputar el máximo posible de saldo a favor"
+                                        >
+                                            Aplicar Total
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            class="min-h-[38px] px-3 rounded-xl text-xs font-semibold gap-1.5 cursor-pointer"
+                                            onclick={openEditCreditBalanceModal}
+                                        >
+                                            <Pencil class="size-3.5" />
+                                            <span>Editar</span>
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                {#if effectiveCreditBalanceApplied >= grossTotal}
+                                    <div class="text-xs font-medium text-emerald-800 dark:text-emerald-200 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
+                                        El saldo a favor cubre el 100% del pedido. No quedará deuda pendiente.
+                                    </div>
+                                {/if}
+
+                                <!-- Sub-items de visibilidad en remito -->
+                                <div class="pt-2.5 border-t border-border/60 space-y-2">
+                                    <!-- Sub-item 1: Cuenta Corriente en encabezado -->
+                                    <label class="flex items-start gap-2.5 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            bind:checked={showAccountInReceipt}
+                                            class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                        />
+                                        <div class="min-w-0">
+                                            <span class="text-xs font-semibold text-foreground block">
+                                                Incluir resumen de cuenta corriente en el remito impreso
+                                            </span>
+                                            <span class="text-xs text-muted-foreground block">
+                                                Muestra en la ficha del cliente el estado de cuenta y saldo disponible.
+                                            </span>
+                                        </div>
+                                    </label>
+
+                                    <!-- Sub-item 2: Saldo a favor en totales -->
+                                    <label class="flex items-start gap-2.5 {canShowCreditAppliedInReceipt ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}">
+                                        <input
+                                            type="checkbox"
+                                            disabled={!canShowCreditAppliedInReceipt}
+                                            bind:checked={showCreditAppliedInReceipt}
+                                            class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                        />
+                                        <div class="min-w-0">
+                                            <span class="text-xs font-semibold text-foreground block">
+                                                Mostrar uso de saldo a favor en el remito impreso
+                                            </span>
+                                            <span class="text-xs text-muted-foreground block">
+                                                Muestra en el bloque de totales la línea de saldo a favor imputado.
+                                            </span>
+                                            {#if !canShowCreditAppliedInReceipt}
+                                                <span class="text-xs text-amber-600 dark:text-amber-400 block mt-0.5">
+                                                    Disponible solo si se imputa saldo a favor al pedido.
+                                                </span>
+                                            {/if}
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        {:else if selectedCustomerId}
+                            <!-- Sub-item 1 disponible cuando no se usa saldo a favor pero hay cliente registrado -->
+                            <label class="flex items-start gap-2.5 pt-1 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    bind:checked={showAccountInReceipt}
+                                    class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                />
                                 <div class="min-w-0">
-                                    <span class="text-xs text-muted-foreground block font-medium">Monto a Imputar:</span>
-                                    <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-emerald-600 dark:text-emerald-400">
-                                        {formatPrice(effectiveCreditBalanceApplied)}
+                                    <span class="text-xs font-semibold text-foreground block">
+                                        Incluir resumen de cuenta corriente en el remito impreso
+                                    </span>
+                                    <span class="text-xs text-muted-foreground block">
+                                        Muestra en la ficha del cliente el estado de cuenta y saldo disponible.
                                     </span>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        class="min-h-[38px] px-3 rounded-xl text-xs font-semibold cursor-pointer"
-                                        onclick={applyFullCreditBalance}
-                                        title="Imputar el máximo posible de saldo a favor"
-                                    >
-                                        Aplicar Total
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        class="min-h-[38px] px-3 rounded-xl text-xs font-semibold gap-1.5 cursor-pointer"
-                                        onclick={openEditCreditBalanceModal}
-                                    >
-                                        <Pencil class="size-3.5" />
-                                        <span>Editar</span>
-                                    </Button>
+                            </label>
+                        {/if}
+                    </div>
+                {:else if paymentType === 'contado' && selectedCustomerId}
+                    <!-- Bento Card: Cobro de Deuda Anterior (Solo en Cobro Total) -->
+                    <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
+                        <div class="flex items-center justify-between gap-2.5">
+                            <div class="flex items-center gap-2">
+                                <div class="size-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                                    <Receipt class="size-3.5" />
                                 </div>
+                                <span class="text-xs font-bold text-foreground">Cobro de Deuda Anterior</span>
                             </div>
-
-                            {#if effectiveCreditBalanceApplied >= grossTotal}
-                                <div class="text-xs font-medium text-emerald-800 dark:text-emerald-200 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
-                                    El saldo a favor cubre el 100% del pedido. No quedará deuda pendiente.
-                                </div>
+                            {#if hasAvailableDebt}
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 font-sans tabular-nums">
+                                    Deuda Pendiente: {formatPrice(availableCustomerDebt)}
+                                </span>
+                            {:else}
+                                <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                                    Al día (Sin deuda)
+                                </span>
                             {/if}
-
-                            <!-- Sub-items de visibilidad en remito -->
-                            <div class="pt-2.5 border-t border-border/60 space-y-2">
-                                <!-- Sub-item 1: Cuenta Corriente en encabezado -->
-                                <label class="flex items-start gap-2.5 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        bind:checked={showAccountInReceipt}
-                                        class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
-                                    />
-                                    <div class="min-w-0">
-                                        <span class="text-xs font-semibold text-foreground block">
-                                            Incluir resumen de cuenta corriente en el remito impreso
-                                        </span>
-                                        <span class="text-xs text-muted-foreground block">
-                                            Muestra en la ficha del cliente el estado de cuenta y saldo disponible.
-                                        </span>
-                                    </div>
-                                </label>
-
-                                <!-- Sub-item 2: Saldo a favor en totales -->
-                                <label class="flex items-start gap-2.5 {canShowCreditAppliedInReceipt ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}">
-                                    <input
-                                        type="checkbox"
-                                        disabled={!canShowCreditAppliedInReceipt}
-                                        bind:checked={showCreditAppliedInReceipt}
-                                        class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
-                                    />
-                                    <div class="min-w-0">
-                                        <span class="text-xs font-semibold text-foreground block">
-                                            Mostrar uso de saldo a favor en el remito impreso
-                                        </span>
-                                        <span class="text-xs text-muted-foreground block">
-                                            Muestra en el bloque de totales la línea de saldo a favor imputado.
-                                        </span>
-                                        {#if !canShowCreditAppliedInReceipt}
-                                            <span class="text-xs text-amber-600 dark:text-amber-400 block mt-0.5">
-                                                Disponible solo si se imputa saldo a favor al pedido.
-                                            </span>
-                                        {/if}
-                                    </div>
-                                </label>
-                            </div>
                         </div>
-                    {:else if selectedCustomerId}
-                        <!-- Sub-item 1 disponible cuando no se usa saldo a favor pero hay cliente registrado -->
+
+                        <!-- Switch / Checkbox de Activación -->
+                        <label class="flex items-center justify-between gap-3 p-3 rounded-xl border transition-all {hasAvailableDebt ? (collectPreviousDebt ? 'border-amber-500/50 bg-amber-500/5 shadow-2xs cursor-pointer' : 'border-border/80 bg-background/60 hover:bg-muted/40 cursor-pointer') : 'opacity-50 cursor-not-allowed bg-muted/20 border-border/50'}">
+                            <div class="min-w-0 flex-1">
+                                <span class="text-xs font-semibold text-foreground block">
+                                    Cobrar deuda pendiente junto con este pedido
+                                </span>
+                                <span class="text-xs text-muted-foreground block font-normal">
+                                    {!hasAvailableDebt ? 'El cliente no posee deuda pendiente para cobrar' : 'Permite al cliente saldar su deuda histórica de cuenta corriente en este cobro'}
+                                </span>
+                            </div>
+                            <input
+                                type="checkbox"
+                                checked={collectPreviousDebt}
+                                disabled={!hasAvailableDebt}
+                                onchange={toggleCollectPreviousDebt}
+                                class="size-4.5 rounded text-amber-600 focus:ring-amber-500 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 shrink-0"
+                            />
+                        </label>
+
+                        {#if collectPreviousDebt && hasAvailableDebt}
+                            <div class="p-3 rounded-xl border border-border/70 bg-background space-y-3">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                                    <div class="min-w-0">
+                                        <span class="text-xs text-muted-foreground block font-medium">Deuda a Cobrar:</span>
+                                        <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-amber-600 dark:text-amber-400">
+                                            +{formatPrice(effectivePreviousDebtCollected)}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            class="min-h-[38px] px-3 rounded-xl text-xs font-semibold cursor-pointer"
+                                            onclick={applyFullPreviousDebt}
+                                            title="Cobrar el 100% de la deuda histórica"
+                                        >
+                                            Cobrar Total Deuda
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            class="min-h-[38px] px-3 rounded-xl text-xs font-semibold gap-1.5 cursor-pointer"
+                                            onclick={openEditDebtBalanceModal}
+                                        >
+                                            <Pencil class="size-3.5" />
+                                            <span>Editar</span>
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                {#if effectivePreviousDebtCollected >= availableCustomerDebt}
+                                    <div class="text-xs font-medium text-emerald-800 dark:text-emerald-200 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
+                                        Se cobrará la totalidad de la deuda. La cuenta corriente del cliente quedará al día ($0,00).
+                                    </div>
+                                {:else}
+                                    <div class="text-xs font-medium text-muted-foreground bg-muted/40 px-2.5 py-1.5 rounded-lg border border-border/50">
+                                        Quedará un saldo deudor remanente de {formatPrice(availableCustomerDebt - effectivePreviousDebtCollected)}.
+                                    </div>
+                                {/if}
+                            </div>
+                        {/if}
+
+                        <!-- Sub-item: Cuenta Corriente en encabezado -->
                         <label class="flex items-start gap-2.5 pt-1 cursor-pointer">
                             <input
                                 type="checkbox"
@@ -2032,8 +2209,8 @@
                                 </span>
                             </div>
                         </label>
-                    {/if}
-                </div>
+                    </div>
+                {/if}
 
                 <!-- Bento Card: Descuentos y Recargos -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
@@ -2175,6 +2352,23 @@
                             <span class="text-xs sm:text-sm font-bold text-foreground">Total del Pedido:</span>
                             <span class="text-lg sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
                                 {formatPrice(grandTotal)}
+                            </span>
+                        </div>
+                    {:else if effectivePreviousDebtCollected > 0}
+                        <div class="flex items-center justify-between text-xs sm:text-sm font-medium text-muted-foreground border-t border-border/60 pt-2 mt-1">
+                            <span>Total del Pedido:</span>
+                            <span class="font-bold font-sans tabular-nums text-foreground">
+                                {formatPrice(grandTotal)}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400 font-sans tabular-nums pt-0.5">
+                            <span>Cobro de Deuda Anterior:</span>
+                            <span>+{formatPrice(effectivePreviousDebtCollected)}</span>
+                        </div>
+                        <div class="flex flex-wrap items-baseline justify-between gap-2 border-t border-border/60 pt-2 mt-1 w-full">
+                            <span class="text-xs sm:text-sm font-bold text-foreground">Total a Cobrar en el Momento:</span>
+                            <span class="text-lg sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
+                                {formatPrice(grandTotal + effectivePreviousDebtCollected)}
                             </span>
                         </div>
                     {:else}
@@ -2565,6 +2759,119 @@
                 type="button"
                 class="min-h-[44px] w-full rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
                 onclick={saveCreditBalanceEdit}
+            >
+                Confirmar
+            </Button>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>
+
+<!-- Diálogo de Edición de Cobro de Deuda Anterior -->
+<Dialog bind:open={isDebtBalanceModalOpen}>
+    <DialogContent class="sm:max-w-md p-5 sm:p-6 space-y-4 rounded-2xl bg-card border-border shadow-2xl">
+        <DialogHeader class="text-left">
+            <DialogTitle class="text-base sm:text-lg font-bold text-foreground">
+                Editar Deuda a Cobrar
+            </DialogTitle>
+        </DialogHeader>
+
+        <DialogBody class="space-y-4">
+            <!-- Selector de Modo: Monto Fijo o Porcentaje -->
+            <div class="grid grid-cols-2 gap-2 p-1 rounded-xl bg-muted/50 border border-border/60">
+                <button
+                    type="button"
+                    class="min-h-[38px] rounded-lg text-xs font-semibold transition-all cursor-pointer {editDebtMode === 'fixed' ? 'bg-background text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
+                    onclick={() => (editDebtMode = 'fixed')}
+                >
+                    Monto Fijo
+                </button>
+                <button
+                    type="button"
+                    class="min-h-[38px] rounded-lg text-xs font-semibold transition-all cursor-pointer {editDebtMode === 'percentage' ? 'bg-background text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
+                    onclick={() => (editDebtMode = 'percentage')}
+                >
+                    Porcentaje
+                </button>
+            </div>
+
+            {#if editDebtMode === 'fixed'}
+                <div class="space-y-2">
+                    <Label for="debt-fixed-amount-input" class="text-sm font-medium text-foreground">
+                        Monto de deuda anterior a cobrar
+                    </Label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">$</span>
+                        <Input
+                            id="debt-fixed-amount-input"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            max={availableCustomerDebt}
+                            bind:value={editDebtFixedValue}
+                            oninput={(e) => {
+                                const target = e.target as HTMLInputElement;
+                                const val = Number(target.value) || 0;
+                                if (val > availableCustomerDebt) {
+                                    editDebtFixedValue = availableCustomerDebt;
+                                } else if (val < 0) {
+                                    editDebtFixedValue = 0;
+                                }
+                            }}
+                            placeholder="0.00"
+                            class="h-10 pl-7 text-sm font-bold font-sans tabular-nums"
+                        />
+                    </div>
+                    <p class="text-xs text-muted-foreground">
+                        Deuda pendiente del cliente: <strong class="tabular-nums text-foreground">{formatPrice(availableCustomerDebt)}</strong>
+                    </p>
+                </div>
+            {:else}
+                <div class="space-y-2">
+                    <Label for="debt-pct-input" class="text-sm font-medium text-foreground">
+                        Porcentaje de la deuda a cobrar
+                    </Label>
+                    <div class="relative">
+                        <Input
+                            id="debt-pct-input"
+                            type="number"
+                            step="1"
+                            min="0"
+                            max="100"
+                            bind:value={editDebtPercentageValue}
+                            oninput={(e) => {
+                                const target = e.target as HTMLInputElement;
+                                const val = Number(target.value) || 0;
+                                if (val > 100) {
+                                    editDebtPercentageValue = 100;
+                                } else if (val < 0) {
+                                    editDebtPercentageValue = 0;
+                                }
+                            }}
+                            placeholder="100"
+                            class="h-10 pr-7 text-sm font-bold font-sans tabular-nums"
+                        />
+                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">%</span>
+                    </div>
+                    <p class="text-xs text-muted-foreground">
+                        Equivalente: <strong class="tabular-nums text-foreground">{formatPrice(Math.round(availableCustomerDebt * (Math.max(0, Math.min(100, Number(editDebtPercentageValue || 0))) / 100) * 100) / 100)}</strong> de deuda pendiente ({formatPrice(availableCustomerDebt)})
+                    </p>
+                </div>
+            {/if}
+        </DialogBody>
+
+        <DialogFooter class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:justify-end">
+            <Button
+                type="button"
+                variant="outline"
+                class="min-h-[44px] w-full rounded-xl text-sm font-semibold cursor-pointer"
+                onclick={() => (isDebtBalanceModalOpen = false)}
+            >
+                Cancelar
+            </Button>
+            <Button
+                type="button"
+                class="min-h-[44px] w-full rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+                onclick={saveDebtBalanceEdit}
             >
                 Confirmar
             </Button>
