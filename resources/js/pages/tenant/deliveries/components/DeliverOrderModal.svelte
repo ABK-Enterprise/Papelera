@@ -437,6 +437,7 @@
                                                 type="text"
                                                 placeholder="Ej: 1049283741"
                                                 bind:value={referenceNumber}
+                                                maxlength="100"
                                                 class="h-11 min-h-[44px] bg-background border-border/80"
                                             />
                                             <p class="text-xs text-muted-foreground">
@@ -481,6 +482,7 @@
                                          type="text"
                                          placeholder="Ej: TRANSF-987213"
                                          bind:value={referenceNumber}
+                                         maxlength="100"
                                          class="h-11 min-h-[44px] bg-background border-border/80"
                                      />
                                  </div>
@@ -572,6 +574,7 @@
                                                 type="text"
                                                 placeholder="Ej: 1049283741"
                                                 bind:value={referenceNumber}
+                                                maxlength="100"
                                                 class="h-11 min-h-[44px] bg-background border-border/80"
                                             />
                                             <p class="text-xs text-muted-foreground">
@@ -586,6 +589,7 @@
                                                 type="text"
                                                 placeholder="Ej: TRANSF-987213"
                                                 bind:value={referenceNumber}
+                                                maxlength="100"
                                                 class="h-11 min-h-[44px] bg-background border-border/80"
                                             />
                                         </div>
@@ -602,6 +606,7 @@
                     <Textarea
                         id="delivery-notes"
                         rows={2}
+                        maxlength="255"
                         placeholder="Ej: Recibió guardia, portería, firma conforme..."
                         bind:value={deliveryNotes}
                         class="resize-none bg-background border-border/80 text-sm rounded-xl"

@@ -21,7 +21,7 @@ class RecordCustomerPaymentRequest extends FormRequest
             'amount' => ['required', 'numeric', 'min:0.01', 'max:100000000'],
             'payment_method' => ['required', 'string', 'in:efectivo,transferencia,cheque,tarjeta,otro'],
             'reference_number' => ['nullable', 'string', 'max:100'],
-            'notes' => ['nullable', 'string', 'max:500'],
+            'notes' => ['nullable', 'string', 'max:255'],
         ];
     }
 

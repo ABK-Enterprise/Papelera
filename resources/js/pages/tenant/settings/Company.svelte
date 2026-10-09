@@ -286,6 +286,7 @@
                         id="company-address"
                         bind:value={form.address}
                         placeholder="ej. Av. Corrientes 1234, Piso 2"
+                        maxlength="255"
                         class="h-10 text-sm font-medium"
                     />
                     {#if form.errors.address}

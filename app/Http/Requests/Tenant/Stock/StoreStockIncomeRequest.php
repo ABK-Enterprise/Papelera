@@ -37,7 +37,7 @@ class StoreStockIncomeRequest extends FormRequest
             ],
             'quantity' => ['required', 'numeric', 'min:0.001', 'max:10000'],
             'reason' => ['nullable', 'string', 'max:255'],
-            'notes' => ['nullable', 'string', 'max:1000'],
+            'notes' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

@@ -371,6 +371,7 @@
                     <textarea
                         id="return-notes"
                         bind:value={notes}
+                        maxlength="255"
                         placeholder="Ej. Producto devuelto por falla de empaque o error de pedido..."
                         rows="2"
                         class="w-full rounded-xl border border-border/80 bg-background p-2.5 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs"

@@ -51,7 +51,7 @@ class CustomerOrderAdjustmentController extends Controller
                 'adjustments.*.name' => ['nullable', 'string', 'max:255'],
                 'adjustments.*.calculation_type' => ['required', 'string', 'in:percentage,fixed'],
                 'adjustments.*.value' => ['required', 'numeric', 'min:0.01'],
-                'adjustments.*.reason' => ['nullable', 'string', 'max:500'],
+                'adjustments.*.reason' => ['nullable', 'string', 'max:255'],
                 'adjustments.*.show_in_receipt' => ['nullable', 'boolean'],
             ]);
 
@@ -82,7 +82,7 @@ class CustomerOrderAdjustmentController extends Controller
                     'min:0.01',
                     $isPercentage ? 'max:100' : 'max:100000000',
                 ],
-                'reason' => ['nullable', 'string', 'max:500'],
+                'reason' => ['nullable', 'string', 'max:255'],
                 'show_in_receipt' => ['nullable', 'boolean'],
             ]);
             $itemsToApply = [$validated];

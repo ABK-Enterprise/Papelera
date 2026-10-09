@@ -133,6 +133,7 @@
                     <Textarea
                         id="failure-notes"
                         rows={3}
+                        maxlength="255"
                         placeholder="Describe lo ocurrido (ej: Timbre no funciona, se intentó llamar por celular sin respuesta...)"
                         bind:value={deliveryNotes}
                         class="resize-none bg-background border-border/80 text-sm"

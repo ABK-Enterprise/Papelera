@@ -193,6 +193,7 @@
                         id="wh-address"
                         bind:value={form.address}
                         placeholder="Ej: Calle Principal 1234, Galpón 4"
+                        maxlength={255}
                         class="h-10 text-sm rounded-xl"
                     />
                     {#if form.errors.address}

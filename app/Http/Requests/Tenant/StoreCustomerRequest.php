@@ -44,7 +44,7 @@ class StoreCustomerRequest extends FormRequest
             'discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'is_defaulter' => ['boolean'],
             'is_active' => ['boolean'],
-            'notes' => ['nullable', 'string', 'max:1000'],
+            'notes' => ['nullable', 'string', 'max:255'],
         ];
     }
 

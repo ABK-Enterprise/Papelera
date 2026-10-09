@@ -1331,6 +1331,7 @@
                             <Input
                                 id="cust-address"
                                 bind:value={deliveryAddress}
+                                maxlength="255"
                                 placeholder="Dirección o Retiro en local"
                                 class="h-9 text-sm font-medium"
                             />
@@ -2372,6 +2373,7 @@
                         id="order-notes"
                         bind:value={notes}
                         rows="2"
+                        maxlength="255"
                         placeholder="ej. Entregar por la mañana, timbre 2B, empaquetar con cinta reforzada..."
                         class="w-full rounded-xl border border-border/80 bg-background p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                     ></textarea>

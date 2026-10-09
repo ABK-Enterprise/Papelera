@@ -230,6 +230,7 @@
                     id="adj-name"
                     type="text"
                     bind:value={name}
+                    maxlength="255"
                     placeholder={type === 'discount' ? 'Ej. Descuento comercial por volumen' : 'Ej. Flete express / Seguro de carga'}
                     class="min-h-[44px] rounded-xl text-sm font-medium"
                 />
@@ -326,6 +327,7 @@
                     id="adj-reason"
                     bind:value={reason}
                     rows="2"
+                    maxlength="255"
                     placeholder="Detalle o justificación para el cliente o auditoría..."
                     class="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
                 ></textarea>

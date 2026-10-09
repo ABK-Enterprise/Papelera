@@ -293,11 +293,13 @@ class DeliveryRouteController extends Controller
         $tenantId = auth()->user()->tenant_id;
         $userId = auth()->user()->id;
 
-        $destination = $request->input('destination', 'en_preparacion');
-        if (! in_array($destination, ['en_preparacion', 'cancelado'], true)) {
-            $destination = 'en_preparacion';
-        }
-        $reason = $request->input('reason');
+        $validated = $request->validate([
+            'destination' => ['nullable', 'string', 'in:en_preparacion,cancelado'],
+            'reason' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $destination = $validated['destination'] ?? 'en_preparacion';
+        $reason = $validated['reason'] ?? null;
 
         $previousStatus = 'no_entregado';
         DB::transaction(function () use ($tenantId, $userId, $customerOrder, $destination, $reason, &$previousStatus) {

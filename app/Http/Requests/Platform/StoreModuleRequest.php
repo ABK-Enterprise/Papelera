@@ -16,7 +16,7 @@ class StoreModuleRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:100'],
             'code' => ['required', 'string', 'max:50', 'unique:modules,code'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'string', 'max:255'],
             'is_active' => ['nullable', 'boolean'],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['string', 'max:100'],

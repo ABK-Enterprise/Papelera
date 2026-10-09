@@ -56,7 +56,7 @@ class UpdateProductRequest extends FormRequest
                     ->whereNotNull('barcode')
                     ->ignore($productId),
             ],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
             'cost_price' => ['nullable', 'numeric', 'min:0'],
             'iva_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],

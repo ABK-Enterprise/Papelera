@@ -324,6 +324,7 @@
                         id="referenceNumber"
                         type="text"
                         bind:value={referenceNumber}
+                        maxlength="100"
                         placeholder="Ej: TRANSF-98124, N° cupón o cheque"
                         class="text-xs tabular-nums"
                     />
@@ -360,6 +361,7 @@
                     id="notes"
                     bind:value={notes}
                     rows={2}
+                    maxlength="255"
                     placeholder="Notas o aclaraciones sobre el cobro..."
                     class="text-xs resize-none"
                 />

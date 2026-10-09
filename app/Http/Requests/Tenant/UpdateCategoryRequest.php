@@ -41,7 +41,7 @@ class UpdateCategoryRequest extends FormRequest
                     ->ignore($categoryId),
             ],
             'icon' => ['nullable', 'string', 'max:50'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'string', 'max:255'],
             'is_active' => ['boolean'],
         ];
     }

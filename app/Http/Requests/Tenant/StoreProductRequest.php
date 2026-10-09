@@ -57,7 +57,7 @@ class StoreProductRequest extends FormRequest
                     ->where('tenant_id', $tenantId)
                     ->whereNotNull('barcode'),
             ],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
             'cost_price' => ['nullable', 'numeric', 'min:0'],
             'iva_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],

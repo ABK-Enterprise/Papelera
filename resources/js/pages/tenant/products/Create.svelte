@@ -488,6 +488,7 @@
                                 id="create-prod-desc"
                                 bind:value={form.description}
                                 rows="2"
+                                maxlength="255"
                                 placeholder="Especificaciones de tamaño, gramaje, características..."
                                 class="w-full bg-background rounded-xl p-3 text-xs border border-border/80 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                             ></textarea>

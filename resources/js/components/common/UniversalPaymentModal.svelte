@@ -338,6 +338,7 @@
                         id="receipt-ref"
                         type="text"
                         bind:value={referenceNumber}
+                        maxlength="100"
                         placeholder="Ej. TRF-889911, CHQ-4455"
                         class="h-10 rounded-xl bg-background border-border/80 text-sm font-medium text-foreground"
                     />
@@ -349,6 +350,7 @@
                         id="receipt-notes"
                         type="text"
                         bind:value={notes}
+                        maxlength="255"
                         placeholder="Comentarios adicionales del cobro..."
                         class="h-10 rounded-xl bg-background border-border/80 text-sm text-foreground"
                     />

@@ -21,7 +21,7 @@ class FailDeliveryRequest extends FormRequest
                 'string',
                 Rule::in(CustomerOrder::DELIVERY_FAILURE_REASONS),
             ],
-            'delivery_notes' => ['nullable', 'string', 'max:1000'],
+            'delivery_notes' => ['nullable', 'string', 'max:255'],
         ];
     }
 

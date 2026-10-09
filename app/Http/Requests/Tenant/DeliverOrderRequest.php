@@ -29,7 +29,7 @@ class DeliverOrderRequest extends FormRequest
         $rules = [
             'payment_mode' => ['required', 'string', 'in:paid_now,on_credit'],
             'reference_number' => ['nullable', 'string', 'max:100'],
-            'delivery_notes' => ['nullable', 'string', 'max:1000'],
+            'delivery_notes' => ['nullable', 'string', 'max:255'],
         ];
 
         if ($isOrderPaid) {

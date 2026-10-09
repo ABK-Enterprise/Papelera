@@ -258,6 +258,7 @@
                 <Input
                     id="create-customer-address"
                     bind:value={form.address}
+                    maxlength="255"
                     placeholder="ej. Av. Rivadavia 4520, Piso 3"
                     class="h-9 text-sm"
                 />
@@ -437,6 +438,7 @@
                     id="create-customer-notes"
                     bind:value={form.notes}
                     rows="2"
+                    maxlength="255"
                     placeholder="ej. Horarios de recepción, condiciones de pago convenidas..."
                     class="w-full rounded-xl border border-border/80 bg-background p-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:bg-transparent disabled:border-dashed resize-none"
                 ></textarea>

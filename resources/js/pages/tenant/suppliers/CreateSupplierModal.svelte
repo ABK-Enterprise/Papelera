@@ -164,6 +164,7 @@
                     <Input
                         id="create-supplier-address"
                         bind:value={form.address}
+                        maxlength="255"
                         placeholder="ej. Av. Corrientes 1234, CABA"
                         class="h-9 text-sm"
                     />

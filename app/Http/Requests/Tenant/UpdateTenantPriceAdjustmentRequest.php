@@ -25,7 +25,7 @@ class UpdateTenantPriceAdjustmentRequest extends FormRequest
                 'min:0.01',
                 $isPercentage ? 'max:100' : 'max:100000000',
             ],
-            'reason' => ['nullable', 'string', 'max:500'],
+            'reason' => ['nullable', 'string', 'max:255'],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'days_of_week' => ['nullable', 'array'],

@@ -171,6 +171,7 @@
                     <Textarea
                         id="reschedule-reason"
                         rows={2}
+                        maxlength="255"
                         placeholder="Ej: Cliente acordó reprogramación para mañana / mercadería devuelta a depósito..."
                         bind:value={reason}
                         class="resize-none bg-background border-border/80 text-sm rounded-xl"

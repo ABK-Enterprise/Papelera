@@ -29,7 +29,7 @@ class StoreReceiptRequest extends FormRequest
                 'in:efectivo,transferencia,mercadopago,cheque,debito,credito,otro',
             ],
             'reference_number' => ['nullable', 'string', 'max:100'],
-            'notes' => ['nullable', 'string', 'max:1000'],
+            'notes' => ['nullable', 'string', 'max:255'],
             'allocations' => ['nullable', 'array'],
             'allocations.*.order_id' => [
                 'required_with:allocations',

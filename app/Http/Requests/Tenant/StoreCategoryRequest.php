@@ -37,7 +37,7 @@ class StoreCategoryRequest extends FormRequest
                 Rule::unique('categories', 'slug')->where(fn ($query) => $query->where('tenant_id', $tenantId)),
             ],
             'icon' => ['nullable', 'string', 'max:50'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'string', 'max:255'],
             'is_active' => ['boolean'],
         ];
     }

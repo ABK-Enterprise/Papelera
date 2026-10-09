@@ -21,7 +21,7 @@ class RecordCustomerAdjustmentRequest extends FormRequest
             'type' => ['required', 'string', 'in:debit,credit'],
             'amount' => ['required', 'numeric', 'min:0.01', 'max:100000000'],
             'description' => ['required', 'string', 'max:255'],
-            'notes' => ['nullable', 'string', 'max:500'],
+            'notes' => ['nullable', 'string', 'max:255'],
         ];
     }
 

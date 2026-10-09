@@ -361,6 +361,7 @@
                     id="void-reason"
                     bind:value={voidReason}
                     rows="3"
+                    maxlength="255"
                     placeholder="Ej. Cheque rechazado, error en monto imputado, duplicado..."
                     class="w-full rounded-xl border border-border/80 bg-background p-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                     required

@@ -207,6 +207,7 @@
                         id="adjustment-name"
                         bind:value={form.name}
                         placeholder="ej. Promoción comercial (default: Sin Nombre)"
+                        maxlength={255}
                         class="min-h-[40px] text-sm font-medium"
                     />
                     {#if form.errors.name}
@@ -256,6 +257,7 @@
                     id="adjustment-reason"
                     bind:value={form.reason}
                     placeholder="ej. Descuento comercial por pronto pago"
+                    maxlength={255}
                     class="min-h-[40px] text-sm"
                 />
                 {#if form.errors.reason}

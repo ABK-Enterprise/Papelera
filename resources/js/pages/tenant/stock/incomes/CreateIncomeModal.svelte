@@ -332,6 +332,7 @@
                     <textarea
                         id="income-notes"
                         rows="3"
+                        maxlength="255"
                         bind:value={form.notes}
                         class="w-full rounded-xl border border-border/80 bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs resize-none"
                         placeholder="Detalles adicionales, número de remito o factura..."

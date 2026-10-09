@@ -44,7 +44,7 @@ class StoreStockTransferRequest extends FormRequest
                 }),
             ],
             'quantity' => ['required', 'numeric', 'min:0.001', 'max:10000'],
-            'notes' => ['nullable', 'string', 'max:1000'],
+            'notes' => ['nullable', 'string', 'max:255'],
             'allow_negative_origin' => ['nullable', 'boolean'],
         ];
     }

@@ -22,7 +22,7 @@ class StoreCustomerOrderReturnRequest extends FormRequest
             'items.*.order_item_id' => ['required', 'integer', 'exists:customer_order_items,id'],
             'items.*.quantity' => ['required', 'numeric', 'min:0.001'],
             'items.*.destination' => ['required', 'string', 'in:restock,scrap'],
-            'notes' => ['nullable', 'string', 'max:1000'],
+            'notes' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

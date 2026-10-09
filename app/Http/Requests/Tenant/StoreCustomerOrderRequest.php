@@ -35,8 +35,8 @@ class StoreCustomerOrderRequest extends FormRequest
             ],
             'customer_name' => ['nullable', 'string', 'max:255'],
             'customer_phone' => ['nullable', 'string', 'max:100'],
-            'delivery_address' => ['nullable', 'string', 'max:500'],
-            'notes' => ['nullable', 'string', 'max:1000'],
+            'delivery_address' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string', 'max:255'],
             'payment_type' => ['nullable', 'string', 'in:contado,cuenta_corriente,parcial'],
             'payment_method' => ['nullable', 'string', 'in:efectivo,transferencia,mercadopago,cheque,debito,credito,otro'],
             'paid_amount' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
@@ -72,7 +72,7 @@ class StoreCustomerOrderRequest extends FormRequest
             'price_adjustments.*.name' => ['nullable', 'string', 'max:255'],
             'price_adjustments.*.calculation_type' => ['required_with:price_adjustments', 'string', 'in:percentage,fixed'],
             'price_adjustments.*.value' => ['required_with:price_adjustments', 'numeric', 'min:0.01'],
-            'price_adjustments.*.reason' => ['nullable', 'string', 'max:500'],
+            'price_adjustments.*.reason' => ['nullable', 'string', 'max:255'],
             'price_adjustments.*.show_in_receipt' => ['nullable', 'boolean'],
         ];
     }

@@ -223,6 +223,7 @@
                         <Input
                             id="payment-ref"
                             bind:value={referenceNumber}
+                            maxlength="100"
                             placeholder="ej. TRF-994821 o Recibo 0001"
                             class="h-9 text-sm tabular-nums"
                         />
@@ -236,6 +237,7 @@
                         <Input
                             id="payment-notes"
                             bind:value={notes}
+                            maxlength="255"
                             placeholder="Detalle o nota interna..."
                             class="h-9 text-sm"
                         />

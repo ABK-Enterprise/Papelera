@@ -20,8 +20,8 @@ class CollectCustomerOrderRequest extends FormRequest
         return [
             'payment_method' => ['required', 'string', 'in:efectivo,transferencia,mercadopago,cheque,debito,credito,otro'],
             'amount' => ['required', 'numeric', 'min:0.01', 'max:100000000'],
-            'reference_number' => ['nullable', 'string', 'max:255'],
-            'notes' => ['nullable', 'string', 'max:1000'],
+            'reference_number' => ['nullable', 'string', 'max:100'],
+            'notes' => ['nullable', 'string', 'max:255'],
             'mark_as_delivered' => ['nullable', 'boolean'],
         ];
     }

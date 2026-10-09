@@ -646,6 +646,7 @@
                         id="supplier-order-notes"
                         bind:value={notes}
                         rows="2"
+                        maxlength="255"
                         placeholder="ej. Entrega pactada para el viernes por la tarde..."
                         class="w-full rounded-xl border border-border/80 bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
                     ></textarea>

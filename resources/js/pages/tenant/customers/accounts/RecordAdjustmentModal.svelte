@@ -221,6 +221,7 @@
                         <Input
                             id="adjust-desc"
                             bind:value={description}
+                            maxlength="255"
                             placeholder="ej. Quita por pronto pago / Recargo por financiamiento"
                             class="h-9 text-sm"
                             required
@@ -235,6 +236,7 @@
                         <Input
                             id="adjust-notes"
                             bind:value={notes}
+                            maxlength="255"
                             placeholder="Aprobado por administración..."
                             class="h-9 text-sm"
                         />
