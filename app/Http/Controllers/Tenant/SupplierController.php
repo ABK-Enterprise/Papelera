@@ -25,6 +25,7 @@ class SupplierController extends Controller
                 $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
                 $q->where(function ($sub) use ($searchTerm) {
                     $sub->whereRaw('LOWER(name) LIKE ?', [$searchTerm])
+                        ->orWhereRaw('LOWER(tax_id) LIKE ?', [$searchTerm])
                         ->orWhereRaw('LOWER(email) LIKE ?', [$searchTerm])
                         ->orWhereRaw('LOWER(contact_number) LIKE ?', [$searchTerm])
                         ->orWhereRaw('LOWER(address) LIKE ?', [$searchTerm]);
@@ -67,6 +68,7 @@ class SupplierController extends Controller
         $supplier = Supplier::create([
             'tenant_id' => $request->user()->tenant_id,
             'name' => $request->validated('name'),
+            'tax_id' => $request->validated('tax_id'),
             'contact_number' => $request->validated('contact_number'),
             'email' => $request->validated('email'),
             'address' => $request->validated('address'),
@@ -89,6 +91,7 @@ class SupplierController extends Controller
 
         $supplier->update([
             'name' => $request->validated('name'),
+            'tax_id' => $request->validated('tax_id'),
             'contact_number' => $request->validated('contact_number'),
             'email' => $request->validated('email'),
             'address' => $request->validated('address'),

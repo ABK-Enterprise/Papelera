@@ -13,6 +13,7 @@
     import Package from 'lucide-svelte/icons/package';
     import ShieldAlert from 'lucide-svelte/icons/shield-alert';
     import ShieldCheck from 'lucide-svelte/icons/shield-check';
+    import { sanitizeIdentificationInput } from '@/lib/numericSanitizer';
 
     interface ModuleItem {
         id: number;
@@ -131,7 +132,9 @@
                         id="cuit"
                         bind:value={form.cuit_tax_id}
                         placeholder="Ej. 30-71234567-8"
-                        class="text-sm shadow-2xs"
+                        maxlength={13}
+                        oninput={(e) => sanitizeIdentificationInput(e, (val) => { form.cuit_tax_id = val; })}
+                        class="text-sm shadow-2xs font-sans tabular-nums"
                     />
                     {#if form.errors.cuit_tax_id}
                         <p class="text-xs text-rose-500 font-medium">{form.errors.cuit_tax_id}</p>

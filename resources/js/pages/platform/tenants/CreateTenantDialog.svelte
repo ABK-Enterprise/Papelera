@@ -17,6 +17,7 @@
     import User from 'lucide-svelte/icons/user';
     import X from 'lucide-svelte/icons/x';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import { sanitizeIdentificationInput } from '@/lib/numericSanitizer';
 
     interface AvailableModule {
         id: number;
@@ -118,6 +119,8 @@
                                 id="modal-tenant-cuit"
                                 bind:value={form.tenant.cuit_tax_id}
                                 placeholder="ej. 30-71234567-8"
+                                maxlength={13}
+                                oninput={(e) => sanitizeIdentificationInput(e, (val) => { form.tenant.cuit_tax_id = val; })}
                                 class="h-9 text-sm font-sans tabular-nums"
                             />
                             {#if form.errors['tenant.cuit_tax_id']}

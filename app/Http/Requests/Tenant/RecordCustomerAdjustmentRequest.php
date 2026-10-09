@@ -19,7 +19,7 @@ class RecordCustomerAdjustmentRequest extends FormRequest
     {
         return [
             'type' => ['required', 'string', 'in:debit,credit'],
-            'amount' => ['required', 'numeric', 'min:0.01', 'max:50000000'],
+            'amount' => ['required', 'numeric', 'min:0.01', 'max:100000000'],
             'description' => ['required', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:500'],
         ];
@@ -35,6 +35,7 @@ class RecordCustomerAdjustmentRequest extends FormRequest
             'type.in' => 'El tipo debe ser débito (cargo) o crédito (descuento).',
             'amount.required' => 'El monto del ajuste es obligatorio.',
             'amount.min' => 'El monto debe ser mayor a cero.',
+            'amount.max' => 'El monto del ajuste no puede superar los $100.000.000.',
             'description.required' => 'El motivo del ajuste es obligatorio.',
         ];
     }

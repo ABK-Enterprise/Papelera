@@ -16,6 +16,7 @@
     import CheckCircle2 from 'lucide-svelte/icons/check-circle-2';
     import { toast } from 'svelte-sonner';
     import { router } from '@inertiajs/svelte';
+    import { preventInvalidNumericKeys } from '@/lib/numericSanitizer';
 
     interface OrderData {
         id: number;
@@ -92,7 +93,14 @@
     function handleAmountInput(e: Event) {
         const target = e.target as HTMLInputElement;
         const val = parseFloat(target.value);
-        amountToPay = isNaN(val) ? 0 : Math.max(0, val);
+        if (isNaN(val)) {
+            amountToPay = 0;
+        } else if (val > 100_000_000) {
+            target.value = '100000000';
+            amountToPay = 100_000_000;
+        } else {
+            amountToPay = Math.max(0, val);
+        }
     }
 
     function openQrModal() {
@@ -106,6 +114,11 @@
 
         if (amountToPay <= 0) {
             errorMessage = 'El importe a cobrar debe ser mayor a cero.';
+            return;
+        }
+
+        if (amountToPay > 100_000_000) {
+            errorMessage = 'El importe a cobrar no puede superar los $100.000.000.';
             return;
         }
 
@@ -275,7 +288,9 @@
                         type="number"
                         step="0.01"
                         min="0"
+                        max="100000000"
                         value={amountToPay}
+                        onkeydown={(e) => preventInvalidNumericKeys(e)}
                         oninput={handleAmountInput}
                         placeholder="0.00"
                         class="pl-7 text-sm font-semibold tabular-nums"

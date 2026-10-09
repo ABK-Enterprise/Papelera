@@ -16,6 +16,7 @@
         id: number;
         tenant_id: number;
         name: string;
+        tax_id?: string | null;
         contact_number: string | null;
         email: string | null;
         address: string | null;
@@ -95,6 +96,12 @@
 
                     <!-- Fila 2: Badges de Contacto y Correo -->
                     <div class="flex items-center gap-2.5 flex-wrap">
+                        {#if supplier.tax_id}
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs tabular-nums text-foreground/90 border border-border/40 font-medium">
+                                CUIT: {supplier.tax_id}
+                            </span>
+                        {/if}
+
                         {#if supplier.contact_number}
                             <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs tabular-nums text-foreground/90 border border-border/40">
                                 <Phone class="size-3.5 text-muted-foreground" />
@@ -109,7 +116,7 @@
                             </span>
                         {/if}
 
-                        {#if !supplier.contact_number && !supplier.email}
+                        {#if !supplier.contact_number && !supplier.email && !supplier.tax_id}
                             <span class="text-xs text-muted-foreground italic">
                                 Sin datos de contacto registrados
                             </span>

@@ -37,6 +37,7 @@ class CollectCustomerOrderRequest extends FormRequest
             'amount.required' => 'El importe a cobrar es obligatorio.',
             'amount.numeric' => 'El importe debe ser un número válido.',
             'amount.min' => 'El importe a cobrar debe ser mayor a cero.',
+            'amount.max' => 'El importe a cobrar no puede superar los $100.000.000.',
         ];
     }
 }

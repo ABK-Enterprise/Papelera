@@ -24,7 +24,7 @@ class UpdateCompanySettingsRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:150'],
             'legal_name' => ['nullable', 'string', 'max:200'],
-            'cuit_tax_id' => ['nullable', 'string', 'max:20', 'regex:/^(?:\d{2}-?\d{8}-?\d{1}|\d{11})$/'],
+            'cuit_tax_id' => ['nullable', 'string', 'max:13', 'regex:/^(?:\d{1,11}|\d{2}-\d{8}-\d{1})$/'],
             'tax_condition' => ['required', 'string', 'in:responsable_inscripto,monotributo,exento,consumidor_final'],
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:100'],
@@ -47,7 +47,8 @@ class UpdateCompanySettingsRequest extends FormRequest
     {
         return [
             'name.required' => 'El nombre del comercio es obligatorio.',
-            'cuit_tax_id.regex' => 'El CUIT debe tener un formato válido (ej. 30-12345678-9 o 30123456789).',
+            'cuit_tax_id.max' => 'El CUIT no puede superar los 11 dígitos.',
+            'cuit_tax_id.regex' => 'El CUIT debe contener como máximo 11 dígitos numéricos o formato válido (ej. 30-12345678-9).',
             'tax_condition.required' => 'La condición frente al IVA es obligatoria.',
             'tax_condition.in' => 'La condición frente al IVA seleccionada no es válida.',
             'email.email' => 'El correo electrónico debe tener un formato válido.',

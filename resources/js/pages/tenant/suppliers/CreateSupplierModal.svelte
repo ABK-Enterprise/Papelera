@@ -19,6 +19,7 @@
     import Check from 'lucide-svelte/icons/check';
     import X from 'lucide-svelte/icons/x';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import { sanitizeIdentificationInput } from '@/lib/numericSanitizer';
 
     let {
         open = $bindable(false),
@@ -28,6 +29,7 @@
 
     const form = useForm({
         name: '',
+        tax_id: '',
         contact_number: '',
         email: '',
         address: '',
@@ -81,21 +83,40 @@
 
         <DialogBody>
             <form id="create-supplier-form" onsubmit={submit} class="space-y-4">
-                <!-- Nombre del proveedor -->
-                <div class="space-y-1.5">
-                    <Label for="create-supplier-name" class="text-sm font-medium text-foreground">
-                        Nombre o Razón Social <span class="text-destructive">*</span>
-                    </Label>
-                    <Input
-                        id="create-supplier-name"
-                        bind:value={form.name}
-                        placeholder="ej. Distribuidora Papelera Mayorista S.A."
-                        required
-                        class="h-9 text-sm"
-                    />
-                    {#if form.errors.name}
-                        <p class="text-xs text-destructive">{form.errors.name}</p>
-                    {/if}
+                <!-- Nombre y CUIT del proveedor -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div class="space-y-1.5">
+                        <Label for="create-supplier-name" class="text-sm font-medium text-foreground">
+                            Nombre o Razón Social <span class="text-destructive">*</span>
+                        </Label>
+                        <Input
+                            id="create-supplier-name"
+                            bind:value={form.name}
+                            placeholder="ej. Distribuidora Papelera Mayorista S.A."
+                            required
+                            class="h-9 text-sm"
+                        />
+                        {#if form.errors.name}
+                            <p class="text-xs text-destructive">{form.errors.name}</p>
+                        {/if}
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <Label for="create-supplier-tax-id" class="text-sm font-medium text-foreground">
+                            CUIT
+                        </Label>
+                        <Input
+                            id="create-supplier-tax-id"
+                            bind:value={form.tax_id}
+                            placeholder="ej. 30-71234567-9"
+                            maxlength="13"
+                            oninput={(e) => sanitizeIdentificationInput(e, (val) => { form.tax_id = val; })}
+                            class="h-9 text-sm tabular-nums"
+                        />
+                        {#if form.errors.tax_id}
+                            <p class="text-xs text-destructive">{form.errors.tax_id}</p>
+                        {/if}
+                    </div>
                 </div>
 
                 <!-- Teléfono / Contacto y Correo -->

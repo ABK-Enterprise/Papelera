@@ -17,6 +17,7 @@
     import Pencil from 'lucide-svelte/icons/pencil';
     import ImageOff from 'lucide-svelte/icons/image-off';
     import TenantLogoModal from '@/components/tenant/settings/TenantLogoModal.svelte';
+    import { sanitizeIdentificationInput } from '@/lib/numericSanitizer';
 
     interface CompanyData {
         name: string;
@@ -219,6 +220,7 @@
                         bind:value={form.cuit_tax_id}
                         placeholder="ej. 30-71234567-8"
                         maxlength={13}
+                        oninput={(e) => sanitizeIdentificationInput(e, (val) => { form.cuit_tax_id = val; })}
                         class="h-10 text-sm font-sans tabular-nums"
                     />
                     {#if form.errors.cuit_tax_id}

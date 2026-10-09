@@ -32,11 +32,13 @@
     import X from 'lucide-svelte/icons/x';
     import Calendar from 'lucide-svelte/icons/calendar';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import { sanitizeIdentificationInput } from '@/lib/numericSanitizer';
 
     export interface SupplierItem {
         id: number;
         tenant_id: number;
         name: string;
+        tax_id?: string | null;
         contact_number: string | null;
         email: string | null;
         address: string | null;
@@ -55,6 +57,7 @@
 
     const form = useForm({
         name: '',
+        tax_id: '',
         contact_number: '',
         email: '',
         address: '',
@@ -76,6 +79,7 @@
         if (supplier && supplier.id !== lastLoadedSupplierId) {
             lastLoadedSupplierId = supplier.id;
             form.name = supplier.name ?? '';
+            form.tax_id = supplier.tax_id ?? '';
             form.contact_number = supplier.contact_number ?? '';
             form.email = supplier.email ?? '';
             form.address = supplier.address ?? '';
@@ -255,21 +259,40 @@
 
         <DialogBody>
             <form id="manage-supplier-form" onsubmit={submit} class="space-y-4">
-                <!-- Nombre o Razón Social -->
-                <div class="space-y-1.5">
-                    <Label for="manage-supplier-name" class="text-sm font-medium text-foreground">
-                        Nombre o Razón Social <span class="text-destructive">*</span>
-                    </Label>
-                    <Input
-                        id="manage-supplier-name"
-                        bind:value={form.name}
-                        placeholder="Nombre del proveedor"
-                        required
-                        class="h-9 text-sm font-medium"
-                    />
-                    {#if form.errors.name}
-                        <p class="text-xs text-destructive">{form.errors.name}</p>
-                    {/if}
+                <!-- Nombre y CUIT del proveedor -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div class="space-y-1.5">
+                        <Label for="manage-supplier-name" class="text-sm font-medium text-foreground">
+                            Nombre o Razón Social <span class="text-destructive">*</span>
+                        </Label>
+                        <Input
+                            id="manage-supplier-name"
+                            bind:value={form.name}
+                            placeholder="Nombre del proveedor"
+                            required
+                            class="h-9 text-sm font-medium"
+                        />
+                        {#if form.errors.name}
+                            <p class="text-xs text-destructive">{form.errors.name}</p>
+                        {/if}
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <Label for="manage-supplier-tax-id" class="text-sm font-medium text-foreground">
+                            CUIT
+                        </Label>
+                        <Input
+                            id="manage-supplier-tax-id"
+                            bind:value={form.tax_id}
+                            placeholder="ej. 30-71234567-9"
+                            maxlength="13"
+                            oninput={(e) => sanitizeIdentificationInput(e, (val) => { form.tax_id = val; })}
+                            class="h-9 text-sm tabular-nums"
+                        />
+                        {#if form.errors.tax_id}
+                            <p class="text-xs text-destructive">{form.errors.tax_id}</p>
+                        {/if}
+                    </div>
                 </div>
 
                 <!-- Teléfono y Email -->

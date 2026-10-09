@@ -15,6 +15,7 @@
         id: number;
         tenant_id: number;
         name: string;
+        tax_id?: string | null;
         contact_number: string | null;
         email: string | null;
         address: string | null;
@@ -93,8 +94,13 @@
             </div>
 
             <!-- Datos de contacto & Email -->
-            {#if supplier.contact_number || supplier.email}
+            {#if supplier.tax_id || supplier.contact_number || supplier.email}
                 <div class="flex items-center gap-2 flex-wrap pt-1 border-t border-border/40">
+                    {#if supplier.tax_id}
+                        <span class="inline-flex items-center gap-1 text-xs tabular-nums bg-muted/60 px-2 py-0.5 rounded text-foreground font-medium">
+                            CUIT: {supplier.tax_id}
+                        </span>
+                    {/if}
                     {#if supplier.contact_number}
                         <span class="inline-flex items-center gap-1 text-xs tabular-nums bg-muted/60 px-2 py-0.5 rounded text-foreground">
                             <Phone class="size-3 text-muted-foreground" />

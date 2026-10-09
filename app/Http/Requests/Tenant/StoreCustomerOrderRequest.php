@@ -201,4 +201,18 @@ class StoreCustomerOrderRequest extends FormRequest
             }
         });
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'paid_amount.max' => 'El importe abonado no puede superar los $100.000.000.',
+            'credit_balance_applied.max' => 'El saldo a favor aplicado no puede superar los $100.000.000.',
+            'previous_debt_collected.max' => 'El monto de cobro de deuda no puede superar los $100.000.000.',
+            'items.*.unit_price.max' => 'El precio unitario no puede superar los $100.000.000.',
+            'items.*.quantity.max' => 'La cantidad de producto no puede superar los 100.000.000.',
+        ];
+    }
 }

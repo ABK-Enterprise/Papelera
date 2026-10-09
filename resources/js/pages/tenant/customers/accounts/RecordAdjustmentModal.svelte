@@ -15,6 +15,7 @@
     import Check from 'lucide-svelte/icons/check';
     import Sliders from 'lucide-svelte/icons/sliders';
     import X from 'lucide-svelte/icons/x';
+    import { preventInvalidNumericKeys, sanitizeNumericInput } from '@/lib/numericSanitizer';
 
     export interface CustomerAccountData {
         id: number;
@@ -71,6 +72,10 @@
         if (!customer) return;
         if (amountNum <= 0) {
             errorMessage = 'Por favor ingresa un monto válido mayor a cero.';
+            return;
+        }
+        if (amountNum > 100_000_000) {
+            errorMessage = 'El monto del ajuste no puede superar los $100.000.000.';
             return;
         }
         if (!description.trim()) {
@@ -193,11 +198,12 @@
                                 type="number"
                                 step="0.01"
                                 min="0.01"
-                                max="50000000"
-                                maxlength="9"
+                                max="100000000"
+                                onkeydown={(e) => preventInvalidNumericKeys(e)}
                                 oninput={(e) => {
-                                    const target = e.target as HTMLInputElement;
-                                    if (target.value.length > 9) target.value = target.value.slice(0, 9);
+                                    sanitizeNumericInput(e, 0.01, 100_000_000, (val) => {
+                                        amount = typeof val === 'number' ? String(val) : val;
+                                    });
                                 }}
                                 bind:value={amount}
                                 class="pl-7 text-base tabular-nums font-bold"

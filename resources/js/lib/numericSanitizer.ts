@@ -62,3 +62,46 @@ export function sanitizeNumericInput(
     // Dentro de rango: se conserva el valor tipiado para no destruir puntos decimales ('12.')
     onValueUpdate(raw);
 }
+
+/**
+ * Sanitiza entradas de identificación (CUIT / DNI) en tiempo real:
+ * - Permite únicamente dígitos numéricos y guiones (ej. 20-12345678-9 o 30000001).
+ * - Restringe la cantidad máxima de dígitos numéricos estrictamente a 11 (máximo CUIT en Argentina).
+ * - Máximo de caracteres totales con guiones: 13.
+ */
+export function sanitizeIdentificationInput(
+    e: Event,
+    onValueUpdate: (val: string) => void
+) {
+    const input = e.target as HTMLInputElement;
+    const raw = input.value;
+
+    // Permitir sólo números y guiones
+    let cleaned = raw.replace(/[^\d-]/g, '');
+
+    // Limitar la cantidad de dígitos numéricos a 11
+    const digitsOnly = cleaned.replace(/\D/g, '');
+    if (digitsOnly.length > 11) {
+        let count = 0;
+        let truncated = '';
+        for (const char of cleaned) {
+            if (/\d/.test(char)) {
+                if (count < 11) {
+                    truncated += char;
+                    count++;
+                }
+            } else if (char === '-') {
+                truncated += char;
+            }
+        }
+        cleaned = truncated;
+    }
+
+    if (cleaned.length > 13) {
+        cleaned = cleaned.slice(0, 13);
+    }
+
+    input.value = cleaned;
+    onValueUpdate(cleaned);
+}
+

@@ -28,7 +28,7 @@
         type GeoLocality,
         ARGENTINE_PROVINCES_FALLBACK,
     } from '@/lib/geodata';
-    import { preventInvalidNumericKeys, sanitizeNumericInput } from '@/lib/numericSanitizer';
+    import { preventInvalidNumericKeys, sanitizeNumericInput, sanitizeIdentificationInput } from '@/lib/numericSanitizer';
 
     let {
         open = $bindable(false),
@@ -182,6 +182,8 @@
                         id="create-customer-tax-id"
                         bind:value={form.tax_id}
                         placeholder="ej. 30-71234567-9"
+                        maxlength="13"
+                        oninput={(e) => sanitizeIdentificationInput(e, (val) => { form.tax_id = val; })}
                         class="h-9 text-sm tabular-nums"
                     />
                     {#if form.errors.tax_id}

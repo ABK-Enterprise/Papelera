@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $tenant_id
  * @property string $name
+ * @property string|null $tax_id
  * @property string|null $contact_number
  * @property string|null $email
  * @property string|null $address
@@ -24,6 +25,7 @@ use Illuminate\Support\Carbon;
 #[Fillable([
     'tenant_id',
     'name',
+    'tax_id',
     'contact_number',
     'email',
     'address',
