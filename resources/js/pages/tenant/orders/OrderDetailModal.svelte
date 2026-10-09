@@ -91,6 +91,11 @@
         price_adjustments?: any[] | null;
         debt_amount?: string | number;
         paid_amount?: string | number;
+        credit_balance_applied?: string | number | null;
+        previous_debt_collected?: string | number | null;
+        has_previous_balance_impact?: boolean;
+        billable_amount?: string | number | null;
+        collectible_amount?: string | number | null;
         total_amount: string | number;
         notes: string | null;
         created_at: string;
@@ -785,6 +790,52 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- Sección: Uso de cuenta corriente -->
+                {#if (Number(order.credit_balance_applied ?? 0) > 0) || (Number(order.previous_debt_collected ?? 0) > 0)}
+                    <div class="space-y-2 pt-2 border-t">
+                        <div class="flex items-center gap-1.5 mb-2">
+                            <Wallet class="size-3.5 text-primary" />
+                            <span class="text-xs font-bold text-foreground">Uso de cuenta corriente</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {#if Number(order.credit_balance_applied ?? 0) > 0}
+                                <div class="p-2.5 rounded-xl border flex items-center justify-between text-xs bg-emerald-500/5 border-emerald-500/20">
+                                    <div class="min-w-0 pr-2">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-semibold text-foreground truncate">Saldo a favor</span>
+                                            <span class="text-xs px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-sans tabular-nums font-medium">Aplicado</span>
+                                        </div>
+                                        <p class="text-xs text-muted-foreground truncate mt-0.5">Deducido del total a pagar</p>
+                                    </div>
+                                    <div class="flex items-center shrink-0 font-sans tabular-nums">
+                                        <span class="font-bold text-emerald-700 dark:text-emerald-400">
+                                            -{formatPrice(order.credit_balance_applied)}
+                                        </span>
+                                    </div>
+                                </div>
+                            {/if}
+
+                            {#if Number(order.previous_debt_collected ?? 0) > 0}
+                                <div class="p-2.5 rounded-xl border flex items-center justify-between text-xs bg-amber-500/5 border-amber-500/20">
+                                    <div class="min-w-0 pr-2">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-semibold text-foreground truncate">Saldo deudor</span>
+                                            <span class="text-xs px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 font-sans tabular-nums font-medium">Cobrado</span>
+                                        </div>
+                                        <p class="text-xs text-muted-foreground truncate mt-0.5">Unificado en el cobro</p>
+                                    </div>
+                                    <div class="flex items-center shrink-0 font-sans tabular-nums">
+                                        <span class="font-bold text-amber-700 dark:text-amber-400">
+                                            +{formatPrice(order.previous_debt_collected)}
+                                        </span>
+                                    </div>
+                                </div>
+                            {/if}
+                        </div>
+                    </div>
+                {/if}
 
                 <!-- Sección de Descuentos y Recargos Aplicados -->
                 <div class="space-y-2 pt-2 border-t">

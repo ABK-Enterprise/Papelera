@@ -519,8 +519,6 @@
                                             {:else}
                                                 <option value="unidad">Unidad</option>
                                                 <option value="bulto">Bulto ({item.units_per_package} u)</option>
-                                                <option value="bolson">Bolsón</option>
-                                                <option value="paquete">Paquete</option>
                                             {/if}
                                         </select>
                                     </div>
