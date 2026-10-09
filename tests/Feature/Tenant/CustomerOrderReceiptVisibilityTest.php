@@ -269,7 +269,7 @@ test('receipt pdf template renders customer credit account and filtered adjustme
 
     // Debe mostrarse el resumen de cuenta corriente en la ficha del cliente
     expect($html)->toContain('Estado Cta. Cte.:')
-        ->toContain('[ A DEBER ]')
+        ->toContain('"A DEBER"')
         ->toContain('Saldo deudor actual:')
         ->and($html)->not->toContain('ESTADO EN CUENTA CORRIENTE');
 
@@ -365,8 +365,8 @@ test('receipt pdf renders credit balance applied and total to pay when sub-item 
 
     // Ficha del cliente: muestra estado A FAVOR
     expect($html)->toContain('Estado Cta. Cte.:')
-        ->toContain('[ A FAVOR ]')
-        ->toContain('Saldo a favor disponible:')
+        ->toContain('"A FAVOR"')
+        ->toContain('Saldo a favor actual:')
         ->toContain('$5.000,00');
 
     // Totales: muestra Total del Pedido con monto neto afectado ($6.000,00) y Saldo a Favor Aplicado
