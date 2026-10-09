@@ -237,10 +237,10 @@
                         disabled={!canEditPrices(order)}
                         onclick={() => onEditPrices?.(order)}
                         class="w-full min-h-[32px] px-2.5 py-1 text-xs font-semibold rounded-lg border border-border/80 bg-background/80 hover:bg-muted hover:border-border text-foreground transition-colors flex items-center justify-center gap-1.5 shadow-2xs {!canEditPrices(order) ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'cursor-pointer'}"
-                        title={!canEditPrices(order) ? 'No se pueden editar precios en pedidos entregados, cancelados o facturados' : 'Editar precios de productos'}
+                        title={!canEditPrices(order) ? 'No se pueden modificar pedidos entregados, cancelados o facturados' : 'Modificar pedido (precios o agregar productos)'}
                     >
                         <Pencil class="size-3.5 text-muted-foreground shrink-0" />
-                        <span>Editar precios</span>
+                        <span>Editar pedido</span>
                     </button>
                 </div>
             </div>

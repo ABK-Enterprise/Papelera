@@ -19,6 +19,8 @@
     import OrderListDesktop from './desktop/OrderListDesktop.svelte';
     import OrderListMobile from './mobile/OrderListMobile.svelte';
     import OrderProductsPriceEditModal from './components/OrderProductsPriceEditModal.svelte';
+    import ChooseOrderEditActionModal from './components/ChooseOrderEditActionModal.svelte';
+    import AddOrderProductsModal from './components/AddOrderProductsModal.svelte';
     import CollectOrderModal from './components/CollectOrderModal.svelte';
 
     interface OrderItem {
@@ -105,12 +107,20 @@
     let selectedOrder = $state<OrderData | null>(null);
     let isPriceEditModalOpen = $state(false);
     let editingPriceOrder = $state<OrderData | null>(null);
+    let isChooseEditActionOpen = $state(false);
+    let isAddProductsModalOpen = $state(false);
+    let orderToModify = $state<OrderData | null>(null);
     let isCollectModalOpen = $state(false);
     let collectingOrder = $state<OrderData | null>(null);
 
     function openOrderPriceEdit(order: OrderData) {
         editingPriceOrder = order;
         isPriceEditModalOpen = true;
+    }
+
+    function openOrderEditActions(order: OrderData) {
+        orderToModify = order;
+        isChooseEditActionOpen = true;
     }
 
     function openCollectOrder(order: OrderData) {
@@ -373,12 +383,12 @@
 
     <!-- Lista Desktop -->
     <div class="hidden md:block">
-        <OrderListDesktop {orders} onSelectOrder={openOrderDetail} onEditPrices={openOrderPriceEdit} onCollectOrder={openCollectOrder} />
+        <OrderListDesktop {orders} onSelectOrder={openOrderDetail} onEditPrices={openOrderEditActions} onCollectOrder={openCollectOrder} />
     </div>
 
     <!-- Lista Mobile -->
     <div class="block md:hidden">
-        <OrderListMobile {orders} onSelectOrder={openOrderDetail} onEditPrices={openOrderPriceEdit} onCollectOrder={openCollectOrder} />
+        <OrderListMobile {orders} onSelectOrder={openOrderDetail} onEditPrices={openOrderEditActions} onCollectOrder={openCollectOrder} />
     </div>
 </div>
 
@@ -389,6 +399,31 @@
     onSuccess={(updatedOrder) => {
         if (selectedOrder && collectingOrder && selectedOrder.id === collectingOrder.id) {
             selectedOrder = { ...selectedOrder, ...updatedOrder };
+        }
+    }}
+/>
+
+<!-- Diálogo Intermediario de Selección de Acción de Edición -->
+<ChooseOrderEditActionModal
+    bind:open={isChooseEditActionOpen}
+    order={orderToModify}
+    onEditPrices={() => {
+        editingPriceOrder = orderToModify;
+        isPriceEditModalOpen = true;
+    }}
+    onAddProducts={() => {
+        isAddProductsModalOpen = true;
+    }}
+/>
+
+<!-- Modal de Adición de Nuevos Productos al Pedido -->
+<AddOrderProductsModal
+    bind:open={isAddProductsModalOpen}
+    order={orderToModify as any}
+    {availableProducts}
+    onSuccess={(updatedOrder) => {
+        if (selectedOrder && selectedOrder.id === updatedOrder.id) {
+            selectedOrder = updatedOrder;
         }
     }}
 />

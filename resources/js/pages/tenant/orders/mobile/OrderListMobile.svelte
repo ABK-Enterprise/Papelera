@@ -224,8 +224,8 @@
                         disabled={!canEditPrices(order)}
                         onclick={() => onEditPrices?.(order)}
                         class="size-11 min-h-[44px] min-w-[44px] rounded-xl border border-border/80 bg-background/80 shadow-2xs hover:bg-muted hover:border-border text-foreground transition-colors flex items-center justify-center shrink-0 {!canEditPrices(order) ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'cursor-pointer'}"
-                        aria-label="Editar precios de productos"
-                        title={!canEditPrices(order) ? 'No se pueden editar precios en pedidos entregados, cancelados o facturados' : 'Editar precios de productos'}
+                        aria-label="Modificar pedido"
+                        title={!canEditPrices(order) ? 'No se pueden modificar pedidos entregados, cancelados o facturados' : 'Modificar pedido (precios o agregar productos)'}
                     >
                         <Pencil class="size-4.5 text-muted-foreground" />
                     </button>
