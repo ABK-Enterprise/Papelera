@@ -262,7 +262,7 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-2xl w-full p-5 sm:p-6 space-y-4 rounded-2xl max-h-[92vh] flex flex-col">
+    <DialogContent class="max-w-2xl w-full p-5 sm:p-6 space-y-4 rounded-2xl min-h-[500px] sm:min-h-[540px] max-h-[92vh] flex flex-col">
         <!-- Header -->
         <DialogHeader class="shrink-0 pb-1 border-b border-border/60">
             <div class="flex items-center gap-3">
@@ -282,72 +282,72 @@
             </div>
         </DialogHeader>
 
-        <!-- Body con scroll elástico -->
-        <DialogBody class="flex-1 overflow-y-auto space-y-4 py-2 pr-1">
-            {#if errorMessage}
-                <div class="flex items-center gap-2 p-3 text-sm rounded-xl bg-destructive/10 border border-destructive/20 text-destructive">
-                    <AlertTriangle class="size-4 shrink-0" />
-                    <span>{errorMessage}</span>
-                </div>
-            {/if}
-
-            <!-- Buscador Combobox de Productos -->
-            <div class="space-y-1.5">
-                <Label class="text-sm font-semibold text-foreground">
-                    Buscar producto en el catálogo
-                </Label>
-                <SearchCombobox
-                    id="add-order-products-combobox"
-                    bind:value={searchQuery}
-                    items={searchResults}
-                    filterLocally={false}
-                    placeholder="Escriba el nombre del producto o código SKU..."
-                    showDropdown={true}
-                    onsearch={(q) => (searchQuery = q)}
-                    onselect={(p) => addProductToItems(p)}
-                    onclear={() => {
-                        searchQuery = '';
-                    }}
-                    inputClass="h-11 sm:h-10 min-h-[44px] sm:min-h-[40px] text-xs sm:text-sm font-medium w-full"
-                >
-                    {#snippet itemSnippet(prod)}
-                        <div class="flex items-start justify-between gap-2.5 w-full text-left py-0.5">
-                            <div class="min-w-0 flex-1">
-                                <p class="text-sm font-semibold text-foreground line-clamp-1 break-words">
-                                    {prod.name}
-                                </p>
-                                <div class="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
-                                    {#if prod.sku}
-                                        <span class="tabular-nums">SKU: {prod.sku}</span>
-                                    {/if}
-                                    <span class="tabular-nums">• Stock: {prod.stock}</span>
-                                </div>
-                            </div>
-                            <span class="text-xs font-bold text-foreground tabular-nums shrink-0">
-                                {formatPrice(prod.price)}
-                            </span>
-                        </div>
-                    {/snippet}
-                    {#snippet emptySnippet()}
-                        <div class="p-3 text-center text-sm text-muted-foreground">
-                            <p>No se encontraron productos coincidentes.</p>
-                            {#if searchQuery.trim()}
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    class="mt-2 text-xs font-semibold rounded-lg cursor-pointer min-h-[36px]"
-                                    onclick={() => addOnTheFlyProduct(searchQuery)}
-                                >
-                                    <Plus class="size-3.5 mr-1 text-primary" />
-                                    Crear "{searchQuery.trim()}" al vuelo
-                                </Button>
-                            {/if}
-                        </div>
-                    {/snippet}
-                </SearchCombobox>
+        {#if errorMessage}
+            <div class="flex items-center gap-2 p-3 text-sm rounded-xl bg-destructive/10 border border-destructive/20 text-destructive shrink-0">
+                <AlertTriangle class="size-4 shrink-0" />
+                <span>{errorMessage}</span>
             </div>
+        {/if}
 
+        <!-- Buscador Combobox de Productos (Fijo en cabecera con z-index elevado para no ser recortado por scroll) -->
+        <div class="space-y-1.5 shrink-0 relative z-30">
+            <Label class="text-sm font-semibold text-foreground">
+                Buscar producto en el catálogo
+            </Label>
+            <SearchCombobox
+                id="add-order-products-combobox"
+                bind:value={searchQuery}
+                items={searchResults}
+                filterLocally={false}
+                placeholder="Escriba el nombre del producto o código SKU..."
+                showDropdown={true}
+                onsearch={(q) => (searchQuery = q)}
+                onselect={(p) => addProductToItems(p)}
+                onclear={() => {
+                    searchQuery = '';
+                }}
+                inputClass="h-11 sm:h-10 min-h-[44px] sm:min-h-[40px] text-xs sm:text-sm font-medium w-full"
+            >
+                {#snippet itemSnippet(prod)}
+                    <div class="flex items-start justify-between gap-2.5 w-full text-left py-0.5">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-semibold text-foreground line-clamp-1 break-words">
+                                {prod.name}
+                            </p>
+                            <div class="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
+                                {#if prod.sku}
+                                    <span class="tabular-nums">SKU: {prod.sku}</span>
+                                {/if}
+                                <span class="tabular-nums">• Stock: {prod.stock}</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-foreground tabular-nums shrink-0">
+                            {formatPrice(prod.price)}
+                        </span>
+                    </div>
+                {/snippet}
+                {#snippet emptySnippet()}
+                    <div class="p-3 text-center text-sm text-muted-foreground">
+                        <p>No se encontraron productos coincidentes.</p>
+                        {#if searchQuery.trim()}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                class="mt-2 text-xs font-semibold rounded-lg cursor-pointer min-h-[36px]"
+                                onclick={() => addOnTheFlyProduct(searchQuery)}
+                            >
+                                <Plus class="size-3.5 mr-1 text-primary" />
+                                Crear "{searchQuery.trim()}" al vuelo
+                            </Button>
+                        {/if}
+                    </div>
+                {/snippet}
+            </SearchCombobox>
+        </div>
+
+        <!-- Body con scroll elástico para la lista de productos agregados -->
+        <DialogBody class="flex-1 overflow-y-auto space-y-4 py-2 pr-1 relative z-10 min-h-[160px]">
             <!-- Listado de Productos a Agregar -->
             <div class="space-y-2 pt-1">
                 <div class="flex items-center justify-between">

@@ -221,7 +221,7 @@
 </script>
 
 <div
-    class="relative w-full {className}"
+    class="relative w-full {className} {isOpen ? 'z-50' : ''}"
     use:clickOutside={{ callback: () => (isOpen = false), enabled: isOpen }}
 >
     <div class="relative flex items-center">
