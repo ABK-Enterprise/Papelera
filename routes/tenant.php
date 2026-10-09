@@ -9,6 +9,7 @@ use App\Http\Controllers\Tenant\CustomerOrderAdjustmentController;
 use App\Http\Controllers\Tenant\CustomerOrderController;
 use App\Http\Controllers\Tenant\CustomerOrderFiscalController;
 use App\Http\Controllers\Tenant\CustomerOrderItemPriceController;
+use App\Http\Controllers\Tenant\CustomerOrderItemsController;
 use App\Http\Controllers\Tenant\CustomerOrderPriceReviewController;
 use App\Http\Controllers\Tenant\CustomerOrderReceiptController;
 use App\Http\Controllers\Tenant\CustomerOrderReturnController;
@@ -206,6 +207,7 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('pedidos/{customerOrder}/ajustes/sincronizar', [CustomerOrderAdjustmentController::class, 'syncPresets'])->name('orders.adjustments.sync')->middleware('tenant.permission:pedidos.editar_estado');
             Route::delete('pedidos/{customerOrder}/ajustes/{adjustmentId}', [CustomerOrderAdjustmentController::class, 'destroy'])->name('orders.adjustments.destroy')->middleware('tenant.permission:pedidos.editar_estado');
             Route::put('pedidos/{customerOrder}/items/{orderItem}/precio', [CustomerOrderItemPriceController::class, 'updatePrice'])->name('orders.items.update-price')->middleware('tenant.permission:pedidos.editar_estado');
+            Route::post('pedidos/{customerOrder}/agregar-productos', [CustomerOrderItemsController::class, 'store'])->name('orders.items.add')->middleware('tenant.permission:pedidos.editar_estado');
 
             // Repartos y Logística de Última Milla
             Route::get('repartos', [DeliveryRouteController::class, 'index'])->name('deliveries.index')->middleware('tenant.permission:repartos.ver');
