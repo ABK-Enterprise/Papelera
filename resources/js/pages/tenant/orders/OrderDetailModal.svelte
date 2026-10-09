@@ -1,9 +1,11 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
+    import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/components/ui/dialog';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import PdfPreviewModal from '@/components/common/PdfPreviewModal.svelte';
     import CollectOrderModal from './components/CollectOrderModal.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import Eye from 'lucide-svelte/icons/eye';
     import CustomerOrderReturnModal from './CustomerOrderReturnModal.svelte';
     import EmitFiscalInvoiceModal from './EmitFiscalInvoiceModal.svelte';
     import ReceiptItemsVisibilityModal from './components/ReceiptItemsVisibilityModal.svelte';
@@ -110,8 +112,10 @@
     let isReturnModalOpen = $state(false);
     let isPdfModalOpen = $state(false);
     let isFiscalModalOpen = $state(false);
+    let isFiscalPreModalOpen = $state(false);
     let isFiscalPdfModalOpen = $state(false);
     let isCollectModalOpen = $state(false);
+    let isBalanceImpactModalOpen = $state(false);
     let isReceiptVisibilityModalOpen = $state(false);
     let isChooseAdjustmentModalOpen = $state(false);
     let isCustomAdjustmentModalOpen = $state(false);
@@ -942,7 +946,7 @@
                             type="button"
                             variant="outline"
                             class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer text-foreground hover:text-primary hover:border-primary/50 {extraClass}"
-                            onclick={() => (isFiscalModalOpen = true)}
+                            onclick={() => (isFiscalPreModalOpen = true)}
                         >
                             <ReceiptText class="size-4 text-primary shrink-0" />
                             <span class="truncate">Facturar ARCA</span>
@@ -1043,11 +1047,22 @@
                         </span>
                     </div>
 
-                    <div class="flex items-baseline gap-1.5 shrink-0">
+                    <div class="flex items-center gap-1.5 shrink-0">
                         <span class="text-xs text-muted-foreground font-medium">Total:</span>
                         <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-primary" title={formatPrice(order.total_amount)}>
                             {formatPrice(order.total_amount)}
                         </span>
+                        {#if order.has_previous_balance_impact}
+                            <button
+                                type="button"
+                                onclick={() => (isBalanceImpactModalOpen = true)}
+                                class="size-6 rounded-md hover:bg-muted text-muted-foreground hover:text-primary transition-colors flex items-center justify-center cursor-pointer inline-flex align-middle ml-0.5"
+                                title="Ver desglose de monto facturable vs monto capaz de cobrar"
+                                aria-label="Ver desglose financiero"
+                            >
+                                <Eye class="size-3.5" />
+                            </button>
+                        {/if}
                     </div>
                 </div>
 
@@ -1234,6 +1249,146 @@
                 router.reload({ only: ['orders'] });
             }}
         />
+
+        <!-- Modal Informativo: Desglose Facturable vs Capaz de Cobrar -->
+        <Dialog bind:open={isBalanceImpactModalOpen}>
+            <DialogContent class="max-w-md p-5 sm:p-6 space-y-4">
+                <DialogHeader>
+                    <DialogTitle class="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
+                        <Info class="size-5 text-primary shrink-0" />
+                        <span>Desglose de Montos del Pedido</span>
+                    </DialogTitle>
+                </DialogHeader>
+
+                <DialogBody class="space-y-4 text-xs">
+                    <div class="grid grid-cols-2 gap-3 p-3.5 rounded-xl border border-border/70 bg-card dark:bg-slate-900/60">
+                        <div class="space-y-1">
+                            <span class="text-muted-foreground block font-medium">Monto Facturable (ARCA)</span>
+                            <span class="text-base font-bold text-foreground tabular-nums block">
+                                {formatPrice(order.billable_amount ?? order.total_amount)}
+                            </span>
+                            <span class="text-[11px] text-muted-foreground block">
+                                Base imponible legal correspondiente a los ítems y ajustes de la venta.
+                            </span>
+                        </div>
+                        <div class="space-y-1 border-l border-border/60 pl-3">
+                            <span class="text-muted-foreground block font-medium">Monto Capaz de Cobrar</span>
+                            <span class="text-base font-bold text-primary tabular-nums block">
+                                {formatPrice(order.collectible_amount ?? order.total_amount)}
+                            </span>
+                            <span class="text-[11px] text-muted-foreground block">
+                                Importe financiero neto tras aplicar regularizaciones de saldo previo.
+                            </span>
+                        </div>
+                    </div>
+
+                    {#if Number(order.credit_balance_applied ?? 0) > 0}
+                        <div class="p-3 rounded-xl bg-primary/10 border border-primary/20 text-primary space-y-1">
+                            <strong class="font-semibold block">Uso de Saldo a Favor</strong>
+                            <p class="leading-relaxed">
+                                Este pedido aplicó <strong>{formatPrice(order.credit_balance_applied)}</strong> de saldo a favor del cliente como medio de pago anticipado. El saldo restante a cancelar del pedido es de <strong>{formatPrice(order.total_amount)}</strong>, pero la factura fiscal oficial comprende el total vendido de <strong>{formatPrice(order.billable_amount)}</strong>.
+                            </p>
+                        </div>
+                    {/if}
+
+                    {#if Number(order.previous_debt_collected ?? 0) > 0}
+                        <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 space-y-1">
+                            <strong class="font-semibold block">Cobro de Deuda Histórica</strong>
+                            <p class="leading-relaxed">
+                                Se incluyeron <strong>{formatPrice(order.previous_debt_collected)}</strong> para regularizar deudas anteriores del cliente. Dicho cobro histórico no integra la factura fiscal de este pedido para preservar la integridad tributaria y evitar doble facturación.
+                            </p>
+                        </div>
+                    {/if}
+                </DialogBody>
+
+                <DialogFooter>
+                    <Button
+                        type="button"
+                        variant="default"
+                        class="w-full min-h-[44px] text-xs font-semibold rounded-xl cursor-pointer"
+                        onclick={() => (isBalanceImpactModalOpen = false)}
+                    >
+                        Entendido
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
+        <!-- Pre-Modal Informativo: Confirmación Legal de Facturación ARCA -->
+        <Dialog bind:open={isFiscalPreModalOpen}>
+            <DialogContent class="max-w-md p-5 sm:p-6 space-y-4">
+                <DialogHeader>
+                    <DialogTitle class="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
+                        <ReceiptText class="size-5 text-primary shrink-0" />
+                        <span>Confirmación Legal de Facturación ARCA</span>
+                    </DialogTitle>
+                </DialogHeader>
+
+                <DialogBody class="space-y-4 text-xs">
+                    <div class="p-3.5 rounded-xl bg-primary/10 border border-primary/25 space-y-1">
+                        <span class="text-xs text-muted-foreground block font-medium">Monto a facturar legalmente ante AFIP/ARCA:</span>
+                        <span class="text-xl font-bold text-primary tabular-nums block">
+                            {formatPrice(order.billable_amount ?? order.total_amount)}
+                        </span>
+                        <span class="text-[11px] text-muted-foreground block pt-0.5">
+                            Comprobante electrónico oficial. No incluye cobros de deudas anteriores ni deducciones de créditos previos no fiscales.
+                        </span>
+                    </div>
+
+                    <!-- Resumen del Pedido -->
+                    <div class="space-y-1.5 p-3 rounded-xl border border-border/70 bg-muted/30">
+                        <div class="flex items-center justify-between text-muted-foreground">
+                            <span>Subtotal de mercadería:</span>
+                            <span class="tabular-nums font-medium text-foreground">{formatPrice(order.subtotal_amount ?? 0)}</span>
+                        </div>
+                        {#if Number(order.shipping_cost ?? 0) > 0}
+                            <div class="flex items-center justify-between text-muted-foreground">
+                                <span>Costo de envío:</span>
+                                <span class="tabular-nums font-medium text-foreground">+{formatPrice(order.shipping_cost)}</span>
+                            </div>
+                        {/if}
+                        {#if Number(order.discount_total ?? 0) > 0 || Number(order.customer_discount_amount ?? 0) > 0}
+                            <div class="flex items-center justify-between text-emerald-600 dark:text-emerald-400">
+                                <span>Descuentos aplicados:</span>
+                                <span class="tabular-nums font-medium">-{formatPrice(Number(order.discount_total ?? 0) + Number(order.customer_discount_amount ?? 0))}</span>
+                            </div>
+                        {/if}
+                        {#if Number(order.surcharge_total ?? 0) > 0}
+                            <div class="flex items-center justify-between text-amber-600 dark:text-amber-400">
+                                <span>Recargos comerciales:</span>
+                                <span class="tabular-nums font-medium">+{formatPrice(order.surcharge_total)}</span>
+                            </div>
+                        {/if}
+                        <div class="flex items-center justify-between pt-1.5 border-t border-border/50 font-bold text-foreground">
+                            <span>Base imponible final:</span>
+                            <span class="tabular-nums text-primary text-sm">{formatPrice(order.billable_amount ?? order.total_amount)}</span>
+                        </div>
+                    </div>
+                </DialogBody>
+
+                <DialogFooter class="grid grid-cols-2 gap-2.5 pt-1">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        class="min-h-[44px] w-full text-xs font-semibold rounded-xl cursor-pointer"
+                        onclick={() => (isFiscalPreModalOpen = false)}
+                    >
+                        Cancelar
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="default"
+                        class="min-h-[44px] w-full text-xs font-semibold rounded-xl cursor-pointer"
+                        onclick={() => {
+                            isFiscalPreModalOpen = false;
+                            isFiscalModalOpen = true;
+                        }}
+                    >
+                        Continuar a Facturación
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
 
         <!-- Modal de Confirmación para Devolución de Pedido -->
         <ConfirmActionModal
