@@ -25,6 +25,7 @@
         status?: string | null;
         tax_condition?: string | null;
         is_defaulter?: string | null;
+        sort_by?: string | null;
     }
 
     let {
@@ -41,6 +42,7 @@
     let selectedStatus = $state(filters?.status ?? '');
     let selectedTaxCondition = $state(filters?.tax_condition ?? '');
     let selectedDefaulter = $state(filters?.is_defaulter ?? '');
+    let selectedSort = $state(filters?.sort_by ?? 'latest');
     let showCreateModal = $state(false);
     let showManageModal = $state(false);
     let isFilterModalOpen = $state(false);
@@ -51,16 +53,15 @@
         const st = filters?.status;
         const tc = filters?.tax_condition;
         const def = filters?.is_defaulter;
+        const sb = filters?.sort_by;
         untrack(() => {
             if (s !== undefined && s !== null) searchTerm = s;
             if (st !== undefined && st !== null) selectedStatus = st;
             if (tc !== undefined && tc !== null) selectedTaxCondition = tc;
             if (def !== undefined && def !== null) selectedDefaulter = def;
+            if (sb !== undefined && sb !== null) selectedSort = sb;
         });
     });
-
-
-
 
     function applyFilters() {
         router.get(
@@ -70,6 +71,7 @@
                 status: selectedStatus || undefined,
                 tax_condition: selectedTaxCondition || undefined,
                 is_defaulter: selectedDefaulter || undefined,
+                sort_by: selectedSort || undefined,
             },
             {
                 preserveState: true,
@@ -83,6 +85,7 @@
         selectedStatus = '';
         selectedTaxCondition = '';
         selectedDefaulter = '';
+        selectedSort = 'latest';
         router.get('/tenant/clientes', {}, { preserveState: true, preserveScroll: true });
     }
 
@@ -92,10 +95,10 @@
     }
 
     let hasActiveFilters = $derived(
-        Boolean(searchTerm || selectedStatus || selectedTaxCondition || selectedDefaulter)
+        Boolean(searchTerm || selectedStatus || selectedTaxCondition || selectedDefaulter || (selectedSort && selectedSort !== 'latest'))
     );
     let activeFiltersCount = $derived(
-        (selectedStatus ? 1 : 0) + (selectedTaxCondition ? 1 : 0) + (selectedDefaulter ? 1 : 0)
+        (selectedStatus ? 1 : 0) + (selectedTaxCondition ? 1 : 0) + (selectedDefaulter ? 1 : 0) + (selectedSort && selectedSort !== 'latest' ? 1 : 0)
     );
 </script>
 
@@ -231,6 +234,18 @@
                     <option value="no">Sin Deuda / Al Día</option>
                 </select>
 
+                <!-- Ordenamiento -->
+                <select
+                    bind:value={selectedSort}
+                    onchange={applyFilters}
+                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[135px]"
+                >
+                    <option value="latest">Más recientes</option>
+                    <option value="oldest">Más antiguos</option>
+                    <option value="name_asc">Nombre: A - Z</option>
+                    <option value="name_desc">Nombre: Z - A</option>
+                </select>
+
                 {#if hasActiveFilters}
                     <Button variant="ghost" size="sm" class="min-h-[38px] h-10 px-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 gap-1.5 rounded-xl transition-all" onclick={resetFilters}>
                         <RotateCcw class="size-3.5" />
@@ -271,10 +286,12 @@
     {selectedTaxCondition}
     {selectedStatus}
     {selectedDefaulter}
+    {selectedSort}
     onapply={(f) => {
         selectedTaxCondition = f.tax_condition;
         selectedStatus = f.status;
         selectedDefaulter = f.is_defaulter;
+        selectedSort = f.sort_by;
         applyFilters();
     }}
     onreset={resetFilters}

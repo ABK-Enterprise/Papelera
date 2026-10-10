@@ -13,9 +13,11 @@
     let {
         customers = [],
         selectedCustomer = null,
+        filters = {},
     }: {
         customers: CustomerAccountFull[];
         selectedCustomer: CustomerAccountFull | null;
+        filters?: Record<string, any>;
     } = $props();
 
     // Modals state
@@ -84,6 +86,7 @@
         <AccountLedgerDesktop
             {customers}
             {selectedCustomer}
+            {filters}
             onOpenPayment={openPaymentModal}
             onOpenAdjustment={openAdjustmentModal}
             onOpenCreditSettings={openCreditSettingsModal}
@@ -93,6 +96,7 @@
     <div class="block lg:hidden">
         <AccountLedgerMobile
             {customers}
+            {filters}
             onOpenPayment={openPaymentModal}
             onOpenAdjustment={openAdjustmentModal}
             onOpenCreditSettings={openCreditSettingsModal}

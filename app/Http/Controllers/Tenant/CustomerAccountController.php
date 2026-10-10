@@ -21,8 +21,12 @@ class CustomerAccountController extends Controller
     {
         $search = $request->input('search');
         $defaultersOnly = $request->boolean('defaulters_only');
+        $taxCondition = $request->input('tax_condition');
+        $status = $request->input('status');
         $sortBy = $request->input('sort_by', 'balance_high');
         $selectedId = $request->input('customer_id');
+        $movementSort = $request->input('movement_sort', 'latest');
+        $movementType = $request->input('movement_type');
 
         $tenantId = $request->user()->tenant_id;
 
@@ -37,6 +41,14 @@ class CustomerAccountController extends Controller
                 });
             })
             ->when($defaultersOnly, fn ($q) => $q->where('is_defaulter', true))
+            ->when($taxCondition && $taxCondition !== 'all', fn ($q) => $q->where('tax_condition', $taxCondition))
+            ->when($status !== null && $status !== '' && $status !== 'all', function ($q) use ($status) {
+                if ($status === 'active') {
+                    $q->where('is_active', true);
+                } elseif ($status === 'inactive') {
+                    $q->where('is_active', false);
+                }
+            })
             ->when($sortBy === 'balance_high', fn ($q) => $q->orderBy('current_balance', 'desc'))
             ->when($sortBy === 'balance_low', fn ($q) => $q->orderBy('current_balance', 'asc'))
             ->when($sortBy === 'credit_high', fn ($q) => $q->orderBy('credit_limit', 'desc'))
@@ -57,12 +69,21 @@ class CustomerAccountController extends Controller
 
         $selectedCustomer = null;
         if ($selectedId) {
-            $selectedCustomer = Customer::with(['movements.order:id,order_number', 'movements.createdBy:id,name'])
+            $selectedCustomer = Customer::with([
+                'movements' => function ($q) use ($movementSort, $movementType) {
+                    if ($movementType && in_array($movementType, ['charge', 'payment', 'adjustment'], true)) {
+                        $q->where('type', $movementType);
+                    }
+                    if ($movementSort === 'oldest') {
+                        $q->oldest();
+                    } else {
+                        $q->latest();
+                    }
+                },
+                'movements.order:id,order_number',
+                'movements.createdBy:id,name',
+            ])
                 ->where('id', $selectedId)
-                ->first();
-        } elseif ($customers->isNotEmpty()) {
-            $selectedCustomer = Customer::with(['movements.order:id,order_number', 'movements.createdBy:id,name'])
-                ->where('id', $customers->first()->id)
                 ->first();
         }
 
@@ -81,8 +102,12 @@ class CustomerAccountController extends Controller
             'filters' => [
                 'search' => $search,
                 'defaulters_only' => $defaultersOnly,
+                'tax_condition' => $taxCondition,
+                'status' => $status,
                 'sort_by' => $sortBy,
                 'customer_id' => $selectedCustomer?->id,
+                'movement_sort' => $movementSort,
+                'movement_type' => $movementType,
             ],
         ]);
     }

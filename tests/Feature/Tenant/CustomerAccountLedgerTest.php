@@ -35,7 +35,11 @@ beforeEach(function () {
         ['code' => 'productos'],
         ['name' => 'Catálogo de Productos', 'is_active' => true]
     );
-    $this->tenant->modules()->syncWithoutDetaching([$custModule->id, $ordersModule->id, $prodModule->id]);
+    $ccModule = Module::firstOrCreate(
+        ['code' => 'cuentas_corrientes'],
+        ['name' => 'Cuentas Corrientes', 'is_active' => true]
+    );
+    $this->tenant->modules()->syncWithoutDetaching([$custModule->id, $ordersModule->id, $prodModule->id, $ccModule->id]);
 
     $this->user = User::factory()->create([
         'tenant_id' => $this->tenant->id,
@@ -49,13 +53,14 @@ beforeEach(function () {
     $permOrdersVer = Permission::firstOrCreate(['name' => 'pedidos.ver', 'guard_name' => 'web']);
     $permOrdersCrear = Permission::firstOrCreate(['name' => 'pedidos.crear', 'guard_name' => 'web']);
     $permOrdersEditStatus = Permission::firstOrCreate(['name' => 'pedidos.editar_estado', 'guard_name' => 'web']);
+    $permCCVer = Permission::firstOrCreate(['name' => 'cuentas_corrientes.ver', 'guard_name' => 'web']);
 
     $adminRole = Role::firstOrCreate([
         'name' => 'Administrador',
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,
     ]);
-    $adminRole->syncPermissions([$permCustVer, $permCustEdit, $permOrdersVer, $permOrdersCrear, $permOrdersEditStatus]);
+    $adminRole->syncPermissions([$permCustVer, $permCustEdit, $permOrdersVer, $permOrdersCrear, $permOrdersEditStatus, $permCCVer]);
     $this->user->assignRole($adminRole);
 });
 
@@ -390,4 +395,41 @@ test('can record payment and adjustment that results in negative balance (advanc
 
     $customer->refresh();
     expect((float) $customer->current_balance)->toBe(-2500.00);
+});
+
+test('index returns null selectedCustomer when customer_id is not specified (master view mode)', function () {
+    $cust1 = Customer::factory()->forTenant($this->tenant)->create(['name' => 'Cliente Uno']);
+    $cust2 = Customer::factory()->forTenant($this->tenant)->create(['name' => 'Cliente Dos']);
+
+    $response = $this->actingAs($this->user)
+        ->getJson(route('tenant.customers.accounts.index'));
+
+    $response->assertOk();
+    $data = $response->json();
+
+    expect($data['selectedCustomer'])->toBeNull();
+    expect($data['customers'])->toHaveCount(2);
+});
+
+test('index returns selectedCustomer with movements when customer_id is provided (detail view mode)', function () {
+    $customer = Customer::factory()->forTenant($this->tenant)->create(['name' => 'Cliente Con Detalle']);
+
+    CustomerAccountMovement::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $customer->id,
+        'type' => 'charge',
+        'amount' => 5000.00,
+        'balance_after' => 5000.00,
+        'description' => 'Cargo por compra',
+    ]);
+
+    $response = $this->actingAs($this->user)
+        ->getJson(route('tenant.customers.accounts.index', ['customer_id' => $customer->id]));
+
+    $response->assertOk();
+    $data = $response->json();
+
+    expect($data['selectedCustomer'])->not->toBeNull();
+    expect($data['selectedCustomer']['id'])->toBe($customer->id);
+    expect($data['selectedCustomer']['movements'])->toHaveCount(1);
 });
