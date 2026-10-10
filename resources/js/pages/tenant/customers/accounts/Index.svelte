@@ -4,6 +4,7 @@
     import { router, page } from '@inertiajs/svelte';
     import { echo } from '@/lib/echo';
     import ArrowLeft from 'lucide-svelte/icons/arrow-left';
+    import X from 'lucide-svelte/icons/x';
     import AccountLedgerDesktop, { type CustomerAccountFull } from './desktop/AccountLedgerDesktop.svelte';
     import EditCreditSettingsModal from './EditCreditSettingsModal.svelte';
     import AccountLedgerMobile from './mobile/AccountLedgerMobile.svelte';
@@ -57,6 +58,20 @@
             echo.leave(channelName);
         };
     });
+
+    function handleDeselectCustomer() {
+        router.get(
+            '/tenant/clientes/cuentas-corrientes',
+            {
+                search: filters?.search || undefined,
+                defaulters_only: filters?.defaulters_only || undefined,
+                tax_condition: filters?.tax_condition || undefined,
+                status: filters?.status || undefined,
+                sort_by: filters?.sort_by || undefined,
+            },
+            { preserveState: true, preserveScroll: true }
+        );
+    }
 </script>
 
 <AppHead title="Cuentas Corrientes - Clientes" />
@@ -70,7 +85,18 @@
             </h1>
         </div>
 
-        <div class="flex justify-end w-full">
+        <div class="flex items-center justify-end gap-2.5 w-full flex-wrap sm:flex-nowrap">
+            {#if selectedCustomer}
+                <Button
+                    variant="outline"
+                    onclick={handleDeselectCustomer}
+                    class="min-h-[38px] px-3.5 gap-2 text-sm font-medium rounded-xl shadow-2xs hover:bg-muted border border-border/70 transition-all"
+                >
+                    <X class="size-3.5 text-muted-foreground" />
+                    <span>Deseleccionar cliente</span>
+                </Button>
+            {/if}
+
             <a href="/tenant/clientes" class="inline-flex">
                 <Button variant="secondary" class="min-h-[38px] px-3.5 gap-2 text-sm font-medium rounded-xl shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
                     <ArrowLeft class="size-3.5" />

@@ -5,7 +5,6 @@
     import { router } from '@inertiajs/svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
-    import ArrowLeft from 'lucide-svelte/icons/arrow-left';
     import ArrowUpDown from 'lucide-svelte/icons/arrow-up-down';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
     import Banknote from 'lucide-svelte/icons/banknote';
@@ -25,6 +24,7 @@
     import UserCheck from 'lucide-svelte/icons/user-check';
     import X from 'lucide-svelte/icons/x';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import { hasPermission } from '@/lib/permissions';
 
     export interface MovementData {
@@ -283,29 +283,45 @@
         <!-- Bento Card: Controles de Búsqueda y Filtros Avanzados -->
         <Card class="rounded-2xl p-4 shadow-2xs border border-border/70 bg-card">
             <div class="flex flex-col lg:flex-row items-center justify-between gap-3">
-                <!-- Buscador de Clientes -->
-                <div class="relative w-full lg:w-96 min-w-0">
-                    <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                    <input
-                        type="text"
+                <!-- Buscador de Clientes Combobox (Filtra en tiempo real) -->
+                <div class="w-full lg:w-96 min-w-0">
+                    <SearchCombobox
                         bind:value={searchQuery}
-                        onkeydown={(e) => e.key === 'Enter' && applyMasterFilters()}
+                        items={customers}
+                        searchKeys={['name', 'tax_id', 'phone']}
                         placeholder="Buscar por Nombre, CUIT/DNI, Teléfono..."
-                        class="h-10 w-full rounded-xl border border-input bg-background pl-10 pr-9 text-sm font-normal text-foreground placeholder:text-muted-foreground shadow-2xs focus:ring-1 focus:ring-primary outline-none transition-all"
-                    />
-                    {#if searchQuery}
-                        <button
-                            type="button"
-                            onclick={() => {
-                                searchQuery = '';
-                                applyMasterFilters();
-                            }}
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                            aria-label="Limpiar búsqueda"
-                        >
-                            <X class="size-3.5" />
-                        </button>
-                    {/if}
+                        onsearch={(q) => {
+                            searchQuery = q;
+                            applyMasterFilters();
+                        }}
+                        onselect={(cust) => selectCustomer(cust)}
+                        onclear={resetMasterFilters}
+                    >
+                        {#snippet itemSnippet(cust)}
+                            {@const bal = Number(cust.current_balance) || 0}
+                            <div class="flex items-center justify-between gap-3 w-full min-w-0">
+                                <div class="flex flex-col min-w-0">
+                                    <span class="truncate font-semibold text-foreground">{cust.name}</span>
+                                    <span class="text-xs tabular-nums text-muted-foreground">
+                                        {cust.tax_id ? `CUIT: ${cust.tax_id}` : 'Sin CUIT'}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0 text-right">
+                                    {#if cust.is_defaulter}
+                                        <span class="rounded-full bg-rose-500/15 px-2 py-0.5 text-xs font-bold text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                                            Moroso
+                                        </span>
+                                    {/if}
+                                    <div class="text-right">
+                                        <span class="text-xs font-bold tabular-nums block {bal > 0 ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400'}">
+                                            {formatPrice(bal)}
+                                        </span>
+                                        <span class="text-xs text-muted-foreground">Saldo</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {/snippet}
+                    </SearchCombobox>
                 </div>
 
                 <!-- Selectores de Filtros Avanzados -->
@@ -372,7 +388,7 @@
                     {@const usagePercent = limitNum > 0 ? Math.min(100, Math.round((balanceNum / limitNum) * 100)) : 0}
 
                     <div
-                        class="bento-card group flex items-center justify-between gap-6 rounded-2xl border border-border/80 bg-card p-5 shadow-2xs hover:shadow-lg hover:border-primary/40 transition-all duration-200 cursor-pointer"
+                        class="bento-card group flex items-center justify-between gap-6 rounded-2xl border border-border/80 bg-card p-5 shadow-2xs hover:scale-[1.01] hover:shadow-lg hover:border-primary/40 transition-all duration-200 cursor-pointer"
                         onclick={() => selectCustomer(cust)}
                         onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && selectCustomer(cust)}
                         role="button"
@@ -457,7 +473,7 @@
 
                             <Button
                                 variant="secondary"
-                                class="min-h-[38px] px-3.5 gap-1.5 text-xs font-semibold rounded-xl group-hover:bg-primary group-hover:text-primary-foreground border border-border/40 transition-all shadow-2xs"
+                                class="min-h-[38px] px-3.5 gap-1.5 text-xs font-semibold rounded-xl border border-border/40 shadow-2xs"
                                 onclick={(e) => {
                                     e.stopPropagation();
                                     selectCustomer(cust);
@@ -701,19 +717,6 @@
         <!-- Columna Derecha: Panel de Resumen del Cliente y Acciones (38%) -->
         <div class="lg:col-span-5 space-y-4">
             <div class="bg-card text-card-foreground rounded-3xl border border-border/80 p-6 shadow-2xs space-y-5 sticky top-20">
-                <!-- Botón de Deselección / Volver al listado maestro -->
-                <div class="pb-1 border-b border-border/60">
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        onclick={deselectCustomer}
-                        class="w-full min-h-[38px] gap-2 rounded-xl text-xs font-semibold shadow-2xs border border-border/40 hover:bg-secondary/90 transition-all justify-start"
-                    >
-                        <ArrowLeft class="size-3.5" />
-                        <span>Volver a la lista de clientes</span>
-                    </Button>
-                </div>
-
                 <!-- Header Perfil Cliente -->
                 <div class="flex items-start gap-3.5 pb-4 border-b border-border/70">
                     <IconContainer size="lg" variant="primary">
