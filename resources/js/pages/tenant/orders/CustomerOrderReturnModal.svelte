@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
-    import IconContainer from '@/components/common/IconContainer.svelte';
+    import Icon from '@iconify/svelte';
     import { router } from '@inertiajs/svelte';
     import { fade, scale } from 'svelte/transition';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
@@ -210,16 +210,16 @@
             aria-labelledby="return-modal-title"
         >
             <!-- Header Bento -->
-            <div class="flex items-start justify-between gap-3 border-b pb-3.5 sm:pb-4 shrink-0">
-                <div class="min-w-0 flex-1 flex items-start gap-2.5">
-                    <div class="shrink-0 mt-0.5">
-                        <IconContainer size="md" variant="warning" icon="solar:restart-bold-duotone" />
+            <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 border-b pb-3.5 sm:pb-4 shrink-0 w-full">
+                <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+                    <div class="size-10 sm:size-12 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
+                        <Icon class="size-5 sm:size-6 text-amber-600 dark:text-amber-400" icon="solar:restart-bold-duotone" />
                     </div>
-                    <div>
-                        <h2 id="return-modal-title" class="text-base sm:text-lg font-bold text-foreground leading-snug line-clamp-2 break-words">
+                    <div class="min-w-0 flex-1 flex flex-col justify-center">
+                        <h2 id="return-modal-title" class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
                             Registrar Devolución — {order.order_number}
                         </h2>
-                        <p class="text-xs text-muted-foreground mt-0.5">
+                        <p class="text-xs text-muted-foreground mt-1 tabular-nums">
                             Cliente: <strong class="text-foreground">{order.customer_name}</strong>
                         </p>
                     </div>
@@ -227,7 +227,7 @@
 
                 <button
                     type="button"
-                    class="size-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors shrink-0 cursor-pointer"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors shrink-0 cursor-pointer"
                     onclick={closeModal}
                     aria-label="Cerrar modal"
                 >

@@ -1304,11 +1304,17 @@
         <!-- Modal Informativo: Desglose Facturable vs Capaz de Cobrar -->
         <Dialog bind:open={isBalanceImpactModalOpen}>
             <DialogContent class="max-w-md p-5 sm:p-6 space-y-4">
-                <DialogHeader>
-                    <DialogTitle class="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
-                        <Info class="size-5 text-primary shrink-0" />
-                        <span>Desglose de Montos del Pedido</span>
-                    </DialogTitle>
+                <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
+                    <div class="flex items-center gap-2.5 sm:gap-3.5">
+                        <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                            <Info class="size-5 sm:size-6 text-primary" />
+                        </div>
+                        <div class="min-w-0 flex-1 flex items-center">
+                            <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                                Desglose de Montos del Pedido
+                            </DialogTitle>
+                        </div>
+                    </div>
                 </DialogHeader>
 
                 <DialogBody class="space-y-4 text-xs">
@@ -1368,11 +1374,17 @@
         <!-- Pre-Modal Informativo: Confirmación Legal de Facturación ARCA -->
         <Dialog bind:open={isFiscalPreModalOpen}>
             <DialogContent class="max-w-md p-5 sm:p-6 space-y-4">
-                <DialogHeader>
-                    <DialogTitle class="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
-                        <ReceiptText class="size-5 text-primary shrink-0" />
-                        <span>Confirmación Legal de Facturación ARCA</span>
-                    </DialogTitle>
+                <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
+                    <div class="flex items-center gap-2.5 sm:gap-3.5">
+                        <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                            <ReceiptText class="size-5 sm:size-6 text-primary" />
+                        </div>
+                        <div class="min-w-0 flex-1 flex items-center">
+                            <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                                Confirmación Legal de Facturación ARCA
+                            </DialogTitle>
+                        </div>
+                    </div>
                 </DialogHeader>
 
                 <DialogBody class="space-y-4 text-xs">
