@@ -12,7 +12,7 @@
     import { Label } from '@/components/ui/label';
     import ProductImageUploader from '@/components/tenant/products/ProductImageUploader.svelte';
     import SaleTypeChangeAlertDialog from '@/components/common/SaleTypeChangeAlertDialog.svelte';
-    import IconContainer from '@/components/common/IconContainer.svelte';
+    import Icon from '@iconify/svelte';
     import { router, useForm } from '@inertiajs/svelte';
     import Check from 'lucide-svelte/icons/check';
     import Package from 'lucide-svelte/icons/package';
@@ -218,27 +218,27 @@
 <Dialog bind:open>
     <DialogContent class="max-w-5xl max-h-[85vh]">
         <!-- 1. Header -->
-        <DialogHeader>
-            <div class="flex items-center gap-3 min-w-0">
-                <IconContainer
-                    size="md"
-                    variant={form.sale_type === 'weight' ? 'info' : 'primary'}
-                    icon={form.sale_type === 'weight' ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone'}
-                />
-                <div class="min-w-0">
-                    <DialogTitle class="text-xl font-bold text-foreground">
-                        {mode === 'edit' ? 'Editar Producto' : 'Crear Producto'}
-                    </DialogTitle>
+        <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
+            <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 w-full">
+                <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+                    <div class="size-10 sm:size-12 rounded-xl {form.sale_type === 'weight' ? 'bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/30' : 'bg-primary/10 text-primary border border-primary/20'} flex items-center justify-center shrink-0">
+                        <Icon class="size-5 sm:size-6" icon={form.sale_type === 'weight' ? 'solar:scale-bold-duotone' : 'solar:box-minimalistic-bold-duotone'} />
+                    </div>
+                    <div class="min-w-0 flex-1 flex items-center">
+                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                            {mode === 'edit' ? 'Editar Producto' : 'Crear Producto'}
+                        </DialogTitle>
+                    </div>
                 </div>
+                <button
+                    type="button"
+                    onclick={handleClose}
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    aria-label="Cerrar"
+                >
+                    <X class="size-4" />
+                </button>
             </div>
-            <button
-                type="button"
-                onclick={handleClose}
-                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
-                aria-label="Cerrar"
-            >
-                <X class="size-4" />
-            </button>
         </DialogHeader>
 
 
