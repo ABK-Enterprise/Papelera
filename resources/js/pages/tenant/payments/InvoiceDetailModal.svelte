@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
@@ -89,7 +89,7 @@
                             <FileText class="size-5 sm:size-6 text-primary" />
                         </div>
                         <div class="min-w-0 flex-1 flex items-center gap-2 flex-wrap">
-                            <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                            <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
                                 {invoice.formatted_number}
                             </DialogTitle>
                             <span class="text-xs font-semibold px-2 py-0.5 rounded-full border uppercase bg-primary/10 text-primary border-primary/20">

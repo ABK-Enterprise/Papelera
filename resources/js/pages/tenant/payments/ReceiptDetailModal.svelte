@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
@@ -177,14 +177,14 @@
     <DialogContent class="max-w-xl sm:max-w-2xl w-[calc(100%-2rem)] mx-auto p-0 rounded-2xl sm:rounded-3xl border border-border bg-card shadow-2xl overflow-hidden">
         {#if receipt}
             <DialogHeader class="p-0 border-b border-border/70 bg-card shrink-0">
-                <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 p-4 sm:p-[3px] pb-3.5 sm:pb-[3px] pr-4 sm:pr-4 w-full">
+                <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 p-4 sm:p-1.5 pb-3.5 sm:pb-1.5 pr-4 sm:pr-4 w-full">
                     <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
                         <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
                             <ReceiptText class="size-5 sm:size-6 text-primary" />
                         </div>
                         <div class="min-w-0 flex-1 flex flex-col justify-center">
                             <div class="flex items-center gap-2 flex-wrap">
-                                <DialogTitle class="text-lg sm:text-xl font-bold font-sans tabular-nums text-foreground leading-snug sm:leading-none truncate">
+                                <DialogTitle class="text-lg sm:text-xl font-bold font-sans tabular-nums text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
                                     Recibo {receipt.receipt_number}
                                 </DialogTitle>
                                 {#if receipt.is_cancelled}

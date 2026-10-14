@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import {
         Dialog,
         DialogContent,
@@ -179,13 +179,13 @@
 <Dialog bind:open>
     <DialogContent class="sm:max-w-md max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
         <DialogHeader class="p-0 border-b border-border/60 shrink-0 bg-card">
-            <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 p-4 sm:p-[3px] pb-3.5 sm:pb-[3px] pr-4 sm:pr-4 w-full">
+            <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 p-4 sm:p-1.5 pb-3.5 sm:pb-1.5 pr-4 sm:pr-4 w-full">
                 <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
                     <div class="size-10 sm:size-12 rounded-xl {type === 'discount' ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 border border-amber-500/20'} flex items-center justify-center shrink-0">
                         <Tag class="size-5 sm:size-6" />
                     </div>
                     <div class="min-w-0 flex-1 flex items-center">
-                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
                             {orderNumber ? `Nuevo Ajuste en Pedido #${orderNumber}` : 'Nuevo Ajuste en Pedido'}
                         </DialogTitle>
                     </div>

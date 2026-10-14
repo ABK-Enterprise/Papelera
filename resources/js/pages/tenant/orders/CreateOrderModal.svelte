@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
@@ -2524,7 +2524,7 @@
                     <Icon class="size-5 sm:size-6 text-primary" icon="solar:tag-price-bold-duotone" />
                 </div>
                 <div class="min-w-0 flex-1 flex items-center">
-                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
                         Descuento de Producto
                     </DialogTitle>
                 </div>
@@ -2627,7 +2627,7 @@
                     <Icon class="size-5 sm:size-6 text-sky-600 dark:text-sky-400" icon="solar:box-minimalistic-bold-duotone" />
                 </div>
                 <div class="min-w-0 flex-1 flex items-center">
-                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
                         Unidades por Bulto
                     </DialogTitle>
                 </div>
@@ -2770,7 +2770,7 @@
                     <Icon class="size-5 sm:size-6 text-emerald-600 dark:text-emerald-400" icon="solar:wallet-money-bold-duotone" />
                 </div>
                 <div class="min-w-0 flex-1 flex items-center">
-                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
                         Editar Saldo a Imputar
                     </DialogTitle>
                 </div>
@@ -2872,7 +2872,7 @@
                     <Icon class="size-5 sm:size-6 text-amber-600 dark:text-amber-400" icon="solar:hand-money-bold-duotone" />
                 </div>
                 <div class="min-w-0 flex-1 flex items-center">
-                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
                         Editar Deuda a Cobrar
                     </DialogTitle>
                 </div>

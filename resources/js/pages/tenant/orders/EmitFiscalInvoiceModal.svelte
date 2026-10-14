@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import {
         Dialog,
         DialogContent,
@@ -210,13 +210,13 @@
     <DialogContent class="w-[95vw] max-w-lg p-0 rounded-2xl sm:rounded-3xl bg-card border-border shadow-2xl overflow-hidden flex flex-col">
         <!-- Header -->
         <DialogHeader class="p-0 border-b border-border/60 shrink-0 bg-card">
-            <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 p-4 sm:p-[3px] pb-3.5 sm:pb-[3px] pr-4 sm:pr-4 w-full">
+            <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 p-4 sm:p-1.5 pb-3.5 sm:pb-1.5 pr-4 sm:pr-4 w-full">
                 <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
                     <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
                         <Printer class="size-5 sm:size-6 text-primary" />
                     </div>
                     <div class="min-w-0 flex-1 flex flex-col justify-center">
-                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
                             Factura electrónica ARCA
                         </DialogTitle>
                         {#if order}

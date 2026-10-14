@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogBody } from '@/components/ui/dialog';
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
@@ -259,13 +259,13 @@
 <Dialog bind:open>
     <DialogContent class="max-w-lg p-0 flex flex-col max-h-[85vh] sm:max-h-[88vh] bg-card text-card-foreground border border-border/80 overflow-hidden">
         <DialogHeader class="p-0 border-b border-border/60 shrink-0 bg-card">
-            <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 p-4 sm:p-[3px] pb-3.5 sm:pb-[3px] pr-4 sm:pr-4 w-full">
+            <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 p-4 sm:p-1.5 pb-3.5 sm:pb-1.5 pr-4 sm:pr-4 w-full">
                 <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
                     <div class="size-10 sm:size-12 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
                         <CheckCircle2 class="size-5 sm:size-6 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <div class="min-w-0 flex-1 flex flex-col justify-center">
-                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
                             Confirmar entrega del pedido
                         </DialogTitle>
                         <DialogDescription class="sr-only">Registra la finalización de entrega para este pedido</DialogDescription>

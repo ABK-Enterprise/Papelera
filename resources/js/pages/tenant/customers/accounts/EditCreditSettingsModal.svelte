@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
@@ -102,7 +102,7 @@
                             <ShieldCheck class="size-5 sm:size-6 text-primary" />
                         </div>
                         <div class="min-w-0 flex-1 flex flex-col justify-center">
-                            <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                            <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
                                 Límites y plazos de crédito
                             </DialogTitle>
                             <DialogDescription class="text-xs text-muted-foreground truncate mt-1">

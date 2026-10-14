@@ -205,7 +205,7 @@
 <Dialog bind:open>
     <DialogContent class="sm:max-w-xl max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
         <DialogHeader class="p-0 border-b border-border/60 shrink-0 bg-card">
-            <div class="flex items-center gap-2.5 sm:gap-3.5 p-4 sm:p-[3px] pb-3.5 sm:pb-[3px] pr-4 sm:pr-4 w-full">
+            <div class="flex items-center gap-2.5 sm:gap-3.5 p-4 sm:p-1.5 pb-3.5 sm:pb-1.5 pr-4 sm:pr-4 w-full">
                 <!-- Contenedor del Icono Desacoplado: Mobile size-10 (40px) y margenes de OrderDetailModal, Desktop 48px (sm:size-12) con 3px de margen -->
                 <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
                     <FileText class="size-5 sm:size-6 text-primary" />
@@ -213,7 +213,7 @@
 
                 <!-- Contenedor Propio del Título Centrado en el Eje Horizontal -->
                 <div class="min-w-0 flex-1 flex items-center">
-                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
                         Visibilidad en Remito #{order?.order_number ?? ''}
                     </DialogTitle>
                 </div>

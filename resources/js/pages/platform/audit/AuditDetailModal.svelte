@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import { Badge } from '@/components/ui/badge';
     import {
@@ -100,7 +100,7 @@
                     </div>
                     <div class="min-w-0 flex-1 flex flex-col justify-center">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                            <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
                                 {log?.action ?? 'Detalle de Acción'}
                             </DialogTitle>
                             <Badge variant="outline" class="border-primary/30 bg-primary/10 text-primary font-semibold text-xs tabular-nums">

@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogBody, DialogFooter, DialogClose } from '@/components/ui/dialog';
     import { Button } from '@/components/ui/button';
     import { Badge } from '@/components/ui/badge';
@@ -61,7 +61,7 @@
                             <Icon class="size-5 sm:size-6 text-primary" icon={iconName} />
                         </div>
                         <div class="min-w-0 flex-1 flex flex-col justify-center">
-                            <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                            <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
                                 {module.name}
                             </DialogTitle>
                             <div class="mt-1">

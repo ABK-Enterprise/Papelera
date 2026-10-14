@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
@@ -109,7 +109,7 @@
                     <MapPin class="size-5 sm:size-6 text-primary" />
                 </div>
                 <div class="min-w-0 flex-1 flex items-center">
-                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
                         {mode === 'create' ? 'Nueva Zona de Envío' : 'Editar Zona de Envío'}
                     </DialogTitle>
                 </div>

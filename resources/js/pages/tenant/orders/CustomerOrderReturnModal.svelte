@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
     import { Button } from '@/components/ui/button';
     import Icon from '@iconify/svelte';
     import { router } from '@inertiajs/svelte';
@@ -216,7 +216,7 @@
                         <Icon class="size-5 sm:size-6 text-amber-600 dark:text-amber-400" icon="solar:restart-bold-duotone" />
                     </div>
                     <div class="min-w-0 flex-1 flex flex-col justify-center">
-                        <h2 id="return-modal-title" class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                        <h2 id="return-modal-title" class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
                             Registrar Devolución — {order.order_number}
                         </h2>
                         <p class="text-xs text-muted-foreground mt-1 tabular-nums">
