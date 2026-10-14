@@ -70,40 +70,43 @@
 
 <Dialog bind:open>
     <DialogContent size="sm" class="max-w-md">
-        <DialogHeader>
-            <div class="flex items-center gap-3 min-w-0">
-                <!-- Icono dinámico según variante -->
-                <div
-                    class="flex size-9 shrink-0 items-center justify-center rounded-xl {isDestructive
-                        ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
-                        : variant === 'warning'
-                          ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
-                          : variant === 'success'
-                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                            : 'bg-primary/10 text-primary border border-primary/20'}"
-                >
-                    {#if isDestructive}
-                        <TriangleAlert class="size-4.5" />
-                    {:else if variant === 'warning'}
-                        <ShieldAlert class="size-4.5" />
-                    {:else if variant === 'success'}
-                        <CheckCircle2 class="size-4.5" />
-                    {:else}
-                        <HelpCircle class="size-4.5" />
-                    {/if}
+        <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
+            <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 w-full">
+                <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+                    <div
+                        class="flex size-10 sm:size-12 shrink-0 items-center justify-center rounded-xl {isDestructive
+                            ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+                            : variant === 'warning'
+                              ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+                              : variant === 'success'
+                                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                                : 'bg-primary/10 text-primary border border-primary/20'}"
+                    >
+                        {#if isDestructive}
+                            <TriangleAlert class="size-5 sm:size-6" />
+                        {:else if variant === 'warning'}
+                            <ShieldAlert class="size-5 sm:size-6" />
+                        {:else if variant === 'success'}
+                            <CheckCircle2 class="size-5 sm:size-6" />
+                        {:else}
+                            <HelpCircle class="size-5 sm:size-6" />
+                        {/if}
+                    </div>
+                    <div class="min-w-0 flex-1 flex items-center">
+                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                            {title}
+                        </DialogTitle>
+                    </div>
                 </div>
-                <DialogTitle class="text-base font-semibold leading-snug truncate">
-                    {title}
-                </DialogTitle>
+                <button
+                    type="button"
+                    onclick={handleCancel}
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    aria-label="Cerrar"
+                >
+                    <X class="size-4" />
+                </button>
             </div>
-            <button
-                type="button"
-                onclick={handleCancel}
-                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
-                aria-label="Cerrar"
-            >
-                <X class="size-4" />
-            </button>
         </DialogHeader>
 
         <DialogBody>
