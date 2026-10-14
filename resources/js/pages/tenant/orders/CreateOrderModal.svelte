@@ -835,6 +835,16 @@
         return `${formatPrice(0)} (al día)`;
     });
 
+    let accountBalanceCheckboxLabel = $derived.by(() => {
+        if (customerRawBalance < 0) {
+            return 'Mostrar como ítem en el subtotal el saldo a favor del cliente';
+        }
+        if (customerRawBalance > 0) {
+            return 'Mostrar como ítem en el subtotal el saldo deudor del cliente';
+        }
+        return 'Mostrar como ítem en el subtotal el saldo de cuenta corriente del cliente';
+    });
+
     let accountProjectedBalanceFormatted = $derived.by(() => {
         if (!selectedCustomer) return null;
         if (paymentType === 'cuenta_corriente') {
@@ -2219,7 +2229,10 @@
                                         />
                                         <div class="min-w-0">
                                             <span class="text-xs font-semibold text-foreground block">
-                                                Mostrar el saldo de la Cta. corriente actual en el subtotal del pedido. (es de propósito visual, no tiene impacto en el cálculo del pedido)
+                                                {accountBalanceCheckboxLabel}
+                                            </span>
+                                            <span class="text-xs text-muted-foreground block">
+                                                El saldo que se muestra es de propósito visual e informativo, y no afecta al subtotal del pedido.
                                             </span>
                                         </div>
                                     </label>
@@ -2252,7 +2265,10 @@
                                 />
                                 <div class="min-w-0">
                                     <span class="text-xs font-semibold text-foreground block">
-                                        Mostrar el saldo de la Cta. corriente actual en el subtotal del pedido. (es de propósito visual, no tiene impacto en el cálculo del pedido)
+                                        {accountBalanceCheckboxLabel}
+                                    </span>
+                                    <span class="text-xs text-muted-foreground block">
+                                        El saldo que se muestra es de propósito visual e informativo, y no afecta al subtotal del pedido.
                                     </span>
                                 </div>
                             </label>
@@ -2392,7 +2408,10 @@
                             />
                             <div class="min-w-0">
                                 <span class="text-xs font-semibold text-foreground block">
-                                    Mostrar el saldo de la Cta. corriente actual en el subtotal del pedido. (es de propósito visual, no tiene impacto en el cálculo del pedido)
+                                    {accountBalanceCheckboxLabel}
+                                </span>
+                                <span class="text-xs text-muted-foreground block">
+                                    El saldo que se muestra es de propósito visual e informativo, y no afecta al subtotal del pedido.
                                 </span>
                             </div>
                         </label>
