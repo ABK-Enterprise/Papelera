@@ -838,7 +838,8 @@
     let accountProjectedBalanceFormatted = $derived.by(() => {
         if (!selectedCustomer) return null;
         if (paymentType === 'cuenta_corriente') {
-            const projected = customerRawBalance + grandTotal;
+            if (grossTotal <= 0) return null;
+            const projected = customerRawBalance + grossTotal;
             if (projected < 0) {
                 return `${formatPrice(Math.abs(projected))} (a favor)`;
             } else if (projected > 0) {
@@ -854,6 +855,17 @@
                 return `${formatPrice(0)} (al día)`;
             }
             return null;
+        } else if (paymentType === 'parcial') {
+            if (grossTotal <= 0) return null;
+            const numericPaid = Math.max(0, Number(paidAmount) || 0);
+            const unpaidAmount = Math.max(0, grossTotal - numericPaid);
+            const projected = customerRawBalance + unpaidAmount;
+            if (projected < 0) {
+                return `${formatPrice(Math.abs(projected))} (a favor)`;
+            } else if (projected > 0) {
+                return `${formatPrice(projected)} (deudor)`;
+            }
+            return `${formatPrice(0)} (al día)`;
         }
         return null;
     });
