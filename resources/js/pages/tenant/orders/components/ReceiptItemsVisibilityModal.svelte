@@ -203,19 +203,24 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="sm:max-w-xl max-h-[90vh] flex flex-col p-5 sm:p-6 space-y-4">
-        <DialogHeader class="shrink-0 text-left">
-            <div class="flex items-center gap-2">
-                <div class="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    <FileText class="size-4" />
+    <DialogContent class="sm:max-w-xl max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader class="p-0 border-b border-border/60 shrink-0 bg-card">
+            <div class="flex items-center gap-3.5 p-[3px] pr-4 w-full">
+                <!-- Contenedor del Icono Agrandado con 3px de margen superior, inferior y lateral -->
+                <div class="size-12 sm:size-13 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                    <FileText class="size-6 sm:size-7 text-primary" />
                 </div>
-                <DialogTitle class="text-base sm:text-lg font-bold text-foreground">
-                    Visibilidad en Remito #{order?.order_number ?? ''}
-                </DialogTitle>
+
+                <!-- Contenedor Propio del Título Centrado en el Eje Horizontal -->
+                <div class="min-w-0 flex-1 flex items-center">
+                    <DialogTitle class="text-xl font-bold tracking-tight text-foreground leading-none">
+                        Visibilidad en Remito #{order?.order_number ?? ''}
+                    </DialogTitle>
+                </div>
             </div>
         </DialogHeader>
 
-        <DialogBody class="flex-1 overflow-y-auto pr-1 space-y-4">
+        <DialogBody class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
             <!-- Árbol Jerárquico de Elementos -->
             <div class="rounded-xl border border-border/70 divide-y divide-border/60 bg-card overflow-hidden">
                 <!-- 1. Nodo Cuenta Corriente -->
@@ -239,23 +244,6 @@
                                 <div class="mt-1.5 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
                                     <AlertCircle class="size-3.5 shrink-0" />
                                     <span>No disponible: El pedido no tiene un cliente registrado con cuenta corriente.</span>
-                                </div>
-                            {:else if order?.customer}
-                                <div class="mt-2.5 grid grid-cols-2 gap-3 p-3 rounded-xl bg-muted/40 text-sm font-sans tabular-nums border border-border/40">
-                                    <div>
-                                        <span class="text-xs text-muted-foreground block font-medium">
-                                            {Number(order.customer.current_balance ?? 0) < 0 ? 'Saldo a Favor:' : 'Saldo Deudor:'}
-                                        </span>
-                                        <span class="text-sm font-bold {Number(order.customer.current_balance ?? 0) < 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground'}">
-                                            {formatCurrency(Math.abs(Number(order.customer.current_balance ?? 0)))}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <span class="text-xs text-muted-foreground block font-medium">Límite de Crédito:</span>
-                                        <span class="text-sm font-bold text-foreground">
-                                            {formatCurrency(order.customer.credit_limit ?? 0)}
-                                        </span>
-                                    </div>
                                 </div>
                             {/if}
                         </div>
@@ -448,7 +436,7 @@
             </div>
         </DialogBody>
 
-        <DialogFooter class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 pt-2 border-t border-border/60 shrink-0">
+        <DialogFooter class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 p-4 sm:p-5 border-t border-border/60 bg-card shrink-0">
             <Button
                 type="button"
                 variant="outline"
