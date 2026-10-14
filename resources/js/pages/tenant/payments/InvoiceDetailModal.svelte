@@ -82,22 +82,19 @@
 <Dialog bind:open>
     <DialogContent class="max-w-2xl p-5 sm:p-6 space-y-4 font-sans">
         {#if invoice}
-            <DialogHeader class="space-y-1">
-                <div class="flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-2.5">
-                        <div class="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                            <FileText class="size-5 text-primary" />
+            <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
+                <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 w-full">
+                    <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+                        <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                            <FileText class="size-5 sm:size-6 text-primary" />
                         </div>
-                        <div>
-                            <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                                <span>{invoice.formatted_number}</span>
-                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full border uppercase bg-primary/10 text-primary border-primary/20">
-                                    {invoice.cbte_letter}
-                                </span>
+                        <div class="min-w-0 flex-1 flex items-center gap-2 flex-wrap">
+                            <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                                {invoice.formatted_number}
                             </DialogTitle>
-                            <DialogDescription class="text-xs text-muted-foreground">
-                                Comprobante electrónico autorizado por ARCA
-                            </DialogDescription>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full border uppercase bg-primary/10 text-primary border-primary/20">
+                                {invoice.cbte_letter}
+                            </span>
                         </div>
                     </div>
 
@@ -107,6 +104,7 @@
                         </span>
                     </div>
                 </div>
+                <DialogDescription class="sr-only">Comprobante electrónico autorizado por ARCA</DialogDescription>
             </DialogHeader>
 
             <DialogBody class="space-y-4 max-h-[70vh] overflow-y-auto pr-1">

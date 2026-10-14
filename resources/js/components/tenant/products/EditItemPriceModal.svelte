@@ -141,14 +141,16 @@
 
 <Dialog bind:open>
     <DialogContent class="max-w-lg p-5 sm:p-6 space-y-4 rounded-2xl">
-        <DialogHeader class="shrink-0">
-            <div class="flex items-center gap-2">
-                <div class="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    <Tag class="size-4" />
+        <DialogHeader class="shrink-0 pb-3 border-b border-border/60">
+            <div class="flex items-center gap-2.5 sm:gap-3.5">
+                <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                    <Tag class="size-5 sm:size-6 text-primary" />
                 </div>
-                <DialogTitle class="text-lg font-bold text-foreground">
-                    {isOrderContext ? 'Modificar precio en el pedido' : 'Editar precio en catálogo'}
-                </DialogTitle>
+                <div class="min-w-0 flex-1 flex items-center">
+                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                        {isOrderContext ? 'Modificar precio en el pedido' : 'Editar precio en catálogo'}
+                    </DialogTitle>
+                </div>
             </div>
         </DialogHeader>
 

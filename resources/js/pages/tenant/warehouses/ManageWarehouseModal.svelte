@@ -106,13 +106,13 @@
 <Dialog bind:open>
     <DialogContent class="sm:max-w-[500px]">
         <form onsubmit={handleSubmit} class="flex flex-col">
-            <DialogHeader>
-                <div class="flex items-center gap-3">
-                    <div class="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
-                        <Warehouse class="size-5" />
+            <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
+                <div class="flex items-center gap-2.5 sm:gap-3.5">
+                    <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                        <Warehouse class="size-5 sm:size-6 text-primary" />
                     </div>
-                    <div class="min-w-0">
-                        <DialogTitle class="text-lg font-bold text-foreground">
+                    <div class="min-w-0 flex-1 flex items-center">
+                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
                             {mode === 'create' ? 'Nuevo Depósito' : 'Editar Depósito'}
                         </DialogTitle>
                     </div>

@@ -4,7 +4,6 @@
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
-    import IconContainer from '@/components/common/IconContainer.svelte';
     import { router } from '@inertiajs/svelte';
     import MapPin from 'lucide-svelte/icons/map-pin';
     import Percent from 'lucide-svelte/icons/percent';
@@ -104,13 +103,13 @@
 
 <Dialog bind:open>
     <DialogContent class="w-[92vw] max-w-[480px] p-6 space-y-4 rounded-2xl bg-card border-border shadow-xl">
-        <DialogHeader class="space-y-1.5 text-left">
-            <div class="flex items-center gap-2.5">
-                <IconContainer variant="primary" size="md">
-                    <MapPin class="size-5" />
-                </IconContainer>
-                <div>
-                    <DialogTitle class="text-lg font-semibold text-foreground">
+        <DialogHeader class="pb-3 border-b border-border/60 shrink-0 text-left">
+            <div class="flex items-center gap-2.5 sm:gap-3.5">
+                <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                    <MapPin class="size-5 sm:size-6 text-primary" />
+                </div>
+                <div class="min-w-0 flex-1 flex items-center">
+                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
                         {mode === 'create' ? 'Nueva Zona de Envío' : 'Editar Zona de Envío'}
                     </DialogTitle>
                 </div>
