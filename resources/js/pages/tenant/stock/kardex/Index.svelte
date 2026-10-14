@@ -46,12 +46,15 @@
         product_id?: number | null;
         type?: string | null;
         search?: string | null;
+        date_from?: string | null;
+        date_to?: string | null;
+        sort_by?: string | null;
     }
 
     let {
         movements = [],
         products = [],
-        filters = { search: '', type: '', product_id: null },
+        filters = { search: '', type: '', product_id: null, date_from: '', date_to: '', sort_by: 'latest' },
     }: {
         movements: StockMovementItem[];
         products: ProductItem[];
@@ -63,11 +66,17 @@
 
     let searchInput = $state('');
     let typeFilter = $state('');
+    let dateFrom = $state('');
+    let dateTo = $state('');
+    let sortBy = $state('latest');
     let isFilterModalOpen = $state(false);
 
     $effect(() => {
         searchInput = filters?.search ?? '';
         typeFilter = filters?.type ?? '';
+        dateFrom = filters?.date_from ?? '';
+        dateTo = filters?.date_to ?? '';
+        sortBy = filters?.sort_by ?? 'latest';
     });
 
     let tenantId = $derived(
@@ -103,6 +112,9 @@
             {
                 search: searchInput || undefined,
                 type: typeFilter || undefined,
+                date_from: dateFrom || undefined,
+                date_to: dateTo || undefined,
+                sort_by: sortBy !== 'latest' ? sortBy : undefined,
             },
             {
                 preserveState: true,
@@ -115,6 +127,9 @@
     function resetFilters() {
         searchInput = '';
         typeFilter = '';
+        dateFrom = '';
+        dateTo = '';
+        sortBy = 'latest';
         router.get('/tenant/stock/kardex');
     }
 
@@ -124,18 +139,40 @@
         applyFilters();
     }
 
+    function handleSortChange(e: Event) {
+        const target = e.target as HTMLSelectElement;
+        sortBy = target.value;
+        applyFilters();
+    }
+
+    function handleDateFromChange(e: Event) {
+        const target = e.target as HTMLInputElement;
+        dateFrom = target.value;
+        applyFilters();
+    }
+
+    function handleDateToChange(e: Event) {
+        const target = e.target as HTMLInputElement;
+        dateTo = target.value;
+        applyFilters();
+    }
+
     function openDetailModal(mov: StockMovementItem) {
         selectedMovement = mov;
         isDetailModalOpen = true;
     }
 
-    let hasActiveFilters = $derived(Boolean(searchInput || typeFilter));
-    let activeFiltersCount = $derived(typeFilter ? 1 : 0);
+    let hasActiveFilters = $derived(
+        Boolean(searchInput || typeFilter || dateFrom || dateTo || (sortBy && sortBy !== 'latest'))
+    );
+    let activeFiltersCount = $derived(
+        (typeFilter ? 1 : 0) + (dateFrom || dateTo ? 1 : 0) + (sortBy && sortBy !== 'latest' ? 1 : 0)
+    );
 </script>
 
 <AppHead title="Kardex de Movimientos - Comercio" />
 
-<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1360px] mx-auto w-full">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1460px] mx-auto w-full">
     <!-- Sub-Navegación de Pestañas de Stock y Productos -->
     <StockNavigationTabs activeTab="kardex" />
 
@@ -150,10 +187,10 @@
     </div>
 
     <!-- Filter / Action Toolbar -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 bg-card/60 backdrop-blur-sm p-3.5 rounded-xl border border-border/60 shadow-xs">
-        <div class="flex items-center gap-2.5 flex-1 w-full">
+    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3.5 bg-card/60 backdrop-blur-sm p-3.5 rounded-xl border border-border/60 shadow-xs">
+        <div class="flex flex-wrap items-center gap-2.5 flex-1 w-full min-w-0">
             <!-- Buscador por Producto / SKU + Disparador Mobile -->
-            <div class="flex-1 min-w-0">
+            <div class="flex-1 min-w-[240px]">
                 <SearchCombobox
                     bind:value={searchInput}
                     items={products}
@@ -196,12 +233,12 @@
             </div>
 
             <!-- Filtros Desktop -->
-            <div class="hidden md:flex items-center gap-2.5">
-                <div class="relative min-w-[160px]">
+            <div class="hidden md:flex flex-wrap items-center gap-2.5">
+                <div class="relative min-w-[150px]">
                     <select
                         value={typeFilter}
                         onchange={handleTypeChange}
-                        class="w-full rounded-lg border border-border bg-background px-3.5 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
+                        class="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
                     >
                         <option value="">Todos los tipos</option>
                         <option value="income">Solo Ingresos</option>
@@ -209,18 +246,51 @@
                     </select>
                 </div>
 
+                <!-- Selector de Ordenamiento -->
+                <div class="relative min-w-[160px]">
+                    <select
+                        value={sortBy}
+                        onchange={handleSortChange}
+                        class="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
+                    >
+                        <option value="latest">Más recientes</option>
+                        <option value="oldest">Más antiguos</option>
+                        <option value="quantity_high">Mayor cantidad</option>
+                        <option value="quantity_low">Menor cantidad</option>
+                    </select>
+                </div>
+
+                <!-- Rango de Fechas -->
+                <div class="flex items-center gap-1.5">
+                    <input
+                        type="date"
+                        value={dateFrom}
+                        onchange={handleDateFromChange}
+                        title="Fecha desde"
+                        class="rounded-lg border border-border bg-background px-2.5 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
+                    />
+                    <span class="text-xs text-muted-foreground">-</span>
+                    <input
+                        type="date"
+                        value={dateTo}
+                        onchange={handleDateToChange}
+                        title="Fecha hasta"
+                        class="rounded-lg border border-border bg-background px-2.5 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
+                    />
+                </div>
 
                 {#if hasActiveFilters}
-                    <Button variant="ghost" size="sm" class="h-10 px-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 gap-1.5 rounded-xl transition-all" onclick={resetFilters}>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        class="h-10 px-3 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 gap-1.5 rounded-xl transition-all shrink-0 whitespace-nowrap min-w-fit cursor-pointer"
+                        onclick={resetFilters}
+                    >
                         <RotateCcw class="size-3.5" />
                         <span>Limpiar</span>
                     </Button>
                 {/if}
             </div>
-        </div>
-
-        <div class="flex items-center justify-between lg:justify-end gap-2 text-xs text-muted-foreground font-medium pt-1 lg:pt-0 shrink-0">
-            <span>Mostrando <strong class="text-foreground tabular-nums font-semibold">{movements.length}</strong> {movements.length === 1 ? 'movimiento' : 'movimientos'}</span>
         </div>
     </div>
 
@@ -243,8 +313,14 @@
 <KardexFilterModalMobile
     bind:open={isFilterModalOpen}
     selectedType={typeFilter}
+    selectedDateFrom={dateFrom}
+    selectedDateTo={dateTo}
+    selectedSortBy={sortBy}
     onapply={(f) => {
         typeFilter = f.type;
+        dateFrom = f.date_from;
+        dateTo = f.date_to;
+        sortBy = f.sort_by;
         applyFilters();
     }}
     onreset={resetFilters}

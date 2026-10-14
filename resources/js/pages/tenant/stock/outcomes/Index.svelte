@@ -81,7 +81,7 @@
 
 <AppHead title="Egresos de Stock - Comercio" />
 
-<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1360px] mx-auto w-full">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1460px] mx-auto w-full">
     <!-- Sub-Navegación de Pestañas de Stock y Productos -->
     <StockNavigationTabs activeTab="outcomes" />
 

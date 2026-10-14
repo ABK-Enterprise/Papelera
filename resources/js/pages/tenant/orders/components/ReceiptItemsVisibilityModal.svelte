@@ -38,6 +38,8 @@
         credit_balance_applied?: number | string | null;
         previous_debt_collected?: number | string | null;
         show_account_in_receipt?: boolean;
+        show_account_status_in_receipt?: boolean;
+        show_account_balance_in_receipt?: boolean;
         show_credit_applied_in_receipt?: boolean;
         show_debt_collected_in_receipt?: boolean;
         price_adjustments?: PriceAdjustmentItem[] | null;
@@ -63,6 +65,8 @@
 
     // Estado local para cuenta corriente, saldo a favor y deuda previa
     let showAccount = $state(false);
+    let showAccountStatus = $state(true);
+    let showAccountBalance = $state(true);
     let showCreditApplied = $state(false);
     let showDebtCollected = $state(false);
 
@@ -81,6 +85,8 @@
     $effect(() => {
         if (open && order) {
             showAccount = Boolean(order.show_account_in_receipt);
+            showAccountStatus = order.show_account_status_in_receipt !== false;
+            showAccountBalance = order.show_account_balance_in_receipt !== false;
             showCreditApplied = canShowCreditApplied
                 ? Boolean(order.show_credit_applied_in_receipt)
                 : false;
@@ -165,6 +171,8 @@
             `/tenant/pedidos/${order.id}/visibilidad-remito`,
             {
                 show_account_in_receipt: showAccount,
+                show_account_status_in_receipt: showAccount ? showAccountStatus : false,
+                show_account_balance_in_receipt: showAccount ? showAccountBalance : false,
                 show_credit_applied_in_receipt: canShowCreditApplied ? showCreditApplied : false,
                 show_debt_collected_in_receipt: canShowDebtCollected ? showDebtCollected : false,
                 adjustments_visibility: visibilityMap,
@@ -177,6 +185,8 @@
                     toast.success('Configuración de remito guardada con éxito.');
                     if (order) {
                         order.show_account_in_receipt = showAccount;
+                        order.show_account_status_in_receipt = showAccount ? showAccountStatus : false;
+                        order.show_account_balance_in_receipt = showAccount ? showAccountBalance : false;
                         order.show_credit_applied_in_receipt = canShowCreditApplied ? showCreditApplied : false;
                         order.show_debt_collected_in_receipt = canShowDebtCollected ? showDebtCollected : false;
                         if (Array.isArray(order.price_adjustments)) {
@@ -235,7 +245,7 @@
                         />
                         <div class="flex-1 min-w-0">
                             <span class="text-sm sm:text-base font-semibold text-foreground block">
-                                Datos de Cuenta Corriente (Encabezado)
+                                Datos de Cuenta corriente
                             </span>
                             <p class="text-xs sm:text-sm text-muted-foreground mt-0.5">
                                 Imprime en la ficha del cliente el estado de cuenta y el saldo disponible.
@@ -248,6 +258,39 @@
                             {/if}
                         </div>
                     </label>
+
+                    {#if showAccount && order?.customer_id}
+                        <!-- Sub-items desplegados bajo Datos de Cuenta corriente -->
+                        <div class="mt-3 ml-7 pl-3 border-l-2 border-border/60 space-y-3">
+                            <!-- a. Leyenda de saldo -->
+                            <label class="flex items-start gap-3 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    bind:checked={showAccountStatus}
+                                    class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                />
+                                <div class="flex-1 min-w-0">
+                                    <span class="text-sm font-medium text-foreground block">
+                                        Agregar leyenda respectiva al tipo de saldo del cliente ("Saldo a favor" o "Saldo a deber") en el pie de la boleta
+                                    </span>
+                                </div>
+                            </label>
+
+                            <!-- b. Saldo actual -->
+                            <label class="flex items-start gap-3 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    bind:checked={showAccountBalance}
+                                    class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                />
+                                <div class="flex-1 min-w-0">
+                                    <span class="text-sm font-medium text-foreground block">
+                                        Agregar saldo actual del cliente en el pie de la boleta
+                                    </span>
+                                </div>
+                            </label>
+                        </div>
+                    {/if}
 
                     <!-- Sub-item 2: Imputación de Saldo a Favor en Totales -->
                     <div class="mt-3 ml-7 pl-3 border-l-2 border-border/60">

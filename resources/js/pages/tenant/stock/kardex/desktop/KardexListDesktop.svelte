@@ -7,9 +7,7 @@
     import History from 'lucide-svelte/icons/history';
     import Package from 'lucide-svelte/icons/package';
     import RefreshCw from 'lucide-svelte/icons/refresh-cw';
-    import Search from 'lucide-svelte/icons/search';
     import User from 'lucide-svelte/icons/user';
-    import X from 'lucide-svelte/icons/x';
 
     interface StockMovementItem {
         id: number;
@@ -40,9 +38,6 @@
         movements: StockMovementItem[];
         onSelectMovement: (movement: StockMovementItem) => void;
     } = $props();
-
-    let searchTerm = $state('');
-    let selectedType = $state<'all' | 'income' | 'outcome'>('all');
 
     function getInitials(name?: string): string {
         if (!name) return 'PR';
@@ -84,25 +79,7 @@
 
     let netBalance = $derived(totalIncomes - totalOutcomes);
 
-    let filteredMovements = $derived.by(() => {
-        let list = movements;
-
-        if (selectedType !== 'all') {
-            list = list.filter((m) => m.type === selectedType);
-        }
-
-        if (searchTerm.trim()) {
-            const q = searchTerm.toLowerCase();
-            list = list.filter((m) =>
-                (m.product?.name && m.product.name.toLowerCase().includes(q)) ||
-                (m.product?.sku && m.product.sku.toLowerCase().includes(q)) ||
-                (m.reason && m.reason.toLowerCase().includes(q)) ||
-                (m.notes && m.notes.toLowerCase().includes(q))
-            );
-        }
-
-        return list;
-    });
+    let filteredMovements = $derived(movements);
 </script>
 
 <div class="space-y-6">
@@ -161,56 +138,8 @@
     </div>
 
 
-    <!-- Contenedor de Tabla con Toolbar Stitch -->
+    <!-- Contenedor de Tabla sin controles redundantes -->
     <div class="bg-card text-card-foreground rounded-2xl shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/70 overflow-hidden">
-        <!-- Toolbar -->
-        <div class="p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-border/60 bg-muted/20">
-            <!-- Filter Pills -->
-            <div class="flex items-center gap-1.5">
-                <button
-                    type="button"
-                    class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all {selectedType === 'all' ? 'bg-primary text-primary-foreground shadow-2xs' : 'text-muted-foreground hover:bg-muted/80'}"
-                    onclick={() => (selectedType = 'all')}
-                >
-                    Todos (<span class="tabular-nums font-semibold">{movements.length}</span>)
-                </button>
-                <button
-                    type="button"
-                    class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all {selectedType === 'income' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-muted-foreground hover:bg-muted/80'}"
-                    onclick={() => (selectedType = 'income')}
-                >
-                    Solo Ingresos
-                </button>
-                <button
-                    type="button"
-                    class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all {selectedType === 'outcome' ? 'bg-rose-600 text-white shadow-2xs' : 'text-muted-foreground hover:bg-muted/80'}"
-                    onclick={() => (selectedType = 'outcome')}
-                >
-                    Solo Egresos
-                </button>
-            </div>
-
-            <!-- Buscador -->
-            <div class="relative w-full sm:w-72">
-                <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-                <input
-                    type="text"
-                    bind:value={searchTerm}
-                    placeholder="Buscar producto, SKU, notas..."
-                    class="h-9 w-full rounded-full border border-input bg-background pl-8 pr-8 text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none transition-all"
-                />
-                {#if searchTerm}
-                    <button
-                        type="button"
-                        onclick={() => (searchTerm = '')}
-                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                        <X class="size-3.5" />
-                    </button>
-                {/if}
-            </div>
-        </div>
-
         <!-- Tabla Minimalista -->
         <div class="w-full overflow-x-auto">
             <table class="w-full text-left border-collapse">

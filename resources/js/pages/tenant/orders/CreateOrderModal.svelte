@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
@@ -821,6 +821,43 @@
         }
     });
 
+    let showAccountBalanceInOrderSummary = $state(false);
+
+    let customerRawBalance = $derived(Number(selectedCustomer?.current_balance ?? 0));
+
+    let accountCurrentBalanceFormatted = $derived.by(() => {
+        if (!selectedCustomer) return '';
+        if (customerRawBalance < 0) {
+            return `${formatPrice(Math.abs(customerRawBalance))} (a favor)`;
+        } else if (customerRawBalance > 0) {
+            return `${formatPrice(customerRawBalance)} (deudor)`;
+        }
+        return `${formatPrice(0)} (al día)`;
+    });
+
+    let accountProjectedBalanceFormatted = $derived.by(() => {
+        if (!selectedCustomer) return null;
+        if (paymentType === 'cuenta_corriente') {
+            const projected = customerRawBalance + grandTotal;
+            if (projected < 0) {
+                return `${formatPrice(Math.abs(projected))} (a favor)`;
+            } else if (projected > 0) {
+                return `${formatPrice(projected)} (deudor)`;
+            }
+            return `${formatPrice(0)} (al día)`;
+        } else if (paymentType === 'contado') {
+            if (effectivePreviousDebtCollected > 0) {
+                const projectedDebt = Math.max(0, availableCustomerDebt - effectivePreviousDebtCollected);
+                if (projectedDebt > 0) {
+                    return `${formatPrice(projectedDebt)} (deudor)`;
+                }
+                return `${formatPrice(0)} (al día)`;
+            }
+            return null;
+        }
+        return null;
+    });
+
     function toggleUseCreditBalance() {
         if (!hasAvailableCredit || paymentType !== 'cuenta_corriente') return;
         useCreditBalance = !useCreditBalance;
@@ -999,6 +1036,7 @@
         items = [];
         priceAdjustments = [];
         showAccountInReceipt = false;
+        showAccountBalanceInOrderSummary = false;
         useCreditBalance = false;
         creditBalanceApplied = 0;
         showCreditAppliedInReceipt = false;
@@ -1105,6 +1143,8 @@
                 show_credit_applied_in_receipt: canShowCreditAppliedInReceipt ? showCreditAppliedInReceipt : false,
                 show_debt_collected_in_receipt: canShowDebtCollectedInReceipt ? showDebtCollectedInReceipt : false,
                 show_account_in_receipt: showAccountInReceipt,
+                show_account_status_in_receipt: true,
+                show_account_balance_in_receipt: true,
                 mp_qr_checkout: shouldChargeWithQr ? true : undefined,
                 items: payloadItems,
             },
@@ -2157,6 +2197,20 @@
                                             {/if}
                                         </div>
                                     </label>
+
+                                    <!-- Check: Mostrar el saldo de la Cta. corriente actual en el subtotal del pedido -->
+                                    <label class="flex items-start gap-2.5 pt-1 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            bind:checked={showAccountBalanceInOrderSummary}
+                                            class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                        />
+                                        <div class="min-w-0">
+                                            <span class="text-xs font-semibold text-foreground block">
+                                                Mostrar el saldo de la Cta. corriente actual en el subtotal del pedido. (es de propósito visual, no tiene impacto en el cálculo del pedido)
+                                            </span>
+                                        </div>
+                                    </label>
                                 </div>
                             </div>
                         {:else if selectedCustomerId}
@@ -2173,6 +2227,20 @@
                                     </span>
                                     <span class="text-xs text-muted-foreground block">
                                         Muestra en la ficha del cliente el estado de cuenta y saldo disponible.
+                                    </span>
+                                </div>
+                            </label>
+
+                            <!-- Check: Mostrar el saldo de la Cta. corriente actual en el subtotal del pedido -->
+                            <label class="flex items-start gap-2.5 pt-1 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    bind:checked={showAccountBalanceInOrderSummary}
+                                    class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                />
+                                <div class="min-w-0">
+                                    <span class="text-xs font-semibold text-foreground block">
+                                        Mostrar el saldo de la Cta. corriente actual en el subtotal del pedido. (es de propósito visual, no tiene impacto en el cálculo del pedido)
                                     </span>
                                 </div>
                             </label>
@@ -2302,6 +2370,20 @@
                                 {/if}
                             </div>
                         </label>
+
+                        <!-- Check: Mostrar el saldo de la Cta. corriente actual en el subtotal del pedido -->
+                        <label class="flex items-start gap-2.5 pt-1 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                bind:checked={showAccountBalanceInOrderSummary}
+                                class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                            />
+                            <div class="min-w-0">
+                                <span class="text-xs font-semibold text-foreground block">
+                                    Mostrar el saldo de la Cta. corriente actual en el subtotal del pedido. (es de propósito visual, no tiene impacto en el cálculo del pedido)
+                                </span>
+                            </div>
+                        </label>
                     </div>
                 {/if}
 
@@ -2429,6 +2511,23 @@
                             </span>
                             <span class="font-sans tabular-nums">+{formatPrice(shippingCost)}</span>
                         </div>
+                    {/if}
+
+                    {#if showAccountBalanceInOrderSummary && selectedCustomer}
+                        <div class="flex items-center justify-between text-xs text-muted-foreground font-medium border-t border-border/40 pt-1.5">
+                            <span>Saldo Cta. Cte. actual:</span>
+                            <span class="font-sans tabular-nums font-semibold text-foreground">
+                                {accountCurrentBalanceFormatted}
+                            </span>
+                        </div>
+                        {#if accountProjectedBalanceFormatted}
+                            <div class="flex items-center justify-between text-xs text-muted-foreground font-medium pt-1">
+                                <span>Saldo Cta. Cte. resultante:</span>
+                                <span class="font-sans tabular-nums font-semibold text-foreground">
+                                    {accountProjectedBalanceFormatted}
+                                </span>
+                            </div>
+                        {/if}
                     {/if}
 
                     {#if effectiveCreditBalanceApplied > 0}

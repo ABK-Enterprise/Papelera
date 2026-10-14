@@ -436,6 +436,8 @@ class CustomerOrderController extends Controller
                 'shipping_cost' => $shippingCost,
                 'price_adjustments' => $processedAdjustments,
                 'show_account_in_receipt' => $request->boolean('show_account_in_receipt'),
+                'show_account_status_in_receipt' => $request->has('show_account_status_in_receipt') ? $request->boolean('show_account_status_in_receipt') : true,
+                'show_account_balance_in_receipt' => $request->has('show_account_balance_in_receipt') ? $request->boolean('show_account_balance_in_receipt') : true,
                 'show_credit_applied_in_receipt' => $showCreditAppliedInReceipt,
                 'discount_total' => $discountTotal,
                 'surcharge_total' => $surchargeTotal,

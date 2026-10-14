@@ -419,3 +419,68 @@ test('receipt pdf renders affected total even when show_credit_applied_in_receip
         ->and($html)->not->toContain('Saldo a Favor Aplicado:')
         ->and($html)->not->toContain('TOTAL A PAGAR:');
 });
+
+test('can update show_account_status_in_receipt and show_account_balance_in_receipt via patch endpoint', function () {
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'order_number' => 'ORD-SUB-FLAGS-01',
+        'customer_name' => $this->customer->name,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'sin_facturar',
+        'total_amount' => 10000.00,
+        'show_account_in_receipt' => true,
+        'show_account_status_in_receipt' => true,
+        'show_account_balance_in_receipt' => true,
+    ]);
+
+    $response = $this->actingAs($this->user)
+        ->patchJson("/tenant/pedidos/{$order->id}/visibilidad-remito", [
+            'show_account_in_receipt' => true,
+            'show_account_status_in_receipt' => false,
+            'show_account_balance_in_receipt' => true,
+        ]);
+
+    $response->assertOk()
+        ->assertJsonPath('success', true);
+
+    $order->refresh();
+    expect($order->show_account_status_in_receipt)->toBeFalse()
+        ->and($order->show_account_balance_in_receipt)->toBeTrue();
+});
+
+test('receipt pdf respects independent account status and account balance flags', function () {
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'order_number' => 'ORD-PDF-FLAGS-01',
+        'customer_name' => $this->customer->name,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'sin_facturar',
+        'total_amount' => 10000.00,
+        'show_account_in_receipt' => true,
+        'show_account_status_in_receipt' => true,
+        'show_account_balance_in_receipt' => false, // Saldo oculto, solo leyenda
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $this->product->id,
+        'packaging_type' => 'unit',
+        'quantity' => 2,
+        'unit_price' => 5000.00,
+        'subtotal' => 10000.00,
+    ]);
+
+    $order->load(['customer', 'items.product', 'tenant']);
+
+    $html = View::make('pdf.customer-order', [
+        'order' => $order,
+        'logoBase64' => null,
+    ])->render();
+
+    expect($html)->toContain('ESTADO EN CUENTA CORRIENTE')
+        ->and($html)->toContain('Estado Cta. Cte.:')
+        ->and($html)->toContain('"A DEBER"')
+        ->and($html)->not->toContain('Saldo deudor actual:');
+});

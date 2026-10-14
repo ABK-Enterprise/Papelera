@@ -123,3 +123,57 @@ test('kardex respects multi-tenant data isolation', function () {
             ->has('movements', 0)
         );
 });
+
+test('kardex filters by date range and sort criteria', function () {
+    $mov1 = StockMovement::create([
+        'tenant_id' => $this->tenant->id,
+        'product_id' => $this->product->id,
+        'user_id' => $this->user->id,
+        'type' => 'income',
+        'reason' => 'ingreso_manual',
+        'quantity' => 15,
+        'previous_stock' => 0,
+        'current_stock' => 15,
+    ]);
+    $mov1->forceFill(['created_at' => now()->subDays(5)])->saveQuietly();
+
+    $mov2 = StockMovement::create([
+        'tenant_id' => $this->tenant->id,
+        'product_id' => $this->product->id,
+        'user_id' => $this->user->id,
+        'type' => 'income',
+        'reason' => 'ingreso_manual',
+        'quantity' => 50,
+        'previous_stock' => 15,
+        'current_stock' => 65,
+    ]);
+    $mov2->forceFill(['created_at' => now()->subDay()])->saveQuietly();
+
+    // Filtrar por fecha desde hace 2 días hasta hoy
+    $response = $this->actingAs($this->user)
+        ->get(route('tenant.stock.kardex.index', [
+            'date_from' => now()->subDays(2)->toDateString(),
+            'date_to' => now()->toDateString(),
+        ]));
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('tenant/stock/kardex/Index')
+            ->has('movements', 1)
+            ->where('movements.0.id', $mov2->id)
+        );
+
+    // Ordenar por mayor cantidad
+    $responseSort = $this->actingAs($this->user)
+        ->get(route('tenant.stock.kardex.index', [
+            'sort_by' => 'quantity_high',
+        ]));
+
+    $responseSort->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('tenant/stock/kardex/Index')
+            ->has('movements', 2)
+            ->where('movements.0.id', $mov2->id) // 50 u primero
+            ->where('movements.1.id', $mov1->id) // 15 u segundo
+        );
+});

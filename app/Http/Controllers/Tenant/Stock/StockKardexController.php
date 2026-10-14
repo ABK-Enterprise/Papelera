@@ -20,6 +20,9 @@ class StockKardexController extends Controller
         $warehouseId = $request->input('warehouse_id');
         $type = $request->input('type');
         $search = $request->input('search');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+        $sortBy = $request->input('sort_by', 'latest');
 
         $query = StockMovement::where('tenant_id', $tenantId)
             ->with([
@@ -36,6 +39,12 @@ class StockKardexController extends Controller
             ->when($type, function ($q, $type) {
                 $q->where('type', $type);
             })
+            ->when($dateFrom, function ($q, $dateFrom) {
+                $q->whereDate('created_at', '>=', $dateFrom);
+            })
+            ->when($dateTo, function ($q, $dateTo) {
+                $q->whereDate('created_at', '<=', $dateTo);
+            })
             ->when($search, function ($q, $search) {
                 $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
                 $q->where(function ($sub) use ($searchTerm) {
@@ -47,7 +56,18 @@ class StockKardexController extends Controller
                         ->orWhereRaw('LOWER(reason) LIKE ?', [$searchTerm]);
                 });
             })
-            ->latest();
+            ->when($sortBy === 'oldest', function ($q) {
+                $q->orderBy('created_at', 'asc');
+            })
+            ->when($sortBy === 'quantity_high', function ($q) {
+                $q->orderByDesc('quantity');
+            })
+            ->when($sortBy === 'quantity_low', function ($q) {
+                $q->orderBy('quantity', 'asc');
+            })
+            ->when(! in_array($sortBy, ['oldest', 'quantity_high', 'quantity_low'], true), function ($q) {
+                $q->latest();
+            });
 
         $movements = $query->get();
 
@@ -80,6 +100,9 @@ class StockKardexController extends Controller
                 'warehouse_id' => $warehouseId ? (int) $warehouseId : null,
                 'type' => $type,
                 'search' => $search,
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
+                'sort_by' => $sortBy,
             ],
         ]);
     }

@@ -60,6 +60,8 @@ class StoreCustomerOrderRequest extends FormRequest
             'items.*.units_per_package' => ['nullable', 'numeric', 'min:1'],
             'items.*.apply_customer_discount' => ['nullable', 'boolean'],
             'show_account_in_receipt' => ['nullable', 'boolean'],
+            'show_account_status_in_receipt' => ['nullable', 'boolean'],
+            'show_account_balance_in_receipt' => ['nullable', 'boolean'],
             'show_credit_applied_in_receipt' => ['nullable', 'boolean'],
             'show_debt_collected_in_receipt' => ['nullable', 'boolean'],
             'credit_balance_applied' => ['nullable', 'numeric', 'min:0', 'max:100000000', 'regex:/^\d+(?:\.\d{1,2})?$/'],

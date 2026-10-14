@@ -645,7 +645,11 @@
                 </div>
 
                 <!-- 3. Sección Inferior: Estado en Cuenta Corriente (si aplica) -->
-                @if($order->show_account_in_receipt && $order->customer)
+                @php
+                    $showStatus = (bool) ($order->show_account_status_in_receipt ?? true);
+                    $showBalance = (bool) ($order->show_account_balance_in_receipt ?? true);
+                @endphp
+                @if($order->show_account_in_receipt && $order->customer && ($showStatus || $showBalance))
                     @php
                         $currentBalance = $order->customer_balance_after !== null
                             ? (float) $order->customer_balance_after
@@ -660,32 +664,36 @@
                         </div>
                         <table class="summary-account-table">
                             <tr>
-                                <td class="account-col-left">
-                                    <div>
-                                        <strong style="color: #0f172a;">Estado Cta. Cte.:</strong>
-                                        @if($isFavor)
-                                            <span class="badge-account-favor">"A FAVOR"</span>
-                                        @elseif($isDeudor)
-                                            <span class="badge-account-deudor">"A DEBER"</span>
-                                        @else
-                                            <span class="badge-account-neutral">"AL DIA"</span>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td class="account-col-right">
-                                    <div class="account-amount-line account-amount-line-current">
-                                        @if($isFavor)
-                                            <strong style="color: #0f172a;">Saldo a favor actual:</strong>
-                                            <span class="tabular-nums font-bold text-green">${{ number_format($absBalance, 2, ',', '.') }}</span>
-                                        @elseif($isDeudor)
-                                            <strong style="color: #0f172a;">Saldo deudor actual:</strong>
-                                            <span class="tabular-nums font-bold text-danger">${{ number_format($absBalance, 2, ',', '.') }}</span>
-                                        @else
-                                            <strong style="color: #0f172a;">Cuenta corriente al dia:</strong>
-                                            <span class="tabular-nums font-bold">$0,00</span>
-                                        @endif
-                                    </div>
-                                </td>
+                                @if($showStatus)
+                                    <td class="account-col-left" style="{{ !$showBalance ? 'width: 100%; border-right: none;' : '' }}">
+                                        <div>
+                                            <strong style="color: #0f172a;">Estado Cta. Cte.:</strong>
+                                            @if($isFavor)
+                                                <span class="badge-account-favor">"A FAVOR"</span>
+                                            @elseif($isDeudor)
+                                                <span class="badge-account-deudor">"A DEBER"</span>
+                                            @else
+                                                <span class="badge-account-neutral">"AL DIA"</span>
+                                            @endif
+                                        </div>
+                                    </td>
+                                @endif
+                                @if($showBalance)
+                                    <td class="account-col-right" style="{{ !$showStatus ? 'width: 100%; text-align: left; padding-left: 0;' : '' }}">
+                                        <div class="account-amount-line account-amount-line-current">
+                                            @if($isFavor)
+                                                <strong style="color: #0f172a;">Saldo a favor actual:</strong>
+                                                <span class="tabular-nums font-bold text-green">${{ number_format($absBalance, 2, ',', '.') }}</span>
+                                            @elseif($isDeudor)
+                                                <strong style="color: #0f172a;">Saldo deudor actual:</strong>
+                                                <span class="tabular-nums font-bold text-danger">${{ number_format($absBalance, 2, ',', '.') }}</span>
+                                            @else
+                                                <strong style="color: #0f172a;">Cuenta corriente al dia:</strong>
+                                                <span class="tabular-nums font-bold">$0,00</span>
+                                            @endif
+                                        </div>
+                                    </td>
+                                @endif
                             </tr>
                         </table>
                     </div>
