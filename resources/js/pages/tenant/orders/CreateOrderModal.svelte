@@ -2514,16 +2514,16 @@
                     {/if}
 
                     {#if showAccountBalanceInOrderSummary && selectedCustomer}
-                        <div class="flex items-center justify-between text-xs text-muted-foreground font-medium border-t border-border/40 pt-1.5">
+                        <div class="flex items-center justify-between text-xs sm:text-sm font-medium text-muted-foreground border-t border-border/40 pt-1.5">
                             <span>Saldo Cta. Cte. actual:</span>
-                            <span class="font-sans tabular-nums font-semibold text-foreground">
+                            <span class="font-bold font-sans tabular-nums text-foreground">
                                 {accountCurrentBalanceFormatted}
                             </span>
                         </div>
                         {#if accountProjectedBalanceFormatted}
-                            <div class="flex items-center justify-between text-xs text-muted-foreground font-medium pt-1">
+                            <div class="flex items-center justify-between text-xs sm:text-sm font-medium text-muted-foreground pt-1">
                                 <span>Saldo Cta. Cte. resultante:</span>
-                                <span class="font-sans tabular-nums font-semibold text-foreground">
+                                <span class="font-bold font-sans tabular-nums text-foreground">
                                     {accountProjectedBalanceFormatted}
                                 </span>
                             </div>
