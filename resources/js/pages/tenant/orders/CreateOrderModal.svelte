@@ -3,6 +3,7 @@
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import Icon from '@iconify/svelte';
     import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
@@ -2517,10 +2518,16 @@
 <!-- Diálogo Táctil Accesible de Descuento por Ítem en Mobile -->
 <Dialog bind:open={isMobileDiscountModalOpen}>
     <DialogContent class="sm:max-w-[420px] p-5 sm:p-6 space-y-4 rounded-2xl bg-card border-border shadow-2xl">
-        <DialogHeader class="shrink-0">
-            <div class="flex items-center gap-2.5">
-                <IconContainer size="sm" variant="primary" icon="solar:tag-price-bold-duotone" />
-                <DialogTitle class="text-base font-bold text-foreground">Descuento de Producto</DialogTitle>
+        <DialogHeader class="shrink-0 pb-3 border-b border-border/60">
+            <div class="flex items-center gap-2.5 sm:gap-3.5">
+                <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                    <Icon class="size-5 sm:size-6 text-primary" icon="solar:tag-price-bold-duotone" />
+                </div>
+                <div class="min-w-0 flex-1 flex items-center">
+                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                        Descuento de Producto
+                    </DialogTitle>
+                </div>
             </div>
         </DialogHeader>
 
@@ -2614,10 +2621,16 @@
 <!-- Diálogo Efímero de Edición de Unidades por Bulto -->
 <Dialog bind:open={isUnitsModalOpen}>
     <DialogContent class="sm:max-w-[420px] p-5 sm:p-6 space-y-4 rounded-2xl bg-card border-border shadow-2xl">
-        <DialogHeader class="shrink-0">
-            <div class="flex items-center gap-2.5">
-                <IconContainer size="sm" variant="info" icon="solar:box-minimalistic-bold-duotone" />
-                <DialogTitle class="text-base font-bold text-foreground">Unidades por Bulto</DialogTitle>
+        <DialogHeader class="shrink-0 pb-3 border-b border-border/60">
+            <div class="flex items-center gap-2.5 sm:gap-3.5">
+                <div class="size-10 sm:size-12 rounded-xl bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/30 flex items-center justify-center shrink-0">
+                    <Icon class="size-5 sm:size-6 text-sky-600 dark:text-sky-400" icon="solar:box-minimalistic-bold-duotone" />
+                </div>
+                <div class="min-w-0 flex-1 flex items-center">
+                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                        Unidades por Bulto
+                    </DialogTitle>
+                </div>
             </div>
         </DialogHeader>
 
@@ -2751,10 +2764,17 @@
 <!-- Diálogo de Edición de Saldo a Favor a Imputar -->
 <Dialog bind:open={isCreditBalanceModalOpen}>
     <DialogContent class="sm:max-w-md p-5 sm:p-6 space-y-4 rounded-2xl bg-card border-border shadow-2xl">
-        <DialogHeader class="text-left">
-            <DialogTitle class="text-base sm:text-lg font-bold text-foreground">
-                Editar Saldo a Imputar
-            </DialogTitle>
+        <DialogHeader class="shrink-0 pb-3 border-b border-border/60">
+            <div class="flex items-center gap-2.5 sm:gap-3.5">
+                <div class="size-10 sm:size-12 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                    <Icon class="size-5 sm:size-6 text-emerald-600 dark:text-emerald-400" icon="solar:wallet-money-bold-duotone" />
+                </div>
+                <div class="min-w-0 flex-1 flex items-center">
+                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                        Editar Saldo a Imputar
+                    </DialogTitle>
+                </div>
+            </div>
         </DialogHeader>
 
         <DialogBody class="space-y-4">
@@ -2846,10 +2866,17 @@
 <!-- Diálogo de Edición de Cobro de Deuda Anterior -->
 <Dialog bind:open={isDebtBalanceModalOpen}>
     <DialogContent class="sm:max-w-md p-5 sm:p-6 space-y-4 rounded-2xl bg-card border-border shadow-2xl">
-        <DialogHeader class="text-left">
-            <DialogTitle class="text-base sm:text-lg font-bold text-foreground">
-                Editar Deuda a Cobrar
-            </DialogTitle>
+        <DialogHeader class="shrink-0 pb-3 border-b border-border/60">
+            <div class="flex items-center gap-2.5 sm:gap-3.5">
+                <div class="size-10 sm:size-12 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
+                    <Icon class="size-5 sm:size-6 text-amber-600 dark:text-amber-400" icon="solar:hand-money-bold-duotone" />
+                </div>
+                <div class="min-w-0 flex-1 flex items-center">
+                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                        Editar Deuda a Cobrar
+                    </DialogTitle>
+                </div>
+            </div>
         </DialogHeader>
 
         <DialogBody class="space-y-4">
