@@ -82,16 +82,18 @@
 
 <Dialog bind:open>
     <DialogContent class="max-w-lg p-0 flex flex-col max-h-[85vh] sm:max-h-[88vh] bg-card text-card-foreground border border-border/80 overflow-hidden">
-        <DialogHeader class="p-5 sm:p-6 pb-3 text-left border-b border-border/50 shrink-0">
-            <div class="flex items-start justify-between gap-3">
-                <div class="space-y-1">
-                    <DialogTitle class="text-lg font-bold flex items-center gap-2 text-rose-600 dark:text-rose-400 font-sans">
-                        <AlertTriangle class="size-5 shrink-0" />
-                        <span>Registrar visita fallida</span>
-                    </DialogTitle>
-                    <DialogDescription class="text-xs text-muted-foreground max-w-[260px] sm:max-w-md break-words font-sans">
-                        Indica la causa por la que no se pudo completar la entrega en el domicilio
-                    </DialogDescription>
+        <DialogHeader class="p-0 border-b border-border/60 shrink-0 bg-card">
+            <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 p-4 sm:p-[3px] pb-3.5 sm:pb-[3px] pr-4 sm:pr-4 w-full">
+                <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+                    <div class="size-10 sm:size-12 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
+                        <AlertTriangle class="size-5 sm:size-6 text-rose-600 dark:text-rose-400" />
+                    </div>
+                    <div class="min-w-0 flex-1 flex flex-col justify-center">
+                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate text-rose-600 dark:text-rose-400">
+                            Registrar visita fallida
+                        </DialogTitle>
+                        <DialogDescription class="sr-only">Indica la causa por la que no se pudo completar la entrega en el domicilio</DialogDescription>
+                    </div>
                 </div>
                 {#if order}
                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold font-sans tabular-nums bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0">
