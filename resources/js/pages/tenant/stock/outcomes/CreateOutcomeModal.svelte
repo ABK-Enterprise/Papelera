@@ -11,7 +11,7 @@
     } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
-    import IconContainer from '@/components/common/IconContainer.svelte';
+    import Icon from '@iconify/svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import { useForm } from '@inertiajs/svelte';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
@@ -150,24 +150,30 @@
 
 <Dialog bind:open>
     <DialogContent size="default" class="max-w-lg">
-        <DialogHeader>
-            <div class="flex items-center gap-2.5 min-w-0">
-                <IconContainer size="md" variant="destructive" icon="solar:archive-up-minimalistic-bold-duotone" />
-                <div class="min-w-0">
-                    <DialogTitle class="text-base sm:text-lg font-semibold text-foreground leading-snug">Registrar egreso de stock</DialogTitle>
-                    <DialogDescription class="text-xs text-muted-foreground">
-                        Registra salida o devolución de mercadería de tu inventario.
-                    </DialogDescription>
+        <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
+            <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 w-full">
+                <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+                    <div class="size-10 sm:size-12 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
+                        <Icon class="size-5 sm:size-6 text-rose-600 dark:text-rose-400" icon="solar:archive-up-minimalistic-bold-duotone" />
+                    </div>
+                    <div class="min-w-0 flex-1 flex items-center">
+                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                            Registrar egreso de stock
+                        </DialogTitle>
+                        <DialogDescription class="sr-only">
+                            Registra salida o devolución de mercadería de tu inventario.
+                        </DialogDescription>
+                    </div>
                 </div>
+                <button
+                    type="button"
+                    onclick={closeModal}
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    aria-label="Cerrar"
+                >
+                    <X class="size-4" />
+                </button>
             </div>
-            <button
-                type="button"
-                onclick={closeModal}
-                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
-                aria-label="Cerrar"
-            >
-                <X class="size-4" />
-            </button>
         </DialogHeader>
 
 
