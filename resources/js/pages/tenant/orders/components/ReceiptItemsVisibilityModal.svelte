@@ -271,8 +271,11 @@
                                 />
                                 <div class="flex-1 min-w-0">
                                     <span class="text-sm font-medium text-foreground block">
-                                        Agregar leyenda respectiva al tipo de saldo del cliente ("Saldo a favor" o "Saldo a deber") en el pie de la boleta
+                                        Mostrar leyenda de tipo de Saldo de Cta. Cte.
                                     </span>
+                                    <p class="text-xs text-muted-foreground mt-0.5">
+                                        Se mostrará en el pie de la boleta una leyenda que indique si el cliente tiene "saldo a favor" o "saldo a deber".
+                                    </p>
                                 </div>
                             </label>
 
@@ -285,8 +288,11 @@
                                 />
                                 <div class="flex-1 min-w-0">
                                     <span class="text-sm font-medium text-foreground block">
-                                        Agregar saldo actual del cliente en el pie de la boleta
+                                        Mostrar el Saldo de Cta. Cte.
                                     </span>
+                                    <p class="text-xs text-muted-foreground mt-0.5">
+                                        Se incluirá en el pie de la boleta el saldo actual de la cuenta corriente del cliente.
+                                    </p>
                                 </div>
                             </label>
                         </div>
