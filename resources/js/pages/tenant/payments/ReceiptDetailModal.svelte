@@ -176,45 +176,47 @@
 <Dialog bind:open>
     <DialogContent class="max-w-xl sm:max-w-2xl w-[calc(100%-2rem)] mx-auto p-0 rounded-2xl sm:rounded-3xl border border-border bg-card shadow-2xl overflow-hidden">
         {#if receipt}
-            <DialogHeader class="p-5 sm:p-6 pb-4 border-b border-border/70 flex flex-row items-center justify-between gap-3 bg-card shrink-0">
-                <div class="flex items-center gap-3 min-w-0">
-                    <div class="size-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                        <ReceiptText class="size-5" />
-                    </div>
-                    <div class="min-w-0">
-                        <div class="flex items-center gap-2">
-                            <DialogTitle class="text-base sm:text-lg font-bold font-sans tabular-nums text-foreground truncate">
-                                Recibo {receipt.receipt_number}
-                            </DialogTitle>
-                            {#if receipt.is_cancelled}
-                                <span class="bg-destructive/10 text-destructive border border-destructive/20 text-xs font-bold px-2 py-0.5 rounded-full line-through shrink-0">
-                                    Anulado
-                                </span>
-                            {:else}
-                                <span class="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
-                                    Válido
-                                </span>
-                            {/if}
+            <DialogHeader class="p-0 border-b border-border/70 bg-card shrink-0">
+                <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 p-4 sm:p-[3px] pb-3.5 sm:pb-[3px] pr-4 sm:pr-4 w-full">
+                    <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+                        <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                            <ReceiptText class="size-5 sm:size-6 text-primary" />
                         </div>
-                        <DialogDescription class="text-xs text-muted-foreground mt-0.5 font-sans">
-                            Comprobante oficial de cobro e imputación de cuenta corriente.
-                        </DialogDescription>
+                        <div class="min-w-0 flex-1 flex flex-col justify-center">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <DialogTitle class="text-lg sm:text-xl font-bold font-sans tabular-nums text-foreground leading-snug sm:leading-none truncate">
+                                    Recibo {receipt.receipt_number}
+                                </DialogTitle>
+                                {#if receipt.is_cancelled}
+                                    <span class="bg-destructive/10 text-destructive border border-destructive/20 text-xs font-bold px-2 py-0.5 rounded-full line-through shrink-0">
+                                        Anulado
+                                    </span>
+                                {:else}
+                                    <span class="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
+                                        Válido
+                                    </span>
+                                {/if}
+                            </div>
+                            <DialogDescription class="sr-only">
+                                Comprobante oficial de cobro e imputación de cuenta corriente.
+                            </DialogDescription>
+                        </div>
                     </div>
-                </div>
 
-                <DialogClose asChild>
-                    {#snippet children(props)}
-                        <Button
-                            {...props}
-                            variant="ghost"
-                            size="icon"
-                            class="size-9 rounded-xl text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
-                        >
-                            <X class="size-4" />
-                            <span class="sr-only">Cerrar</span>
-                        </Button>
-                    {/snippet}
-                </DialogClose>
+                    <DialogClose asChild>
+                        {#snippet children(props)}
+                            <Button
+                                {...props}
+                                variant="ghost"
+                                size="icon"
+                                class="size-9 rounded-xl text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
+                            >
+                                <X class="size-4" />
+                                <span class="sr-only">Cerrar</span>
+                            </Button>
+                        {/snippet}
+                    </DialogClose>
+                </div>
             </DialogHeader>
 
             <DialogBody class="p-5 sm:p-6 space-y-4 overflow-y-auto">

@@ -92,20 +92,29 @@
 
 <Dialog open={isOpen} onOpenChange={handleOpenChange}>
     <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto p-5 sm:p-6 space-y-4">
-        <DialogHeader class="space-y-1 shrink-0">
-            <div class="flex items-center gap-2">
-                <Badge variant="outline" class="border-primary-500/30 bg-primary-500/10 text-primary-700 dark:text-primary-300 font-semibold">
-                    Auditoría #{log?.id ?? ''}
-                </Badge>
-                {#if log?.user_role}
-                    <Badge variant="secondary" class="text-xs uppercase tracking-wider font-semibold">
-                        {log.user_role}
-                    </Badge>
-                {/if}
+        <DialogHeader class="pb-3 border-b border-border/60 shrink-0 text-left space-y-1">
+            <div class="flex items-center gap-2.5 sm:gap-3.5 w-full">
+                <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+                    <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                        <ShieldAlert class="size-5 sm:size-6 text-primary" />
+                    </div>
+                    <div class="min-w-0 flex-1 flex flex-col justify-center">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                                {log?.action ?? 'Detalle de Acción'}
+                            </DialogTitle>
+                            <Badge variant="outline" class="border-primary/30 bg-primary/10 text-primary font-semibold text-xs tabular-nums">
+                                Auditoría #{log?.id ?? ''}
+                            </Badge>
+                            {#if log?.user_role}
+                                <Badge variant="secondary" class="text-xs uppercase tracking-wider font-semibold">
+                                    {log.user_role}
+                                </Badge>
+                            {/if}
+                        </div>
+                    </div>
+                </div>
             </div>
-            <DialogTitle class="text-xl font-bold tracking-tight text-foreground pt-1">
-                {log?.action ?? 'Detalle de Acción'}
-            </DialogTitle>
         </DialogHeader>
 
         {#if log}

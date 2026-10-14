@@ -5,7 +5,6 @@
     import { Link } from '@inertiajs/svelte';
     import Icon from '@iconify/svelte';
     import X from 'lucide-svelte/icons/x';
-    import IconContainer from '@/components/common/IconContainer.svelte';
 
     interface ModuleSummary {
         id: number;
@@ -47,21 +46,25 @@
 {#if tenant}
     <Dialog bind:open>
         <DialogContent class="max-w-md w-[calc(100%-2rem)] mx-4 p-5 rounded-2xl sm:rounded-3xl border border-border/80 shadow-lg">
-            <DialogHeader class="flex flex-row items-center justify-between pb-3 border-b border-border/50">
-                <div class="flex items-center gap-3">
-                    <IconContainer size="md" variant="primary">
-                        {tenant.name ? tenant.name.charAt(0).toUpperCase() : 'C'}
-                    </IconContainer>
-                    <div>
-                        <DialogTitle class="text-base font-bold text-foreground leading-snug">{tenant.name}</DialogTitle>
-                        <span class="text-xs tabular-nums text-muted-foreground">
-                            {tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}
-                        </span>
+            <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
+                <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 w-full">
+                    <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+                        <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0 font-bold text-base sm:text-lg">
+                            {tenant.name ? tenant.name.charAt(0).toUpperCase() : 'C'}
+                        </div>
+                        <div class="min-w-0 flex-1 flex flex-col justify-center">
+                            <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                                {tenant.name}
+                            </DialogTitle>
+                            <span class="text-xs tabular-nums text-muted-foreground mt-1 truncate">
+                                {tenant.cuit_tax_id ? `CUIT: ${tenant.cuit_tax_id}` : `ID: MER-${tenant.id.toString().padStart(5, '0')}`}
+                            </span>
+                        </div>
                     </div>
+                    <DialogClose class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0">
+                        <X class="size-4" />
+                    </DialogClose>
                 </div>
-                <DialogClose>
-                    <X class="size-4" />
-                </DialogClose>
             </DialogHeader>
 
 
