@@ -17,7 +17,7 @@
     import Percent from 'lucide-svelte/icons/percent';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import X from 'lucide-svelte/icons/x';
-    import IconContainer from '@/components/common/IconContainer.svelte';
+    import Icon from '@iconify/svelte';
     import {
         fetchProvinces,
         fetchDepartments,
@@ -141,10 +141,16 @@
 
 <Dialog bind:open>
     <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-8">
-        <div class="flex items-center justify-between pb-4 border-b border-border">
-            <div class="flex items-center gap-3">
-                <IconContainer size="md" variant="primary" icon="solar:user-plus-bold-duotone" />
-                <DialogTitle class="text-xl font-bold text-foreground">Añadir Nuevo Cliente</DialogTitle>
+        <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 pb-4 border-b border-border w-full">
+            <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+                <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                    <Icon class="size-5 sm:size-6 text-primary" icon="solar:user-plus-bold-duotone" />
+                </div>
+                <div class="min-w-0 flex-1 flex items-center">
+                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                        Añadir Nuevo Cliente
+                    </DialogTitle>
+                </div>
             </div>
             <button
                 type="button"

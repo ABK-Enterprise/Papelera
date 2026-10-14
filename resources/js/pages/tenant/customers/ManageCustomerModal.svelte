@@ -34,7 +34,7 @@
     import MoreHorizontal from 'lucide-svelte/icons/more-horizontal';
     import X from 'lucide-svelte/icons/x';
     import Calendar from 'lucide-svelte/icons/calendar';
-    import IconContainer from '@/components/common/IconContainer.svelte';
+    import Icon from '@iconify/svelte';
     import {
         fetchProvinces,
         fetchDepartments,
@@ -248,16 +248,16 @@
 
 <Dialog bind:open>
     <DialogContent class="max-w-2xl max-h-[85vh]">
-        <DialogHeader>
-            <div class="flex items-center gap-3 min-w-0">
-                <IconContainer
-                    size="md"
-                    variant={form.is_defaulter ? 'warning' : 'primary'}
-                    icon={form.is_defaulter ? 'solar:danger-triangle-bold-duotone' : 'solar:shop-bold-duotone'}
-                />
-                <div class="min-w-0">
-                    <div class="flex items-center gap-2">
-                        <DialogTitle class="text-xl font-bold text-foreground">Gestión de Cliente</DialogTitle>
+        <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
+            <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 w-full">
+                <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+                    <div class="size-10 sm:size-12 rounded-xl {form.is_defaulter ? 'bg-amber-500/10 text-amber-600 border border-amber-500/20' : 'bg-primary/10 text-primary border border-primary/20'} flex items-center justify-center shrink-0">
+                        <Icon class="size-5 sm:size-6" icon={form.is_defaulter ? 'solar:danger-triangle-bold-duotone' : 'solar:shop-bold-duotone'} />
+                    </div>
+                    <div class="min-w-0 flex-1 flex items-center gap-2 flex-wrap">
+                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                            Gestión de Cliente
+                        </DialogTitle>
                         {#if form.is_defaulter}
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">
                                 Moroso
@@ -274,91 +274,91 @@
                         {/if}
                     </div>
                 </div>
-            </div>
 
-            <div class="flex items-center gap-1 shrink-0 -mr-1">
-                {#if canEdit || canDelete}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            {#snippet children(props)}
-                                <button
-                                    {...props}
-                                    type="button"
-                                    class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
-                                    aria-label="Más opciones"
-                                >
-                                    <MoreHorizontal class="size-4" />
-                                </button>
-                            {/snippet}
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" class="w-48 shadow-lg">
-                            {#if canEdit}
-                                {#if form.is_active}
+                <div class="flex items-center gap-1 shrink-0 -mr-1">
+                    {#if canEdit || canDelete}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                {#snippet children(props)}
+                                    <button
+                                        {...props}
+                                        type="button"
+                                        class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                                        aria-label="Más opciones"
+                                    >
+                                        <MoreHorizontal class="size-4" />
+                                    </button>
+                                {/snippet}
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" class="w-48 shadow-lg">
+                                {#if canEdit}
+                                    {#if form.is_active}
+                                        <DropdownMenuItem asChild>
+                                            {#snippet children(props)}
+                                                <button
+                                                    type="button"
+                                                    class="{props.class} w-full flex items-center text-rose-600 dark:text-rose-400 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30 gap-2 text-xs font-medium cursor-pointer"
+                                                    onclick={() => {
+                                                        props.onClick?.();
+                                                        showDeactivateConfirm = true;
+                                                    }}
+                                                >
+                                                    <ShieldAlert class="size-3.5 shrink-0" />
+                                                    <span>Desactivar cliente</span>
+                                                </button>
+                                            {/snippet}
+                                        </DropdownMenuItem>
+                                    {:else}
+                                        <DropdownMenuItem asChild>
+                                            {#snippet children(props)}
+                                                <button
+                                                    type="button"
+                                                    class="{props.class} w-full flex items-center text-emerald-600 dark:text-emerald-400 focus:text-emerald-600 focus:bg-emerald-50 dark:focus:bg-emerald-950/30 gap-2 text-xs font-medium cursor-pointer"
+                                                    onclick={() => {
+                                                        props.onClick?.();
+                                                        showActivateConfirm = true;
+                                                    }}
+                                                >
+                                                    <ShieldCheck class="size-3.5 shrink-0" />
+                                                    <span>Activar cliente</span>
+                                                </button>
+                                            {/snippet}
+                                        </DropdownMenuItem>
+                                    {/if}
+                                {/if}
+                                {#if canEdit && canDelete}
+                                    <DropdownMenuSeparator />
+                                {/if}
+                                {#if canDelete}
                                     <DropdownMenuItem asChild>
                                         {#snippet children(props)}
                                             <button
                                                 type="button"
-                                                class="{props.class} w-full flex items-center text-rose-600 dark:text-rose-400 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30 gap-2 text-xs font-medium cursor-pointer"
+                                                class="{props.class} w-full flex items-center text-destructive focus:text-destructive focus:bg-destructive/10 gap-2 text-xs font-medium cursor-pointer"
                                                 onclick={() => {
                                                     props.onClick?.();
-                                                    showDeactivateConfirm = true;
+                                                    showDeleteConfirm = true;
                                                 }}
                                             >
-                                                <ShieldAlert class="size-3.5 shrink-0" />
-                                                <span>Desactivar cliente</span>
-                                            </button>
-                                        {/snippet}
-                                    </DropdownMenuItem>
-                                {:else}
-                                    <DropdownMenuItem asChild>
-                                        {#snippet children(props)}
-                                            <button
-                                                type="button"
-                                                class="{props.class} w-full flex items-center text-emerald-600 dark:text-emerald-400 focus:text-emerald-600 focus:bg-emerald-50 dark:focus:bg-emerald-950/30 gap-2 text-xs font-medium cursor-pointer"
-                                                onclick={() => {
-                                                    props.onClick?.();
-                                                    showActivateConfirm = true;
-                                                }}
-                                            >
-                                                <ShieldCheck class="size-3.5 shrink-0" />
-                                                <span>Activar cliente</span>
+                                                <Trash2 class="size-3.5 shrink-0" />
+                                                <span>Eliminar cliente</span>
                                             </button>
                                         {/snippet}
                                     </DropdownMenuItem>
                                 {/if}
-                            {/if}
-                            {#if canEdit && canDelete}
-                                <DropdownMenuSeparator />
-                            {/if}
-                            {#if canDelete}
-                                <DropdownMenuItem asChild>
-                                    {#snippet children(props)}
-                                        <button
-                                            type="button"
-                                            class="{props.class} w-full flex items-center text-destructive focus:text-destructive focus:bg-destructive/10 gap-2 text-xs font-medium cursor-pointer"
-                                            onclick={() => {
-                                                props.onClick?.();
-                                                showDeleteConfirm = true;
-                                            }}
-                                        >
-                                            <Trash2 class="size-3.5 shrink-0" />
-                                            <span>Eliminar cliente</span>
-                                        </button>
-                                    {/snippet}
-                                </DropdownMenuItem>
-                            {/if}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                {/if}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    {/if}
 
-                <button
-                    type="button"
-                    onclick={handleClose}
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
-                    aria-label="Cerrar"
-                >
-                    <X class="size-4" />
-                </button>
+                    <button
+                        type="button"
+                        onclick={handleClose}
+                        class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                        aria-label="Cerrar"
+                    >
+                        <X class="size-4" />
+                    </button>
+                </div>
             </div>
         </DialogHeader>
 
