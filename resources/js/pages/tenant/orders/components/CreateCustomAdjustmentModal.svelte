@@ -178,23 +178,27 @@
 
 <Dialog bind:open>
     <DialogContent class="sm:max-w-md max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
-        <DialogHeader class="p-4 sm:p-5 border-b border-border/60 shrink-0 flex items-center justify-between bg-card">
-            <div class="flex items-center gap-2 min-w-0">
-                <div class="size-8 rounded-lg {type === 'discount' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'} flex items-center justify-center shrink-0">
-                    <Tag class="size-4" />
+        <DialogHeader class="p-0 border-b border-border/60 shrink-0 bg-card">
+            <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 p-4 sm:p-[3px] pb-3.5 sm:pb-[3px] pr-4 sm:pr-4 w-full">
+                <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+                    <div class="size-10 sm:size-12 rounded-xl {type === 'discount' ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 border border-amber-500/20'} flex items-center justify-center shrink-0">
+                        <Tag class="size-5 sm:size-6" />
+                    </div>
+                    <div class="min-w-0 flex-1 flex items-center">
+                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
+                            {orderNumber ? `Nuevo Ajuste en Pedido #${orderNumber}` : 'Nuevo Ajuste en Pedido'}
+                        </DialogTitle>
+                    </div>
                 </div>
-                <DialogTitle class="text-base sm:text-lg font-bold text-foreground truncate">
-                    {orderNumber ? `Nuevo Ajuste en Pedido #${orderNumber}` : 'Nuevo Ajuste en Pedido'}
-                </DialogTitle>
+                <button
+                    type="button"
+                    onclick={() => (open = false)}
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    aria-label="Cerrar modal"
+                >
+                    <X class="size-4" />
+                </button>
             </div>
-            <button
-                type="button"
-                onclick={() => (open = false)}
-                class="size-8 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
-                aria-label="Cerrar modal"
-            >
-                <X class="size-4" />
-            </button>
         </DialogHeader>
 
         <DialogBody class="p-4 sm:p-5 space-y-4 flex-1 overflow-y-auto w-full box-border">

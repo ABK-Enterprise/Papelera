@@ -320,17 +320,17 @@
 <Dialog bind:open>
     <DialogContent class="max-w-2xl w-full p-5 sm:p-6 space-y-4 rounded-2xl min-h-[500px] sm:min-h-[540px] max-h-[92vh] flex flex-col">
         <!-- Header -->
-        <DialogHeader class="shrink-0 pb-1 border-b border-border/60">
-            <div class="flex items-center gap-3">
-                <div class="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    <PackagePlus class="size-5" />
+        <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
+            <div class="flex items-center gap-2.5 sm:gap-3.5">
+                <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                    <PackagePlus class="size-5 sm:size-6 text-primary" />
                 </div>
-                <div class="min-w-0 flex-1">
-                    <DialogTitle class="text-xl font-bold text-foreground">
+                <div class="min-w-0 flex-1 flex flex-col justify-center">
+                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-none truncate">
                         Agregar productos al pedido
                     </DialogTitle>
                     {#if order}
-                        <p class="text-xs text-muted-foreground mt-0.5 tabular-nums">
+                        <p class="text-xs text-muted-foreground mt-1 tabular-nums">
                             Pedido #{order.order_number}
                         </p>
                     {/if}
