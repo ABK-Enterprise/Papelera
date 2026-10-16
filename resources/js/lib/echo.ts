@@ -8,7 +8,9 @@ declare global {
     }
 }
 
-window.Pusher = Pusher;
+if (typeof window !== 'undefined') {
+    window.Pusher = Pusher;
+}
 
 function createNullEcho(): Echo<any> {
     const dummyChannel = {
@@ -32,6 +34,10 @@ function createNullEcho(): Echo<any> {
 }
 
 function initEcho(): Echo<any> {
+    if (typeof window === 'undefined') {
+        return createNullEcho();
+    }
+
     const csrfToken = typeof document !== 'undefined'
         ? (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '')
         : '';
@@ -76,7 +82,9 @@ function initEcho(): Echo<any> {
 
 export const echo = initEcho();
 
-window.Echo = echo;
+if (typeof window !== 'undefined') {
+    window.Echo = echo;
+}
 
 export default echo;
 
