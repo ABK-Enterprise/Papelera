@@ -153,7 +153,7 @@
         }
     });
 
-    // Recálculo automático de precio de venta a partir del precio neto e IVA
+    // Recálculo automático bidireccional entre precio neto y precio de venta
     function updateCalculatedGrossPrice() {
         const net = parseFloat(String(form.net_price));
         if (!isNaN(net) && net >= 0) {
@@ -162,6 +162,25 @@
             form.price = gross.toFixed(2);
         } else {
             form.price = '';
+        }
+    }
+
+    function updateCalculatedNetPrice() {
+        const gross = parseFloat(String(form.price));
+        if (!isNaN(gross) && gross >= 0) {
+            const iva = Number(form.iva_rate) || 0;
+            const net = Math.round((gross / (1 + iva / 100)) * 100) / 100;
+            form.net_price = net.toFixed(2);
+        } else {
+            form.net_price = '';
+        }
+    }
+
+    function handleIvaChange() {
+        if (form.price !== '' && !isNaN(Number(form.price))) {
+            updateCalculatedNetPrice();
+        } else if (form.net_price !== '' && !isNaN(Number(form.net_price))) {
+            updateCalculatedGrossPrice();
         }
     }
 
@@ -419,22 +438,28 @@
                         <div class="space-y-3">
                             <h3 class="text-xs font-bold text-primary uppercase tracking-wider">2. Precios & Facturación (ARCA)</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                                <!-- 1. Precio de venta (visual/no mutable - Desktop col 1, Mobile col 2) -->
-                                <div class="space-y-1.5 order-2 sm:order-1">
-                                    <div class="min-h-[38px] flex items-end pb-0.5">
+                                <!-- 1. Precio de venta (mutable/obligatorio - Desktop col 1, Mobile col 1) -->
+                                <div class="space-y-1.5 order-1 sm:order-1">
+                                    <div class="min-h-[38px] flex items-end justify-between gap-1 pb-0.5">
                                         <Label for="modal-prod-price" class="text-sm font-medium text-foreground leading-tight">
-                                            Precio de venta ({form.sale_type === 'weight' ? 'kilo' : 'unid.'})
+                                            Precio de venta ({form.sale_type === 'weight' ? 'kilo' : 'unid.'}) <span class="text-destructive">*</span>
                                         </Label>
+                                        {#if isProductIncomplete && (!form.price || Number(form.price) <= 0)}
+                                            <span class="text-xs font-semibold text-amber-600 dark:text-amber-400 shrink-0">Dato faltante</span>
+                                        {/if}
                                     </div>
                                     <div class="relative">
                                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
                                         <Input
                                             id="modal-prod-price"
-                                            type="text"
-                                            readonly
-                                            tabindex={-1}
-                                            value={form.price ? form.price : '0.00'}
-                                            class="h-10 pl-7 text-sm rounded-xl font-sans tabular-nums font-bold bg-muted/50 border-border/70 text-foreground cursor-not-allowed select-none"
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            bind:value={form.price}
+                                            oninput={updateCalculatedNetPrice}
+                                            placeholder="0.00"
+                                            class="h-10 pl-7 text-sm rounded-xl tabular-nums font-sans font-bold text-foreground transition-colors {isProductIncomplete && (!form.price || Number(form.price) <= 0) ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus-visible:ring-amber-500' : ''}"
+                                            required
                                         />
                                     </div>
                                     {#if form.errors.price}
@@ -442,15 +467,12 @@
                                     {/if}
                                 </div>
 
-                                <!-- 2. Precio neto (mutable/obligatorio - Desktop col 2, Mobile col 1) -->
-                                <div class="space-y-1.5 order-1 sm:order-2">
-                                    <div class="min-h-[38px] flex items-end justify-between gap-1 pb-0.5">
+                                <!-- 2. Precio neto (mutable/asistido - Desktop col 2, Mobile col 2) -->
+                                <div class="space-y-1.5 order-2 sm:order-2">
+                                    <div class="min-h-[38px] flex items-end pb-0.5">
                                         <Label for="modal-prod-net-price" class="text-sm font-medium text-foreground leading-tight">
-                                            Precio neto ({form.sale_type === 'weight' ? 'kilo' : 'unid.'}) <span class="text-destructive">*</span>
+                                            Precio neto ({form.sale_type === 'weight' ? 'kilo' : 'unid.'})
                                         </Label>
-                                        {#if isProductIncomplete && (!form.net_price || Number(form.net_price) <= 0)}
-                                            <span class="text-xs font-semibold text-amber-600 dark:text-amber-400 shrink-0">Dato faltante</span>
-                                        {/if}
                                     </div>
                                     <div class="relative">
                                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
@@ -462,8 +484,7 @@
                                             bind:value={form.net_price}
                                             oninput={updateCalculatedGrossPrice}
                                             placeholder="0.00"
-                                            class="h-10 pl-7 text-sm rounded-xl font-sans tabular-nums font-semibold transition-colors {isProductIncomplete && (!form.net_price || Number(form.net_price) <= 0) ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus-visible:ring-amber-500' : ''}"
-                                            required
+                                            class="h-10 pl-7 text-sm rounded-xl tabular-nums font-sans font-semibold"
                                         />
                                     </div>
                                     {#if form.errors.net_price}
@@ -503,7 +524,7 @@
                                     <select
                                         id="modal-prod-iva"
                                         bind:value={form.iva_rate}
-                                        onchange={updateCalculatedGrossPrice}
+                                        onchange={handleIvaChange}
                                         class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary font-sans tabular-nums"
                                     >
                                         <option value={21.00}>21.0% (General)</option>

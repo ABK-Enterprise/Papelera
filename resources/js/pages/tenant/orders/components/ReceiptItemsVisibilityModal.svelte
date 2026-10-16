@@ -11,6 +11,7 @@
     import { router } from '@inertiajs/svelte';
     import { toast } from 'svelte-sonner';
     import FileText from 'lucide-svelte/icons/file-text';
+    import ChevronRight from 'lucide-svelte/icons/chevron-right';
     import CheckSquare from 'lucide-svelte/icons/check-square';
     import Square from 'lucide-svelte/icons/square';
     import MinusSquare from 'lucide-svelte/icons/minus-square';
@@ -73,6 +74,13 @@
     let showProjectedBalanceInSubtotal = $state(false);
     let showCreditApplied = $state(false);
     let showDebtCollected = $state(false);
+
+    // Estado reactivo para expandir/contraer nodos del árbol
+    let isAccountExpanded = $state(true);
+    let isFooterGroupExpanded = $state(false);
+    let isSubtotalGroupExpanded = $state(false);
+    let isDiscountsExpanded = $state(false);
+    let isSurchargesExpanded = $state(false);
 
     // Mapa reactivo de visibilidad de ajustes id -> boolean
     let visibilityMap = $state<Record<string, boolean>>({});
@@ -336,7 +344,7 @@
                             type="button"
                             disabled={!order?.customer_id}
                             onclick={handleToggleAccount}
-                            class="flex items-start gap-2.5 text-left {order?.customer_id ? 'cursor-pointer group' : 'cursor-not-allowed'}"
+                            class="flex items-start gap-2.5 text-left {order?.customer_id ? 'cursor-pointer group' : 'cursor-not-allowed'} flex-1 min-w-0"
                         >
                             <span class="text-primary shrink-0 mt-0.5">
                                 {#if accountState === 'all'}
@@ -362,141 +370,175 @@
                                 {/if}
                             </div>
                         </button>
+                        {#if order?.customer_id}
+                            <button
+                                type="button"
+                                onclick={() => (isAccountExpanded = !isAccountExpanded)}
+                                class="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors shrink-0 ml-2 cursor-pointer"
+                                aria-label={isAccountExpanded ? 'Contraer cuenta corriente' : 'Expandir cuenta corriente'}
+                            >
+                                <ChevronRight class="size-4 transition-transform duration-200 {isAccountExpanded ? 'rotate-90' : ''}" />
+                            </button>
+                        {/if}
                     </div>
 
-                    {#if order?.customer_id}
+                    {#if order?.customer_id && isAccountExpanded}
                         <!-- Ramas del árbol indentadas -->
                         <div class="ml-2 pl-4 border-l-2 border-border/60 space-y-3.5 pt-1">
                             <!-- Rama 1: Sub-item Padre: Mostrar datos de Cta. Cte. debajo en el pie de la boleta -->
                             <div class="space-y-2">
-                                <button
-                                    type="button"
-                                    onclick={toggleFooterGroup}
-                                    class="flex items-start gap-2 text-left cursor-pointer group"
-                                >
-                                    <span class="text-primary shrink-0 mt-0.5">
-                                        {#if footerGroupState === 'all'}
-                                            <CheckSquare class="size-4" />
-                                        {:else if footerGroupState === 'some'}
-                                            <MinusSquare class="size-4" />
-                                        {:else}
-                                            <Square class="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                                        {/if}
-                                    </span>
-                                    <div class="flex-1 min-w-0">
-                                        <span class="text-sm font-medium text-foreground block">
-                                            Mostrar datos de Cta. Cte. debajo en el pie de la boleta
+                                <div class="flex items-start justify-between">
+                                    <button
+                                        type="button"
+                                        onclick={toggleFooterGroup}
+                                        class="flex items-start gap-2 text-left cursor-pointer group flex-1 min-w-0"
+                                    >
+                                        <span class="text-primary shrink-0 mt-0.5">
+                                            {#if footerGroupState === 'all'}
+                                                <CheckSquare class="size-4" />
+                                            {:else if footerGroupState === 'some'}
+                                                <MinusSquare class="size-4" />
+                                            {:else}
+                                                <Square class="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                            {/if}
                                         </span>
-                                        <p class="text-xs text-muted-foreground mt-0.5">
-                                            Se incluirá en el pie de la boleta la información de cuenta corriente del cliente.
-                                        </p>
-                                    </div>
-                                </button>
+                                        <div class="flex-1 min-w-0">
+                                            <span class="text-sm font-medium text-foreground block">
+                                                Mostrar datos de Cta. Cte. debajo en el pie de la boleta
+                                            </span>
+                                            <p class="text-xs text-muted-foreground mt-0.5">
+                                                Se incluirá en el pie de la boleta la información de cuenta corriente del cliente.
+                                            </p>
+                                        </div>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onclick={() => (isFooterGroupExpanded = !isFooterGroupExpanded)}
+                                        class="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors shrink-0 ml-2 cursor-pointer"
+                                        aria-label={isFooterGroupExpanded ? 'Contraer pie de boleta' : 'Expandir pie de boleta'}
+                                    >
+                                        <ChevronRight class="size-4 transition-transform duration-200 {isFooterGroupExpanded ? 'rotate-90' : ''}" />
+                                    </button>
+                                </div>
 
                                 <!-- Hijos de Rama 1 (Pie de boleta) -->
-                                <div class="ml-3 pl-3 border-l border-border/50 space-y-2 pt-0.5">
-                                    <!-- Hijo 1.1: Leyenda de saldo -->
-                                    <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={showAccountStatus}
-                                            onchange={toggleAccountStatus}
-                                            class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
-                                        />
-                                        <div class="flex-1 min-w-0">
-                                            <span class="text-xs sm:text-sm font-medium text-foreground block">
-                                                Mostrar leyenda de tipo de Saldo de Cta. Cte.
-                                            </span>
-                                            <p class="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
-                                                Se mostrará en el pie de la boleta una leyenda que indique si el cliente tiene "saldo a favor" o "saldo a deber".
-                                            </p>
-                                        </div>
-                                    </label>
+                                {#if isFooterGroupExpanded}
+                                    <div class="ml-3 pl-3 border-l border-border/50 space-y-2 pt-0.5">
+                                        <!-- Hijo 1.1: Leyenda de saldo -->
+                                        <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={showAccountStatus}
+                                                onchange={toggleAccountStatus}
+                                                class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                            />
+                                            <div class="flex-1 min-w-0">
+                                                <span class="text-xs sm:text-sm font-medium text-foreground block">
+                                                    Mostrar leyenda de tipo de Saldo de Cta. Cte.
+                                                </span>
+                                                <p class="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
+                                                    Se mostrará en el pie de la boleta una leyenda que indique si el cliente tiene "saldo a favor" o "saldo a deber".
+                                                </p>
+                                            </div>
+                                        </label>
 
-                                    <!-- Hijo 1.2: Saldo actual -->
-                                    <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={showAccountBalance}
-                                            onchange={toggleAccountBalance}
-                                            class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
-                                        />
-                                        <div class="flex-1 min-w-0">
-                                            <span class="text-xs sm:text-sm font-medium text-foreground block">
-                                                Mostrar el Saldo de Cta. Cte.
-                                            </span>
-                                            <p class="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
-                                                Se incluirá en el pie de la boleta el saldo actual de la cuenta corriente del cliente.
-                                            </p>
-                                        </div>
-                                    </label>
-                                </div>
+                                        <!-- Hijo 1.2: Saldo actual -->
+                                        <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={showAccountBalance}
+                                                onchange={toggleAccountBalance}
+                                                class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                            />
+                                            <div class="flex-1 min-w-0">
+                                                <span class="text-xs sm:text-sm font-medium text-foreground block">
+                                                    Mostrar el Saldo de Cta. Cte.
+                                                </span>
+                                                <p class="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
+                                                    Se incluirá en el pie de la boleta el saldo actual de la cuenta corriente del cliente.
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                {/if}
                             </div>
 
                             <!-- Rama 2: Sub-item Padre: Agregar saldos de cta. cte como item de la boleta -->
                             <div class="space-y-2">
-                                <button
-                                    type="button"
-                                    onclick={toggleSubtotalGroup}
-                                    class="flex items-start gap-2 text-left cursor-pointer group"
-                                >
-                                    <span class="text-primary shrink-0 mt-0.5">
-                                        {#if subtotalGroupState === 'all'}
-                                            <CheckSquare class="size-4" />
-                                        {:else if subtotalGroupState === 'some'}
-                                            <MinusSquare class="size-4" />
-                                        {:else}
-                                            <Square class="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                                        {/if}
-                                    </span>
-                                    <div class="flex-1 min-w-0">
-                                        <span class="text-sm font-medium text-foreground block">
-                                            Agregar saldos de cta. cte como item de la boleta
+                                <div class="flex items-start justify-between">
+                                    <button
+                                        type="button"
+                                        onclick={toggleSubtotalGroup}
+                                        class="flex items-start gap-2 text-left cursor-pointer group flex-1 min-w-0"
+                                    >
+                                        <span class="text-primary shrink-0 mt-0.5">
+                                            {#if subtotalGroupState === 'all'}
+                                                <CheckSquare class="size-4" />
+                                            {:else if subtotalGroupState === 'some'}
+                                                <MinusSquare class="size-4" />
+                                            {:else}
+                                                <Square class="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                            {/if}
                                         </span>
-                                        <p class="text-xs text-muted-foreground mt-0.5">
-                                            Se agregarán al desglose previo al subtotal los saldos actual y proyectado.
-                                        </p>
-                                    </div>
-                                </button>
+                                        <div class="flex-1 min-w-0">
+                                            <span class="text-sm font-medium text-foreground block">
+                                                Agregar saldos de cta. cte como item de la boleta
+                                            </span>
+                                            <p class="text-xs text-muted-foreground mt-0.5">
+                                                Se agregarán al desglose previo al subtotal los saldos actual y proyectado.
+                                            </p>
+                                        </div>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onclick={() => (isSubtotalGroupExpanded = !isSubtotalGroupExpanded)}
+                                        class="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors shrink-0 ml-2 cursor-pointer"
+                                        aria-label={isSubtotalGroupExpanded ? 'Contraer saldos en subtotal' : 'Expandir saldos en subtotal'}
+                                    >
+                                        <ChevronRight class="size-4 transition-transform duration-200 {isSubtotalGroupExpanded ? 'rotate-90' : ''}" />
+                                    </button>
+                                </div>
 
                                 <!-- Hijos de Rama 2 (Saldos como items) -->
-                                <div class="ml-3 pl-3 border-l border-border/50 space-y-2 pt-0.5">
-                                    <!-- Hijo 2.1: Saldo actual como item -->
-                                    <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={showCurrentBalanceInSubtotal}
-                                            onchange={toggleCurrentBalanceInSubtotal}
-                                            class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
-                                        />
-                                        <div class="flex-1 min-w-0">
-                                            <span class="text-xs sm:text-sm font-medium text-foreground block">
-                                                Agregar saldo cta. cte. actual como item
-                                            </span>
-                                            <p class="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
-                                                Se agregará como ítem a la lista del subtotal, la información del saldo actual de la Cta. Cte. del cliente.
-                                            </p>
-                                        </div>
-                                    </label>
+                                {#if isSubtotalGroupExpanded}
+                                    <div class="ml-3 pl-3 border-l border-border/50 space-y-2 pt-0.5">
+                                        <!-- Hijo 2.1: Saldo actual como item -->
+                                        <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={showCurrentBalanceInSubtotal}
+                                                onchange={toggleCurrentBalanceInSubtotal}
+                                                class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                            />
+                                            <div class="flex-1 min-w-0">
+                                                <span class="text-xs sm:text-sm font-medium text-foreground block">
+                                                    Agregar saldo cta. cte. actual como item
+                                                </span>
+                                                <p class="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
+                                                    Se agregará como ítem a la lista del subtotal, la información del saldo actual de la Cta. Cte. del cliente.
+                                                </p>
+                                            </div>
+                                        </label>
 
-                                    <!-- Hijo 2.2: Saldo resultante como item -->
-                                    <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={showProjectedBalanceInSubtotal}
-                                            onchange={toggleProjectedBalanceInSubtotal}
-                                            class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
-                                        />
-                                        <div class="flex-1 min-w-0">
-                                            <span class="text-xs sm:text-sm font-medium text-foreground block">
-                                                Agregar saldo cta. cte. resultante como item
-                                            </span>
-                                            <p class="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
-                                                Se agregará como ítem a la lista del subtotal, la información del saldo resultante por el precio del pedido, es decir, el saldo o deuda que le quedaría pendiente posterior al pedido.
-                                            </p>
-                                        </div>
-                                    </label>
-                                </div>
+                                        <!-- Hijo 2.2: Saldo resultante como item -->
+                                        <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={showProjectedBalanceInSubtotal}
+                                                onchange={toggleProjectedBalanceInSubtotal}
+                                                class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                            />
+                                            <div class="flex-1 min-w-0">
+                                                <span class="text-xs sm:text-sm font-medium text-foreground block">
+                                                    Agregar saldo cta. cte. resultante como item
+                                                </span>
+                                                <p class="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
+                                                    Se agregará como ítem a la lista del subtotal, la información del saldo resultante por el precio del pedido, es decir, el saldo o deuda que le quedaría pendiente posterior al pedido.
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                {/if}
                             </div>
 
                             <!-- Rama 3: Imputación de Saldo a Favor en Totales (si aplica al pedido) -->
@@ -547,7 +589,7 @@
                             type="button"
                             disabled={discounts.length === 0}
                             onclick={toggleAllDiscounts}
-                            class="flex items-center gap-2 text-left {discounts.length === 0 ? 'cursor-not-allowed' : 'cursor-pointer group'}"
+                            class="flex items-center gap-2 text-left {discounts.length === 0 ? 'cursor-not-allowed' : 'cursor-pointer group'} flex-1 min-w-0"
                         >
                             <span class="text-primary shrink-0">
                                 {#if discountsState === 'all'}
@@ -562,13 +604,23 @@
                                 Descuentos Aplicados ({discounts.length})
                             </span>
                         </button>
+                        {#if discounts.length > 0}
+                            <button
+                                type="button"
+                                onclick={() => (isDiscountsExpanded = !isDiscountsExpanded)}
+                                class="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors shrink-0 ml-2 cursor-pointer"
+                                aria-label={isDiscountsExpanded ? 'Contraer descuentos' : 'Expandir descuentos'}
+                            >
+                                <ChevronRight class="size-4 transition-transform duration-200 {isDiscountsExpanded ? 'rotate-90' : ''}" />
+                            </button>
+                        {/if}
                     </div>
 
                     {#if discounts.length === 0}
                         <p class="text-xs sm:text-sm text-muted-foreground pl-6">
                             No se aplicaron descuentos en este pedido.
                         </p>
-                    {:else}
+                    {:else if isDiscountsExpanded}
                         <!-- Sub-items indentados con línea de conexión de árbol -->
                         <div class="ml-2 pl-4 border-l-2 border-border/60 space-y-2 pt-1">
                             {#each discounts as disc (disc.id)}
@@ -614,7 +666,7 @@
                             type="button"
                             disabled={surcharges.length === 0}
                             onclick={toggleAllSurcharges}
-                            class="flex items-center gap-2 text-left {surcharges.length === 0 ? 'cursor-not-allowed' : 'cursor-pointer group'}"
+                            class="flex items-center gap-2 text-left {surcharges.length === 0 ? 'cursor-not-allowed' : 'cursor-pointer group'} flex-1 min-w-0"
                         >
                             <span class="text-primary shrink-0">
                                 {#if surchargesState === 'all'}
@@ -629,13 +681,23 @@
                                 Recargos Aplicados ({surcharges.length})
                             </span>
                         </button>
+                        {#if surcharges.length > 0}
+                            <button
+                                type="button"
+                                onclick={() => (isSurchargesExpanded = !isSurchargesExpanded)}
+                                class="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors shrink-0 ml-2 cursor-pointer"
+                                aria-label={isSurchargesExpanded ? 'Contraer recargos' : 'Expandir recargos'}
+                            >
+                                <ChevronRight class="size-4 transition-transform duration-200 {isSurchargesExpanded ? 'rotate-90' : ''}" />
+                            </button>
+                        {/if}
                     </div>
 
                     {#if surcharges.length === 0}
                         <p class="text-xs sm:text-sm text-muted-foreground pl-6">
                             No se aplicaron recargos en este pedido.
                         </p>
-                    {:else}
+                    {:else if isSurchargesExpanded}
                         <!-- Sub-items indentados con línea de conexión de árbol -->
                         <div class="ml-2 pl-4 border-l-2 border-border/60 space-y-2 pt-1">
                             {#each surcharges as sur (sur.id)}
