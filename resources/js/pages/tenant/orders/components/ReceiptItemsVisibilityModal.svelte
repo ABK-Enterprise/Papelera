@@ -88,11 +88,12 @@
     // Sincronizar estado cuando se abre el modal o cambia la orden
     $effect(() => {
         if (open && order) {
-            showAccount = Boolean(order.show_account_in_receipt);
-            showAccountStatus = order.show_account_status_in_receipt !== false;
-            showAccountBalance = order.show_account_balance_in_receipt !== false;
-            showCurrentBalanceInSubtotal = Boolean(order.show_current_balance_in_receipt_subtotal);
-            showProjectedBalanceInSubtotal = Boolean(order.show_projected_balance_in_receipt_subtotal);
+            const isAccountActive = Boolean(order.show_account_in_receipt);
+            showAccount = isAccountActive;
+            showAccountStatus = isAccountActive ? order.show_account_status_in_receipt !== false : false;
+            showAccountBalance = isAccountActive ? order.show_account_balance_in_receipt !== false : false;
+            showCurrentBalanceInSubtotal = isAccountActive ? Boolean(order.show_current_balance_in_receipt_subtotal) : false;
+            showProjectedBalanceInSubtotal = isAccountActive ? Boolean(order.show_projected_balance_in_receipt_subtotal) : false;
             showCreditApplied = canShowCreditApplied
                 ? Boolean(order.show_credit_applied_in_receipt)
                 : false;
@@ -141,6 +142,90 @@
         return 'some';
     });
 
+    // Estado de selección del grupo Pie de Boleta: 'all' | 'none' | 'some'
+    const footerGroupState = $derived.by(() => {
+        if (showAccountStatus && showAccountBalance) return 'all';
+        if (!showAccountStatus && !showAccountBalance) return 'none';
+        return 'some';
+    });
+
+    // Estado de selección del grupo Saldos en Subtotal: 'all' | 'none' | 'some'
+    const subtotalGroupState = $derived.by(() => {
+        if (showCurrentBalanceInSubtotal && showProjectedBalanceInSubtotal) return 'all';
+        if (!showCurrentBalanceInSubtotal && !showProjectedBalanceInSubtotal) return 'none';
+        return 'some';
+    });
+
+    // Estado de selección de la Cuenta Corriente raíz: 'all' | 'none' | 'some'
+    const accountState = $derived.by(() => {
+        const items = [
+            showAccountStatus,
+            showAccountBalance,
+            showCurrentBalanceInSubtotal,
+            showProjectedBalanceInSubtotal,
+        ];
+        const checkedCount = items.filter(Boolean).length;
+        if (!showAccount || checkedCount === 0) return 'none';
+        if (checkedCount === items.length) return 'all';
+        return 'some';
+    });
+
+    function checkParentAccountSync() {
+        const hasAnyActive =
+            showAccountStatus ||
+            showAccountBalance ||
+            showCurrentBalanceInSubtotal ||
+            showProjectedBalanceInSubtotal;
+        if (hasAnyActive && !showAccount) {
+            showAccount = true;
+        } else if (!hasAnyActive && showAccount) {
+            showAccount = false;
+        }
+    }
+
+    function handleToggleAccount() {
+        const target = accountState !== 'all';
+        showAccount = target;
+        showAccountStatus = target;
+        showAccountBalance = target;
+        showCurrentBalanceInSubtotal = target;
+        showProjectedBalanceInSubtotal = target;
+    }
+
+    function toggleFooterGroup() {
+        const target = footerGroupState !== 'all';
+        showAccountStatus = target;
+        showAccountBalance = target;
+        checkParentAccountSync();
+    }
+
+    function toggleSubtotalGroup() {
+        const target = subtotalGroupState !== 'all';
+        showCurrentBalanceInSubtotal = target;
+        showProjectedBalanceInSubtotal = target;
+        checkParentAccountSync();
+    }
+
+    function toggleAccountStatus() {
+        showAccountStatus = !showAccountStatus;
+        checkParentAccountSync();
+    }
+
+    function toggleAccountBalance() {
+        showAccountBalance = !showAccountBalance;
+        checkParentAccountSync();
+    }
+
+    function toggleCurrentBalanceInSubtotal() {
+        showCurrentBalanceInSubtotal = !showCurrentBalanceInSubtotal;
+        checkParentAccountSync();
+    }
+
+    function toggleProjectedBalanceInSubtotal() {
+        showProjectedBalanceInSubtotal = !showProjectedBalanceInSubtotal;
+        checkParentAccountSync();
+    }
+
     function toggleAllDiscounts() {
         if (discounts.length === 0) return;
         const target = discountsState !== 'all';
@@ -179,8 +264,8 @@
                 show_account_in_receipt: showAccount,
                 show_account_status_in_receipt: showAccount ? showAccountStatus : false,
                 show_account_balance_in_receipt: showAccount ? showAccountBalance : false,
-                show_current_balance_in_receipt_subtotal: order?.customer_id ? showCurrentBalanceInSubtotal : false,
-                show_projected_balance_in_receipt_subtotal: order?.customer_id ? showProjectedBalanceInSubtotal : false,
+                show_current_balance_in_receipt_subtotal: (showAccount && order?.customer_id) ? showCurrentBalanceInSubtotal : false,
+                show_projected_balance_in_receipt_subtotal: (showAccount && order?.customer_id) ? showProjectedBalanceInSubtotal : false,
                 show_credit_applied_in_receipt: canShowCreditApplied ? showCreditApplied : false,
                 show_debt_collected_in_receipt: canShowDebtCollected ? showDebtCollected : false,
                 adjustments_visibility: visibilityMap,
@@ -195,8 +280,8 @@
                         order.show_account_in_receipt = showAccount;
                         order.show_account_status_in_receipt = showAccount ? showAccountStatus : false;
                         order.show_account_balance_in_receipt = showAccount ? showAccountBalance : false;
-                        order.show_current_balance_in_receipt_subtotal = order?.customer_id ? showCurrentBalanceInSubtotal : false;
-                        order.show_projected_balance_in_receipt_subtotal = order?.customer_id ? showProjectedBalanceInSubtotal : false;
+                        order.show_current_balance_in_receipt_subtotal = (showAccount && order?.customer_id) ? showCurrentBalanceInSubtotal : false;
+                        order.show_projected_balance_in_receipt_subtotal = (showAccount && order?.customer_id) ? showProjectedBalanceInSubtotal : false;
                         order.show_credit_applied_in_receipt = canShowCreditApplied ? showCreditApplied : false;
                         order.show_debt_collected_in_receipt = canShowDebtCollected ? showDebtCollected : false;
                         if (Array.isArray(order.price_adjustments)) {
@@ -244,169 +329,215 @@
             <!-- Árbol Jerárquico de Elementos -->
             <div class="rounded-xl border border-border/70 divide-y divide-border/60 bg-card overflow-hidden">
                 <!-- 1. Nodo Cuenta Corriente -->
-                <div class="p-3.5 sm:p-4 {order?.customer_id ? 'hover:bg-muted/30 transition-colors' : 'bg-muted/20 opacity-60'}">
-                    <!-- Sub-item 1: Resumen de Cuenta Corriente en Encabezado de Cliente -->
-                    <label class="flex items-start gap-3 {order?.customer_id ? 'cursor-pointer' : 'cursor-not-allowed'}">
-                        <input
-                            type="checkbox"
+                <div class="p-3.5 sm:p-4 space-y-3 {order?.customer_id ? '' : 'bg-muted/20 opacity-60'}">
+                    <!-- Item Padre Raíz: Datos de Cuenta corriente -->
+                    <div class="flex items-start justify-between">
+                        <button
+                            type="button"
                             disabled={!order?.customer_id}
-                            bind:checked={showAccount}
-                            class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
-                        />
-                        <div class="flex-1 min-w-0">
-                            <span class="text-sm sm:text-base font-semibold text-foreground block">
-                                Datos de Cuenta corriente
+                            onclick={handleToggleAccount}
+                            class="flex items-start gap-2.5 text-left {order?.customer_id ? 'cursor-pointer group' : 'cursor-not-allowed'}"
+                        >
+                            <span class="text-primary shrink-0 mt-0.5">
+                                {#if accountState === 'all'}
+                                    <CheckSquare class="size-4" />
+                                {:else if accountState === 'some'}
+                                    <MinusSquare class="size-4" />
+                                {:else}
+                                    <Square class="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                {/if}
                             </span>
-                            <p class="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                                Imprime en la ficha del cliente el estado de cuenta y el saldo disponible.
-                            </p>
-                            {#if !order?.customer_id}
-                                <div class="mt-1.5 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
-                                    <AlertCircle class="size-3.5 shrink-0" />
-                                    <span>No disponible: El pedido no tiene un cliente registrado con cuenta corriente.</span>
+                            <div class="flex-1 min-w-0">
+                                <span class="text-sm sm:text-base font-semibold text-foreground block">
+                                    Datos de Cuenta corriente
+                                </span>
+                                <p class="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                                    Imprime en la ficha del cliente el estado de cuenta y el saldo disponible.
+                                </p>
+                                {#if !order?.customer_id}
+                                    <div class="mt-1.5 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                                        <AlertCircle class="size-3.5 shrink-0" />
+                                        <span>No disponible: El pedido no tiene un cliente registrado con cuenta corriente.</span>
+                                    </div>
+                                {/if}
+                            </div>
+                        </button>
+                    </div>
+
+                    {#if order?.customer_id}
+                        <!-- Ramas del árbol indentadas -->
+                        <div class="ml-2 pl-4 border-l-2 border-border/60 space-y-3.5 pt-1">
+                            <!-- Rama 1: Sub-item Padre: Mostrar datos de Cta. Cte. debajo en el pie de la boleta -->
+                            <div class="space-y-2">
+                                <button
+                                    type="button"
+                                    onclick={toggleFooterGroup}
+                                    class="flex items-start gap-2 text-left cursor-pointer group"
+                                >
+                                    <span class="text-primary shrink-0 mt-0.5">
+                                        {#if footerGroupState === 'all'}
+                                            <CheckSquare class="size-4" />
+                                        {:else if footerGroupState === 'some'}
+                                            <MinusSquare class="size-4" />
+                                        {:else}
+                                            <Square class="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                        {/if}
+                                    </span>
+                                    <div class="flex-1 min-w-0">
+                                        <span class="text-sm font-medium text-foreground block">
+                                            Mostrar datos de Cta. Cte. debajo en el pie de la boleta
+                                        </span>
+                                        <p class="text-xs text-muted-foreground mt-0.5">
+                                            Se incluirá en el pie de la boleta la información de cuenta corriente del cliente.
+                                        </p>
+                                    </div>
+                                </button>
+
+                                <!-- Hijos de Rama 1 (Pie de boleta) -->
+                                <div class="ml-3 pl-3 border-l border-border/50 space-y-2 pt-0.5">
+                                    <!-- Hijo 1.1: Leyenda de saldo -->
+                                    <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={showAccountStatus}
+                                            onchange={toggleAccountStatus}
+                                            class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                        />
+                                        <div class="flex-1 min-w-0">
+                                            <span class="text-xs sm:text-sm font-medium text-foreground block">
+                                                Mostrar leyenda de tipo de Saldo de Cta. Cte.
+                                            </span>
+                                            <p class="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
+                                                Se mostrará en el pie de la boleta una leyenda que indique si el cliente tiene "saldo a favor" o "saldo a deber".
+                                            </p>
+                                        </div>
+                                    </label>
+
+                                    <!-- Hijo 1.2: Saldo actual -->
+                                    <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={showAccountBalance}
+                                            onchange={toggleAccountBalance}
+                                            class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                        />
+                                        <div class="flex-1 min-w-0">
+                                            <span class="text-xs sm:text-sm font-medium text-foreground block">
+                                                Mostrar el Saldo de Cta. Cte.
+                                            </span>
+                                            <p class="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
+                                                Se incluirá en el pie de la boleta el saldo actual de la cuenta corriente del cliente.
+                                            </p>
+                                        </div>
+                                    </label>
                                 </div>
+                            </div>
+
+                            <!-- Rama 2: Sub-item Padre: Agregar saldos de cta. cte como item de la boleta -->
+                            <div class="space-y-2">
+                                <button
+                                    type="button"
+                                    onclick={toggleSubtotalGroup}
+                                    class="flex items-start gap-2 text-left cursor-pointer group"
+                                >
+                                    <span class="text-primary shrink-0 mt-0.5">
+                                        {#if subtotalGroupState === 'all'}
+                                            <CheckSquare class="size-4" />
+                                        {:else if subtotalGroupState === 'some'}
+                                            <MinusSquare class="size-4" />
+                                        {:else}
+                                            <Square class="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                        {/if}
+                                    </span>
+                                    <div class="flex-1 min-w-0">
+                                        <span class="text-sm font-medium text-foreground block">
+                                            Agregar saldos de cta. cte como item de la boleta
+                                        </span>
+                                        <p class="text-xs text-muted-foreground mt-0.5">
+                                            Se agregarán al desglose previo al subtotal los saldos actual y proyectado.
+                                        </p>
+                                    </div>
+                                </button>
+
+                                <!-- Hijos de Rama 2 (Saldos como items) -->
+                                <div class="ml-3 pl-3 border-l border-border/50 space-y-2 pt-0.5">
+                                    <!-- Hijo 2.1: Saldo actual como item -->
+                                    <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={showCurrentBalanceInSubtotal}
+                                            onchange={toggleCurrentBalanceInSubtotal}
+                                            class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                        />
+                                        <div class="flex-1 min-w-0">
+                                            <span class="text-xs sm:text-sm font-medium text-foreground block">
+                                                Agregar saldo cta. cte. actual como item
+                                            </span>
+                                            <p class="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
+                                                Se agregará como ítem a la lista del subtotal, la información del saldo actual de la Cta. Cte. del cliente.
+                                            </p>
+                                        </div>
+                                    </label>
+
+                                    <!-- Hijo 2.2: Saldo resultante como item -->
+                                    <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={showProjectedBalanceInSubtotal}
+                                            onchange={toggleProjectedBalanceInSubtotal}
+                                            class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                        />
+                                        <div class="flex-1 min-w-0">
+                                            <span class="text-xs sm:text-sm font-medium text-foreground block">
+                                                Agregar saldo cta. cte. resultante como item
+                                            </span>
+                                            <p class="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
+                                                Se agregará como ítem a la lista del subtotal, la información del saldo resultante por el precio del pedido, es decir, el saldo o deuda que le quedaría pendiente posterior al pedido.
+                                            </p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Rama 3: Imputación de Saldo a Favor en Totales (si aplica al pedido) -->
+                            {#if canShowCreditApplied}
+                                <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        bind:checked={showCreditApplied}
+                                        class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                    />
+                                    <div class="flex-1 min-w-0">
+                                        <span class="text-sm font-medium text-foreground block">
+                                            Mostrar uso de saldo a favor en el remito
+                                        </span>
+                                        <p class="text-xs text-muted-foreground mt-0.5">
+                                            Imprime en el desglose de totales el monto de saldo a favor descontado y el total a pagar final.
+                                        </p>
+                                    </div>
+                                </label>
+                            {/if}
+
+                            <!-- Rama 4: Cobro de Deuda Previa en Totales (si aplica al pedido) -->
+                            {#if canShowDebtCollected}
+                                <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        bind:checked={showDebtCollected}
+                                        class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                                    />
+                                    <div class="flex-1 min-w-0">
+                                        <span class="text-sm font-medium text-foreground block">
+                                            Mostrar cobro de deuda previa en el remito
+                                        </span>
+                                        <p class="text-xs text-muted-foreground mt-0.5">
+                                            Imprime en el desglose de totales la línea de cobro de deuda anterior. Si se desmarca, el remito reflejará el importe total cobrado sin desglosar el ítem.
+                                        </p>
+                                    </div>
+                                </label>
                             {/if}
                         </div>
-                    </label>
-
-                    {#if showAccount && order?.customer_id}
-                        <!-- Sub-items desplegados bajo Datos de Cuenta corriente -->
-                        <div class="mt-3 ml-7 pl-3 border-l-2 border-border/60 space-y-3">
-                            <!-- a. Leyenda de saldo -->
-                            <label class="flex items-start gap-3 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    bind:checked={showAccountStatus}
-                                    class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
-                                />
-                                <div class="flex-1 min-w-0">
-                                    <span class="text-sm font-medium text-foreground block">
-                                        Mostrar leyenda de tipo de Saldo de Cta. Cte.
-                                    </span>
-                                    <p class="text-xs text-muted-foreground mt-0.5">
-                                        Se mostrará en el pie de la boleta una leyenda que indique si el cliente tiene "saldo a favor" o "saldo a deber".
-                                    </p>
-                                </div>
-                            </label>
-
-                            <!-- b. Saldo actual -->
-                            <label class="flex items-start gap-3 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    bind:checked={showAccountBalance}
-                                    class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
-                                />
-                                <div class="flex-1 min-w-0">
-                                    <span class="text-sm font-medium text-foreground block">
-                                        Mostrar el Saldo de Cta. Cte.
-                                    </span>
-                                    <p class="text-xs text-muted-foreground mt-0.5">
-                                        Se incluirá en el pie de la boleta el saldo actual de la cuenta corriente del cliente.
-                                    </p>
-                                </div>
-                            </label>
-                        </div>
                     {/if}
-
-                    <!-- Sub-item 2: Imputación de Saldo a Favor en Totales -->
-                    <div class="mt-3 ml-7 pl-3 border-l-2 border-border/60">
-                        <label class="flex items-start gap-3 {canShowCreditApplied ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}">
-                            <input
-                                type="checkbox"
-                                disabled={!canShowCreditApplied}
-                                bind:checked={showCreditApplied}
-                                class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
-                            />
-                            <div class="flex-1 min-w-0">
-                                <span class="text-sm font-medium text-foreground block">
-                                    Mostrar uso de saldo a favor en el remito
-                                </span>
-                                <p class="text-xs text-muted-foreground mt-0.5">
-                                    Imprime en el desglose de totales el monto de saldo a favor descontado y el total a pagar final.
-                                </p>
-                                {#if !canShowCreditApplied}
-                                    <span class="text-xs text-amber-600 dark:text-amber-400 mt-1 block">
-                                        No disponible: Este pedido no utilizó saldo a favor de cuenta corriente.
-                                    </span>
-                                {/if}
-                            </div>
-                        </label>
-                    </div>
-
-                    <!-- Sub-item 3: Cobro de Deuda Previa en Totales -->
-                    <div class="mt-3 ml-7 pl-3 border-l-2 border-border/60">
-                        <label class="flex items-start gap-3 {canShowDebtCollected ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}">
-                            <input
-                                type="checkbox"
-                                disabled={!canShowDebtCollected}
-                                bind:checked={showDebtCollected}
-                                class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
-                            />
-                            <div class="flex-1 min-w-0">
-                                <span class="text-sm font-medium text-foreground block">
-                                    Mostrar cobro de deuda previa en el remito
-                                </span>
-                                <p class="text-xs text-muted-foreground mt-0.5">
-                                    Imprime en el desglose de totales la línea de cobro de deuda anterior. Si se desmarca, el remito reflejará el importe total cobrado sin desglosar el ítem.
-                                </p>
-                                {#if !canShowDebtCollected}
-                                    <span class="text-xs text-amber-600 dark:text-amber-400 mt-1 block">
-                                        No disponible: Este pedido no incluyó cobro de deuda anterior.
-                                    </span>
-                                {/if}
-                            </div>
-                        </label>
-                    </div>
-
-                    <!-- Sub-item 4: Saldo Cta. Cte. Actual en Subtotal -->
-                    <div class="mt-3 ml-7 pl-3 border-l-2 border-border/60">
-                        <label class="flex items-start gap-3 {order?.customer_id ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}">
-                            <input
-                                type="checkbox"
-                                disabled={!order?.customer_id}
-                                bind:checked={showCurrentBalanceInSubtotal}
-                                class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
-                            />
-                            <div class="flex-1 min-w-0">
-                                <span class="text-sm font-medium text-foreground block">
-                                    Agregar saldo cta. cte. actual como item
-                                </span>
-                                <p class="text-xs text-muted-foreground mt-0.5">
-                                    Se agregará como ítem a la lista del subtotal, la información del saldo actual de la Cta. Cte. del cliente.
-                                </p>
-                                {#if !order?.customer_id}
-                                    <span class="text-xs text-amber-600 dark:text-amber-400 mt-1 block">
-                                        No disponible: El pedido no tiene un cliente registrado con cuenta corriente.
-                                    </span>
-                                {/if}
-                            </div>
-                        </label>
-                    </div>
-
-                    <!-- Sub-item 5: Saldo Cta. Cte. Resultante en Subtotal -->
-                    <div class="mt-3 ml-7 pl-3 border-l-2 border-border/60">
-                        <label class="flex items-start gap-3 {order?.customer_id ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}">
-                            <input
-                                type="checkbox"
-                                disabled={!order?.customer_id}
-                                bind:checked={showProjectedBalanceInSubtotal}
-                                class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
-                            />
-                            <div class="flex-1 min-w-0">
-                                <span class="text-sm font-medium text-foreground block">
-                                    Agregar saldo cta. cte. resultante como item
-                                </span>
-                                <p class="text-xs text-muted-foreground mt-0.5">
-                                    Se agregará como ítem a la lista del subtotal, la información del saldo resultante por el precio del pedido, es decir, el saldo o deuda que le quedaría pendiente posterior al pedido.
-                                </p>
-                                {#if !order?.customer_id}
-                                    <span class="text-xs text-amber-600 dark:text-amber-400 mt-1 block">
-                                        No disponible: El pedido no tiene un cliente registrado con cuenta corriente.
-                                    </span>
-                                {/if}
-                            </div>
-                        </label>
-                    </div>
                 </div>
 
                 <!-- 2. Nodo Descuentos (Padre con Hijos) -->
