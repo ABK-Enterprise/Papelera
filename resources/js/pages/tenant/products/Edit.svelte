@@ -157,7 +157,7 @@
 
 <AppHead title={`Editar ${product.name} - Comercio`} />
 
-<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-6xl mx-auto w-full">
+<div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
     <!-- Header Escalonado -->
     <div class="flex flex-col gap-3">
         <div>
@@ -186,8 +186,8 @@
 
     <!-- Contenedor 2 Columnas Stitch Layout -->
     <div class="bg-card text-card-foreground rounded-3xl border border-border/80 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] overflow-hidden flex flex-col md:flex-row">
-        <!-- Columna Izquierda: Imagen y Empaque (33%) -->
-        <div class="w-full md:w-4/12 bg-muted/25 p-6 sm:p-8 flex flex-col border-b md:border-b-0 md:border-r border-border/70 shrink-0">
+        <!-- Columna Izquierda: Imagen y Empaque (33% md, 25% lg) -->
+        <div class="w-full md:w-4/12 lg:w-3/12 bg-muted/25 p-6 sm:p-8 flex flex-col border-b md:border-b-0 md:border-r border-border/70 shrink-0">
             <div class="mb-4">
                 <h2 class="text-base sm:text-lg font-semibold text-foreground flex items-center gap-2 leading-snug">
                     <Package class="size-5 text-primary" />
@@ -243,8 +243,8 @@
             </div>
         </div>
 
-        <!-- Columna Derecha: Formulario (66%) -->
-        <div class="w-full md:w-8/12 bg-card p-6 sm:p-8 flex flex-col">
+        <!-- Columna Derecha: Formulario (66% md, 75% lg) -->
+        <div class="w-full md:w-8/12 lg:w-9/12 bg-card p-6 sm:p-8 flex flex-col">
             <form onsubmit={handleSubmit} class="space-y-5">
                 <!-- 1. Información Básica con Segmented Pill Switcher -->
                 <div class="space-y-3">
@@ -281,7 +281,7 @@
                                 id="edit-prod-name"
                                 bind:value={form.name}
                                 placeholder="ej. Resma Chambril A4 75g"
-                                class="h-9 text-xs rounded-xl"
+                                class="h-10 text-sm rounded-xl"
                                 required
                             />
                             {#if form.errors.name}
@@ -295,7 +295,7 @@
                                 id="edit-prod-sku"
                                 bind:value={form.sku}
                                 placeholder="ej. RES-A4-75"
-                                class="h-9 text-xs rounded-xl tracking-wide"
+                                class="h-10 text-sm rounded-xl tracking-wide font-sans tabular-nums"
                             />
                             {#if form.errors.sku}
                                 <p class="text-xs text-destructive">{form.errors.sku}</p>
@@ -312,7 +312,7 @@
                             <select
                                 id="edit-prod-cat"
                                 bind:value={form.category_id}
-                                class="h-10 w-full rounded-xl border bg-background px-3 text-xs font-medium text-foreground focus:outline-none transition-colors {isProductIncomplete && !form.category_id ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus:border-amber-600' : 'border-border/80 focus:border-primary-500 focus:ring-1 focus:ring-primary'}"
+                                class="h-10 w-full rounded-xl border bg-background px-3 text-sm font-medium text-foreground focus:outline-none transition-colors {isProductIncomplete && !form.category_id ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus:border-amber-600' : 'border-border/80 focus:border-primary-500 focus:ring-1 focus:ring-primary'}"
                             >
                                 <option value="">Sin categoría asignada</option>
                                 {#each categories as cat}
@@ -334,19 +334,21 @@
                     <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">2. Precios y facturación</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
                         <!-- 1. Precio de venta (visual/no mutable - Desktop col 1, Mobile col 2) -->
-                        <div class="space-y-1 order-2 sm:order-1">
-                            <Label for="edit-prod-price" class="text-sm font-medium text-foreground">
-                                Precio de venta ({form.sale_type === 'weight' ? 'kilo' : 'unid.'})
-                            </Label>
+                        <div class="space-y-1.5 order-2 sm:order-1">
+                            <div class="min-h-[38px] flex items-end pb-0.5">
+                                <Label for="edit-prod-price" class="text-sm font-medium text-foreground leading-tight">
+                                    Precio de venta ({form.sale_type === 'weight' ? 'kilo' : 'unid.'})
+                                </Label>
+                            </div>
                             <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
                                 <Input
                                     id="edit-prod-price"
                                     type="text"
                                     readonly
                                     tabindex={-1}
                                     value={form.price ? form.price : '0.00'}
-                                    class="h-9 pl-7 text-xs rounded-xl tabular-nums font-sans font-bold bg-muted/50 border-border/70 text-foreground cursor-not-allowed select-none"
+                                    class="h-10 pl-7 text-sm rounded-xl tabular-nums font-sans font-bold bg-muted/50 border-border/70 text-foreground cursor-not-allowed select-none"
                                 />
                             </div>
                             {#if form.errors.price}
@@ -355,17 +357,17 @@
                         </div>
 
                         <!-- 2. Precio neto (mutable/obligatorio - Desktop col 2, Mobile col 1) -->
-                        <div class="space-y-1 order-1 sm:order-2">
-                            <div class="flex items-center justify-between">
-                                <Label for="edit-prod-net-price" class="text-sm font-medium text-foreground">
+                        <div class="space-y-1.5 order-1 sm:order-2">
+                            <div class="min-h-[38px] flex items-end justify-between gap-1 pb-0.5">
+                                <Label for="edit-prod-net-price" class="text-sm font-medium text-foreground leading-tight">
                                     Precio neto ({form.sale_type === 'weight' ? 'kilo' : 'unid.'}) <span class="text-destructive">*</span>
                                 </Label>
                                 {#if isProductIncomplete && (!form.net_price || Number(form.net_price) <= 0)}
-                                    <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">Dato faltante</span>
+                                    <span class="text-xs font-semibold text-amber-600 dark:text-amber-400 shrink-0">Dato faltante</span>
                                 {/if}
                             </div>
                             <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
                                 <Input
                                     id="edit-prod-net-price"
                                     type="number"
@@ -374,7 +376,7 @@
                                     bind:value={form.net_price}
                                     oninput={updateCalculatedGrossPrice}
                                     placeholder="0.00"
-                                    class="h-9 pl-7 text-xs rounded-xl tabular-nums font-sans font-semibold transition-colors {isProductIncomplete && (!form.net_price || Number(form.net_price) <= 0) ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus-visible:ring-amber-500' : ''}"
+                                    class="h-10 pl-7 text-sm rounded-xl tabular-nums font-sans font-semibold transition-colors {isProductIncomplete && (!form.net_price || Number(form.net_price) <= 0) ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus-visible:ring-amber-500' : ''}"
                                     required
                                 />
                             </div>
@@ -384,12 +386,14 @@
                         </div>
 
                         <!-- 3. Costo (Desktop col 3, Mobile col 3) -->
-                        <div class="space-y-1 order-3 sm:order-3">
-                            <Label for="edit-prod-cost" class="text-sm font-medium text-foreground">
-                                Costo ({form.sale_type === 'weight' ? 'kilo' : 'unid.'})
-                            </Label>
+                        <div class="space-y-1.5 order-3 sm:order-3">
+                            <div class="min-h-[38px] flex items-end pb-0.5">
+                                <Label for="edit-prod-cost" class="text-sm font-medium text-foreground leading-tight">
+                                    Costo ({form.sale_type === 'weight' ? 'kilo' : 'unid.'})
+                                </Label>
+                            </div>
                             <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
                                 <Input
                                     id="edit-prod-cost"
                                     type="number"
@@ -397,7 +401,7 @@
                                     min="0"
                                     bind:value={form.cost_price}
                                     placeholder="0.00"
-                                    class="h-9 pl-7 text-xs rounded-xl tabular-nums font-sans"
+                                    class="h-10 pl-7 text-sm rounded-xl tabular-nums font-sans"
                                 />
                             </div>
                             {#if form.errors.cost_price}
@@ -406,13 +410,15 @@
                         </div>
 
                         <!-- 4. IVA (Desktop col 4, Mobile col 4) -->
-                        <div class="space-y-1 order-4 sm:order-4">
-                            <Label for="edit-prod-iva" class="text-sm font-medium text-foreground">IVA</Label>
+                        <div class="space-y-1.5 order-4 sm:order-4">
+                            <div class="min-h-[38px] flex items-end pb-0.5">
+                                <Label for="edit-prod-iva" class="text-sm font-medium text-foreground leading-tight">IVA</Label>
+                            </div>
                             <select
                                 id="edit-prod-iva"
                                 bind:value={form.iva_rate}
                                 onchange={updateCalculatedGrossPrice}
-                                class="h-9 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary tabular-nums font-sans"
+                                class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary tabular-nums font-sans"
                             >
                                 <option value={21.00}>21.0% (General)</option>
                                 <option value={10.50}>10.5% (Reducido)</option>
@@ -464,7 +470,7 @@
                                     max="100"
                                     bind:value={form.custom_bulk_discount_percentage}
                                     placeholder="0.00"
-                                    class="h-9 text-xs rounded-xl tabular-nums font-semibold"
+                                    class="h-10 text-sm rounded-xl tabular-nums font-semibold"
                                     required
                                 />
                             </div>
@@ -478,12 +484,12 @@
                 <div class="space-y-3">
                     <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">3. Inventario y empaque</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div class="space-y-1">
-                            <div class="flex items-center justify-between">
-                                <Label for="edit-prod-stock" class="text-sm font-medium text-foreground">
+                        <div class="space-y-1.5">
+                            <div class="min-h-[38px] flex items-end justify-between gap-1 pb-0.5">
+                                <Label for="edit-prod-stock" class="text-sm font-medium text-foreground leading-tight">
                                     Stock Actual ({form.sale_type === 'weight' ? 'Kg' : 'unid.'})
                                 </Label>
-                                <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Vía Kardex</span>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground shrink-0">Vía Kardex</span>
                             </div>
                             <Input
                                 id="edit-prod-stock"
@@ -492,7 +498,7 @@
                                 min="0"
                                 bind:value={form.stock}
                                 disabled
-                                class="h-10 text-xs rounded-xl text-center font-bold bg-transparent border-dashed text-muted-foreground/60 cursor-not-allowed tabular-nums"
+                                class="h-10 text-sm rounded-xl text-center font-bold bg-muted/40 border-dashed text-muted-foreground/70 cursor-not-allowed tabular-nums"
                                 title="El stock físico se ajusta mediante Ingresos/Egresos auditados en Kardex"
                             />
                             {#if form.errors.stock}
@@ -500,42 +506,49 @@
                             {/if}
                         </div>
 
-                        <div class="space-y-1">
-                            <Label for="edit-prod-min-stock" class="text-sm font-medium text-foreground">
-                                Stock Mínimo ({form.sale_type === 'weight' ? 'Kg' : 'unid.'})
-                            </Label>
+                        <div class="space-y-1.5">
+                            <div class="min-h-[38px] flex items-end pb-0.5">
+                                <Label for="edit-prod-min-stock" class="text-sm font-medium text-foreground leading-tight">
+                                    Stock Mínimo ({form.sale_type === 'weight' ? 'Kg' : 'unid.'})
+                                </Label>
+                            </div>
                             <Input
                                 id="edit-prod-min-stock"
                                 type="number"
                                 step={form.sale_type === 'weight' ? '0.001' : '1'}
                                 min="0"
                                 bind:value={form.min_stock}
-                                class="h-9 text-xs rounded-xl text-center tabular-nums"
+                                class="h-10 text-sm rounded-xl text-center tabular-nums"
                             />
                             {#if form.errors.min_stock}
                                 <p class="text-xs text-destructive">{form.errors.min_stock}</p>
                             {/if}
                         </div>
 
-                        <div class="space-y-1">
+                        <div class="space-y-1.5">
+                            <div class="min-h-[38px] flex items-end pb-0.5">
+                                {#if form.sale_type === 'weight'}
+                                    <Label for="edit-prod-units-pack" class="text-sm font-medium text-foreground leading-tight">Kg por Bulto Cerrado</Label>
+                                {:else}
+                                    <Label for="edit-prod-units-pack" class="text-sm font-medium text-foreground leading-tight">Unidades por Bulto</Label>
+                                {/if}
+                            </div>
                             {#if form.sale_type === 'weight'}
-                                <Label for="edit-prod-units-pack" class="text-sm font-medium text-foreground">Kg por Bulto Cerrado</Label>
                                 <Input
                                     id="edit-prod-units-pack"
                                     type="number"
                                     step="0.01"
                                     min="0.1"
                                     bind:value={form.package_quantity}
-                                    class="h-9 text-xs rounded-xl text-center font-bold tabular-nums"
+                                    class="h-10 text-sm rounded-xl text-center font-bold tabular-nums"
                                 />
                             {:else}
-                                <Label for="edit-prod-units-pack" class="text-sm font-medium text-foreground">Unidades por Bulto</Label>
                                 <Input
                                     id="edit-prod-units-pack"
                                     type="number"
                                     min="1"
                                     bind:value={form.units_per_package}
-                                    class="h-9 text-xs rounded-xl text-center font-bold tabular-nums"
+                                    class="h-10 text-sm rounded-xl text-center font-bold tabular-nums"
                                 />
                             {/if}
                             {#if form.errors.units_per_package || form.errors.package_quantity}
@@ -556,7 +569,7 @@
                             id="edit-prod-barcode"
                             bind:value={form.barcode}
                             placeholder="ej. 7791234567890"
-                            class="h-9 text-xs rounded-xl tracking-wide"
+                            class="h-10 text-sm rounded-xl tracking-wide font-sans tabular-nums"
                         />
                     </div>
 

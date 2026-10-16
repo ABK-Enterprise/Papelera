@@ -420,10 +420,12 @@
                             <h3 class="text-xs font-bold text-primary uppercase tracking-wider">2. Precios & Facturación (ARCA)</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
                                 <!-- 1. Precio de venta (visual/no mutable - Desktop col 1, Mobile col 2) -->
-                                <div class="space-y-1 order-2 sm:order-1">
-                                    <Label for="modal-prod-price" class="text-sm font-medium text-foreground">
-                                        Precio de venta ({form.sale_type === 'weight' ? 'kilo' : 'unid.'})
-                                    </Label>
+                                <div class="space-y-1.5 order-2 sm:order-1">
+                                    <div class="min-h-[38px] flex items-end pb-0.5">
+                                        <Label for="modal-prod-price" class="text-sm font-medium text-foreground leading-tight">
+                                            Precio de venta ({form.sale_type === 'weight' ? 'kilo' : 'unid.'})
+                                        </Label>
+                                    </div>
                                     <div class="relative">
                                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
                                         <Input
@@ -441,13 +443,13 @@
                                 </div>
 
                                 <!-- 2. Precio neto (mutable/obligatorio - Desktop col 2, Mobile col 1) -->
-                                <div class="space-y-1 order-1 sm:order-2">
-                                    <div class="flex items-center justify-between">
-                                        <Label for="modal-prod-net-price" class="text-sm font-medium text-foreground">
+                                <div class="space-y-1.5 order-1 sm:order-2">
+                                    <div class="min-h-[38px] flex items-end justify-between gap-1 pb-0.5">
+                                        <Label for="modal-prod-net-price" class="text-sm font-medium text-foreground leading-tight">
                                             Precio neto ({form.sale_type === 'weight' ? 'kilo' : 'unid.'}) <span class="text-destructive">*</span>
                                         </Label>
                                         {#if isProductIncomplete && (!form.net_price || Number(form.net_price) <= 0)}
-                                            <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">Dato faltante</span>
+                                            <span class="text-xs font-semibold text-amber-600 dark:text-amber-400 shrink-0">Dato faltante</span>
                                         {/if}
                                     </div>
                                     <div class="relative">
@@ -470,10 +472,12 @@
                                 </div>
 
                                 <!-- 3. Costo (Desktop col 3, Mobile col 3) -->
-                                <div class="space-y-1 order-3 sm:order-3">
-                                    <Label for="modal-prod-cost" class="text-sm font-medium text-foreground">
-                                        Costo ({form.sale_type === 'weight' ? 'kilo' : 'unid.'})
-                                    </Label>
+                                <div class="space-y-1.5 order-3 sm:order-3">
+                                    <div class="min-h-[38px] flex items-end pb-0.5">
+                                        <Label for="modal-prod-cost" class="text-sm font-medium text-foreground leading-tight">
+                                            Costo ({form.sale_type === 'weight' ? 'kilo' : 'unid.'})
+                                        </Label>
+                                    </div>
                                     <div class="relative">
                                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
                                         <Input
@@ -492,8 +496,10 @@
                                 </div>
 
                                 <!-- 4. IVA (Desktop col 4, Mobile col 4) -->
-                                <div class="space-y-1 order-4 sm:order-4">
-                                    <Label for="modal-prod-iva" class="text-sm font-medium text-foreground">IVA</Label>
+                                <div class="space-y-1.5 order-4 sm:order-4">
+                                    <div class="min-h-[38px] flex items-end pb-0.5">
+                                        <Label for="modal-prod-iva" class="text-sm font-medium text-foreground leading-tight">IVA</Label>
+                                    </div>
                                     <select
                                         id="modal-prod-iva"
                                         bind:value={form.iva_rate}
@@ -540,13 +546,13 @@
                             {/if}
 
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                <div class="space-y-1">
-                                    <div class="flex items-center justify-between">
-                                        <Label for="modal-prod-stock" class="text-sm font-medium text-foreground">
+                                <div class="space-y-1.5">
+                                    <div class="min-h-[38px] flex items-end justify-between gap-1 pb-0.5">
+                                        <Label for="modal-prod-stock" class="text-sm font-medium text-foreground leading-tight">
                                             {form.sale_type === 'weight' ? 'Stock Actual (Kg)' : 'Stock Actual (Unid)'}
                                         </Label>
                                         {#if product}
-                                            <span class="text-xs text-muted-foreground font-medium">Vía Kardex</span>
+                                            <span class="text-xs text-muted-foreground font-medium shrink-0">Vía Kardex</span>
                                         {/if}
                                     </div>
                                     <Input
@@ -571,10 +577,12 @@
                                     {/if}
                                 </div>
 
-                                <div class="space-y-1">
-                                    <Label for="modal-prod-min-stock" class="text-sm font-medium text-foreground">
-                                        {form.sale_type === 'weight' ? 'Stock Mín. (Kg)' : 'Stock Mín. (Unid)'}
-                                    </Label>
+                                <div class="space-y-1.5">
+                                    <div class="min-h-[38px] flex items-end pb-0.5">
+                                        <Label for="modal-prod-min-stock" class="text-sm font-medium text-foreground leading-tight">
+                                            {form.sale_type === 'weight' ? 'Stock Mín. (Kg)' : 'Stock Mín. (Unid)'}
+                                        </Label>
+                                    </div>
                                     <Input
                                         id="modal-prod-min-stock"
                                         type="number"
@@ -588,10 +596,12 @@
                                     {/if}
                                 </div>
 
-                                <div class="space-y-1">
-                                    <Label for="modal-prod-units-pack" class="text-sm font-medium text-foreground">
-                                        {form.sale_type === 'weight' ? 'Peso Bulto (Kg)' : 'Unidades / Bulto'}
-                                    </Label>
+                                <div class="space-y-1.5">
+                                    <div class="min-h-[38px] flex items-end pb-0.5">
+                                        <Label for="modal-prod-units-pack" class="text-sm font-medium text-foreground leading-tight">
+                                            {form.sale_type === 'weight' ? 'Peso Bulto (Kg)' : 'Unidades / Bulto'}
+                                        </Label>
+                                    </div>
                                     {#if form.sale_type === 'weight'}
                                         <Input
                                             id="modal-prod-units-pack"
