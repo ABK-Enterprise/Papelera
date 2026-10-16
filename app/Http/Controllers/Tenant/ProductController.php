@@ -200,6 +200,7 @@ class ProductController extends Controller
             'barcode' => $request->validated('barcode'),
             'description' => $request->validated('description'),
             'price' => $request->validated('price'),
+            'net_price' => $request->validated('net_price'),
             'cost_price' => $request->validated('cost_price'),
             'iva_rate' => $request->validated('iva_rate', 21.00),
             'stock' => $initialStock,
@@ -295,6 +296,7 @@ class ProductController extends Controller
 
         $oldPrice = (float) $product->price;
         $newPrice = (float) $request->validated('price');
+        $newNetPrice = $request->validated('net_price');
 
         $product->update([
             'category_id' => $request->validated('category_id'),
@@ -304,6 +306,7 @@ class ProductController extends Controller
             'barcode' => $request->validated('barcode'),
             'description' => $request->validated('description'),
             'price' => $newPrice,
+            'net_price' => $newNetPrice,
             'cost_price' => $request->validated('cost_price'),
             'iva_rate' => $request->validated('iva_rate', 21.00),
             'min_stock' => $request->validated('min_stock', $product->min_stock ?? 5),

@@ -28,7 +28,11 @@ class ProductPriceUpdateService
 
         return DB::transaction(function () use ($product, $oldPrice, $newPrice, $excludeOrderId) {
             if (abs((float) $product->price - $newPrice) >= 0.0001) {
-                $product->update(['price' => $newPrice]);
+                $netPrice = round($newPrice / (1.0 + (((float) ($product->iva_rate ?? 21.00)) / 100.0)), 2);
+                $product->update([
+                    'price' => $newPrice,
+                    'net_price' => $netPrice,
+                ]);
             }
 
             // Query affected non-terminal, non-invoiced orders

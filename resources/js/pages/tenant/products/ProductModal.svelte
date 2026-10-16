@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
@@ -41,6 +41,7 @@
         barcode?: string | null;
         description?: string | null;
         price?: string | number | null;
+        net_price?: string | number | null;
         cost_price?: string | number | null;
         iva_rate?: number;
         stock?: number;
@@ -78,6 +79,7 @@
         barcode: '',
         description: '',
         price: '',
+        net_price: '',
         cost_price: '',
         iva_rate: 21.00,
         stock: 0,
@@ -94,7 +96,7 @@
     let lastLoadedProductId = $state<number | null>(null);
     let initialSaleType = $state<'unit' | 'weight'>('unit');
     let isConfirmAlertOpen = $state(false);
-    let isProductIncomplete = $derived(mode === 'edit' && Boolean(product?.is_incomplete || !product?.category_id || Number(product?.price) <= 0));
+    let isProductIncomplete = $derived(mode === 'edit' && Boolean(product?.is_incomplete || !product?.category_id || Number(product?.price) <= 0 || (product?.net_price !== undefined && Number(product?.net_price) <= 0)));
 
     $effect(() => {
         if (!open) {
@@ -114,9 +116,19 @@
             form.sku = product.sku ?? '';
             form.barcode = product.barcode ?? '';
             form.description = product.description ?? '';
+            form.iva_rate = product.iva_rate !== undefined && product.iva_rate !== null ? Number(product.iva_rate) : 21.00;
+            
+            if (product.net_price !== null && product.net_price !== undefined && product.net_price !== '') {
+                form.net_price = String(product.net_price);
+            } else if (product.price !== null && product.price !== undefined && Number(product.price) > 0) {
+                const iva = Number(product.iva_rate ?? 21.00);
+                form.net_price = (Math.round((Number(product.price) / (1 + iva / 100)) * 100) / 100).toFixed(2);
+            } else {
+                form.net_price = '';
+            }
+
             form.price = product.price !== null && product.price !== undefined ? String(product.price) : '';
             form.cost_price = product.cost_price !== null && product.cost_price !== undefined ? String(product.cost_price) : '';
-            form.iva_rate = product.iva_rate ?? 21.00;
             form.stock = product.stock ?? 0;
             form.min_stock = product.min_stock ?? 5;
             form.units_per_package = product.units_per_package ?? product.package_quantity ?? 1;
@@ -140,6 +152,18 @@
             form.warehouse_id = warehouses.find(w => w.is_default)?.id ?? warehouses[0].id;
         }
     });
+
+    // Recálculo automático de precio de venta a partir del precio neto e IVA
+    function updateCalculatedGrossPrice() {
+        const net = parseFloat(String(form.net_price));
+        if (!isNaN(net) && net >= 0) {
+            const iva = Number(form.iva_rate) || 0;
+            const gross = Math.round(net * (1 + iva / 100) * 100) / 100;
+            form.price = gross.toFixed(2);
+        } else {
+            form.price = '';
+        }
+    }
 
 
     function formatPrice(amount: number) {
@@ -216,7 +240,7 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-5xl max-h-[85vh]">
+    <DialogContent class="sm:max-w-6xl max-h-[85vh]">
         <!-- 1. Header -->
         <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
             <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 w-full">
@@ -245,8 +269,8 @@
         <!-- 2. Body -->
         <DialogBody>
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-                <!-- Columna Izquierda: Imagen, Empaque & Resumen Visual (5/12) -->
-                <div class="md:col-span-5 space-y-4">
+                <!-- Columna Izquierda: Imagen, Empaque & Resumen Visual (4/12) -->
+                <div class="md:col-span-4 space-y-4">
                     <div class="space-y-1">
                         <h3 class="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
                             <Package class="size-4 text-primary" />
@@ -306,8 +330,8 @@
                     </div>
                 </div>
 
-                <!-- Columna Derecha: Formulario (7/12) -->
-                <div class="md:col-span-7">
+                <!-- Columna Derecha: Formulario (8/12) -->
+                <div class="md:col-span-8">
                     <form id="product-modal-form" onsubmit={submit} class="space-y-4">
                         <!-- 1. Información Básica & Modalidad de Venta -->
                         <div class="space-y-3">
@@ -394,27 +418,21 @@
                         <!-- 2. Precios & Facturación (ARCA) -->
                         <div class="space-y-3">
                             <h3 class="text-xs font-bold text-primary uppercase tracking-wider">2. Precios & Facturación (ARCA)</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                <div class="space-y-1">
-                                    <div class="flex items-center justify-between">
-                                        <Label for="modal-prod-price" class="text-sm font-medium text-foreground">
-                                            Precio Venta ({form.sale_type === 'weight' ? '$ / Kg' : '$ / unid.'}) <span class="text-destructive">*</span>
-                                        </Label>
-                                        {#if isProductIncomplete && (!form.price || Number(form.price) <= 0)}
-                                            <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">Dato faltante</span>
-                                        {/if}
-                                    </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                                <!-- 1. Precio de venta (visual/no mutable - Desktop col 1, Mobile col 2) -->
+                                <div class="space-y-1 order-2 sm:order-1">
+                                    <Label for="modal-prod-price" class="text-sm font-medium text-foreground">
+                                        Precio de venta ({form.sale_type === 'weight' ? 'kilo' : 'unid.'})
+                                    </Label>
                                     <div class="relative">
                                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
                                         <Input
                                             id="modal-prod-price"
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            bind:value={form.price}
-                                            placeholder="0.00"
-                                            class="h-10 pl-7 text-sm rounded-xl font-sans tabular-nums font-semibold transition-colors {isProductIncomplete && (!form.price || Number(form.price) <= 0) ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus-visible:ring-amber-500' : ''}"
-                                            required
+                                            type="text"
+                                            readonly
+                                            tabindex={-1}
+                                            value={form.price ? form.price : '0.00'}
+                                            class="h-10 pl-7 text-sm rounded-xl font-sans tabular-nums font-bold bg-muted/50 border-border/70 text-foreground cursor-not-allowed select-none"
                                         />
                                     </div>
                                     {#if form.errors.price}
@@ -422,9 +440,39 @@
                                     {/if}
                                 </div>
 
-                                <div class="space-y-1">
+                                <!-- 2. Precio neto (mutable/obligatorio - Desktop col 2, Mobile col 1) -->
+                                <div class="space-y-1 order-1 sm:order-2">
+                                    <div class="flex items-center justify-between">
+                                        <Label for="modal-prod-net-price" class="text-sm font-medium text-foreground">
+                                            Precio neto ({form.sale_type === 'weight' ? 'kilo' : 'unid.'}) <span class="text-destructive">*</span>
+                                        </Label>
+                                        {#if isProductIncomplete && (!form.net_price || Number(form.net_price) <= 0)}
+                                            <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">Dato faltante</span>
+                                        {/if}
+                                    </div>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
+                                        <Input
+                                            id="modal-prod-net-price"
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            bind:value={form.net_price}
+                                            oninput={updateCalculatedGrossPrice}
+                                            placeholder="0.00"
+                                            class="h-10 pl-7 text-sm rounded-xl font-sans tabular-nums font-semibold transition-colors {isProductIncomplete && (!form.net_price || Number(form.net_price) <= 0) ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus-visible:ring-amber-500' : ''}"
+                                            required
+                                        />
+                                    </div>
+                                    {#if form.errors.net_price}
+                                        <p class="text-xs text-destructive">{form.errors.net_price}</p>
+                                    {/if}
+                                </div>
+
+                                <!-- 3. Costo (Desktop col 3, Mobile col 3) -->
+                                <div class="space-y-1 order-3 sm:order-3">
                                     <Label for="modal-prod-cost" class="text-sm font-medium text-foreground">
-                                        Costo ({form.sale_type === 'weight' ? '$ / Kg' : '$ / unid.'})
+                                        Costo ({form.sale_type === 'weight' ? 'kilo' : 'unid.'})
                                     </Label>
                                     <div class="relative">
                                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
@@ -443,11 +491,13 @@
                                     {/if}
                                 </div>
 
-                                <div class="space-y-1">
-                                    <Label for="modal-prod-iva" class="text-sm font-medium text-foreground">IVA (%)</Label>
+                                <!-- 4. IVA (Desktop col 4, Mobile col 4) -->
+                                <div class="space-y-1 order-4 sm:order-4">
+                                    <Label for="modal-prod-iva" class="text-sm font-medium text-foreground">IVA</Label>
                                     <select
                                         id="modal-prod-iva"
                                         bind:value={form.iva_rate}
+                                        onchange={updateCalculatedGrossPrice}
                                         class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary font-sans tabular-nums"
                                     >
                                         <option value={21.00}>21.0% (General)</option>

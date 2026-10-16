@@ -42,6 +42,7 @@ use Illuminate\Support\Facades\DB;
     'barcode',
     'description',
     'price',
+    'net_price',
     'cost_price',
     'iva_rate',
     'stock',
@@ -64,6 +65,7 @@ class Product extends Model
     {
         return [
             'price' => 'decimal:2',
+            'net_price' => 'decimal:2',
             'cost_price' => 'decimal:2',
             'iva_rate' => 'decimal:2',
             'stock' => FlexibleDecimal::class,

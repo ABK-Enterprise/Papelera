@@ -13,6 +13,25 @@ class UpdateProductRequest extends FormRequest
         return $this->user() && $this->user()->tenant_id !== null;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('net_price') && is_numeric($this->input('net_price'))) {
+            $net = (float) $this->input('net_price');
+            $iva = $this->has('iva_rate') && is_numeric($this->input('iva_rate')) ? (float) $this->input('iva_rate') : 21.00;
+            $calculatedPrice = round($net * (1.0 + ($iva / 100.0)), 2);
+            $this->merge([
+                'price' => $this->input('price') !== null && is_numeric($this->input('price')) ? (float) $this->input('price') : $calculatedPrice,
+            ]);
+        } elseif ($this->has('price') && is_numeric($this->input('price')) && (!$this->has('net_price') || $this->input('net_price') === null || $this->input('net_price') === '')) {
+            $price = (float) $this->input('price');
+            $iva = $this->has('iva_rate') && is_numeric($this->input('iva_rate')) ? (float) $this->input('iva_rate') : 21.00;
+            $calculatedNet = round($price / (1.0 + ($iva / 100.0)), 2);
+            $this->merge([
+                'net_price' => $calculatedNet,
+            ]);
+        }
+    }
+
     /**
      * @return array<string, ValidationRule|array<mixed>|string>
      */
@@ -58,6 +77,7 @@ class UpdateProductRequest extends FormRequest
             ],
             'description' => ['nullable', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
+            'net_price' => ['required', 'numeric', 'min:0'],
             'cost_price' => ['nullable', 'numeric', 'min:0'],
             'iva_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'stock' => ['nullable', 'numeric'],
