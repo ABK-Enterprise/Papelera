@@ -596,6 +596,14 @@
                             </tr>
                         @endif
 
+                        @if((!empty($order->show_current_balance_in_receipt_subtotal) || !empty($order->show_projected_balance_in_receipt_subtotal)) && $order->customer)
+                            <tr>
+                                <td colspan="2" style="padding: 4px 0 5px 0;">
+                                    <div style="border-top: 1px dashed #cbd5e1; width: 100%;"></div>
+                                </td>
+                            </tr>
+                        @endif
+
                         <tr>
                             <td class="summary-label">SUBTOTAL:</td>
                             <td class="summary-value tabular-nums">${{ number_format($rawItemsSubtotal, 2, ',', '.') }}</td>
@@ -719,14 +727,12 @@
                                 @if($showBalance)
                                     <td class="account-col-right" style="{{ !$showStatus ? 'width: 100%; text-align: left; padding-left: 0;' : '' }}">
                                         <div class="account-amount-line account-amount-line-current">
+                                            <strong style="color: #0f172a;">Saldo actual:</strong>
                                             @if($isFavor)
-                                                <strong style="color: #0f172a;">Saldo a favor actual:</strong>
                                                 <span class="tabular-nums font-bold text-green">${{ number_format($absBalance, 2, ',', '.') }}</span>
                                             @elseif($isDeudor)
-                                                <strong style="color: #0f172a;">Saldo deudor actual:</strong>
                                                 <span class="tabular-nums font-bold text-danger">${{ number_format($absBalance, 2, ',', '.') }}</span>
                                             @else
-                                                <strong style="color: #0f172a;">Cuenta corriente al dia:</strong>
                                                 <span class="tabular-nums font-bold">$0,00</span>
                                             @endif
                                         </div>

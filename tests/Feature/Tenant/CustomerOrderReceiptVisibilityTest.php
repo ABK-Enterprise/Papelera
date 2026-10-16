@@ -270,7 +270,7 @@ test('receipt pdf template renders customer credit account and filtered adjustme
     // Debe mostrarse el resumen de cuenta corriente en el recuadro informativo
     expect($html)->toContain('Estado Cta. Cte.:')
         ->toContain('"A DEBER"')
-        ->toContain('Saldo deudor actual:')
+        ->toContain('Saldo actual:')
         ->toContain('ESTADO EN CUENTA CORRIENTE');
 
     // Debe mostrarse el ajuste visible
@@ -366,7 +366,7 @@ test('receipt pdf renders credit balance applied and total to pay when sub-item 
     // Ficha del cliente: muestra estado A FAVOR
     expect($html)->toContain('Estado Cta. Cte.:')
         ->toContain('"A FAVOR"')
-        ->toContain('Saldo a favor actual:')
+        ->toContain('Saldo actual:')
         ->toContain('$5.000,00');
 
     // Totales: muestra Total con monto neto afectado ($6.000,00) y Saldo a Favor Aplicado
@@ -482,7 +482,7 @@ test('receipt pdf respects independent account status and account balance flags'
     expect($html)->toContain('ESTADO EN CUENTA CORRIENTE')
         ->and($html)->toContain('Estado Cta. Cte.:')
         ->and($html)->toContain('"A DEBER"')
-        ->and($html)->not->toContain('Saldo deudor actual:');
+        ->and($html)->not->toContain('Saldo actual:');
 });
 
 test('can update subtotal balance visibility flags via patch endpoint', function () {
@@ -552,11 +552,14 @@ test('receipt pdf renders current and projected balance before subtotal when ena
     // Verificar que los ítems se muestran ANTES del cálculo de SUBTOTAL (arriba de SUBTOTAL)
     $posCurrent = strpos($html, 'Saldo Cta. Cte. actual:');
     $posProjected = strpos($html, 'Saldo Cta. Cte. resultante:');
+    $posSeparator = strpos($html, 'border-top: 1px dashed #cbd5e1;');
     $posSubtotal = strpos($html, 'SUBTOTAL:');
 
     expect($posCurrent)->toBeLessThan($posSubtotal)
         ->and($posProjected)->toBeLessThan($posSubtotal)
-        ->and($posCurrent)->toBeLessThan($posProjected);
+        ->and($posCurrent)->toBeLessThan($posProjected)
+        ->and($posProjected)->toBeLessThan($posSeparator)
+        ->and($posSeparator)->toBeLessThan($posSubtotal);
 });
 
 test('receipt pdf hides subtotal balance items when disabled', function () {
