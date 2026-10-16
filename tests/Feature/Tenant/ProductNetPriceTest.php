@@ -172,3 +172,43 @@ test('endpoint aislado edit renderiza vista tenant/products/Edit con net_price e
         );
 });
 
+test('crear producto enviando solo price calcula net_price automaticamente en StoreProductRequest', function () {
+    $response = $this->post(route('tenant.products.store'), [
+        'name' => 'Papelera Solo Precio',
+        'category_id' => $this->category->id,
+        'price' => 1210.00,
+        'iva_rate' => 21.00,
+        'stock' => 5,
+    ]);
+
+    $response->assertRedirect(route('tenant.products.index'));
+
+    $product = Product::where('name', 'Papelera Solo Precio')->first();
+    expect($product)->not->toBeNull()
+        ->and((float) $product->price)->toBe(1210.00)
+        ->and((float) $product->net_price)->toBe(1000.00);
+});
+
+test('actualizar producto enviando solo price calcula net_price automaticamente en UpdateProductRequest', function () {
+    $product = Product::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'category_id' => $this->category->id,
+        'price' => 1210.00,
+        'net_price' => 1000.00,
+        'iva_rate' => 21.00,
+    ]);
+
+    $response = $this->put(route('tenant.products.update', $product), [
+        'name' => $product->name,
+        'category_id' => $this->category->id,
+        'price' => 2420.00,
+        'iva_rate' => 21.00,
+    ]);
+
+    $response->assertRedirect(route('tenant.products.index'));
+
+    $product->refresh();
+    expect((float) $product->price)->toBe(2420.00)
+        ->and((float) $product->net_price)->toBe(2000.00);
+});
+
