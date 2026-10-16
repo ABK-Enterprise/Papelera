@@ -558,6 +558,44 @@
                 <!-- 1. Sección Superior: Subtotal, Descuentos y Recargos -->
                 <div class="summary-section-top">
                     <table class="summary-table">
+                        @php
+                            $currentBalanceBefore = $order->customer_balance_before !== null
+                                ? (float) $order->customer_balance_before
+                                : (float) ($order->customer?->current_balance ?? 0);
+                            $isFavorBefore = $currentBalanceBefore < 0;
+                            $isDeudorBefore = $currentBalanceBefore > 0;
+                            $absBalanceBefore = abs($currentBalanceBefore);
+                            $valCurrent = $isFavorBefore
+                                ? '$' . number_format($absBalanceBefore, 2, ',', '.') . ' (a favor)'
+                                : ($isDeudorBefore ? '$' . number_format($absBalanceBefore, 2, ',', '.') . ' (deudor)' : '$0,00 (al día)');
+                            $classCurrent = $isFavorBefore ? 'text-green' : ($isDeudorBefore ? 'text-danger' : '');
+
+                            $currentBalanceAfter = $order->customer_balance_after !== null
+                                ? (float) $order->customer_balance_after
+                                : (float) ($order->customer?->current_balance ?? 0);
+                            $isFavorAfter = $currentBalanceAfter < 0;
+                            $isDeudorAfter = $currentBalanceAfter > 0;
+                            $absBalanceAfter = abs($currentBalanceAfter);
+                            $valProjected = $isFavorAfter
+                                ? '$' . number_format($absBalanceAfter, 2, ',', '.') . ' (a favor)'
+                                : ($isDeudorAfter ? '$' . number_format($absBalanceAfter, 2, ',', '.') . ' (deudor)' : '$0,00 (al día)');
+                            $classProjected = $isFavorAfter ? 'text-green' : ($isDeudorAfter ? 'text-danger' : '');
+                        @endphp
+
+                        @if(!empty($order->show_current_balance_in_receipt_subtotal) && $order->customer)
+                            <tr>
+                                <td class="summary-label">Saldo Cta. Cte. actual:</td>
+                                <td class="summary-value tabular-nums {{ $classCurrent }}">{{ $valCurrent }}</td>
+                            </tr>
+                        @endif
+
+                        @if(!empty($order->show_projected_balance_in_receipt_subtotal) && $order->customer)
+                            <tr>
+                                <td class="summary-label">Saldo Cta. Cte. resultante:</td>
+                                <td class="summary-value tabular-nums {{ $classProjected }}">{{ $valProjected }}</td>
+                            </tr>
+                        @endif
+
                         <tr>
                             <td class="summary-label">SUBTOTAL:</td>
                             <td class="summary-value tabular-nums">${{ number_format($rawItemsSubtotal, 2, ',', '.') }}</td>

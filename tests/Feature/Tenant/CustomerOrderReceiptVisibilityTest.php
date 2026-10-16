@@ -484,3 +484,113 @@ test('receipt pdf respects independent account status and account balance flags'
         ->and($html)->toContain('"A DEBER"')
         ->and($html)->not->toContain('Saldo deudor actual:');
 });
+
+test('can update subtotal balance visibility flags via patch endpoint', function () {
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'order_number' => 'ORD-SUBTOTAL-BAL-01',
+        'customer_name' => $this->customer->name,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'sin_facturar',
+        'total_amount' => 10000.00,
+        'show_current_balance_in_receipt_subtotal' => false,
+        'show_projected_balance_in_receipt_subtotal' => false,
+    ]);
+
+    $response = $this->actingAs($this->user)
+        ->patchJson("/tenant/pedidos/{$order->id}/visibilidad-remito", [
+            'show_current_balance_in_receipt_subtotal' => true,
+            'show_projected_balance_in_receipt_subtotal' => true,
+        ]);
+
+    $response->assertOk()
+        ->assertJsonPath('success', true);
+
+    $order->refresh();
+    expect($order->show_current_balance_in_receipt_subtotal)->toBeTrue()
+        ->and($order->show_projected_balance_in_receipt_subtotal)->toBeTrue();
+});
+
+test('receipt pdf renders current and projected balance before subtotal when enabled', function () {
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'order_number' => 'ORD-PDF-SUBTOTAL-01',
+        'customer_name' => $this->customer->name,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'sin_facturar',
+        'total_amount' => 10000.00,
+        'customer_balance_before' => 15000.00,
+        'customer_balance_after' => 25000.00,
+        'show_current_balance_in_receipt_subtotal' => true,
+        'show_projected_balance_in_receipt_subtotal' => true,
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $this->product->id,
+        'packaging_type' => 'unit',
+        'quantity' => 2,
+        'unit_price' => 5000.00,
+        'subtotal' => 10000.00,
+    ]);
+
+    $order->load(['customer', 'items.product', 'tenant']);
+
+    $html = View::make('pdf.customer-order', [
+        'order' => $order,
+        'logoBase64' => null,
+    ])->render();
+
+    expect($html)->toContain('Saldo Cta. Cte. actual:')
+        ->and($html)->toContain('$15.000,00 (deudor)')
+        ->and($html)->toContain('Saldo Cta. Cte. resultante:')
+        ->and($html)->toContain('$25.000,00 (deudor)')
+        ->and($html)->toContain('SUBTOTAL:');
+
+    // Verificar que los ítems se muestran ANTES del cálculo de SUBTOTAL (arriba de SUBTOTAL)
+    $posCurrent = strpos($html, 'Saldo Cta. Cte. actual:');
+    $posProjected = strpos($html, 'Saldo Cta. Cte. resultante:');
+    $posSubtotal = strpos($html, 'SUBTOTAL:');
+
+    expect($posCurrent)->toBeLessThan($posSubtotal)
+        ->and($posProjected)->toBeLessThan($posSubtotal)
+        ->and($posCurrent)->toBeLessThan($posProjected);
+});
+
+test('receipt pdf hides subtotal balance items when disabled', function () {
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'order_number' => 'ORD-PDF-SUBTOTAL-02',
+        'customer_name' => $this->customer->name,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'sin_facturar',
+        'total_amount' => 10000.00,
+        'customer_balance_before' => 15000.00,
+        'customer_balance_after' => 25000.00,
+        'show_current_balance_in_receipt_subtotal' => false,
+        'show_projected_balance_in_receipt_subtotal' => false,
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $this->product->id,
+        'packaging_type' => 'unit',
+        'quantity' => 2,
+        'unit_price' => 5000.00,
+        'subtotal' => 10000.00,
+    ]);
+
+    $order->load(['customer', 'items.product', 'tenant']);
+
+    $html = View::make('pdf.customer-order', [
+        'order' => $order,
+        'logoBase64' => null,
+    ])->render();
+
+    expect($html)->not->toContain('Saldo Cta. Cte. actual:')
+        ->and($html)->not->toContain('Saldo Cta. Cte. resultante:')
+        ->and($html)->toContain('SUBTOTAL:');
+});

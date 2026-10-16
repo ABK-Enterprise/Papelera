@@ -40,6 +40,8 @@
         show_account_in_receipt?: boolean;
         show_account_status_in_receipt?: boolean;
         show_account_balance_in_receipt?: boolean;
+        show_current_balance_in_receipt_subtotal?: boolean;
+        show_projected_balance_in_receipt_subtotal?: boolean;
         show_credit_applied_in_receipt?: boolean;
         show_debt_collected_in_receipt?: boolean;
         price_adjustments?: PriceAdjustmentItem[] | null;
@@ -67,6 +69,8 @@
     let showAccount = $state(false);
     let showAccountStatus = $state(true);
     let showAccountBalance = $state(true);
+    let showCurrentBalanceInSubtotal = $state(false);
+    let showProjectedBalanceInSubtotal = $state(false);
     let showCreditApplied = $state(false);
     let showDebtCollected = $state(false);
 
@@ -87,6 +91,8 @@
             showAccount = Boolean(order.show_account_in_receipt);
             showAccountStatus = order.show_account_status_in_receipt !== false;
             showAccountBalance = order.show_account_balance_in_receipt !== false;
+            showCurrentBalanceInSubtotal = Boolean(order.show_current_balance_in_receipt_subtotal);
+            showProjectedBalanceInSubtotal = Boolean(order.show_projected_balance_in_receipt_subtotal);
             showCreditApplied = canShowCreditApplied
                 ? Boolean(order.show_credit_applied_in_receipt)
                 : false;
@@ -173,6 +179,8 @@
                 show_account_in_receipt: showAccount,
                 show_account_status_in_receipt: showAccount ? showAccountStatus : false,
                 show_account_balance_in_receipt: showAccount ? showAccountBalance : false,
+                show_current_balance_in_receipt_subtotal: order?.customer_id ? showCurrentBalanceInSubtotal : false,
+                show_projected_balance_in_receipt_subtotal: order?.customer_id ? showProjectedBalanceInSubtotal : false,
                 show_credit_applied_in_receipt: canShowCreditApplied ? showCreditApplied : false,
                 show_debt_collected_in_receipt: canShowDebtCollected ? showDebtCollected : false,
                 adjustments_visibility: visibilityMap,
@@ -187,6 +195,8 @@
                         order.show_account_in_receipt = showAccount;
                         order.show_account_status_in_receipt = showAccount ? showAccountStatus : false;
                         order.show_account_balance_in_receipt = showAccount ? showAccountBalance : false;
+                        order.show_current_balance_in_receipt_subtotal = order?.customer_id ? showCurrentBalanceInSubtotal : false;
+                        order.show_projected_balance_in_receipt_subtotal = order?.customer_id ? showProjectedBalanceInSubtotal : false;
                         order.show_credit_applied_in_receipt = canShowCreditApplied ? showCreditApplied : false;
                         order.show_debt_collected_in_receipt = canShowDebtCollected ? showDebtCollected : false;
                         if (Array.isArray(order.price_adjustments)) {
@@ -342,6 +352,56 @@
                                 {#if !canShowDebtCollected}
                                     <span class="text-xs text-amber-600 dark:text-amber-400 mt-1 block">
                                         No disponible: Este pedido no incluyó cobro de deuda anterior.
+                                    </span>
+                                {/if}
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Sub-item 4: Saldo Cta. Cte. Actual en Subtotal -->
+                    <div class="mt-3 ml-7 pl-3 border-l-2 border-border/60">
+                        <label class="flex items-start gap-3 {order?.customer_id ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}">
+                            <input
+                                type="checkbox"
+                                disabled={!order?.customer_id}
+                                bind:checked={showCurrentBalanceInSubtotal}
+                                class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                            />
+                            <div class="flex-1 min-w-0">
+                                <span class="text-sm font-medium text-foreground block">
+                                    Agregar saldo cta. cte. actual como item
+                                </span>
+                                <p class="text-xs text-muted-foreground mt-0.5">
+                                    Se agregará como ítem a la lista del subtotal, la información del saldo actual de la Cta. Cte. del cliente.
+                                </p>
+                                {#if !order?.customer_id}
+                                    <span class="text-xs text-amber-600 dark:text-amber-400 mt-1 block">
+                                        No disponible: El pedido no tiene un cliente registrado con cuenta corriente.
+                                    </span>
+                                {/if}
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Sub-item 5: Saldo Cta. Cte. Resultante en Subtotal -->
+                    <div class="mt-3 ml-7 pl-3 border-l-2 border-border/60">
+                        <label class="flex items-start gap-3 {order?.customer_id ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}">
+                            <input
+                                type="checkbox"
+                                disabled={!order?.customer_id}
+                                bind:checked={showProjectedBalanceInSubtotal}
+                                class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
+                            />
+                            <div class="flex-1 min-w-0">
+                                <span class="text-sm font-medium text-foreground block">
+                                    Agregar saldo cta. cte. resultante como item
+                                </span>
+                                <p class="text-xs text-muted-foreground mt-0.5">
+                                    Se agregará como ítem a la lista del subtotal, la información del saldo resultante por el precio del pedido, es decir, el saldo o deuda que le quedaría pendiente posterior al pedido.
+                                </p>
+                                {#if !order?.customer_id}
+                                    <span class="text-xs text-amber-600 dark:text-amber-400 mt-1 block">
+                                        No disponible: El pedido no tiene un cliente registrado con cuenta corriente.
                                     </span>
                                 {/if}
                             </div>

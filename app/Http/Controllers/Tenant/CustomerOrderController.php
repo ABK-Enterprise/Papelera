@@ -438,6 +438,8 @@ class CustomerOrderController extends Controller
                 'show_account_in_receipt' => $request->boolean('show_account_in_receipt'),
                 'show_account_status_in_receipt' => $request->has('show_account_status_in_receipt') ? $request->boolean('show_account_status_in_receipt') : true,
                 'show_account_balance_in_receipt' => $request->has('show_account_balance_in_receipt') ? $request->boolean('show_account_balance_in_receipt') : true,
+                'show_current_balance_in_receipt_subtotal' => $request->boolean('show_current_balance_in_receipt_subtotal'),
+                'show_projected_balance_in_receipt_subtotal' => $request->boolean('show_projected_balance_in_receipt_subtotal'),
                 'show_credit_applied_in_receipt' => $showCreditAppliedInReceipt,
                 'discount_total' => $discountTotal,
                 'surcharge_total' => $surchargeTotal,

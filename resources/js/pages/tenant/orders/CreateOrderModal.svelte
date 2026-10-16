@@ -1167,6 +1167,8 @@
                 show_account_in_receipt: showAccountInReceipt,
                 show_account_status_in_receipt: true,
                 show_account_balance_in_receipt: true,
+                show_current_balance_in_receipt_subtotal: showAccountBalanceInOrderSummary,
+                show_projected_balance_in_receipt_subtotal: showAccountBalanceInOrderSummary,
                 mp_qr_checkout: shouldChargeWithQr ? true : undefined,
                 items: payloadItems,
             },
