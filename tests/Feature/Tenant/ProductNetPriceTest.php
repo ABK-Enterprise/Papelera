@@ -138,3 +138,37 @@ test('ProductPriceUpdateService mantiene sincronizado net_price al modificar pre
     expect((float) $product->price)->toBe(2420.00)
         ->and((float) $product->net_price)->toBe(2000.00);
 });
+
+test('endpoint aislado create renderiza vista tenant/products/Create con datos requeridos', function () {
+    $response = $this->get(route('tenant.products.create'));
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('tenant/products/Create')
+            ->has('categories')
+            ->has('warehouses')
+            ->has('tenantDefaultBulkDiscount')
+        );
+});
+
+test('endpoint aislado edit renderiza vista tenant/products/Edit con net_price en props', function () {
+    $product = Product::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'category_id' => $this->category->id,
+        'price' => 1210.00,
+        'net_price' => 1000.00,
+        'iva_rate' => 21.00,
+    ]);
+
+    $response = $this->get(route('tenant.products.edit', $product));
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('tenant/products/Edit')
+            ->where('product.id', $product->id)
+            ->where('product.net_price', '1000.00')
+            ->where('product.price', '1210.00')
+            ->where('product.iva_rate', '21.00')
+        );
+});
+

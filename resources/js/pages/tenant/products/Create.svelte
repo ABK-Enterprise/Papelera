@@ -43,6 +43,7 @@
         barcode: '',
         description: '',
         price: '',
+        net_price: '',
         cost_price: '',
         iva_rate: 21.00,
         stock: 0,
@@ -56,6 +57,18 @@
         image_position: null as { zoom: number; x: number; y: number } | null,
         is_active: true,
     });
+
+    // Recálculo automático de precio de venta a partir del precio neto e IVA
+    function updateCalculatedGrossPrice() {
+        const net = parseFloat(String(form.net_price));
+        if (!isNaN(net) && net >= 0) {
+            const iva = Number(form.iva_rate) || 0;
+            const gross = Math.round(net * (1 + iva / 100) * 100) / 100;
+            form.price = gross.toFixed(2);
+        } else {
+            form.price = '';
+        }
+    }
 
 
     function formatPrice(amount: number) {
@@ -114,8 +127,8 @@
 
     <!-- Contenedor 2 Columnas Stitch Layout -->
     <div class="bg-card text-card-foreground rounded-3xl border border-border/80 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] overflow-hidden flex flex-col md:flex-row">
-        <!-- Columna Izquierda: Imagen y Empaque (40%) -->
-        <div class="w-full md:w-5/12 bg-muted/25 p-6 sm:p-8 flex flex-col border-b md:border-b-0 md:border-r border-border/70 shrink-0">
+        <!-- Columna Izquierda: Imagen y Empaque (33%) -->
+        <div class="w-full md:w-4/12 bg-muted/25 p-6 sm:p-8 flex flex-col border-b md:border-b-0 md:border-r border-border/70 shrink-0">
             <div class="mb-4">
                 <h2 class="text-base sm:text-lg font-semibold text-foreground flex items-center gap-2 leading-snug">
                     <Package class="size-5 text-primary" />
@@ -168,8 +181,8 @@
             </div>
         </div>
 
-        <!-- Columna Derecha: Formulario (60%) -->
-        <div class="w-full md:w-7/12 bg-card p-6 sm:p-8 flex flex-col">
+        <!-- Columna Derecha: Formulario (66%) -->
+        <div class="w-full md:w-8/12 bg-card p-6 sm:p-8 flex flex-col">
             <form onsubmit={submit} class="space-y-5">
                 <!-- 1. Información Básica con Segmented Pill Switcher -->
                 <div class="space-y-3">
@@ -252,22 +265,21 @@
                 <!-- 2. Precios & Fiscal -->
                 <div class="space-y-3">
                     <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">2. Precios y facturación</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div class="space-y-1">
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        <!-- 1. Precio de venta (visual/no mutable - Desktop col 1, Mobile col 2) -->
+                        <div class="space-y-1 order-2 sm:order-1">
                             <Label for="create-prod-price" class="text-sm font-medium text-foreground">
-                                Precio Venta ({form.sale_type === 'weight' ? '$ / Kg' : '$ / unid.'}) <span class="text-destructive">*</span>
+                                Precio de venta ({form.sale_type === 'weight' ? 'kilo' : 'unid.'})
                             </Label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
                                 <Input
                                     id="create-prod-price"
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    bind:value={form.price}
-                                    placeholder="0.00"
-                                    class="h-9 pl-7 text-xs rounded-xl tabular-nums"
-                                    required
+                                    type="text"
+                                    readonly
+                                    tabindex={-1}
+                                    value={form.price ? form.price : '0.00'}
+                                    class="h-9 pl-7 text-xs rounded-xl tabular-nums font-sans font-bold bg-muted/50 border-border/70 text-foreground cursor-not-allowed select-none"
                                 />
                             </div>
                             {#if form.errors.price}
@@ -275,9 +287,34 @@
                             {/if}
                         </div>
 
-                        <div class="space-y-1">
+                        <!-- 2. Precio neto (mutable/obligatorio - Desktop col 2, Mobile col 1) -->
+                        <div class="space-y-1 order-1 sm:order-2">
+                            <Label for="create-prod-net-price" class="text-sm font-medium text-foreground">
+                                Precio neto ({form.sale_type === 'weight' ? 'kilo' : 'unid.'}) <span class="text-destructive">*</span>
+                            </Label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+                                <Input
+                                    id="create-prod-net-price"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    bind:value={form.net_price}
+                                    oninput={updateCalculatedGrossPrice}
+                                    placeholder="0.00"
+                                    class="h-9 pl-7 text-xs rounded-xl tabular-nums font-sans font-semibold"
+                                    required
+                                />
+                            </div>
+                            {#if form.errors.net_price}
+                                <p class="text-xs text-destructive">{form.errors.net_price}</p>
+                            {/if}
+                        </div>
+
+                        <!-- 3. Costo (Desktop col 3, Mobile col 3) -->
+                        <div class="space-y-1 order-3 sm:order-3">
                             <Label for="create-prod-cost" class="text-sm font-medium text-foreground">
-                                Costo ({form.sale_type === 'weight' ? '$ / Kg' : '$ / unid.'})
+                                Costo ({form.sale_type === 'weight' ? 'kilo' : 'unid.'})
                             </Label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
@@ -288,7 +325,7 @@
                                     min="0"
                                     bind:value={form.cost_price}
                                     placeholder="0.00"
-                                    class="h-9 pl-7 text-xs rounded-xl tabular-nums"
+                                    class="h-9 pl-7 text-xs rounded-xl tabular-nums font-sans"
                                 />
                             </div>
                             {#if form.errors.cost_price}
@@ -296,12 +333,14 @@
                             {/if}
                         </div>
 
-                        <div class="space-y-1">
-                            <Label for="create-prod-iva" class="text-sm font-medium text-foreground">IVA (%)</Label>
+                        <!-- 4. IVA (Desktop col 4, Mobile col 4) -->
+                        <div class="space-y-1 order-4 sm:order-4">
+                            <Label for="create-prod-iva" class="text-sm font-medium text-foreground">IVA</Label>
                             <select
                                 id="create-prod-iva"
                                 bind:value={form.iva_rate}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary tabular-nums"
+                                onchange={updateCalculatedGrossPrice}
+                                class="h-9 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary tabular-nums font-sans"
                             >
                                 <option value={21.00}>21.0% (General)</option>
                                 <option value={10.50}>10.5% (Reducido)</option>
