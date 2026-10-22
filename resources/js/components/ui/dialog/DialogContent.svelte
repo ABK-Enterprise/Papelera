@@ -2,6 +2,7 @@
     import type { Snippet } from 'svelte';
     import { getContext } from 'svelte';
     import { fade, scale } from 'svelte/transition';
+    import { portal } from '@/lib/portal';
     import { cn } from '@/lib/utils';
     import { DIALOG_CONTEXT, type DialogContext } from './context';
 
@@ -21,7 +22,7 @@
 </script>
 
 {#if open()}
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+    <div use:portal class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
         <button
             type="button"
             transition:fade={{ duration: 150 }}
