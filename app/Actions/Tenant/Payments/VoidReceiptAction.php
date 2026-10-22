@@ -56,11 +56,18 @@ class VoidReceiptAction
                 ->get();
 
             foreach ($allocations as $alloc) {
-                /** @var CustomerOrder $order */
+                /** @var CustomerOrder|null $order */
                 $order = CustomerOrder::where('id', $alloc->customer_order_id)
                     ->where('tenant_id', $tenantId)
                     ->lockForUpdate()
-                    ->firstOrFail();
+                    ->first();
+
+                // Blindaje FSM: si el pedido ya fue cancelado (estado terminal inmutable),
+                // su deuda e impacto contable de cancelación ya fueron liquidados.
+                // No se debe mutar ni resucitar deuda sobre un pedido cancelado.
+                if (! $order || $order->status === 'cancelado') {
+                    continue;
+                }
 
                 $restoredDebt = round((float) $order->debt_amount + (float) $alloc->amount_applied, 2);
                 $order->debt_amount = min((float) $order->total_amount, $restoredDebt);

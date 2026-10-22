@@ -140,6 +140,18 @@ class RegisterReceiptAction
                     ->lockForUpdate()
                     ->firstOrFail();
 
+                if ($order->status === 'cancelado') {
+                    throw ValidationException::withMessages([
+                        'allocations' => ["El pedido {$order->order_number} se encuentra cancelado y no admite imputación de pagos."],
+                    ]);
+                }
+
+                if ($customerId !== null && (int) $order->customer_id !== (int) $customerId) {
+                    throw ValidationException::withMessages([
+                        'allocations' => ["El pedido {$order->order_number} no pertenece al cliente seleccionado en el recibo."],
+                    ]);
+                }
+
                 CustomerOrderReceipt::create([
                     'tenant_id' => $tenantId,
                     'customer_order_id' => $order->id,

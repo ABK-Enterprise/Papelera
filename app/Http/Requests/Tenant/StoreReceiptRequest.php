@@ -34,7 +34,14 @@ class StoreReceiptRequest extends FormRequest
             'allocations.*.order_id' => [
                 'required_with:allocations',
                 'integer',
-                Rule::exists('customer_orders', 'id')->where('tenant_id', $tenantId),
+                Rule::exists('customer_orders', 'id')->where(function ($query) use ($tenantId) {
+                    $query->where('tenant_id', $tenantId)
+                        ->where('status', '!=', 'cancelado');
+
+                    if ($this->filled('customer_id')) {
+                        $query->where('customer_id', (int) $this->input('customer_id'));
+                    }
+                }),
             ],
             'allocations.*.amount' => [
                 'required_with:allocations',

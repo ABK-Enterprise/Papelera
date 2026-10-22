@@ -373,3 +373,117 @@ test('receipts history returns paginated list with search filter', function () {
             'receipt_number' => 'REC-0099',
         ]);
 });
+
+test('voiding a receipt when its allocated order was subsequently cancelled preserves terminal FSM state without throwing DomainException', function () {
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->defaultWarehouse->id,
+        'order_number' => 'PED-CANCEL-VOID-01',
+        'customer_name' => $this->customer->name,
+        'status' => 'pendiente',
+        'payment_status' => 'pendiente',
+        'total_amount' => 10000.00,
+        'debt_amount' => 10000.00,
+    ]);
+
+    $this->customer->update(['current_balance' => 10000.00]);
+
+    // 1. Cobrar el pedido mediante recibo
+    $this->actingAs($this->adminUser)->postJson(route('tenant.payments.store'), [
+        'customer_id' => $this->customer->id,
+        'amount' => 10000.00,
+        'payment_method' => 'cheque',
+        'reference_number' => 'CHQ-99999',
+        'allocations' => [
+            ['order_id' => $order->id, 'amount' => 10000.00],
+        ],
+    ])->assertSuccessful();
+
+    $receipt = Receipt::where('customer_id', $this->customer->id)->latest()->first();
+    expect($receipt)->not->toBeNull();
+
+    // 2. El pedido pasa a estado terminal 'cancelado' (lo cual devuelve saldo a favor de -10000 al cliente y sella debt_amount = 0)
+    $order->refresh();
+    $order->update([
+        'status' => 'cancelado',
+        'debt_amount' => 0.00,
+    ]);
+    $this->customer->update(['current_balance' => -10000.00]);
+
+    // 3. El cheque es rechazado y se anula el recibo: NO debe lanzar DomainException ni resucitar deuda en el pedido cancelado
+    $voidResponse = $this->actingAs($this->adminUser)->postJson(route('tenant.payments.receipts.void', $receipt->id), [
+        'reason' => 'Cheque rechazado luego de cancelar pedido',
+    ]);
+
+    $voidResponse->assertOk();
+
+    $receipt->refresh();
+    expect($receipt->is_cancelled)->toBeTrue();
+
+    $order->refresh();
+    expect($order->status)->toBe('cancelado')
+        ->and((float) $order->debt_amount)->toBe(0.00)
+        ->and($order->payment_status)->toBe('cobrado');
+
+    // El saldo del cliente (-10000 por el crédito de cancelación) vuelve a 0.00 tras anular el cobro de 10000
+    $this->customer->refresh();
+    expect((float) $this->customer->current_balance)->toBe(0.00);
+});
+
+test('cannot register receipt allocating funds to an order that belongs to a different customer', function () {
+    $otherCustomer = Customer::create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Otro Cliente S.A.',
+        'current_balance' => 5000.00,
+        'credit_limit' => 50000.00,
+    ]);
+
+    $otherOrder = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $otherCustomer->id,
+        'warehouse_id' => $this->defaultWarehouse->id,
+        'order_number' => 'PED-OTHER-001',
+        'customer_name' => $otherCustomer->name,
+        'status' => 'pendiente',
+        'payment_status' => 'pendiente',
+        'total_amount' => 5000.00,
+        'debt_amount' => 5000.00,
+    ]);
+
+    $this->actingAs($this->adminUser)->postJson(route('tenant.payments.store'), [
+        'customer_id' => $this->customer->id,
+        'amount' => 5000.00,
+        'payment_method' => 'efectivo',
+        'allocations' => [
+            ['order_id' => $otherOrder->id, 'amount' => 5000.00],
+        ],
+    ])->assertStatus(422);
+
+    $otherOrder->refresh();
+    expect((float) $otherOrder->debt_amount)->toBe(5000.00);
+});
+
+test('cannot register receipt allocating funds to a cancelled order', function () {
+    $cancelledOrder = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->defaultWarehouse->id,
+        'order_number' => 'PED-CANCELLED-001',
+        'customer_name' => $this->customer->name,
+        'status' => 'cancelado',
+        'payment_status' => 'pendiente',
+        'total_amount' => 4000.00,
+        'debt_amount' => 0.00,
+    ]);
+
+    $this->actingAs($this->adminUser)->postJson(route('tenant.payments.store'), [
+        'customer_id' => $this->customer->id,
+        'amount' => 4000.00,
+        'payment_method' => 'efectivo',
+        'allocations' => [
+            ['order_id' => $cancelledOrder->id, 'amount' => 4000.00],
+        ],
+    ])->assertStatus(422);
+});
+
