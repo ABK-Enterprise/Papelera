@@ -205,8 +205,8 @@
 
     <!-- Contenedor 2 Columnas Stitch Layout -->
     <div class="bg-card text-card-foreground rounded-3xl border border-border/80 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] overflow-hidden flex flex-col md:flex-row">
-        <!-- Columna Izquierda: Imagen y Empaque (33% md, 25% lg) -->
-        <div class="w-full md:w-4/12 lg:w-3/12 bg-muted/25 p-6 sm:p-8 flex flex-col border-b md:border-b-0 md:border-r border-border/70 shrink-0">
+        <!-- Columna Izquierda: Imagen y Empaque (+20px simétrico) -->
+        <div class="w-full md:w-[310px] lg:w-[330px] bg-muted/25 p-6 sm:p-8 flex flex-col border-b md:border-b-0 md:border-r border-border/70 shrink-0">
             <div class="mb-4">
                 <h2 class="text-base sm:text-lg font-semibold text-foreground flex items-center gap-2 leading-snug">
                     <Package class="size-5 text-primary" />
@@ -262,8 +262,8 @@
             </div>
         </div>
 
-        <!-- Columna Derecha: Formulario (66% md, 75% lg) -->
-        <div class="w-full md:w-8/12 lg:w-9/12 bg-card p-6 sm:p-8 flex flex-col">
+        <!-- Columna Derecha: Formulario (elástica para mantener simetría del contenedor) -->
+        <div class="w-full flex-1 min-w-0 bg-card p-6 sm:p-8 flex flex-col">
             <form onsubmit={handleSubmit} class="space-y-5">
                 <!-- 1. Información Básica con Segmented Pill Switcher -->
                 <div class="space-y-3">
