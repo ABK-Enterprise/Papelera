@@ -764,6 +764,11 @@
     let grandTotal = $derived(
         Math.max(0, Math.round((grossTotal - effectiveCreditBalanceApplied) * 100) / 100)
     );
+    const effectivePaidAmount = $derived(
+        paymentType === 'parcial'
+            ? Math.min(Math.max(0, Math.round((Number(paidAmount) || 0) * 100) / 100), grandTotal)
+            : 0
+    );
     const remainingToPay = $derived(grandTotal);
     const canShowCreditAppliedInReceipt = $derived(
         useCreditBalance && effectiveCreditBalanceApplied > 0
@@ -818,6 +823,17 @@
     $effect(() => {
         if (!canShowDebtCollectedInReceipt && showDebtCollectedInReceipt) {
             showDebtCollectedInReceipt = false;
+        }
+    });
+
+    $effect(() => {
+        if (paymentType === 'parcial' && paidAmount !== '') {
+            const num = Number(paidAmount);
+            if (!isNaN(num) && num < 0) {
+                paidAmount = '';
+            } else if (!isNaN(num) && grandTotal > 0 && num > grandTotal) {
+                paidAmount = String(grandTotal);
+            }
         }
     });
 
@@ -2038,7 +2054,7 @@
                                             <p class="text-xs text-muted-foreground">
                                                 Deuda restante que quedará pendiente:
                                                 <span class="font-semibold tabular-nums text-foreground">
-                                                    {formatPrice(Math.max(0, grandTotal - (Number(paidAmount) || 0)))}
+                                                    {formatPrice(Math.max(0, grandTotal - effectivePaidAmount))}
                                                 </span>
                                             </p>
                                         </div>
@@ -2050,12 +2066,11 @@
                                                 min="0.01"
                                                 max={grandTotal}
                                                 maxlength="9"
+                                                onkeydown={(e) => preventInvalidNumericKeys(e)}
                                                 oninput={(e) => {
-                                                    const target = e.target as HTMLInputElement;
-                                                    if (target.value.length > 9) {
-                                                        target.value = target.value.slice(0, 9);
-                                                        paidAmount = target.value;
-                                                    }
+                                                    handleStrictFixedAmountInput(e, grandTotal, (val) => {
+                                                        paidAmount = val;
+                                                    });
                                                 }}
                                                 placeholder={`ej. ${(grandTotal / 2).toFixed(2)}`}
                                                 bind:value={paidAmount}
@@ -2595,6 +2610,17 @@
                             <span class="text-xs sm:text-sm font-bold text-foreground">Total a Cobrar en el Momento:</span>
                             <span class="text-lg sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
                                 {formatPrice(grandTotal + effectivePreviousDebtCollected)}
+                            </span>
+                        </div>
+                    {:else if paymentType === 'parcial' && effectivePaidAmount > 0}
+                        <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400 font-sans tabular-nums border-t border-border/40 pt-1.5">
+                            <span>Pago parcial / Seña:</span>
+                            <span>-{formatPrice(effectivePaidAmount)}</span>
+                        </div>
+                        <div class="flex flex-wrap items-baseline justify-between gap-2 border-t border-border/60 pt-2 mt-1 w-full">
+                            <span class="text-xs sm:text-sm font-bold text-foreground">Total del Pedido:</span>
+                            <span class="text-lg sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
+                                {formatPrice(Math.max(0, grandTotal - effectivePaidAmount))}
                             </span>
                         </div>
                     {:else}

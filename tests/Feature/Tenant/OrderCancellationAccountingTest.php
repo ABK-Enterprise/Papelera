@@ -368,3 +368,27 @@ test('cancelling a paid order that collected previous debt restores the previous
     expect((float) $this->customer->current_balance)->toBe(3000.0);
 });
 
+test('partial payment order rejects zero or negative paid_amount', function (mixed $invalidAmount) {
+    $res = $this->actingAs($this->user)->postJson(route('tenant.orders.store'), [
+        'customer_id' => $this->customer->id,
+        'payment_type' => 'parcial',
+        'payment_method' => 'efectivo',
+        'paid_amount' => $invalidAmount,
+        'warehouse_id' => $this->warehouse->id,
+        'items' => [
+            [
+                'product_id' => $this->product->id,
+                'packaging_type' => 'unidad',
+                'quantity' => 5,
+            ],
+        ],
+    ]);
+
+    $res->assertStatus(422)
+        ->assertJsonValidationErrors(['paid_amount']);
+})->with([
+    'negative amount' => -500,
+    'zero amount' => 0,
+]);
+
+

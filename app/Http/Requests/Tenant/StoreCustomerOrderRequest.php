@@ -39,7 +39,7 @@ class StoreCustomerOrderRequest extends FormRequest
             'notes' => ['nullable', 'string', 'max:255'],
             'payment_type' => ['nullable', 'string', 'in:contado,cuenta_corriente,parcial'],
             'payment_method' => ['nullable', 'string', 'in:efectivo,transferencia,mercadopago,cheque,debito,credito,otro'],
-            'paid_amount' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
+            'paid_amount' => ['nullable', 'numeric', 'min:0', 'max:100000000', 'regex:/^\d+(?:\.\d{1,2})?$/'],
             'payment_reference' => ['nullable', 'string', 'max:255'],
             'mp_qr_checkout' => ['nullable', 'boolean'],
             'apply_customer_discount' => ['nullable', 'boolean'],
@@ -162,6 +162,13 @@ class StoreCustomerOrderRequest extends FormRequest
                 }
             }
 
+            if ($this->payment_type === 'parcial' && (float) $this->input('paid_amount', 0) <= 0) {
+                $validator->errors()->add(
+                    'paid_amount',
+                    'Para la condición Pago Parcial debe ingresar un monto de seña o anticipo mayor a cero.'
+                );
+            }
+
             if ($this->boolean('mp_qr_checkout')) {
                 if ($this->payment_method !== 'mercadopago') {
                     $validator->errors()->add(
@@ -214,6 +221,7 @@ class StoreCustomerOrderRequest extends FormRequest
     {
         return [
             'paid_amount.max' => 'El importe abonado no puede superar los $100.000.000.',
+            'paid_amount.regex' => 'El importe abonado debe contener únicamente dígitos numéricos positivos sin signos especiales.',
             'credit_balance_applied.max' => 'El saldo a favor aplicado no puede superar los $100.000.000.',
             'credit_balance_applied.regex' => 'El saldo a favor debe contener únicamente dígitos numéricos positivos sin signos especiales.',
             'previous_debt_collected.max' => 'El monto de cobro de deuda no puede superar los $100.000.000.',
