@@ -36,7 +36,9 @@ beforeEach(function () {
 
     Permission::firstOrCreate(['name' => 'pedidos.crear', 'guard_name' => 'web', 'module_id' => $this->pedidosModule->id]);
     Permission::firstOrCreate(['name' => 'pedidos.ver', 'guard_name' => 'web', 'module_id' => $this->pedidosModule->id]);
-    $this->adminRole->givePermissionTo(['pedidos.crear', 'pedidos.ver']);
+    Permission::firstOrCreate(['name' => 'pedidos.editar_estado', 'guard_name' => 'web', 'module_id' => $this->pedidosModule->id]);
+    Permission::firstOrCreate(['name' => 'pedidos.cancelar', 'guard_name' => 'web', 'module_id' => $this->pedidosModule->id]);
+    $this->adminRole->givePermissionTo(['pedidos.crear', 'pedidos.ver', 'pedidos.editar_estado', 'pedidos.cancelar']);
 
     $this->user = User::factory()->forTenant($this->tenant)->create();
     $this->user->assignRole($this->adminRole);
@@ -58,7 +60,7 @@ beforeEach(function () {
     ]);
 });
 
-test('it creates a contado order collecting previous debt and clearing customer balance', function () {
+test('it creates a contado order as pendiente with previous debt and clears balance upon manual collection', function () {
     $customer = Customer::factory()->forTenant($this->tenant)->create([
         'name' => 'Cliente Deudor',
         'current_balance' => 3000.00,
@@ -91,11 +93,27 @@ test('it creates a contado order collecting previous debt and clearing customer 
     expect($order)->not->toBeNull()
         ->and((float) $order->total_amount)->toBe(2000.00)
         ->and((float) $order->previous_debt_collected)->toBe(3000.00)
-        ->and((float) $order->debt_amount)->toBe(0.00)
-        ->and($order->payment_status)->toBe('cobrado')
+        ->and((float) $order->debt_amount)->toBe(2000.00)
+        ->and($order->payment_status)->toBe('pendiente')
         ->and($order->billable_amount)->toBe(2000.00)
         ->and($order->collectible_amount)->toBe(5000.00)
         ->and($order->has_previous_balance_impact)->toBeTrue();
+
+    // Antes del cobro manual, el cargo del pedido ingresa a la cuenta corriente ($3.000 + $2.000 = $5.000)
+    $customer->refresh();
+    expect((float) $customer->current_balance)->toBe(5000.00);
+
+    // Cobro manual desde el botón Cobrar por el monto recaudable ($5.000)
+    $collectRes = $this->actingAs($this->user)
+        ->postJson(route('tenant.orders.collect', $order), [
+            'payment_method' => 'efectivo',
+            'amount' => 5000.00,
+        ]);
+    $collectRes->assertSuccessful();
+
+    $order->refresh();
+    expect($order->payment_status)->toBe('cobrado')
+        ->and((float) $order->debt_amount)->toBe(0.00);
 
     // Verificación del recibo único emitido por el total recaudado ($5.000)
     $receipt = Receipt::where('tenant_id', $this->tenant->id)->first();
@@ -112,31 +130,25 @@ test('it creates a contado order collecting previous debt and clearing customer 
     $customer->refresh();
     expect((float) $customer->current_balance)->toBe(0.00);
 
-    // Verificación de los 3 movimientos en el libro mayor
+    // Verificación de los movimientos en el libro mayor
     $movements = CustomerAccountMovement::where('customer_id', $customer->id)
         ->orderBy('id', 'asc')
         ->get();
 
-    expect($movements)->toHaveCount(3);
+    expect($movements)->toHaveCount(2);
 
     // 1. Cargo por venta de la orden
     expect($movements[0]->type)->toBe('charge')
         ->and((float) $movements[0]->amount)->toBe(2000.00)
         ->and((float) $movements[0]->balance_after)->toBe(5000.00);
 
-    // 2. Pago de la orden
+    // 2. Pago unificado de la orden + deuda previa
     expect($movements[1]->type)->toBe('payment')
-        ->and((float) $movements[1]->amount)->toBe(2000.00)
-        ->and((float) $movements[1]->balance_after)->toBe(3000.00);
-
-    // 3. Cancelación de deuda histórica previa
-    expect($movements[2]->type)->toBe('payment')
-        ->and((float) $movements[2]->amount)->toBe(3000.00)
-        ->and((float) $movements[2]->balance_after)->toBe(0.00)
-        ->and($movements[2]->description)->toContain('Cancelación de deuda previa');
+        ->and((float) $movements[1]->amount)->toBe(5000.00)
+        ->and((float) $movements[1]->balance_after)->toBe(0.00);
 });
 
-test('it allows partial collection of previous debt', function () {
+test('it allows partial collection of previous debt when order is collected', function () {
     $customer = Customer::factory()->forTenant($this->tenant)->create([
         'name' => 'Cliente Deudor Parcial',
         'current_balance' => 5000.00,
@@ -168,13 +180,24 @@ test('it allows partial collection of previous debt', function () {
     $order = CustomerOrder::where('tenant_id', $this->tenant->id)->first();
     expect($order)->not->toBeNull()
         ->and((float) $order->total_amount)->toBe(1000.00)
-        ->and((float) $order->previous_debt_collected)->toBe(2000.00);
+        ->and((float) $order->previous_debt_collected)->toBe(2000.00)
+        ->and($order->payment_status)->toBe('pendiente');
 
-    // Recibo total: 1000 + 2000 = 3000
+    $customer->refresh();
+    expect((float) $customer->current_balance)->toBe(6000.00);
+
+    // Cobro manual: 1000 + 2000 = 3000
+    $collectRes = $this->actingAs($this->user)
+        ->postJson(route('tenant.orders.collect', $order), [
+            'payment_method' => 'transferencia',
+            'amount' => 3000.00,
+        ]);
+    $collectRes->assertSuccessful();
+
     $receipt = Receipt::where('tenant_id', $this->tenant->id)->first();
     expect((float) $receipt->amount)->toBe(3000.00);
 
-    // Balance final del cliente: 5000 - 2000 = 3000
+    // Balance final del cliente: 6000 - 3000 = 3000
     $customer->refresh();
     expect((float) $customer->current_balance)->toBe(3000.00);
 });

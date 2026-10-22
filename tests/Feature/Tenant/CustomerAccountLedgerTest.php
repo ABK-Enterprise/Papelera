@@ -325,31 +325,25 @@ test('cash customer order registers charge and immediate payment without alterin
     $response->assertStatus(201);
 
     $customer->refresh();
-    // Saldo no debe haberse incrementado por el pedido de contado
-    expect((float) $customer->current_balance)->toBe(5000.00);
+    // Saldo se incrementa al crearse como pendiente hasta su cobro manual
+    expect((float) $customer->current_balance)->toBe(10000.00);
 
     $order = CustomerOrder::latest()->first();
+    expect($order->payment_status)->toBe('pendiente')
+        ->and((float) $order->debt_amount)->toBe(5000.00);
 
     $movements = CustomerAccountMovement::where('customer_id', $customer->id)
         ->where('customer_order_id', $order->id)
         ->get();
 
-    expect($movements)->toHaveCount(2);
+    expect($movements)->toHaveCount(1);
 
     $charge = $movements->firstWhere('type', 'charge');
     expect($charge)->not->toBeNull();
     expect((float) $charge->amount)->toBe(5000.00);
-    expect($charge->payment_method)->toBe('transferencia');
     expect((float) $charge->balance_after)->toBe(10000.00);
 
-    $payment = $movements->firstWhere('type', 'payment');
-    expect($payment)->not->toBeNull();
-    expect((float) $payment->amount)->toBe(5000.00);
-    expect($payment->payment_method)->toBe('transferencia');
-    expect((float) $payment->balance_after)->toBe(5000.00);
-    expect($payment->description)->toContain('Cobro de contado (transferencia)');
-
-    // 2. Cancelar el pedido de contado -> NO debe reversar saldo ni descontar $5000 del cliente
+    // 2. Cancelar el pedido antes de cobrarlo -> revierte la deuda del pedido y preserva los $5000 originales
     $cancelResponse = $this->actingAs($this->user)
         ->patchJson(route('tenant.orders.update-status', $order), [
             'status' => 'cancelado',

@@ -181,6 +181,12 @@ class RegisterReceiptAction
 
                 $associatedOrderId = count($orderAllocations) === 1 ? (int) $orderAllocations[0]['order_id'] : null;
 
+                if ($associatedOrderId) {
+                    CustomerOrder::where('id', $associatedOrderId)
+                        ->where('tenant_id', $tenantId)
+                        ->update(['customer_balance_after' => $newBalance]);
+                }
+
                 $movement = CustomerAccountMovement::create([
                     'tenant_id' => $tenantId,
                     'customer_id' => $customer->id,

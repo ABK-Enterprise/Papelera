@@ -404,9 +404,9 @@ class CustomerOrderController extends Controller
                 $orderDebt = $finalOrderTotal;
                 $paymentStatus = 'pendiente';
             } elseif ($paymentType === 'contado') {
-                $paidAmount = round($finalOrderTotal + $previousDebtCollected, 2);
-                $orderDebt = 0.00;
-                $paymentStatus = 'cobrado';
+                $paidAmount = 0.00;
+                $orderDebt = $finalOrderTotal;
+                $paymentStatus = ($orderDebt <= 0) ? 'cobrado' : 'pendiente';
             } elseif ($paymentType === 'parcial') {
                 $inputPaid = (float) $request->input('paid_amount', 0);
                 $paidAmount = min($finalOrderTotal, max(0.00, round($inputPaid, 2)));
@@ -1255,17 +1255,21 @@ class CustomerOrderController extends Controller
             $amount = (float) $request->validated('amount');
             $paymentMethod = $request->validated('payment_method');
             $orderDebt = (float) $order->debt_amount;
+            $previousDebtToCollect = ($order->payment_status === 'pendiente')
+                ? (float) ($order->previous_debt_collected ?? 0)
+                : 0.00;
+            $collectibleTotal = round($orderDebt + $previousDebtToCollect, 2);
             $hasAccount = $order->customer_id !== null;
 
             // Clientes ocasionales sin cuenta corriente
             if (! $hasAccount) {
                 if ($paymentMethod === 'efectivo') {
                     // En efectivo para mostrador, si pagan con más se da vuelto en mano; se emite recibo por la deuda
-                    $amount = min($amount, $orderDebt);
+                    $amount = min($amount, $collectibleTotal);
                 } else {
-                    if ($amount > $orderDebt) {
+                    if ($amount > $collectibleTotal) {
                         throw ValidationException::withMessages([
-                            'amount' => 'En cobros para clientes sin cuenta corriente, el importe no puede superar el saldo adeudado ($'.number_format($orderDebt, 2, ',', '.').').',
+                            'amount' => 'En cobros para clientes sin cuenta corriente, el importe no puede superar el saldo adeudado ($'.number_format($collectibleTotal, 2, ',', '.').').',
                         ]);
                     }
                 }
@@ -1280,8 +1284,11 @@ class CustomerOrderController extends Controller
                 ];
             }
 
-            $notes = $request->validated('notes')
-                ?: ("Cobro de pedido N° {$order->order_number}".($request->boolean('mark_as_delivered') ? ' (Entregado en mostrador)' : ''));
+            $defaultNotes = "Cobro de pedido N° {$order->order_number}"
+                .($previousDebtToCollect > 0 && $amount > $orderDebt ? ' (Incluye cancelación de deuda previa)' : '')
+                .($request->boolean('mark_as_delivered') ? ' (Entregado en mostrador)' : '');
+
+            $notes = $request->validated('notes') ?: $defaultNotes;
 
             $receipt = $registerReceiptAction->execute(
                 tenantId: $tenantId,

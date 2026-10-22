@@ -288,7 +288,7 @@ test('admin can void a receipt and it reverts order debt and customer balance', 
     ]);
 });
 
-test('order created with contado automatically creates receipt and has cobrado status', function () {
+test('order created with contado enters cuenta corriente as pendiente and is collected via collect endpoint', function () {
     $response = $this->actingAs($this->adminUser)->post(route('tenant.orders.store'), [
         'customer_id' => $this->customer->id,
         'warehouse_id' => $this->defaultWarehouse->id,
@@ -307,9 +307,25 @@ test('order created with contado automatically creates receipt and has cobrado s
 
     $order = CustomerOrder::where('customer_id', $this->customer->id)->latest()->first();
     expect($order)->not->toBeNull()
-        ->and($order->payment_status)->toBe('cobrado')
-        ->and((float) $order->debt_amount)->toBe(0.00)
+        ->and($order->payment_status)->toBe('pendiente')
+        ->and((float) $order->debt_amount)->toBe(4000.00)
         ->and((float) $order->total_amount)->toBe(4000.00);
+
+    $this->customer->refresh();
+    expect((float) $this->customer->current_balance)->toBe(4000.00);
+
+    $collectResponse = $this->actingAs($this->adminUser)->postJson(route('tenant.orders.collect', $order), [
+        'payment_method' => 'efectivo',
+        'amount' => 4000.00,
+    ]);
+    $collectResponse->assertSuccessful();
+
+    $order->refresh();
+    expect($order->payment_status)->toBe('cobrado')
+        ->and((float) $order->debt_amount)->toBe(0.00);
+
+    $this->customer->refresh();
+    expect((float) $this->customer->current_balance)->toBe(0.00);
 
     $receipt = Receipt::where('customer_id', $this->customer->id)->latest()->first();
     expect($receipt)->not->toBeNull()

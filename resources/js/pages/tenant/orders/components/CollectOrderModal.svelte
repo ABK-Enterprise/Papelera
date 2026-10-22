@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/components/ui/dialog';
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
@@ -32,6 +32,7 @@
         status: string;
         payment_status: string;
         debt_amount: number | string;
+        previous_debt_collected?: number | string | null;
         total_amount: number | string;
         delivered_at?: string | null;
         notes?: string | null;
@@ -62,7 +63,10 @@
     // Modal secundario de QR
     let isQrModalOpen = $state<boolean>(false);
 
-    let debt = $derived(Number(order?.debt_amount) || 0);
+    let previousDebtToCollect = $derived(
+        order?.payment_status === 'pendiente' ? (Number(order?.previous_debt_collected) || 0) : 0
+    );
+    let debt = $derived(Math.round(((Number(order?.debt_amount) || 0) + previousDebtToCollect) * 100) / 100);
     let total = $derived(Number(order?.total_amount) || 0);
     let hasAccount = $derived(Boolean(order?.customer_id));
     let isAlreadyDelivered = $derived(order?.status === 'entregado');
@@ -71,7 +75,8 @@
 
     $effect(() => {
         if (open && order) {
-            const currentDebt = Number(order.debt_amount) || 0;
+            const extraDebt = order.payment_status === 'pendiente' ? (Number(order.previous_debt_collected) || 0) : 0;
+            const currentDebt = Math.round(((Number(order.debt_amount) || 0) + extraDebt) * 100) / 100;
             amountToPay = currentDebt > 0 ? currentDebt : 0;
             paymentMethod = 'efectivo';
             referenceNumber = '';

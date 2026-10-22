@@ -1987,7 +1987,7 @@
                             />
                             <div class="min-w-0">
                                 <span class="text-xs font-medium block">Cobro Total</span>
-                                <span class="text-xs text-muted-foreground block font-normal">Abonado al momento, no genera deuda</span>
+                                <span class="text-xs text-muted-foreground block font-normal">Se cobra el importe total del pedido al confirmar</span>
                             </div>
                         </label>
 
