@@ -32,11 +32,35 @@ class EmitCreditNoteAction
         array $overrides = []
     ): FiscalInvoice {
         return DB::transaction(function () use ($order, $user, $originalInvoice, $overrides) {
-            $invoice = $originalInvoice ?? $order->activeFiscalInvoice()->first();
+            /** @var CustomerOrder $lockedOrder */
+            $lockedOrder = CustomerOrder::where('id', $order->id)
+                ->where('tenant_id', $order->tenant_id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            /** @var FiscalInvoice|null $invoice */
+            $invoice = $originalInvoice
+                ? FiscalInvoice::where('id', $originalInvoice->id)
+                    ->where('tenant_id', $lockedOrder->tenant_id)
+                    ->lockForUpdate()
+                    ->first()
+                : $lockedOrder->activeFiscalInvoice()->lockForUpdate()->first();
 
             if (! $invoice || $invoice->status !== FiscalInvoice::STATUS_APROBADO) {
                 throw new ArcaException(
                     'No se encontró una factura fiscal aprobada asociada a este pedido para emitir la Nota de Crédito.'
+                );
+            }
+
+            $existingCreditNote = FiscalInvoice::where('tenant_id', $lockedOrder->tenant_id)
+                ->where('associated_fiscal_invoice_id', $invoice->id)
+                ->where('status', FiscalInvoice::STATUS_APROBADO)
+                ->lockForUpdate()
+                ->exists();
+
+            if ($existingCreditNote) {
+                throw new ArcaException(
+                    'La factura original ya posee una Nota de Crédito fiscal aprobada en ARCA.'
                 );
             }
 

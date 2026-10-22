@@ -27,7 +27,7 @@ class EmitFiscalInvoiceAction
      */
     public function execute(CustomerOrder $order, User $user, array $overrides = []): FiscalInvoice
     {
-        if ((float) $order->total_amount <= 0.00) {
+        if ($order->billable_amount <= 0.00) {
             throw new ArcaException('WSFEv1 (ARCA) requiere comprobantes con importe total mayor a cero ($0.00). Los pedidos bonificados al 100% sin cargo deben canalizarse mediante remito interno de traslado.');
         }
 
@@ -40,7 +40,7 @@ class EmitFiscalInvoiceAction
                     throw new ArcaException('Pedido no encontrado.');
                 }
 
-                if ((float) $lockedOrder->total_amount <= 0.00) {
+                if ($lockedOrder->billable_amount <= 0.00) {
                     throw new ArcaException('WSFEv1 (ARCA) requiere comprobantes con importe total mayor a cero ($0.00). Los pedidos bonificados al 100% sin cargo deben canalizarse mediante remito interno de traslado.');
                 }
 
@@ -95,7 +95,7 @@ class EmitFiscalInvoiceAction
 
                 // Legal threshold validation for anonymous final consumers (DocTipo 99)
                 $consumerLimit = (float) (config('arca.consumer_final_thresholds.cash') ?? config('arca.thresholds.anonymous_consumer_cash_limit', 10000000.00));
-                $orderTotal = (float) $lockedOrder->total_amount;
+                $orderTotal = $lockedOrder->billable_amount;
 
                 if ($docTipo === 99 && $orderTotal > $consumerLimit) {
                     throw new ArcaException(
