@@ -259,3 +259,112 @@ test('repeatedly creating and cancelling partial payment orders leaves customer 
     $this->customer->refresh();
     expect((float) $this->customer->current_balance)->toBe(0.0);
 });
+
+test('cancelling an order paid entirely with credit balance restores the credit balance to the customer', function () {
+    // Customer starts with $5,000 credit balance (saldo a favor = -5000)
+    $this->customer->update(['current_balance' => -5000.00]);
+
+    // Create order for $3,000 applying $3,000 credit balance
+    $res = $this->actingAs($this->user)->post(route('tenant.orders.store'), [
+        'customer_id' => $this->customer->id,
+        'payment_type' => 'cuenta_corriente',
+        'credit_balance_applied' => 3000.00,
+        'warehouse_id' => $this->warehouse->id,
+        'items' => [
+            [
+                'product_id' => $this->product->id,
+                'packaging_type' => 'unidad',
+                'quantity' => 3, // $3,000
+            ],
+        ],
+    ]);
+    $res->assertRedirect(route('tenant.orders.index'));
+
+    $order = CustomerOrder::where('tenant_id', $this->tenant->id)->latest('id')->first();
+    expect($order)->not->toBeNull()
+        ->and((float) $order->credit_balance_applied)->toBe(3000.0)
+        ->and((float) $order->debt_amount)->toBe(0.0)
+        ->and($order->payment_status)->toBe('cobrado');
+
+    $this->customer->refresh();
+    expect((float) $this->customer->current_balance)->toBe(-2000.0);
+
+    // Cancel the order -> customer must recover full -$5,000 credit balance
+    $cancelRes = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
+        'status' => 'cancelado',
+    ]);
+    $cancelRes->assertSuccessful();
+
+    $this->customer->refresh();
+    expect((float) $this->customer->current_balance)->toBe(-5000.0);
+});
+
+test('cancelling an order partially covered by credit balance restores both unpaid debt and applied credit balance', function () {
+    // Customer starts with $2,000 credit balance (saldo a favor = -2000)
+    $this->customer->update(['current_balance' => -2000.00]);
+
+    // Create order for $5,000 on cuenta corriente applying $2,000 credit balance
+    $res = $this->actingAs($this->user)->post(route('tenant.orders.store'), [
+        'customer_id' => $this->customer->id,
+        'payment_type' => 'cuenta_corriente',
+        'credit_balance_applied' => 2000.00,
+        'warehouse_id' => $this->warehouse->id,
+        'items' => [
+            [
+                'product_id' => $this->product->id,
+                'packaging_type' => 'unidad',
+                'quantity' => 5, // $5,000
+            ],
+        ],
+    ]);
+    $res->assertRedirect(route('tenant.orders.index'));
+
+    $order = CustomerOrder::where('tenant_id', $this->tenant->id)->latest('id')->first();
+    expect($order)->not->toBeNull()
+        ->and((float) $order->credit_balance_applied)->toBe(2000.0)
+        ->and((float) $order->debt_amount)->toBe(3000.0);
+
+    $this->customer->refresh();
+    expect((float) $this->customer->current_balance)->toBe(3000.0);
+
+    // Cancel the order -> customer must return to -$2,000 credit balance
+    $cancelRes = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
+        'status' => 'cancelado',
+    ]);
+    $cancelRes->assertSuccessful();
+
+    $this->customer->refresh();
+    expect((float) $this->customer->current_balance)->toBe(-2000.0);
+});
+
+test('cancelling a paid order that collected previous debt restores the previous debt to the customer account', function () {
+    // Customer starts with $3,000 previous debt (saldo deudor = +3000)
+    $this->customer->update(['current_balance' => 3000.00]);
+
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->warehouse->id,
+        'order_number' => 'PED-DEBT-001',
+        'customer_name' => $this->customer->name,
+        'status' => 'en_preparacion',
+        'payment_status' => 'cobrado',
+        'subtotal_amount' => 2000.00,
+        'total_amount' => 2000.00,
+        'debt_amount' => 0.00,
+        'previous_debt_collected' => 3000.00,
+    ]);
+
+    // Simulate that the order + previous debt was collected, so current_balance is 0.00
+    $this->customer->update(['current_balance' => 0.00]);
+
+    // Cancel the order -> the $3,000 previous debt must be returned to the customer's current_balance
+    $cancelRes = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
+        'status' => 'cancelado',
+    ]);
+    $cancelRes->assertSuccessful();
+
+    $this->customer->refresh();
+    expect((float) $this->customer->current_balance)->toBe(3000.0);
+});
+

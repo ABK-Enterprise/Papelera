@@ -789,7 +789,10 @@ class CustomerOrderController extends Controller
                         ->first();
 
                     if ($customer) {
-                        $reversalAmount = (float) $lockedOrder->debt_amount;
+                        $reversalAmount = round(
+                            (float) $lockedOrder->debt_amount + (float) ($lockedOrder->credit_balance_applied ?? 0),
+                            2
+                        );
 
                         if ($reversalAmount > 0) {
                             $newBalance = round((float) $customer->current_balance - $reversalAmount, 2);
@@ -810,6 +813,28 @@ class CustomerOrderController extends Controller
                             $eventsToBroadcast[] = new CustomerAccountMovementRecorded($adjMov);
 
                             $customer->update(['current_balance' => $newBalance]);
+                        }
+
+                        $previousDebtCollected = round((float) ($lockedOrder->previous_debt_collected ?? 0), 2);
+                        if ($previousDebtCollected > 0 && $lockedOrder->payment_status === 'cobrado') {
+                            $restoredBalance = round((float) $customer->current_balance + $previousDebtCollected, 2);
+
+                            $debtRestoredMov = CustomerAccountMovement::create([
+                                'tenant_id' => $tenantId,
+                                'customer_id' => $customer->id,
+                                'customer_order_id' => $lockedOrder->id,
+                                'created_by_user_id' => $userId,
+                                'type' => 'charge',
+                                'description' => "Restitución de saldo deudor previo por cancelación de Pedido {$lockedOrder->order_number}",
+                                'amount' => $previousDebtCollected,
+                                'balance_after' => $restoredBalance,
+                                'payment_method' => 'ajuste',
+                                'reference_number' => "RESTORE-DEBT-{$lockedOrder->order_number}",
+                                'notes' => 'Restitución automática de deuda anterior absorbida en pedido cancelado.',
+                            ]);
+                            $eventsToBroadcast[] = new CustomerAccountMovementRecorded($debtRestoredMov);
+
+                            $customer->update(['current_balance' => $restoredBalance]);
                         }
                     }
                 }
@@ -911,7 +936,10 @@ class CustomerOrderController extends Controller
                     ->first();
 
                 if ($customer) {
-                    $reversalAmount = (float) $lockedOrder->debt_amount;
+                    $reversalAmount = round(
+                        (float) $lockedOrder->debt_amount + (float) ($lockedOrder->credit_balance_applied ?? 0),
+                        2
+                    );
                     if ($reversalAmount > 0) {
                         $newBalance = round((float) $customer->current_balance - $reversalAmount, 2);
 
@@ -931,6 +959,28 @@ class CustomerOrderController extends Controller
                         $eventsToBroadcast[] = new CustomerAccountMovementRecorded($adjMov);
 
                         $customer->update(['current_balance' => $newBalance]);
+                    }
+
+                    $previousDebtCollected = round((float) ($lockedOrder->previous_debt_collected ?? 0), 2);
+                    if ($previousDebtCollected > 0 && $lockedOrder->payment_status === 'cobrado') {
+                        $restoredBalance = round((float) $customer->current_balance + $previousDebtCollected, 2);
+
+                        $debtRestoredMov = CustomerAccountMovement::create([
+                            'tenant_id' => $tenantId,
+                            'customer_id' => $customer->id,
+                            'customer_order_id' => null,
+                            'created_by_user_id' => $userId,
+                            'type' => 'charge',
+                            'description' => "Restitución de saldo deudor previo por eliminación de Pedido {$lockedOrder->order_number}",
+                            'amount' => $previousDebtCollected,
+                            'balance_after' => $restoredBalance,
+                            'payment_method' => 'ajuste',
+                            'reference_number' => "RESTORE-DEBT-DEL-{$lockedOrder->order_number}",
+                            'notes' => 'Restitución automática de deuda anterior absorbida en pedido eliminado.',
+                        ]);
+                        $eventsToBroadcast[] = new CustomerAccountMovementRecorded($debtRestoredMov);
+
+                        $customer->update(['current_balance' => $restoredBalance]);
                     }
                 }
             }
