@@ -2516,8 +2516,8 @@
             <div class="border-t border-border/60 pt-4 mt-2 space-y-3 shrink-0">
                 <!-- Contenedor Superior: Resumen de Totales y Descuentos -->
                 <div class="rounded-xl bg-card border border-border/70 p-3 sm:p-3.5 space-y-1.5 shadow-2xs">
-                    <div class="flex items-center justify-between text-xs sm:text-sm font-medium text-muted-foreground">
-                        <span>Subtotal Base:</span>
+                    <div class="flex items-center justify-between text-sm sm:text-base font-medium text-muted-foreground">
+                        <span>Subtotal:</span>
                         <span class="font-bold font-sans tabular-nums text-foreground">
                             {formatPrice(computedTotals.baseTotal)}
                         </span>
@@ -2579,36 +2579,24 @@
                     {/if}
 
                     {#if effectiveCreditBalanceApplied > 0}
-                        <div class="flex items-center justify-between text-xs sm:text-sm font-medium text-muted-foreground border-t border-border/60 pt-2 mt-1">
-                            <span>Total Bruto del Pedido:</span>
-                            <span class="font-bold font-sans tabular-nums text-foreground">
-                                {formatPrice(grossTotal)}
-                            </span>
-                        </div>
-                        <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400 font-sans tabular-nums pt-0.5">
+                        <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400 font-sans tabular-nums border-t border-border/40 pt-1.5">
                             <span>Saldo a favor imputado:</span>
                             <span>-{formatPrice(effectiveCreditBalanceApplied)}</span>
                         </div>
                         <div class="flex flex-wrap items-baseline justify-between gap-2 border-t border-border/60 pt-2 mt-1 w-full">
-                            <span class="text-xs sm:text-sm font-bold text-foreground">Total del Pedido:</span>
-                            <span class="text-lg sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
+                            <span class="text-sm sm:text-base font-bold text-foreground">Total:</span>
+                            <span class="text-xl sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
                                 {formatPrice(grandTotal)}
                             </span>
                         </div>
                     {:else if effectivePreviousDebtCollected > 0}
-                        <div class="flex items-center justify-between text-xs sm:text-sm font-medium text-muted-foreground border-t border-border/60 pt-2 mt-1">
-                            <span>Total del Pedido:</span>
-                            <span class="font-bold font-sans tabular-nums text-foreground">
-                                {formatPrice(grandTotal)}
-                            </span>
-                        </div>
-                        <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400 font-sans tabular-nums pt-0.5">
+                        <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400 font-sans tabular-nums border-t border-border/40 pt-1.5">
                             <span>Cobro de Deuda Anterior:</span>
                             <span>+{formatPrice(effectivePreviousDebtCollected)}</span>
                         </div>
                         <div class="flex flex-wrap items-baseline justify-between gap-2 border-t border-border/60 pt-2 mt-1 w-full">
-                            <span class="text-xs sm:text-sm font-bold text-foreground">Total a Cobrar en el Momento:</span>
-                            <span class="text-lg sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
+                            <span class="text-sm sm:text-base font-bold text-foreground">Total:</span>
+                            <span class="text-xl sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
                                 {formatPrice(grandTotal + effectivePreviousDebtCollected)}
                             </span>
                         </div>
@@ -2618,15 +2606,15 @@
                             <span>-{formatPrice(effectivePaidAmount)}</span>
                         </div>
                         <div class="flex flex-wrap items-baseline justify-between gap-2 border-t border-border/60 pt-2 mt-1 w-full">
-                            <span class="text-xs sm:text-sm font-bold text-foreground">Total del Pedido:</span>
-                            <span class="text-lg sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
+                            <span class="text-sm sm:text-base font-bold text-foreground">Total:</span>
+                            <span class="text-xl sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
                                 {formatPrice(Math.max(0, grandTotal - effectivePaidAmount))}
                             </span>
                         </div>
                     {:else}
                         <div class="flex flex-wrap items-baseline justify-between gap-2 border-t border-border/60 pt-2 mt-1 w-full">
-                            <span class="text-xs sm:text-sm font-bold text-foreground">Total del Pedido:</span>
-                            <span class="text-lg sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
+                            <span class="text-sm sm:text-base font-bold text-foreground">Total:</span>
+                            <span class="text-xl sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
                                 {formatPrice(grandTotal)}
                             </span>
                         </div>

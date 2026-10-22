@@ -666,17 +666,13 @@
                         @endif
                         @if($order->show_debt_collected_in_receipt && (float) ($order->previous_debt_collected ?? 0) > 0)
                             <tr>
-                                <td class="summary-total-label">TOTAL:</td>
-                                <td class="summary-total-value tabular-nums">${{ number_format((float) $order->total_amount, 2, ',', '.') }}</td>
-                            </tr>
-                            <tr>
-                                <td class="summary-label text-danger" style="font-size: 15.5px; padding-top: 5px; border-top: 1px dashed #cbd5e1;">Cobro de Deuda Anterior:</td>
-                                <td class="summary-value tabular-nums text-danger" style="font-size: 16px; padding-top: 5px; border-top: 1px dashed #cbd5e1;">
+                                <td class="summary-label text-danger" style="font-size: 15.5px; padding-bottom: 5px; border-bottom: 1px dashed #cbd5e1;">Cobro de Deuda Anterior:</td>
+                                <td class="summary-value tabular-nums text-danger" style="font-size: 16px; padding-bottom: 5px; border-bottom: 1px dashed #cbd5e1;">
                                     +${{ number_format((float) $order->previous_debt_collected, 2, ',', '.') }}
                                 </td>
                             </tr>
                             <tr>
-                                <td class="summary-total-label" style="padding-top: 5px; font-size: 18.5px; color: #0f172a;">TOTAL ABONADO:</td>
+                                <td class="summary-total-label" style="padding-top: 5px; font-size: 18.5px; color: #0f172a;">TOTAL:</td>
                                 <td class="summary-total-value tabular-nums" style="padding-top: 5px; font-size: 20px; color: #0f172a;">
                                     ${{ number_format((float) ($order->total_amount + $order->previous_debt_collected), 2, ',', '.') }}
                                 </td>

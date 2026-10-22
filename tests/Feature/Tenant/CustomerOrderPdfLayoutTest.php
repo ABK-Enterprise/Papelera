@@ -108,7 +108,7 @@ test('customer order pdf displays "A DEBER" with previous balance and current de
 
     expect($html)->toContain('"A DEBER"')
         ->not->toContain('Saldo de cta. cte. antes:')
-        ->toContain('Saldo deudor actual:')
+        ->toContain('Saldo actual:')
         ->toContain('$5.000,00')
         ->toContain('Generado por: Papelera San Nicolás SA');
 });
@@ -136,7 +136,7 @@ test('customer order pdf displays "A FAVOR" with previous balance and current cr
 
     expect($html)->toContain('"A FAVOR"')
         ->not->toContain('Saldo de cta. cte. antes:')
-        ->toContain('Saldo a favor actual:')
+        ->toContain('Saldo actual:')
         ->toContain('$1.500,00');
 });
 
@@ -163,11 +163,11 @@ test('customer order pdf displays "AL DIA" when customer balance is zero', funct
 
     expect($html)->toContain('"AL DIA"')
         ->not->toContain('Saldo de cta. cte. antes:')
-        ->toContain('Cuenta corriente al dia:')
+        ->toContain('Saldo actual:')
         ->toContain('$0,00');
 });
 
-test('customer order pdf totals box breaks down previous debt collected and total abonado when show_debt_collected_in_receipt is true', function () {
+test('customer order pdf totals box breaks down previous debt collected and total when show_debt_collected_in_receipt is true', function () {
     $order = CustomerOrder::create([
         'tenant_id' => $this->tenant->id,
         'customer_id' => $this->customer->id,
@@ -192,12 +192,12 @@ test('customer order pdf totals box breaks down previous debt collected and tota
 
     $html = view('pdf.customer-order', ['order' => $order])->render();
 
-    expect($html)->toContain('TOTAL:')
-        ->toContain('$7.000,00')
+    expect($html)->toContain('SUBTOTAL:')
         ->toContain('Cobro de Deuda Anterior:')
         ->toContain('+$3.000,00')
-        ->toContain('TOTAL ABONADO:')
-        ->toContain('$10.000,00');
+        ->toContain('TOTAL:')
+        ->toContain('$10.000,00')
+        ->not->toContain('TOTAL ABONADO:');
 });
 
 test('customer order pdf totals box hides previous debt breakdown when show_debt_collected_in_receipt is false but displays final total', function () {
@@ -324,7 +324,7 @@ test('customer order pdf prioritizes snapshot balances over modified live custom
 
     expect($html)->toContain('"A FAVOR"')
         ->not->toContain('Saldo de cta. cte. antes:')
-        ->toContain('Saldo a favor actual:')
+        ->toContain('Saldo actual:')
         ->toContain('$1.000,00')
         ->not->toContain('$99.999,00');
 });
