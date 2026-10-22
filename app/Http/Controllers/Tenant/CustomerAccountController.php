@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Actions\Tenant\Payments\RegisterReceiptAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\RecordCustomerAdjustmentRequest;
 use App\Http\Requests\Tenant\RecordCustomerPaymentRequest;
 use App\Http\Requests\Tenant\UpdateCustomerCreditSettingsRequest;
 use App\Models\Customer;
 use App\Models\CustomerAccountMovement;
+use App\Models\CustomerOrder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -121,49 +123,69 @@ class CustomerAccountController extends Controller
         return response()->json($customer);
     }
 
-    public function recordPayment(RecordCustomerPaymentRequest $request, Customer $customer): RedirectResponse|JsonResponse
-    {
+    public function recordPayment(
+        RecordCustomerPaymentRequest $request,
+        Customer $customer,
+        RegisterReceiptAction $registerReceiptAction
+    ): RedirectResponse|JsonResponse {
         $this->authorizeCustomerTenant($request, $customer);
 
         $tenantId = $request->user()->tenant_id;
         $userId = $request->user()->id;
-        $amount = (float) $request->validated('amount');
+        $amount = round((float) $request->validated('amount'), 2);
         $paymentMethod = $request->validated('payment_method');
         $referenceNumber = $request->validated('reference_number');
         $notes = $request->validated('notes');
 
-        DB::transaction(function () use ($customer, $tenantId, $userId, $amount, $paymentMethod, $referenceNumber, $notes) {
-            /** @var Customer $lockedCustomer */
-            $lockedCustomer = Customer::where('id', $customer->id)
-                ->where('tenant_id', $tenantId)
-                ->lockForUpdate()
-                ->firstOrFail();
+        // Construir imputaciones automáticas FIFO sobre los pedidos activos con deuda pendiente del cliente
+        $unpaidOrders = CustomerOrder::where('tenant_id', $tenantId)
+            ->where('customer_id', $customer->id)
+            ->where('status', '!=', 'cancelado')
+            ->where('debt_amount', '>', 0)
+            ->orderBy('created_at', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
 
-            $currentBalance = (float) $lockedCustomer->current_balance;
-            $newBalance = round($currentBalance - $amount, 2);
+        $allocations = [];
+        $remaining = $amount;
 
-            CustomerAccountMovement::create([
-                'tenant_id' => $tenantId,
-                'customer_id' => $lockedCustomer->id,
-                'customer_order_id' => null,
-                'created_by_user_id' => $userId,
-                'type' => 'payment',
-                'description' => "Cobro / Abono ({$paymentMethod})",
-                'amount' => $amount,
-                'balance_after' => $newBalance,
-                'due_date' => null,
-                'payment_method' => $paymentMethod,
-                'reference_number' => $referenceNumber,
-                'notes' => $notes,
-            ]);
+        foreach ($unpaidOrders as $order) {
+            if ($remaining <= 0.00) {
+                break;
+            }
 
-            $lockedCustomer->update([
-                'current_balance' => $newBalance,
-            ]);
-        });
+            $orderDebt = round((float) $order->debt_amount, 2);
+            if ($orderDebt <= 0.00) {
+                continue;
+            }
+
+            $applied = round(min($remaining, $orderDebt), 2);
+            if ($applied > 0.00) {
+                $allocations[] = [
+                    'order_id' => $order->id,
+                    'amount' => $applied,
+                ];
+                $remaining = round($remaining - $applied, 2);
+            }
+        }
+
+        $receipt = $registerReceiptAction->execute(
+            tenantId: $tenantId,
+            userId: $userId,
+            customerId: $customer->id,
+            amount: $amount,
+            paymentMethod: $paymentMethod,
+            referenceNumber: $referenceNumber,
+            notes: $notes,
+            orderAllocations: $allocations,
+            allowSurplus: true
+        );
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
-            return response()->json(['message' => 'Cobro registrado exitosamente.']);
+            return response()->json([
+                'message' => 'Cobro registrado exitosamente.',
+                'receipt' => $receipt,
+            ]);
         }
 
         return redirect()->route('tenant.customers.accounts.index', ['customer_id' => $customer->id])

@@ -433,3 +433,113 @@ test('index returns selectedCustomer with movements when customer_id is provided
     expect($data['selectedCustomer']['id'])->toBe($customer->id);
     expect($data['selectedCustomer']['movements'])->toHaveCount(1);
 });
+
+test('recording payment from customer account generates an official receipt and amortizes unpaid orders in FIFO order', function () {
+    $customer = Customer::factory()->forTenant($this->tenant)->create([
+        'name' => 'Cliente FIFO Cta Cte',
+        'current_balance' => 2500.00,
+    ]);
+
+    $order1 = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $customer->id,
+        'order_number' => 'PED-FIFO-001',
+        'customer_name' => $customer->name,
+        'status' => 'pendiente',
+        'payment_status' => 'pendiente',
+        'total_amount' => 1000.00,
+        'debt_amount' => 1000.00,
+        'created_at' => now()->subDays(2),
+    ]);
+
+    $order2 = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $customer->id,
+        'order_number' => 'PED-FIFO-002',
+        'customer_name' => $customer->name,
+        'status' => 'pendiente',
+        'payment_status' => 'pendiente',
+        'total_amount' => 1500.00,
+        'debt_amount' => 1500.00,
+        'created_at' => now()->subDay(),
+    ]);
+
+    // Registrar pago de $1800 desde Cuenta Corriente
+    $response = $this->actingAs($this->user)
+        ->postJson(route('tenant.customers.accounts.payment', $customer), [
+            'amount' => 1800.00,
+            'payment_method' => 'transferencia',
+            'reference_number' => 'TRF-FIFO-1800',
+            'notes' => 'Abono unificado desde Cuenta Corriente',
+        ]);
+
+    $response->assertOk();
+
+    // 1. Debe haberse emitido un Recibo oficial
+    $receipt = \App\Models\Receipt::where('tenant_id', $this->tenant->id)
+        ->where('customer_id', $customer->id)
+        ->latest('id')
+        ->first();
+
+    expect($receipt)->not->toBeNull()
+        ->and((float) $receipt->amount)->toBe(1800.00)
+        ->and($receipt->payment_method)->toBe('transferencia')
+        ->and($receipt->reference_number)->toBe('TRF-FIFO-1800');
+
+    // 2. El primer pedido (más antiguo) debe quedar cobrado (deuda 0) y el segundo parcial (deuda 700)
+    $order1->refresh();
+    $order2->refresh();
+
+    expect($order1->payment_status)->toBe('cobrado')
+        ->and((float) $order1->debt_amount)->toBe(0.00)
+        ->and($order2->payment_status)->toBe('parcial')
+        ->and((float) $order2->debt_amount)->toBe(700.00);
+
+    // 3. El saldo del cliente debe reducirse a $700
+    $customer->refresh();
+    expect((float) $customer->current_balance)->toBe(700.00);
+});
+
+test('recording payment from customer account exceeding unpaid orders debt amortizes all orders and leaves surplus credit balance', function () {
+    $customer = Customer::factory()->forTenant($this->tenant)->create([
+        'name' => 'Cliente Surplus Cta Cte',
+        'current_balance' => 1000.00,
+    ]);
+
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $customer->id,
+        'order_number' => 'PED-FIFO-SURPLUS',
+        'customer_name' => $customer->name,
+        'status' => 'pendiente',
+        'payment_status' => 'pendiente',
+        'total_amount' => 1000.00,
+        'debt_amount' => 1000.00,
+    ]);
+
+    // Paga $2500 teniendo un pedido de $1000 -> cubre el pedido y deja -$1500 a favor
+    $response = $this->actingAs($this->user)
+        ->postJson(route('tenant.customers.accounts.payment', $customer), [
+            'amount' => 2500.00,
+            'payment_method' => 'efectivo',
+            'reference_number' => 'EFE-SURPLUS-2500',
+        ]);
+
+    $response->assertOk();
+
+    $order->refresh();
+    expect($order->payment_status)->toBe('cobrado')
+        ->and((float) $order->debt_amount)->toBe(0.00);
+
+    $customer->refresh();
+    expect((float) $customer->current_balance)->toBe(-1500.00);
+
+    $receipt = \App\Models\Receipt::where('tenant_id', $this->tenant->id)
+        ->where('customer_id', $customer->id)
+        ->latest('id')
+        ->first();
+
+    expect($receipt)->not->toBeNull()
+        ->and((float) $receipt->amount)->toBe(2500.00);
+});
+
