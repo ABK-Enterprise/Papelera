@@ -9,7 +9,6 @@
         DialogContent,
         DialogHeader,
         DialogTitle,
-        DialogDescription,
     } from '@/components/ui/dialog';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
@@ -217,22 +216,17 @@
 
 <!-- Dialog Pequeño para Crear Categoría -->
 <Dialog bind:open={isCategoryModalOpen}>
-    <DialogContent class="sm:max-w-[440px] p-5 sm:p-6 space-y-4">
-        <DialogHeader class="space-y-2">
-            <div class="flex items-center gap-3">
+    <DialogContent class="sm:max-w-[440px] p-4 sm:p-5 space-y-4">
+        <DialogHeader class="p-0 pb-3 border-b border-border/60">
+            <div class="flex items-center gap-2.5">
                 <IconContainer size="md" variant="primary" icon="solar:tag-bold-duotone" />
-                <div>
-                    <DialogTitle class="text-lg font-bold text-foreground">
-                        Nueva Categoría
-                    </DialogTitle>
-                    <DialogDescription class="text-xs text-muted-foreground mt-0.5">
-                        Crea una nueva categoría para clasificar productos en el catálogo.
-                    </DialogDescription>
-                </div>
+                <DialogTitle class="text-lg font-bold tracking-tight text-foreground leading-tight">
+                    Nueva Categoría
+                </DialogTitle>
             </div>
         </DialogHeader>
 
-        <form onsubmit={handleCategorySubmit} class="space-y-4 pt-1">
+        <form onsubmit={handleCategorySubmit} class="space-y-4">
             <div class="space-y-1.5">
                 <Label for="modal-cat-name" class="text-xs font-semibold text-foreground">
                     Nombre de la Categoría <span class="text-destructive">*</span>
@@ -254,7 +248,7 @@
                 <Button
                     type="button"
                     variant="secondary"
-                    class="min-h-[40px] px-4 rounded-xl text-xs font-semibold"
+                    class="min-h-[44px] px-4 rounded-xl text-xs font-semibold"
                     onclick={() => (isCategoryModalOpen = false)}
                     disabled={isSaving}
                 >
@@ -262,7 +256,7 @@
                 </Button>
                 <Button
                     type="submit"
-                    class="min-h-[40px] px-5 rounded-xl text-xs font-semibold shadow-xs"
+                    class="min-h-[44px] px-5 rounded-xl text-xs font-semibold shadow-xs"
                     disabled={isSaving || !newCategoryName.trim()}
                 >
                     <span>Guardar categoría</span>
