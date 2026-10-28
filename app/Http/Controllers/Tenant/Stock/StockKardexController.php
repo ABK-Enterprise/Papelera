@@ -69,9 +69,27 @@ class StockKardexController extends Controller
                 $q->latest();
             });
 
-        $movements = $query->get();
+        $statsRow = (clone $query)
+            ->reorder()
+            ->selectRaw("
+                COALESCE(SUM(CASE WHEN type = 'income' THEN quantity ELSE 0 END), 0) as total_incomes,
+                COALESCE(SUM(CASE WHEN type = 'outcome' THEN quantity ELSE 0 END), 0) as total_outcomes
+            ")
+            ->toBase()
+            ->first();
 
-        $products = Product::where('is_active', true)
+        $totalIncomes = (float) ($statsRow->total_incomes ?? 0);
+        $totalOutcomes = (float) ($statsRow->total_outcomes ?? 0);
+        $stats = [
+            'total_incomes' => $totalIncomes,
+            'total_outcomes' => $totalOutcomes,
+            'net_balance' => round($totalIncomes - $totalOutcomes, 3),
+        ];
+
+        $movements = $query->paginate(25)->withQueryString();
+
+        $resolveProducts = fn () => Product::where('tenant_id', $tenantId)
+            ->where('is_active', true)
             ->select('id', 'name', 'sku')
             ->orderBy('name')
             ->get();
@@ -86,14 +104,16 @@ class StockKardexController extends Controller
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
                 'movements' => $movements,
-                'products' => $products,
+                'stats' => $stats,
+                'products' => $resolveProducts(),
                 'warehouses' => $warehouses,
             ]);
         }
 
         return Inertia::render('tenant/stock/kardex/Index', [
             'movements' => $movements,
-            'products' => $products,
+            'stats' => $stats,
+            'products' => Inertia::optional($resolveProducts),
             'warehouses' => $warehouses,
             'filters' => [
                 'product_id' => $productId ? (int) $productId : null,
@@ -107,4 +127,3 @@ class StockKardexController extends Controller
         ]);
     }
 }
-

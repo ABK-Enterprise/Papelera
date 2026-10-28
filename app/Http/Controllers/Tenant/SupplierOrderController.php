@@ -67,13 +67,22 @@ class SupplierOrderController extends Controller
             ->when($sortBy === 'order_number_desc', fn ($q) => $q->orderBy('order_number', 'desc'))
             ->when(! in_array($sortBy, ['oldest', 'cost_high', 'cost_low', 'total_high', 'total_low', 'supplier_asc', 'supplier_desc', 'order_number_asc', 'order_number_desc'], true), fn ($q) => $q->latest());
 
-        $orders = $query->get();
+        $orders = $query->paginate(15)->withQueryString();
+
+        $statsRow = SupplierOrder::query()
+            ->selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN status = 'solicitado' THEN 1 END) as solicitado,
+                COUNT(CASE WHEN status = 'recibido' THEN 1 END) as recibido,
+                COUNT(CASE WHEN status = 'cancelado' THEN 1 END) as cancelado
+            ")
+            ->first();
 
         $stats = [
-            'total' => SupplierOrder::count(),
-            'solicitado' => SupplierOrder::where('status', 'solicitado')->count(),
-            'recibido' => SupplierOrder::where('status', 'recibido')->count(),
-            'cancelado' => SupplierOrder::where('status', 'cancelado')->count(),
+            'total' => (int) ($statsRow->total ?? 0),
+            'solicitado' => (int) ($statsRow->solicitado ?? 0),
+            'recibido' => (int) ($statsRow->recibido ?? 0),
+            'cancelado' => (int) ($statsRow->cancelado ?? 0),
         ];
 
         $suppliers = Supplier::active()
@@ -81,7 +90,7 @@ class SupplierOrderController extends Controller
             ->orderBy('name')
             ->get();
 
-        $availableProducts = Product::active()
+        $resolveAvailableProducts = fn () => Product::active()
             ->select('id', 'name', 'sku', 'sale_type', 'cost_price', 'stock', 'units_per_package', 'package_quantity')
             ->orderBy('name')
             ->get();
@@ -94,13 +103,18 @@ class SupplierOrderController extends Controller
             ->orderBy('name')
             ->get();
 
-
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
-                'orders' => $orders,
+                'orders' => $orders->items(),
+                'orders_meta' => [
+                    'current_page' => $orders->currentPage(),
+                    'last_page' => $orders->lastPage(),
+                    'per_page' => $orders->perPage(),
+                    'total' => $orders->total(),
+                ],
                 'stats' => $stats,
                 'suppliers' => $suppliers,
-                'available_products' => $availableProducts,
+                'available_products' => $resolveAvailableProducts(),
                 'warehouses' => $warehouses,
             ]);
         }
@@ -109,7 +123,7 @@ class SupplierOrderController extends Controller
             'orders' => $orders,
             'stats' => $stats,
             'suppliers' => $suppliers,
-            'availableProducts' => $availableProducts,
+            'availableProducts' => Inertia::optional($resolveAvailableProducts),
             'warehouses' => $warehouses,
             'filters' => [
                 'search' => $search,

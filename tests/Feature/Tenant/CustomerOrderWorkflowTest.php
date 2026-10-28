@@ -345,7 +345,7 @@ test('can list customer orders and search by customer name', function () {
     $response->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/orders/Index')
-            ->has('orders', 2)
+            ->has('orders.data', 2)
             ->where('stats.total', 2)
             ->where('stats.en_preparacion', 1)
             ->where('stats.entregado', 1)
@@ -357,8 +357,8 @@ test('can list customer orders and search by customer name', function () {
     $responseSearch->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/orders/Index')
-            ->has('orders', 1)
-            ->where('orders.0.customer_name', 'Papelera Central Norte')
+            ->has('orders.data', 1)
+            ->where('orders.data.0.customer_name', 'Papelera Central Norte')
         );
 });
 

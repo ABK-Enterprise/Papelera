@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
+    import AppPagination, { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
@@ -33,9 +34,11 @@
 
     let {
         movements = [],
+        pagination = null,
         onSelectMovement,
     }: {
         movements: StockMovementItem[];
+        pagination?: PaginationMeta | null;
         onSelectMovement: (movement: StockMovementItem) => void;
     } = $props();
 
@@ -135,6 +138,7 @@
             </div>
         {/each}
     </div>
+    <AppPagination {pagination} />
 {:else}
     <EmptyState
         icon={History}

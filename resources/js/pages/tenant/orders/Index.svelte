@@ -9,6 +9,7 @@
     import Search from 'lucide-svelte/icons/search';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import { ClearFilterButton } from '@/components/common';
+    import { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import { hasPermission } from '@/lib/permissions';
@@ -87,7 +88,7 @@
         shippingZones = [],
         filters = {},
     }: {
-        orders: OrderData[];
+        orders: (PaginationMeta & { data: OrderData[] }) | OrderData[];
         stats?: Stats;
         availableProducts?: ProductOption[];
         availableCustomers?: any[];
@@ -96,6 +97,8 @@
         filters?: FilterProps;
     } = $props();
 
+    let orderItems = $derived(Array.isArray(orders) ? orders : (orders?.data ?? []));
+    let orderPagination = $derived(Array.isArray(orders) ? null : orders);
 
     let searchTerm = $state('');
     let selectedStatus = $state('all');
@@ -111,6 +114,21 @@
     let orderToModify = $state<OrderData | null>(null);
     let isCollectModalOpen = $state(false);
     let collectingOrder = $state<OrderData | null>(null);
+    let hasLoadedCatalog = $state(false);
+    let isLoadingCatalog = $state(false);
+
+    $effect(() => {
+        if ((isCreateModalOpen || isAddProductsModalOpen) && !hasLoadedCatalog && !isLoadingCatalog) {
+            isLoadingCatalog = true;
+            router.reload({
+                only: ['availableProducts', 'availableCustomers'],
+                onFinish: () => {
+                    hasLoadedCatalog = true;
+                    isLoadingCatalog = false;
+                },
+            });
+        }
+    });
 
     function openOrderPriceEdit(order: OrderData) {
         editingPriceOrder = order;
@@ -246,8 +264,8 @@
     }
 
     $effect(() => {
-        if (selectedOrder && orders.length > 0) {
-            const fresh = orders.find((o) => o.id === selectedOrder?.id);
+        if (selectedOrder && orderItems.length > 0) {
+            const fresh = orderItems.find((o) => o.id === selectedOrder?.id);
             if (fresh) {
                 selectedOrder = fresh;
             }
@@ -293,7 +311,7 @@
 
                     <SearchCombobox
                         bind:value={searchTerm}
-                        items={orders}
+                        items={orderItems}
                         placeholder="Buscar por #pedido, cliente o teléfono..."
                         onsearch={(q) => {
                             searchTerm = q;
@@ -376,12 +394,12 @@
 
     <!-- Lista Desktop -->
     <div class="hidden md:block">
-        <OrderListDesktop {orders} onSelectOrder={openOrderDetail} onEditPrices={openOrderEditActions} onCollectOrder={openCollectOrder} />
+        <OrderListDesktop orders={orderItems} pagination={orderPagination} onSelectOrder={openOrderDetail} onEditPrices={openOrderEditActions} onCollectOrder={openCollectOrder} />
     </div>
 
     <!-- Lista Mobile -->
     <div class="block md:hidden">
-        <OrderListMobile {orders} onSelectOrder={openOrderDetail} onEditPrices={openOrderEditActions} onCollectOrder={openCollectOrder} />
+        <OrderListMobile orders={orderItems} pagination={orderPagination} onSelectOrder={openOrderDetail} onEditPrices={openOrderEditActions} onCollectOrder={openCollectOrder} />
     </div>
 </div>
 

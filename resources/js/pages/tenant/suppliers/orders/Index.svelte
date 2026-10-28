@@ -10,6 +10,7 @@
     import Truck from 'lucide-svelte/icons/truck';
     import Users from 'lucide-svelte/icons/users';
     import { ClearFilterButton } from '@/components/common';
+    import { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import { hasPermission } from '@/lib/permissions';
     import CreateSupplierOrderModal from './CreateSupplierOrderModal.svelte';
@@ -84,12 +85,15 @@
         availableProducts = [],
         filters = {},
     }: {
-        orders: SupplierOrderData[];
+        orders: (PaginationMeta & { data: SupplierOrderData[] }) | SupplierOrderData[];
         stats?: Stats;
         suppliers?: SupplierOption[];
         availableProducts?: ProductOption[];
         filters?: FilterProps;
     } = $props();
+
+    let orderItems = $derived(Array.isArray(orders) ? orders : (orders?.data ?? []));
+    let orderPagination = $derived(Array.isArray(orders) ? null : orders);
 
     import { untrack } from 'svelte';
 
@@ -111,6 +115,21 @@
     let isDetailModalOpen = $state(false);
     let isFilterModalOpen = $state(false);
     let selectedOrder = $state<SupplierOrderData | null>(null);
+    let hasLoadedProducts = $state(false);
+    let isLoadingProducts = $state(false);
+
+    $effect(() => {
+        if (isCreateModalOpen && !hasLoadedProducts && !isLoadingProducts) {
+            isLoadingProducts = true;
+            router.reload({
+                only: ['availableProducts'],
+                onFinish: () => {
+                    hasLoadedProducts = true;
+                    isLoadingProducts = false;
+                },
+            });
+        }
+    });
 
     let tenantId = $derived(
         Number(page.props.auth?.tenant?.id ?? page.props.auth?.user?.tenant_id ?? 1)
@@ -172,8 +191,8 @@
     }
 
     $effect(() => {
-        if (selectedOrder && orders.length > 0) {
-            const fresh = orders.find((o) => o.id === selectedOrder?.id);
+        if (selectedOrder && orderItems.length > 0) {
+            const fresh = orderItems.find((o) => o.id === selectedOrder?.id);
             if (fresh) {
                 selectedOrder = fresh;
             }
@@ -291,12 +310,12 @@
 
     <!-- Lista Desktop -->
     <div class="hidden md:block">
-        <SupplierOrderListDesktop {orders} onSelectOrder={openOrderDetail} />
+        <SupplierOrderListDesktop orders={orderItems} pagination={orderPagination} onSelectOrder={openOrderDetail} />
     </div>
 
     <!-- Lista Mobile -->
     <div class="block md:hidden">
-        <SupplierOrderListMobile {orders} onSelectOrder={openOrderDetail} />
+        <SupplierOrderListMobile orders={orderItems} pagination={orderPagination} onSelectOrder={openOrderDetail} />
     </div>
 </div>
 

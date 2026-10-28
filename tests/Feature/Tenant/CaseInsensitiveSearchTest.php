@@ -135,7 +135,7 @@ test('kardex search by product name or sku is case-insensitive', function () {
     $response->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/stock/kardex/Index')
-            ->has('movements', 1)
-            ->where('movements.0.product_id', $product->id)
+            ->has('movements.data', 1)
+            ->where('movements.data.0.product_id', $product->id)
         );
 });

@@ -72,24 +72,35 @@ class CustomerOrderController extends Controller
             ->when($sortBy === 'order_number_desc', fn ($q) => $q->orderBy('order_number', 'desc'))
             ->when(! in_array($sortBy, ['oldest', 'amount_high', 'amount_low', 'order_number_asc', 'order_number_desc'], true), fn ($q) => $q->latest());
 
-        $orders = $query->get();
+        $orders = $query->paginate(15)->withQueryString();
+
+        $statsRow = CustomerOrder::query()
+            ->selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN status = 'en_preparacion' THEN 1 END) as en_preparacion,
+                COUNT(CASE WHEN status = 'preparado' THEN 1 END) as preparado,
+                COUNT(CASE WHEN status = 'en_camino' THEN 1 END) as en_camino,
+                COUNT(CASE WHEN status = 'entregado' THEN 1 END) as entregado,
+                COUNT(CASE WHEN status = 'cancelado' THEN 1 END) as cancelado
+            ")
+            ->first();
 
         $stats = [
-            'total' => CustomerOrder::count(),
-            'en_preparacion' => CustomerOrder::where('status', 'en_preparacion')->count(),
-            'preparado' => CustomerOrder::where('status', 'preparado')->count(),
-            'en_camino' => CustomerOrder::where('status', 'en_camino')->count(),
-            'entregado' => CustomerOrder::where('status', 'entregado')->count(),
-            'cancelado' => CustomerOrder::where('status', 'cancelado')->count(),
+            'total' => (int) ($statsRow->total ?? 0),
+            'en_preparacion' => (int) ($statsRow->en_preparacion ?? 0),
+            'preparado' => (int) ($statsRow->preparado ?? 0),
+            'en_camino' => (int) ($statsRow->en_camino ?? 0),
+            'entregado' => (int) ($statsRow->entregado ?? 0),
+            'cancelado' => (int) ($statsRow->cancelado ?? 0),
         ];
 
-        $availableProducts = Product::active()
+        $resolveAvailableProducts = fn () => Product::active()
             ->with('tenant:id,default_bulk_discount_percentage')
             ->select('id', 'tenant_id', 'name', 'sku', 'sale_type', 'price', 'stock', 'units_per_package', 'package_quantity', 'bulk_discount_type', 'custom_bulk_discount_percentage')
             ->orderBy('name')
             ->get();
 
-        $availableCustomers = Customer::query()
+        $resolveAvailableCustomers = fn () => Customer::query()
             ->where('is_active', true)
             ->select('id', 'name', 'tax_id', 'tax_condition', 'phone', 'address', 'discount_percentage', 'is_defaulter', 'current_balance', 'credit_limit')
             ->orderBy('name')
@@ -113,8 +124,8 @@ class CustomerOrderController extends Controller
             return response()->json([
                 'orders' => $orders,
                 'stats' => $stats,
-                'available_products' => $availableProducts,
-                'available_customers' => $availableCustomers,
+                'available_products' => $resolveAvailableProducts(),
+                'available_customers' => $resolveAvailableCustomers(),
                 'warehouses' => $warehouses,
                 'shipping_zones' => $shippingZones,
             ]);
@@ -123,8 +134,8 @@ class CustomerOrderController extends Controller
         return Inertia::render('tenant/orders/Index', [
             'orders' => $orders,
             'stats' => $stats,
-            'availableProducts' => $availableProducts,
-            'availableCustomers' => $availableCustomers,
+            'availableProducts' => Inertia::optional($resolveAvailableProducts),
+            'availableCustomers' => Inertia::optional($resolveAvailableCustomers),
             'warehouses' => $warehouses,
             'shippingZones' => $shippingZones,
             'filters' => [

@@ -87,7 +87,7 @@ test('tenant user can view kardex movement history and stats', function () {
     $response->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('tenant/stock/kardex/Index')
-            ->has('movements', 2)
+            ->has('movements.data', 2)
         );
 });
 
@@ -120,7 +120,7 @@ test('kardex respects multi-tenant data isolation', function () {
     $response->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('tenant/stock/kardex/Index')
-            ->has('movements', 0)
+            ->has('movements.data', 0)
         );
 });
 
@@ -159,8 +159,8 @@ test('kardex filters by date range and sort criteria', function () {
     $response->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('tenant/stock/kardex/Index')
-            ->has('movements', 1)
-            ->where('movements.0.id', $mov2->id)
+            ->has('movements.data', 1)
+            ->where('movements.data.0.id', $mov2->id)
         );
 
     // Ordenar por mayor cantidad
@@ -172,8 +172,8 @@ test('kardex filters by date range and sort criteria', function () {
     $responseSort->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('tenant/stock/kardex/Index')
-            ->has('movements', 2)
-            ->where('movements.0.id', $mov2->id) // 50 u primero
-            ->where('movements.1.id', $mov1->id) // 15 u segundo
+            ->has('movements.data', 2)
+            ->where('movements.data.0.id', $mov2->id) // 50 u primero
+            ->where('movements.data.1.id', $mov1->id) // 15 u segundo
         );
 });
