@@ -99,7 +99,7 @@ class CustomerAccountController extends Controller
                 }
 
                 $movements = $movementsQuery->paginate(25, ['*'], 'movements_page')->withQueryString();
-                $selectedCustomer->setRelation('movements', $movements->items());
+                $selectedCustomer->setRelation('movements', $movements->getCollection());
                 $movementsPagination = [
                     'current_page' => $movements->currentPage(),
                     'last_page' => $movements->lastPage(),

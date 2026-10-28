@@ -256,6 +256,17 @@ class SupplierOrderController extends Controller
             $defaultWarehouseId = \App\Models\Warehouse::where('tenant_id', $tenantId)->where('is_default', true)->value('id')
                 ?: \App\Models\Warehouse::where('tenant_id', $tenantId)->value('id');
 
+            if (! $defaultWarehouseId) {
+                $defaultWarehouseId = \App\Models\Warehouse::firstOrCreate([
+                    'tenant_id' => $tenantId,
+                    'is_default' => true,
+                ], [
+                    'name' => 'Depósito Principal',
+                    'code' => 'DEP-01',
+                    'is_active' => true,
+                ])->id;
+            }
+
             foreach ($sortedItems as $item) {
                 $product = Product::where('id', $item->product_id)
                     ->where('tenant_id', $tenantId)
@@ -288,8 +299,8 @@ class SupplierOrderController extends Controller
                         $pw->save();
                     }
 
-
                     $product->update([
+                        'stock' => $currentStock,
                         'cost_price' => $item->unit_cost > 0 ? $item->unit_cost : $product->cost_price,
                     ]);
                     $product->syncConsolidatedStock();

@@ -1307,7 +1307,7 @@ class CustomerOrderController extends Controller
                 customerId: $order->customer_id,
                 amount: $amount,
                 paymentMethod: $paymentMethod,
-                referenceNumber: $request->validated('reference_number'),
+                referenceNumber: $request->validated('reference_number') ?: $order->order_number,
                 notes: $notes,
                 orderAllocations: $orderAllocations,
                 allowSurplus: $hasAccount,
