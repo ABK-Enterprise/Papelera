@@ -9,7 +9,7 @@
         DropdownMenuSeparator,
         DropdownMenuTrigger,
     } from '@/components/ui/dropdown-menu';
-    import AppPagination from '@/components/common/AppPagination.svelte';
+    import AppPagination, { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
@@ -56,15 +56,13 @@
 
     let {
         products = [],
+        pagination = null,
         searchQuery = '',
     }: {
         products: ProductItem[];
+        pagination?: PaginationMeta | null;
         searchQuery?: string;
     } = $props();
-
-    let page = $state(1);
-    const perPage = 10;
-    let paginatedProducts = $derived(products.slice((page - 1) * perPage, page * perPage));
 
     let productToDelete = $state<ProductItem | null>(null);
     let isDeleteModalOpen = $state(false);
@@ -128,7 +126,7 @@
 </script>
 
 <div class="flex flex-col gap-3">
-    {#each paginatedProducts as product (product.id)}
+    {#each products as product (product.id)}
         {@const isWeighable = product.sale_type === 'weight'}
         {@const isIncomplete = Boolean(product.is_incomplete)}
         <div
@@ -375,9 +373,7 @@
     {/if}
 
 
-    {#if products.length > perPage}
-        <AppPagination count={products.length} {perPage} bind:page />
-    {/if}
+    <AppPagination {pagination} />
 </div>
 
 <!-- Modal de Confirmación de Eliminación de Producto -->

@@ -7,6 +7,7 @@
     import IncomeListDesktop from '@/pages/tenant/stock/incomes/desktop/IncomeListDesktop.svelte';
     import IncomeListMobile from '@/pages/tenant/stock/incomes/mobile/IncomeListMobile.svelte';
     import StockNavigationTabs from '@/pages/tenant/stock/StockNavigationTabs.svelte';
+    import type { PaginationMeta } from '@/components/common/AppPagination.svelte';
     import Plus from 'lucide-svelte/icons/plus';
 
     interface WarehouseItem {
@@ -54,12 +55,30 @@
         products = [],
         warehouses = [],
     }: {
-        movements: StockMovementItem[];
+        movements: (PaginationMeta & { data: StockMovementItem[] }) | StockMovementItem[];
         products: ProductItem[];
         warehouses?: WarehouseItem[];
     } = $props();
 
+    let movementItems = $derived(Array.isArray(movements) ? movements : (movements?.data ?? []));
+    let movementPagination = $derived(Array.isArray(movements) ? null : movements);
+
     let isCreateModalOpen = $state(false);
+    let hasLoadedProducts = $state(false);
+    let isLoadingProducts = $state(false);
+
+    $effect(() => {
+        if (isCreateModalOpen && !hasLoadedProducts && products.length === 0 && !isLoadingProducts) {
+            isLoadingProducts = true;
+            router.reload({
+                only: ['products'],
+                onFinish: () => {
+                    hasLoadedProducts = true;
+                    isLoadingProducts = false;
+                },
+            });
+        }
+    });
 
     $effect(() => {
         if (typeof window !== 'undefined') {
@@ -119,10 +138,10 @@
 
     <!-- Desglose Responsive Desktop & Mobile -->
     <div class="hidden md:block">
-        <IncomeListDesktop {movements} />
+        <IncomeListDesktop movements={movementItems} pagination={movementPagination} />
     </div>
     <div class="block md:hidden">
-        <IncomeListMobile {movements} />
+        <IncomeListMobile movements={movementItems} pagination={movementPagination} />
     </div>
 </div>
 

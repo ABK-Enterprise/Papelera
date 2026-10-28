@@ -31,7 +31,7 @@ class ProductController extends Controller
 
         $tenantDefaultBulkDiscount = (float) ($request->user()->tenant?->default_bulk_discount_percentage ?? 0.00);
 
-        $query = Product::with('category:id,name,slug,icon')
+        $query = Product::with(['category:id,name,slug,icon', 'tenant:id,default_bulk_discount_percentage'])
             ->withCount('warehouses as warehouses_count')
             ->when($search, function ($q, $search) {
                 $searchTerm = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
@@ -71,7 +71,7 @@ class ProductController extends Controller
             ->when($sortBy === 'stock_low', fn ($q) => $q->orderBy('stock', 'asc'))
             ->when(! in_array($sortBy, ['oldest', 'name_asc', 'name_desc', 'price_high', 'price_low', 'stock_high', 'stock_low'], true), fn ($q) => $q->latest());
 
-        $products = $query->get();
+        $products = $query->paginate(24)->withQueryString();
 
         $categories = Category::withCount('products')
             ->where('is_active', true)
@@ -84,19 +84,35 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
-        $incompleteCount = Product::incomplete()->count();
+        $statsRow = Product::query()
+            ->selectRaw('
+                COUNT(*) as total,
+                COUNT(CASE WHEN stock > min_stock THEN 1 END) as in_stock,
+                COUNT(CASE WHEN stock <= min_stock AND stock > 0 THEN 1 END) as low_stock,
+                COUNT(CASE WHEN stock <= 0 THEN 1 END) as out_of_stock,
+                COUNT(CASE WHEN category_id IS NULL OR price <= 0 THEN 1 END) as incomplete
+            ')
+            ->first();
+
+        $incompleteCount = (int) ($statsRow->incomplete ?? 0);
 
         $stats = [
-            'total' => Product::count(),
-            'in_stock' => Product::inStock()->count(),
-            'low_stock' => Product::lowStock()->count(),
-            'out_of_stock' => Product::outOfStock()->count(),
+            'total' => (int) ($statsRow->total ?? 0),
+            'in_stock' => (int) ($statsRow->in_stock ?? 0),
+            'low_stock' => (int) ($statsRow->low_stock ?? 0),
+            'out_of_stock' => (int) ($statsRow->out_of_stock ?? 0),
             'incomplete' => $incompleteCount,
         ];
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
-                'products' => $products,
+                'products' => $products->items(),
+                'products_meta' => [
+                    'current_page' => $products->currentPage(),
+                    'last_page' => $products->lastPage(),
+                    'per_page' => $products->perPage(),
+                    'total' => $products->total(),
+                ],
                 'categories' => $categories,
                 'warehouses' => $warehouses,
                 'stats' => $stats,

@@ -1,5 +1,6 @@
 <script lang="ts">
     import EmptyState from '@/components/common/EmptyState.svelte';
+    import AppPagination, { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
     import Calendar from 'lucide-svelte/icons/calendar';
     import Package from 'lucide-svelte/icons/package';
@@ -32,7 +33,13 @@
         } | null;
     }
 
-    let { movements = [] }: { movements: StockMovementItem[] } = $props();
+    let {
+        movements = [],
+        pagination = null,
+    }: {
+        movements: StockMovementItem[];
+        pagination?: PaginationMeta | null;
+    } = $props();
 
     function formatDate(dateStr: string): string {
         if (!dateStr) return '-';
@@ -122,6 +129,7 @@
                 {/if}
             </div>
         {/each}
+        <AppPagination {pagination} />
     </div>
 {:else}
     <EmptyState

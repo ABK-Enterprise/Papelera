@@ -86,6 +86,21 @@
     let transferProduct = $state<any>(null);
     let transferOriginWarehouseId = $state<number | null>(null);
     let transferStock = $state<number | null>(null);
+    let hasLoadedProducts = $state(false);
+    let isLoadingProducts = $state(false);
+
+    $effect(() => {
+        if (transferModalOpen && !transferProduct && !hasLoadedProducts && products.length === 0 && !isLoadingProducts) {
+            isLoadingProducts = true;
+            router.reload({
+                only: ['products'],
+                onFinish: () => {
+                    hasLoadedProducts = true;
+                    isLoadingProducts = false;
+                },
+            });
+        }
+    });
 
     function openTransferModal(item?: any) {
         if (item) {
@@ -120,9 +135,6 @@
                     {items.total} {items.total === 1 ? 'registro' : 'registros'}
                 </span>
             </div>
-            <p class="mt-1 text-sm text-muted-foreground">
-                Consulta y audita el stock físico distribuido por depósito, estante y producto.
-            </p>
         </div>
 
         <div class="flex items-center justify-end gap-2.5 flex-wrap sm:flex-nowrap">

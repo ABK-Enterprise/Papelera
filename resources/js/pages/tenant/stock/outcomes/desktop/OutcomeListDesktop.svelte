@@ -1,5 +1,6 @@
 <script lang="ts">
     import EmptyState from '@/components/common/EmptyState.svelte';
+    import AppPagination, { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import ArrowRight from 'lucide-svelte/icons/arrow-right';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
     import Calendar from 'lucide-svelte/icons/calendar';
@@ -37,7 +38,13 @@
         } | null;
     }
 
-    let { movements = [] }: { movements: StockMovementItem[] } = $props();
+    let {
+        movements = [],
+        pagination = null,
+    }: {
+        movements: StockMovementItem[];
+        pagination?: PaginationMeta | null;
+    } = $props();
 
     let searchTerm = $state('');
     let selectedPeriod = $state<'all' | 'week' | 'month'>('all');
@@ -124,7 +131,7 @@
                 class="px-3.5 py-1.5 rounded-full text-sm font-medium transition-all {selectedPeriod === 'all' ? 'bg-rose-600 text-white shadow-2xs' : 'text-muted-foreground hover:bg-muted/80'}"
                 onclick={() => (selectedPeriod = 'all')}
             >
-                Todos ({movements.length})
+                Todos ({pagination ? pagination.total : movements.length})
             </button>
             <button
                 type="button"
@@ -259,9 +266,15 @@
         {/if}
     </div>
 
-    <!-- Footer Informativo -->
+    <!-- Footer Informativo y Paginación -->
+    {#if pagination}
+        <div class="pt-2">
+            <AppPagination {pagination} />
+        </div>
+    {/if}
+
     <div class="flex items-center justify-between text-xs text-muted-foreground px-2">
-        <span>Mostrando <strong>{filteredMovements.length}</strong> de <strong>{movements.length}</strong> movimientos de egreso</span>
+        <span>Mostrando <strong>{filteredMovements.length}</strong> de <strong>{pagination ? pagination.total : movements.length}</strong> movimientos de egreso</span>
         <span class="text-xs tabular-nums">Kardex Outcomes</span>
     </div>
 </div>

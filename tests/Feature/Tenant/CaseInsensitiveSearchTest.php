@@ -66,8 +66,8 @@ test('product search is case-insensitive for product name and SKU', function () 
     $responseNameLower->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
-            ->has('products', 1)
-            ->where('products.0.name', 'Cuaderno Rivadavia Tapa Dura')
+            ->has('products.data', 1)
+            ->where('products.data.0.name', 'Cuaderno Rivadavia Tapa Dura')
         );
 
     // Search name in uppercase
@@ -76,7 +76,7 @@ test('product search is case-insensitive for product name and SKU', function () 
     $responseNameUpper->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
-            ->has('products', 1)
+            ->has('products.data', 1)
         );
 
     // Search SKU in lowercase
@@ -85,7 +85,7 @@ test('product search is case-insensitive for product name and SKU', function () 
     $responseSkuLower->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
-            ->has('products', 1)
+            ->has('products.data', 1)
         );
 });
 

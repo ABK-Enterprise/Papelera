@@ -91,17 +91,16 @@ class ProductWarehouseLookupController extends Controller
             ->orderBy('name')
             ->get();
 
-        $products = Product::where('tenant_id', $tenantId)
-            ->where('is_active', true)
-            ->select('id', 'name', 'sku', 'stock')
-            ->orderBy('name')
-            ->get();
-
         return Inertia::render('tenant/products/lookup/Index', [
             'items' => $items,
             'warehouses' => $warehouses,
             'categories' => $categories,
-            'products' => $products,
+            'products' => Inertia::optional(fn () => Product::where('tenant_id', $tenantId)
+                ->where('is_active', true)
+                ->select('id', 'name', 'sku', 'stock')
+                ->orderBy('name')
+                ->get()
+                ->each->setAppends([])),
             'filters' => [
                 'search' => $search,
                 'warehouse_id' => $warehouseId,

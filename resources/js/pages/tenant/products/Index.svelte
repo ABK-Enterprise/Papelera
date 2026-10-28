@@ -16,6 +16,7 @@
     import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import { ClearFilterButton } from '@/components/common';
+    import { type PaginationMeta } from '@/components/common/AppPagination.svelte';
 
     import BulkDiscountConfigModal from './BulkDiscountConfigModal.svelte';
     import ProductModal from './ProductModal.svelte';
@@ -87,7 +88,7 @@
         tenantDefaultBulkDiscount = 0,
         filters = {},
     }: {
-        products: ProductItem[];
+        products: (PaginationMeta & { data: ProductItem[] }) | ProductItem[];
         categories: CategoryItem[];
         warehouses?: WarehouseOption[];
         stats?: Stats;
@@ -95,6 +96,9 @@
         tenantDefaultBulkDiscount?: number;
         filters?: FilterProps;
     } = $props();
+
+    let productItems = $derived(Array.isArray(products) ? products : (products?.data ?? []));
+    let productPagination = $derived(Array.isArray(products) ? null : products);
 
     import { useTableFilters } from '@/lib/useTableFilters.svelte';
 
@@ -258,7 +262,7 @@
             <div class="flex-1 min-w-[240px] max-w-lg">
                 <SearchCombobox
                     bind:value={tableFilters.filters.search}
-                    items={products}
+                    items={productItems}
                     searchKeys={['name', 'sku', 'barcode']}
                     placeholder="Buscar por nombre, SKU o barra..."
                     onsearch={(q) => {
@@ -352,7 +356,7 @@
             <div class="flex-1">
                 <SearchCombobox
                     bind:value={tableFilters.filters.search}
-                    items={products}
+                    items={productItems}
                     searchKeys={['name', 'sku', 'barcode']}
                     placeholder="Buscar producto, SKU o código..."
                     onsearch={(q) => {
@@ -409,13 +413,13 @@
         </div>
 
         <div class="md:col-span-9">
-            <ProductListDesktop {products} searchQuery={tableFilters.filters.search} />
+            <ProductListDesktop products={productItems} pagination={productPagination} searchQuery={tableFilters.filters.search} />
         </div>
     </div>
 
     <!-- Vista Mobile -->
     <div class="block md:hidden space-y-4">
-        <ProductListMobile {products} searchQuery={tableFilters.filters.search} />
+        <ProductListMobile products={productItems} pagination={productPagination} searchQuery={tableFilters.filters.search} />
     </div>
 
 

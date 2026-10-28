@@ -7,6 +7,7 @@
     import OutcomeListDesktop from '@/pages/tenant/stock/outcomes/desktop/OutcomeListDesktop.svelte';
     import OutcomeListMobile from '@/pages/tenant/stock/outcomes/mobile/OutcomeListMobile.svelte';
     import StockNavigationTabs from '@/pages/tenant/stock/StockNavigationTabs.svelte';
+    import type { PaginationMeta } from '@/components/common/AppPagination.svelte';
     import Minus from 'lucide-svelte/icons/minus';
 
     interface WarehouseItem {
@@ -54,12 +55,30 @@
         products = [],
         warehouses = [],
     }: {
-        movements: StockMovementItem[];
+        movements: (PaginationMeta & { data: StockMovementItem[] }) | StockMovementItem[];
         products: ProductItem[];
         warehouses?: WarehouseItem[];
     } = $props();
 
+    let movementItems = $derived(Array.isArray(movements) ? movements : (movements?.data ?? []));
+    let movementPagination = $derived(Array.isArray(movements) ? null : movements);
+
     let isCreateModalOpen = $state(false);
+    let hasLoadedProducts = $state(false);
+    let isLoadingProducts = $state(false);
+
+    $effect(() => {
+        if (isCreateModalOpen && !hasLoadedProducts && products.length === 0 && !isLoadingProducts) {
+            isLoadingProducts = true;
+            router.reload({
+                only: ['products'],
+                onFinish: () => {
+                    hasLoadedProducts = true;
+                    isLoadingProducts = false;
+                },
+            });
+        }
+    });
 
     let tenantId = $derived(
         Number(page.props.auth?.tenant?.id ?? page.props.auth?.user?.tenant_id ?? 1)
@@ -105,10 +124,10 @@
 
     <!-- Desglose Responsive Desktop & Mobile -->
     <div class="hidden md:block">
-        <OutcomeListDesktop {movements} />
+        <OutcomeListDesktop movements={movementItems} pagination={movementPagination} />
     </div>
     <div class="block md:hidden">
-        <OutcomeListMobile {movements} />
+        <OutcomeListMobile movements={movementItems} pagination={movementPagination} />
     </div>
 </div>
 
