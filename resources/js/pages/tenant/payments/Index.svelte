@@ -4,6 +4,7 @@
     import PaymentDashboardDesktop, { type CustomerSummary, type OrderSummary, type ReceiptSummary } from './desktop/PaymentDashboardDesktop.svelte';
     import PaymentDashboardMobile from './mobile/PaymentDashboardMobile.svelte';
     import UniversalPaymentModal from '@/components/common/UniversalPaymentModal.svelte';
+    import { ModuleHeader } from '@/components/common';
     import { router } from '@inertiajs/svelte';
     import History from 'lucide-svelte/icons/history';
     import FileText from 'lucide-svelte/icons/file-text';
@@ -116,17 +117,11 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1680px] mx-auto w-full font-sans">
     <!-- Header del Módulo con separación estándar mb-6 / gap-6 -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                Panel de Cobranzas
-            </h1>
-        </div>
-
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+    <ModuleHeader title="Panel de Cobranzas">
+        {#snippet actions()}
             <Button
                 variant="secondary"
-                class="h-11 px-4 rounded-xl text-sm font-medium gap-2 shadow-xs min-h-[44px] w-full sm:w-auto justify-center"
+                class="min-h-[38px] px-3.5 rounded-xl text-sm font-medium gap-2 shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all w-full sm:w-auto justify-center"
                 onclick={() => router.get('/tenant/cobranzas/facturas')}
             >
                 <FileText class="size-4" />
@@ -135,14 +130,14 @@
 
             <Button
                 variant="secondary"
-                class="h-11 px-4 rounded-xl text-sm font-medium gap-2 shadow-xs min-h-[44px] w-full sm:w-auto justify-center"
+                class="min-h-[38px] px-3.5 rounded-xl text-sm font-medium gap-2 shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all w-full sm:w-auto justify-center"
                 onclick={() => router.get('/tenant/cobranzas/recibos')}
             >
                 <History class="size-4" />
                 <span>Historial de Recibos</span>
             </Button>
-        </div>
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Vista Desktop -->
     <div class="hidden md:block">

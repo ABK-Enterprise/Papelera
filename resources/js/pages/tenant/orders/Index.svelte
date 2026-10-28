@@ -8,7 +8,7 @@
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
-    import { ClearFilterButton } from '@/components/common';
+    import { ClearFilterButton, ModuleHeader } from '@/components/common';
     import { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
@@ -282,14 +282,8 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1360px] mx-auto w-full">
     <!-- Header de la Página -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-                Pedidos de Clientes
-            </h1>
-        </div>
-
-        <div class="flex items-center justify-end gap-2.5">
+    <ModuleHeader title="Pedidos de Clientes">
+        {#snippet actions()}
             {#if hasPermission('pedidos.crear')}
                 <Button
                     onclick={() => (isCreateModalOpen = true)}
@@ -300,8 +294,8 @@
                     <span>Nuevo Pedido</span>
                 </Button>
             {/if}
-        </div>
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Bento Card: Buscador y Filtros -->
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">

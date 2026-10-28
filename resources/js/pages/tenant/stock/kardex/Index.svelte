@@ -6,7 +6,7 @@
     import KardexListDesktop from '@/pages/tenant/stock/kardex/desktop/KardexListDesktop.svelte';
     import KardexListMobile from '@/pages/tenant/stock/kardex/mobile/KardexListMobile.svelte';
     import StockNavigationTabs from '@/pages/tenant/stock/StockNavigationTabs.svelte';
-    import { ClearFilterButton } from '@/components/common';
+    import { ClearFilterButton, ModuleHeader } from '@/components/common';
     import type { PaginationMeta } from '@/components/common/AppPagination.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
@@ -191,15 +191,12 @@
 <AppHead title="Kardex de Movimientos - Comercio" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1460px] mx-auto w-full">
-    <!-- Sub-Navegación de Pestañas de Stock y Productos -->
-    <StockNavigationTabs activeTab="kardex" />
-
-    <!-- Page Header -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">Kardex e Historial</h1>
-        </div>
-    </div>
+    <!-- Sub-Navegación de Pestañas de Stock y Header -->
+    <ModuleHeader title="Kardex e Historial">
+        {#snippet tabs()}
+            <StockNavigationTabs activeTab="kardex" />
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Filter / Action Toolbar -->
     <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3.5 bg-card/60 backdrop-blur-sm p-3.5 rounded-xl border border-border/60 shadow-xs">

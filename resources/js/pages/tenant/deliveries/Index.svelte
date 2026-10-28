@@ -2,6 +2,7 @@
     import AppHead from '@/components/AppHead.svelte';
     import { page, router } from '@inertiajs/svelte';
     import { echo } from '@/lib/echo';
+    import { ModuleHeader } from '@/components/common';
     import DeliveryDashboardDesktop, { type ShiftSummary } from './desktop/DeliveryDashboardDesktop.svelte';
     import DeliveryDashboardMobile from './mobile/DeliveryDashboardMobile.svelte';
     import DeliverOrderModal, { type DeliveryOrder } from './components/DeliverOrderModal.svelte';
@@ -103,13 +104,7 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1440px] mx-auto w-full">
     <!-- Header del Módulo con separación estándar mb-6 / gap-6 -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                Repartos
-            </h1>
-        </div>
-    </div>
+    <ModuleHeader title="Repartos" />
 
     <!-- Vista Desktop -->
     <div class="hidden md:block">

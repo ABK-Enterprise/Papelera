@@ -15,7 +15,7 @@
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
-    import { ClearFilterButton } from '@/components/common';
+    import { ClearFilterButton, ModuleHeader } from '@/components/common';
     import { type PaginationMeta } from '@/components/common/AppPagination.svelte';
 
     import BulkDiscountConfigModal from './BulkDiscountConfigModal.svelte';
@@ -184,12 +184,8 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
     <!-- Header de la Página -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
-            Catálogo de Productos
-        </h1>
-
-        <div class="flex items-center justify-end gap-2.5 flex-wrap">
+    <ModuleHeader title="Catálogo de Productos" badge={stats.total}>
+        {#snippet actions()}
             <Link href="/tenant/productos/buscar-deposito">
                 <Button
                     variant="secondary"
@@ -199,7 +195,6 @@
                     <span>Buscar en Depósito</span>
                 </Button>
             </Link>
-
 
             {#if hasPermission('productos.editar')}
                 <Button
@@ -221,11 +216,8 @@
                     </Button>
                 </Link>
             {/if}
-        </div>
-
-
-
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Banner Wide Card de Productos Incompletos -->
     {#if incompleteCount > 0}

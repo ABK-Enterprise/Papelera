@@ -4,6 +4,7 @@
     import { Card } from '@/components/ui/card';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
+    import { ModuleHeader } from '@/components/common';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import RoleListDesktop from './desktop/RoleListDesktop.svelte';
     import RoleListMobile from './mobile/RoleListMobile.svelte';
@@ -55,31 +56,23 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
     <!-- Encabezado y Acciones -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <div class="flex items-center gap-2.5">
-                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Roles y Permisos</h1>
-                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums">
-                    {roles.length} {roles.length === 1 ? 'perfil' : 'perfiles'}
-                </span>
-            </div>
-        </div>
-        <div class="flex flex-wrap items-center justify-end gap-2.5">
+    <ModuleHeader title="Roles y Permisos" badge={roles.length}>
+        {#snippet actions()}
             <Link href="/tenant/usuarios">
-                <Button variant="secondary" class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-2xs">
+                <Button variant="secondary" class="min-h-[38px] gap-2 rounded-xl text-sm font-medium shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
                     <Users class="h-4 w-4" />
                     <span>Ver empleados</span>
                 </Button>
             </Link>
 
             <Link href="/tenant/roles/create">
-                <Button class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-xs">
+                <Button class="min-h-[38px] gap-2 rounded-xl text-sm font-medium shadow-xs">
                     <Shield class="h-4 w-4" />
                     <span>Nuevo rol</span>
                 </Button>
             </Link>
-        </div>
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Barra de Búsqueda de Roles -->
     {#if roles.length > 0}

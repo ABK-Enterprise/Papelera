@@ -7,6 +7,7 @@
     import IncomeListDesktop from '@/pages/tenant/stock/incomes/desktop/IncomeListDesktop.svelte';
     import IncomeListMobile from '@/pages/tenant/stock/incomes/mobile/IncomeListMobile.svelte';
     import StockNavigationTabs from '@/pages/tenant/stock/StockNavigationTabs.svelte';
+    import { ModuleHeader } from '@/components/common';
     import type { PaginationMeta } from '@/components/common/AppPagination.svelte';
     import Plus from 'lucide-svelte/icons/plus';
 
@@ -115,15 +116,13 @@
 <AppHead title="Ingresos de Stock - Comercio" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1460px] mx-auto w-full">
-    <!-- Sub-Navegación de Pestañas de Stock y Productos -->
-    <StockNavigationTabs activeTab="incomes" />
+    <!-- Sub-Navegación de Pestañas de Stock y Header -->
+    <ModuleHeader title="Ingresos de Stock">
+        {#snippet tabs()}
+            <StockNavigationTabs activeTab="incomes" />
+        {/snippet}
 
-    <!-- Page Header -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">Ingresos de Stock</h1>
-        </div>
-        <div class="flex items-center gap-3">
+        {#snippet actions()}
             {#if page.props.auth?.is_admin || page.props.auth?.roles?.includes('admin') || page.props.auth?.permissions?.includes('stock_ingreso.crear')}
                 <Button
                     onclick={() => (isCreateModalOpen = true)}
@@ -133,8 +132,8 @@
                     <span>Nuevo ingreso</span>
                 </Button>
             {/if}
-        </div>
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Desglose Responsive Desktop & Mobile -->
     <div class="hidden md:block">
