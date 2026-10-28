@@ -6,13 +6,12 @@
     import { Card } from '@/components/ui/card';
     import { router } from '@inertiajs/svelte';
     import Plus from 'lucide-svelte/icons/plus';
-    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Search from 'lucide-svelte/icons/search';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
-    import UserCheck from 'lucide-svelte/icons/user-check';
     import Banknote from 'lucide-svelte/icons/banknote';
     import { hasPermission } from '@/lib/permissions';
 
+    import { ClearFilterButton } from '@/components/common';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import CustomerFilterModalMobile from './mobile/CustomerFilterModalMobile.svelte';
     import CustomerListDesktop, { type CustomerItem } from './desktop/CustomerListDesktop.svelte';
@@ -106,10 +105,9 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1360px] mx-auto w-full">
     <!-- Header de la Página -->
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-                <UserCheck class="size-7 text-primary" />
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
                 Directorio de Clientes
             </h1>
         </div>
@@ -124,7 +122,7 @@
             {#if hasPermission('clientes.crear')}
                 <Button class="min-h-[38px] px-4 gap-2 rounded-xl text-sm font-medium shadow-xs" onclick={() => (showCreateModal = true)}>
                     <Plus class="h-4 w-4" />
-                    <span>Añadir Cliente</span>
+                    <span>Nuevo cliente</span>
                 </Button>
             {/if}
         </div>
@@ -246,12 +244,7 @@
                     <option value="name_desc">Nombre: Z - A</option>
                 </select>
 
-                {#if hasActiveFilters}
-                    <Button variant="ghost" size="sm" class="min-h-[38px] h-10 px-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 gap-1.5 rounded-xl transition-all" onclick={resetFilters}>
-                        <RotateCcw class="size-3.5" />
-                        <span>Limpiar</span>
-                    </Button>
-                {/if}
+                <ClearFilterButton show={activeFiltersCount > 0} onclick={resetFilters} />
             </div>
         </div>
     </Card>

@@ -98,7 +98,7 @@
             <Link href="/tenant/usuarios/create">
                 <Button class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-xs">
                     <UserPlus class="h-4 w-4" />
-                    <span>Añadir empleado</span>
+                    <span>Nuevo usuario</span>
                 </Button>
             </Link>
         </div>

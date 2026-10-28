@@ -7,6 +7,7 @@
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import HighlightMatch from '@/components/common/HighlightMatch.svelte';
+    import { ClearFilterButton } from '@/components/common';
     import AdjustmentListDesktop from './desktop/AdjustmentListDesktop.svelte';
     import AdjustmentListMobile from './mobile/AdjustmentListMobile.svelte';
     import AdjustmentFilterModalMobile from './mobile/AdjustmentFilterModalMobile.svelte';
@@ -52,6 +53,10 @@
 
     let hasActiveFilters = $derived(tableFilters.hasActiveFilters);
     let activeFiltersCount = $derived(tableFilters.activeFiltersCount);
+
+    function resetFilters() {
+        tableFilters.reset();
+    }
 
     function openCreateModal() {
         selectedAdjustment = null;
@@ -220,17 +225,7 @@
                     <span>Solo activos</span>
                 </button>
 
-                {#if hasActiveFilters}
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onclick={() => tableFilters.reset()}
-                        class="min-h-[40px] px-3 text-sm font-medium text-muted-foreground hover:text-foreground flex items-center gap-1.5 cursor-pointer"
-                    >
-                        <RotateCcw class="h-4 w-4" />
-                        <span>Limpiar</span>
-                    </Button>
-                {/if}
+                <ClearFilterButton show={hasActiveFilters} onclick={resetFilters} />
             </div>
 
             <!-- Controles Móvil: Botón de Filtros Avanzados Modal + Limpiar -->

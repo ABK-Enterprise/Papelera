@@ -5,9 +5,7 @@
     import PaymentDashboardMobile from './mobile/PaymentDashboardMobile.svelte';
     import UniversalPaymentModal from '@/components/common/UniversalPaymentModal.svelte';
     import { router } from '@inertiajs/svelte';
-    import ReceiptText from 'lucide-svelte/icons/receipt-text';
     import History from 'lucide-svelte/icons/history';
-    import HandCoins from 'lucide-svelte/icons/hand-coins';
     import FileText from 'lucide-svelte/icons/file-text';
 
     interface Props {
@@ -118,10 +116,9 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1680px] mx-auto w-full font-sans">
     <!-- Header del Módulo con separación estándar mb-6 / gap-6 -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-                <HandCoins class="size-7 text-primary" />
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 Panel de Cobranzas
             </h1>
         </div>

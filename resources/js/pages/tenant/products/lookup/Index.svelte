@@ -3,7 +3,6 @@
     import { Button } from '@/components/ui/button';
     import { Link, router } from '@inertiajs/svelte';
     import Box from 'lucide-svelte/icons/box';
-    import WarehouseIcon from 'lucide-svelte/icons/warehouse';
     import ArrowLeftRight from 'lucide-svelte/icons/arrow-left-right';
     import TransferStockModal from '@/pages/tenant/stock/transfers/TransferStockModal.svelte';
     import WarehouseLookupDesktop, {
@@ -114,9 +113,8 @@
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <div class="flex items-center gap-2.5">
-                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-                    <WarehouseIcon class="size-7 text-primary" />
-                    <span>Buscar en Depósito</span>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+                    Buscar en Depósito
                 </h1>
                 <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums">
                     {items.total} {items.total === 1 ? 'registro' : 'registros'}

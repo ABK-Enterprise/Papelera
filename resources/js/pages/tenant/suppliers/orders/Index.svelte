@@ -5,11 +5,11 @@
     import { Link, router, page } from '@inertiajs/svelte';
     import { echo } from '@/lib/echo';
     import Plus from 'lucide-svelte/icons/plus';
-    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Search from 'lucide-svelte/icons/search';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import Truck from 'lucide-svelte/icons/truck';
     import Users from 'lucide-svelte/icons/users';
+    import { ClearFilterButton } from '@/components/common';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import { hasPermission } from '@/lib/permissions';
     import CreateSupplierOrderModal from './CreateSupplierOrderModal.svelte';
@@ -205,7 +205,7 @@
 
 
     <!-- Header de la Página -->
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
                 Órdenes de Compra a Proveedores
@@ -219,7 +219,7 @@
                     class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs"
                 >
                     <Plus class="size-4" />
-                    <span>Hacer Pedido a Proveedor</span>
+                    <span>Crear orden</span>
                 </Button>
             {/if}
         </div>
@@ -284,12 +284,7 @@
                     <option value="cancelado">Cancelado ({stats.cancelado})</option>
                 </select>
 
-                {#if hasActiveFilters}
-                    <Button variant="ghost" size="sm" class="h-10 px-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 gap-1.5 rounded-xl transition-all" onclick={resetFilters}>
-                        <RotateCcw class="size-3.5" />
-                        <span>Limpiar</span>
-                    </Button>
-                {/if}
+                <ClearFilterButton show={hasActiveFilters} onclick={resetFilters} />
             </div>
         </div>
     </Card>

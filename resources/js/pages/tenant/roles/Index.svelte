@@ -63,9 +63,6 @@
                     {roles.length} {roles.length === 1 ? 'perfil' : 'perfiles'}
                 </span>
             </div>
-            <p class="mt-1 text-sm text-muted-foreground">
-                Define perfiles de acceso para los empleados basados en los módulos contratados.
-            </p>
         </div>
         <div class="flex flex-wrap items-center justify-end gap-2.5">
             <Link href="/tenant/usuarios">
@@ -75,11 +72,10 @@
                 </Button>
             </Link>
 
-
             <Link href="/tenant/roles/create">
                 <Button class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-xs">
                     <Shield class="h-4 w-4" />
-                    <span>Crear rol</span>
+                    <span>Nuevo rol</span>
                 </Button>
             </Link>
         </div>

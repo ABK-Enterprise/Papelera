@@ -93,14 +93,14 @@
                     class="min-h-[38px] px-3.5 gap-2 text-sm font-medium rounded-xl shadow-2xs border bg-emerald-500/10 text-emerald-700 border-emerald-500/25 hover:bg-emerald-500/15 hover:text-emerald-800 dark:bg-blue-500/15 dark:text-blue-300 dark:border-blue-500/30 dark:hover:bg-blue-500/25 dark:hover:text-blue-200 transition-all"
                 >
                     <X class="size-3.5 text-emerald-600 dark:text-blue-400" />
-                    <span>Deseleccionar cliente</span>
+                    <span>Quitar selección</span>
                 </Button>
             {/if}
 
             <a href="/tenant/clientes" class="inline-flex">
                 <Button variant="secondary" class="min-h-[38px] px-3.5 gap-2 text-sm font-medium rounded-xl shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
                     <ArrowLeft class="size-3.5" />
-                    <span>Directorio de Clientes</span>
+                    <span>Clientes</span>
                 </Button>
             </a>
         </div>

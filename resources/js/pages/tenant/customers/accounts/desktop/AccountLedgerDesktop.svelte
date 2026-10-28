@@ -25,6 +25,7 @@
     import X from 'lucide-svelte/icons/x';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
+    import { ClearFilterButton } from '@/components/common';
     import { hasPermission } from '@/lib/permissions';
 
     export interface MovementData {
@@ -364,17 +365,7 @@
                         <option value="oldest">Más antiguos</option>
                     </select>
 
-                    {#if hasActiveMasterFilters}
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            class="min-h-[38px] h-10 px-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 gap-1.5 rounded-xl transition-all"
-                            onclick={resetMasterFilters}
-                        >
-                            <RotateCcw class="size-3.5" />
-                            <span>Limpiar</span>
-                        </Button>
-                    {/if}
+                    <ClearFilterButton show={hasActiveMasterFilters} onclick={resetMasterFilters} />
                 </div>
             </div>
         </Card>

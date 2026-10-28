@@ -85,7 +85,7 @@
             <Link href="/tenant/productos/buscar-deposito">
                 <Button variant="outline" class="min-h-[44px] gap-2 rounded-xl border-border/70 text-sm font-medium">
                     <WarehouseIcon class="h-4 w-4 text-muted-foreground" />
-                    <span>Buscar en depósitos</span>
+                    <span>Consultar stock</span>
                 </Button>
             </Link>
 

@@ -15,13 +15,12 @@
     import AppPagination from '@/components/common/AppPagination.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import PdfPreviewModal from '@/components/common/PdfPreviewModal.svelte';
+    import { ClearFilterButton } from '@/components/common';
     import ReceiptDetailModal from './ReceiptDetailModal.svelte';
     import ReceiptListDesktop, { type ReceiptItem } from './desktop/ReceiptListDesktop.svelte';
     import ReceiptListMobile from './mobile/ReceiptListMobile.svelte';
     import { router } from '@inertiajs/svelte';
     import ArrowLeft from 'lucide-svelte/icons/arrow-left';
-    import ReceiptText from 'lucide-svelte/icons/receipt-text';
-    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Ban from 'lucide-svelte/icons/ban';
     import AlertCircle from 'lucide-svelte/icons/alert-circle';
 
@@ -174,16 +173,15 @@
 <AppHead title="Historial y Auditoría de Recibos" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1440px] mx-auto w-full">
-    <!-- Header del Módulo Escalonado -->
-    <div class="flex flex-col gap-3">
+    <!-- Header del Módulo -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-                <ReceiptText class="size-7 text-primary" />
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 Historial de Recibos
             </h1>
         </div>
 
-        <div class="flex justify-end w-full">
+        <div class="flex items-center justify-end">
             <Button
                 variant="secondary"
                 class="h-11 px-4 rounded-xl font-semibold gap-2 shadow-xs min-h-[44px]"
@@ -264,16 +262,7 @@
 
             <!-- Botón Limpiar Filtros -->
             <div class="sm:col-span-2 flex items-center justify-end">
-                {#if hasActiveFilters}
-                    <Button
-                        variant="ghost"
-                        class="h-11 px-3 text-xs text-muted-foreground hover:text-foreground gap-1.5 rounded-xl w-full min-h-[44px]"
-                        onclick={resetFilters}
-                    >
-                        <RotateCcw class="size-3.5" />
-                        <span>Restablecer</span>
-                    </Button>
-                {/if}
+                <ClearFilterButton show={hasActiveFilters} onclick={resetFilters} />
             </div>
         </div>
     </Card>
