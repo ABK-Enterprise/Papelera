@@ -18,6 +18,7 @@
     import CustomerListMobile from './mobile/CustomerListMobile.svelte';
     import CreateCustomerModal from './CreateCustomerModal.svelte';
     import ManageCustomerModal from './ManageCustomerModal.svelte';
+    import type { PaginationMeta } from '@/components/common/AppPagination.svelte';
 
     interface FilterProps {
         search?: string | null;
@@ -32,10 +33,13 @@
         totalCount = 0,
         filters = {},
     }: {
-        customers: CustomerItem[];
+        customers: (PaginationMeta & { data: CustomerItem[] }) | CustomerItem[];
         totalCount?: number;
         filters?: FilterProps;
     } = $props();
+
+    let customerItems = $derived(Array.isArray(customers) ? customers : (customers?.data ?? []));
+    let customerPagination = $derived(Array.isArray(customers) ? null : customers);
 
     let searchTerm = $state(filters?.search ?? '');
     let selectedStatus = $state(filters?.status ?? '');
@@ -136,7 +140,7 @@
                 <div class="flex-1 min-w-0">
                     <SearchCombobox
                         bind:value={searchTerm}
-                        items={customers}
+                        items={customerItems}
                         searchKeys={['name', 'tax_id', 'phone', 'address']}
                         placeholder="Buscar por nombre, CUIT/DNI, teléfono..."
                         onsearch={(q) => {
@@ -252,7 +256,8 @@
     <!-- Lista en formato Wide Cards (Desglose Desktop) -->
     <div class="hidden md:block">
         <CustomerListDesktop
-            {customers}
+            customers={customerItems}
+            pagination={customerPagination}
             onSelectCustomer={handleSelectCustomer}
             onOpenCreate={() => (showCreateModal = true)}
         />
@@ -261,7 +266,8 @@
     <!-- Lista en formato Wide Cards (Desglose Mobile) -->
     <div class="block md:hidden">
         <CustomerListMobile
-            {customers}
+            customers={customerItems}
+            pagination={customerPagination}
             onSelectCustomer={handleSelectCustomer}
             onOpenCreate={() => (showCreateModal = true)}
         />

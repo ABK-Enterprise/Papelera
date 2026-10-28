@@ -43,18 +43,24 @@ class SupplierController extends Controller
             ->when($sortBy === 'name_desc', fn ($q) => $q->orderBy('name', 'desc'))
             ->when(! in_array($sortBy, ['oldest', 'name_asc', 'name_desc'], true), fn ($q) => $q->latest());
 
-        $suppliers = $query->get();
+        $suppliers = $query->paginate(20)->withQueryString();
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
-                'suppliers' => $suppliers,
-                'total_count' => $suppliers->count(),
+                'suppliers' => $suppliers->items(),
+                'suppliers_meta' => [
+                    'current_page' => $suppliers->currentPage(),
+                    'last_page' => $suppliers->lastPage(),
+                    'per_page' => $suppliers->perPage(),
+                    'total' => $suppliers->total(),
+                ],
+                'total_count' => $suppliers->total(),
             ]);
         }
 
         return Inertia::render('tenant/suppliers/Index', [
             'suppliers' => $suppliers,
-            'totalCount' => $suppliers->count(),
+            'totalCount' => $suppliers->total(),
             'filters' => [
                 'search' => $search,
                 'status' => $status,

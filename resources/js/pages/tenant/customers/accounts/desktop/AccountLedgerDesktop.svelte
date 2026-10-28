@@ -26,6 +26,7 @@
     import IconContainer from '@/components/common/IconContainer.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import { ClearFilterButton } from '@/components/common';
+    import AppPagination, { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import { hasPermission } from '@/lib/permissions';
 
     export interface MovementData {
@@ -63,6 +64,8 @@
     let {
         customers = [],
         selectedCustomer = null,
+        pagination = null,
+        movementsPagination = null,
         filters = {},
         onOpenPayment,
         onOpenAdjustment,
@@ -70,6 +73,8 @@
     }: {
         customers: CustomerAccountFull[];
         selectedCustomer: CustomerAccountFull | null;
+        pagination?: PaginationMeta | null;
+        movementsPagination?: PaginationMeta | null;
         filters?: Record<string, any>;
         onOpenPayment: (cust: CustomerAccountFull) => void;
         onOpenAdjustment: (cust: CustomerAccountFull) => void;
@@ -477,6 +482,12 @@
                     </div>
                 {/each}
             </div>
+
+            {#if pagination}
+                <div class="mt-4">
+                    <AppPagination {pagination} />
+                </div>
+            {/if}
         {:else}
             <div class="bg-card text-card-foreground rounded-2xl border border-dashed border-border/80 p-12 text-center shadow-2xs space-y-3">
                 <Search class="size-10 text-muted-foreground mx-auto opacity-60" />
@@ -693,6 +704,12 @@
                             </div>
                         {/each}
                     </div>
+
+                    {#if movementsPagination}
+                        <div class="mt-4">
+                            <AppPagination pagination={movementsPagination} />
+                        </div>
+                    {/if}
                 {:else}
                     <div class="py-12 text-center rounded-2xl bg-muted/15 border border-dashed border-border/80 p-6 space-y-2">
                         <History class="size-8 text-muted-foreground mx-auto opacity-50" />

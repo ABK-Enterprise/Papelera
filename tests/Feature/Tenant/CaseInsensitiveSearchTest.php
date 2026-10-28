@@ -100,7 +100,7 @@ test('supplier search is case-insensitive', function () {
     $responseLower->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/suppliers/Index')
-            ->has('suppliers', 1)
+            ->has('suppliers.data', 1)
         );
 
     $responseUpper = $this->actingAs($this->user)
@@ -108,7 +108,7 @@ test('supplier search is case-insensitive', function () {
     $responseUpper->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/suppliers/Index')
-            ->has('suppliers', 1)
+            ->has('suppliers.data', 1)
         );
 });
 

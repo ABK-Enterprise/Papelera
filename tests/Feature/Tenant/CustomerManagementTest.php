@@ -28,7 +28,7 @@ test('tenant admin with clientes module can view customers index', function () {
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
         ->component('tenant/customers/Index')
-        ->has('customers', 3)
+        ->has('customers.data', 3)
     );
 });
 
@@ -140,17 +140,17 @@ test('customer filtering by status, tax condition and defaulter works', function
     // Filtrar por morosos
     $response = $this->actingAs($this->adminUser)
         ->get(route('tenant.customers.index', ['is_defaulter' => 'yes']));
-    $response->assertInertia(fn ($page) => $page->has('customers', 1));
+    $response->assertInertia(fn ($page) => $page->has('customers.data', 1));
 
     // Filtrar por condición fiscal
     $response = $this->actingAs($this->adminUser)
         ->get(route('tenant.customers.index', ['tax_condition' => 'monotributo']));
-    $response->assertInertia(fn ($page) => $page->has('customers', 1));
+    $response->assertInertia(fn ($page) => $page->has('customers.data', 1));
 
     // Filtrar por inactivos
     $response = $this->actingAs($this->adminUser)
         ->get(route('tenant.customers.index', ['status' => 'inactive']));
-    $response->assertInertia(fn ($page) => $page->has('customers', 1));
+    $response->assertInertia(fn ($page) => $page->has('customers.data', 1));
 });
 
 test('customer filtering by search query works', function () {
@@ -170,8 +170,8 @@ test('customer filtering by search query works', function () {
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
         ->component('tenant/customers/Index')
-        ->has('customers', 1)
-        ->where('customers.0.name', 'Librería El Ateneo Central')
+        ->has('customers.data', 1)
+        ->where('customers.data.0.name', 'Librería El Ateneo Central')
     );
 });
 

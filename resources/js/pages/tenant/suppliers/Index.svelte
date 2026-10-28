@@ -17,6 +17,7 @@
     import SupplierListMobile from './mobile/SupplierListMobile.svelte';
     import CreateSupplierModal from './CreateSupplierModal.svelte';
     import ManageSupplierModal, { type SupplierItem } from './ManageSupplierModal.svelte';
+    import type { PaginationMeta } from '@/components/common/AppPagination.svelte';
 
     import { useTableFilters } from '@/lib/useTableFilters.svelte';
 
@@ -30,10 +31,13 @@
         totalCount = 0,
         filters = {},
     }: {
-        suppliers: SupplierItem[];
+        suppliers: (PaginationMeta & { data: SupplierItem[] }) | SupplierItem[];
         totalCount?: number;
         filters?: FilterProps;
     } = $props();
+
+    let supplierItems = $derived(Array.isArray(suppliers) ? suppliers : (suppliers?.data ?? []));
+    let supplierPagination = $derived(Array.isArray(suppliers) ? null : suppliers);
 
     const tableFilters = useTableFilters({
         basePath: '/tenant/proveedores',
@@ -109,7 +113,7 @@
                 <div class="flex-1 min-w-0">
                     <SearchCombobox
                         bind:value={tableFilters.filters.search}
-                        items={suppliers}
+                        items={supplierItems}
                         searchKeys={['name', 'contact_number', 'email', 'address']}
                         placeholder="Buscar por nombre, teléfono, email..."
                         onsearch={(q) => {
@@ -183,7 +187,8 @@
     <!-- Lista en formato Wide Cards (Desglose Desktop) -->
     <div class="hidden md:block">
         <SupplierListDesktop
-            {suppliers}
+            suppliers={supplierItems}
+            pagination={supplierPagination}
             onSelectSupplier={handleSelectSupplier}
             onOpenCreate={() => (showCreateModal = true)}
         />
@@ -192,7 +197,8 @@
     <!-- Lista en formato Wide Cards (Desglose Mobile) -->
     <div class="block md:hidden">
         <SupplierListMobile
-            {suppliers}
+            suppliers={supplierItems}
+            pagination={supplierPagination}
             onSelectSupplier={handleSelectSupplier}
             onOpenCreate={() => (showCreateModal = true)}
         />

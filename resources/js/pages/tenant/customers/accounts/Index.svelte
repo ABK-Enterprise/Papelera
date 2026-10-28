@@ -10,16 +10,22 @@
     import AccountLedgerMobile from './mobile/AccountLedgerMobile.svelte';
     import RecordAdjustmentModal from './RecordAdjustmentModal.svelte';
     import RecordPaymentModal from './RecordPaymentModal.svelte';
+    import type { PaginationMeta } from '@/components/common/AppPagination.svelte';
 
     let {
         customers = [],
         selectedCustomer = null,
+        movementsPagination = null,
         filters = {},
     }: {
-        customers: CustomerAccountFull[];
+        customers: (PaginationMeta & { data: CustomerAccountFull[] }) | CustomerAccountFull[];
         selectedCustomer: CustomerAccountFull | null;
+        movementsPagination?: PaginationMeta | null;
         filters?: Record<string, any>;
     } = $props();
+
+    let customerItems = $derived(Array.isArray(customers) ? customers : (customers?.data ?? []));
+    let customerPagination = $derived(Array.isArray(customers) ? null : customers);
 
     // Modals state
     let isPaymentModalOpen = $state(false);
@@ -110,8 +116,10 @@
     <!-- Vista Responsiva Operativa: Desktop Split / Mobile Feed -->
     <div class="hidden lg:block">
         <AccountLedgerDesktop
-            {customers}
+            customers={customerItems}
+            pagination={customerPagination}
             {selectedCustomer}
+            {movementsPagination}
             {filters}
             onOpenPayment={openPaymentModal}
             onOpenAdjustment={openAdjustmentModal}
@@ -121,7 +129,8 @@
 
     <div class="block lg:hidden">
         <AccountLedgerMobile
-            {customers}
+            customers={customerItems}
+            pagination={customerPagination}
             {filters}
             onOpenPayment={openPaymentModal}
             onOpenAdjustment={openAdjustmentModal}

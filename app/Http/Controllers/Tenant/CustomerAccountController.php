@@ -60,39 +60,72 @@ class CustomerAccountController extends Controller
             ->when($sortBy === 'oldest', fn ($q) => $q->oldest())
             ->when(! in_array($sortBy, ['balance_high', 'balance_low', 'credit_high', 'credit_low', 'name_asc', 'name_desc', 'oldest'], true), fn ($q) => $q->latest());
 
-        $customers = $customersQuery->get();
+        $customers = $customersQuery->paginate(20)->withQueryString();
+
+        $statsRecord = Customer::selectRaw('
+            COALESCE(SUM(current_balance), 0) as total_debt,
+            COUNT(*) as total_customers,
+            COUNT(CASE WHEN is_defaulter = 1 THEN 1 END) as defaulters_count,
+            COALESCE(SUM(credit_limit), 0) as total_credit_limit
+        ')->first();
 
         $stats = [
-            'total_debt' => (float) Customer::sum('current_balance'),
-            'total_customers' => Customer::count(),
-            'defaulters_count' => Customer::where('is_defaulter', true)->count(),
-            'total_credit_limit' => (float) Customer::sum('credit_limit'),
+            'total_debt' => (float) ($statsRecord->total_debt ?? 0),
+            'total_customers' => (int) ($statsRecord->total_customers ?? 0),
+            'defaulters_count' => (int) ($statsRecord->defaulters_count ?? 0),
+            'total_credit_limit' => (float) ($statsRecord->total_credit_limit ?? 0),
         ];
 
         $selectedCustomer = null;
+        $movementsPagination = null;
         if ($selectedId) {
-            $selectedCustomer = Customer::with([
-                'movements' => function ($q) use ($movementSort, $movementType) {
-                    if ($movementType && in_array($movementType, ['charge', 'payment', 'adjustment'], true)) {
-                        $q->where('type', $movementType);
-                    }
-                    if ($movementSort === 'oldest') {
-                        $q->oldest();
-                    } else {
-                        $q->latest();
-                    }
-                },
-                'movements.order:id,order_number',
-                'movements.createdBy:id,name',
-            ])
-                ->where('id', $selectedId)
-                ->first();
+            $selectedCustomer = Customer::where('id', $selectedId)->first();
+            if ($selectedCustomer) {
+                $movementsQuery = CustomerAccountMovement::where('tenant_id', $tenantId)
+                    ->where('customer_id', $selectedCustomer->id)
+                    ->with([
+                        'order:id,order_number',
+                        'createdBy:id,name',
+                    ]);
+
+                if ($movementType && in_array($movementType, ['charge', 'payment', 'adjustment'], true)) {
+                    $movementsQuery->where('type', $movementType);
+                }
+
+                if ($movementSort === 'oldest') {
+                    $movementsQuery->oldest();
+                } else {
+                    $movementsQuery->latest();
+                }
+
+                $movements = $movementsQuery->paginate(25, ['*'], 'movements_page')->withQueryString();
+                $selectedCustomer->setRelation('movements', $movements->items());
+                $movementsPagination = [
+                    'current_page' => $movements->currentPage(),
+                    'last_page' => $movements->lastPage(),
+                    'per_page' => $movements->perPage(),
+                    'total' => $movements->total(),
+                    'from' => $movements->firstItem(),
+                    'to' => $movements->lastItem(),
+                    'links' => $movements->linkCollection()->toArray(),
+                ];
+            }
         }
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
-                'customers' => $customers,
+                'customers' => $customers->items(),
+                'customers_meta' => [
+                    'current_page' => $customers->currentPage(),
+                    'last_page' => $customers->lastPage(),
+                    'per_page' => $customers->perPage(),
+                    'total' => $customers->total(),
+                    'from' => $customers->firstItem(),
+                    'to' => $customers->lastItem(),
+                    'links' => $customers->linkCollection()->toArray(),
+                ],
                 'selectedCustomer' => $selectedCustomer,
+                'movements_pagination' => $movementsPagination,
                 'stats' => $stats,
             ]);
         }
@@ -100,6 +133,7 @@ class CustomerAccountController extends Controller
         return Inertia::render('tenant/customers/accounts/Index', [
             'customers' => $customers,
             'selectedCustomer' => $selectedCustomer,
+            'movementsPagination' => $movementsPagination,
             'stats' => $stats,
             'filters' => [
                 'search' => $search,
@@ -118,7 +152,11 @@ class CustomerAccountController extends Controller
     {
         $this->authorizeCustomerTenant($request, $customer);
 
-        $customer->load(['movements.order:id,order_number', 'movements.createdBy:id,name']);
+        $customer->load([
+            'movements' => fn ($q) => $q->latest()->limit(50),
+            'movements.order:id,order_number',
+            'movements.createdBy:id,name',
+        ]);
 
         return response()->json($customer);
     }

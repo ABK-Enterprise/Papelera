@@ -107,7 +107,7 @@ test('tenant user can render Inertia suppliers index page', function () {
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/suppliers/Index')
-            ->has('suppliers', 2)
+            ->has('suppliers.data', 2)
             ->has('totalCount')
             ->has('filters')
         );
