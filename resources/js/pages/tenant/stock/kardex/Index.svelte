@@ -6,8 +6,8 @@
     import KardexListDesktop from '@/pages/tenant/stock/kardex/desktop/KardexListDesktop.svelte';
     import KardexListMobile from '@/pages/tenant/stock/kardex/mobile/KardexListMobile.svelte';
     import StockNavigationTabs from '@/pages/tenant/stock/StockNavigationTabs.svelte';
+    import { ClearFilterButton } from '@/components/common';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
-    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import { router, page } from '@inertiajs/svelte';
     import { echo } from '@/lib/echo';
@@ -177,7 +177,7 @@
     <StockNavigationTabs activeTab="kardex" />
 
     <!-- Page Header -->
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">Kardex e Historial</h1>
             <p class="mt-1 text-sm text-muted-foreground max-w-prose">
@@ -279,17 +279,7 @@
                     />
                 </div>
 
-                {#if hasActiveFilters}
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        class="h-10 px-3 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 gap-1.5 rounded-xl transition-all shrink-0 whitespace-nowrap min-w-fit cursor-pointer"
-                        onclick={resetFilters}
-                    >
-                        <RotateCcw class="size-3.5" />
-                        <span>Limpiar</span>
-                    </Button>
-                {/if}
+                <ClearFilterButton show={hasActiveFilters} onclick={resetFilters} />
             </div>
         </div>
     </div>

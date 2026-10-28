@@ -6,6 +6,7 @@
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import AppPagination from '@/components/common/AppPagination.svelte';
+    import { ClearFilterButton } from '@/components/common';
 
     import Box from 'lucide-svelte/icons/box';
     import Building2 from 'lucide-svelte/icons/building-2';
@@ -55,7 +56,7 @@
         selectedStockStatus = $bindable(''),
         onsearch,
         onfilterchange,
-        onreset,
+        onreset = () => {},
         ontransfer,
     }: {
         items: {
@@ -170,17 +171,7 @@
                     <option value="out_of_stock">Sin stock</option>
                 </select>
 
-                {#if hasActiveFilters}
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onclick={onreset}
-                        class="h-10 px-3 text-xs text-muted-foreground hover:text-foreground gap-1.5 shrink-0"
-                    >
-                        <RotateCcw class="size-3.5" />
-                        Limpiar
-                    </Button>
-                {/if}
+                <ClearFilterButton show={hasActiveFilters} onclick={onreset} />
             </div>
         </div>
     </Card>

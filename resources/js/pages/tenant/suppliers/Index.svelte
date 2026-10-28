@@ -6,11 +6,11 @@
     import { Link, router } from '@inertiajs/svelte';
     import { hasPermission } from '@/lib/permissions';
     import Plus from 'lucide-svelte/icons/plus';
-    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Search from 'lucide-svelte/icons/search';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import Truck from 'lucide-svelte/icons/truck';
     import Users from 'lucide-svelte/icons/users';
+    import { ClearFilterButton } from '@/components/common';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SupplierFilterModalMobile from './mobile/SupplierFilterModalMobile.svelte';
     import SupplierListDesktop from './desktop/SupplierListDesktop.svelte';
@@ -86,9 +86,8 @@
     </div>
 
     <!-- Header de la Página -->
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-            <Truck class="size-7 text-primary" />
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
             Gestión de Proveedores
         </h1>
 
@@ -96,7 +95,7 @@
             {#if hasPermission('proveedores.crear')}
                 <Button class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs" onclick={() => (showCreateModal = true)}>
                     <Plus class="h-4 w-4" />
-                    <span>Añadir Proveedor</span>
+                    <span>Nuevo proveedor</span>
                 </Button>
             {/if}
         </div>
@@ -176,18 +175,7 @@
                     <option value="inactive">Solo Inactivos</option>
                 </select>
 
-                {#if hasActiveFilters}
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        class="h-10 px-3 text-xs font-semibold gap-1.5 shrink-0 rounded-xl border shadow-2xs transition-colors bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25 animate-in fade-in zoom-in-95 duration-200"
-                        onclick={resetFilters}
-                        title="Limpiar filtros activos"
-                    >
-                        <RotateCcw class="size-3.5 shrink-0" />
-                        <span>Limpiar</span>
-                    </Button>
-                {/if}
+                <ClearFilterButton show={hasActiveFilters} onclick={resetFilters} />
             </div>
         </div>
     </Card>

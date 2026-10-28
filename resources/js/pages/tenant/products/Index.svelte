@@ -12,10 +12,10 @@
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import Warehouse from 'lucide-svelte/icons/warehouse';
     import X from 'lucide-svelte/icons/x';
-    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
+    import { ClearFilterButton } from '@/components/common';
 
     import BulkDiscountConfigModal from './BulkDiscountConfigModal.svelte';
     import ProductModal from './ProductModal.svelte';
@@ -180,7 +180,7 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
     <!-- Header de la Página -->
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
             Catálogo de Productos
         </h1>
@@ -213,7 +213,7 @@
                 <Link href="/tenant/productos/crear">
                     <Button class="gap-2 shadow-sm font-semibold">
                         <Plus class="size-4" />
-                        Crear producto
+                        Nuevo producto
                     </Button>
                 </Link>
             {/if}
@@ -245,7 +245,7 @@
                 class="shrink-0 text-xs font-semibold bg-background hover:bg-muted border-amber-500/40 text-foreground"
                 onclick={filterIncompleteQuick}
             >
-                Mostrar productos faltantes
+                Ver faltantes
             </Button>
         </div>
     {/if}
@@ -342,19 +342,8 @@
                     <option value="without_discount">Sin descuento</option>
                 </select>
 
-                <!-- Botón Limpiar con Recuadro Indicativo (Verde en Light / Azul en Dark) -->
-                {#if hasActiveFilters}
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        class="h-10 px-3 text-sm font-medium gap-1.5 shrink-0 rounded-xl border shadow-2xs transition-colors bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25 animate-in fade-in zoom-in-95 duration-200"
-                        onclick={resetFilters}
-                        title="Limpiar filtros activos"
-                    >
-                        <RotateCcw class="size-3.5 shrink-0" />
-                        <span>Limpiar</span>
-                    </Button>
-                {/if}
+                <!-- Botón Limpiar Filtros Reutilizable -->
+                <ClearFilterButton show={hasActiveFilters} onclick={resetFilters} />
             </div>
         </div>
 

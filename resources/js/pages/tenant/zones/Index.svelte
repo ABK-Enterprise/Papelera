@@ -10,7 +10,6 @@
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import { router } from '@inertiajs/svelte';
     import Plus from 'lucide-svelte/icons/plus';
-    import MapPin from 'lucide-svelte/icons/map-pin';
 
     interface Props {
         zones: ShippingZoneItem[];
@@ -70,31 +69,26 @@
 
 <div class="flex flex-col gap-6 w-full">
     <!-- Cabecera del Módulo (Separada homogéneamente del cuerpo por gap-6 / 24-30px) -->
-    <div class="flex flex-col gap-1">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex items-center gap-2.5">
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-                <div class="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <MapPin class="size-5" />
-                </div>
-                <span>Zonas de Envío</span>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+                Zonas de Envío
             </h1>
             <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums">
                 {zones.length} {zones.length === 1 ? 'zona' : 'zonas'}
             </span>
         </div>
-    </div>
 
-    <!-- Botón de Acción Principal (Por fuera y encima del contenedor del searchbar) -->
-    <div class="flex items-center justify-end w-full">
-        <Button
-            variant="default"
-            class="min-h-[44px] px-4 sm:px-5 rounded-xl text-sm font-medium gap-2 shadow-xs w-auto cursor-pointer"
-            onclick={openCreateModal}
-        >
-            <Plus class="size-4" />
-            <span class="hidden sm:inline">Nueva zona de envío</span>
-            <span class="inline sm:hidden">Nueva zona</span>
-        </Button>
+        <div class="flex items-center justify-end">
+            <Button
+                variant="default"
+                class="min-h-[44px] px-4 sm:px-5 rounded-xl text-sm font-medium gap-2 shadow-xs w-auto cursor-pointer"
+                onclick={openCreateModal}
+            >
+                <Plus class="size-4" />
+                <span>Nueva zona</span>
+            </Button>
+        </div>
     </div>
 
     <!-- Contenedor del Buscador -->

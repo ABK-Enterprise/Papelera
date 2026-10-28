@@ -10,10 +10,9 @@
     import InvoiceFilterModalMobile from './mobile/InvoiceFilterModalMobile.svelte';
     import InvoiceListDesktop, { type FiscalInvoiceItem } from './desktop/InvoiceListDesktop.svelte';
     import InvoiceListMobile from './mobile/InvoiceListMobile.svelte';
+    import { ClearFilterButton } from '@/components/common';
     import { router } from '@inertiajs/svelte';
     import ArrowLeft from 'lucide-svelte/icons/arrow-left';
-    import FileText from 'lucide-svelte/icons/file-text';
-    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
 
     interface Props {
@@ -140,18 +139,17 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1440px] mx-auto w-full font-sans">
     <!-- Header del Módulo Escalonado -->
-    <div class="flex flex-col gap-3">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-                <FileText class="size-7 text-primary" />
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 Historial de Facturas
             </h1>
         </div>
 
-        <div class="flex justify-end w-full">
+        <div class="flex justify-end w-full sm:w-auto">
             <Button
                 variant="secondary"
-                class="h-11 px-4 rounded-xl font-semibold gap-2 shadow-xs min-h-[44px]"
+                class="h-11 px-4 rounded-xl font-semibold gap-2 shadow-xs min-h-[44px] w-full sm:w-auto justify-center"
                 onclick={() => router.get('/tenant/cobranzas')}
             >
                 <ArrowLeft class="size-4" />
@@ -308,18 +306,7 @@
                 </select>
             </div>
 
-            <!-- Botón Limpiar con Recuadro Indicativo (Verde en Light / Azul en Dark) -->
-            {#if hasActiveFilters}
-                <Button
-                    variant="outline"
-                    class="h-11 px-3.5 rounded-xl gap-2 text-sm font-medium shrink-0 min-h-[44px] transition-colors border shadow-2xs bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25"
-                    onclick={resetFilters}
-                    title="Limpiar filtros activos"
-                >
-                    <RotateCcw class="size-3.5 shrink-0" />
-                    <span>Limpiar</span>
-                </Button>
-            {/if}
+            <ClearFilterButton show={hasActiveFilters} onclick={resetFilters} />
         </div>
     </Card>
 

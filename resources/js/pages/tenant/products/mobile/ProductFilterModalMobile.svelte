@@ -568,11 +568,13 @@
         <DialogFooter class="p-3 sm:p-4 border-t border-border/50 bg-card flex flex-row items-center justify-between gap-2 shrink-0">
             <Button
                 type="button"
-                variant="ghost"
+                variant={localActiveCount > 0 ? 'outline' : 'ghost'}
                 size="sm"
                 onclick={handleReset}
                 disabled={localActiveCount === 0}
-                class="min-h-[44px] px-3 rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground gap-1.5"
+                class="min-h-[44px] px-3.5 rounded-xl text-xs font-semibold gap-1.5 transition-colors {localActiveCount > 0
+                    ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25 shadow-2xs'
+                    : 'text-muted-foreground/60 border-transparent cursor-not-allowed opacity-50'}"
             >
                 <RotateCcw class="h-3.5 w-3.5" />
                 <span>Limpiar</span>

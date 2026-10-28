@@ -100,7 +100,7 @@
     <StockNavigationTabs activeTab="incomes" />
 
     <!-- Page Header -->
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">Ingresos de Stock</h1>
         </div>
@@ -111,7 +111,7 @@
                     class="flex items-center gap-2 font-semibold shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white sm:hover:shadow-lg sm:hover:shadow-emerald-600/25 cursor-pointer"
                 >
                     <Plus class="size-4" />
-                    <span>Registrar ingreso</span>
+                    <span>Nuevo ingreso</span>
                 </Button>
             {/if}
         </div>

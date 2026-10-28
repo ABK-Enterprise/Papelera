@@ -8,7 +8,6 @@
     import FailDeliveryModal from './components/FailDeliveryModal.svelte';
     import RescheduleOrderModal from './components/RescheduleOrderModal.svelte';
     import ViewOrderNotesModal from './components/ViewOrderNotesModal.svelte';
-    import Truck from 'lucide-svelte/icons/truck';
 
     interface Props {
         availableOrders?: DeliveryOrder[];
@@ -104,10 +103,9 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1440px] mx-auto w-full">
     <!-- Header del Módulo con separación estándar mb-6 / gap-6 -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-                <Truck class="size-7 text-primary" />
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 Repartos
             </h1>
         </div>
