@@ -1,5 +1,5 @@
 <script lang="ts">
-    import AppPagination from '@/components/common/AppPagination.svelte';
+    import AppPagination, { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import Calendar from 'lucide-svelte/icons/calendar';
     import Package from 'lucide-svelte/icons/package';
@@ -32,15 +32,13 @@
 
     let {
         orders = [],
+        pagination = null,
         onSelectOrder,
     }: {
         orders: SupplierOrderData[];
+        pagination?: PaginationMeta | null;
         onSelectOrder: (order: SupplierOrderData) => void;
     } = $props();
-
-    let page = $state(1);
-    const perPage = 6;
-    let paginatedOrders = $derived(orders.slice((page - 1) * perPage, page * perPage));
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
@@ -64,7 +62,7 @@
 </script>
 
 <div class="flex flex-col gap-3">
-    {#each paginatedOrders as order (order.id)}
+    {#each orders as order (order.id)}
         <div
             class="flex flex-col gap-2.5 rounded-xl border border-border/70 bg-card p-3.5 shadow-sm cursor-pointer hover:border-primary/40 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25"
 
@@ -129,7 +127,5 @@
         </div>
     {/if}
 
-    {#if orders.length > perPage}
-        <AppPagination count={orders.length} {perPage} bind:page />
-    {/if}
+    <AppPagination {pagination} />
 </div>

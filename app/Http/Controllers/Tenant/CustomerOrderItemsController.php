@@ -37,9 +37,9 @@ class CustomerOrderItemsController extends Controller
             abort(404, 'Pedido no encontrado para este comercio.');
         }
 
-        if ($customerOrder->isTerminal()) {
+        if ($customerOrder->isOperationallyImmutable()) {
             throw ValidationException::withMessages([
-                'order' => ["El pedido {$customerOrder->order_number} se encuentra en estado definitivo ({$customerOrder->status}) y no admite modificaciones."],
+                'order' => ["El pedido {$customerOrder->order_number} se encuentra en estado definitivo o entregado ({$customerOrder->status}) y no admite modificaciones."],
             ]);
         }
 
@@ -65,9 +65,9 @@ class CustomerOrderItemsController extends Controller
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if ($lockedOrder->isTerminal()) {
+            if ($lockedOrder->isOperationallyImmutable()) {
                 throw ValidationException::withMessages([
-                    'order' => ["El pedido {$lockedOrder->order_number} se encuentra en estado definitivo ({$lockedOrder->status}) y no admite modificaciones."],
+                    'order' => ["El pedido {$lockedOrder->order_number} se encuentra en estado definitivo o entregado ({$lockedOrder->status}) y no admite modificaciones."],
                 ]);
             }
 

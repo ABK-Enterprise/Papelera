@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
-    import AppPagination from '@/components/common/AppPagination.svelte';
+    import AppPagination, { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import Calendar from 'lucide-svelte/icons/calendar';
     import Eye from 'lucide-svelte/icons/eye';
@@ -34,15 +34,13 @@
 
     let {
         orders = [],
+        pagination = null,
         onSelectOrder,
     }: {
         orders: SupplierOrderData[];
+        pagination?: PaginationMeta | null;
         onSelectOrder: (order: SupplierOrderData) => void;
     } = $props();
-
-    let page = $state(1);
-    const perPage = 10;
-    let paginatedOrders = $derived(orders.slice((page - 1) * perPage, page * perPage));
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
@@ -68,7 +66,7 @@
 </script>
 
 <div class="flex flex-col gap-3.5">
-    {#each paginatedOrders as order (order.id)}
+    {#each orders as order (order.id)}
         <div
             class="bento-card group flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-xl border border-border/60 bg-card p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-primary/30 cursor-pointer"
 
@@ -155,7 +153,5 @@
         </div>
     {/if}
 
-    {#if orders.length > perPage}
-        <AppPagination count={orders.length} {perPage} bind:page />
-    {/if}
+    <AppPagination {pagination} />
 </div>

@@ -7,7 +7,7 @@
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import HighlightMatch from '@/components/common/HighlightMatch.svelte';
-    import { ClearFilterButton } from '@/components/common';
+    import { ClearFilterButton, ModuleHeader } from '@/components/common';
     import AdjustmentListDesktop from './desktop/AdjustmentListDesktop.svelte';
     import AdjustmentListMobile from './mobile/AdjustmentListMobile.svelte';
     import AdjustmentFilterModalMobile from './mobile/AdjustmentFilterModalMobile.svelte';
@@ -113,21 +113,17 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1330px] mx-auto w-full">
     <!-- Encabezado del Módulo (Separación homogénea gap-6 sin subtítulos ni elementos decorativos) -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-border/70">
-        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-            Recargos y Descuentos
-        </h1>
-
-        <div class="flex items-center justify-end gap-2.5">
+    <ModuleHeader title="Recargos y Descuentos" badge={adjustments.length}>
+        {#snippet actions()}
             <Button
                 onclick={openCreateModal}
-                class="min-h-[44px] px-4 font-semibold text-sm flex items-center gap-2 rounded-xl shadow-xs cursor-pointer w-full sm:w-auto justify-center"
+                class="min-h-[38px] px-4 font-semibold text-sm flex items-center gap-2 rounded-xl shadow-xs cursor-pointer w-full sm:w-auto justify-center"
             >
                 <Plus class="h-4 w-4" />
                 <span>Nuevo ajuste</span>
             </Button>
-        </div>
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Barra Operativa de Búsqueda y Filtros con Persistencia en URL -->
     <Card class="rounded-xl p-3 sm:p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-border/60">

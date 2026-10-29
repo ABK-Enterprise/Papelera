@@ -75,7 +75,7 @@ test('products index calculates incomplete count and filters correctly', functio
     $response->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
-            ->has('products', 3)
+            ->has('products.data', 3)
             ->where('incompleteCount', 2)
             ->where('stats.incomplete', 2)
         );
@@ -86,7 +86,7 @@ test('products index calculates incomplete count and filters correctly', functio
     $responseIncomplete->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
-            ->has('products', 2)
+            ->has('products.data', 2)
         );
 
     // GET only complete products
@@ -95,8 +95,8 @@ test('products index calculates incomplete count and filters correctly', functio
     $responseComplete->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
-            ->has('products', 1)
-            ->where('products.0.id', $completeProduct->id)
+            ->has('products.data', 1)
+            ->where('products.data.0.id', $completeProduct->id)
         );
 });
 
@@ -131,7 +131,7 @@ test('products index filters by with_discount and without_discount correctly', f
     $responseWith->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
-            ->has('products', 2)
+            ->has('products.data', 2)
         );
 
     // Filter without_discount
@@ -139,8 +139,8 @@ test('products index filters by with_discount and without_discount correctly', f
     $responseWithout->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
-            ->has('products', 1)
-            ->where('products.0.id', $p3->id)
+            ->has('products.data', 1)
+            ->where('products.data.0.id', $p3->id)
         );
 });
 

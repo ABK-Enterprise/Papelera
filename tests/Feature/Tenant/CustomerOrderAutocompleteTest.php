@@ -37,7 +37,10 @@ test('customer order index provides available active customers', function () {
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
         ->component('tenant/orders/Index')
-        ->has('availableCustomers', 3)
+        ->missing('availableCustomers')
+        ->reloadOnly('availableCustomers', fn ($reload) => $reload
+            ->has('availableCustomers', 3)
+        )
     );
 });
 

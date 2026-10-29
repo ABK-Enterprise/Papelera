@@ -65,8 +65,9 @@ test('tenant user can view stock outcomes index', function () {
     $response->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('tenant/stock/outcomes/Index')
-            ->has('movements')
-            ->has('products')
+            ->has('movements.data')
+            ->missing('products')
+            ->reloadOnly('products', fn ($reload) => $reload->has('products'))
         );
 });
 

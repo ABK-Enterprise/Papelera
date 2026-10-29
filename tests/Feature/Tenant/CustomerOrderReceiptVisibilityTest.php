@@ -267,11 +267,8 @@ test('receipt pdf template renders customer credit account and filtered adjustme
         'logoBase64' => null,
     ])->render();
 
-    // Debe mostrarse el resumen de cuenta corriente en el recuadro informativo
-    expect($html)->toContain('Estado Cta. Cte.:')
-        ->toContain('"A DEBER"')
-        ->toContain('Saldo actual:')
-        ->toContain('ESTADO EN CUENTA CORRIENTE');
+    expect($html)->not->toContain('ESTADO EN CUENTA CORRIENTE')
+        ->not->toContain('"A DEBER"');
 
     // Debe mostrarse el ajuste visible
     expect($html)->toContain('Promoción Especial Miércoles');
@@ -363,17 +360,13 @@ test('receipt pdf renders credit balance applied and total to pay when sub-item 
         'logoBase64' => null,
     ])->render();
 
-    // Ficha del cliente: muestra estado A FAVOR
-    expect($html)->toContain('Estado Cta. Cte.:')
-        ->toContain('"A FAVOR"')
-        ->toContain('Saldo actual:')
-        ->toContain('$5.000,00');
+    expect($html)->not->toContain('ESTADO EN CUENTA CORRIENTE')
+        ->not->toContain('"A FAVOR"');
 
-    // Totales: muestra Total con monto neto afectado ($6.000,00) y Saldo a Favor Aplicado
+    // Totales: muestra Total con monto neto afectado ($6.000,00) y NO muestra línea separada de saldo a favor
     expect($html)->toContain('TOTAL:')
         ->toContain('$6.000,00')
-        ->toContain('Saldo a Favor Aplicado:')
-        ->toContain('-$4.000,00')
+        ->not->toContain('Saldo a Favor Aplicado:')
         ->and($html)->not->toContain('TOTAL A PAGAR:');
 });
 
@@ -479,10 +472,9 @@ test('receipt pdf respects independent account status and account balance flags'
         'logoBase64' => null,
     ])->render();
 
-    expect($html)->toContain('ESTADO EN CUENTA CORRIENTE')
-        ->and($html)->toContain('Estado Cta. Cte.:')
-        ->and($html)->toContain('"A DEBER"')
-        ->and($html)->not->toContain('Saldo actual:');
+    expect($html)->not->toContain('ESTADO EN CUENTA CORRIENTE')
+        ->and($html)->not->toContain('Estado Cta. Cte.:')
+        ->and($html)->not->toContain('"A DEBER"');
 });
 
 test('can update subtotal balance visibility flags via patch endpoint', function () {
@@ -512,7 +504,7 @@ test('can update subtotal balance visibility flags via patch endpoint', function
         ->and($order->show_projected_balance_in_receipt_subtotal)->toBeTrue();
 });
 
-test('receipt pdf renders current and projected balance before subtotal when enabled', function () {
+test('receipt pdf renders current balance in totals box and adds to grand total when enabled', function () {
     $order = CustomerOrder::create([
         'tenant_id' => $this->tenant->id,
         'customer_id' => $this->customer->id,
@@ -524,7 +516,6 @@ test('receipt pdf renders current and projected balance before subtotal when ena
         'customer_balance_before' => 15000.00,
         'customer_balance_after' => 25000.00,
         'show_current_balance_in_receipt_subtotal' => true,
-        'show_projected_balance_in_receipt_subtotal' => true,
     ]);
 
     CustomerOrderItem::create([
@@ -545,21 +536,37 @@ test('receipt pdf renders current and projected balance before subtotal when ena
 
     expect($html)->toContain('Saldo Cta. Cte. actual:')
         ->and($html)->toContain('$15.000,00 (deudor)')
-        ->and($html)->toContain('Saldo Cta. Cte. resultante:')
-        ->and($html)->toContain('$25.000,00 (deudor)')
-        ->and($html)->toContain('SUBTOTAL:');
+        ->and($html)->not->toContain('Saldo Cta. Cte. resultante:')
+        ->and($html)->toContain('SUBTOTAL:')
+        ->and($html)->toContain('TOTAL:')
+        ->and($html)->toContain('$25.000,00');
+});
 
-    // Verificar que los ítems se muestran ANTES del cálculo de SUBTOTAL (arriba de SUBTOTAL)
-    $posCurrent = strpos($html, 'Saldo Cta. Cte. actual:');
-    $posProjected = strpos($html, 'Saldo Cta. Cte. resultante:');
-    $posSeparator = strpos($html, 'border-top: 1px dashed #cbd5e1;');
-    $posSubtotal = strpos($html, 'SUBTOTAL:');
+test('can update show_current_balance_in_receipt unified flag via patch endpoint', function () {
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'order_number' => 'ORD-UNIF-01',
+        'customer_name' => $this->customer->name,
+        'status' => 'en_preparacion',
+        'fiscal_status' => 'sin_facturar',
+        'total_amount' => 10000.00,
+        'show_current_balance_in_receipt_subtotal' => false,
+        'show_account_in_receipt' => false,
+    ]);
 
-    expect($posCurrent)->toBeLessThan($posSubtotal)
-        ->and($posProjected)->toBeLessThan($posSubtotal)
-        ->and($posCurrent)->toBeLessThan($posProjected)
-        ->and($posProjected)->toBeLessThan($posSeparator)
-        ->and($posSeparator)->toBeLessThan($posSubtotal);
+    $response = $this->actingAs($this->user)
+        ->patchJson("/tenant/pedidos/{$order->id}/visibilidad-remito", [
+            'show_current_balance_in_receipt' => true,
+        ]);
+
+    $response->assertOk()
+        ->assertJsonPath('success', true);
+
+    $order->refresh();
+    expect($order->show_current_balance_in_receipt_subtotal)->toBeTrue()
+        ->and($order->show_account_in_receipt)->toBeTrue()
+        ->and($order->show_projected_balance_in_receipt_subtotal)->toBeFalse();
 });
 
 test('receipt pdf hides subtotal balance items when disabled', function () {

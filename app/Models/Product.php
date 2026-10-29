@@ -136,6 +136,10 @@ class Product extends Model
             return (float) ($this->tenant->default_bulk_discount_percentage ?? 0.00);
         }
 
+        if (! $this->tenant_id) {
+            return 0.00;
+        }
+
         $tenantDiscount = Tenant::where('id', $this->tenant_id)->value('default_bulk_discount_percentage');
 
         return (float) ($tenantDiscount ?? 0.00);

@@ -223,6 +223,19 @@ test('customer order automatically adds charge to account and cancels/reverses i
     $response->assertStatus(201);
 
     $customer->refresh();
+    // Deferred ledger: balance is not altered until delivery
+    expect((float) $customer->current_balance)->toBe(0.00);
+
+    $order = CustomerOrder::latest()->first();
+
+    // 2. Entregar el pedido -> Asienta la deuda en cuenta corriente
+    $deliverResponse = $this->actingAs($this->user)
+        ->patchJson(route('tenant.orders.update-status', $order), [
+            'status' => 'entregado',
+        ]);
+    $deliverResponse->assertOk();
+
+    $customer->refresh();
     expect((float) $customer->current_balance)->toBe(10000.00);
 
     $chargeMovement = CustomerAccountMovement::where('customer_id', $customer->id)
@@ -232,8 +245,7 @@ test('customer order automatically adds charge to account and cancels/reverses i
     expect((float) $chargeMovement->amount)->toBe(10000.00);
     expect((float) $chargeMovement->balance_after)->toBe(10000.00);
 
-    // 2. Cancelar el pedido -> Deber revertir el saldo
-    $order = CustomerOrder::latest()->first();
+    // 3. Cancelar el pedido entregado -> Debe revertir el saldo
     $cancelResponse = $this->actingAs($this->user)
         ->patchJson(route('tenant.orders.update-status', $order), [
             'status' => 'cancelado',
@@ -325,8 +337,8 @@ test('cash customer order registers charge and immediate payment without alterin
     $response->assertStatus(201);
 
     $customer->refresh();
-    // Saldo se incrementa al crearse como pendiente hasta su cobro manual
-    expect((float) $customer->current_balance)->toBe(10000.00);
+    // Deferred ledger: balance is not altered until delivery
+    expect((float) $customer->current_balance)->toBe(5000.00);
 
     $order = CustomerOrder::latest()->first();
     expect($order->payment_status)->toBe('pendiente')
@@ -336,14 +348,27 @@ test('cash customer order registers charge and immediate payment without alterin
         ->where('customer_order_id', $order->id)
         ->get();
 
-    expect($movements)->toHaveCount(1);
+    expect($movements)->toHaveCount(0);
 
-    $charge = $movements->firstWhere('type', 'charge');
+    // 2. Entregar el pedido -> Asienta la deuda en cuenta corriente
+    $deliverResponse = $this->actingAs($this->user)
+        ->patchJson(route('tenant.orders.update-status', $order), [
+            'status' => 'entregado',
+        ]);
+    $deliverResponse->assertOk();
+
+    $customer->refresh();
+    expect((float) $customer->current_balance)->toBe(10000.00);
+
+    $charge = CustomerAccountMovement::where('customer_id', $customer->id)
+        ->where('customer_order_id', $order->id)
+        ->where('type', 'charge')
+        ->first();
     expect($charge)->not->toBeNull();
     expect((float) $charge->amount)->toBe(5000.00);
     expect((float) $charge->balance_after)->toBe(10000.00);
 
-    // 2. Cancelar el pedido antes de cobrarlo -> revierte la deuda del pedido y preserva los $5000 originales
+    // 3. Cancelar el pedido entregado -> revierte la deuda del pedido y preserva los $5000 originales
     $cancelResponse = $this->actingAs($this->user)
         ->patchJson(route('tenant.orders.update-status', $order), [
             'status' => 'cancelado',

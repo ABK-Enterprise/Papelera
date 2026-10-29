@@ -15,7 +15,8 @@
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
-    import { ClearFilterButton } from '@/components/common';
+    import { ClearFilterButton, ModuleHeader } from '@/components/common';
+    import { type PaginationMeta } from '@/components/common/AppPagination.svelte';
 
     import BulkDiscountConfigModal from './BulkDiscountConfigModal.svelte';
     import ProductModal from './ProductModal.svelte';
@@ -87,7 +88,7 @@
         tenantDefaultBulkDiscount = 0,
         filters = {},
     }: {
-        products: ProductItem[];
+        products: (PaginationMeta & { data: ProductItem[] }) | ProductItem[];
         categories: CategoryItem[];
         warehouses?: WarehouseOption[];
         stats?: Stats;
@@ -95,6 +96,9 @@
         tenantDefaultBulkDiscount?: number;
         filters?: FilterProps;
     } = $props();
+
+    let productItems = $derived(Array.isArray(products) ? products : (products?.data ?? []));
+    let productPagination = $derived(Array.isArray(products) ? null : products);
 
     import { useTableFilters } from '@/lib/useTableFilters.svelte';
 
@@ -180,12 +184,8 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
     <!-- Header de la Página -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
-            Catálogo de Productos
-        </h1>
-
-        <div class="flex items-center justify-end gap-2.5 flex-wrap">
+    <ModuleHeader title="Catálogo de Productos" badge={stats.total}>
+        {#snippet actions()}
             <Link href="/tenant/productos/buscar-deposito">
                 <Button
                     variant="secondary"
@@ -195,7 +195,6 @@
                     <span>Buscar en Depósito</span>
                 </Button>
             </Link>
-
 
             {#if hasPermission('productos.editar')}
                 <Button
@@ -217,11 +216,8 @@
                     </Button>
                 </Link>
             {/if}
-        </div>
-
-
-
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Banner Wide Card de Productos Incompletos -->
     {#if incompleteCount > 0}
@@ -258,7 +254,7 @@
             <div class="flex-1 min-w-[240px] max-w-lg">
                 <SearchCombobox
                     bind:value={tableFilters.filters.search}
-                    items={products}
+                    items={productItems}
                     searchKeys={['name', 'sku', 'barcode']}
                     placeholder="Buscar por nombre, SKU o barra..."
                     onsearch={(q) => {
@@ -352,7 +348,7 @@
             <div class="flex-1">
                 <SearchCombobox
                     bind:value={tableFilters.filters.search}
-                    items={products}
+                    items={productItems}
                     searchKeys={['name', 'sku', 'barcode']}
                     placeholder="Buscar producto, SKU o código..."
                     onsearch={(q) => {
@@ -409,13 +405,13 @@
         </div>
 
         <div class="md:col-span-9">
-            <ProductListDesktop {products} searchQuery={tableFilters.filters.search} />
+            <ProductListDesktop products={productItems} pagination={productPagination} searchQuery={tableFilters.filters.search} />
         </div>
     </div>
 
     <!-- Vista Mobile -->
     <div class="block md:hidden space-y-4">
-        <ProductListMobile {products} searchQuery={tableFilters.filters.search} />
+        <ProductListMobile products={productItems} pagination={productPagination} searchQuery={tableFilters.filters.search} />
     </div>
 
 

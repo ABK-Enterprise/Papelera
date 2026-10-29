@@ -3,6 +3,7 @@
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
     import EmptyState from '@/components/common/EmptyState.svelte';
+    import { ModuleHeader } from '@/components/common';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import WarehouseListDesktop, { type WarehouseItem, type BranchOption } from './desktop/WarehouseListDesktop.svelte';
     import WarehouseListMobile from './mobile/WarehouseListMobile.svelte';
@@ -74,27 +75,21 @@
 
 <div class="flex flex-col gap-6 w-full">
     <!-- Encabezado y Acciones Principales con Botones Equilibrados -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex flex-wrap items-center gap-2.5 min-w-0">
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Gestión de Depósitos</h1>
-            <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums shrink-0">
-                {warehouses.length} {warehouses.length === 1 ? 'depósito' : 'depósitos'}
-            </span>
-        </div>
-        <div class="flex flex-wrap items-center justify-end gap-2.5">
+    <ModuleHeader title="Gestión de Depósitos" badge={warehouses.length}>
+        {#snippet actions()}
             <Link href="/tenant/productos/buscar-deposito">
-                <Button variant="outline" class="min-h-[44px] gap-2 rounded-xl border-border/70 text-sm font-medium">
+                <Button variant="outline" class="min-h-[38px] gap-2 rounded-xl border-border/70 text-sm font-medium">
                     <WarehouseIcon class="h-4 w-4 text-muted-foreground" />
                     <span>Consultar stock</span>
                 </Button>
             </Link>
 
-            <Button onclick={openCreateModal} class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-xs">
+            <Button onclick={openCreateModal} class="min-h-[38px] gap-2 rounded-xl text-sm font-medium shadow-xs">
                 <Plus class="h-4 w-4" />
                 <span>Nuevo depósito</span>
             </Button>
-        </div>
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Barra de Búsqueda de Depósitos -->
     {#if warehouses.length > 0}

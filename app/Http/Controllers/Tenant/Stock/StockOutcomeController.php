@@ -23,16 +23,33 @@ class StockOutcomeController extends Controller
     public function index(Request $request): Response|JsonResponse
     {
         $tenantId = $request->user()->tenant_id;
+        $search = $request->input('search');
+        $period = $request->input('period', 'all');
 
-        $movements = StockMovement::outcomes()
+        $query = StockMovement::outcomes()
             ->with(['product:id,name,sku,barcode', 'user:id,name', 'warehouse:id,name,code'])
-            ->latest()
-            ->get();
+            ->when($search, function ($q, $search) {
+                $term = '%'.mb_strtolower(trim((string) $search), 'UTF-8').'%';
+                $q->where(function ($sub) use ($term) {
+                    $sub->whereHas('product', function ($pq) use ($term) {
+                        $pq->whereRaw('LOWER(name) LIKE ?', [$term])
+                            ->orWhereRaw('LOWER(sku) LIKE ?', [$term]);
+                    })->orWhereRaw('LOWER(reason) LIKE ?', [$term])
+                      ->orWhereRaw('LOWER(notes) LIKE ?', [$term]);
+                });
+            })
+            ->when($period === 'week', fn ($q) => $q->where('created_at', '>=', now()->subDays(7)))
+            ->when($period === 'month', fn ($q) => $q->where('created_at', '>=', now()->subDays(30)))
+            ->latest();
 
-        $products = Product::where('is_active', true)
+        $movements = $query->paginate(20)->withQueryString();
+
+        $resolveProducts = fn () => Product::where('tenant_id', $tenantId)
+            ->where('is_active', true)
             ->select('id', 'name', 'sku', 'stock')
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->each->setAppends([]);
 
         $warehouses = Warehouse::where('tenant_id', $tenantId)
             ->where('is_active', true)
@@ -43,16 +60,26 @@ class StockOutcomeController extends Controller
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
-                'movements' => $movements,
-                'products' => $products,
+                'movements' => $movements->items(),
+                'movements_meta' => [
+                    'current_page' => $movements->currentPage(),
+                    'last_page' => $movements->lastPage(),
+                    'per_page' => $movements->perPage(),
+                    'total' => $movements->total(),
+                ],
+                'products' => $resolveProducts(),
                 'warehouses' => $warehouses,
             ]);
         }
 
         return Inertia::render('tenant/stock/outcomes/Index', [
             'movements' => $movements,
-            'products' => $products,
+            'products' => Inertia::optional($resolveProducts),
             'warehouses' => $warehouses,
+            'filters' => [
+                'search' => $search,
+                'period' => $period,
+            ],
         ]);
     }
 
@@ -68,6 +95,17 @@ class StockOutcomeController extends Controller
         if (! $warehouseId) {
             $warehouseId = Warehouse::where('tenant_id', $tenantId)->where('is_default', true)->value('id')
                 ?: Warehouse::where('tenant_id', $tenantId)->value('id');
+
+            if (! $warehouseId) {
+                $warehouseId = Warehouse::firstOrCreate([
+                    'tenant_id' => $tenantId,
+                    'is_default' => true,
+                ], [
+                    'name' => 'Depósito Principal',
+                    'code' => 'DEP-01',
+                    'is_active' => true,
+                ])->id;
+            }
         }
 
         $movement = DB::transaction(function () use ($tenantId, $productId, $warehouseId, $quantity, $reason, $notes, $request) {

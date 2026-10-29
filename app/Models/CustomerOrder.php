@@ -69,6 +69,7 @@ use Illuminate\Support\Carbon;
     'previous_debt_collected',
     'customer_balance_before',
     'customer_balance_after',
+    'account_posted_at',
     'notes',
 ])]
 class CustomerOrder extends Model
@@ -89,7 +90,7 @@ class CustomerOrder extends Model
         'preparado' => ['en_camino', 'entregado', 'cancelado'],
         'en_camino' => ['entregado', 'no_entregado', 'cancelado'],
         'no_entregado' => ['preparado', 'en_preparacion', 'cancelado'],
-        'entregado' => [], // Estado terminal
+        'entregado' => ['cancelado'],
         'cancelado' => [], // Estado terminal
     ];
 
@@ -136,6 +137,7 @@ class CustomerOrder extends Model
             'show_credit_applied_in_receipt' => 'boolean',
             'show_debt_collected_in_receipt' => 'boolean',
             'price_adjustments' => 'array',
+            'account_posted_at' => 'datetime',
         ];
     }
 
@@ -286,7 +288,7 @@ class CustomerOrder extends Model
             }
 
             if ($originalStatus === 'entregado') {
-                if ($order->isDirty('status')) {
+                if ($order->isDirty('status') && $order->status !== 'cancelado') {
                     throw new \DomainException("El pedido {$order->order_number} se encuentra en estado definitivo ({$originalStatus}) y su estado no puede alterarse.");
                 }
 
@@ -341,6 +343,11 @@ class CustomerOrder extends Model
     }
 
     public function isTerminal(): bool
+    {
+        return $this->status === 'cancelado';
+    }
+
+    public function isOperationallyImmutable(): bool
     {
         return in_array($this->status, ['entregado', 'cancelado'], true);
     }

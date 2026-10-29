@@ -135,12 +135,22 @@ class ArcaAuthService
 
         // 3. Call WSAA via SOAP
         try {
+            $context = stream_context_create([
+                'ssl' => [
+                    'ciphers' => 'DEFAULT@SECLEVEL=1',
+                    'security_level' => 1,
+                    'verify_peer' => true,
+                    'verify_peer_name' => true,
+                ],
+            ]);
+
             $soapClient = $this->customSoapClient ?: new SoapClient($this->wsaaWsdl, [
                 'soap_version' => SOAP_1_2,
                 'location' => $this->wsaaUrl,
                 'trace' => 1,
                 'exceptions' => true,
                 'connection_timeout' => 30,
+                'stream_context' => $context,
             ]);
 
             $loginResult = $soapClient->loginCms([

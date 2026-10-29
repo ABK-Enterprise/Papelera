@@ -33,7 +33,14 @@ beforeEach(function () {
     ]);
     $this->user->assignRole($adminRole);
 
-    $this->warehouse = Warehouse::where('tenant_id', $this->tenant->id)->first();
+    $this->warehouse = Warehouse::firstOrCreate([
+        'tenant_id' => $this->tenant->id,
+    ], [
+        'name' => 'Depósito Principal',
+        'code' => 'DEP-01',
+        'is_default' => true,
+        'is_active' => true,
+    ]);
     $this->category = Category::factory()->forTenant($this->tenant)->create();
 });
 

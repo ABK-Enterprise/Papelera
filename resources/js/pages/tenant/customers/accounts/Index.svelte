@@ -10,16 +10,23 @@
     import AccountLedgerMobile from './mobile/AccountLedgerMobile.svelte';
     import RecordAdjustmentModal from './RecordAdjustmentModal.svelte';
     import RecordPaymentModal from './RecordPaymentModal.svelte';
+    import { ModuleHeader } from '@/components/common';
+    import type { PaginationMeta } from '@/components/common/AppPagination.svelte';
 
     let {
         customers = [],
         selectedCustomer = null,
+        movementsPagination = null,
         filters = {},
     }: {
-        customers: CustomerAccountFull[];
+        customers: (PaginationMeta & { data: CustomerAccountFull[] }) | CustomerAccountFull[];
         selectedCustomer: CustomerAccountFull | null;
+        movementsPagination?: PaginationMeta | null;
         filters?: Record<string, any>;
     } = $props();
+
+    let customerItems = $derived(Array.isArray(customers) ? customers : (customers?.data ?? []));
+    let customerPagination = $derived(Array.isArray(customers) ? null : customers);
 
     // Modals state
     let isPaymentModalOpen = $state(false);
@@ -78,14 +85,8 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
     <!-- Header Operativo Limpio Escalonado -->
-    <div class="flex flex-col gap-3 pb-2 border-b border-border/50">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">
-                Cuentas Corrientes
-            </h1>
-        </div>
-
-        <div class="flex items-center justify-end gap-2.5 w-full flex-wrap sm:flex-nowrap">
+    <ModuleHeader title="Cuentas Corrientes">
+        {#snippet actions()}
             {#if selectedCustomer}
                 <Button
                     variant="outline"
@@ -103,15 +104,17 @@
                     <span>Clientes</span>
                 </Button>
             </a>
-        </div>
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
 
     <!-- Vista Responsiva Operativa: Desktop Split / Mobile Feed -->
     <div class="hidden lg:block">
         <AccountLedgerDesktop
-            {customers}
+            customers={customerItems}
+            pagination={customerPagination}
             {selectedCustomer}
+            {movementsPagination}
             {filters}
             onOpenPayment={openPaymentModal}
             onOpenAdjustment={openAdjustmentModal}
@@ -121,7 +124,8 @@
 
     <div class="block lg:hidden">
         <AccountLedgerMobile
-            {customers}
+            customers={customerItems}
+            pagination={customerPagination}
             {filters}
             onOpenPayment={openPaymentModal}
             onOpenAdjustment={openAdjustmentModal}

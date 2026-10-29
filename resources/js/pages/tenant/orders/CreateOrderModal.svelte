@@ -33,10 +33,8 @@
     import Warehouse from 'lucide-svelte/icons/warehouse';
     import MapPin from 'lucide-svelte/icons/map-pin';
     import MoreVertical from 'lucide-svelte/icons/more-vertical';
-    import QrCode from 'lucide-svelte/icons/qr-code';
     import Tag from 'lucide-svelte/icons/tag';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
-    import MercadoPagoQrModal from '@/components/common/MercadoPagoQrModal.svelte';
     import EditItemPriceModal from '@/components/tenant/products/EditItemPriceModal.svelte';
     import CreateCustomAdjustmentModal from './components/CreateCustomAdjustmentModal.svelte';
     import ChooseAdjustmentActionModal from './components/ChooseAdjustmentActionModal.svelte';
@@ -154,19 +152,9 @@
     let customerPhone = $state('');
     let deliveryAddress = $state('');
     let notes = $state('');
-    let paymentType = $state<'cuenta_corriente' | 'contado' | 'parcial'>('cuenta_corriente');
-    let paymentMethod = $state<'efectivo' | 'transferencia' | 'mercadopago' | 'debito' | 'credito' | 'otro'>('efectivo');
-    let paidAmount = $state<number | string>('');
+    let paymentType = $state<'cuenta_corriente' | 'contado'>('cuenta_corriente');
     let isSubmitting = $state(false);
     let errorMessage = $state<string | null>(null);
-    let chargeWithQr = $state(true);
-    let isQrModalOpen = $state(false);
-    let createdOrderForQr = $state<any>(null);
-    let targetQrAmountForModal = $state<number | null>(null);
-
-    let isMpInstantCharge = $derived(
-        paymentMethod === 'mercadopago' && (paymentType === 'contado' || paymentType === 'parcial')
-    );
 
     $effect(() => {
         if (!selectedCustomerId && paymentType === 'cuenta_corriente') {
@@ -1139,24 +1127,6 @@
             });
         }
 
-        let numericPaidAmount: number | null = null;
-        if (paymentType === 'parcial') {
-            const raw = Number(paidAmount) || 0;
-            if (raw <= 0) {
-                errorMessage = 'Por favor ingresa un monto válido a cobrar para el pago parcial.';
-                isSubmitting = false;
-                return;
-            }
-            if (raw >= remainingToPay) {
-                errorMessage = 'El pago parcial debe ser menor al total a pagar. Para cobrar el total, selecciona "Cobro Total en el Momento".';
-                isSubmitting = false;
-                return;
-            }
-            numericPaidAmount = raw;
-        }
-
-        const shouldChargeWithQr = isMpInstantCharge && chargeWithQr;
-
         router.post(
             '/tenant/pedidos',
             {
@@ -1168,8 +1138,8 @@
                 delivery_address: deliveryAddress,
                 notes: notes,
                 payment_type: paymentType,
-                payment_method: (paymentType === 'contado' || paymentType === 'parcial') ? paymentMethod : null,
-                paid_amount: numericPaidAmount,
+                payment_method: null,
+                paid_amount: null,
                 payment_reference: null,
                 apply_customer_discount: applyCustomerDiscount,
                 price_adjustments: priceAdjustments.map((adj) => ({
@@ -1184,26 +1154,13 @@
                 show_account_status_in_receipt: true,
                 show_account_balance_in_receipt: true,
                 show_current_balance_in_receipt_subtotal: showAccountBalanceInOrderSummary,
-                show_projected_balance_in_receipt_subtotal: showAccountBalanceInOrderSummary,
-                mp_qr_checkout: shouldChargeWithQr ? true : undefined,
+                show_projected_balance_in_receipt_subtotal: false,
                 items: payloadItems,
             },
             {
                 preserveScroll: true,
-                onSuccess: (page) => {
-                    const flash = (page.props as any)?.flash;
-                    const createdOrder = flash?.created_order;
-                    const targetAmount = flash?.target_qr_amount;
-
-                    if (shouldChargeWithQr && createdOrder) {
-                        createdOrderForQr = createdOrder;
-                        targetQrAmountForModal = targetAmount || (paymentType === 'parcial' ? numericPaidAmount : (grandTotal + effectivePreviousDebtCollected));
-                        isQrModalOpen = true;
-                        open = false;
-                        resetForm();
-                    } else {
-                        closeModal();
-                    }
+                onSuccess: () => {
+                    closeModal();
                 },
                 onError: (errors) => {
                     const firstError = Object.values(errors)[0];
@@ -1962,7 +1919,7 @@
                     </div>
                 </div>
 
-                <!-- Bento Card 3: Condición y Medio de Pago -->
+                <!-- Bento Card 3: Condición de Pago -->
                 <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
                     <div class="flex items-start justify-between gap-2.5">
                         <h3 class="min-w-0 flex-1 break-words text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
@@ -1971,7 +1928,7 @@
                         </h3>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         <label
                             class="flex items-start gap-3 p-3 rounded-xl border transition-all {!selectedCustomerId ? 'opacity-50 cursor-not-allowed bg-muted/20 border-border/50' : (paymentType === 'cuenta_corriente' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs cursor-pointer' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground cursor-pointer')}"
                         >
@@ -1986,7 +1943,7 @@
                             <div class="min-w-0">
                                 <span class="text-xs font-medium block">Cuenta Corriente</span>
                                 <span class="text-xs text-muted-foreground block font-normal">
-                                    {!selectedCustomerId ? 'Disponible solo para clientes registrados' : 'Se suma al saldo deudor del cliente'}
+                                    {!selectedCustomerId ? 'Disponible solo para clientes registrados' : 'El saldo deudor se asienta al entregar el pedido'}
                                 </span>
                             </div>
                         </label>
@@ -2002,118 +1959,11 @@
                                 class="mt-0.5 size-4 text-primary focus:ring-primary"
                             />
                             <div class="min-w-0">
-                                <span class="text-xs font-medium block">Cobro Total</span>
-                                <span class="text-xs text-muted-foreground block font-normal">Se cobra el importe total del pedido al confirmar</span>
-                            </div>
-                        </label>
-
-                        <label
-                            class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {paymentType === 'parcial' ? 'border-primary bg-primary/5 text-foreground font-semibold shadow-xs' : 'border-border/80 bg-background/60 hover:bg-muted/40 text-muted-foreground'}"
-                        >
-                            <input
-                                type="radio"
-                                name="order_payment_type"
-                                value="parcial"
-                                bind:group={paymentType}
-                                class="mt-0.5 size-4 text-primary focus:ring-primary"
-                            />
-                            <div class="min-w-0">
-                                <span class="text-xs font-medium block">Pago Parcial / Seña</span>
-                                <span class="text-xs text-muted-foreground block font-normal">Entrega anticipada + saldo a cobrar</span>
+                                <span class="text-xs font-medium block">Contado</span>
+                                <span class="text-xs text-muted-foreground block font-normal">Se cobra en mostrador o al finalizar la entrega</span>
                             </div>
                         </label>
                     </div>
-
-                    {#if paymentType === 'contado' || paymentType === 'parcial'}
-                        <div class="pt-2.5 mt-1 border-t border-border/50 space-y-3">
-                            <div class="space-y-1.5">
-                                <Label for="order-payment-method" class="text-sm font-medium text-foreground">
-                                    Medio de Pago
-                                </Label>
-                                <select
-                                    id="order-payment-method"
-                                    bind:value={paymentMethod}
-                                    class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
-                                >
-                                    <option value="efectivo">Efectivo</option>
-                                    <option value="transferencia">Transferencia Bancaria</option>
-                                    <option value="mercadopago">Mercado Pago</option>
-                                    <option value="debito">Tarjeta de Débito</option>
-                                    <option value="credito">Tarjeta de Crédito</option>
-                                    <option value="otro">Otro medio de pago</option>
-                                </select>
-                            </div>
-
-                            {#if paymentType === 'parcial'}
-                                <div class="space-y-1.5 bg-background/80 p-3 rounded-xl border border-border/80">
-                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                        <div>
-                                            <Label for="order-paid-amount" class="text-sm font-medium text-foreground">
-                                                Monto cobrado anticipadamente
-                                            </Label>
-                                            <p class="text-xs text-muted-foreground">
-                                                Deuda restante que quedará pendiente:
-                                                <span class="font-semibold tabular-nums text-foreground">
-                                                    {formatPrice(Math.max(0, grandTotal - effectivePaidAmount))}
-                                                </span>
-                                            </p>
-                                        </div>
-                                        <div class="w-full sm:w-48">
-                                            <Input
-                                                id="order-paid-amount"
-                                                type="number"
-                                                step="0.01"
-                                                min="0.01"
-                                                max={grandTotal}
-                                                maxlength="9"
-                                                onkeydown={(e) => preventInvalidNumericKeys(e)}
-                                                oninput={(e) => {
-                                                    handleStrictFixedAmountInput(e, grandTotal, (val) => {
-                                                        paidAmount = val;
-                                                    });
-                                                }}
-                                                placeholder={`ej. ${(grandTotal / 2).toFixed(2)}`}
-                                                bind:value={paidAmount}
-                                                class="h-10 text-sm font-medium rounded-xl font-sans tabular-nums"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            {/if}
-
-                            <!-- Cobro Inmediato con QR de Mercado Pago -->
-                            {#if isMpInstantCharge}
-                                <div class="rounded-xl border border-sky-500/30 bg-sky-500/10 p-3 sm:p-3.5 space-y-2">
-                                    <label class="flex items-center justify-between gap-3 cursor-pointer select-none">
-                                        <div class="flex items-center gap-2.5 min-w-0">
-                                            <div class="size-8 rounded-lg bg-sky-500/20 text-sky-600 dark:text-sky-300 flex items-center justify-center shrink-0">
-                                                <QrCode class="size-4" />
-                                            </div>
-                                            <div class="min-w-0">
-                                                <p class="text-xs font-bold text-foreground">Cobro Inmediato con QR</p>
-                                                <p class="text-xs text-muted-foreground">Generar el código QR en pantalla al crear el pedido para cobrarlo en el momento</p>
-                                            </div>
-                                        </div>
-                                        <input
-                                            type="checkbox"
-                                            bind:checked={chargeWithQr}
-                                            class="size-4.5 rounded text-primary focus:ring-primary cursor-pointer shrink-0"
-                                        />
-                                    </label>
-                                    {#if chargeWithQr}
-                                        <div class="text-xs font-medium text-sky-800 dark:text-sky-200 bg-sky-500/10 px-2.5 py-1.5 rounded-lg border border-sky-500/20">
-                                            {#if paymentType === 'contado'}
-                                                Se abrirá el QR para cobrar el total de <strong class="tabular-nums">{formatPrice(grandTotal + effectivePreviousDebtCollected)}</strong>.
-                                            {:else}
-                                                Se abrirá el QR para cobrar el anticipo de <strong class="tabular-nums">{formatPrice(Number(paidAmount) || 0)}</strong>.
-                                            {/if}
-                                            Al acreditarse el pago, se registrará el recibo oficial y se actualizará el pedido automáticamente.
-                                        </div>
-                                    {/if}
-                                </div>
-                            {/if}
-                        </div>
-                    {/if}
                 </div>
 
                 {#if paymentType === 'cuenta_corriente'}
@@ -2647,9 +2497,6 @@
                     >
                         {#if isSubmitting}
                             <span>Guardando...</span>
-                        {:else if isMpInstantCharge && chargeWithQr}
-                            <QrCode class="size-4 shrink-0" />
-                            <span>Crear y Cobrar QR</span>
                         {:else}
                             <Check class="size-4 shrink-0" />
                             <span>Crear Pedido</span>
@@ -2826,24 +2673,7 @@
     </DialogContent>
 </Dialog>
 
-<!-- Modal de Cobro con QR Inmediato de Mercado Pago -->
-<MercadoPagoQrModal
-    bind:open={isQrModalOpen}
-    order={createdOrderForQr}
-    initialAmount={targetQrAmountForModal}
-    onSuccess={() => {
-        isQrModalOpen = false;
-        createdOrderForQr = null;
-        targetQrAmountForModal = null;
-        router.reload({ only: ['orders', 'stats'], preserveScroll: true });
-    }}
-    onclose={() => {
-        isQrModalOpen = false;
-        createdOrderForQr = null;
-        targetQrAmountForModal = null;
-        router.reload({ only: ['orders', 'stats'], preserveScroll: true });
-    }}
-/>
+
 
 <!-- Modal de Modificación de Precio de Ítem -->
 <EditItemPriceModal

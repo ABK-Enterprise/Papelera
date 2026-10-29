@@ -140,7 +140,7 @@ test('kardex index returns movements with eager loaded relationships for current
     $response->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('tenant/stock/kardex/Index')
-            ->has('movements', 1)
-            ->where('movements.0.product_id', $this->product->id)
+            ->has('movements.data', 1)
+            ->where('movements.data.0.product_id', $this->product->id)
         );
 });

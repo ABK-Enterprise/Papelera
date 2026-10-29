@@ -6,7 +6,8 @@
     import KardexListDesktop from '@/pages/tenant/stock/kardex/desktop/KardexListDesktop.svelte';
     import KardexListMobile from '@/pages/tenant/stock/kardex/mobile/KardexListMobile.svelte';
     import StockNavigationTabs from '@/pages/tenant/stock/StockNavigationTabs.svelte';
-    import { ClearFilterButton } from '@/components/common';
+    import { ClearFilterButton, ModuleHeader } from '@/components/common';
+    import type { PaginationMeta } from '@/components/common/AppPagination.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import { router, page } from '@inertiajs/svelte';
@@ -54,12 +55,29 @@
     let {
         movements = [],
         products = [],
+        stats = { total_incomes: 0, total_outcomes: 0, net_balance: 0 },
         filters = { search: '', type: '', product_id: null, date_from: '', date_to: '', sort_by: 'latest' },
     }: {
-        movements: StockMovementItem[];
-        products: ProductItem[];
+        movements: (PaginationMeta & { data: StockMovementItem[] }) | StockMovementItem[];
+        products?: ProductItem[];
+        stats?: { total_incomes: number; total_outcomes: number; net_balance: number };
         filters?: Filters;
     } = $props();
+
+    let movementItems = $derived(Array.isArray(movements) ? movements : (movements?.data ?? []));
+    let movementPagination = $derived(Array.isArray(movements) ? null : movements);
+    let suggestedProducts = $derived.by(() => {
+        if (products && products.length > 0) return products;
+        const seen = new Set<number>();
+        const list: ProductItem[] = [];
+        for (const m of movementItems) {
+            if (m.product && !seen.has(m.product.id)) {
+                seen.add(m.product.id);
+                list.push({ id: m.product.id, name: m.product.name, sku: m.product.sku });
+            }
+        }
+        return list;
+    });
 
     let selectedMovement = $state<StockMovementItem | null>(null);
     let isDetailModalOpen = $state(false);
@@ -90,7 +108,7 @@
 
         echo.private(stockChannel)
             .listen('.StockMovementRecorded', () => {
-                router.reload({ only: ['movements'], preserveScroll: true, preserveState: true });
+                router.reload({ only: ['movements', 'stats'], preserveScroll: true, preserveState: true });
             });
 
         echo.private(alertChannel)
@@ -173,18 +191,12 @@
 <AppHead title="Kardex de Movimientos - Comercio" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1460px] mx-auto w-full">
-    <!-- Sub-Navegación de Pestañas de Stock y Productos -->
-    <StockNavigationTabs activeTab="kardex" />
-
-    <!-- Page Header -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-foreground">Kardex e Historial</h1>
-            <p class="mt-1 text-sm text-muted-foreground max-w-prose">
-                Auditoría cronológica y trazabilidad de todos los movimientos de inventario de tu comercio.
-            </p>
-        </div>
-    </div>
+    <!-- Sub-Navegación de Pestañas de Stock y Header -->
+    <ModuleHeader title="Kardex e Historial">
+        {#snippet tabs()}
+            <StockNavigationTabs activeTab="kardex" />
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Filter / Action Toolbar -->
     <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3.5 bg-card/60 backdrop-blur-sm p-3.5 rounded-xl border border-border/60 shadow-xs">
@@ -193,7 +205,7 @@
             <div class="flex-1 min-w-[240px]">
                 <SearchCombobox
                     bind:value={searchInput}
-                    items={products}
+                    items={suggestedProducts}
                     debounceMs={300}
                     placeholder="Buscar por producto, SKU o código de barras..."
                     onsearch={applyFilters}
@@ -202,7 +214,7 @@
                         applyFilters();
                     }}
                 >
-                    {#snippet item(prod)}
+                    {#snippet itemSnippet(prod)}
                         <div class="flex items-center justify-between gap-3 w-full min-w-0">
                             <span class="truncate font-medium text-foreground">{prod.name}</span>
                             {#if prod.sku}
@@ -286,10 +298,10 @@
 
     <!-- Desglose Responsive Desktop & Mobile -->
     <div class="hidden md:block">
-        <KardexListDesktop {movements} onSelectMovement={openDetailModal} />
+        <KardexListDesktop movements={movementItems} pagination={movementPagination} {stats} onSelectMovement={openDetailModal} />
     </div>
     <div class="block md:hidden">
-        <KardexListMobile {movements} onSelectMovement={openDetailModal} />
+        <KardexListMobile movements={movementItems} pagination={movementPagination} onSelectMovement={openDetailModal} />
     </div>
 </div>
 

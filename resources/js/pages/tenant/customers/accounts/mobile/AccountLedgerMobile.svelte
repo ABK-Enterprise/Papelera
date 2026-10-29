@@ -22,17 +22,20 @@
     import X from 'lucide-svelte/icons/x';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import { hasPermission } from '@/lib/permissions';
+    import AppPagination, { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import type { CustomerAccountFull, MovementData } from '../desktop/AccountLedgerDesktop.svelte';
     import CustomerAccountFilterModalMobile from './CustomerAccountFilterModalMobile.svelte';
 
     let {
         customers = [],
+        pagination = null,
         filters = {},
         onOpenPayment,
         onOpenAdjustment,
         onOpenCreditSettings,
     }: {
         customers: CustomerAccountFull[];
+        pagination?: PaginationMeta | null;
         filters?: Record<string, any>;
         onOpenPayment: (cust: CustomerAccountFull) => void;
         onOpenAdjustment: (cust: CustomerAccountFull) => void;
@@ -313,6 +316,12 @@
                 </div>
             </button>
         {/each}
+
+        {#if pagination}
+            <div class="pt-2">
+                <AppPagination {pagination} />
+            </div>
+        {/if}
 
         {#if customers.length === 0}
             <div class="py-12 text-center rounded-2xl bg-card border border-border p-6 space-y-2">

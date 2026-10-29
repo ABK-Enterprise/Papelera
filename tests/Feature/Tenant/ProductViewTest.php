@@ -43,7 +43,7 @@ test('tenant user can render products index page with inertia', function () {
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
-            ->has('products', 3)
+            ->has('products.data', 3)
             ->has('categories', 1)
             ->has('stats')
             ->has('filters')

@@ -44,6 +44,15 @@ class ArcaWsfeService
             return $this->customSoapClient;
         }
 
+        $context = stream_context_create([
+            'ssl' => [
+                'ciphers' => 'DEFAULT@SECLEVEL=1',
+                'security_level' => 1,
+                'verify_peer' => true,
+                'verify_peer_name' => true,
+            ],
+        ]);
+
         return new SoapClient($this->wsfeWsdl, [
             'soap_version' => SOAP_1_2,
             'location' => $this->wsfeUrl,
@@ -51,6 +60,7 @@ class ArcaWsfeService
             'exceptions' => true,
             'connection_timeout' => $this->timeout,
             'cache_wsdl' => WSDL_CACHE_NONE,
+            'stream_context' => $context,
         ]);
     }
 

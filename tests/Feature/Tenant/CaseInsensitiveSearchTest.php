@@ -66,8 +66,8 @@ test('product search is case-insensitive for product name and SKU', function () 
     $responseNameLower->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
-            ->has('products', 1)
-            ->where('products.0.name', 'Cuaderno Rivadavia Tapa Dura')
+            ->has('products.data', 1)
+            ->where('products.data.0.name', 'Cuaderno Rivadavia Tapa Dura')
         );
 
     // Search name in uppercase
@@ -76,7 +76,7 @@ test('product search is case-insensitive for product name and SKU', function () 
     $responseNameUpper->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
-            ->has('products', 1)
+            ->has('products.data', 1)
         );
 
     // Search SKU in lowercase
@@ -85,7 +85,7 @@ test('product search is case-insensitive for product name and SKU', function () 
     $responseSkuLower->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
-            ->has('products', 1)
+            ->has('products.data', 1)
         );
 });
 
@@ -100,7 +100,7 @@ test('supplier search is case-insensitive', function () {
     $responseLower->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/suppliers/Index')
-            ->has('suppliers', 1)
+            ->has('suppliers.data', 1)
         );
 
     $responseUpper = $this->actingAs($this->user)
@@ -108,7 +108,7 @@ test('supplier search is case-insensitive', function () {
     $responseUpper->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/suppliers/Index')
-            ->has('suppliers', 1)
+            ->has('suppliers.data', 1)
         );
 });
 
@@ -135,7 +135,7 @@ test('kardex search by product name or sku is case-insensitive', function () {
     $response->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/stock/kardex/Index')
-            ->has('movements', 1)
-            ->where('movements.0.product_id', $product->id)
+            ->has('movements.data', 1)
+            ->where('movements.data.0.product_id', $product->id)
         );
 });

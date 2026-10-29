@@ -61,7 +61,7 @@ test('seeded productos and stock modules match routes and grant access to tenant
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/products/Index')
-            ->has('products')
+            ->has('products.data')
             ->has('categories')
             ->has('stats')
         );
@@ -72,8 +72,9 @@ test('seeded productos and stock modules match routes and grant access to tenant
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/stock/incomes/Index')
-            ->has('movements')
-            ->has('products')
+            ->has('movements.data')
+            ->missing('products')
+            ->reloadOnly('products', fn (Assert $reload) => $reload->has('products'))
         );
 
     // If module is removed from tenant, access is redirected to access-denied

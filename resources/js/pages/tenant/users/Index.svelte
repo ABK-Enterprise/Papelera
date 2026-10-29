@@ -5,6 +5,7 @@
     import AppPagination from '@/components/common/AppPagination.svelte';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
+    import { ModuleHeader } from '@/components/common';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import UserListDesktop from './desktop/UserListDesktop.svelte';
     import UserListMobile from './mobile/UserListMobile.svelte';
@@ -78,31 +79,23 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
     <!-- Encabezado y Acciones Principales -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <div class="flex items-center gap-2.5">
-                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Personal del Comercio</h1>
-                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums">
-                    {users.length} {users.length === 1 ? 'miembro' : 'miembros'}
-                </span>
-            </div>
-        </div>
-        <div class="flex flex-wrap items-center justify-end gap-2.5">
+    <ModuleHeader title="Personal del Comercio" badge={users.length}>
+        {#snippet actions()}
             <Link href="/tenant/roles">
-                <Button variant="secondary" class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-2xs">
+                <Button variant="secondary" class="min-h-[38px] gap-2 rounded-xl text-sm font-medium shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
                     <Shield class="h-4 w-4" />
                     <span>Roles y Permisos</span>
                 </Button>
             </Link>
 
             <Link href="/tenant/usuarios/create">
-                <Button class="min-h-[44px] gap-2 rounded-xl text-sm font-medium shadow-xs">
+                <Button class="min-h-[38px] gap-2 rounded-xl text-sm font-medium shadow-xs">
                     <UserPlus class="h-4 w-4" />
                     <span>Nuevo usuario</span>
                 </Button>
             </Link>
-        </div>
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Barra de Búsqueda de Empleados -->
     {#if users.length > 0}
