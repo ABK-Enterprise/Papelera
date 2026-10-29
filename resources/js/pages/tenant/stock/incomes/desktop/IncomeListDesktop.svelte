@@ -8,10 +8,12 @@
     import Filter from 'lucide-svelte/icons/filter';
     import Package from 'lucide-svelte/icons/package';
     import Search from 'lucide-svelte/icons/search';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import Tag from 'lucide-svelte/icons/tag';
     import User from 'lucide-svelte/icons/user';
     import X from 'lucide-svelte/icons/x';
     import Building2 from 'lucide-svelte/icons/building-2';
+    import { formatDateTime } from '@/lib/utils';
 
     interface StockMovementItem {
         id: number;
@@ -147,24 +149,31 @@
             </button>
         </div>
 
-        <!-- Buscador integrado -->
-        <div class="relative w-72">
-            <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-            <input
-                type="text"
+        <!-- Buscador integrado con SearchCombobox -->
+        <div class="w-80">
+            <SearchCombobox
                 bind:value={searchTerm}
+                items={movements}
+                filterLocally={true}
+                debounceMs={0}
                 placeholder="Buscar por producto, notas..."
-                class="h-9 w-full rounded-full border border-input bg-background pl-8 pr-8 text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none transition-all"
-            />
-            {#if searchTerm}
-                <button
-                    type="button"
-                    onclick={() => (searchTerm = '')}
-                    class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                    <X class="size-3" />
-                </button>
-            {/if}
+                onsearch={(q) => (searchTerm = q)}
+                onselect={(mov) => (searchTerm = mov.product?.name ?? '')}
+                onclear={() => (searchTerm = '')}
+                inputClass="h-9 text-xs"
+            >
+                {#snippet itemSnippet(mov)}
+                    <div class="flex items-center justify-between gap-3 w-full min-w-0">
+                        <div class="flex flex-col min-w-0">
+                            <span class="truncate font-medium text-foreground">{mov.product?.name ?? 'Sin producto'}</span>
+                            <span class="text-xs text-muted-foreground tabular-nums">{formatReason(mov.reason)} · {formatDateTime(mov.created_at)}</span>
+                        </div>
+                        <span class="tabular-nums font-bold text-emerald-600 dark:text-emerald-400 text-xs shrink-0">
+                            +{mov.quantity}
+                        </span>
+                    </div>
+                {/snippet}
+            </SearchCombobox>
         </div>
     </div>
 

@@ -49,6 +49,7 @@
     let showCreateModal = $state(false);
     let showManageModal = $state(false);
     let isFilterModalOpen = $state(false);
+    let isSearching = $state(false);
     let selectedCustomer = $state<CustomerItem | null>(null);
 
     $effect(() => {
@@ -67,6 +68,7 @@
     });
 
     function applyFilters() {
+        isSearching = true;
         router.get(
             '/tenant/clientes',
             {
@@ -79,6 +81,9 @@
             {
                 preserveState: true,
                 preserveScroll: true,
+                onFinish: () => {
+                    isSearching = false;
+                },
             }
         );
     }
@@ -89,7 +94,14 @@
         selectedTaxCondition = '';
         selectedDefaulter = '';
         selectedSort = 'latest';
-        router.get('/tenant/clientes', {}, { preserveState: true, preserveScroll: true });
+        isSearching = true;
+        router.get('/tenant/clientes', {}, {
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => {
+                isSearching = false;
+            },
+        });
     }
 
     function handleSelectCustomer(customer: CustomerItem) {
@@ -136,6 +148,7 @@
                         bind:value={searchTerm}
                         items={customerItems}
                         searchKeys={['name', 'tax_id', 'phone', 'address']}
+                        loading={isSearching}
                         placeholder="Buscar por nombre, CUIT/DNI, teléfono..."
                         onsearch={(q) => {
                             searchTerm = q;

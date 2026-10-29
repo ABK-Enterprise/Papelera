@@ -1,3 +1,4 @@
+<!-- Rama de trabajo activa: feature-deposito-sucursal -->
 <laravel-boost-guidelines>
 === foundation rules ===
 

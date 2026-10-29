@@ -112,6 +112,7 @@
                         bind:value={tableFilters.filters.search}
                         items={supplierItems}
                         searchKeys={['name', 'contact_number', 'email', 'address']}
+                        loading={tableFilters.isLoading}
                         placeholder="Buscar por nombre, teléfono, email..."
                         onsearch={(q) => {
                             tableFilters.apply({ search: q });

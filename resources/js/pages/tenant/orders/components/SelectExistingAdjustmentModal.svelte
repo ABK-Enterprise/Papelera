@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { untrack } from 'svelte';
     import {
         Dialog,
@@ -10,6 +10,7 @@
     } from '@/components/ui/dialog';
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import { router } from '@inertiajs/svelte';
     import { toast } from 'svelte-sonner';
     import { generateUUID } from '@/lib/utils';
@@ -298,14 +299,20 @@
         </DialogHeader>
 
         <DialogBody class="py-2 space-y-3 flex-1 overflow-y-auto min-h-0">
-            <!-- Buscador en tiempo real -->
-            <div class="relative">
-                <Search class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                <Input
-                    type="search"
-                    placeholder="Buscar por nombre o motivo..."
+            <!-- Buscador en tiempo real con SearchCombobox -->
+            <div>
+                <SearchCombobox
                     bind:value={searchQuery}
-                    class="pl-9 min-h-[44px] rounded-xl text-sm font-medium"
+                    items={adjustments}
+                    searchKeys={['name', 'reason']}
+                    filterLocally={true}
+                    debounceMs={0}
+                    loading={isLoading}
+                    showDropdown={false}
+                    placeholder="Buscar por nombre o motivo..."
+                    onsearch={(q) => (searchQuery = q)}
+                    onclear={() => (searchQuery = '')}
+                    inputClass="min-h-[44px] rounded-xl text-sm font-medium"
                 />
             </div>
 

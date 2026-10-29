@@ -12,6 +12,7 @@
     import { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
+    import { formatDateTime } from '@/lib/utils';
     import { hasPermission } from '@/lib/permissions';
     import CreateOrderModal from './CreateOrderModal.svelte';
     import OrderDetailModal from './OrderDetailModal.svelte';
@@ -116,6 +117,7 @@
     let collectingOrder = $state<OrderData | null>(null);
     let hasLoadedCatalog = $state(false);
     let isLoadingCatalog = $state(false);
+    let isSearching = $state(false);
 
     $effect(() => {
         if ((isCreateModalOpen || isAddProductsModalOpen) && !hasLoadedCatalog && !isLoadingCatalog) {
@@ -236,6 +238,7 @@
     ];
 
     function applyFilters() {
+        isSearching = true;
         router.get(
             '/tenant/pedidos',
             {
@@ -246,6 +249,9 @@
             {
                 preserveState: true,
                 preserveScroll: true,
+                onFinish: () => {
+                    isSearching = false;
+                },
             }
         );
     }
@@ -254,7 +260,14 @@
         searchTerm = '';
         selectedStatus = 'all';
         sortBy = 'latest';
-        router.get('/tenant/pedidos', {}, { preserveState: true, preserveScroll: true });
+        isSearching = true;
+        router.get('/tenant/pedidos', {}, {
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => {
+                isSearching = false;
+            },
+        });
     }
 
 
@@ -306,6 +319,7 @@
                     <SearchCombobox
                         bind:value={searchTerm}
                         items={orderItems}
+                        loading={isSearching}
                         placeholder="Buscar por #pedido, cliente o teléfono..."
                         onsearch={(q) => {
                             searchTerm = q;
@@ -322,7 +336,7 @@
                                         <span class="font-bold text-foreground tabular-nums">#{ord.order_number}</span>
                                         <span class="truncate text-muted-foreground">· {ord.customer_name}</span>
                                     </div>
-                                    <span class="text-xs text-muted-foreground/80">{ord.created_at}</span>
+                                    <span class="text-xs text-muted-foreground/80 tabular-nums">{formatDateTime(ord.created_at)}</span>
                                 </div>
                                 <div class="flex items-center gap-2 shrink-0">
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold border {badge.class}">
@@ -449,6 +463,7 @@
     bind:open={isCreateModalOpen}
     {availableProducts}
     {availableCustomers}
+    isLoadingCatalog={isLoadingCatalog}
     {warehouses}
     {shippingZones}
 />

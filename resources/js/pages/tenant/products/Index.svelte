@@ -256,6 +256,7 @@
                     bind:value={tableFilters.filters.search}
                     items={productItems}
                     searchKeys={['name', 'sku', 'barcode']}
+                    loading={tableFilters.isLoading}
                     placeholder="Buscar por nombre, SKU o barra..."
                     onsearch={(q) => {
                         tableFilters.apply({ search: q });
@@ -350,6 +351,7 @@
                     bind:value={tableFilters.filters.search}
                     items={productItems}
                     searchKeys={['name', 'sku', 'barcode']}
+                    loading={tableFilters.isLoading}
                     placeholder="Buscar producto, SKU o código..."
                     onsearch={(q) => {
                         tableFilters.apply({ search: q });
