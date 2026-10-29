@@ -65,7 +65,7 @@ class CustomerAccountController extends Controller
         $statsRecord = Customer::selectRaw('
             COALESCE(SUM(current_balance), 0) as total_debt,
             COUNT(*) as total_customers,
-            COUNT(CASE WHEN is_defaulter = 1 THEN 1 END) as defaulters_count,
+            COUNT(CASE WHEN is_defaulter = true THEN 1 END) as defaulters_count,
             COALESCE(SUM(credit_limit), 0) as total_credit_limit
         ')->first();
 
