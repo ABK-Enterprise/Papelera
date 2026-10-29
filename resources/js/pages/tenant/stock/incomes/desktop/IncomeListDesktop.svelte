@@ -13,6 +13,7 @@
     import User from 'lucide-svelte/icons/user';
     import X from 'lucide-svelte/icons/x';
     import Building2 from 'lucide-svelte/icons/building-2';
+    import { formatDateTime } from '@/lib/utils';
 
     interface StockMovementItem {
         id: number;
@@ -165,7 +166,7 @@
                     <div class="flex items-center justify-between gap-3 w-full min-w-0">
                         <div class="flex flex-col min-w-0">
                             <span class="truncate font-medium text-foreground">{mov.product?.name ?? 'Sin producto'}</span>
-                            <span class="text-xs text-muted-foreground">{formatReason(mov.reason)} · {mov.created_at}</span>
+                            <span class="text-xs text-muted-foreground tabular-nums">{formatReason(mov.reason)} · {formatDateTime(mov.created_at)}</span>
                         </div>
                         <span class="tabular-nums font-bold text-emerald-600 dark:text-emerald-400 text-xs shrink-0">
                             +{mov.quantity}
