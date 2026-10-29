@@ -90,7 +90,7 @@
     $effect(() => {
         if (open && order) {
             showCurrentBalance = Boolean(
-                order.show_current_balance_in_receipt_subtotal ||
+                order.show_current_balance_in_receipt_subtotal ??
                 order.show_account_in_receipt
             );
             showCreditApplied = canShowCreditApplied
@@ -109,6 +109,36 @@
             }
             visibilityMap = map;
         }
+    });
+
+    const discounts = $derived(
+        Array.isArray(order?.price_adjustments)
+            ? order!.price_adjustments.filter((a) => a.type === 'discount')
+            : []
+    );
+
+    const surcharges = $derived(
+        Array.isArray(order?.price_adjustments)
+            ? order!.price_adjustments.filter((a) => a.type === 'surcharge')
+            : []
+    );
+
+    // Estado de selección del grupo Descuentos: 'all' | 'none' | 'some'
+    const discountsState = $derived.by(() => {
+        if (discounts.length === 0) return 'none';
+        const checkedCount = discounts.filter((d) => visibilityMap[d.id]).length;
+        if (checkedCount === 0) return 'none';
+        if (checkedCount === discounts.length) return 'all';
+        return 'some';
+    });
+
+    // Estado de selección del grupo Recargos: 'all' | 'none' | 'some'
+    const surchargesState = $derived.by(() => {
+        if (surcharges.length === 0) return 'none';
+        const checkedCount = surcharges.filter((s) => visibilityMap[s.id]).length;
+        if (checkedCount === 0) return 'none';
+        if (checkedCount === surcharges.length) return 'all';
+        return 'some';
     });
 
     function toggleAllDiscounts() {

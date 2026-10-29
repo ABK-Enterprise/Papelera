@@ -157,30 +157,8 @@
             padding-top: 4px !important;
             margin-top: 2px;
         }
-        .account-amount-line {
-            line-height: 1.45;
-            font-size: 15.5px;
-        }
-        .account-amount-line-current {
-            font-size: 16.5px;
-        }
-        .badge-account-favor {
-            color: #15803d;
-            font-weight: 800;
-            letter-spacing: 0.3px;
-            font-size: 16px;
-        }
-        .badge-account-deudor {
-            color: #b91c1c;
-            font-weight: 800;
-            letter-spacing: 0.3px;
-            font-size: 16px;
-        }
-        .badge-account-neutral {
-            color: #475569;
-            font-weight: 700;
-            font-size: 16px;
-        }
+
+
 
         /* Tabla de Ítems */
         .items-table {
@@ -332,49 +310,7 @@
             text-align: right;
         }
 
-        /* Sección Inferior: Estado en Cuenta Corriente */
-        .summary-section-account {
-            border-top: 1.5px solid #cbd5e1;
-            background: #ffffff;
-            padding: 5px 10px 6px 10px;
-        }
-        .summary-account-title {
-            text-align: center;
-            font-size: 11.5px;
-            font-weight: 800;
-            color: #334155;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            margin-bottom: 3px;
-            padding-bottom: 3px;
-            border-bottom: 1px dashed #cbd5e1;
-        }
-        .summary-account-title .account-info-icon {
-            display: inline-block;
-            font-weight: 900;
-            font-size: 13px;
-            margin-right: 4px;
-            color: #0284c7;
-        }
-        .summary-account-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .account-col-left {
-            width: 46%;
-            vertical-align: middle;
-            padding-right: 14px;
-            border-right: 1px solid #cbd5e1;
-            text-align: left;
-            font-size: 12px;
-        }
-        .account-col-right {
-            width: 54%;
-            vertical-align: middle;
-            padding-left: 14px;
-            text-align: right;
-            font-size: 12px;
-        }
+
     </style>
 </head>
 <body>
@@ -653,59 +589,6 @@
                         </tr>
                     </table>
                 </div>
-
-                <!-- 3. Sección Inferior: Estado en Cuenta Corriente (si aplica y no se muestra en subtotal) -->
-                @php
-                    $showStatus = (bool) ($order->show_account_status_in_receipt ?? true);
-                    $showBalance = (bool) ($order->show_account_balance_in_receipt ?? true);
-                @endphp
-                @if(empty($order->show_current_balance_in_receipt_subtotal) && $order->show_account_in_receipt && $order->customer && ($showStatus || $showBalance))
-                    @php
-                        $currentBalance = $order->customer_balance_after !== null
-                            ? (float) $order->customer_balance_after
-                            : (float) ($order->customer->current_balance ?? 0);
-                        $isFavor = $currentBalance < 0;
-                        $isDeudor = $currentBalance > 0;
-                        $absBalance = abs($currentBalance);
-                    @endphp
-                    <div class="summary-section-account">
-                        <div class="summary-account-title">
-                            <span class="account-info-icon">&#9432;</span> ESTADO EN CUENTA CORRIENTE
-                        </div>
-                        <table class="summary-account-table">
-                            <tr>
-                                @if($showStatus)
-                                    <td class="account-col-left" style="{{ !$showBalance ? 'width: 100%; border-right: none;' : '' }}">
-                                        <div>
-                                            <strong style="color: #0f172a;">Estado Cta. Cte.:</strong>
-                                            @if($isFavor)
-                                                <span class="badge-account-favor">"A FAVOR"</span>
-                                            @elseif($isDeudor)
-                                                <span class="badge-account-deudor">"A DEBER"</span>
-                                            @else
-                                                <span class="badge-account-neutral">"AL DIA"</span>
-                                            @endif
-                                        </div>
-                                    </td>
-                                @endif
-                                @if($showBalance)
-                                    <td class="account-col-right" style="{{ !$showStatus ? 'width: 100%; text-align: left; padding-left: 0;' : '' }}">
-                                        <div class="account-amount-line account-amount-line-current">
-                                            <strong style="color: #0f172a;">Saldo actual:</strong>
-                                            @if($isFavor)
-                                                <span class="tabular-nums font-bold text-green">${{ number_format($absBalance, 2, ',', '.') }}</span>
-                                            @elseif($isDeudor)
-                                                <span class="tabular-nums font-bold text-danger">${{ number_format($absBalance, 2, ',', '.') }}</span>
-                                            @else
-                                                <span class="tabular-nums font-bold">$0,00</span>
-                                            @endif
-                                        </div>
-                                    </td>
-                                @endif
-                            </tr>
-                        </table>
-                    </div>
-                @endif
             </div>
         </div>
     </div>

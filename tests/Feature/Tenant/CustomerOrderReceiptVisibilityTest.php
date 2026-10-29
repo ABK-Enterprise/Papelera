@@ -267,11 +267,8 @@ test('receipt pdf template renders customer credit account and filtered adjustme
         'logoBase64' => null,
     ])->render();
 
-    // Debe mostrarse el resumen de cuenta corriente en el recuadro informativo
-    expect($html)->toContain('Estado Cta. Cte.:')
-        ->toContain('"A DEBER"')
-        ->toContain('Saldo actual:')
-        ->toContain('ESTADO EN CUENTA CORRIENTE');
+    expect($html)->not->toContain('ESTADO EN CUENTA CORRIENTE')
+        ->not->toContain('"A DEBER"');
 
     // Debe mostrarse el ajuste visible
     expect($html)->toContain('Promoción Especial Miércoles');
@@ -363,11 +360,8 @@ test('receipt pdf renders credit balance applied and total to pay when sub-item 
         'logoBase64' => null,
     ])->render();
 
-    // Ficha del cliente: muestra estado A FAVOR
-    expect($html)->toContain('Estado Cta. Cte.:')
-        ->toContain('"A FAVOR"')
-        ->toContain('Saldo actual:')
-        ->toContain('$5.000,00');
+    expect($html)->not->toContain('ESTADO EN CUENTA CORRIENTE')
+        ->not->toContain('"A FAVOR"');
 
     // Totales: muestra Total con monto neto afectado ($6.000,00) y Saldo a Favor Aplicado
     expect($html)->toContain('TOTAL:')
@@ -479,10 +473,9 @@ test('receipt pdf respects independent account status and account balance flags'
         'logoBase64' => null,
     ])->render();
 
-    expect($html)->toContain('ESTADO EN CUENTA CORRIENTE')
-        ->and($html)->toContain('Estado Cta. Cte.:')
-        ->and($html)->toContain('"A DEBER"')
-        ->and($html)->not->toContain('Saldo actual:');
+    expect($html)->not->toContain('ESTADO EN CUENTA CORRIENTE')
+        ->and($html)->not->toContain('Estado Cta. Cte.:')
+        ->and($html)->not->toContain('"A DEBER"');
 });
 
 test('can update subtotal balance visibility flags via patch endpoint', function () {
