@@ -39,8 +39,8 @@ test('tenant cannot see customers belonging to another tenant', function () {
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
-        ->has('customers', 1)
-        ->where('customers.0.name', 'Cliente Exclusivo Tenant A')
+        ->has('customers.data', 1)
+        ->where('customers.data.0.name', 'Cliente Exclusivo Tenant A')
     );
 });
 

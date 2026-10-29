@@ -1,5 +1,5 @@
 <script lang="ts">
-    import AppPagination from '@/components/common/AppPagination.svelte';
+    import AppPagination, { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
@@ -46,20 +46,17 @@
 
     let {
         orders = [],
+        pagination = null,
         onSelectOrder,
         onEditPrices = undefined,
         onCollectOrder = undefined,
     }: {
         orders: OrderData[];
+        pagination?: PaginationMeta | null;
         onSelectOrder: (order: OrderData) => void;
         onEditPrices?: (order: OrderData) => void;
         onCollectOrder?: (order: OrderData) => void;
     } = $props();
-
-    let page = $state(1);
-    const perPage = 6;
-
-    let paginatedOrders = $derived(orders.slice((page - 1) * perPage, page * perPage));
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
@@ -91,7 +88,7 @@
 </script>
 
 <div class="flex flex-col gap-3">
-    {#each paginatedOrders as order (order.id)}
+    {#each orders as order (order.id)}
         <div
             class="relative flex flex-col min-h-[56px] gap-3 rounded-2xl border bg-card p-4 shadow-2xs transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:z-10 has-[[data-state=open]]:z-30 active:scale-[0.99] cursor-pointer select-none {order.price_review_pending ? 'border-amber-500/80 bg-amber-500/5 ring-1 ring-amber-500/30' : 'border-border/70'}"
             onclick={() => onSelectOrder(order)}
@@ -242,7 +239,5 @@
         />
     {/if}
 
-    {#if orders.length > perPage}
-        <AppPagination count={orders.length} {perPage} bind:page />
-    {/if}
+    <AppPagination {pagination} />
 </div>

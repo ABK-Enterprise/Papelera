@@ -17,6 +17,8 @@ class ArgentinaGeodataSeeder extends Seeder
      */
     public function run(): void
     {
+        ini_set('memory_limit', '512M');
+
         $jsonPath = database_path('data/argentina_geodata.json');
 
         if (! File::exists($jsonPath)) {

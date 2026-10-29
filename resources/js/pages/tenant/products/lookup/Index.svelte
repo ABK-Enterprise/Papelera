@@ -11,6 +11,7 @@
         type CategoryOption,
     } from './desktop/WarehouseLookupDesktop.svelte';
     import WarehouseLookupMobile from './mobile/WarehouseLookupMobile.svelte';
+    import { ModuleHeader } from '@/components/common';
 
     interface Props {
         items: {
@@ -86,6 +87,21 @@
     let transferProduct = $state<any>(null);
     let transferOriginWarehouseId = $state<number | null>(null);
     let transferStock = $state<number | null>(null);
+    let hasLoadedProducts = $state(false);
+    let isLoadingProducts = $state(false);
+
+    $effect(() => {
+        if (transferModalOpen && !transferProduct && !hasLoadedProducts && products.length === 0 && !isLoadingProducts) {
+            isLoadingProducts = true;
+            router.reload({
+                only: ['products'],
+                onFinish: () => {
+                    hasLoadedProducts = true;
+                    isLoadingProducts = false;
+                },
+            });
+        }
+    });
 
     function openTransferModal(item?: any) {
         if (item) {
@@ -110,24 +126,10 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
     <!-- Encabezado y Acciones del Módulo (Separado homogéneamente del cuerpo por gap-6) -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <div class="flex items-center gap-2.5">
-                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-                    Buscar en Depósito
-                </h1>
-                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium tracking-wide text-primary tabular-nums">
-                    {items.total} {items.total === 1 ? 'registro' : 'registros'}
-                </span>
-            </div>
-            <p class="mt-1 text-sm text-muted-foreground">
-                Consulta y audita el stock físico distribuido por depósito, estante y producto.
-            </p>
-        </div>
-
-        <div class="flex items-center justify-end gap-2.5 flex-wrap sm:flex-nowrap">
+    <ModuleHeader title="Buscar en Depósito" badge={items.total}>
+        {#snippet actions()}
             <Link href="/tenant/productos">
-                <Button variant="secondary" class="min-h-[44px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs">
+                <Button variant="secondary" class="min-h-[38px] px-3.5 gap-2 rounded-xl text-sm font-medium shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
                     <Box class="size-4 text-primary" />
                     <span>Catálogo de productos</span>
                 </Button>
@@ -135,14 +137,14 @@
 
             <Button
                 variant="default"
-                class="min-h-[44px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs"
+                class="min-h-[38px] px-3.5 gap-2 rounded-xl text-sm font-medium shadow-xs"
                 onclick={() => openTransferModal()}
             >
                 <ArrowLeftRight class="size-4" />
                 <span>Transferir stock</span>
             </Button>
-        </div>
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Contenido del Cuerpo: Desktop View -->
     <div class="hidden md:block">

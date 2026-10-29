@@ -25,9 +25,10 @@ test('user with permission can view warehouse lookup page with products and ware
     $response->assertInertia(fn ($page) => $page
         ->component('tenant/products/lookup/Index')
         ->has('items.data')
-
         ->has('warehouses')
         ->has('categories')
+        ->missing('products')
+        ->reloadOnly('products', fn ($reload) => $reload->has('products'))
     );
 });
 

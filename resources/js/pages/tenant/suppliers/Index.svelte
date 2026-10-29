@@ -10,13 +10,14 @@
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import Truck from 'lucide-svelte/icons/truck';
     import Users from 'lucide-svelte/icons/users';
-    import { ClearFilterButton } from '@/components/common';
+    import { ClearFilterButton, ModuleHeader } from '@/components/common';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SupplierFilterModalMobile from './mobile/SupplierFilterModalMobile.svelte';
     import SupplierListDesktop from './desktop/SupplierListDesktop.svelte';
     import SupplierListMobile from './mobile/SupplierListMobile.svelte';
     import CreateSupplierModal from './CreateSupplierModal.svelte';
     import ManageSupplierModal, { type SupplierItem } from './ManageSupplierModal.svelte';
+    import type { PaginationMeta } from '@/components/common/AppPagination.svelte';
 
     import { useTableFilters } from '@/lib/useTableFilters.svelte';
 
@@ -30,10 +31,13 @@
         totalCount = 0,
         filters = {},
     }: {
-        suppliers: SupplierItem[];
+        suppliers: (PaginationMeta & { data: SupplierItem[] }) | SupplierItem[];
         totalCount?: number;
         filters?: FilterProps;
     } = $props();
+
+    let supplierItems = $derived(Array.isArray(suppliers) ? suppliers : (suppliers?.data ?? []));
+    let supplierPagination = $derived(Array.isArray(suppliers) ? null : suppliers);
 
     const tableFilters = useTableFilters({
         basePath: '/tenant/proveedores',
@@ -69,37 +73,34 @@
 <AppHead title="Gestión de Proveedores - Comercio" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
-    <!-- Pestañas de Navegación del Módulo Proveedores -->
-    <div class="flex items-center gap-2 border-b pb-3">
-        <Link href="/tenant/proveedores" class="inline-flex">
-            <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
-                <Users class="size-4" />
-                Directorio de Proveedores ({totalCount})
-            </Button>
-        </Link>
-        <Link href="/tenant/proveedores/ordenes" class="inline-flex">
-            <Button variant="ghost" size="sm" class="gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
-                <Truck class="size-4" />
-                Órdenes de Compra
-            </Button>
-        </Link>
-    </div>
+    <!-- Header y Pestañas de Navegación del Módulo Proveedores -->
+    <ModuleHeader title="Gestión de Proveedores">
+        {#snippet tabs()}
+            <div class="flex items-center gap-2 border-b border-border/60 pb-3">
+                <Link href="/tenant/proveedores" class="inline-flex">
+                    <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
+                        <Users class="size-4" />
+                        Directorio de Proveedores ({totalCount})
+                    </Button>
+                </Link>
+                <Link href="/tenant/proveedores/ordenes" class="inline-flex">
+                    <Button variant="ghost" size="sm" class="gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
+                        <Truck class="size-4" />
+                        Órdenes de Compra
+                    </Button>
+                </Link>
+            </div>
+        {/snippet}
 
-    <!-- Header de la Página -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-            Gestión de Proveedores
-        </h1>
-
-        <div class="flex items-center justify-end gap-2.5">
+        {#snippet actions()}
             {#if hasPermission('proveedores.crear')}
                 <Button class="min-h-[40px] px-4 gap-2 rounded-xl text-sm font-semibold shadow-xs" onclick={() => (showCreateModal = true)}>
                     <Plus class="h-4 w-4" />
                     <span>Nuevo proveedor</span>
                 </Button>
             {/if}
-        </div>
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Bento Card: Buscador y Filtros -->
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-border/60">
@@ -109,7 +110,7 @@
                 <div class="flex-1 min-w-0">
                     <SearchCombobox
                         bind:value={tableFilters.filters.search}
-                        items={suppliers}
+                        items={supplierItems}
                         searchKeys={['name', 'contact_number', 'email', 'address']}
                         placeholder="Buscar por nombre, teléfono, email..."
                         onsearch={(q) => {
@@ -183,7 +184,8 @@
     <!-- Lista en formato Wide Cards (Desglose Desktop) -->
     <div class="hidden md:block">
         <SupplierListDesktop
-            {suppliers}
+            suppliers={supplierItems}
+            pagination={supplierPagination}
             onSelectSupplier={handleSelectSupplier}
             onOpenCreate={() => (showCreateModal = true)}
         />
@@ -192,7 +194,8 @@
     <!-- Lista en formato Wide Cards (Desglose Mobile) -->
     <div class="block md:hidden">
         <SupplierListMobile
-            {suppliers}
+            suppliers={supplierItems}
+            pagination={supplierPagination}
             onSelectSupplier={handleSelectSupplier}
             onOpenCreate={() => (showCreateModal = true)}
         />

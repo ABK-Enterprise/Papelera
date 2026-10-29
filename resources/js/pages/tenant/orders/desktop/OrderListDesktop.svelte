@@ -1,5 +1,5 @@
 <script lang="ts">
-    import AppPagination from '@/components/common/AppPagination.svelte';
+    import AppPagination, { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
@@ -41,19 +41,17 @@
 
     let {
         orders = [],
+        pagination = null,
         onSelectOrder,
         onEditPrices = undefined,
         onCollectOrder = undefined,
     }: {
         orders: OrderSummary[];
+        pagination?: PaginationMeta | null;
         onSelectOrder: (order: OrderSummary) => void;
         onEditPrices?: (order: OrderSummary) => void;
         onCollectOrder?: (order: OrderSummary) => void;
     } = $props();
-
-    let page = $state(1);
-    const perPage = 10;
-    let paginatedOrders = $derived(orders.slice((page - 1) * perPage, page * perPage));
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
@@ -89,7 +87,7 @@
 </script>
 
 <div class="flex flex-col gap-3">
-    {#each paginatedOrders as order (order.id)}
+    {#each orders as order (order.id)}
         <div
             role="button"
             tabindex="0"
@@ -255,7 +253,5 @@
         />
     {/if}
 
-    {#if orders.length > perPage}
-        <AppPagination count={orders.length} {perPage} bind:page />
-    {/if}
+    <AppPagination {pagination} />
 </div>

@@ -345,7 +345,7 @@ test('can list customer orders and search by customer name', function () {
     $response->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/orders/Index')
-            ->has('orders', 2)
+            ->has('orders.data', 2)
             ->where('stats.total', 2)
             ->where('stats.en_preparacion', 1)
             ->where('stats.entregado', 1)
@@ -357,8 +357,8 @@ test('can list customer orders and search by customer name', function () {
     $responseSearch->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('tenant/orders/Index')
-            ->has('orders', 1)
-            ->where('orders.0.customer_name', 'Papelera Central Norte')
+            ->has('orders.data', 1)
+            ->where('orders.data.0.customer_name', 'Papelera Central Norte')
         );
 });
 
@@ -425,6 +425,18 @@ test('can create customer order with full contado payment generating receipt and
     $order = CustomerOrder::where('customer_name', 'Cliente Contado SRL')->first();
     expect($order)->not->toBeNull();
     expect((float) $order->total_amount)->toBe(10000.00);
+    expect((float) $order->debt_amount)->toBe(10000.00);
+    expect($order->payment_status)->toBe('pendiente');
+
+    // Cobro manual
+    $collectRes = $this->actingAs($this->user)->post(route('tenant.orders.collect', $order), [
+        'payment_method' => 'transferencia',
+        'amount' => 10000.00,
+        'reference_number' => 'TRF-12345',
+    ]);
+    $collectRes->assertRedirect();
+
+    $order->refresh();
     expect((float) $order->debt_amount)->toBe(0.00);
     expect($order->payment_status)->toBe('cobrado');
 
@@ -592,9 +604,20 @@ test('can create customer order with contado and mercadopago generating receipt 
 
     $order = CustomerOrder::where('tenant_id', $this->tenant->id)->first();
     expect($order)->not->toBeNull()
-        ->and($order->payment_status)->toBe('cobrado')
-        ->and((float) $order->debt_amount)->toBe(0.0)
+        ->and($order->payment_status)->toBe('pendiente')
+        ->and((float) $order->debt_amount)->toBe(2000.0)
         ->and((float) $order->total_amount)->toBe(2000.0);
+
+    // Cobro manual
+    $collectRes = $this->actingAs($this->user)->post(route('tenant.orders.collect', $order), [
+        'payment_method' => 'mercadopago',
+        'amount' => 2000.00,
+    ]);
+    $collectRes->assertRedirect();
+
+    $order->refresh();
+    expect($order->payment_status)->toBe('cobrado')
+        ->and((float) $order->debt_amount)->toBe(0.0);
 
     $receipt = Receipt::where('tenant_id', $this->tenant->id)->first();
     expect($receipt)->not->toBeNull()

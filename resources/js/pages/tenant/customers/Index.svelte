@@ -11,13 +11,14 @@
     import Banknote from 'lucide-svelte/icons/banknote';
     import { hasPermission } from '@/lib/permissions';
 
-    import { ClearFilterButton } from '@/components/common';
+    import { ClearFilterButton, ModuleHeader } from '@/components/common';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import CustomerFilterModalMobile from './mobile/CustomerFilterModalMobile.svelte';
     import CustomerListDesktop, { type CustomerItem } from './desktop/CustomerListDesktop.svelte';
     import CustomerListMobile from './mobile/CustomerListMobile.svelte';
     import CreateCustomerModal from './CreateCustomerModal.svelte';
     import ManageCustomerModal from './ManageCustomerModal.svelte';
+    import type { PaginationMeta } from '@/components/common/AppPagination.svelte';
 
     interface FilterProps {
         search?: string | null;
@@ -32,10 +33,13 @@
         totalCount = 0,
         filters = {},
     }: {
-        customers: CustomerItem[];
+        customers: (PaginationMeta & { data: CustomerItem[] }) | CustomerItem[];
         totalCount?: number;
         filters?: FilterProps;
     } = $props();
+
+    let customerItems = $derived(Array.isArray(customers) ? customers : (customers?.data ?? []));
+    let customerPagination = $derived(Array.isArray(customers) ? null : customers);
 
     let searchTerm = $state(filters?.search ?? '');
     let selectedStatus = $state(filters?.status ?? '');
@@ -105,14 +109,8 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1360px] mx-auto w-full">
     <!-- Header de la Página -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-                Directorio de Clientes
-            </h1>
-        </div>
-
-        <div class="flex items-center justify-end gap-2.5 w-full sm:w-auto">
+    <ModuleHeader title="Directorio de Clientes" badge={totalCount}>
+        {#snippet actions()}
             <a href="/tenant/clientes/cuentas-corrientes" class="inline-flex">
                 <Button variant="secondary" class="min-h-[38px] px-3.5 gap-2 rounded-xl text-sm font-medium shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
                     <Banknote class="size-3.5" />
@@ -125,8 +123,8 @@
                     <span>Nuevo cliente</span>
                 </Button>
             {/if}
-        </div>
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Bento Card: Buscador y Filtros -->
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-border/60">
@@ -136,7 +134,7 @@
                 <div class="flex-1 min-w-0">
                     <SearchCombobox
                         bind:value={searchTerm}
-                        items={customers}
+                        items={customerItems}
                         searchKeys={['name', 'tax_id', 'phone', 'address']}
                         placeholder="Buscar por nombre, CUIT/DNI, teléfono..."
                         onsearch={(q) => {
@@ -252,7 +250,8 @@
     <!-- Lista en formato Wide Cards (Desglose Desktop) -->
     <div class="hidden md:block">
         <CustomerListDesktop
-            {customers}
+            customers={customerItems}
+            pagination={customerPagination}
             onSelectCustomer={handleSelectCustomer}
             onOpenCreate={() => (showCreateModal = true)}
         />
@@ -261,7 +260,8 @@
     <!-- Lista en formato Wide Cards (Desglose Mobile) -->
     <div class="block md:hidden">
         <CustomerListMobile
-            {customers}
+            customers={customerItems}
+            pagination={customerPagination}
             onSelectCustomer={handleSelectCustomer}
             onOpenCreate={() => (showCreateModal = true)}
         />

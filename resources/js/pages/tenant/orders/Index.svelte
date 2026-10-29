@@ -8,7 +8,8 @@
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
-    import { ClearFilterButton } from '@/components/common';
+    import { ClearFilterButton, ModuleHeader } from '@/components/common';
+    import { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import { hasPermission } from '@/lib/permissions';
@@ -87,7 +88,7 @@
         shippingZones = [],
         filters = {},
     }: {
-        orders: OrderData[];
+        orders: (PaginationMeta & { data: OrderData[] }) | OrderData[];
         stats?: Stats;
         availableProducts?: ProductOption[];
         availableCustomers?: any[];
@@ -96,6 +97,8 @@
         filters?: FilterProps;
     } = $props();
 
+    let orderItems = $derived(Array.isArray(orders) ? orders : (orders?.data ?? []));
+    let orderPagination = $derived(Array.isArray(orders) ? null : orders);
 
     let searchTerm = $state('');
     let selectedStatus = $state('all');
@@ -111,6 +114,21 @@
     let orderToModify = $state<OrderData | null>(null);
     let isCollectModalOpen = $state(false);
     let collectingOrder = $state<OrderData | null>(null);
+    let hasLoadedCatalog = $state(false);
+    let isLoadingCatalog = $state(false);
+
+    $effect(() => {
+        if ((isCreateModalOpen || isAddProductsModalOpen) && !hasLoadedCatalog && !isLoadingCatalog) {
+            isLoadingCatalog = true;
+            router.reload({
+                only: ['availableProducts', 'availableCustomers'],
+                onFinish: () => {
+                    hasLoadedCatalog = true;
+                    isLoadingCatalog = false;
+                },
+            });
+        }
+    });
 
     function openOrderPriceEdit(order: OrderData) {
         editingPriceOrder = order;
@@ -246,8 +264,8 @@
     }
 
     $effect(() => {
-        if (selectedOrder && orders.length > 0) {
-            const fresh = orders.find((o) => o.id === selectedOrder?.id);
+        if (selectedOrder && orderItems.length > 0) {
+            const fresh = orderItems.find((o) => o.id === selectedOrder?.id);
             if (fresh) {
                 selectedOrder = fresh;
             }
@@ -264,14 +282,8 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1360px] mx-auto w-full">
     <!-- Header de la Página -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-                Pedidos de Clientes
-            </h1>
-        </div>
-
-        <div class="flex items-center justify-end gap-2.5">
+    <ModuleHeader title="Pedidos de Clientes">
+        {#snippet actions()}
             {#if hasPermission('pedidos.crear')}
                 <Button
                     onclick={() => (isCreateModalOpen = true)}
@@ -282,8 +294,8 @@
                     <span>Nuevo Pedido</span>
                 </Button>
             {/if}
-        </div>
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Bento Card: Buscador y Filtros -->
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
@@ -293,7 +305,7 @@
 
                     <SearchCombobox
                         bind:value={searchTerm}
-                        items={orders}
+                        items={orderItems}
                         placeholder="Buscar por #pedido, cliente o teléfono..."
                         onsearch={(q) => {
                             searchTerm = q;
@@ -376,12 +388,12 @@
 
     <!-- Lista Desktop -->
     <div class="hidden md:block">
-        <OrderListDesktop {orders} onSelectOrder={openOrderDetail} onEditPrices={openOrderEditActions} onCollectOrder={openCollectOrder} />
+        <OrderListDesktop orders={orderItems} pagination={orderPagination} onSelectOrder={openOrderDetail} onEditPrices={openOrderEditActions} onCollectOrder={openCollectOrder} />
     </div>
 
     <!-- Lista Mobile -->
     <div class="block md:hidden">
-        <OrderListMobile {orders} onSelectOrder={openOrderDetail} onEditPrices={openOrderEditActions} onCollectOrder={openCollectOrder} />
+        <OrderListMobile orders={orderItems} pagination={orderPagination} onSelectOrder={openOrderDetail} onEditPrices={openOrderEditActions} onCollectOrder={openCollectOrder} />
     </div>
 </div>
 

@@ -9,7 +9,8 @@
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
     import Truck from 'lucide-svelte/icons/truck';
     import Users from 'lucide-svelte/icons/users';
-    import { ClearFilterButton } from '@/components/common';
+    import { ClearFilterButton, ModuleHeader } from '@/components/common';
+    import { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import { hasPermission } from '@/lib/permissions';
     import CreateSupplierOrderModal from './CreateSupplierOrderModal.svelte';
@@ -84,12 +85,15 @@
         availableProducts = [],
         filters = {},
     }: {
-        orders: SupplierOrderData[];
+        orders: (PaginationMeta & { data: SupplierOrderData[] }) | SupplierOrderData[];
         stats?: Stats;
         suppliers?: SupplierOption[];
         availableProducts?: ProductOption[];
         filters?: FilterProps;
     } = $props();
+
+    let orderItems = $derived(Array.isArray(orders) ? orders : (orders?.data ?? []));
+    let orderPagination = $derived(Array.isArray(orders) ? null : orders);
 
     import { untrack } from 'svelte';
 
@@ -111,6 +115,21 @@
     let isDetailModalOpen = $state(false);
     let isFilterModalOpen = $state(false);
     let selectedOrder = $state<SupplierOrderData | null>(null);
+    let hasLoadedProducts = $state(false);
+    let isLoadingProducts = $state(false);
+
+    $effect(() => {
+        if (isCreateModalOpen && !hasLoadedProducts && !isLoadingProducts) {
+            isLoadingProducts = true;
+            router.reload({
+                only: ['availableProducts'],
+                onFinish: () => {
+                    hasLoadedProducts = true;
+                    isLoadingProducts = false;
+                },
+            });
+        }
+    });
 
     let tenantId = $derived(
         Number(page.props.auth?.tenant?.id ?? page.props.auth?.user?.tenant_id ?? 1)
@@ -172,8 +191,8 @@
     }
 
     $effect(() => {
-        if (selectedOrder && orders.length > 0) {
-            const fresh = orders.find((o) => o.id === selectedOrder?.id);
+        if (selectedOrder && orderItems.length > 0) {
+            const fresh = orderItems.find((o) => o.id === selectedOrder?.id);
             if (fresh) {
                 selectedOrder = fresh;
             }
@@ -187,32 +206,26 @@
 <AppHead title="Órdenes de Compra a Proveedores - Comercio" />
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1360px] mx-auto w-full">
-    <!-- Pestañas de Navegación del Módulo Proveedores -->
-    <div class="flex items-center gap-2 border-b pb-3">
-        <Link href="/tenant/proveedores" class="inline-flex">
-            <Button variant="ghost" size="sm" class="gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
-                <Users class="size-4" />
-                Directorio de Proveedores
-            </Button>
-        </Link>
-        <Link href="/tenant/proveedores/ordenes" class="inline-flex">
-            <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
-                <Truck class="size-4" />
-                Órdenes de Compra ({stats.total})
-            </Button>
-        </Link>
-    </div>
+    <!-- Header y Pestañas de Navegación del Módulo Proveedores -->
+    <ModuleHeader title="Órdenes de Compra a Proveedores">
+        {#snippet tabs()}
+            <div class="flex items-center gap-2 border-b border-border/60 pb-3">
+                <Link href="/tenant/proveedores" class="inline-flex">
+                    <Button variant="ghost" size="sm" class="gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
+                        <Users class="size-4" />
+                        Directorio de Proveedores
+                    </Button>
+                </Link>
+                <Link href="/tenant/proveedores/ordenes" class="inline-flex">
+                    <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
+                        <Truck class="size-4" />
+                        Órdenes de Compra ({stats.total})
+                    </Button>
+                </Link>
+            </div>
+        {/snippet}
 
-
-    <!-- Header de la Página -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-                Órdenes de Compra a Proveedores
-            </h1>
-        </div>
-
-        <div class="flex items-center justify-end gap-2.5">
+        {#snippet actions()}
             {#if hasPermission('proveedores.pedidos.crear')}
                 <Button
                     onclick={() => (isCreateModalOpen = true)}
@@ -222,8 +235,8 @@
                     <span>Crear orden</span>
                 </Button>
             {/if}
-        </div>
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Bento Card: Buscador y Filtros -->
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
@@ -291,12 +304,12 @@
 
     <!-- Lista Desktop -->
     <div class="hidden md:block">
-        <SupplierOrderListDesktop {orders} onSelectOrder={openOrderDetail} />
+        <SupplierOrderListDesktop orders={orderItems} pagination={orderPagination} onSelectOrder={openOrderDetail} />
     </div>
 
     <!-- Lista Mobile -->
     <div class="block md:hidden">
-        <SupplierOrderListMobile {orders} onSelectOrder={openOrderDetail} />
+        <SupplierOrderListMobile orders={orderItems} pagination={orderPagination} onSelectOrder={openOrderDetail} />
     </div>
 </div>
 

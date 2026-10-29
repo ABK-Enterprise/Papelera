@@ -57,18 +57,24 @@ class CustomerController extends Controller
             ->when($sortBy === 'credit_low', fn ($q) => $q->orderBy('credit_limit', 'asc'))
             ->when(! in_array($sortBy, ['oldest', 'name_asc', 'name_desc', 'credit_high', 'credit_low'], true), fn ($q) => $q->latest());
 
-        $customers = $query->get();
+        $customers = $query->paginate(20)->withQueryString();
 
         if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json([
-                'customers' => $customers,
-                'total_count' => $customers->count(),
+                'customers' => $customers->items(),
+                'customers_meta' => [
+                    'current_page' => $customers->currentPage(),
+                    'last_page' => $customers->lastPage(),
+                    'per_page' => $customers->perPage(),
+                    'total' => $customers->total(),
+                ],
+                'total_count' => $customers->total(),
             ]);
         }
 
         return Inertia::render('tenant/customers/Index', [
             'customers' => $customers,
-            'totalCount' => $customers->count(),
+            'totalCount' => $customers->total(),
             'filters' => [
                 'search' => $search,
                 'status' => $status,

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
+    import AppPagination, { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import ArrowDownLeft from 'lucide-svelte/icons/arrow-down-left';
     import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
     import Calendar from 'lucide-svelte/icons/calendar';
@@ -33,9 +34,13 @@
 
     let {
         movements = [],
+        pagination = null,
+        stats = undefined,
         onSelectMovement,
     }: {
         movements: StockMovementItem[];
+        pagination?: PaginationMeta | null;
+        stats?: { total_incomes: number; total_outcomes: number; net_balance: number } | undefined;
         onSelectMovement: (movement: StockMovementItem) => void;
     } = $props();
 
@@ -66,18 +71,20 @@
 
     // Cálculos de Bento Grid
     let totalIncomes = $derived(
-        movements
-            .filter((m) => m.type === 'income')
-            .reduce((sum, m) => sum + m.quantity, 0)
+        stats !== undefined
+            ? stats.total_incomes
+            : movements.filter((m) => m.type === 'income').reduce((sum, m) => sum + Number(m.quantity), 0)
     );
 
     let totalOutcomes = $derived(
-        movements
-            .filter((m) => m.type === 'outcome')
-            .reduce((sum, m) => sum + m.quantity, 0)
+        stats !== undefined
+            ? stats.total_outcomes
+            : movements.filter((m) => m.type === 'outcome').reduce((sum, m) => sum + Number(m.quantity), 0)
     );
 
-    let netBalance = $derived(totalIncomes - totalOutcomes);
+    let netBalance = $derived(
+        stats !== undefined ? stats.net_balance : totalIncomes - totalOutcomes
+    );
 
     let filteredMovements = $derived(movements);
 </script>
@@ -246,9 +253,15 @@
         </div>
 
         <!-- Footer -->
-        <div class="p-4 border-t border-border/60 bg-muted/10 flex items-center justify-between text-xs text-muted-foreground">
-            <div>Mostrando <strong class="text-foreground tabular-nums font-semibold">{filteredMovements.length}</strong> de <strong class="text-foreground tabular-nums font-semibold">{movements.length}</strong> movimientos</div>
-            <div class="text-xs tabular-nums">Kardex Audit Trail</div>
-        </div>
+        {#if pagination && pagination.total > pagination.per_page}
+            <div class="px-6 py-2 border-t border-border/60 bg-muted/10">
+                <AppPagination {pagination} />
+            </div>
+        {:else}
+            <div class="p-4 border-t border-border/60 bg-muted/10 flex items-center justify-between text-xs text-muted-foreground">
+                <div>Mostrando <strong class="text-foreground tabular-nums font-semibold">{filteredMovements.length}</strong> de <strong class="text-foreground tabular-nums font-semibold">{pagination ? pagination.total : movements.length}</strong> movimientos</div>
+                <div class="text-xs tabular-nums">Kardex Audit Trail</div>
+            </div>
+        {/if}
     </div>
 </div>

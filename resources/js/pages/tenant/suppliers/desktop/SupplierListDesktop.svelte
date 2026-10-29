@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
     import { Badge } from '@/components/ui/badge';
-    import AppPagination from '@/components/common/AppPagination.svelte';
+    import AppPagination, { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import Truck from 'lucide-svelte/icons/truck';
     import Phone from 'lucide-svelte/icons/phone';
     import Mail from 'lucide-svelte/icons/mail';
@@ -27,17 +27,15 @@
 
     let {
         suppliers = [],
+        pagination = null,
         onSelectSupplier,
         onOpenCreate,
     }: {
         suppliers: SupplierItem[];
+        pagination?: PaginationMeta | null;
         onSelectSupplier: (supplier: SupplierItem) => void;
         onOpenCreate: () => void;
     } = $props();
-
-    let page = $state(1);
-    const perPage = 10;
-    let paginatedSuppliers = $derived(suppliers.slice((page - 1) * perPage, page * perPage));
 
     function formatDate(dateStr?: string) {
         if (!dateStr) return null;
@@ -53,7 +51,7 @@
 </script>
 
 <div class="flex flex-col gap-3.5">
-    {#each paginatedSuppliers as supplier (supplier.id)}
+    {#each suppliers as supplier (supplier.id)}
         <div
             class="bento-card group flex items-center justify-between gap-6 rounded-xl border border-border/60 bg-card p-5 shadow-[0px_10px_30px_rgba(0,0,0,0.02)] transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-accent/25 hover:border-primary/40 cursor-pointer"
 
@@ -172,7 +170,5 @@
         </div>
     {/if}
 
-    {#if suppliers.length > perPage}
-        <AppPagination count={suppliers.length} {perPage} bind:page />
-    {/if}
+    <AppPagination {pagination} />
 </div>

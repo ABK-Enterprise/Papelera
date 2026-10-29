@@ -10,7 +10,7 @@
     import InvoiceFilterModalMobile from './mobile/InvoiceFilterModalMobile.svelte';
     import InvoiceListDesktop, { type FiscalInvoiceItem } from './desktop/InvoiceListDesktop.svelte';
     import InvoiceListMobile from './mobile/InvoiceListMobile.svelte';
-    import { ClearFilterButton } from '@/components/common';
+    import { ClearFilterButton, ModuleHeader } from '@/components/common';
     import { router } from '@inertiajs/svelte';
     import ArrowLeft from 'lucide-svelte/icons/arrow-left';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
@@ -139,24 +139,18 @@
 
 <div class="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-[1440px] mx-auto w-full font-sans">
     <!-- Header del Módulo Escalonado -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                Historial de Facturas
-            </h1>
-        </div>
-
-        <div class="flex justify-end w-full sm:w-auto">
+    <ModuleHeader title="Historial de Facturas">
+        {#snippet actions()}
             <Button
                 variant="secondary"
-                class="h-11 px-4 rounded-xl font-semibold gap-2 shadow-xs min-h-[44px] w-full sm:w-auto justify-center"
+                class="min-h-[38px] px-3.5 rounded-xl font-medium gap-2 shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all w-full sm:w-auto justify-center"
                 onclick={() => router.get('/tenant/cobranzas')}
             >
                 <ArrowLeft class="size-4" />
                 <span>Volver a Cobranzas</span>
             </Button>
-        </div>
-    </div>
+        {/snippet}
+    </ModuleHeader>
 
     <!-- Barra de Filtros Mobile: SearchCombobox + Botón SlidersHorizontal -->
     <div class="flex items-center gap-2.5 w-full md:hidden">
