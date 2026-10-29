@@ -201,7 +201,7 @@ test('customer order pdf totals box does not display previous debt breakdown and
 
     expect($html)->toContain('SUBTOTAL:')
         ->not->toContain('Cobro de Deuda Anterior:')
-        ->toContain('TOTAL DEL PEDIDO:')
+        ->toContain('TOTAL:')
         ->toContain('$7.000,00')
         ->not->toContain('TOTAL ABONADO:');
 });
@@ -231,7 +231,7 @@ test('customer order pdf totals box hides previous debt breakdown when show_debt
 
     $html = view('pdf.customer-order', ['order' => $order])->render();
 
-    expect($html)->toContain('TOTAL DEL PEDIDO:')
+    expect($html)->toContain('TOTAL:')
         ->toContain('$7.000,00')
         ->not->toContain('Cobro de Deuda Anterior:')
         ->not->toContain('TOTAL ABONADO:');

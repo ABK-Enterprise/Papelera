@@ -548,7 +548,7 @@
                     </table>
                 </div>
 
-                <!-- 2. Sección Central: Total del Pedido -->
+                <!-- 2. Sección Central: Total -->
                 <div class="summary-section-total">
                     <table class="summary-total-table">
                         @php
@@ -558,7 +558,7 @@
                             $grandTotal = (float) $order->total_amount + $sumBalance;
                         @endphp
                         <tr>
-                            <td class="summary-total-label">TOTAL DEL PEDIDO:</td>
+                            <td class="summary-total-label">TOTAL:</td>
                             <td class="summary-total-value tabular-nums">
                                 ${{ number_format($grandTotal, 2, ',', '.') }}
                             </td>

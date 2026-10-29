@@ -538,7 +538,7 @@ test('receipt pdf renders current balance in totals box and adds to grand total 
         ->and($html)->toContain('$15.000,00 (deudor)')
         ->and($html)->not->toContain('Saldo Cta. Cte. resultante:')
         ->and($html)->toContain('SUBTOTAL:')
-        ->and($html)->toContain('TOTAL DEL PEDIDO:')
+        ->and($html)->toContain('TOTAL:')
         ->and($html)->toContain('$25.000,00');
 });
 
