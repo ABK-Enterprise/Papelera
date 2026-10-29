@@ -10,8 +10,10 @@
     import { toast } from 'svelte-sonner';
 
     import { Link, router } from '@inertiajs/svelte';
-    import { fade, scale } from 'svelte/transition';
+    import { fade, scale, fly } from 'svelte/transition';
     import Check from 'lucide-svelte/icons/check';
+    import ChevronDown from 'lucide-svelte/icons/chevron-down';
+    import ChevronUp from 'lucide-svelte/icons/chevron-up';
     import Layers from 'lucide-svelte/icons/layers';
     import Minus from 'lucide-svelte/icons/minus';
     import Package from 'lucide-svelte/icons/package';
@@ -169,6 +171,70 @@
     let selectedProductToAdd = $state<ProductOption | null>(null);
 
     let items = $state<OrderItemLine[]>([]);
+
+    // Referencias y observador W3C para scroll fluido en listado de productos
+    let itemsContainerRef = $state<HTMLElement | null>(null);
+    let topSentinelRef = $state<HTMLElement | null>(null);
+    let bottomSentinelRef = $state<HTMLElement | null>(null);
+
+    let isTopVisible = $state(true);
+    let isBottomVisible = $state(false);
+
+    let showScrollUp = $derived(items.length > 3 && !isTopVisible);
+    let showScrollDown = $derived(items.length > 3 && !isBottomVisible);
+
+    $effect(() => {
+        if (!itemsContainerRef || items.length <= 3) {
+            isTopVisible = true;
+            isBottomVisible = true;
+            return;
+        }
+
+        // Suscribir reactivamente al conteo de ítems
+        const _count = items.length;
+        const root = itemsContainerRef;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                for (const entry of entries) {
+                    if (entry.target === topSentinelRef) {
+                        isTopVisible = entry.isIntersecting;
+                    } else if (entry.target === bottomSentinelRef) {
+                        isBottomVisible = entry.isIntersecting;
+                    }
+                }
+            },
+            {
+                root,
+                threshold: 0,
+            }
+        );
+
+        if (topSentinelRef) observer.observe(topSentinelRef);
+        if (bottomSentinelRef) observer.observe(bottomSentinelRef);
+
+        return () => {
+            observer.disconnect();
+        };
+    });
+
+    function scrollToTop() {
+        if (!itemsContainerRef) return;
+        const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        itemsContainerRef.scrollTo({
+            top: 0,
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        });
+    }
+
+    function scrollToBottom() {
+        if (!itemsContainerRef) return;
+        const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        itemsContainerRef.scrollTo({
+            top: itemsContainerRef.scrollHeight,
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        });
+    }
 
 
     function getItemQuantityBase(it: OrderItemLine): number {
@@ -1526,8 +1592,14 @@
                         </Button>
                     </div>
 
-                    <!-- Lista de Ítems del Pedido -->
-                    <div class="space-y-2.5 pt-1">
+                    <!-- Lista de Ítems del Pedido (Contenedor Relativo con Scroll Encapsulado) -->
+                    <div class="relative">
+                        <div
+                            bind:this={itemsContainerRef}
+                            class="space-y-2.5 pt-1 {items.length > 3 ? 'max-h-[420px] sm:max-h-[460px] overflow-y-auto pr-1.5 overscroll-contain scroll-smooth' : ''}"
+                        >
+                            <!-- Centinela Superior W3C -->
+                            <div bind:this={topSentinelRef} class="h-px w-full pointer-events-none opacity-0 shrink-0" aria-hidden="true"></div>
                         {#each items as item, index (item.id || index)}
                             {@const maxAllowed = getMaxAllowedQuantityForItem(index)}
                             {@const isAtStockLimit = item.quantity >= maxAllowed}
@@ -1916,7 +1988,45 @@
                                 <p class="text-xs">Escribe en el buscador superior para seleccionar y agregar productos al pedido.</p>
                             </div>
                         {/if}
+
+                        <!-- Centinela Inferior W3C -->
+                        <div bind:this={bottomSentinelRef} class="h-px w-full pointer-events-none opacity-0 shrink-0" aria-hidden="true"></div>
                     </div>
+
+                    <!-- Botones Flotantes de Navegación Rápida (Stack Vertical en zona inferior derecha) -->
+                    {#if items.length > 3 && (showScrollDown || showScrollUp)}
+                        <div
+                            class="absolute right-3 bottom-3 z-20 flex flex-col items-center gap-1.5 pointer-events-none"
+                            transition:fade={{ duration: 150 }}
+                        >
+                            {#if showScrollUp}
+                                <button
+                                    type="button"
+                                    onclick={scrollToTop}
+                                    class="size-9 min-h-[36px] min-w-[36px] rounded-full bg-card/95 hover:bg-card text-foreground hover:text-primary shadow-md border border-border/80 flex items-center justify-center cursor-pointer pointer-events-auto transition-transform hover:scale-105 active:scale-95"
+                                    title="Ir al inicio de la lista"
+                                    aria-label="Ir al inicio de la lista de productos"
+                                    transition:fly={{ y: 6, duration: 150 }}
+                                >
+                                    <ChevronUp class="size-4.5" />
+                                </button>
+                            {/if}
+
+                            {#if showScrollDown}
+                                <button
+                                    type="button"
+                                    onclick={scrollToBottom}
+                                    class="size-9 min-h-[36px] min-w-[36px] rounded-full bg-card/95 hover:bg-card text-foreground hover:text-primary shadow-md border border-border/80 flex items-center justify-center cursor-pointer pointer-events-auto transition-transform hover:scale-105 active:scale-95"
+                                    title="Ir al final de la lista"
+                                    aria-label="Ir al final de la lista de productos"
+                                    transition:fly={{ y: 6, duration: 150 }}
+                                >
+                                    <ChevronDown class="size-4.5" />
+                                </button>
+                            {/if}
+                        </div>
+                    {/if}
+                </div>
                 </div>
 
                 <!-- Bento Card 3: Condición de Pago -->
