@@ -1255,7 +1255,7 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto pointer-events-none">
         <div
             transition:scale={{ start: 0.97, duration: 150 }}
-            class="relative w-full max-w-3xl rounded-2xl sm:rounded-3xl bg-card border border-border shadow-2xl p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto pointer-events-auto"
+            class="relative w-full max-w-3xl rounded-2xl sm:rounded-3xl bg-card border border-border shadow-2xl p-4 sm:p-6 max-h-[calc(85vh+4px)] sm:max-h-[calc(88vh+4px)] flex flex-col my-auto pointer-events-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
@@ -1604,7 +1604,7 @@
                     <div class="relative">
                         <div
                             bind:this={itemsContainerRef}
-                            class="space-y-2.5 pt-1 {items.length > 3 ? 'max-h-[420px] sm:max-h-[460px] overflow-y-auto no-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pr-1.5 overscroll-contain scroll-smooth' : ''}"
+                            class="space-y-2.5 py-[2px] {items.length > 3 ? 'max-h-[416px] sm:max-h-[456px] overflow-y-auto no-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pr-1.5 overscroll-contain scroll-smooth' : ''}"
                         >
                             <!-- Centinela Superior W3C -->
                             <div bind:this={topSentinelRef} class="h-px w-full pointer-events-none opacity-0 shrink-0" aria-hidden="true"></div>
