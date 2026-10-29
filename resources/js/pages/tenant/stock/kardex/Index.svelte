@@ -88,6 +88,7 @@
     let dateTo = $state('');
     let sortBy = $state('latest');
     let isFilterModalOpen = $state(false);
+    let isSearching = $state(false);
 
     $effect(() => {
         searchInput = filters?.search ?? '';
@@ -125,6 +126,7 @@
     });
 
     function applyFilters() {
+        isSearching = true;
         router.get(
             '/tenant/stock/kardex',
             {
@@ -138,6 +140,9 @@
                 preserveState: true,
                 preserveScroll: true,
                 replace: true,
+                onFinish: () => {
+                    isSearching = false;
+                },
             }
         );
     }
@@ -148,7 +153,15 @@
         dateFrom = '';
         dateTo = '';
         sortBy = 'latest';
-        router.get('/tenant/stock/kardex');
+        isSearching = true;
+        router.get('/tenant/stock/kardex', {}, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+            onFinish: () => {
+                isSearching = false;
+            },
+        });
     }
 
     function handleTypeChange(e: Event) {
@@ -206,6 +219,7 @@
                 <SearchCombobox
                     bind:value={searchInput}
                     items={suggestedProducts}
+                    loading={isSearching}
                     debounceMs={300}
                     placeholder="Buscar por producto, SKU o código de barras..."
                     onsearch={applyFilters}

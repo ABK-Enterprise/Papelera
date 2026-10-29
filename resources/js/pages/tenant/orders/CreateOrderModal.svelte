@@ -127,12 +127,14 @@
         open = $bindable(false),
         availableProducts = [],
         availableCustomers = [],
+        isLoadingCatalog = false,
         warehouses = [],
         shippingZones = [],
     }: {
         open: boolean;
         availableProducts: ProductOption[];
         availableCustomers?: CustomerOption[];
+        isLoadingCatalog?: boolean;
         warehouses?: WarehouseOption[];
         shippingZones?: ShippingZoneOption[];
     } = $props();
@@ -1250,8 +1252,11 @@
                         <SearchCombobox
                             id="cust-search"
                             bind:value={customerSearchQuery}
-                            items={customerSearchResults}
-                            filterLocally={false}
+                            items={availableCustomers}
+                            searchKeys={['name', 'tax_id', 'phone']}
+                            filterLocally={true}
+                            debounceMs={0}
+                            loading={isLoadingCatalog}
                             placeholder="Escribe el nombre, CUIT/DNI o teléfono para autocompletar..."
                             showDropdown={true}
                             onsearch={(q) => {
@@ -1432,8 +1437,11 @@
                         <div class="w-full flex-1 min-w-0">
                             <SearchCombobox
                                 bind:value={searchQuery}
-                                items={searchResults}
-                                filterLocally={false}
+                                items={availableProductsWithRemainingStock}
+                                searchKeys={['name', 'sku']}
+                                filterLocally={true}
+                                debounceMs={0}
+                                loading={isLoadingCatalog}
                                 placeholder="Escribe el nombre o SKU del producto para buscar..."
                                 showDropdown={true}
                                 onsearch={(q) => (searchQuery = q)}

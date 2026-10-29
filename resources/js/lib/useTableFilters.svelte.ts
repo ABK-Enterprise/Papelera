@@ -49,6 +49,7 @@ export function useTableFilters<T extends Record<string, any>>(options: UseTable
     }
 
     let filters = $state<T>(getInitialValues());
+    let isLoading = $state(false);
 
     // Reactive sync when server-side Inertia props change
     if (options.serverFilters) {
@@ -79,10 +80,14 @@ export function useTableFilters<T extends Record<string, any>>(options: UseTable
             }
         }
 
+        isLoading = true;
         router.get(options.basePath, queryParams, {
             preserveState: true,
             preserveScroll: true,
             replace: true,
+            onFinish: () => {
+                isLoading = false;
+            },
         });
     }
 
@@ -91,10 +96,14 @@ export function useTableFilters<T extends Record<string, any>>(options: UseTable
             filters[key as keyof T] = value;
         }
 
+        isLoading = true;
         router.get(options.basePath, {}, {
             preserveState: true,
             preserveScroll: true,
             replace: true,
+            onFinish: () => {
+                isLoading = false;
+            },
         });
     }
 
@@ -124,6 +133,9 @@ export function useTableFilters<T extends Record<string, any>>(options: UseTable
         filters,
         apply,
         reset,
+        get isLoading() {
+            return isLoading;
+        },
         get hasActiveFilters() {
             return hasActiveFilters;
         },

@@ -23,6 +23,7 @@
     import IconContainer from '@/components/common/IconContainer.svelte';
     import { hasPermission } from '@/lib/permissions';
     import AppPagination, { type PaginationMeta } from '@/components/common/AppPagination.svelte';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import type { CustomerAccountFull, MovementData } from '../desktop/AccountLedgerDesktop.svelte';
     import CustomerAccountFilterModalMobile from './CustomerAccountFilterModalMobile.svelte';
 
@@ -49,6 +50,7 @@
     let statusFilter = $state(filters?.status ?? '');
     let sortByFilter = $state(filters?.sort_by ?? 'balance_high');
     let isFilterModalOpen = $state(false);
+    let isSearching = $state(false);
 
     $effect(() => {
         const s = filters?.search;
@@ -74,6 +76,7 @@
     );
 
     function applyMobileFilters() {
+        isSearching = true;
         router.get(
             '/tenant/clientes/cuentas-corrientes',
             {
@@ -83,7 +86,13 @@
                 status: statusFilter || undefined,
                 sort_by: sortByFilter || undefined,
             },
-            { preserveState: true, preserveScroll: true }
+            {
+                preserveState: true,
+                preserveScroll: true,
+                onFinish: () => {
+                    isSearching = false;
+                },
+            }
         );
     }
 
@@ -106,7 +115,14 @@
         statusFilter = '';
         defaulterFilter = '';
         sortByFilter = 'balance_high';
-        router.get('/tenant/clientes/cuentas-corrientes', {}, { preserveState: true, preserveScroll: true });
+        isSearching = true;
+        router.get('/tenant/clientes/cuentas-corrientes', {}, {
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => {
+                isSearching = false;
+            },
+        });
     }
 
     // Estado del drawer de cliente seleccionado
@@ -197,28 +213,33 @@
 <div class="space-y-4">
     <!-- Barra Superior Mobile: Buscador + Botón Filtros Avanzados -->
     <div class="flex items-center gap-2">
-        <div class="relative flex-1 min-w-0">
-            <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <input
-                type="text"
+        <div class="flex-1 min-w-0">
+            <SearchCombobox
                 bind:value={searchQuery}
-                onkeydown={(e) => e.key === 'Enter' && applyMobileFilters()}
+                items={customers}
+                searchKeys={['name', 'tax_id', 'phone']}
+                loading={isSearching}
                 placeholder="Buscar cliente, CUIT, teléfono..."
-                class="h-11 w-full rounded-xl border border-input bg-card pl-10 pr-9 text-sm font-normal text-foreground placeholder:text-muted-foreground shadow-2xs focus:ring-1 focus:ring-primary outline-none transition-all"
-            />
-            {#if searchQuery}
-                <button
-                    type="button"
-                    onclick={() => {
-                        searchQuery = '';
-                        applyMobileFilters();
-                    }}
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    aria-label="Limpiar búsqueda"
-                >
-                    <X class="size-4" />
-                </button>
-            {/if}
+                onsearch={(q) => {
+                    searchQuery = q;
+                    applyMobileFilters();
+                }}
+                onselect={(cust) => openCustomerDrawer(cust)}
+                onclear={handleResetFilterModal}
+                inputClass="h-11 rounded-xl text-sm"
+            >
+                {#snippet itemSnippet(cust)}
+                    <div class="flex items-center justify-between gap-3 w-full min-w-0 py-0.5">
+                        <div class="flex flex-col min-w-0">
+                            <span class="truncate font-semibold text-foreground text-sm">{cust.name}</span>
+                            <span class="text-xs text-muted-foreground">{cust.tax_id || cust.phone || 'Sin datos adicionales'}</span>
+                        </div>
+                        <span class="tabular-nums font-bold text-xs shrink-0 {Number(cust.current_balance) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">
+                            {formatCurrency(cust.current_balance)}
+                        </span>
+                    </div>
+                {/snippet}
+            </SearchCombobox>
         </div>
 
         <Button

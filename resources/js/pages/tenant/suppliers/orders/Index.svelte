@@ -11,6 +11,7 @@
     import Users from 'lucide-svelte/icons/users';
     import { ClearFilterButton, ModuleHeader } from '@/components/common';
     import { type PaginationMeta } from '@/components/common/AppPagination.svelte';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
     import { hasPermission } from '@/lib/permissions';
     import CreateSupplierOrderModal from './CreateSupplierOrderModal.svelte';
@@ -117,6 +118,28 @@
     let selectedOrder = $state<SupplierOrderData | null>(null);
     let hasLoadedProducts = $state(false);
     let isLoadingProducts = $state(false);
+    let isSearching = $state(false);
+
+    function formatPrice(amount: string | number) {
+        return new Intl.NumberFormat('es-AR', {
+            style: 'currency',
+            currency: 'ARS',
+            minimumFractionDigits: 2,
+        }).format(Number(amount));
+    }
+
+    function getSupplierOrderStatusBadge(status: string) {
+        switch (status) {
+            case 'solicitado':
+                return { label: 'Solicitado', class: 'bg-amber-500/10 text-amber-600 border-amber-500/20' };
+            case 'recibido':
+                return { label: 'Recibido', class: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' };
+            case 'cancelado':
+                return { label: 'Cancelado', class: 'bg-destructive/10 text-destructive border-destructive/20' };
+            default:
+                return { label: status, class: 'bg-muted text-muted-foreground border-border' };
+        }
+    }
 
     $effect(() => {
         if (isCreateModalOpen && !hasLoadedProducts && !isLoadingProducts) {
@@ -164,6 +187,7 @@
 
 
     function applyFilters() {
+        isSearching = true;
         router.get(
             '/tenant/proveedores/ordenes',
             {
@@ -174,6 +198,9 @@
             {
                 preserveState: true,
                 preserveScroll: true,
+                onFinish: () => {
+                    isSearching = false;
+                },
             }
         );
     }
@@ -182,7 +209,14 @@
         searchTerm = '';
         selectedStatus = 'all';
         sortBy = 'latest';
-        router.get('/tenant/proveedores/ordenes');
+        isSearching = true;
+        router.get('/tenant/proveedores/ordenes', {}, {
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => {
+                isSearching = false;
+            },
+        });
     }
 
     function openOrderDetail(order: SupplierOrderData) {
@@ -242,16 +276,40 @@
     <Card class="rounded-xl p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/60">
         <div class="flex flex-col md:flex-row items-center justify-between gap-3">
             <div class="flex items-center gap-2 w-full md:w-[448px]">
-                <div class="relative flex-1 min-w-0">
-
-                    <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                    <input
-                        type="text"
+                <div class="flex-1 min-w-0">
+                    <SearchCombobox
                         bind:value={searchTerm}
-                        onkeydown={(e) => e.key === 'Enter' && applyFilters()}
+                        items={orderItems}
+                        loading={isSearching}
                         placeholder="Buscar por #orden o proveedor..."
-                        class="h-10 w-full rounded-lg border border-input bg-muted/20 pl-9 pr-4 text-sm placeholder:text-muted-foreground focus:bg-background focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-                    />
+                        onsearch={(q) => {
+                            searchTerm = q;
+                            applyFilters();
+                        }}
+                        onselect={openOrderDetail}
+                        onclear={resetFilters}
+                    >
+                        {#snippet itemSnippet(ord)}
+                            {@const badge = getSupplierOrderStatusBadge(ord.status)}
+                            <div class="flex items-center justify-between gap-3 w-full min-w-0">
+                                <div class="flex flex-col min-w-0">
+                                    <div class="flex items-center gap-1.5 min-w-0">
+                                        <span class="font-bold text-foreground tabular-nums">#{ord.order_number}</span>
+                                        <span class="truncate text-muted-foreground">· {ord.supplier?.name ?? 'Sin proveedor'}</span>
+                                    </div>
+                                    <span class="text-xs text-muted-foreground/80">{ord.created_at}</span>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <span class="rounded-full px-2 py-0.5 text-xs font-semibold border {badge.class}">
+                                        {badge.label}
+                                    </span>
+                                    <span class="tabular-nums font-semibold text-foreground text-xs">
+                                        {Number(ord.total_cost) > 0 ? formatPrice(ord.total_cost) : '-'}
+                                    </span>
+                                </div>
+                            </div>
+                        {/snippet}
+                    </SearchCombobox>
                 </div>
 
                 <!-- Disparador de Filtros Mobile -->

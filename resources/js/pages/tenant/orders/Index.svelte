@@ -116,6 +116,7 @@
     let collectingOrder = $state<OrderData | null>(null);
     let hasLoadedCatalog = $state(false);
     let isLoadingCatalog = $state(false);
+    let isSearching = $state(false);
 
     $effect(() => {
         if ((isCreateModalOpen || isAddProductsModalOpen) && !hasLoadedCatalog && !isLoadingCatalog) {
@@ -236,6 +237,7 @@
     ];
 
     function applyFilters() {
+        isSearching = true;
         router.get(
             '/tenant/pedidos',
             {
@@ -246,6 +248,9 @@
             {
                 preserveState: true,
                 preserveScroll: true,
+                onFinish: () => {
+                    isSearching = false;
+                },
             }
         );
     }
@@ -254,7 +259,14 @@
         searchTerm = '';
         selectedStatus = 'all';
         sortBy = 'latest';
-        router.get('/tenant/pedidos', {}, { preserveState: true, preserveScroll: true });
+        isSearching = true;
+        router.get('/tenant/pedidos', {}, {
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => {
+                isSearching = false;
+            },
+        });
     }
 
 
@@ -306,6 +318,7 @@
                     <SearchCombobox
                         bind:value={searchTerm}
                         items={orderItems}
+                        loading={isSearching}
                         placeholder="Buscar por #pedido, cliente o teléfono..."
                         onsearch={(q) => {
                             searchTerm = q;
@@ -449,6 +462,7 @@
     bind:open={isCreateModalOpen}
     {availableProducts}
     {availableCustomers}
+    isLoadingCatalog={isLoadingCatalog}
     {warehouses}
     {shippingZones}
 />
