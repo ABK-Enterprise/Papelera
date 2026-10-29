@@ -224,19 +224,20 @@ test('customer order pdf blade view renders modern A4 structure with header, cus
         ->toContain('Observaciones:');
 
     // 3. Tabla de ítems fija
-    expect($html)->toContain('col-product text-left')
+    expect($html)->toContain('col-id text-left')
+        ->toContain('col-product text-left')
         ->toContain('col-quantity text-center')
         ->toContain('col-price text-right')
         ->toContain('col-subtotal text-right');
 
-    // 4. Sticky Footer con recuadro derecho de totales y marca de agua
+    // 4. Sticky Footer con recuadro derecho de totales
     expect($html)->toContain('page-footer')
         ->toContain('totals-box')
         ->toContain('SUBTOTAL:')
         ->toContain('TOTAL:')
         ->toContain('$15.000,00')
-        ->toContain('watermark-footer')
-        ->toContain('Generado por');
+        ->not->toContain('watermark-footer')
+        ->not->toContain('Generado por');
 });
 
 test('customer order pdf calculates bulk discounts and customer discounts correctly in totals box', function () {

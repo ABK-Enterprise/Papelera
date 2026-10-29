@@ -239,6 +239,7 @@ class DeliveryRouteController extends Controller
             }
 
             $order->refresh();
+            app(\App\Actions\Tenant\Orders\PostCustomerOrderDebtAction::class)->execute($order, $userId);
             $order->status = 'entregado';
             $order->delivery_notes = $request->validated('delivery_notes');
             $order->save();
@@ -356,8 +357,13 @@ class DeliveryRouteController extends Controller
                     }
                 }
 
-                // Revertir deuda de cuenta corriente si aplica
-                if ($order->customer_id) {
+                $wasAccountPosted = $order->account_posted_at !== null
+                    || CustomerAccountMovement::where('customer_order_id', $order->id)
+                        ->where('type', 'charge')
+                        ->exists();
+
+                // Revertir deuda de cuenta corriente solo si fue devengada previamente
+                if ($order->customer_id && $wasAccountPosted) {
                     $customer = Customer::where('id', $order->customer_id)
                         ->where('tenant_id', $tenantId)
                         ->lockForUpdate()

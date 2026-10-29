@@ -41,6 +41,12 @@ beforeEach(function () {
         'module_id' => $this->pedidosModule->id,
     ]);
 
+    $this->permEditarEstado = Permission::create([
+        'name' => 'pedidos.editar_estado',
+        'guard_name' => 'web',
+        'module_id' => $this->pedidosModule->id,
+    ]);
+
     $this->tenant->modules()->attach([$this->pedidosModule->id]);
 
     setPermissionsTeamId($this->tenant->id);
@@ -49,7 +55,7 @@ beforeEach(function () {
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,
     ]);
-    $this->role->givePermissionTo([$this->permVerPedidos, $this->permCrearPedidos]);
+    $this->role->givePermissionTo([$this->permVerPedidos, $this->permCrearPedidos, $this->permEditarEstado]);
 
     $this->user = User::factory()->forTenant($this->tenant)->create();
     $this->user->assignRole($this->role);
@@ -110,7 +116,7 @@ test('customer order pdf displays "A DEBER" with previous balance and current de
         ->not->toContain('Saldo de cta. cte. antes:')
         ->toContain('Saldo actual:')
         ->toContain('$5.000,00')
-        ->toContain('Generado por: Papelera San Nicolás SA');
+        ->not->toContain('Generado por');
 });
 
 test('customer order pdf displays "A FAVOR" with previous balance and current credit amount', function () {
@@ -290,7 +296,15 @@ test('customer order creation captures customer_balance_before and customer_bala
     $createdOrder = CustomerOrder::where('customer_id', $this->customer->id)->latest('id')->first();
     expect($createdOrder)->not->toBeNull()
         ->and((float) $createdOrder->customer_balance_before)->toBe(4500.00)
-        ->and((float) $createdOrder->customer_balance_after)->toBe(8500.00);
+        ->and((float) $createdOrder->customer_balance_after)->toBe(4500.00);
+
+    // Upon delivery, debt is posted and customer_balance_after reflects the updated balance
+    $deliverRes = $this->actingAs($this->user)
+        ->patchJson(route('tenant.orders.update-status', $createdOrder), ['status' => 'entregado']);
+    $deliverRes->assertSuccessful();
+
+    $createdOrder->refresh();
+    expect((float) $createdOrder->customer_balance_after)->toBe(8500.00);
 });
 
 test('customer order pdf prioritizes snapshot balances over modified live customer balance', function () {

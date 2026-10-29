@@ -39,9 +39,9 @@ class CustomerOrderItemPriceController extends Controller
             abort(404, 'El ítem no pertenece a este pedido.');
         }
 
-        if ($customerOrder->isTerminal()) {
+        if ($customerOrder->isOperationallyImmutable()) {
             throw ValidationException::withMessages([
-                'order' => ["El pedido {$customerOrder->order_number} se encuentra en estado definitivo ({$customerOrder->status}) y no admite modificaciones."],
+                'order' => ["El pedido {$customerOrder->order_number} se encuentra en estado definitivo o entregado ({$customerOrder->status}) y no admite modificaciones."],
             ]);
         }
 

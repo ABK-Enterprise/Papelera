@@ -7,7 +7,7 @@
     <style>
         @page {
             size: a4 portrait;
-            margin: 12mm;
+            margin: 10mm 12mm 8.5mm 12mm;
         }
         * {
             box-sizing: border-box;
@@ -34,7 +34,7 @@
         .page-footer {
             flex-shrink: 0;
             margin-top: auto;
-            padding-top: 10px;
+            padding-top: 4px;
             page-break-inside: avoid;
             break-inside: avoid;
         }
@@ -187,23 +187,26 @@
             width: 100%;
             table-layout: fixed;
             border-collapse: collapse;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+        }
+        .col-id {
+            width: 14%;
         }
         .col-product {
-            width: 46%;
+            width: 42%;
         }
         .col-quantity {
-            width: 18%;
+            width: 14%;
         }
         .col-price {
-            width: 18%;
+            width: 15%;
         }
         .col-subtotal {
-            width: 18%;
+            width: 15%;
         }
         .items-table th {
-            padding: 6px 8px;
-            font-size: 13px;
+            padding: 3px 6px;
+            font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -213,8 +216,8 @@
             background-color: #f1f5f9;
         }
         .items-table td {
-            padding: 7px 8px;
-            font-size: 14px;
+            padding: 2.5px 6px;
+            font-size: 12px;
             border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
         }
@@ -242,18 +245,17 @@
         .product-name {
             font-weight: 600;
             color: #0f172a;
-            font-size: 14.5px;
-            line-height: 1.25;
+            font-size: 12px;
+            line-height: 1.15;
         }
         .product-sku {
-            font-size: 12px;
+            font-size: 11px;
             color: #64748b;
-            margin-top: 1.5px;
         }
         .badge-bulto {
             display: inline-block;
-            padding: 2px 5px;
-            font-size: 11.5px;
+            padding: 1px 4px;
+            font-size: 10px;
             font-weight: 600;
             color: #0369a1;
             background-color: #e0f2fe;
@@ -272,21 +274,21 @@
             border: 1.5px solid #0f172a;
             border-radius: 6px;
             background: #ffffff;
-            margin-bottom: 6px;
+            margin-bottom: 0;
             page-break-inside: avoid;
             break-inside: avoid;
             overflow: hidden;
         }
         .summary-section-top {
-            padding: 7px 12px;
+            padding: 4px 10px;
         }
         .summary-table {
             width: 100%;
             border-collapse: collapse;
         }
         .summary-table td {
-            padding: 3px 0;
-            font-size: 16px;
+            padding: 1.5px 0;
+            font-size: 12.5px;
         }
         .summary-label {
             color: #475569;
@@ -309,14 +311,14 @@
         .summary-section-total {
             background: #f8fafc;
             border-top: 1px solid #cbd5e1;
-            padding: 7px 12px;
+            padding: 5px 10px;
         }
         .summary-total-table {
             width: 100%;
             border-collapse: collapse;
         }
         .summary-total-label {
-            font-size: 17.5px;
+            font-size: 14.5px;
             font-weight: 800;
             color: #0f172a;
             text-transform: uppercase;
@@ -324,7 +326,7 @@
             text-align: left;
         }
         .summary-total-value {
-            font-size: 19px;
+            font-size: 17px;
             font-weight: 900;
             color: #0f172a;
             text-align: right;
@@ -334,23 +336,23 @@
         .summary-section-account {
             border-top: 1.5px solid #cbd5e1;
             background: #ffffff;
-            padding: 8px 12px 10px 12px;
+            padding: 5px 10px 6px 10px;
         }
         .summary-account-title {
             text-align: center;
-            font-size: 14.5px;
+            font-size: 11.5px;
             font-weight: 800;
             color: #334155;
             text-transform: uppercase;
             letter-spacing: 0.6px;
-            margin-bottom: 7px;
-            padding-bottom: 5px;
+            margin-bottom: 3px;
+            padding-bottom: 3px;
             border-bottom: 1px dashed #cbd5e1;
         }
         .summary-account-title .account-info-icon {
             display: inline-block;
             font-weight: 900;
-            font-size: 16px;
+            font-size: 13px;
             margin-right: 4px;
             color: #0284c7;
         }
@@ -364,25 +366,14 @@
             padding-right: 14px;
             border-right: 1px solid #cbd5e1;
             text-align: left;
-            font-size: 16px;
+            font-size: 12px;
         }
         .account-col-right {
             width: 54%;
             vertical-align: middle;
             padding-left: 14px;
             text-align: right;
-            font-size: 16px;
-        }
-
-
-
-        .watermark-footer {
-            text-align: center;
-            font-size: 11.5px;
-            color: #94a3b8;
-            letter-spacing: 0.3px;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 5px;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -474,9 +465,10 @@
             <table class="items-table">
                 <thead>
                     <tr>
+                        <th class="col-id text-left">ID</th>
                         <th class="col-product text-left">Producto</th>
                         <th class="col-quantity text-center">Cantidad</th>
-                        <th class="col-price text-right">Precio Unit.</th>
+                        <th class="col-price text-right">Precio Unid.</th>
                         <th class="col-subtotal text-right">Subtotal</th>
                     </tr>
                 </thead>
@@ -520,30 +512,30 @@
                             $itemSubtotal = (float) $item->subtotal;
                         @endphp
                         <tr>
-                            <td class="text-left">
+                            <td class="col-id text-left tabular-nums" style="font-size: 11px; color: #64748b;">
+                                {{ $product?->sku ?: '-' }}
+                            </td>
+                            <td class="col-product text-left">
                                 <div class="product-name">
                                     {{ $product->name ?? 'Producto' }}
                                     @if($isBulk)
                                         <span class="badge-bulto">Bulto x {{ (float) ($item->units_per_package ?: ($product ? $product->package_size : 1)) }}</span>
                                     @endif
                                 </div>
-                                @if(!empty($product?->sku))
-                                    <div class="product-sku">SKU: {{ $product->sku }}</div>
-                                @endif
                             </td>
-                            <td class="text-center tabular-nums font-semibold">
+                            <td class="col-quantity text-center tabular-nums font-semibold">
                                 {{ $qtyFormatted }}
                             </td>
-                            <td class="text-right tabular-nums">
+                            <td class="col-price text-right tabular-nums">
                                 ${{ number_format((float) $item->unit_price, 2, ',', '.') }}
                             </td>
-                            <td class="text-right tabular-nums font-bold">
+                            <td class="col-subtotal text-right tabular-nums font-bold">
                                 ${{ number_format($itemSubtotal, 2, ',', '.') }}
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center" style="padding: 20px; color: #64748b;">
+                            <td colspan="5" class="text-center" style="padding: 15px; color: #64748b;">
                                 No hay productos registrados en este pedido.
                             </td>
                         </tr>
@@ -569,40 +561,7 @@
                                 ? '$' . number_format($absBalanceBefore, 2, ',', '.') . ' (a favor)'
                                 : ($isDeudorBefore ? '$' . number_format($absBalanceBefore, 2, ',', '.') . ' (deudor)' : '$0,00 (al día)');
                             $classCurrent = $isFavorBefore ? 'text-green' : ($isDeudorBefore ? 'text-danger' : '');
-
-                            $currentBalanceAfter = $order->customer_balance_after !== null
-                                ? (float) $order->customer_balance_after
-                                : (float) ($order->customer?->current_balance ?? 0);
-                            $isFavorAfter = $currentBalanceAfter < 0;
-                            $isDeudorAfter = $currentBalanceAfter > 0;
-                            $absBalanceAfter = abs($currentBalanceAfter);
-                            $valProjected = $isFavorAfter
-                                ? '$' . number_format($absBalanceAfter, 2, ',', '.') . ' (a favor)'
-                                : ($isDeudorAfter ? '$' . number_format($absBalanceAfter, 2, ',', '.') . ' (deudor)' : '$0,00 (al día)');
-                            $classProjected = $isFavorAfter ? 'text-green' : ($isDeudorAfter ? 'text-danger' : '');
                         @endphp
-
-                        @if(!empty($order->show_current_balance_in_receipt_subtotal) && $order->customer)
-                            <tr>
-                                <td class="summary-label">Saldo Cta. Cte. actual:</td>
-                                <td class="summary-value tabular-nums {{ $classCurrent }}">{{ $valCurrent }}</td>
-                            </tr>
-                        @endif
-
-                        @if(!empty($order->show_projected_balance_in_receipt_subtotal) && $order->customer)
-                            <tr>
-                                <td class="summary-label">Saldo Cta. Cte. resultante:</td>
-                                <td class="summary-value tabular-nums {{ $classProjected }}">{{ $valProjected }}</td>
-                            </tr>
-                        @endif
-
-                        @if((!empty($order->show_current_balance_in_receipt_subtotal) || !empty($order->show_projected_balance_in_receipt_subtotal)) && $order->customer)
-                            <tr>
-                                <td colspan="2" style="padding: 4px 0 5px 0;">
-                                    <div style="border-top: 1px dashed #cbd5e1; width: 100%;"></div>
-                                </td>
-                            </tr>
-                        @endif
 
                         <tr>
                             <td class="summary-label">SUBTOTAL:</td>
@@ -650,6 +609,13 @@
                                 <td class="summary-value tabular-nums">${{ number_format((float) $order->shipping_cost, 2, ',', '.') }}</td>
                             </tr>
                         @endif
+
+                        @if(!empty($order->show_current_balance_in_receipt_subtotal) && $order->customer)
+                            <tr>
+                                <td class="summary-label {{ $classCurrent }}">Saldo Cta. Cte. actual:</td>
+                                <td class="summary-value tabular-nums {{ $classCurrent }}">{{ $valCurrent }}</td>
+                            </tr>
+                        @endif
                     </table>
                 </div>
 
@@ -658,40 +624,42 @@
                     <table class="summary-total-table">
                         @if($order->show_credit_applied_in_receipt && (float) $order->credit_balance_applied > 0)
                             <tr>
-                                <td class="summary-label text-green" style="font-size: 15.5px; padding-bottom: 4px;">Saldo a Favor Aplicado:</td>
-                                <td class="summary-value tabular-nums text-green" style="font-size: 16px; padding-bottom: 4px;">
+                                <td class="summary-label text-green" style="font-size: 12px; padding-bottom: 2px;">Saldo a Favor Aplicado:</td>
+                                <td class="summary-value tabular-nums text-green" style="font-size: 12.5px; padding-bottom: 2px;">
                                     -${{ number_format((float) $order->credit_balance_applied, 2, ',', '.') }}
                                 </td>
                             </tr>
                         @endif
                         @if($order->show_debt_collected_in_receipt && (float) ($order->previous_debt_collected ?? 0) > 0)
                             <tr>
-                                <td class="summary-label text-danger" style="font-size: 15.5px; padding-bottom: 5px; border-bottom: 1px dashed #cbd5e1;">Cobro de Deuda Anterior:</td>
-                                <td class="summary-value tabular-nums text-danger" style="font-size: 16px; padding-bottom: 5px; border-bottom: 1px dashed #cbd5e1;">
+                                <td class="summary-label text-danger" style="font-size: 12px; padding-bottom: 2px; border-bottom: 1px dashed #cbd5e1;">Cobro de Deuda Anterior:</td>
+                                <td class="summary-value tabular-nums text-danger" style="font-size: 12.5px; padding-bottom: 2px; border-bottom: 1px dashed #cbd5e1;">
                                     +${{ number_format((float) $order->previous_debt_collected, 2, ',', '.') }}
                                 </td>
                             </tr>
-                            <tr>
-                                <td class="summary-total-label" style="padding-top: 5px; font-size: 18.5px; color: #0f172a;">TOTAL:</td>
-                                <td class="summary-total-value tabular-nums" style="padding-top: 5px; font-size: 20px; color: #0f172a;">
-                                    ${{ number_format((float) ($order->total_amount + $order->previous_debt_collected), 2, ',', '.') }}
-                                </td>
-                            </tr>
-                        @else
-                            <tr>
-                                <td class="summary-total-label">TOTAL:</td>
-                                <td class="summary-total-value tabular-nums">${{ number_format((float) ($order->total_amount + ($order->previous_debt_collected ?? 0)), 2, ',', '.') }}</td>
-                            </tr>
                         @endif
+
+                        @php
+                            $sumBalance = (!empty($order->show_current_balance_in_receipt_subtotal) && $order->customer && $currentBalanceBefore > 0)
+                                ? $currentBalanceBefore
+                                : 0.0;
+                            $grandTotal = (float) $order->total_amount + (float) ($order->previous_debt_collected ?? 0) + $sumBalance;
+                        @endphp
+                        <tr>
+                            <td class="summary-total-label">TOTAL DEL PEDIDO:</td>
+                            <td class="summary-total-value tabular-nums">
+                                ${{ number_format($grandTotal, 2, ',', '.') }}
+                            </td>
+                        </tr>
                     </table>
                 </div>
 
-                <!-- 3. Sección Inferior: Estado en Cuenta Corriente (si aplica) -->
+                <!-- 3. Sección Inferior: Estado en Cuenta Corriente (si aplica y no se muestra en subtotal) -->
                 @php
                     $showStatus = (bool) ($order->show_account_status_in_receipt ?? true);
                     $showBalance = (bool) ($order->show_account_balance_in_receipt ?? true);
                 @endphp
-                @if($order->show_account_in_receipt && $order->customer && ($showStatus || $showBalance))
+                @if(empty($order->show_current_balance_in_receipt_subtotal) && $order->show_account_in_receipt && $order->customer && ($showStatus || $showBalance))
                     @php
                         $currentBalance = $order->customer_balance_after !== null
                             ? (float) $order->customer_balance_after
@@ -738,9 +706,6 @@
                         </table>
                     </div>
                 @endif
-            </div>
-            <div class="watermark-footer">
-                Generado por: {{ $order->tenant?->legal_name ?: ($order->tenant?->name ?? 'Papelera') }}
             </div>
         </div>
     </div>

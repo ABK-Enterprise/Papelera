@@ -36,7 +36,8 @@ beforeEach(function () {
 
     Permission::firstOrCreate(['name' => 'pedidos.crear', 'guard_name' => 'web', 'module_id' => $this->pedidosModule->id]);
     Permission::firstOrCreate(['name' => 'pedidos.ver', 'guard_name' => 'web', 'module_id' => $this->pedidosModule->id]);
-    $this->adminRole->givePermissionTo(['pedidos.crear', 'pedidos.ver']);
+    Permission::firstOrCreate(['name' => 'pedidos.editar_estado', 'guard_name' => 'web', 'module_id' => $this->pedidosModule->id]);
+    $this->adminRole->givePermissionTo(['pedidos.crear', 'pedidos.ver', 'pedidos.editar_estado']);
 
     $this->user = User::factory()->forTenant($this->tenant)->create();
     $this->user->assignRole($this->adminRole);
@@ -151,6 +152,16 @@ test('T3: fully covered order with credit balance creates paid order without deb
         ->and($order->derived_payment_condition)->toBe('Saldo a Favor')
         ->and($order->show_credit_applied_in_receipt)->toBeTrue();
 
+    // Deferred ledger: el saldo no se altera hasta la entrega de la mercadería
+    $creditCustomer->refresh();
+    expect((float) $creditCustomer->current_balance)->toEqual(-5000.00);
+    expect(CustomerAccountMovement::where('customer_order_id', $order->id)->count())->toBe(0);
+
+    // Al entregarse la mercadería, se asienta el movimiento en cuenta corriente
+    $deliverRes = $this->actingAs($this->user)
+        ->patchJson(route('tenant.orders.update-status', $order), ['status' => 'entregado']);
+    $deliverRes->assertSuccessful();
+
     // El saldo a favor del cliente se redujo de -5000 a -3000
     $creditCustomer->refresh();
     expect((float) $creditCustomer->current_balance)->toEqual(-3000.00);
@@ -204,6 +215,15 @@ test('T4: partial credit balance coverage leaves remaining debt in account ledge
         ->and((float) $order->debt_amount)->toEqual(2000.00)
         ->and($order->payment_status)->toBe('parcial')
         ->and($order->derived_payment_condition)->toBe('Saldo a Favor / Cta. Cte.');
+
+    // Deferred ledger: el saldo no se altera hasta la entrega de la mercadería
+    $creditCustomer->refresh();
+    expect((float) $creditCustomer->current_balance)->toEqual(-4000.00);
+
+    // Al entregarse la mercadería, se asienta la deuda
+    $deliverRes = $this->actingAs($this->user)
+        ->patchJson(route('tenant.orders.update-status', $order), ['status' => 'entregado']);
+    $deliverRes->assertSuccessful();
 
     // El cliente absorbió el saldo a favor (-4000) + total de venta (+6000) = balance resultante +2000 (deudor)
     $creditCustomer->refresh();

@@ -23,6 +23,7 @@ class CustomerOrderReceiptController extends Controller
             'show_account_in_receipt' => ['nullable', 'boolean'],
             'show_account_status_in_receipt' => ['nullable', 'boolean'],
             'show_account_balance_in_receipt' => ['nullable', 'boolean'],
+            'show_current_balance_in_receipt' => ['nullable', 'boolean'],
             'show_current_balance_in_receipt_subtotal' => ['nullable', 'boolean'],
             'show_projected_balance_in_receipt_subtotal' => ['nullable', 'boolean'],
             'show_credit_applied_in_receipt' => ['nullable', 'boolean'],
@@ -31,7 +32,15 @@ class CustomerOrderReceiptController extends Controller
             'adjustments_visibility.*' => ['boolean'],
         ]);
 
-        if (array_key_exists('show_account_in_receipt', $validated)) {
+        if (array_key_exists('show_current_balance_in_receipt', $validated)) {
+            $enabled = (bool) $validated['show_current_balance_in_receipt'];
+            $customerOrder->show_current_balance_in_receipt_subtotal = $enabled;
+            $customerOrder->show_account_in_receipt = $enabled;
+            $customerOrder->show_account_balance_in_receipt = $enabled;
+            $customerOrder->show_projected_balance_in_receipt_subtotal = false;
+        }
+
+        if (array_key_exists('show_account_in_receipt', $validated) && ! array_key_exists('show_current_balance_in_receipt', $validated)) {
             $customerOrder->show_account_in_receipt = (bool) $validated['show_account_in_receipt'];
         }
 

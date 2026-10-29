@@ -288,13 +288,19 @@ test('cannot transition a terminal delivered order or cancelled order', function
     $order->refresh();
     expect($order->status)->toBe('entregado');
 
-    // Attempt to transition delivered order to cancelado (Must fail)
+    // Attempt to transition delivered order backward (Must fail)
     $response = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
-        'status' => 'cancelado',
+        'status' => 'en_preparacion',
     ]);
 
     $response->assertStatus(422)
         ->assertJsonValidationErrors(['status']);
+
+    // Transitioning delivered order to cancelado is permitted
+    $cancelResponse = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
+        'status' => 'cancelado',
+    ]);
+    $cancelResponse->assertSuccessful();
 });
 
 test('deleting an active order restores stock but deleting a delivered order does not', function () {
@@ -428,11 +434,12 @@ test('can create customer order with full contado payment generating receipt and
     expect((float) $order->debt_amount)->toBe(10000.00);
     expect($order->payment_status)->toBe('pendiente');
 
-    // Cobro manual
+    // Cobro manual y entrega simultánea
     $collectRes = $this->actingAs($this->user)->post(route('tenant.orders.collect', $order), [
         'payment_method' => 'transferencia',
         'amount' => 10000.00,
         'reference_number' => 'TRF-12345',
+        'mark_as_delivered' => true,
     ]);
     $collectRes->assertRedirect();
 
@@ -453,7 +460,7 @@ test('can create customer order with full contado payment generating receipt and
     expect((float) $customer->current_balance)->toBe(0.00);
 });
 
-test('can create customer order with partial payment generating receipt and recording remaining debt', function () {
+test('can create customer order with partial collection generating receipt and recording remaining debt', function () {
     $customer = Customer::factory()->forTenant($this->tenant)->create([
         'name' => 'Cliente Seña SA',
         'current_balance' => 0.00,
@@ -469,9 +476,7 @@ test('can create customer order with partial payment generating receipt and reco
     $response = $this->actingAs($this->user)->post(route('tenant.orders.store'), [
         'customer_id' => $customer->id,
         'customer_name' => $customer->name,
-        'payment_type' => 'parcial',
-        'paid_amount' => 3000.00,
-        'payment_method' => 'efectivo',
+        'payment_type' => 'cuenta_corriente',
         'items' => [
             [
                 'product_id' => $product->id,
@@ -486,6 +491,23 @@ test('can create customer order with partial payment generating receipt and reco
     $order = CustomerOrder::where('customer_name', 'Cliente Seña SA')->first();
     expect($order)->not->toBeNull();
     expect((float) $order->total_amount)->toBe(8000.00);
+    expect((float) $order->debt_amount)->toBe(8000.00);
+    expect($order->payment_status)->toBe('pendiente');
+
+    $customer->refresh();
+    // Deferred ledger: balance is not altered until delivery
+    expect((float) $customer->current_balance)->toBe(0.00);
+
+    // Register partial payment ($3,000) and mark as delivered
+    $collectRes = $this->actingAs($this->user)->post(route('tenant.orders.collect', $order), [
+        'payment_method' => 'efectivo',
+        'amount' => 3000.00,
+        'mark_as_delivered' => true,
+    ]);
+    $collectRes->assertRedirect();
+
+    $order->refresh();
+    expect($order->status)->toBe('entregado');
     expect((float) $order->debt_amount)->toBe(5000.00);
     expect($order->payment_status)->toBe('parcial');
 
@@ -498,7 +520,7 @@ test('can create customer order with partial payment generating receipt and reco
     ]);
 
     $customer->refresh();
-    // Balance should only reflect the unpaid debt (5000.00)
+    // Balance reflects the unpaid debt (5000.00)
     expect((float) $customer->current_balance)->toBe(5000.00);
 });
 
@@ -510,9 +532,9 @@ test('terminal delivered order cannot be modified, deleted or charged via QR', f
         'total_amount' => 5000.00,
     ]);
 
-    // 1. Cannot update status
+    // 1. Cannot update status backward
     $resStatus = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
-        'status' => 'cancelado',
+        'status' => 'en_preparacion',
     ]);
     $resStatus->assertStatus(422)
         ->assertJsonValidationErrors(['status']);
@@ -559,7 +581,7 @@ test('order model throws DomainException on direct update or delete when in term
         'status' => 'entregado',
     ]);
 
-    expect(fn () => $order->update(['status' => 'cancelado']))
+    expect(fn () => $order->update(['status' => 'en_preparacion']))
         ->toThrow(DomainException::class);
 
     expect(fn () => $order->update(['customer_name' => 'Otro Cliente']))

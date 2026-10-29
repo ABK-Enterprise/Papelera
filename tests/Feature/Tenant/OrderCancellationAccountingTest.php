@@ -85,7 +85,7 @@ beforeEach(function () {
     ]);
 });
 
-test('cancelling a cuenta corriente order reverses the customer debt back to zero', function () {
+test('cancelling a delivered cuenta corriente order reverses the customer debt back to zero', function () {
     // 1. Create order for $10,000 on cuenta corriente
     $res = $this->actingAs($this->user)->post(route('tenant.orders.store'), [
         'customer_id' => $this->customer->id,
@@ -104,12 +104,23 @@ test('cancelling a cuenta corriente order reverses the customer debt back to zer
     $order = CustomerOrder::where('tenant_id', $this->tenant->id)->first();
     expect($order)->not->toBeNull()
         ->and((float) $order->total_amount)->toBe(10000.0)
-        ->and((float) $order->debt_amount)->toBe(10000.0);
+        ->and((float) $order->debt_amount)->toBe(10000.0)
+        ->and($order->account_posted_at)->toBeNull();
+
+    // Deferred ledger: balance is not altered until delivery
+    $this->customer->refresh();
+    expect((float) $this->customer->current_balance)->toBe(0.0);
+
+    // 2. Deliver the order -> posts the $10,000 debt
+    $deliverRes = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
+        'status' => 'entregado',
+    ]);
+    $deliverRes->assertSuccessful();
 
     $this->customer->refresh();
     expect((float) $this->customer->current_balance)->toBe(10000.0);
 
-    // 2. Cancel the order
+    // 3. Cancel the delivered order
     $cancelRes = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
         'status' => 'cancelado',
     ]);
@@ -131,13 +142,44 @@ test('cancelling a cuenta corriente order reverses the customer debt back to zer
         ->and((float) $adjustment->balance_after)->toBe(0.0);
 });
 
-test('cancelling a partial payment order reverses full charge leaving deposit as credit balance', function () {
-    // 1. Create order for $10,000 with $3,000 partial payment
+test('cancelling a pre-delivery order leaves customer balance untouched and creates no movements', function () {
     $res = $this->actingAs($this->user)->post(route('tenant.orders.store'), [
         'customer_id' => $this->customer->id,
-        'payment_type' => 'parcial',
-        'payment_method' => 'efectivo',
-        'paid_amount' => 3000.0,
+        'payment_type' => 'cuenta_corriente',
+        'warehouse_id' => $this->warehouse->id,
+        'items' => [
+            [
+                'product_id' => $this->product->id,
+                'packaging_type' => 'unidad',
+                'quantity' => 10,
+            ],
+        ],
+    ]);
+    $res->assertRedirect(route('tenant.orders.index'));
+
+    $order = CustomerOrder::where('tenant_id', $this->tenant->id)->first();
+    $this->customer->refresh();
+    expect((float) $this->customer->current_balance)->toBe(0.0)
+        ->and($order->account_posted_at)->toBeNull();
+
+    // Cancel while in en_preparacion
+    $cancelRes = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
+        'status' => 'cancelado',
+    ]);
+    $cancelRes->assertSuccessful();
+
+    $this->customer->refresh();
+    expect((float) $this->customer->current_balance)->toBe(0.0);
+
+    // No CustomerAccountMovement exists because debt was never posted
+    expect(CustomerAccountMovement::where('customer_order_id', $order->id)->exists())->toBeFalse();
+});
+
+test('cancelling a partial payment order reverses full charge leaving deposit as credit balance', function () {
+    // 1. Create order for $10,000 on cuenta corriente
+    $res = $this->actingAs($this->user)->post(route('tenant.orders.store'), [
+        'customer_id' => $this->customer->id,
+        'payment_type' => 'cuenta_corriente',
         'warehouse_id' => $this->warehouse->id,
         'items' => [
             [
@@ -152,12 +194,24 @@ test('cancelling a partial payment order reverses full charge leaving deposit as
     $order = CustomerOrder::where('tenant_id', $this->tenant->id)->first();
     expect($order)->not->toBeNull()
         ->and((float) $order->total_amount)->toBe(10000.0)
+        ->and((float) $order->debt_amount)->toBe(10000.0);
+
+    // 2. Register partial payment ($3,000) and mark as delivered
+    $collectRes = $this->actingAs($this->user)->post(route('tenant.orders.collect', $order), [
+        'payment_method' => 'efectivo',
+        'amount' => 3000.0,
+        'mark_as_delivered' => true,
+    ]);
+    $collectRes->assertSessionHasNoErrors();
+
+    $order->refresh();
+    expect($order->status)->toBe('entregado')
         ->and((float) $order->debt_amount)->toBe(7000.0);
 
     $this->customer->refresh();
     expect((float) $this->customer->current_balance)->toBe(7000.0);
 
-    // 2. Cancel order
+    // 3. Cancel delivered order -> reverses the remaining $7,000 debt back to zero
     $cancelRes = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
         'status' => 'cancelado',
     ]);
@@ -286,6 +340,16 @@ test('cancelling an order paid entirely with credit balance restores the credit 
         ->and((float) $order->debt_amount)->toBe(0.0)
         ->and($order->payment_status)->toBe('cobrado');
 
+    // Deferred ledger: balance is not altered until delivery
+    $this->customer->refresh();
+    expect((float) $this->customer->current_balance)->toBe(-5000.0);
+
+    // Deliver order -> applies the $3,000 credit, leaving customer with -$2,000 credit
+    $deliverRes = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
+        'status' => 'entregado',
+    ]);
+    $deliverRes->assertSuccessful();
+
     $this->customer->refresh();
     expect((float) $this->customer->current_balance)->toBe(-2000.0);
 
@@ -324,6 +388,16 @@ test('cancelling an order partially covered by credit balance restores both unpa
         ->and((float) $order->credit_balance_applied)->toBe(2000.0)
         ->and((float) $order->debt_amount)->toBe(3000.0);
 
+    // Deferred ledger: balance is not altered until delivery
+    $this->customer->refresh();
+    expect((float) $this->customer->current_balance)->toBe(-2000.0);
+
+    // Deliver order -> posts the $5,000 gross charge: -2000 + 5000 = +3000
+    $deliverRes = $this->actingAs($this->user)->patchJson(route('tenant.orders.update-status', $order), [
+        'status' => 'entregado',
+    ]);
+    $deliverRes->assertSuccessful();
+
     $this->customer->refresh();
     expect((float) $this->customer->current_balance)->toBe(3000.0);
 
@@ -347,7 +421,8 @@ test('cancelling a paid order that collected previous debt restores the previous
         'warehouse_id' => $this->warehouse->id,
         'order_number' => 'PED-DEBT-001',
         'customer_name' => $this->customer->name,
-        'status' => 'en_preparacion',
+        'status' => 'entregado',
+        'account_posted_at' => now(),
         'payment_status' => 'cobrado',
         'subtotal_amount' => 2000.00,
         'total_amount' => 2000.00,
