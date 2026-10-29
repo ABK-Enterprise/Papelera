@@ -1604,7 +1604,7 @@
                     <div class="relative">
                         <div
                             bind:this={itemsContainerRef}
-                            class="space-y-2.5 pt-1 {items.length > 3 ? 'max-h-[420px] sm:max-h-[460px] overflow-y-auto pr-1.5 overscroll-contain scroll-smooth' : ''}"
+                            class="space-y-2.5 pt-1 {items.length > 3 ? 'max-h-[420px] sm:max-h-[460px] overflow-y-auto no-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pr-1.5 overscroll-contain scroll-smooth' : ''}"
                         >
                             <!-- Centinela Superior W3C -->
                             <div bind:this={topSentinelRef} class="h-px w-full pointer-events-none opacity-0 shrink-0" aria-hidden="true"></div>
