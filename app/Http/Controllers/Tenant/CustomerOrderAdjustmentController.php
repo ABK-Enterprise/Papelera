@@ -35,9 +35,9 @@ class CustomerOrderAdjustmentController extends Controller
             ]);
         }
 
-        if ($customerOrder->isTerminal()) {
+        if ($customerOrder->isOperationallyImmutable()) {
             throw ValidationException::withMessages([
-                'order' => ["El pedido {$customerOrder->order_number} se encuentra en estado definitivo ({$customerOrder->status}) y no admite nuevos ajustes."],
+                'order' => ["El pedido {$customerOrder->order_number} se encuentra en estado definitivo o entregado ({$customerOrder->status}) y no admite nuevos ajustes."],
             ]);
         }
 
@@ -231,9 +231,9 @@ class CustomerOrderAdjustmentController extends Controller
             ]);
         }
 
-        if ($customerOrder->isTerminal()) {
+        if ($customerOrder->isOperationallyImmutable()) {
             throw ValidationException::withMessages([
-                'order' => ["El pedido {$customerOrder->order_number} se encuentra en estado definitivo ({$customerOrder->status}) y no admite modificaciones."],
+                'order' => ["El pedido {$customerOrder->order_number} se encuentra en estado definitivo o entregado ({$customerOrder->status}) y no admite modificaciones."],
             ]);
         }
 
@@ -404,9 +404,9 @@ class CustomerOrderAdjustmentController extends Controller
             ]);
         }
 
-        if ($customerOrder->isTerminal()) {
+        if ($customerOrder->isOperationallyImmutable()) {
             throw ValidationException::withMessages([
-                'order' => ["El pedido {$customerOrder->order_number} se encuentra en estado definitivo ({$customerOrder->status}) y no admite modificaciones."],
+                'order' => ["El pedido {$customerOrder->order_number} se encuentra en estado definitivo o entregado ({$customerOrder->status}) y no admite modificaciones."],
             ]);
         }
 

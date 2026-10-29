@@ -41,6 +41,12 @@ beforeEach(function () {
         'module_id' => $this->pedidosModule->id,
     ]);
 
+    $this->permEditarEstado = Permission::create([
+        'name' => 'pedidos.editar_estado',
+        'guard_name' => 'web',
+        'module_id' => $this->pedidosModule->id,
+    ]);
+
     $this->tenant->modules()->attach([$this->pedidosModule->id]);
 
     setPermissionsTeamId($this->tenant->id);
@@ -49,7 +55,7 @@ beforeEach(function () {
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,
     ]);
-    $this->role->givePermissionTo([$this->permVerPedidos, $this->permCrearPedidos]);
+    $this->role->givePermissionTo([$this->permVerPedidos, $this->permCrearPedidos, $this->permEditarEstado]);
 
     $this->user = User::factory()->forTenant($this->tenant)->create();
     $this->user->assignRole($this->role);
@@ -77,7 +83,7 @@ beforeEach(function () {
     ]);
 });
 
-test('customer order pdf displays "A DEBER" with previous balance and current debt amount', function () {
+test('customer order pdf displays current debt balance when show_current_balance_in_receipt_subtotal is enabled', function () {
     $this->customer->update(['current_balance' => 5000.00]);
 
     $order = CustomerOrder::create([
@@ -88,7 +94,7 @@ test('customer order pdf displays "A DEBER" with previous balance and current de
         'payment_type' => 'cuenta_corriente',
         'status' => 'en_preparacion',
         'total_amount' => 3000.00,
-        'show_account_in_receipt' => true,
+        'show_current_balance_in_receipt_subtotal' => true,
     ]);
 
     CustomerOrderItem::create([
@@ -106,14 +112,15 @@ test('customer order pdf displays "A DEBER" with previous balance and current de
         'previousBalance' => 2000.00,
     ])->render();
 
-    expect($html)->toContain('"A DEBER"')
-        ->not->toContain('Saldo de cta. cte. antes:')
-        ->toContain('Saldo actual:')
-        ->toContain('$5.000,00')
-        ->toContain('Generado por: Papelera San Nicolás SA');
+    expect($html)->not->toContain('"A DEBER"')
+        ->not->toContain('ESTADO EN CUENTA CORRIENTE')
+        ->toContain('Saldo Cta. Cte. actual:')
+        ->toContain('$5.000,00 (deudor)')
+        ->toContain('$8.000,00')
+        ->not->toContain('Generado por');
 });
 
-test('customer order pdf displays "A FAVOR" with previous balance and current credit amount', function () {
+test('customer order pdf displays current credit balance when show_current_balance_in_receipt_subtotal is enabled', function () {
     $this->customer->update(['current_balance' => -1500.00]);
 
     $order = CustomerOrder::create([
@@ -124,7 +131,7 @@ test('customer order pdf displays "A FAVOR" with previous balance and current cr
         'payment_type' => 'cuenta_corriente',
         'status' => 'en_preparacion',
         'total_amount' => 3500.00,
-        'show_account_in_receipt' => true,
+        'show_current_balance_in_receipt_subtotal' => true,
     ]);
 
     $order->load(['items.product', 'customer', 'tenant']);
@@ -134,13 +141,13 @@ test('customer order pdf displays "A FAVOR" with previous balance and current cr
         'previousBalance' => -5000.00,
     ])->render();
 
-    expect($html)->toContain('"A FAVOR"')
-        ->not->toContain('Saldo de cta. cte. antes:')
-        ->toContain('Saldo actual:')
-        ->toContain('$1.500,00');
+    expect($html)->not->toContain('"A FAVOR"')
+        ->not->toContain('ESTADO EN CUENTA CORRIENTE')
+        ->toContain('Saldo Cta. Cte. actual:')
+        ->toContain('$1.500,00 (a favor)');
 });
 
-test('customer order pdf displays "AL DIA" when customer balance is zero', function () {
+test('customer order pdf displays zero balance when customer balance is zero and flag is enabled', function () {
     $this->customer->update(['current_balance' => 0.00]);
 
     $order = CustomerOrder::create([
@@ -151,7 +158,7 @@ test('customer order pdf displays "AL DIA" when customer balance is zero', funct
         'payment_type' => 'contado',
         'status' => 'en_preparacion',
         'total_amount' => 4000.00,
-        'show_account_in_receipt' => true,
+        'show_current_balance_in_receipt_subtotal' => true,
     ]);
 
     $order->load(['items.product', 'customer', 'tenant']);
@@ -161,13 +168,13 @@ test('customer order pdf displays "AL DIA" when customer balance is zero', funct
         'previousBalance' => 0.00,
     ])->render();
 
-    expect($html)->toContain('"AL DIA"')
-        ->not->toContain('Saldo de cta. cte. antes:')
-        ->toContain('Saldo actual:')
-        ->toContain('$0,00');
+    expect($html)->not->toContain('"AL DIA"')
+        ->not->toContain('ESTADO EN CUENTA CORRIENTE')
+        ->toContain('Saldo Cta. Cte. actual:')
+        ->toContain('$0,00 (al día)');
 });
 
-test('customer order pdf totals box breaks down previous debt collected and total when show_debt_collected_in_receipt is true', function () {
+test('customer order pdf totals box does not display previous debt breakdown and displays single total', function () {
     $order = CustomerOrder::create([
         'tenant_id' => $this->tenant->id,
         'customer_id' => $this->customer->id,
@@ -193,14 +200,13 @@ test('customer order pdf totals box breaks down previous debt collected and tota
     $html = view('pdf.customer-order', ['order' => $order])->render();
 
     expect($html)->toContain('SUBTOTAL:')
-        ->toContain('Cobro de Deuda Anterior:')
-        ->toContain('+$3.000,00')
+        ->not->toContain('Cobro de Deuda Anterior:')
         ->toContain('TOTAL:')
-        ->toContain('$10.000,00')
+        ->toContain('$7.000,00')
         ->not->toContain('TOTAL ABONADO:');
 });
 
-test('customer order pdf totals box hides previous debt breakdown when show_debt_collected_in_receipt is false but displays final total', function () {
+test('customer order pdf totals box hides previous debt breakdown when show_debt_collected_in_receipt is false and displays final total', function () {
     $order = CustomerOrder::create([
         'tenant_id' => $this->tenant->id,
         'customer_id' => $this->customer->id,
@@ -226,7 +232,7 @@ test('customer order pdf totals box hides previous debt breakdown when show_debt
     $html = view('pdf.customer-order', ['order' => $order])->render();
 
     expect($html)->toContain('TOTAL:')
-        ->toContain('$10.000,00')
+        ->toContain('$7.000,00')
         ->not->toContain('Cobro de Deuda Anterior:')
         ->not->toContain('TOTAL ABONADO:');
 });
@@ -290,7 +296,15 @@ test('customer order creation captures customer_balance_before and customer_bala
     $createdOrder = CustomerOrder::where('customer_id', $this->customer->id)->latest('id')->first();
     expect($createdOrder)->not->toBeNull()
         ->and((float) $createdOrder->customer_balance_before)->toBe(4500.00)
-        ->and((float) $createdOrder->customer_balance_after)->toBe(8500.00);
+        ->and((float) $createdOrder->customer_balance_after)->toBe(4500.00);
+
+    // Upon delivery, debt is posted and customer_balance_after reflects the updated balance
+    $deliverRes = $this->actingAs($this->user)
+        ->patchJson(route('tenant.orders.update-status', $createdOrder), ['status' => 'entregado']);
+    $deliverRes->assertSuccessful();
+
+    $createdOrder->refresh();
+    expect((float) $createdOrder->customer_balance_after)->toBe(8500.00);
 });
 
 test('customer order pdf prioritizes snapshot balances over modified live customer balance', function () {
@@ -304,7 +318,7 @@ test('customer order pdf prioritizes snapshot balances over modified live custom
         'total_amount' => 4000.00,
         'customer_balance_before' => -5000.00,
         'customer_balance_after' => -1000.00,
-        'show_account_in_receipt' => true,
+        'show_current_balance_in_receipt_subtotal' => true,
     ]);
 
     CustomerOrderItem::create([
@@ -322,9 +336,9 @@ test('customer order pdf prioritizes snapshot balances over modified live custom
 
     $html = view('pdf.customer-order', ['order' => $order])->render();
 
-    expect($html)->toContain('"A FAVOR"')
-        ->not->toContain('Saldo de cta. cte. antes:')
-        ->toContain('Saldo actual:')
-        ->toContain('$1.000,00')
+    expect($html)->not->toContain('"A FAVOR"')
+        ->not->toContain('ESTADO EN CUENTA CORRIENTE')
+        ->toContain('Saldo Cta. Cte. actual:')
+        ->toContain('$5.000,00 (a favor)')
         ->not->toContain('$99.999,00');
 });
