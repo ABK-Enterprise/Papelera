@@ -29,3 +29,16 @@ export function generateUUID(): string {
         return v.toString(16);
     });
 }
+
+export function formatDateTime(dateStr?: string | null): string {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return String(dateStr);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const ampm = d.getHours() >= 12 ? 'pm' : 'am';
+    return `${year}/${month}/${day} ${hours}:${minutes} ${ampm}`;
+}

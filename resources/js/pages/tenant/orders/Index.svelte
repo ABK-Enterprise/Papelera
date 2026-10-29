@@ -12,6 +12,7 @@
     import { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import SortSelect from '@/components/common/SortSelect.svelte';
+    import { formatDateTime } from '@/lib/utils';
     import { hasPermission } from '@/lib/permissions';
     import CreateOrderModal from './CreateOrderModal.svelte';
     import OrderDetailModal from './OrderDetailModal.svelte';
@@ -335,7 +336,7 @@
                                         <span class="font-bold text-foreground tabular-nums">#{ord.order_number}</span>
                                         <span class="truncate text-muted-foreground">· {ord.customer_name}</span>
                                     </div>
-                                    <span class="text-xs text-muted-foreground/80">{ord.created_at}</span>
+                                    <span class="text-xs text-muted-foreground/80 tabular-nums">{formatDateTime(ord.created_at)}</span>
                                 </div>
                                 <div class="flex items-center gap-2 shrink-0">
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold border {badge.class}">
