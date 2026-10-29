@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Button } from '@/components/ui/button';
     import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/components/ui/dialog';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
@@ -1324,17 +1324,11 @@
                             <span class="text-base font-bold text-foreground tabular-nums block">
                                 {formatPrice(order.billable_amount ?? order.total_amount)}
                             </span>
-                            <span class="text-[11px] text-muted-foreground block">
-                                Base imponible legal correspondiente a los ítems y ajustes de la venta.
-                            </span>
                         </div>
                         <div class="space-y-1 border-l border-border/60 pl-3">
                             <span class="text-muted-foreground block font-medium">Monto Capaz de Cobrar</span>
                             <span class="text-base font-bold text-primary tabular-nums block">
                                 {formatPrice(order.collectible_amount ?? order.total_amount)}
-                            </span>
-                            <span class="text-[11px] text-muted-foreground block">
-                                Importe financiero neto tras aplicar regularizaciones de saldo previo.
                             </span>
                         </div>
                     </div>
