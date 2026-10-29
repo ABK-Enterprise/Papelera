@@ -363,11 +363,10 @@ test('receipt pdf renders credit balance applied and total to pay when sub-item 
     expect($html)->not->toContain('ESTADO EN CUENTA CORRIENTE')
         ->not->toContain('"A FAVOR"');
 
-    // Totales: muestra Total con monto neto afectado ($6.000,00) y Saldo a Favor Aplicado
+    // Totales: muestra Total con monto neto afectado ($6.000,00) y NO muestra línea separada de saldo a favor
     expect($html)->toContain('TOTAL:')
         ->toContain('$6.000,00')
-        ->toContain('Saldo a Favor Aplicado:')
-        ->toContain('-$4.000,00')
+        ->not->toContain('Saldo a Favor Aplicado:')
         ->and($html)->not->toContain('TOTAL A PAGAR:');
 });
 

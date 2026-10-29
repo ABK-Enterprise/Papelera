@@ -269,7 +269,7 @@
             font-size: 12.5px;
         }
         .summary-label {
-            color: #475569;
+            color: #0f172a;
             font-weight: 600;
             text-align: left;
         }
@@ -277,12 +277,6 @@
             text-align: right;
             font-weight: 600;
             color: #0f172a;
-        }
-        .text-green {
-            color: #16a34a !important;
-        }
-        .text-danger {
-            color: #dc2626 !important;
         }
 
         /* Sección Central: Total del Pedido */
@@ -496,7 +490,6 @@
                             $valCurrent = $isFavorBefore
                                 ? '$' . number_format($absBalanceBefore, 2, ',', '.') . ' (a favor)'
                                 : ($isDeudorBefore ? '$' . number_format($absBalanceBefore, 2, ',', '.') . ' (deudor)' : '$0,00 (al día)');
-                            $classCurrent = $isFavorBefore ? 'text-green' : ($isDeudorBefore ? 'text-danger' : '');
                         @endphp
 
                         <tr>
@@ -506,15 +499,15 @@
 
                         @if($bulkDiscountTotal > 0)
                             <tr>
-                                <td class="summary-label text-green">Descuento por bulto:</td>
-                                <td class="summary-value tabular-nums text-green">-${{ number_format($bulkDiscountTotal, 2, ',', '.') }}</td>
+                                <td class="summary-label">Descuento por bulto:</td>
+                                <td class="summary-value tabular-nums">-${{ number_format($bulkDiscountTotal, 2, ',', '.') }}</td>
                             </tr>
                         @endif
 
                         @if($customerDiscountPct > 0)
                             <tr>
-                                <td class="summary-label text-green">Descuento cliente (%{{ number_format($customerDiscountPct, 1, ',', '.') }}):</td>
-                                <td class="summary-value tabular-nums text-green">-${{ number_format($customerDiscountAmount, 2, ',', '.') }}</td>
+                                <td class="summary-label">Descuento cliente (%{{ number_format($customerDiscountPct, 1, ',', '.') }}):</td>
+                                <td class="summary-value tabular-nums">-${{ number_format($customerDiscountAmount, 2, ',', '.') }}</td>
                             </tr>
                         @endif
 
@@ -530,8 +523,8 @@
                                         }
                                     @endphp
                                     <tr>
-                                        <td class="summary-label {{ $isDisc ? 'text-green' : '' }}">{{ $adjName }}:</td>
-                                        <td class="summary-value tabular-nums {{ $isDisc ? 'text-green' : '' }}">
+                                        <td class="summary-label">{{ $adjName }}:</td>
+                                        <td class="summary-value tabular-nums">
                                             {{ $isDisc ? '-' : '+' }}${{ number_format($appliedVal, 2, ',', '.') }}
                                         </td>
                                     </tr>
@@ -548,8 +541,8 @@
 
                         @if(!empty($order->show_current_balance_in_receipt_subtotal) && $order->customer)
                             <tr>
-                                <td class="summary-label {{ $classCurrent }}">Saldo Cta. Cte. actual:</td>
-                                <td class="summary-value tabular-nums {{ $classCurrent }}">{{ $valCurrent }}</td>
+                                <td class="summary-label">Saldo Cta. Cte. actual:</td>
+                                <td class="summary-value tabular-nums">{{ $valCurrent }}</td>
                             </tr>
                         @endif
                     </table>
@@ -558,28 +551,11 @@
                 <!-- 2. Sección Central: Total del Pedido -->
                 <div class="summary-section-total">
                     <table class="summary-total-table">
-                        @if($order->show_credit_applied_in_receipt && (float) $order->credit_balance_applied > 0)
-                            <tr>
-                                <td class="summary-label text-green" style="font-size: 12px; padding-bottom: 2px;">Saldo a Favor Aplicado:</td>
-                                <td class="summary-value tabular-nums text-green" style="font-size: 12.5px; padding-bottom: 2px;">
-                                    -${{ number_format((float) $order->credit_balance_applied, 2, ',', '.') }}
-                                </td>
-                            </tr>
-                        @endif
-                        @if($order->show_debt_collected_in_receipt && (float) ($order->previous_debt_collected ?? 0) > 0)
-                            <tr>
-                                <td class="summary-label text-danger" style="font-size: 12px; padding-bottom: 2px; border-bottom: 1px dashed #cbd5e1;">Cobro de Deuda Anterior:</td>
-                                <td class="summary-value tabular-nums text-danger" style="font-size: 12.5px; padding-bottom: 2px; border-bottom: 1px dashed #cbd5e1;">
-                                    +${{ number_format((float) $order->previous_debt_collected, 2, ',', '.') }}
-                                </td>
-                            </tr>
-                        @endif
-
                         @php
                             $sumBalance = (!empty($order->show_current_balance_in_receipt_subtotal) && $order->customer && $currentBalanceBefore > 0)
                                 ? $currentBalanceBefore
                                 : 0.0;
-                            $grandTotal = (float) $order->total_amount + (float) ($order->previous_debt_collected ?? 0) + $sumBalance;
+                            $grandTotal = (float) $order->total_amount + $sumBalance;
                         @endphp
                         <tr>
                             <td class="summary-total-label">TOTAL DEL PEDIDO:</td>

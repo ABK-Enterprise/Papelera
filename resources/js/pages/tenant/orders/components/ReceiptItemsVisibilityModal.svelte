@@ -66,10 +66,8 @@
 
     let isSaving = $state(false);
 
-    // Estado local para cuenta corriente, saldo a favor y deuda previa
+    // Estado local para visibilidad de saldo en cuenta corriente
     let showCurrentBalance = $state(false);
-    let showCreditApplied = $state(false);
-    let showDebtCollected = $state(false);
 
     // Estado reactivo para expandir/contraer nodos del árbol
     let isDiscountsExpanded = $state(false);
@@ -78,14 +76,6 @@
     // Mapa reactivo de visibilidad de ajustes id -> boolean
     let visibilityMap = $state<Record<string, boolean>>({});
 
-    const canShowCreditApplied = $derived(
-        Boolean(order?.customer_id) && Number(order?.credit_balance_applied ?? 0) > 0
-    );
-
-    const canShowDebtCollected = $derived(
-        Boolean(order?.customer_id) && Number(order?.previous_debt_collected ?? 0) > 0
-    );
-
     // Sincronizar estado cuando se abre el modal o cambia la orden
     $effect(() => {
         if (open && order) {
@@ -93,12 +83,6 @@
                 order.show_current_balance_in_receipt_subtotal ??
                 order.show_account_in_receipt
             );
-            showCreditApplied = canShowCreditApplied
-                ? Boolean(order.show_credit_applied_in_receipt)
-                : false;
-            showDebtCollected = canShowDebtCollected
-                ? Boolean(order.show_debt_collected_in_receipt)
-                : false;
             const map: Record<string, boolean> = {};
             if (Array.isArray(order.price_adjustments)) {
                 order.price_adjustments.forEach((adj) => {
@@ -182,8 +166,8 @@
                 show_account_status_in_receipt: showCurrentBalance,
                 show_account_balance_in_receipt: showCurrentBalance,
                 show_projected_balance_in_receipt_subtotal: false,
-                show_credit_applied_in_receipt: canShowCreditApplied ? showCreditApplied : false,
-                show_debt_collected_in_receipt: canShowDebtCollected ? showDebtCollected : false,
+                show_credit_applied_in_receipt: false,
+                show_debt_collected_in_receipt: false,
                 adjustments_visibility: visibilityMap,
             },
             {
@@ -198,8 +182,8 @@
                         order.show_account_status_in_receipt = showCurrentBalance;
                         order.show_account_balance_in_receipt = showCurrentBalance;
                         order.show_projected_balance_in_receipt_subtotal = false;
-                        order.show_credit_applied_in_receipt = canShowCreditApplied ? showCreditApplied : false;
-                        order.show_debt_collected_in_receipt = canShowDebtCollected ? showDebtCollected : false;
+                        order.show_credit_applied_in_receipt = false;
+                        order.show_debt_collected_in_receipt = false;
                         if (Array.isArray(order.price_adjustments)) {
                             order.price_adjustments.forEach((adj) => {
                                 if (adj.id && visibilityMap[adj.id] !== undefined) {
@@ -268,47 +252,6 @@
                             {/if}
                         </div>
                     </label>
-
-                    <!-- Opcionales si el pedido tuvo uso de saldo a favor o cobro de deuda previa -->
-                    {#if canShowCreditApplied || canShowDebtCollected}
-                        <div class="ml-2 pl-4 border-l-2 border-border/60 space-y-2.5 pt-1">
-                            {#if canShowCreditApplied}
-                                <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        bind:checked={showCreditApplied}
-                                        class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
-                                    />
-                                    <div class="flex-1 min-w-0">
-                                        <span class="text-sm font-medium text-foreground block">
-                                            Mostrar uso de saldo a favor en el remito
-                                        </span>
-                                        <p class="text-xs text-muted-foreground mt-0.5">
-                                            Imprime en el desglose de totales el monto de saldo a favor descontado.
-                                        </p>
-                                    </div>
-                                </label>
-                            {/if}
-
-                            {#if canShowDebtCollected}
-                                <label class="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        bind:checked={showDebtCollected}
-                                        class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
-                                    />
-                                    <div class="flex-1 min-w-0">
-                                        <span class="text-sm font-medium text-foreground block">
-                                            Mostrar cobro de deuda previa en el remito
-                                        </span>
-                                        <p class="text-xs text-muted-foreground mt-0.5">
-                                            Imprime en el desglose de totales la línea de cobro de deuda anterior.
-                                        </p>
-                                    </div>
-                                </label>
-                            {/if}
-                        </div>
-                    {/if}
                 </div>
 
                 <!-- 2. Nodo Descuentos (Padre con Hijos) -->
