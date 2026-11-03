@@ -17,6 +17,7 @@ use App\Http\Controllers\Tenant\DeliveryRouteController;
 use App\Http\Controllers\Tenant\PaymentCollectionController;
 use App\Http\Controllers\Tenant\ProductController;
 use App\Http\Controllers\Tenant\ProductWarehouseLookupController;
+use App\Http\Controllers\Tenant\ReportController;
 use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\ShippingZoneController;
 use App\Http\Controllers\Tenant\Stock\StockIncomeController;
@@ -217,4 +218,12 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::post('repartos/{customerOrder}/reprogramar', [DeliveryRouteController::class, 'reschedule'])->name('deliveries.reschedule')->middleware('tenant.permission:repartos.gestionar');
             Route::get('repartos/rendicion', [DeliveryRouteController::class, 'shiftSummary'])->name('deliveries.shift-summary')->middleware('tenant.permission:repartos.ver');
         });
+
+        // Reportes y Estadísticas del Comercio (Módulo default para tenants)
+        Route::get('reportes', [ReportController::class, 'index'])
+            ->name('reports.index')
+            ->middleware('tenant.permission:reportes.ver');
+        Route::get('reportes/exportar-pdf', [ReportController::class, 'exportPdf'])
+            ->name('reports.export-pdf')
+            ->middleware(['tenant.permission:reportes.exportar', 'throttle:20,1']);
     });

@@ -305,6 +305,16 @@
                 );
             }
 
+            // Reportes y Estadísticas (Módulo Core de Comercio)
+            if (isAdmin || permissions.includes('reportes.ver')) {
+                items.push({
+                    title: 'Reportes',
+                    href: '/tenant/reportes',
+                    icon: 'solar:chart-2-bold-duotone',
+                    active: currentUrl.startsWith('/tenant/reportes'),
+                });
+            }
+
         }
 
         return items;
