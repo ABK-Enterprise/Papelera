@@ -42,19 +42,24 @@ class TenantModuleSynchronizer
             }
         }
 
-        // 3. Grant active module permissions to tenant's 'admin' role
+        // 3. Grant active module permissions and core permissions to tenant's 'admin' role
+        $adminRole = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
+            'tenant_id' => $tenant->id,
+        ]);
+
         if (! empty($newModuleIds)) {
             $contractedPermissions = Permission::whereIn('module_id', $newModuleIds)->get();
 
             if ($contractedPermissions->isNotEmpty()) {
-                $adminRole = Role::firstOrCreate([
-                    'name' => 'admin',
-                    'guard_name' => 'web',
-                    'tenant_id' => $tenant->id,
-                ]);
-
                 $adminRole->givePermissionTo($contractedPermissions);
             }
+        }
+
+        $corePermissions = Permission::whereNull('module_id')->get();
+        if ($corePermissions->isNotEmpty()) {
+            $adminRole->givePermissionTo($corePermissions);
         }
 
         // 4. Reset permission cache

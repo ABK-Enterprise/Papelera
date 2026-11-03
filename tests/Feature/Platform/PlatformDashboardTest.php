@@ -26,6 +26,7 @@ test('superadmin can access platform dashboard and view global system metrics', 
     Product::factory()->forTenant($tenantA)->create();
     Product::factory()->forTenant($tenantA)->create();
 
+    Module::query()->delete();
     $module = Module::create([
         'code' => 'stock',
         'name' => 'Inventario y Stock',

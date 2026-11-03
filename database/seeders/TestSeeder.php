@@ -71,7 +71,9 @@ class TestSeeder extends Seeder
         ];
 
         $activeModuleIds = Module::where('is_active', true)->pluck('id');
-        $activePermissions = Permission::whereIn('module_id', $activeModuleIds)->get();
+        $activePermissions = Permission::whereIn('module_id', $activeModuleIds)
+            ->orWhereNull('module_id')
+            ->get();
 
         foreach ($tenantsData as $tData) {
             // Create or update tenant
