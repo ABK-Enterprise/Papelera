@@ -3,6 +3,7 @@
 use App\Models\Customer;
 use App\Models\CustomerOrder;
 use App\Models\CustomerOrderItem;
+use App\Models\Module;
 use App\Models\Product;
 use App\Models\Receipt;
 use App\Models\Supplier;
@@ -33,13 +34,17 @@ beforeEach(function () {
         'is_default' => true,
     ]);
 
+    // Module Reportes habilitado para este tenant
+    $this->reportingModule = Module::where('code', 'reportes')->firstOrFail();
+    $this->tenant->modules()->sync([$this->reportingModule->id]);
+
     // Admin user with all report permissions
     $this->adminRole = Role::firstOrCreate([
         'name' => 'admin',
         'guard_name' => 'web',
         'tenant_id' => $this->tenant->id,
     ]);
-    $this->adminRole->givePermissionTo(Permission::whereNull('module_id')->get());
+    $this->adminRole->givePermissionTo($this->reportingModule->permissions);
 
     $this->adminUser = User::factory()->create([
         'tenant_id' => $this->tenant->id,
@@ -264,4 +269,30 @@ test('usuario con permiso reportes.exportar puede descargar pdf del reporte come
             && isset($pdf->viewData['metrics'])
             && isset($pdf->viewData['tenant']);
     });
+});
+
+test('comercio sin modulo reportes asignado por el superusuario es bloqueado por CheckModuleAccess', function () {
+    $otherTenant = Tenant::factory()->create(['name' => 'Comercio Sin Modulo Reportes']);
+    setPermissionsTeamId($otherTenant->id);
+
+    $otherAdmin = User::factory()->create([
+        'tenant_id' => $otherTenant->id,
+        'email' => 'other_admin@test.com',
+    ]);
+    $otherAdminRole = Role::firstOrCreate([
+        'name' => 'admin',
+        'guard_name' => 'web',
+        'tenant_id' => $otherTenant->id,
+    ]);
+    $otherAdmin->assignRole($otherAdminRole);
+
+    $response = $this->actingAs($otherAdmin)
+        ->get(route('tenant.reports.index'));
+
+    $response->assertStatus(302)
+        ->assertRedirect(route('auth.access-denied', ['reason' => 'module_not_assigned']));
+
+    $this->actingAs($otherAdmin)
+        ->getJson(route('tenant.reports.index'))
+        ->assertForbidden();
 });

@@ -219,11 +219,13 @@ Route::middleware(['auth', 'verified', 'tenant'])
             Route::get('repartos/rendicion', [DeliveryRouteController::class, 'shiftSummary'])->name('deliveries.shift-summary')->middleware('tenant.permission:repartos.ver');
         });
 
-        // Reportes y Estadísticas del Comercio (Módulo default para tenants)
-        Route::get('reportes', [ReportController::class, 'index'])
-            ->name('reports.index')
-            ->middleware('tenant.permission:reportes.ver');
-        Route::get('reportes/exportar-pdf', [ReportController::class, 'exportPdf'])
-            ->name('reports.export-pdf')
-            ->middleware(['tenant.permission:reportes.exportar', 'throttle:20,1']);
+        // Reportes y Estadísticas del Comercio (Módulo asignable para tenants)
+        Route::middleware(['module:reportes'])->group(function () {
+            Route::get('reportes', [ReportController::class, 'index'])
+                ->name('reports.index')
+                ->middleware('tenant.permission:reportes.ver');
+            Route::get('reportes/exportar-pdf', [ReportController::class, 'exportPdf'])
+                ->name('reports.export-pdf')
+                ->middleware(['tenant.permission:reportes.exportar', 'throttle:20,1']);
+        });
     });

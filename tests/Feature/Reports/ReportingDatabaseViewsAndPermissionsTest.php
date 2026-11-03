@@ -2,6 +2,7 @@
 
 use App\Models\Customer;
 use App\Models\CustomerOrder;
+use App\Models\Module;
 use App\Models\Receipt;
 use App\Models\Supplier;
 use App\Models\SupplierOrder;
@@ -25,8 +26,11 @@ beforeEach(function () {
         'tenant_id' => $this->tenantA->id,
         'email' => 'adminA@test.com',
     ]);
+    $this->reportingModule = Module::where('code', 'reportes')->firstOrFail();
+    $this->tenantA->modules()->sync([$this->reportingModule->id]);
+
     $roleA = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web', 'tenant_id' => $this->tenantA->id]);
-    $roleA->givePermissionTo(Permission::whereNull('module_id')->get());
+    $roleA->givePermissionTo($this->reportingModule->permissions);
     $this->adminA->assignRole($roleA);
 });
 
@@ -194,16 +198,15 @@ test('view_tenant_monthly_expenses calcula compras recibidas y excluye compras p
     expect((float) $expenses->total_spent)->toEqual(40000.00);
 });
 
-test('los permisos de reportes fueron registrados y asignados al rol admin del tenant', function () {
-    $permissions = [
+test('los permisos de reportes fueron registrados y asignados al rol admin del tenant y vinculados al modulo', function () {
+    $module = Module::where('code', 'reportes')->firstOrFail();
+    expect($module->name)->toBe('Reportes y Estadísticas');
+    expect($module->permissions)->toHaveCount(3);
+    expect($module->permissions->pluck('name')->all())->toContain(
         'reportes.ver',
         'reportes.exportar',
-        'reportes.ver_costos_margenes',
-    ];
-
-    foreach ($permissions as $permName) {
-        expect(Permission::where('name', $permName)->exists())->toBeTrue();
-    }
+        'reportes.ver_costos_margenes'
+    );
 
     setPermissionsTeamId($this->tenantA->id);
     expect($this->adminA->hasPermissionTo('reportes.ver'))->toBeTrue();

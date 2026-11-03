@@ -310,8 +310,8 @@
                 );
             }
 
-            // Reportes y Estadísticas (Módulo Core de Comercio)
-            if (isAdmin || permissions.includes('reportes.ver')) {
+            // Reportes y Estadísticas (Módulo Asignable por Superusuario)
+            if (modules.includes('reportes') && (isAdmin || permissions.includes('reportes.ver'))) {
                 items.push({
                     title: 'Reportes',
                     href: '/tenant/reportes',

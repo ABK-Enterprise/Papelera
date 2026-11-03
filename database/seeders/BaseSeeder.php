@@ -152,6 +152,16 @@ class BaseSeeder extends Seeder
                     'recargos_descuentos.gestionar',
                 ],
             ],
+            [
+                'name' => SystemModule::Reportes->label(),
+                'code' => SystemModule::Reportes->value,
+                'description' => 'Panel analítico y financiero de ventas, cobranzas, compras, costos y márgenes operativos.',
+                'permissions' => [
+                    'reportes.ver',
+                    'reportes.exportar',
+                    'reportes.ver_costos_margenes',
+                ],
+            ],
         ];
 
         foreach ($modules as $modData) {

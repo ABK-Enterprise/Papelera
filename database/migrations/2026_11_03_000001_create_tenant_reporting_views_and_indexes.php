@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Module;
 use App\Models\Tenant;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -118,8 +119,17 @@ return new class extends Migration
             ");
         }
 
-        // 3. Registrar permisos del módulo default de Reportes
+        // 3. Registrar módulo de Reportes en catálogo de módulos y sus permisos asociados
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        $module = Module::firstOrCreate(
+            ['code' => 'reportes'],
+            [
+                'name' => 'Reportes y Estadísticas',
+                'description' => 'Panel analítico y financiero de ventas, cobranzas, compras, costos y márgenes operativos.',
+                'is_active' => true,
+            ]
+        );
 
         $permissions = [
             'reportes.ver',
@@ -129,13 +139,17 @@ return new class extends Migration
 
         $createdPermissions = [];
         foreach ($permissions as $permName) {
-            $createdPermissions[] = Permission::firstOrCreate([
+            $permission = Permission::firstOrCreate([
                 'name' => $permName,
                 'guard_name' => 'web',
             ]);
+            $permission->module_id = $module->id;
+            $permission->save();
+
+            $createdPermissions[] = $permission;
         }
 
-        // 4. Asignar por defecto al rol 'admin' de todos los comercios
+        // 4. Asignar por defecto al rol 'admin' de los comercios que tengan el módulo activo
         $tenants = Tenant::all();
         foreach ($tenants as $tenant) {
             setPermissionsTeamId($tenant->id);
@@ -184,6 +198,8 @@ return new class extends Migration
             'reportes.exportar',
             'reportes.ver_costos_margenes',
         ])->delete();
+
+        Module::where('code', 'reportes')->delete();
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
     }
