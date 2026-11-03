@@ -275,7 +275,7 @@ class BusinessReportService
 
         return $query->select(
             'customer_order_items.product_id',
-            DB::raw('COALESCE(products.name, "Producto") as name'),
+            'products.name',
             'products.sku',
             DB::raw('COALESCE(SUM(customer_order_items.quantity), 0) as total_quantity'),
             DB::raw('COALESCE(SUM(customer_order_items.subtotal), 0) as total_subtotal')
@@ -286,7 +286,7 @@ class BusinessReportService
             ->get()
             ->map(fn ($row) => [
                 'product_id' => (int) $row->product_id,
-                'name' => (string) $row->name,
+                'name' => (string) ($row->name ?? 'Producto'),
                 'sku' => $row->sku ? (string) $row->sku : null,
                 'total_quantity' => round((float) $row->total_quantity, 2),
                 'total_subtotal' => round((float) $row->total_subtotal, 2),
