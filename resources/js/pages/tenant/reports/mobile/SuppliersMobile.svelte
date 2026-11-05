@@ -111,7 +111,7 @@
             <select
                 value={suppliersSort}
                 onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
-                class="min-h-[34px] px-2 py-0.5 text-xs rounded-md border border-input/80 bg-background text-foreground"
+                class="min-h-[34px] px-2 py-0.5 text-xs rounded-md border border-input/80 bg-select-background text-foreground"
             >
                 <option value="desc">Más</option>
                 <option value="asc">Menos</option>

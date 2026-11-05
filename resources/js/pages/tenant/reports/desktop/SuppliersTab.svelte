@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Card } from '@/components/ui/card';
     import { router } from '@inertiajs/svelte';
-    import { ChevronLeft, ChevronRight, ChevronDown, TrendingDown, Truck, Phone, Mail, MapPin } from 'lucide-svelte';
+    import { ChevronLeft, ChevronRight, TrendingDown, Truck, Phone, Mail, MapPin } from 'lucide-svelte';
 
     interface Props {
         suppliersData: {
@@ -128,21 +128,16 @@
                 </p>
             </div>
 
-            <!-- Selector de ordenamiento estandarizado con ChevronDown -->
-            <div class="relative w-full sm:w-[210px] shrink-0">
-                <select
-                    value={suppliersSort}
-                    onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
-                    aria-label="Ordenar proveedores"
-                    class="w-full min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer appearance-none pr-8 truncate font-medium"
-                >
-                    <option value="desc">Más comprado</option>
-                    <option value="asc">Menos comprado</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-muted-foreground">
-                    <ChevronDown class="size-4 opacity-50" />
-                </div>
-            </div>
+            <!-- Selector de ordenamiento estandarizado -->
+            <select
+                value={suppliersSort}
+                onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
+                aria-label="Ordenar proveedores"
+                class="w-full sm:w-[210px] min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium shrink-0"
+            >
+                <option value="desc">Más comprado</option>
+                <option value="asc">Menos comprado</option>
+            </select>
         </div>
 
         {#if suppliersData.suppliers.data.length === 0}

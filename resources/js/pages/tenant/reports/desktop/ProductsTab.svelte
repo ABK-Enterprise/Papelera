@@ -2,7 +2,7 @@
     import { Card } from '@/components/ui/card';
     import ChartCanvas from '@/components/charts/ChartCanvas.svelte';
     import { router } from '@inertiajs/svelte';
-    import { ChevronDown, PackageCheck, Scale, Package } from 'lucide-svelte';
+    import { PackageCheck, Scale, Package } from 'lucide-svelte';
 
     interface Props {
         productsData: {
@@ -144,21 +144,16 @@
         <div class="flex items-center justify-between gap-3">
             <h3 class="text-lg font-semibold tracking-tight text-foreground">Top 10 Productos más vendidos</h3>
 
-            <!-- Selector de ordenamiento estandarizado con ChevronDown (por default: Más vendidos) -->
-            <div class="relative w-full sm:w-[210px] shrink-0">
-                <select
-                    value={productsSort}
-                    onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
-                    aria-label="Ordenar productos"
-                    class="w-full min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer appearance-none pr-8 truncate font-medium"
-                >
-                    <option value="desc">Más vendidos</option>
-                    <option value="asc">Menos vendidos</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-muted-foreground">
-                    <ChevronDown class="size-4 opacity-50" />
-                </div>
-            </div>
+            <!-- Selector de ordenamiento estandarizado (por default: Más vendidos) -->
+            <select
+                value={productsSort}
+                onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
+                aria-label="Ordenar productos"
+                class="w-full sm:w-[210px] min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium shrink-0"
+            >
+                <option value="desc">Más vendidos</option>
+                <option value="asc">Menos vendidos</option>
+            </select>
         </div>
 
         {#if productsData.top_products.length === 0}

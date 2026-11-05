@@ -2,7 +2,6 @@
     import { Card } from '@/components/ui/card';
     import ChartCanvas from '@/components/charts/ChartCanvas.svelte';
     import { router } from '@inertiajs/svelte';
-    import { ChevronDown } from 'lucide-svelte';
 
     interface Props {
         productsData: {
@@ -120,20 +119,15 @@
         <div class="flex items-center justify-between gap-2 mb-3">
             <h3 class="text-base font-semibold text-foreground">Top Productos</h3>
             
-            <div class="relative">
-                <select
-                    value={productsSort}
-                    onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
-                    aria-label="Ordenar productos"
-                    class="min-h-[36px] px-2.5 py-1 text-xs rounded-lg border border-input/80 bg-select-background text-foreground pr-7 appearance-none font-medium cursor-pointer"
-                >
-                    <option value="desc">Más vendidos</option>
-                    <option value="asc">Menos vendidos</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-muted-foreground">
-                    <ChevronDown class="size-3.5 opacity-50" />
-                </div>
-            </div>
+            <select
+                value={productsSort}
+                onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
+                aria-label="Ordenar productos"
+                class="min-h-[36px] px-2.5 py-1 text-xs rounded-lg border border-input/80 bg-select-background text-foreground font-medium cursor-pointer"
+            >
+                <option value="desc">Más vendidos</option>
+                <option value="asc">Menos vendidos</option>
+            </select>
         </div>
 
         {#if productsData.top_products.length === 0}

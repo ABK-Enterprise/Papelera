@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Card } from '@/components/ui/card';
     import { router } from '@inertiajs/svelte';
-    import { ChevronLeft, ChevronRight, ChevronDown, TrendingDown, ShoppingBag, Phone, MapPin } from 'lucide-svelte';
+    import { ChevronLeft, ChevronRight, TrendingDown, ShoppingBag, Phone, MapPin } from 'lucide-svelte';
 
     interface Props {
         customersData: {
@@ -116,21 +116,16 @@
             <div class="flex items-center justify-between gap-3">
                 <h3 class="text-lg font-semibold tracking-tight text-foreground">Top 10 Clientes más compradores</h3>
                 
-                <!-- Selector de ordenamiento estandarizado con ChevronDown -->
-                <div class="relative w-full sm:w-[210px] shrink-0">
-                    <select
-                        value={buyersSort}
-                        onchange={(e) => updateSort('buyers_sort', (e.target as HTMLSelectElement).value)}
-                        aria-label="Ordenar clientes compradores"
-                        class="w-full min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer appearance-none pr-8 truncate font-medium"
-                    >
-                        <option value="desc">Más compradores</option>
-                        <option value="asc">Menos compradores</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-muted-foreground">
-                        <ChevronDown class="size-4 opacity-50" />
-                    </div>
-                </div>
+                <!-- Selector de ordenamiento estandarizado -->
+                <select
+                    value={buyersSort}
+                    onchange={(e) => updateSort('buyers_sort', (e.target as HTMLSelectElement).value)}
+                    aria-label="Ordenar clientes compradores"
+                    class="w-full sm:w-[210px] min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium shrink-0"
+                >
+                    <option value="desc">Más compradores</option>
+                    <option value="asc">Menos compradores</option>
+                </select>
             </div>
 
             {#if customersData.top_buyers.length === 0}
@@ -219,21 +214,16 @@
                         <p class="text-sm text-muted-foreground leading-normal">Cartera con saldo deudor pendiente</p>
                     </div>
 
-                    <!-- Selector de ordenamiento estandarizado con ChevronDown -->
-                    <div class="relative w-full sm:w-[210px] shrink-0">
-                        <select
-                            value={defaultersSort}
-                            onchange={(e) => updateSort('defaulters_sort', (e.target as HTMLSelectElement).value)}
-                            aria-label="Ordenar clientes morosos"
-                            class="w-full min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer appearance-none pr-8 truncate font-medium"
-                        >
-                            <option value="desc">Más deudor</option>
-                            <option value="asc">Menos deudor</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-muted-foreground">
-                            <ChevronDown class="size-4 opacity-50" />
-                        </div>
-                    </div>
+                    <!-- Selector de ordenamiento estandarizado -->
+                    <select
+                        value={defaultersSort}
+                        onchange={(e) => updateSort('defaulters_sort', (e.target as HTMLSelectElement).value)}
+                        aria-label="Ordenar clientes morosos"
+                        class="w-full sm:w-[210px] min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium shrink-0"
+                    >
+                        <option value="desc">Más deudor</option>
+                        <option value="asc">Menos deudor</option>
+                    </select>
                 </div>
 
                 {#if customersData.defaulters.data.length === 0}
