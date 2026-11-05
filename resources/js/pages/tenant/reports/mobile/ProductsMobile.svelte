@@ -125,7 +125,7 @@
                     value={productsSort}
                     onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
                     aria-label="Ordenar productos"
-                    class="min-h-[36px] px-2.5 py-1 text-xs rounded-lg border border-input/80 bg-background text-foreground pr-7 appearance-none font-medium cursor-pointer"
+                    class="min-h-[36px] px-2.5 py-1 text-xs rounded-lg border border-input/80 bg-select-background text-foreground pr-7 appearance-none font-medium cursor-pointer"
                 >
                     <option value="desc">Más vendidos</option>
                     <option value="asc">Menos vendidos</option>

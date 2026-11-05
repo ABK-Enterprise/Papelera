@@ -233,7 +233,7 @@
                         'min-h-[40px] px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer select-none',
                         isSelected
                             ? 'bg-primary text-primary-foreground font-semibold shadow-xs hover:bg-primary/90'
-                            : 'border border-input/80 bg-background dark:bg-card text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+                            : 'border border-input/80 bg-select-background text-muted-foreground hover:bg-muted/70 hover:text-foreground'
                     )}
                 >
                     {preset.label}
@@ -274,7 +274,7 @@
                     type="date"
                     bind:value={localDateFrom}
                     onchange={handleDateFromChange}
-                    class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input/80 bg-background dark:bg-card text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+                    class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
                 />
             </div>
         </div>
@@ -287,7 +287,7 @@
                     type="date"
                     bind:value={localDateTo}
                     onchange={handleDateToChange}
-                    class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input/80 bg-background dark:bg-card text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+                    class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
                 />
             </div>
         </div>
@@ -299,11 +299,11 @@
                     value={localWarehouseId ?? ''}
                     onchange={handleWarehouseChange}
                     aria-label="Filtrar por depósito"
-                    class="w-full min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-background dark:bg-card text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer appearance-none pr-8 truncate font-medium"
+                    class="w-full min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer appearance-none pr-8 truncate font-medium"
                 >
-                    <option value="" class="bg-card text-foreground">Todos los depósitos</option>
+                    <option value="">Todos los depósitos</option>
                     {#each warehouses as w (w.id)}
-                        <option value={w.id} class="bg-card text-foreground">{w.name} ({w.code})</option>
+                        <option value={w.id}>{w.name} ({w.code})</option>
                     {/each}
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-muted-foreground">

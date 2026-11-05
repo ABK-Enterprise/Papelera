@@ -95,7 +95,7 @@
             <select
                 value={buyersSort}
                 onchange={(e) => updateSort('buyers_sort', (e.target as HTMLSelectElement).value)}
-                class="min-h-[34px] px-2 py-0.5 text-xs rounded-md border border-input/80 bg-background text-foreground"
+                class="min-h-[34px] px-2 py-0.5 text-xs rounded-md border border-input/80 bg-select-background text-foreground"
             >
                 <option value="desc">Más</option>
                 <option value="asc">Menos</option>
@@ -133,7 +133,7 @@
             <select
                 value={defaultersSort}
                 onchange={(e) => updateSort('defaulters_sort', (e.target as HTMLSelectElement).value)}
-                class="min-h-[34px] px-2 py-0.5 text-xs rounded-md border border-input/80 bg-background text-foreground"
+                class="min-h-[34px] px-2 py-0.5 text-xs rounded-md border border-input/80 bg-select-background text-foreground"
             >
                 <option value="desc">Mayor deuda</option>
                 <option value="asc">Menor deuda</option>

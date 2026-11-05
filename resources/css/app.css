@@ -62,6 +62,7 @@
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
+    --color-select-background: var(--select-background);
 
     --color-chart-1: var(--chart-1);
     --color-chart-2: var(--chart-2);
@@ -255,6 +256,7 @@
     --destructive-foreground: #ffffff;
     --border: #c9d5c3;
     --input: #c9d5c3;
+    --select-background: #ffffff;
     --ring: #1659e9;
     --chart-1: #1659e9;
     --chart-2: #54785d;
@@ -354,6 +356,7 @@
     --destructive-foreground: #ffffff;
     --border: #333333;
     --input: #333333;
+    --select-background: #242424;
     --ring: #0d8bf2;
     --chart-1: hsl(207 90% 50%);
     --chart-2: hsl(173 58% 50%);
@@ -397,6 +400,10 @@
         background-position: right 0.75rem center;
         background-size: 1rem 1rem;
         padding-right: 2.5rem !important;
+    }
+    select option {
+        background-color: var(--select-background);
+        color: var(--foreground);
     }
 }
 
