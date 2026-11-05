@@ -89,6 +89,7 @@ test('superadmin can sort tenants by oldest or name', function () {
 
 test('superadmin can view create tenant form with available modules', function () {
     $superadmin = User::factory()->superadmin()->create();
+    Module::query()->delete();
     Module::factory()->count(2)->create(['is_active' => true]);
     Module::factory()->create(['is_active' => false]);
 

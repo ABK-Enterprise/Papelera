@@ -297,7 +297,7 @@
                 <select
                     bind:value={tableFilters.filters.category_id}
                     onchange={applyFilters}
-                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[120px] max-w-[150px]"
+                    class="h-10 rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[120px] max-w-[150px]"
                 >
                     <option value={null}>Todas las Categorías</option>
                     {#each categories as cat}
@@ -309,7 +309,7 @@
                 <select
                     bind:value={tableFilters.filters.stock_status}
                     onchange={applyFilters}
-                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
+                    class="h-10 rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
                 >
                     <option value="">Stock: Todos</option>
                     <option value="in_stock">En Stock ({stats.in_stock})</option>
@@ -321,7 +321,7 @@
                 <select
                     bind:value={tableFilters.filters.info_status}
                     onchange={applyFilters}
-                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
+                    class="h-10 rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
                 >
                     <option value="">Datos: Todos</option>
                     <option value="complete">Completos</option>
@@ -332,7 +332,7 @@
                 <select
                     bind:value={tableFilters.filters.discount}
                     onchange={applyFilters}
-                    class="h-10 rounded-xl border border-border/80 bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[115px] max-w-[145px]"
+                    class="h-10 rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[115px] max-w-[145px]"
                 >
                     <option value="all">Descuento: Todos</option>
                     <option value="with_discount">Con descuento</option>

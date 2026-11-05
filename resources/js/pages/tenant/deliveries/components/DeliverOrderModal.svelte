@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogBody } from '@/components/ui/dialog';
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
@@ -346,7 +346,7 @@
                                 <select
                                     id="delivery-payment-method"
                                     bind:value={paymentMethod}
-                                    class="w-full h-11 px-3 text-sm rounded-xl border border-border/80 bg-background text-foreground focus:outline-none focus:border-primary-500 transition-all min-h-[44px]"
+                                    class="w-full h-11 px-3 text-sm rounded-xl border border-border/80 bg-select-background text-foreground focus:outline-none focus:border-primary-500 transition-all min-h-[44px]"
                                 >
                                     <option value="efectivo">Efectivo</option>
                                     <option value="transferencia">Transferencia bancaria</option>
@@ -519,7 +519,7 @@
                                         <select
                                             id="extra-payment-method"
                                             bind:value={paymentMethod}
-                                            class="w-full h-11 px-3 text-sm rounded-xl border border-border/80 bg-background text-foreground focus:outline-none focus:border-primary-500 transition-all min-h-[44px]"
+                                            class="w-full h-11 px-3 text-sm rounded-xl border border-border/80 bg-select-background text-foreground focus:outline-none focus:border-primary-500 transition-all min-h-[44px]"
                                         >
                                             <option value="efectivo">Efectivo</option>
                                             <option value="transferencia">Transferencia bancaria</option>

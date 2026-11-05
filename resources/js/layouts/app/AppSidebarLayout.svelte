@@ -32,6 +32,7 @@
             proveedores: ['/tenant/proveedores'],
             clientes: ['/tenant/clientes', '/tenant/cobranzas'],
             productos: ['/tenant/productos', '/tenant/categorias'],
+            reportes: ['/tenant/reportes'],
         };
 
         echo.private(channelName)

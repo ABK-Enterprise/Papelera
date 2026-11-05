@@ -336,7 +336,7 @@
                     <select
                         bind:value={defaulterFilter}
                         onchange={applyMasterFilters}
-                        class="h-10 rounded-xl border border-input bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[140px]"
+                        class="h-10 rounded-xl border border-input bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[140px]"
                     >
                         <option value="">Morosos: Todos</option>
                         <option value="yes">Solo Morosos</option>
@@ -346,7 +346,7 @@
                     <select
                         bind:value={taxConditionFilter}
                         onchange={applyMasterFilters}
-                        class="h-10 rounded-xl border border-input bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[145px]"
+                        class="h-10 rounded-xl border border-input bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[145px]"
                     >
                         <option value="">Condición IVA: Todas</option>
                         <option value="consumidor_final">Consumidor Final</option>
@@ -359,7 +359,7 @@
                     <select
                         bind:value={sortByFilter}
                         onchange={applyMasterFilters}
-                        class="h-10 rounded-xl border border-input bg-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[160px]"
+                        class="h-10 rounded-xl border border-input bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[160px]"
                     >
                         <option value="balance_high">Mayor saldo deudor</option>
                         <option value="balance_low">Menor saldo deudor</option>
@@ -619,7 +619,7 @@
                     <!-- Tipo de Movimiento -->
                     <select
                         bind:value={movementTypeFilter}
-                        class="h-9 rounded-xl border border-input bg-background px-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-auto min-w-[130px]"
+                        class="h-9 rounded-xl border border-input bg-select-background px-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-auto min-w-[130px]"
                     >
                         <option value="all">Todos los tipos</option>
                         <option value="payment">Solo Cobros / Abonos</option>
@@ -630,7 +630,7 @@
                     <!-- Orden Cronológico -->
                     <select
                         bind:value={movementSort}
-                        class="h-9 rounded-xl border border-input bg-background px-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-auto min-w-[125px]"
+                        class="h-9 rounded-xl border border-input bg-select-background px-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-auto min-w-[125px]"
                     >
                         <option value="latest">Más recientes</option>
                         <option value="oldest">Más antiguos</option>

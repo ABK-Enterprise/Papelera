@@ -418,7 +418,7 @@
                                     <select
                                         id="modal-prod-cat"
                                         bind:value={form.category_id}
-                                        class="h-10 w-full rounded-xl border bg-background px-3 text-sm font-medium text-foreground focus:outline-none transition-colors {isProductIncomplete && !form.category_id ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus:border-amber-600' : 'border-border/80 focus:border-primary-500 focus:ring-1 focus:ring-primary'}"
+                                        class="h-10 w-full rounded-xl border bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none transition-colors {isProductIncomplete && !form.category_id ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus:border-amber-600' : 'border-border/80 focus:border-primary-500 focus:ring-1 focus:ring-primary'}"
                                     >
                                         <option value="">Sin categoría asignada</option>
                                         {#each categories as cat}
@@ -525,7 +525,7 @@
                                         id="modal-prod-iva"
                                         bind:value={form.iva_rate}
                                         onchange={handleIvaChange}
-                                        class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary font-sans tabular-nums"
+                                        class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary font-sans tabular-nums"
                                     >
                                         <option value={21.00}>21.0% (General)</option>
                                         <option value={10.50}>10.5% (Reducido)</option>
@@ -550,7 +550,7 @@
                                     <select
                                         id="modal-prod-warehouse"
                                         bind:value={form.warehouse_id}
-                                        class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                        class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                                     >
 
                                         {#each warehouses as wh (wh.id)}

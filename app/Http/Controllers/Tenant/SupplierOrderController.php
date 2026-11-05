@@ -7,10 +7,12 @@ use App\Events\Tenant\SupplierOrderStatusUpdated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreSupplierOrderRequest;
 use App\Models\Product;
+use App\Models\ProductWarehouse;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Models\SupplierOrder;
 use App\Models\SupplierOrderItem;
+use App\Models\Warehouse;
 use App\Services\TenantSequenceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -96,7 +98,7 @@ class SupplierOrderController extends Controller
             ->get();
 
         $tenantId = auth()->user()?->tenant_id;
-        $warehouses = \App\Models\Warehouse::where('tenant_id', $tenantId)
+        $warehouses = Warehouse::where('tenant_id', $tenantId)
             ->where('is_active', true)
             ->select('id', 'name', 'code', 'is_default')
             ->orderByDesc('is_default')
@@ -136,9 +138,11 @@ class SupplierOrderController extends Controller
     public function store(StoreSupplierOrderRequest $request): RedirectResponse|JsonResponse
     {
         $tenantId = $request->user()->tenant_id;
-        $orderWarehouseId = $request->validated('warehouse_id');
+        $defaultWarehouseId = Warehouse::where('tenant_id', $tenantId)->where('is_default', true)->value('id')
+            ?: Warehouse::where('tenant_id', $tenantId)->value('id');
+        $orderWarehouseId = $request->validated('warehouse_id') ?: $defaultWarehouseId;
 
-        $order = DB::transaction(function () use ($request, $tenantId, $orderWarehouseId) {
+        $order = DB::transaction(function () use ($request, $tenantId, $orderWarehouseId, $defaultWarehouseId) {
             $orderNumber = app(TenantSequenceService::class)->nextSupplierOrderNumber($tenantId);
 
             $itemsData = $request->validated('items');
@@ -253,11 +257,11 @@ class SupplierOrderController extends Controller
             $lockedOrder->load(['supplier', 'items.product']);
             $sortedItems = $lockedOrder->items->sortBy('product_id');
 
-            $defaultWarehouseId = \App\Models\Warehouse::where('tenant_id', $tenantId)->where('is_default', true)->value('id')
-                ?: \App\Models\Warehouse::where('tenant_id', $tenantId)->value('id');
+            $defaultWarehouseId = Warehouse::where('tenant_id', $tenantId)->where('is_default', true)->value('id')
+                ?: Warehouse::where('tenant_id', $tenantId)->value('id');
 
             if (! $defaultWarehouseId) {
-                $defaultWarehouseId = \App\Models\Warehouse::firstOrCreate([
+                $defaultWarehouseId = Warehouse::firstOrCreate([
                     'tenant_id' => $tenantId,
                     'is_default' => true,
                 ], [
@@ -280,13 +284,13 @@ class SupplierOrderController extends Controller
                     $currentStock = round($previousStock + (float) $item->quantity, 3);
 
                     if ($targetWarehouseId) {
-                        $hasExistingWh = \App\Models\ProductWarehouse::where('tenant_id', $tenantId)
+                        $hasExistingWh = ProductWarehouse::where('tenant_id', $tenantId)
                             ->where('product_id', $product->id)
                             ->exists();
 
                         $initialStock = $hasExistingWh ? 0 : (float) $product->stock;
 
-                        $pw = \App\Models\ProductWarehouse::firstOrCreate([
+                        $pw = ProductWarehouse::firstOrCreate([
                             'tenant_id' => $tenantId,
                             'product_id' => $product->id,
                             'warehouse_id' => $targetWarehouseId,

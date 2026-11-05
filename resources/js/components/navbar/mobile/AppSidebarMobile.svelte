@@ -309,6 +309,16 @@
                     },
                 );
             }
+
+            // Reportes y Estadísticas (Módulo Asignable por Superusuario)
+            if (modules.includes('reportes') && (isAdmin || permissions.includes('reportes.ver'))) {
+                items.push({
+                    title: 'Reportes',
+                    href: '/tenant/reportes',
+                    icon: 'solar:chart-2-bold-duotone',
+                    active: currentUrl.startsWith('/tenant/reportes'),
+                });
+            }
         }
 
         return items;

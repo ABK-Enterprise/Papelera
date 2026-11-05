@@ -1457,7 +1457,7 @@
                             <select
                                 id="order-warehouse"
                                 bind:value={selectedWarehouseId}
-                                class="h-10 w-full sm:w-64 rounded-xl border border-border/80 bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                class="h-10 w-full sm:w-64 rounded-xl border border-border/80 bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                             >
                                 <option value={null}>Depósito Principal (Automático)</option>
                                 {#each warehouses as wh}
@@ -1476,7 +1476,7 @@
                         <select
                             id="order-shipping-zone"
                             bind:value={selectedShippingZoneId}
-                            class="h-10 w-full sm:w-64 rounded-xl border border-border/80 bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                            class="h-10 w-full sm:w-64 rounded-xl border border-border/80 bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                         >
                             <option value={null}>Sin envío / Retiro en local ($0.00)</option>
                             {#each shippingZones as zone}
@@ -1850,7 +1850,7 @@
                                         <select
                                             value={item.packaging_type}
                                             onchange={(e) => handlePackagingChange(index, (e.target as HTMLSelectElement).value as any)}
-                                            class="h-9 rounded-xl border border-border/80 bg-background px-2 text-sm font-semibold text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer flex-1 w-full sm:w-auto min-w-[68px] sm:min-w-[94px] sm:px-2.5"
+                                            class="h-9 rounded-xl border border-border/80 bg-select-background px-2 text-sm font-semibold text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer flex-1 w-full sm:w-auto min-w-[68px] sm:min-w-[94px] sm:px-2.5"
                                         >
                                             {#if item.sale_type === 'weight'}
                                                 <option value="gram">Gramos</option>
@@ -1888,7 +1888,7 @@
                                                         item.discount_percentage = Number(val) || 0;
                                                     }
                                                 }}
-                                                class="h-9 rounded-xl border border-border/80 bg-background px-2 text-sm font-semibold text-foreground min-w-[90px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                                                class="h-9 rounded-xl border border-border/80 bg-select-background px-2 text-sm font-semibold text-foreground min-w-[90px] focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
                                                 title="Descuento individual por producto"
                                             >
                                                 <option value={0}>Desc. 0%</option>

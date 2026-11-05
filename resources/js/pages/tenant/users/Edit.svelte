@@ -94,7 +94,7 @@
                     <select
                         id="user-role"
                         bind:value={form.role}
-                        class="flex h-11 w-full rounded-xl border border-border/80 bg-background px-3.5 py-2 text-sm font-normal text-foreground shadow-2xs transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                        class="flex h-11 w-full rounded-xl border border-border/80 bg-select-background px-3.5 py-2 text-sm font-normal text-foreground shadow-2xs transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                         required
                     >
                         {#each roles as role (role.id)}

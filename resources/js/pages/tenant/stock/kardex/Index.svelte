@@ -264,7 +264,7 @@
                     <select
                         value={typeFilter}
                         onchange={handleTypeChange}
-                        class="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
+                        class="w-full rounded-lg border border-border bg-select-background px-3 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
                     >
                         <option value="">Todos los tipos</option>
                         <option value="income">Solo Ingresos</option>
@@ -277,7 +277,7 @@
                     <select
                         value={sortBy}
                         onchange={handleSortChange}
-                        class="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
+                        class="w-full rounded-lg border border-border bg-select-background px-3 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
                     >
                         <option value="latest">Más recientes</option>
                         <option value="oldest">Más antiguos</option>

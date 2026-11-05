@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { Snippet } from 'svelte';
+    import BorderGlow from '@/components/svelte-bits/BorderGlow.svelte';
 
     let {
         title = '',
@@ -25,8 +26,16 @@
     <!-- Main Content Canvas -->
     <main class="relative z-10 mx-auto flex w-full max-w-7xl flex-1 items-center justify-center px-4 py-12 md:px-12">
         <div class="w-full max-w-[440px]">
-            <div
-                class="w-full rounded-3xl border border-border/80 bg-card/90 p-8 shadow-xl backdrop-blur-2xl transition-all sm:p-10 dark:bg-card/85 dark:border-border/60"
+            <BorderGlow
+                class="w-full p-8 shadow-xl backdrop-blur-2xl transition-all sm:p-10"
+                borderRadius={24}
+                edgeSensitivity={80}
+                glowRadius={24}
+                glowIntensity={1.0}
+                coneSpread={18}
+                perimeterBand={20}
+                baseOpacity={0.35}
+                fillOpacity={0.0}
             >
                 <div class="mb-6 flex flex-col space-y-2 text-center">
                     <h1 class="text-2xl font-bold tracking-tight leading-tight text-foreground sm:text-3xl">
@@ -44,7 +53,7 @@
                 </div>
 
                 {@render children?.()}
-            </div>
+            </BorderGlow>
         </div>
     </main>
 

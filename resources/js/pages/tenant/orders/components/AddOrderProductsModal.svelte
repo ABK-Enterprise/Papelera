@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import {
         Dialog,
         DialogContent,
@@ -510,7 +510,7 @@
                                         <span class="text-xs font-semibold text-muted-foreground shrink-0">Presentación:</span>
                                         <select
                                             bind:value={item.packaging_type}
-                                            class="h-9 rounded-xl border border-border/80 bg-background px-2.5 text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                                            class="h-9 rounded-xl border border-border/80 bg-select-background px-2.5 text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                                         >
                                             {#if item.sale_type === 'weight'}
                                                 <option value="kg">Kg</option>

@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Button } from '@/components/ui/button';
     import Icon from '@iconify/svelte';
     import { router } from '@inertiajs/svelte';
@@ -314,7 +314,7 @@
                                                 <select
                                                     id="dest_{index}"
                                                     bind:value={item.destination}
-                                                    class="h-8 rounded-lg border border-border/80 bg-background px-2 text-sm font-semibold text-foreground focus:outline-none focus:border-primary-500 cursor-pointer shadow-2xs"
+                                                    class="h-8 rounded-lg border border-border/80 bg-select-background px-2 text-sm font-semibold text-foreground focus:outline-none focus:border-primary-500 cursor-pointer shadow-2xs"
                                                 >
                                                     <option value="restock">Reingreso a stock</option>
                                                     <option value="scrap">Merma / Dañado (Scrap)</option>

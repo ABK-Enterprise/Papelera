@@ -165,9 +165,9 @@ class CustomerOrderController extends Controller
             }
 
             $customerName = $request->validated('customer_name') ?: ($customer ? $customer->name : 'Cliente Ocasional');
-            $orderWarehouseId = $request->validated('warehouse_id');
             $defaultWarehouseId = Warehouse::where('tenant_id', $tenantId)->where('is_default', true)->value('id')
                 ?: Warehouse::where('tenant_id', $tenantId)->value('id');
+            $orderWarehouseId = $request->validated('warehouse_id') ?: $defaultWarehouseId;
 
             $applyOrderDiscount = $request->has('apply_customer_discount') ? $request->boolean('apply_customer_discount') : true;
             $customerDiscountPct = ($customer && $applyOrderDiscount) ? (float) ($customer->discount_percentage ?? 0.00) : 0.00;
