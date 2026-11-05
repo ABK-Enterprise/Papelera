@@ -30,10 +30,10 @@
                 class="w-full p-8 shadow-xl backdrop-blur-2xl transition-all sm:p-10"
                 borderRadius={24}
                 edgeSensitivity={30}
-                glowRadius={40}
-                glowIntensity={1.0}
-                coneSpread={25}
-                fillOpacity={0.4}
+                glowRadius={20}
+                glowIntensity={0.9}
+                coneSpread={15}
+                fillOpacity={0.0}
             >
                 <div class="mb-6 flex flex-col space-y-2 text-center">
                     <h1 class="text-2xl font-bold tracking-tight leading-tight text-foreground sm:text-3xl">

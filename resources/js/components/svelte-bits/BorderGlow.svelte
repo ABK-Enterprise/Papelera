@@ -8,12 +8,20 @@
 	export function buildBoxShadow(glowColor: string, intensity: number): string {
 		const { h, s, l } = parseHSL(glowColor);
 		const base = `${h}deg ${s}% ${l}%`;
+		// Capas confinadas estrictamente al borde (máximo 6px a 8px hacia adentro)
 		const layers: [number, number, number, number, number, boolean][] = [
-			[0, 0, 0, 1, 100, true], [0, 0, 1, 0, 60, true], [0, 0, 3, 0, 50, true],
-			[0, 0, 6, 0, 40, true], [0, 0, 15, 0, 30, true], [0, 0, 25, 2, 20, true],
-			[0, 0, 50, 2, 10, true],
-			[0, 0, 1, 0, 60, false], [0, 0, 3, 0, 50, false], [0, 0, 6, 0, 40, false],
-			[0, 0, 15, 0, 30, false], [0, 0, 25, 2, 20, false], [0, 0, 50, 2, 10, false]
+			// Capas Inset (hacia adentro): Micro-resplandor de 1px a 8px únicamente
+			[0, 0, 0, 1, 100, true],
+			[0, 0, 1, 0, 70, true],
+			[0, 0, 3, 0, 45, true],
+			[0, 0, 6, 0, 25, true],
+			[0, 0, 8, 0, 10, true],
+			// Capas Outset (hacia afuera del borde): Destello suave y contenido
+			[0, 0, 1, 0, 70, false],
+			[0, 0, 3, 0, 50, false],
+			[0, 0, 6, 0, 35, false],
+			[0, 0, 12, 1, 20, false],
+			[0, 0, 18, 1, 10, false]
 		];
 		return layers
 			.map(([x, y, blur, spread, alpha, inset]) => {
@@ -66,12 +74,12 @@
 		glowColor,
 		backgroundColor,
 		borderRadius = 28,
-		glowRadius = 40,
+		glowRadius = 20,
 		glowIntensity = 1.0,
-		coneSpread = 25,
+		coneSpread = 15,
 		animated = false,
 		colors,
-		fillOpacity = 0.5
+		fillOpacity = 0.0
 	}: Props = $props();
 
 	const theme = themeState();
@@ -242,10 +250,12 @@
 		class="absolute inset-0 -z-[1]"
 		style="border-radius:inherit; border:1px solid transparent; background:{borderBgFull}; opacity:{borderOpacity}; -webkit-mask-image:{borderMask}; mask-image:{borderMask}; transition:{transitionStr};"
 	></div>
-	<div
-		class="absolute inset-0 -z-[1]"
-		style="border-radius:inherit; border:1px solid transparent; background:{fillBg.join(', ')}; -webkit-mask-image:{fillMask}; mask-image:{fillMask}; -webkit-mask-composite: source-out, source-over, source-over, source-over, source-over, source-over; mask-composite: subtract, add, add, add, add, add; opacity:{borderOpacity * fillOpacity}; mix-blend-mode: soft-light; transition:{transitionStr};"
-	></div>
+	{#if fillOpacity > 0}
+		<div
+			class="absolute inset-0 -z-[1]"
+			style="border-radius:inherit; border:1px solid transparent; background:{fillBg.join(', ')}; -webkit-mask-image:{fillMask}; mask-image:{fillMask}; -webkit-mask-composite: source-out, source-over, source-over, source-over, source-over, source-over; mask-composite: subtract, add, add, add, add, add; opacity:{borderOpacity * fillOpacity}; mix-blend-mode: soft-light; transition:{transitionStr};"
+		></div>
+	{/if}
 
 	<span
 		class="absolute pointer-events-none z-[1]"
