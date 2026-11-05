@@ -36,8 +36,17 @@
     let isOpen = $state(false);
     let triggerRef = $state<HTMLButtonElement | null>(null);
     let menuRef = $state<HTMLDivElement | null>(null);
-    let itemRefs: (HTMLButtonElement | null)[] = [];
+    const itemRefs: (HTMLButtonElement | null)[] = [];
     let hoveredIndex = $state<number | null>(null);
+
+    function registerItem(node: HTMLButtonElement, index: number) {
+        itemRefs[index] = node;
+        return {
+            destroy() {
+                itemRefs[index] = null;
+            },
+        };
+    }
 
     const activeOption = $derived(
         options.find((opt) => opt.id === value) ?? options[0]
@@ -150,7 +159,7 @@
 </script>
 
 <div class={cn('relative inline-block text-left w-full sm:w-auto', className)}>
-    <!-- Trigger Button -->
+    <!-- Trigger Button (+10px ampliado en Desktop: sm:w-[290px]) -->
     <button
         bind:this={triggerRef}
         type="button"
@@ -160,7 +169,7 @@
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         class={cn(
-            'flex items-center justify-between gap-3 w-full sm:w-[280px] min-h-[40px] px-3.5 py-1.5',
+            'flex items-center justify-between gap-3 w-full sm:w-[290px] min-h-[40px] px-3.5 py-1.5',
             'rounded-lg border border-input/80 bg-background text-sm font-medium shadow-xs',
             'transition-colors duration-150 cursor-pointer select-none',
             'hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
@@ -178,12 +187,12 @@
         <ChevronsUpDown class="size-4 shrink-0 text-muted-foreground" />
     </button>
 
-    <!-- Dropdown Menu with Gliding Pill Backdrop -->
+    <!-- Dropdown Menu with Gliding Pill Backdrop (+10px ampliado: sm:w-[330px]) -->
     {#if isOpen}
         <div
             bind:this={menuRef}
             class={cn(
-                'absolute right-0 z-50 mt-1.5 w-full sm:w-[320px] rounded-xl border border-border/80',
+                'absolute right-0 z-50 mt-1.5 w-full sm:w-[330px] rounded-xl border border-border/80',
                 'bg-popover p-1.5 text-popover-foreground shadow-lg backdrop-blur-md',
                 'animate-in fade-in-0 zoom-in-95 duration-100 ease-out origin-top-right'
             )}
@@ -194,23 +203,23 @@
                 updatePill(hoveredIndex);
             }}
         >
-            <!-- Animated Glide Pill Background -->
-            <div
-                class="absolute left-1.5 right-1.5 rounded-lg bg-accent/80 dark:bg-accent/40 pointer-events-none transition-all duration-150 ease-out"
-                style="top: {pillTop}px; height: {pillHeight}px; opacity: {pillOpacity};"
-            ></div>
+            <div class="relative flex flex-col gap-0.5">
+                <!-- Animated Glide Pill Background (mismo contexto relativo que los botones) -->
+                <div
+                    class="absolute left-0 right-0 rounded-lg bg-accent/80 dark:bg-accent/40 pointer-events-none transition-all duration-150 ease-out z-0"
+                    style="top: {pillTop}px; height: {pillHeight}px; opacity: {pillOpacity};"
+                ></div>
 
-            <div class="flex flex-col gap-0.5 relative z-10">
                 {#each options as opt, i (opt.id)}
                     {@const isSelected = opt.id === value}
                     <button
-                        bind:this={itemRefs[i]}
+                        use:registerItem={i}
                         type="button"
                         role="option"
                         aria-selected={isSelected}
                         class={cn(
-                            'group flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm text-left',
-                            'cursor-pointer transition-colors duration-75 select-none relative',
+                            'group flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm text-left',
+                            'cursor-pointer transition-colors duration-75 select-none relative z-10',
                             isSelected ? 'font-semibold text-foreground' : 'text-foreground/90 font-medium'
                         )}
                         onmouseenter={() => {
@@ -219,7 +228,7 @@
                         }}
                         onclick={() => selectOption(opt)}
                     >
-                        <div class="flex items-center gap-2 min-w-0">
+                        <div class="flex items-center gap-2.5 min-w-0">
                             {#if isSelected}
                                 <Check class="size-4 text-primary shrink-0" />
                             {:else}
@@ -227,7 +236,7 @@
                             {/if}
                             <span class="truncate">{opt.title}</span>
                         </div>
-                        <span class="text-xs text-muted-foreground text-right shrink-0 pl-2">
+                        <span class="text-xs text-muted-foreground text-right shrink-0 pl-2 tabular-nums">
                             {opt.subtitle}
                         </span>
                     </button>

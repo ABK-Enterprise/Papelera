@@ -292,8 +292,8 @@
             </div>
         </div>
 
-        <!-- Warehouse selector: ampliado en Desktop, sin icono de casa -->
-        <div class="flex items-center gap-2 w-full sm:w-[340px] sm:ml-auto">
+        <!-- Warehouse selector: ampliado en Desktop (+10px: sm:w-[350px]), sin icono de casa -->
+        <div class="flex items-center gap-2 w-full sm:w-[350px] sm:ml-auto">
             <span class="text-xs text-muted-foreground shrink-0 font-medium">Depósito:</span>
             <div class="relative w-full">
                 <select

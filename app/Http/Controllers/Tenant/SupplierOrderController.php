@@ -136,9 +136,11 @@ class SupplierOrderController extends Controller
     public function store(StoreSupplierOrderRequest $request): RedirectResponse|JsonResponse
     {
         $tenantId = $request->user()->tenant_id;
-        $orderWarehouseId = $request->validated('warehouse_id');
+        $defaultWarehouseId = Warehouse::where('tenant_id', $tenantId)->where('is_default', true)->value('id')
+            ?: Warehouse::where('tenant_id', $tenantId)->value('id');
+        $orderWarehouseId = $request->validated('warehouse_id') ?: $defaultWarehouseId;
 
-        $order = DB::transaction(function () use ($request, $tenantId, $orderWarehouseId) {
+        $order = DB::transaction(function () use ($request, $tenantId, $orderWarehouseId, $defaultWarehouseId) {
             $orderNumber = app(TenantSequenceService::class)->nextSupplierOrderNumber($tenantId);
 
             $itemsData = $request->validated('items');

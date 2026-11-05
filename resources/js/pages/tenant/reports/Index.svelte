@@ -79,17 +79,17 @@
                 canViewMargins={permissions.can_view_margins}
             />
         {:else if activeView === 'pedidos' && orders_data}
-            <OrdersTab {ordersData} />
+            <OrdersTab ordersData={orders_data} />
         {:else if activeView === 'clientes' && customers_data}
-            <CustomersTab {customersData} {filters} />
+            <CustomersTab customersData={customers_data} {filters} />
         {:else if activeView === 'proveedores' && suppliers_data}
             <SuppliersTab
-                {suppliersData}
+                suppliersData={suppliers_data}
                 {filters}
                 canViewMargins={permissions.can_view_margins}
             />
         {:else if activeView === 'productos' && products_data}
-            <ProductsTab {productsData} />
+            <ProductsTab productsData={products_data} />
         {/if}
     </div>
 
@@ -101,17 +101,17 @@
                 canViewMargins={permissions.can_view_margins}
             />
         {:else if activeView === 'pedidos' && orders_data}
-            <OrdersMobile {ordersData} />
+            <OrdersMobile ordersData={orders_data} />
         {:else if activeView === 'clientes' && customers_data}
-            <CustomersMobile {customersData} {filters} />
+            <CustomersMobile customersData={customers_data} {filters} />
         {:else if activeView === 'proveedores' && suppliers_data}
             <SuppliersMobile
-                {suppliersData}
+                suppliersData={suppliers_data}
                 {filters}
                 canViewMargins={permissions.can_view_margins}
             />
         {:else if activeView === 'productos' && products_data}
-            <ProductsMobile {productsData} />
+            <ProductsMobile productsData={products_data} />
         {/if}
     </div>
 </div>
