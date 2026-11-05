@@ -4,6 +4,14 @@
     import ReportControlBar from './components/ReportControlBar.svelte';
     import OverviewTab from './desktop/OverviewTab.svelte';
     import OverviewMobile from './mobile/OverviewMobile.svelte';
+    import OrdersTab from './desktop/OrdersTab.svelte';
+    import OrdersMobile from './mobile/OrdersMobile.svelte';
+    import CustomersTab from './desktop/CustomersTab.svelte';
+    import CustomersMobile from './mobile/CustomersMobile.svelte';
+    import SuppliersTab from './desktop/SuppliersTab.svelte';
+    import SuppliersMobile from './mobile/SuppliersMobile.svelte';
+    import ProductsTab from './desktop/ProductsTab.svelte';
+    import ProductsMobile from './mobile/ProductsMobile.svelte';
     import type { StatScreenId } from '@/components/svelte-bits/GlideSelect.svelte';
 
     let {
@@ -71,17 +79,17 @@
                 canViewMargins={permissions.can_view_margins}
             />
         {:else if activeView === 'pedidos' && orders_data}
-            <!-- OrdersTab (Fase 4) -->
-            <div id="desktop-orders-placeholder"></div>
+            <OrdersTab {ordersData} />
         {:else if activeView === 'clientes' && customers_data}
-            <!-- CustomersTab (Fase 4) -->
-            <div id="desktop-customers-placeholder"></div>
+            <CustomersTab {customersData} {filters} />
         {:else if activeView === 'proveedores' && suppliers_data}
-            <!-- SuppliersTab (Fase 4) -->
-            <div id="desktop-suppliers-placeholder"></div>
+            <SuppliersTab
+                {suppliersData}
+                {filters}
+                canViewMargins={permissions.can_view_margins}
+            />
         {:else if activeView === 'productos' && products_data}
-            <!-- ProductsTab (Fase 4) -->
-            <div id="desktop-products-placeholder"></div>
+            <ProductsTab {productsData} />
         {/if}
     </div>
 
@@ -93,17 +101,17 @@
                 canViewMargins={permissions.can_view_margins}
             />
         {:else if activeView === 'pedidos' && orders_data}
-            <!-- OrdersMobile (Fase 4) -->
-            <div id="mobile-orders-placeholder"></div>
+            <OrdersMobile {ordersData} />
         {:else if activeView === 'clientes' && customers_data}
-            <!-- CustomersMobile (Fase 4) -->
-            <div id="mobile-customers-placeholder"></div>
+            <CustomersMobile {customersData} {filters} />
         {:else if activeView === 'proveedores' && suppliers_data}
-            <!-- SuppliersMobile (Fase 4) -->
-            <div id="mobile-suppliers-placeholder"></div>
+            <SuppliersMobile
+                {suppliersData}
+                {filters}
+                canViewMargins={permissions.can_view_margins}
+            />
         {:else if activeView === 'productos' && products_data}
-            <!-- ProductsMobile (Fase 4) -->
-            <div id="mobile-products-placeholder"></div>
+            <ProductsMobile {productsData} />
         {/if}
     </div>
 </div>
