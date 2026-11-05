@@ -301,7 +301,7 @@
                     </Label>
                     <select
                         bind:value={localWarehouseId}
-                        class="w-full min-h-[38px] px-3 py-1.5 text-sm rounded-xl border border-border bg-background text-foreground shadow-2xs focus:outline-none focus:ring-2 focus:ring-ring"
+                        class="w-full min-h-[38px] px-3 py-1.5 text-sm rounded-xl border border-border bg-select-background text-foreground shadow-2xs focus:outline-none focus:ring-2 focus:ring-ring"
                     >
                         <option value="">Consolidado (Todos los depósitos)</option>
                         {#each warehouses as wh}

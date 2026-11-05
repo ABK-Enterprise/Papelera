@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogBody } from '@/components/ui/dialog';
     import { Button } from '@/components/ui/button';
     import { Label } from '@/components/ui/label';
@@ -121,7 +121,7 @@
                     <select
                         id="failure-reason"
                         bind:value={failureReason}
-                        class="w-full h-11 px-3 text-sm rounded-xl border border-border/80 bg-background text-foreground focus:outline-none focus:border-rose-500 transition-all min-h-[44px]"
+                        class="w-full h-11 px-3 text-sm rounded-xl border border-border/80 bg-select-background text-foreground focus:outline-none focus:border-rose-500 transition-all min-h-[44px]"
                     >
                         {#each reasons as r}
                             <option value={r.value}>{r.label}</option>

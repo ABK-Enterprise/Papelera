@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import {
         Dialog,
         DialogContent,
@@ -337,7 +337,7 @@
                                 <select
                                     id="doc-type"
                                     bind:value={docTipo}
-                                    class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm font-medium text-foreground shadow-2xs focus:outline-none focus:ring-1 focus:ring-primary"
+                                    class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm font-medium text-foreground shadow-2xs focus:outline-none focus:ring-1 focus:ring-primary"
                                 >
                                     <option value="96">DNI</option>
                                     <option value="80">CUIT</option>

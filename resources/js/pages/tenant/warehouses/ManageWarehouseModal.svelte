@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
@@ -161,22 +161,18 @@
                             <Building2 class="size-3.5 text-muted-foreground" />
                             <span>Sucursal Vinculada</span>
                         </Label>
-                        <div class="relative">
-                            <select
-                                id="wh-branch"
-                                bind:value={form.branch_id}
-                                class="w-full h-10 rounded-xl border border-border/80 bg-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
-                            >
-
-                                <option value={null}>Sin sucursal asignada (Depósito Independiente)</option>
-                                {#each branches as br}
-                                    <option value={br.id}>
-                                        {br.name} (Punto de Venta {br.point_of_sale})
-                                    </option>
-                                {/each}
-                            </select>
-
-                        </div>
+                        <select
+                            id="wh-branch"
+                            bind:value={form.branch_id}
+                            class="w-full h-10 rounded-xl border border-border/80 bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                        >
+                            <option value={null}>Sin sucursal asignada (Depósito Independiente)</option>
+                            {#each branches as br}
+                                <option value={br.id}>
+                                    {br.name} (Punto de Venta {br.point_of_sale})
+                                </option>
+                            {/each}
+                        </select>
                         {#if form.errors.branch_id}
                             <p class="text-xs font-medium text-destructive">{form.errors.branch_id}</p>
                         {/if}

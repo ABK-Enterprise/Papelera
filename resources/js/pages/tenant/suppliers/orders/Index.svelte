@@ -348,7 +348,7 @@
                 <select
                     bind:value={selectedStatus}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[160px]"
+                    class="h-10 rounded-lg border border-input bg-select-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[160px]"
                 >
                     <option value="all">Todos los estados ({stats.total})</option>
                     <option value="solicitado">Solicitado ({stats.solicitado})</option>

@@ -254,7 +254,7 @@
                 <select
                     bind:value={selectedCbteTipo}
                     onchange={applyFilters}
-                    class="h-11 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                    class="h-11 w-full rounded-xl border border-border/80 bg-select-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
                 >
                     {#each cbteTipoOptions as opt}
                         <option value={opt.value}>{opt.label}</option>
@@ -291,7 +291,7 @@
                 <select
                     bind:value={sortBy}
                     onchange={applyFilters}
-                    class="h-11 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                    class="h-11 w-full rounded-xl border border-border/80 bg-select-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
                     title="Criterio de Ordenamiento"
                 >
                     {#each sortOptions as s}

@@ -145,7 +145,7 @@
                 <select
                     bind:value={tenantId}
                     onchange={applyFilters}
-                    class="h-10 w-full rounded-lg border border-input/60 bg-background px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+                    class="h-10 w-full rounded-lg border border-input/60 bg-select-background px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
                 >
                     <option value="">Todos los comercios</option>
                     {#each tenants as t (t.id)}
@@ -159,7 +159,7 @@
                 <select
                     bind:value={entityType}
                     onchange={applyFilters}
-                    class="h-10 w-full rounded-lg border border-input/60 bg-background px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+                    class="h-10 w-full rounded-lg border border-input/60 bg-select-background px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
                 >
                     <option value="">Todas las entidades</option>
                     <option value="comercio">Comercio (Configuración)</option>

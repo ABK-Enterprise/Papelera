@@ -235,7 +235,7 @@
                     <select
                         id="company-tax-condition"
                         bind:value={form.tax_condition}
-                        class="h-10 w-full rounded-xl border border-border/80 bg-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                        class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                     >
                         <option value="responsable_inscripto">Responsable Inscripto</option>
                         <option value="monotributo">Monotributo</option>

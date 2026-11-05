@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import { Button } from '@/components/ui/button';
     import {
         Dialog,
@@ -221,7 +221,7 @@
                         <select
                             id="income-warehouse"
                             bind:value={form.warehouse_id}
-                            class="w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
+                            class="w-full rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
                         >
                             {#each warehouses as wh (wh.id)}
                                 <option value={String(wh.id)}>
@@ -269,7 +269,7 @@
                     <select
                         id="income-reason"
                         bind:value={form.reason}
-                        class="w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
+                        class="w-full rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
                     >
                         <option value="ingreso_manual">Ingreso manual / Ajuste inicial</option>
                         <option value="compra_proveedor">Compra de mercadería / Proveedor</option>
@@ -292,7 +292,7 @@
                             id="income-origin-warehouse"
                             bind:value={form.origin_warehouse_id}
                             disabled={availableOrigins.length === 0}
-                            class="w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px] disabled:opacity-60 disabled:cursor-not-allowed"
+                            class="w-full rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px] disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             {#if availableOrigins.length === 0}
                                 <option value="" disabled selected>No hay depósito origen</option>

@@ -233,7 +233,7 @@
                 <select
                     bind:value={selectedMethod}
                     onchange={applyFilters}
-                    class="h-11 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                    class="h-11 w-full rounded-xl border border-border/80 bg-select-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                 >
                     {#each paymentMethods as m}
                         <option value={m.value}>{m.label}</option>
@@ -246,7 +246,7 @@
                 <select
                     bind:value={selectedStatus}
                     onchange={applyFilters}
-                    class="h-11 w-full rounded-xl border border-border/80 bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                    class="h-11 w-full rounded-xl border border-border/80 bg-select-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
                 >
                     {#each statusOptions as s}
                         <option value={s.value}>{s.label}</option>

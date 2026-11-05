@@ -137,7 +137,7 @@
                 <select
                     bind:value={selectedWarehouseId}
                     onchange={onfilterchange}
-                    class="h-10 rounded-xl border border-input bg-card px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[110px] max-w-[190px] cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
+                    class="h-10 rounded-xl border border-input bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[110px] max-w-[190px] cursor-pointer"
                 >
                     <option value="">Todos los Depósitos</option>
                     {#each warehouses as wh (wh.id)}
@@ -151,7 +151,7 @@
                 <select
                     bind:value={selectedCategoryId}
                     onchange={onfilterchange}
-                    class="h-10 rounded-xl border border-input bg-card px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[110px] max-w-[180px] cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
+                    class="h-10 rounded-xl border border-input bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[110px] max-w-[180px] cursor-pointer"
                 >
                     <option value="">Todas las Categorías</option>
                     {#each categories as cat (cat.id)}
@@ -163,7 +163,7 @@
                 <select
                     bind:value={selectedStockStatus}
                     onchange={onfilterchange}
-                    class="h-10 rounded-xl border border-input bg-card px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[100px] max-w-[130px] cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
+                    class="h-10 rounded-xl border border-input bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[100px] max-w-[130px] cursor-pointer"
                 >
                     <option value="">Todos los Estados</option>
                     <option value="in_stock">Con stock</option>
