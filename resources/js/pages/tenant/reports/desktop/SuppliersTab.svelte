@@ -1,21 +1,25 @@
 <script lang="ts">
     import { Card } from '@/components/ui/card';
     import { router } from '@inertiajs/svelte';
-    import { ChevronLeft, ChevronRight, TrendingDown } from 'lucide-svelte';
+    import { ChevronLeft, ChevronRight, ChevronDown, TrendingDown, Truck, Phone, Mail, MapPin } from 'lucide-svelte';
 
     interface Props {
         suppliersData: {
             kpis: {
                 total_suppliers: number;
-                expenses_current_month: number | null;
-                total_expenses: number | null;
+                expenses_current_month: number;
+                total_expenses: number;
             };
             suppliers: {
                 data: Array<{
                     supplier_id: number;
                     name: string;
+                    tax_id?: string | null;
+                    contact_number?: string | null;
+                    email?: string | null;
+                    address?: string | null;
                     orders_count: number;
-                    total_spent: number | null;
+                    total_spent: number;
                 }>;
                 current_page: number;
                 last_page: number;
@@ -30,10 +34,13 @@
         canViewMargins?: boolean;
     }
 
-    let { suppliersData, filters = {}, canViewMargins = true }: Props = $props();
+    let {
+        suppliersData,
+        filters = {},
+        canViewMargins = true,
+    }: Props = $props();
 
-    function formatMoney(val: number | null | undefined): string {
-        if (val === null || val === undefined) return '-';
+    function formatMoney(val: number): string {
         return new Intl.NumberFormat('es-AR', {
             style: 'currency',
             currency: 'ARS',
@@ -59,7 +66,7 @@
 
 <div class="flex flex-col gap-6 w-full">
     <!-- 1. KPIs Proveedores -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <!-- Total de Proveedores -->
         <Card class="p-5 flex flex-col justify-between bg-card border-border/70 shadow-xs">
             <span class="text-base font-semibold tracking-normal text-muted-foreground">Total de Proveedores</span>
@@ -113,7 +120,7 @@
 
     <!-- 2. Listado Paginado Wide-Cards: Proveedores más comprados -->
     <div class="flex flex-col gap-3">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-3">
             <div>
                 <h3 class="text-lg font-semibold tracking-tight text-foreground">Proveedores más comprados</h3>
                 <p class="text-sm text-muted-foreground leading-normal">
@@ -121,15 +128,21 @@
                 </p>
             </div>
 
-            <!-- Selector de Ordenamiento estricto por Cant. Órdenes -->
-            <select
-                value={suppliersSort}
-                onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
-                class="min-h-[36px] px-3 py-1 text-sm rounded-lg border border-input/80 bg-background text-foreground shadow-xs cursor-pointer"
-            >
-                <option value="desc">Más comprado</option>
-                <option value="asc">Menos comprado</option>
-            </select>
+            <!-- Selector de ordenamiento estandarizado con ChevronDown -->
+            <div class="relative w-full sm:w-[210px] shrink-0">
+                <select
+                    value={suppliersSort}
+                    onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
+                    aria-label="Ordenar proveedores"
+                    class="w-full min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer appearance-none pr-8 truncate font-medium"
+                >
+                    <option value="desc">Más comprado</option>
+                    <option value="asc">Menos comprado</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-muted-foreground">
+                    <ChevronDown class="size-4 opacity-50" />
+                </div>
+            </div>
         </div>
 
         {#if suppliersData.suppliers.data.length === 0}
@@ -140,28 +153,67 @@
             <div class="flex flex-col gap-2.5">
                 {#each suppliersData.suppliers.data as s, i (s.supplier_id)}
                     {@const rank = (suppliersData.suppliers.current_page - 1) * suppliersData.suppliers.per_page + i + 1}
-                    <Card class="p-4.5 flex items-center justify-between bg-card border-border/70 shadow-xs hover:border-border transition-colors">
-                        <div class="flex items-center gap-3.5 min-w-0">
-                            <span class="size-7 rounded-full bg-muted text-muted-foreground text-xs flex items-center justify-center font-bold shrink-0">
-                                {rank}
+                    <div class="bento-card group flex items-center justify-between gap-4 rounded-xl border border-border/70 bg-card p-4.5 shadow-xs transition-all duration-200 hover:border-primary/40 hover:shadow-md">
+                        <!-- Lado Izquierdo: Ranking + Info Principal -->
+                        <div class="flex items-center gap-3.5 min-w-0 flex-1">
+                            <span class="size-8 rounded-full bg-muted/80 text-foreground text-xs flex items-center justify-center font-bold shrink-0 border border-border/60 tabular-nums">
+                                #{rank}
                             </span>
-                            <div class="min-w-0">
-                                <div class="text-[17px] font-medium leading-snug text-foreground truncate max-w-[320px]" title={s.name}>
-                                    {s.name}
+
+                            <div class="flex flex-col gap-1.5 min-w-0 flex-1">
+                                <!-- Fila 1: Nombre Destacado -->
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h4 class="font-bold text-base text-foreground group-hover:text-primary transition-colors truncate" title={s.name}>
+                                        {s.name}
+                                    </h4>
                                 </div>
-                                <div class="text-sm text-muted-foreground">
-                                    {s.orders_count} órdenes registradas
+
+                                <!-- Fila 2: Badges CUIT, Contacto y Órdenes -->
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary border border-primary/20 tabular-nums">
+                                        <Truck class="size-3.5" />
+                                        <strong>{s.orders_count}</strong> órdenes
+                                    </span>
+
+                                    {#if s.tax_id}
+                                        <span class="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-xs font-medium text-foreground/90 border border-border/40 tabular-nums">
+                                            CUIT: {s.tax_id}
+                                        </span>
+                                    {/if}
+
+                                    {#if s.contact_number}
+                                        <span class="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-xs font-medium text-foreground/90 border border-border/40 tabular-nums">
+                                            <Phone class="size-3 text-muted-foreground" />
+                                            {s.contact_number}
+                                        </span>
+                                    {/if}
+
+                                    {#if s.email}
+                                        <span class="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-xs font-medium text-foreground/90 border border-border/40">
+                                            <Mail class="size-3 text-muted-foreground" />
+                                            {s.email}
+                                        </span>
+                                    {/if}
                                 </div>
+
+                                <!-- Fila 3: Dirección si existe -->
+                                {#if s.address}
+                                    <div class="flex items-center gap-1 text-xs text-muted-foreground truncate max-w-md">
+                                        <MapPin class="size-3 shrink-0 text-muted-foreground/70" />
+                                        <span class="truncate">{s.address}</span>
+                                    </div>
+                                {/if}
                             </div>
                         </div>
 
-                        <div class="text-right shrink-0 pl-3">
-                            <div class="text-xs text-muted-foreground font-medium">Gasto Total</div>
-                            <div class="text-lg font-bold tabular-nums text-foreground">
+                        <!-- Lado Derecho: Gasto Total -->
+                        <div class="flex flex-col items-end text-right shrink-0 pl-3">
+                            <span class="text-xs text-muted-foreground font-medium uppercase tracking-wider">Gasto Total</span>
+                            <span class="text-lg sm:text-xl font-bold tabular-nums text-foreground">
                                 {canViewMargins ? formatMoney(s.total_spent) : 'Restringido'}
-                            </div>
+                            </span>
                         </div>
-                    </Card>
+                    </div>
                 {/each}
             </div>
 

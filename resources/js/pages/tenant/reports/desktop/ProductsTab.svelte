@@ -1,6 +1,8 @@
 <script lang="ts">
     import { Card } from '@/components/ui/card';
     import ChartCanvas from '@/components/charts/ChartCanvas.svelte';
+    import { router } from '@inertiajs/svelte';
+    import { ChevronDown, PackageCheck, Scale, Package } from 'lucide-svelte';
 
     interface Props {
         productsData: {
@@ -14,13 +16,24 @@
                 product_id: number;
                 name: string;
                 sku: string | null;
+                barcode?: string | null;
+                sale_type?: string;
+                price?: number;
+                cost_price?: number;
+                stock?: number;
+                thumbnail_url?: string | null;
+                image_url?: string | null;
+                category_name?: string | null;
                 total_quantity: number;
                 total_subtotal: number;
             }>;
         };
+        filters?: {
+            products_sort?: string;
+        };
     }
 
-    let { productsData }: Props = $props();
+    let { productsData, filters = {} }: Props = $props();
 
     function formatMoney(val: number): string {
         return new Intl.NumberFormat('es-AR', {
@@ -28,6 +41,15 @@
             currency: 'ARS',
             minimumFractionDigits: 2,
         }).format(val);
+    }
+
+    let productsSort = $state(filters.products_sort || 'desc');
+
+    function updateSort(val: string) {
+        productsSort = val;
+        const url = new URL(window.location.href);
+        url.searchParams.set('products_sort', val);
+        router.get(url.pathname + url.search, {}, { preserveState: true, preserveScroll: true, replace: true });
     }
 
     const unitsChartData = $derived({
@@ -119,9 +141,24 @@
 
     <!-- 3. Listado Wide-Cards: Top 10 Productos Más Vendidos -->
     <div class="flex flex-col gap-3">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-3">
             <h3 class="text-lg font-semibold tracking-tight text-foreground">Top 10 Productos más vendidos</h3>
-            <span class="text-xs text-muted-foreground font-medium">Mayor volumen en unidades y recaudación</span>
+
+            <!-- Selector de ordenamiento estandarizado con ChevronDown (por default: Más vendidos) -->
+            <div class="relative w-full sm:w-[210px] shrink-0">
+                <select
+                    value={productsSort}
+                    onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
+                    aria-label="Ordenar productos"
+                    class="w-full min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer appearance-none pr-8 truncate font-medium"
+                >
+                    <option value="desc">Más vendidos</option>
+                    <option value="asc">Menos vendidos</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-muted-foreground">
+                    <ChevronDown class="size-4 opacity-50" />
+                </div>
+            </div>
         </div>
 
         {#if productsData.top_products.length === 0}
@@ -131,32 +168,93 @@
         {:else}
             <div class="flex flex-col gap-2.5">
                 {#each productsData.top_products as p, i (p.product_id)}
-                    <Card class="p-4 flex items-center justify-between bg-card border-border/70 shadow-xs hover:border-border transition-colors">
-                        <div class="flex items-center gap-3.5 min-w-0">
-                            <span class="size-7 rounded-full bg-muted text-muted-foreground text-xs flex items-center justify-center font-bold shrink-0">
-                                {i + 1}
+                    <div class="bento-card group flex items-center justify-between gap-4 rounded-xl border border-border/70 bg-card p-4.5 shadow-xs transition-all duration-200 hover:border-primary/40 hover:shadow-md">
+                        <!-- Lado Izquierdo: Ranking + Imagen/Icono + Info Principal -->
+                        <div class="flex items-center gap-3.5 min-w-0 flex-1">
+                            <span class="size-8 rounded-full bg-muted/80 text-foreground text-xs flex items-center justify-center font-bold shrink-0 border border-border/60 tabular-nums">
+                                #{i + 1}
                             </span>
-                            <div class="min-w-0">
-                                <div class="text-[17px] font-medium leading-snug text-foreground truncate max-w-[340px]" title={p.name}>
-                                    {p.name}
+
+                            <!-- Imagen o placeholder de producto -->
+                            {#if p.thumbnail_url || p.image_url}
+                                <div class="relative size-12 rounded-xl border border-border/80 overflow-hidden shrink-0 bg-muted/30">
+                                    <img
+                                        src={p.thumbnail_url || p.image_url}
+                                        alt={p.name}
+                                        class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                                        loading="lazy"
+                                    />
                                 </div>
-                                <div class="text-sm text-muted-foreground flex items-center gap-2">
-                                    {#if p.sku}
-                                        <span class="font-mono text-xs">{p.sku}</span>
-                                        <span>•</span>
+                            {:else}
+                                <div class="relative size-12 rounded-xl border border-dashed border-border/80 flex items-center justify-center bg-muted/20 shrink-0 text-muted-foreground">
+                                    {#if p.sale_type === 'weight'}
+                                        <Scale class="size-5 text-primary/80" />
+                                    {:else}
+                                        <Package class="size-5 text-primary/80" />
                                     {/if}
-                                    <span>{p.total_quantity.toLocaleString('es-AR')} unidades despachadas</span>
+                                </div>
+                            {/if}
+
+                            <!-- Detalle y Metadatos en filas ordenadas como en Catálogo -->
+                            <div class="flex flex-col gap-1.5 min-w-0 flex-1">
+                                <!-- Fila 1: Nombre + Badges -->
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h4 class="font-bold text-base text-foreground group-hover:text-primary transition-colors truncate" title={p.name}>
+                                        {p.name}
+                                    </h4>
+
+                                    {#if p.sale_type === 'weight'}
+                                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+                                            <Scale class="size-3" />
+                                            Pesable
+                                        </span>
+                                    {/if}
+
+                                    {#if p.category_name}
+                                        <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                            Cat: <strong class="text-foreground font-semibold">{p.category_name}</strong>
+                                        </span>
+                                    {/if}
+                                </div>
+
+                                <!-- Fila 2: Badges Unidades Vendidas, SKU, Barcode y Stock -->
+                                <div class="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
+                                    <span class="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 tabular-nums">
+                                        <PackageCheck class="size-3.5" />
+                                        <strong>{p.total_quantity.toLocaleString('es-AR')}</strong> {p.sale_type === 'weight' ? 'Kg' : 'unid.'} vendidas
+                                    </span>
+
+                                    {#if p.sku}
+                                        <span class="bg-muted/60 px-2 py-0.5 rounded text-xs tabular-nums font-mono border border-border/40">
+                                            SKU: {p.sku}
+                                        </span>
+                                    {/if}
+
+                                    {#if p.barcode}
+                                        <span class="bg-muted/60 px-2 py-0.5 rounded text-xs tabular-nums border border-border/40">
+                                            BAR: {p.barcode}
+                                        </span>
+                                    {/if}
+
+                                    <span class="text-muted-foreground/40 font-light select-none">|</span>
+                                    <span class="text-xs font-medium tabular-nums">
+                                        Stock: {p.stock ?? 0} {p.sale_type === 'weight' ? 'Kg' : 'u.'}
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="text-right shrink-0 pl-3">
-                            <div class="text-xs text-muted-foreground font-medium">Ingresos Generados</div>
-                            <div class="text-lg font-bold tabular-nums text-foreground">
-                                {formatMoney(p.total_subtotal)}
-                            </div>
+                        <!-- Lado Derecho: Ingresos Generados y Precio Unitario -->
+                        <div class="flex flex-col items-end text-right shrink-0 pl-3">
+                            <span class="text-xs text-muted-foreground font-medium uppercase tracking-wider">Ingresos Generados</span>
+                            <span class="text-lg sm:text-xl font-bold tabular-nums text-foreground">{formatMoney(p.total_subtotal)}</span>
+                            {#if p.price && p.price > 0}
+                                <span class="text-xs text-muted-foreground tabular-nums">
+                                    P. Unit: {formatMoney(p.price)} {p.sale_type === 'weight' ? '/Kg' : ''}
+                                </span>
+                            {/if}
                         </div>
-                    </Card>
+                    </div>
                 {/each}
             </div>
         {/if}

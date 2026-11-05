@@ -65,7 +65,8 @@ class ReportController extends Controller
                 $tenant->id, $dateFrom, $dateTo, $warehouseId, $suppliersSort, $suppliersPage
             );
         } elseif ($view === 'productos') {
-            $productsData = $reportService->getProductsData($tenant->id, $dateFrom, $dateTo, $warehouseId);
+            $productsSort = (string) $request->input('products_sort', 'desc');
+            $productsData = $reportService->getProductsData($tenant->id, $dateFrom, $dateTo, $warehouseId, $productsSort);
         }
 
         // Mask sensitive cost & margin metrics if unauthorized
@@ -146,6 +147,7 @@ class ReportController extends Controller
                 'defaulters_page' => (int) $request->input('defaulters_page', 1),
                 'suppliers_sort' => $request->input('suppliers_sort', 'desc'),
                 'suppliers_page' => (int) $request->input('suppliers_page', 1),
+                'products_sort' => $request->input('products_sort', 'desc'),
             ],
             'permissions' => [
                 'can_view_margins' => $canViewMargins,

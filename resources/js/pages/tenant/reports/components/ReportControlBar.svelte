@@ -264,8 +264,8 @@
         </div>
     </div>
 
-    <!-- Row 2: Precise Datepickers & Amplified Warehouse Select without house icon -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2.5 border-t border-border/50 text-sm">
+    <!-- Row 2: Precise Datepickers & Amplified Warehouse Select (+10px margen/separación) -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-5 mt-2.5 border-t border-border/50 text-sm">
         <!-- Date from -->
         <div class="flex items-center gap-2 flex-1 sm:max-w-[220px]">
             <span class="text-xs text-muted-foreground shrink-0 font-medium">Desde:</span>
@@ -292,14 +292,14 @@
             </div>
         </div>
 
-        <!-- Warehouse selector: ampliado en Desktop (+10px: sm:w-[350px]), sin icono de casa -->
-        <div class="flex items-center gap-2 w-full sm:w-[350px] sm:ml-auto">
-            <span class="text-xs text-muted-foreground shrink-0 font-medium">Depósito:</span>
+        <!-- Warehouse selector: ampliado en Desktop (+10px: sm:w-[350px]), sin texto "Depósito:" ni icono de casa -->
+        <div class="flex items-center w-full sm:w-[350px] sm:ml-auto">
             <div class="relative w-full">
                 <select
                     value={localWarehouseId ?? ''}
                     onchange={handleWarehouseChange}
-                    class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input/80 bg-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer appearance-none pr-8 truncate font-medium"
+                    aria-label="Filtrar por depósito"
+                    class="w-full min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer appearance-none pr-8 truncate font-medium"
                 >
                     <option value="">Todos los depósitos</option>
                     {#each warehouses as w (w.id)}

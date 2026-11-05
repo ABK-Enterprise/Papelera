@@ -315,9 +315,22 @@ class BusinessReportService
         $buyersQuery->select(
             'customer_orders.customer_id',
             'customers.name',
+            'customers.tax_id',
+            'customers.phone',
+            'customers.tax_condition',
+            'customers.is_defaulter',
+            'customers.address',
             DB::raw('COUNT(customer_orders.id) as orders_count'),
             DB::raw('COALESCE(SUM(customer_orders.total_amount), 0) as total_spent')
-        )->groupBy('customer_orders.customer_id', 'customers.name');
+        )->groupBy(
+            'customer_orders.customer_id',
+            'customers.name',
+            'customers.tax_id',
+            'customers.phone',
+            'customers.tax_condition',
+            'customers.is_defaulter',
+            'customers.address'
+        );
 
         if ($buyersSort === 'asc') {
             $buyersQuery->orderBy('orders_count', 'asc')->orderBy('total_spent', 'asc');
@@ -328,6 +341,11 @@ class BusinessReportService
         $topBuyers = $buyersQuery->limit(10)->get()->map(fn ($r) => [
             'customer_id' => (int) $r->customer_id,
             'name' => (string) ($r->name ?? 'Cliente Mostrador'),
+            'tax_id' => $r->tax_id ? (string) $r->tax_id : null,
+            'phone' => $r->phone ? (string) $r->phone : null,
+            'tax_condition' => (string) ($r->tax_condition ?? 'consumidor_final'),
+            'is_defaulter' => (bool) ($r->is_defaulter ?? false),
+            'address' => $r->address ? (string) $r->address : null,
             'orders_count' => (int) $r->orders_count,
             'total_spent' => round((float) $r->total_spent, 2),
         ])->all();
@@ -415,9 +433,20 @@ class BusinessReportService
         $suppliersQuery->select(
             'supplier_orders.supplier_id',
             'suppliers.name',
+            'suppliers.tax_id',
+            'suppliers.contact_number',
+            'suppliers.email',
+            'suppliers.address',
             DB::raw('COUNT(supplier_orders.id) as orders_count'),
             DB::raw('COALESCE(SUM(supplier_orders.total_cost), 0) as total_spent')
-        )->groupBy('supplier_orders.supplier_id', 'suppliers.name');
+        )->groupBy(
+            'supplier_orders.supplier_id',
+            'suppliers.name',
+            'suppliers.tax_id',
+            'suppliers.contact_number',
+            'suppliers.email',
+            'suppliers.address'
+        );
 
         if ($sort === 'asc') {
             $suppliersQuery->orderBy('orders_count', 'asc')->orderBy('total_spent', 'asc');
@@ -437,6 +466,10 @@ class BusinessReportService
                 'data' => collect($paginated->items())->map(fn ($r) => [
                     'supplier_id' => (int) $r->supplier_id,
                     'name' => (string) $r->name,
+                    'tax_id' => $r->tax_id ? (string) $r->tax_id : null,
+                    'contact_number' => $r->contact_number ? (string) $r->contact_number : null,
+                    'email' => $r->email ? (string) $r->email : null,
+                    'address' => $r->address ? (string) $r->address : null,
                     'orders_count' => (int) $r->orders_count,
                     'total_spent' => round((float) $r->total_spent, 2),
                 ])->all(),
@@ -451,7 +484,7 @@ class BusinessReportService
     /**
      * Pantalla de Productos (Stock e Inventario)
      */
-    public function getProductsData(int $tenantId, CarbonInterface $from, CarbonInterface $to, ?int $warehouseId = null): array
+    public function getProductsData(int $tenantId, CarbonInterface $from, CarbonInterface $to, ?int $warehouseId = null, string $sort = 'desc'): array
     {
         // 1. Catálogo total
         $catalogProductsCount = Product::where('tenant_id', $tenantId)->where('is_active', true)->count();
@@ -477,7 +510,7 @@ class BusinessReportService
         $productsSoldTrend = $this->getProductsSoldTrendSeries($tenantId, $from, $to, $warehouseId);
 
         // 4. Top 10 Productos más vendidos
-        $topProducts = $this->getTopProducts($tenantId, $from, $to, 10, $warehouseId);
+        $topProducts = $this->getTopProducts($tenantId, $from, $to, 10, $warehouseId, $sort);
 
         return [
             'kpis' => [
@@ -639,13 +672,16 @@ class BusinessReportService
     /**
      * Get top selling products in the selected period (cobrado or facturado).
      *
-     * @return array<int, array{product_id: int, name: string, sku: string|null, total_quantity: float, total_subtotal: float}>
+     * @return array<int, array{product_id: int, name: string, sku: string|null, barcode: string|null, sale_type: string, price: float, cost_price: float, stock: float, thumbnail_url: string|null, image_url: string|null, category_name: string|null, total_quantity: float, total_subtotal: float}>
      */
-    public function getTopProducts(int $tenantId, CarbonInterface $from, CarbonInterface $to, int $limit = 10, ?int $warehouseId = null): array
+    public function getTopProducts(int $tenantId, CarbonInterface $from, CarbonInterface $to, int $limit = 10, ?int $warehouseId = null, string $sort = 'desc'): array
     {
+        $direction = strtolower($sort) === 'asc' ? 'asc' : 'desc';
+
         $query = DB::table('customer_order_items')
             ->join('customer_orders', 'customer_orders.id', '=', 'customer_order_items.customer_order_id')
             ->leftJoin('products', 'products.id', '=', 'customer_order_items.product_id')
+            ->leftJoin('categories', 'categories.id', '=', 'products.category_id')
             ->where('customer_orders.tenant_id', $tenantId)
             ->where('customer_orders.status', '!=', 'cancelado')
             ->where(function ($q) {
@@ -662,17 +698,46 @@ class BusinessReportService
             'customer_order_items.product_id',
             'products.name',
             'products.sku',
+            'products.barcode',
+            'products.sale_type',
+            'products.price',
+            'products.cost_price',
+            'products.stock',
+            'products.thumbnail_url',
+            'products.image_url',
+            'categories.name as category_name',
             DB::raw('COALESCE(SUM(customer_order_items.quantity), 0) as total_quantity'),
             DB::raw('COALESCE(SUM(customer_order_items.subtotal), 0) as total_subtotal')
         )
-            ->groupBy('customer_order_items.product_id', 'products.name', 'products.sku')
-            ->orderByDesc('total_subtotal')
+            ->groupBy(
+                'customer_order_items.product_id',
+                'products.name',
+                'products.sku',
+                'products.barcode',
+                'products.sale_type',
+                'products.price',
+                'products.cost_price',
+                'products.stock',
+                'products.thumbnail_url',
+                'products.image_url',
+                'categories.name'
+            )
+            ->orderBy('total_quantity', $direction)
+            ->orderBy('total_subtotal', $direction)
             ->limit($limit)
             ->get()
             ->map(fn ($row) => [
                 'product_id' => (int) $row->product_id,
                 'name' => (string) ($row->name ?? 'Producto'),
                 'sku' => $row->sku ? (string) $row->sku : null,
+                'barcode' => $row->barcode ? (string) $row->barcode : null,
+                'sale_type' => (string) ($row->sale_type ?? 'unit'),
+                'price' => (float) ($row->price ?? 0.0),
+                'cost_price' => (float) ($row->cost_price ?? 0.0),
+                'stock' => (float) ($row->stock ?? 0.0),
+                'thumbnail_url' => $row->thumbnail_url ? (string) $row->thumbnail_url : null,
+                'image_url' => $row->image_url ? (string) $row->image_url : null,
+                'category_name' => $row->category_name ? (string) $row->category_name : null,
                 'total_quantity' => round((float) $row->total_quantity, 2),
                 'total_subtotal' => round((float) $row->total_subtotal, 2),
             ])

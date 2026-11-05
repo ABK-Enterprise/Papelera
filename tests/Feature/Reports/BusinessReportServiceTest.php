@@ -278,3 +278,51 @@ test('getProductsData tallies catalog stock movements and units sold', function 
     expect($data['kpis']['stock_inflow'])->toEqual(100.0);
     expect($data['kpis']['stock_outflow'])->toEqual(25.0);
 });
+
+test('getProductsData supports sorting by mas vendidos and menos vendidos', function () {
+    $now = CarbonImmutable::now();
+    $from = $now->startOfMonth();
+    $to = $now->endOfMonth();
+
+    $cust = Customer::factory()->create(['tenant_id' => $this->tenant->id]);
+
+    $p1 = Product::factory()->create(['tenant_id' => $this->tenant->id, 'name' => 'Menos Vendido']);
+    $p2 = Product::factory()->create(['tenant_id' => $this->tenant->id, 'name' => 'Mas Vendido']);
+
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $cust->id,
+        'customer_name' => $cust->name,
+        'warehouse_id' => $this->warehouse->id,
+        'order_number' => 'ORD-SORT-01',
+        'status' => 'entregado',
+        'payment_status' => 'cobrado',
+        'subtotal_amount' => 1500,
+        'total_amount' => 1500,
+        'created_at' => $now,
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $p1->id,
+        'warehouse_id' => $this->warehouse->id,
+        'quantity' => 2,
+        'unit_price' => 100,
+        'subtotal' => 200,
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $p2->id,
+        'warehouse_id' => $this->warehouse->id,
+        'quantity' => 20,
+        'unit_price' => 100,
+        'subtotal' => 2000,
+    ]);
+
+    $desc = $this->service->getProductsData($this->tenant->id, $from, $to, $this->warehouse->id, 'desc');
+    expect($desc['top_products'][0]['name'])->toBe('Mas Vendido');
+
+    $asc = $this->service->getProductsData($this->tenant->id, $from, $to, $this->warehouse->id, 'asc');
+    expect($asc['top_products'][0]['name'])->toBe('Menos Vendido');
+});

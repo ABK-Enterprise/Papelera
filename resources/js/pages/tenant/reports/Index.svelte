@@ -89,7 +89,7 @@
                 canViewMargins={permissions.can_view_margins}
             />
         {:else if activeView === 'productos' && products_data}
-            <ProductsTab productsData={products_data} />
+            <ProductsTab productsData={products_data} {filters} />
         {/if}
     </div>
 
@@ -111,7 +111,7 @@
                 canViewMargins={permissions.can_view_margins}
             />
         {:else if activeView === 'productos' && products_data}
-            <ProductsMobile productsData={products_data} />
+            <ProductsMobile productsData={products_data} {filters} />
         {/if}
     </div>
 </div>

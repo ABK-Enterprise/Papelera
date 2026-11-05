@@ -1,6 +1,8 @@
 <script lang="ts">
     import { Card } from '@/components/ui/card';
     import ChartCanvas from '@/components/charts/ChartCanvas.svelte';
+    import { router } from '@inertiajs/svelte';
+    import { ChevronDown } from 'lucide-svelte';
 
     interface Props {
         productsData: {
@@ -14,13 +16,20 @@
                 product_id: number;
                 name: string;
                 sku: string | null;
+                barcode?: string | null;
+                sale_type?: string;
+                price?: number;
+                category_name?: string | null;
                 total_quantity: number;
                 total_subtotal: number;
             }>;
         };
+        filters?: {
+            products_sort?: string;
+        };
     }
 
-    let { productsData }: Props = $props();
+    let { productsData, filters = {} }: Props = $props();
 
     function formatMoney(val: number): string {
         return new Intl.NumberFormat('es-AR', {
@@ -28,6 +37,15 @@
             currency: 'ARS',
             minimumFractionDigits: 0,
         }).format(val);
+    }
+
+    let productsSort = $state(filters.products_sort || 'desc');
+
+    function updateSort(val: string) {
+        productsSort = val;
+        const url = new URL(window.location.href);
+        url.searchParams.set('products_sort', val);
+        router.get(url.pathname + url.search, {}, { preserveState: true, preserveScroll: true, replace: true });
     }
 
     const unitsChartData = $derived({
@@ -99,7 +117,25 @@
 
     <!-- Top Productos Mobile -->
     <Card class="p-4 bg-card border-border/70 shadow-xs">
-        <h3 class="text-base font-semibold text-foreground mb-3">Top 10 Productos Más Vendidos</h3>
+        <div class="flex items-center justify-between gap-2 mb-3">
+            <h3 class="text-base font-semibold text-foreground">Top Productos</h3>
+            
+            <div class="relative">
+                <select
+                    value={productsSort}
+                    onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
+                    aria-label="Ordenar productos"
+                    class="min-h-[36px] px-2.5 py-1 text-xs rounded-lg border border-input/80 bg-background text-foreground pr-7 appearance-none font-medium cursor-pointer"
+                >
+                    <option value="desc">Más vendidos</option>
+                    <option value="asc">Menos vendidos</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-muted-foreground">
+                    <ChevronDown class="size-3.5 opacity-50" />
+                </div>
+            </div>
+        </div>
+
         {#if productsData.top_products.length === 0}
             <div class="py-6 text-center text-xs text-muted-foreground">Sin ventas registradas.</div>
         {:else}
@@ -107,12 +143,17 @@
                 {#each productsData.top_products as p, i (p.product_id)}
                     <div class="py-2.5 flex items-center justify-between text-xs">
                         <div class="flex items-center gap-2 min-w-0">
-                            <span class="size-5 rounded-full bg-muted text-muted-foreground text-[10px] flex items-center justify-center font-bold shrink-0">
+                            <span class="size-5 rounded-full bg-muted text-muted-foreground text-[10px] flex items-center justify-center font-bold shrink-0 tabular-nums">
                                 {i + 1}
                             </span>
                             <div class="min-w-0">
-                                <span class="font-medium text-foreground truncate block max-w-[150px]">{p.name}</span>
-                                <span class="text-muted-foreground">{p.total_quantity} u.</span>
+                                <span class="font-medium text-foreground truncate block max-w-[170px]">{p.name}</span>
+                                <span class="text-muted-foreground">
+                                    {p.total_quantity} {p.sale_type === 'weight' ? 'Kg' : 'u.'}
+                                    {#if p.category_name}
+                                        • {p.category_name}
+                                    {/if}
+                                </span>
                             </div>
                         </div>
                         <span class="font-bold text-foreground tabular-nums text-sm shrink-0 pl-2">
