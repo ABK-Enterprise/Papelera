@@ -2,7 +2,7 @@
     import { router } from '@inertiajs/svelte';
     import { cn } from '@/lib/utils';
     import GlideSelect, { type StatScreenId } from '@/components/svelte-bits/GlideSelect.svelte';
-    import { RotateCcw, Calendar, Warehouse as WarehouseIcon } from 'lucide-svelte';
+    import { RotateCcw, ChevronDown } from 'lucide-svelte';
 
     interface WarehouseItem {
         id: number;
@@ -30,7 +30,7 @@
         onViewChange,
     }: Props = $props();
 
-    // Calculate dates helper
+    // Helper to format dates YYYY-MM-DD
     function formatDate(d: Date): string {
         const year = d.getFullYear();
         const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -50,15 +50,19 @@
     let localDateTo = $state<string>(dateTo || defaultTo);
     let localWarehouseId = $state<number | null>(warehouseId);
 
-    // Sync from parent props when they change
+    // Sync from parent props when they update
     $effect(() => {
         localView = view;
     });
     $effect(() => {
-        if (dateFrom) localDateFrom = dateFrom;
+        if (dateFrom && dateFrom !== localDateFrom) {
+            localDateFrom = dateFrom;
+        }
     });
     $effect(() => {
-        if (dateTo) localDateTo = dateTo;
+        if (dateTo && dateTo !== localDateTo) {
+            localDateTo = dateTo;
+        }
     });
     $effect(() => {
         localWarehouseId = warehouseId;
@@ -133,15 +137,11 @@
         return null;
     });
 
-    // Check if current filters differ from initial defaults
-    const isFiltered = $derived(
-        localView !== 'inicial' ||
-        localDateFrom !== defaultFrom ||
-        localDateTo !== defaultTo ||
-        localWarehouseId !== null
+    // Requirement: Botón "Limpiar" solo aparece si hay un filtro de rango temporal puesto
+    const isDateFiltered = $derived(
+        localDateFrom !== defaultFrom || localDateTo !== defaultTo
     );
 
-    // Apply filters reactively without manual submit button
     function triggerFilterUpdate(overrides: Partial<{
         view: StatScreenId;
         date_from: string;
@@ -203,23 +203,20 @@
         triggerFilterUpdate({ view: newView });
     }
 
-    function resetFilters() {
-        localView = 'inicial';
+    // Reset date filters back to default (30 days)
+    function resetDateFilters() {
         localDateFrom = defaultFrom;
         localDateTo = defaultTo;
-        localWarehouseId = null;
         triggerFilterUpdate({
-            view: 'inicial',
             date_from: defaultFrom,
             date_to: defaultTo,
-            warehouse_id: null,
         });
     }
 </script>
 
 <div
     class={cn(
-        'w-full flex flex-col gap-3 p-4 rounded-xl border border-border/70 bg-card/60 backdrop-blur-xs shadow-xs',
+        'w-full flex flex-col gap-3 p-4 rounded-xl border border-border/70 bg-card/60 backdrop-blur-xs shadow-xs relative',
         className
     )}
 >
@@ -243,12 +240,12 @@
                 </button>
             {/each}
 
-            <!-- Conditional Reset Button -->
-            {#if isFiltered}
+            <!-- Botón Limpiar: Visible ÚNICAMENTE si hay filtro temporal activo -->
+            {#if isDateFiltered}
                 <button
                     type="button"
-                    onclick={resetFilters}
-                    title="Restablecer filtros a valores por defecto"
+                    onclick={resetDateFilters}
+                    title="Restablecer fechas al rango por defecto (30 días)"
                     class="flex items-center gap-1.5 min-h-[40px] px-3 py-1.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer select-none border border-destructive/20 ml-auto lg:ml-2"
                 >
                     <RotateCcw class="size-3.5 shrink-0" />
@@ -267,15 +264,15 @@
         </div>
     </div>
 
-    <!-- Row 2: Precise Datepickers & Warehouse Select -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-2 border-t border-border/50 text-sm">
+    <!-- Row 2: Precise Datepickers & Amplified Warehouse Select without house icon -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2.5 border-t border-border/50 text-sm">
         <!-- Date from -->
-        <div class="flex items-center gap-2 flex-1 sm:max-w-[210px]">
+        <div class="flex items-center gap-2 flex-1 sm:max-w-[220px]">
             <span class="text-xs text-muted-foreground shrink-0 font-medium">Desde:</span>
             <div class="relative w-full">
                 <input
                     type="date"
-                    value={localDateFrom}
+                    bind:value={localDateFrom}
                     onchange={handleDateFromChange}
                     class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input/80 bg-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
                 />
@@ -283,26 +280,26 @@
         </div>
 
         <!-- Date to -->
-        <div class="flex items-center gap-2 flex-1 sm:max-w-[210px]">
+        <div class="flex items-center gap-2 flex-1 sm:max-w-[220px]">
             <span class="text-xs text-muted-foreground shrink-0 font-medium">Hasta:</span>
             <div class="relative w-full">
                 <input
                     type="date"
-                    value={localDateTo}
+                    bind:value={localDateTo}
                     onchange={handleDateToChange}
                     class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input/80 bg-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
                 />
             </div>
         </div>
 
-        <!-- Warehouse selector -->
-        <div class="flex items-center gap-2 flex-1 sm:max-w-[260px] sm:ml-auto">
+        <!-- Warehouse selector: ampliado en Desktop, sin icono de casa -->
+        <div class="flex items-center gap-2 w-full sm:w-[340px] sm:ml-auto">
             <span class="text-xs text-muted-foreground shrink-0 font-medium">Depósito:</span>
             <div class="relative w-full">
                 <select
                     value={localWarehouseId ?? ''}
                     onchange={handleWarehouseChange}
-                    class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input/80 bg-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer appearance-none pr-8"
+                    class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input/80 bg-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer appearance-none pr-8 truncate font-medium"
                 >
                     <option value="">Todos los depósitos</option>
                     {#each warehouses as w (w.id)}
@@ -310,7 +307,7 @@
                     {/each}
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-muted-foreground">
-                    <WarehouseIcon class="size-3.5 opacity-60" />
+                    <ChevronDown class="size-4 opacity-50" />
                 </div>
             </div>
         </div>

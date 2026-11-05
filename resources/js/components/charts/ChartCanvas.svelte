@@ -1,7 +1,7 @@
 <script lang="ts">
+    import { onDestroy } from 'svelte';
     import {
         Chart,
-        type ChartConfiguration,
         type ChartTypeRegistry,
         registerables,
     } from 'chart.js';
@@ -26,20 +26,50 @@
     } = $props();
 
     let canvasRef = $state<HTMLCanvasElement | null>(null);
-    let chartInstance = $state<Chart | null>(null);
+    let chart: Chart | null = null;
 
-    // Initial chart creation and unmount cleanup
+    function safeDestroy() {
+        if (canvasRef) {
+            const registered = Chart.getChart(canvasRef);
+            if (registered) {
+                registered.destroy();
+            }
+        }
+        if (chart) {
+            try {
+                chart.destroy();
+            } catch (_) {
+                // already destroyed
+            }
+            chart = null;
+        }
+    }
+
+    // Effect manages initial creation, in-place updates, and cleanup
     $effect(() => {
         if (!canvasRef) return;
+
+        // If chart already exists and type is the same, update datasets in-place
+        if (chart && chart.config.type === type) {
+            chart.data = data;
+            if (options) {
+                chart.options = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    ...options,
+                };
+            }
+            chart.update('none');
+            return;
+        }
+
+        // First mount or type changed: ensure canvas is completely free
+        safeDestroy();
 
         const ctx = canvasRef.getContext('2d');
         if (!ctx) return;
 
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
-
-        chartInstance = new Chart(ctx, {
+        chart = new Chart(ctx, {
             type,
             data,
             options: {
@@ -50,26 +80,12 @@
         });
 
         return () => {
-            if (chartInstance) {
-                chartInstance.destroy();
-                chartInstance = null;
-            }
+            safeDestroy();
         };
     });
 
-    // Reactive update when datasets, labels, or options change
-    $effect(() => {
-        if (!chartInstance) return;
-
-        chartInstance.data = data;
-        if (options) {
-            chartInstance.options = {
-                responsive: true,
-                maintainAspectRatio: false,
-                ...options,
-            };
-        }
-        chartInstance.update('none'); // Update smoothly without re-triggering enter animations
+    onDestroy(() => {
+        safeDestroy();
     });
 </script>
 

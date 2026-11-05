@@ -36,7 +36,7 @@
     let isOpen = $state(false);
     let triggerRef = $state<HTMLButtonElement | null>(null);
     let menuRef = $state<HTMLDivElement | null>(null);
-    let itemRefs = $state<(HTMLButtonElement | null)[]>([]);
+    let itemRefs: (HTMLButtonElement | null)[] = [];
     let hoveredIndex = $state<number | null>(null);
 
     const activeOption = $derived(
@@ -47,7 +47,6 @@
         options.findIndex((opt) => opt.id === value)
     );
 
-    // Dynamic pill position calculation for the smooth gliding effect
     let pillTop = $state(0);
     let pillHeight = $state(0);
     let pillOpacity = $state(0);
@@ -68,16 +67,21 @@
 
     $effect(() => {
         if (isOpen) {
-            const targetIdx = hoveredIndex !== null ? hoveredIndex : activeIndex;
-            updatePill(targetIdx);
+            const targetIdx = hoveredIndex !== null ? hoveredIndex : (activeIndex >= 0 ? activeIndex : 0);
+            requestAnimationFrame(() => {
+                updatePill(targetIdx);
+            });
+        } else {
+            pillOpacity = 0;
         }
     });
 
-    function toggleMenu() {
+    function toggleMenu(e: MouseEvent) {
+        e.stopPropagation();
         if (disabled) return;
         isOpen = !isOpen;
         if (isOpen) {
-            hoveredIndex = activeIndex;
+            hoveredIndex = activeIndex >= 0 ? activeIndex : 0;
         }
     }
 
@@ -106,23 +110,24 @@
             triggerRef?.focus();
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
-            const current = hoveredIndex ?? activeIndex;
+            const current = hoveredIndex ?? (activeIndex >= 0 ? activeIndex : 0);
             hoveredIndex = (current + 1) % options.length;
+            updatePill(hoveredIndex);
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
-            const current = hoveredIndex ?? activeIndex;
+            const current = hoveredIndex ?? (activeIndex >= 0 ? activeIndex : 0);
             hoveredIndex = (current - 1 + options.length) % options.length;
+            updatePill(hoveredIndex);
         } else if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            const targetIdx = hoveredIndex ?? activeIndex;
+            const targetIdx = hoveredIndex ?? (activeIndex >= 0 ? activeIndex : 0);
             if (options[targetIdx]) {
                 selectOption(options[targetIdx]);
             }
         }
     }
 
-    // Click outside listener
-    function handlePointerDown(e: MouseEvent) {
+    function handleOutsidePointer(e: PointerEvent | MouseEvent | TouchEvent) {
         if (!isOpen) return;
         const target = e.target as Node;
         if (
@@ -137,9 +142,9 @@
     }
 
     onMount(() => {
-        window.addEventListener('mousedown', handlePointerDown);
+        window.addEventListener('pointerdown', handleOutsidePointer);
         return () => {
-            window.removeEventListener('mousedown', handlePointerDown);
+            window.removeEventListener('pointerdown', handleOutsidePointer);
         };
     });
 </script>
@@ -184,7 +189,10 @@
             )}
             role="listbox"
             tabindex="-1"
-            onmouseleave={() => (hoveredIndex = activeIndex)}
+            onmouseleave={() => {
+                hoveredIndex = activeIndex >= 0 ? activeIndex : 0;
+                updatePill(hoveredIndex);
+            }}
         >
             <!-- Animated Glide Pill Background -->
             <div
@@ -205,7 +213,10 @@
                             'cursor-pointer transition-colors duration-75 select-none relative',
                             isSelected ? 'font-semibold text-foreground' : 'text-foreground/90 font-medium'
                         )}
-                        onmouseenter={() => (hoveredIndex = i)}
+                        onmouseenter={() => {
+                            hoveredIndex = i;
+                            updatePill(i);
+                        }}
                         onclick={() => selectOption(opt)}
                     >
                         <div class="flex items-center gap-2 min-w-0">
