@@ -1,0 +1,227 @@
+<script lang="ts">
+    import { cn } from '@/lib/utils';
+    import { ChevronsUpDown, Check } from 'lucide-svelte';
+    import { onMount } from 'svelte';
+
+    export type StatScreenId = 'inicial' | 'pedidos' | 'clientes' | 'proveedores' | 'productos';
+
+    export interface StatScreenOption {
+        id: StatScreenId;
+        title: string;
+        subtitle: string;
+    }
+
+    const DEFAULT_OPTIONS: StatScreenOption[] = [
+        { id: 'inicial', title: 'Pantalla Inicial', subtitle: 'datos, gráficos' },
+        { id: 'pedidos', title: 'Pedidos', subtitle: 'datos, gráficos' },
+        { id: 'clientes', title: 'Clientes', subtitle: 'listado, datos' },
+        { id: 'proveedores', title: 'Proveedores', subtitle: 'listado, datos' },
+        { id: 'productos', title: 'Productos', subtitle: 'listado, datos, gráficos' },
+    ];
+
+    let {
+        value = $bindable('inicial'),
+        options = DEFAULT_OPTIONS,
+        class: className = '',
+        disabled = false,
+        onchange = (id: StatScreenId) => {},
+    }: {
+        value?: StatScreenId;
+        options?: StatScreenOption[];
+        class?: string;
+        disabled?: boolean;
+        onchange?: (id: StatScreenId) => void;
+    } = $props();
+
+    let isOpen = $state(false);
+    let triggerRef = $state<HTMLButtonElement | null>(null);
+    let menuRef = $state<HTMLDivElement | null>(null);
+    let itemRefs = $state<(HTMLButtonElement | null)[]>([]);
+    let hoveredIndex = $state<number | null>(null);
+
+    const activeOption = $derived(
+        options.find((opt) => opt.id === value) ?? options[0]
+    );
+
+    const activeIndex = $derived(
+        options.findIndex((opt) => opt.id === value)
+    );
+
+    // Dynamic pill position calculation for the smooth gliding effect
+    let pillTop = $state(0);
+    let pillHeight = $state(0);
+    let pillOpacity = $state(0);
+
+    function updatePill(index: number | null) {
+        if (index === null || index < 0 || !itemRefs[index]) {
+            pillOpacity = 0;
+            return;
+        }
+
+        const el = itemRefs[index];
+        if (el) {
+            pillTop = el.offsetTop;
+            pillHeight = el.offsetHeight;
+            pillOpacity = 1;
+        }
+    }
+
+    $effect(() => {
+        if (isOpen) {
+            const targetIdx = hoveredIndex !== null ? hoveredIndex : activeIndex;
+            updatePill(targetIdx);
+        }
+    });
+
+    function toggleMenu() {
+        if (disabled) return;
+        isOpen = !isOpen;
+        if (isOpen) {
+            hoveredIndex = activeIndex;
+        }
+    }
+
+    function selectOption(opt: StatScreenOption) {
+        value = opt.id;
+        isOpen = false;
+        hoveredIndex = null;
+        onchange(opt.id);
+    }
+
+    function handleKeyDown(e: KeyboardEvent) {
+        if (disabled) return;
+
+        if (!isOpen) {
+            if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                isOpen = true;
+                hoveredIndex = activeIndex >= 0 ? activeIndex : 0;
+            }
+            return;
+        }
+
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            isOpen = false;
+            triggerRef?.focus();
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const current = hoveredIndex ?? activeIndex;
+            hoveredIndex = (current + 1) % options.length;
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const current = hoveredIndex ?? activeIndex;
+            hoveredIndex = (current - 1 + options.length) % options.length;
+        } else if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const targetIdx = hoveredIndex ?? activeIndex;
+            if (options[targetIdx]) {
+                selectOption(options[targetIdx]);
+            }
+        }
+    }
+
+    // Click outside listener
+    function handlePointerDown(e: MouseEvent) {
+        if (!isOpen) return;
+        const target = e.target as Node;
+        if (
+            triggerRef &&
+            !triggerRef.contains(target) &&
+            menuRef &&
+            !menuRef.contains(target)
+        ) {
+            isOpen = false;
+            hoveredIndex = null;
+        }
+    }
+
+    onMount(() => {
+        window.addEventListener('mousedown', handlePointerDown);
+        return () => {
+            window.removeEventListener('mousedown', handlePointerDown);
+        };
+    });
+</script>
+
+<div class={cn('relative inline-block text-left w-full sm:w-auto', className)}>
+    <!-- Trigger Button -->
+    <button
+        bind:this={triggerRef}
+        type="button"
+        {disabled}
+        onclick={toggleMenu}
+        onkeydown={handleKeyDown}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        class={cn(
+            'flex items-center justify-between gap-3 w-full sm:w-[280px] min-h-[40px] px-3.5 py-1.5',
+            'rounded-lg border border-input/80 bg-background text-sm font-medium shadow-xs',
+            'transition-colors duration-150 cursor-pointer select-none',
+            'hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
+            disabled && 'opacity-50 cursor-not-allowed pointer-events-none'
+        )}
+    >
+        <div class="flex items-center gap-2 min-w-0 flex-1 text-left">
+            <span class="font-semibold text-foreground truncate">
+                {activeOption.title}
+            </span>
+            <span class="text-xs text-muted-foreground bg-muted/80 dark:bg-muted/50 px-2 py-0.5 rounded-md shrink-0 tabular-nums">
+                {activeOption.subtitle}
+            </span>
+        </div>
+        <ChevronsUpDown class="size-4 shrink-0 text-muted-foreground" />
+    </button>
+
+    <!-- Dropdown Menu with Gliding Pill Backdrop -->
+    {#if isOpen}
+        <div
+            bind:this={menuRef}
+            class={cn(
+                'absolute right-0 z-50 mt-1.5 w-full sm:w-[320px] rounded-xl border border-border/80',
+                'bg-popover p-1.5 text-popover-foreground shadow-lg backdrop-blur-md',
+                'animate-in fade-in-0 zoom-in-95 duration-100 ease-out origin-top-right'
+            )}
+            role="listbox"
+            tabindex="-1"
+            onmouseleave={() => (hoveredIndex = activeIndex)}
+        >
+            <!-- Animated Glide Pill Background -->
+            <div
+                class="absolute left-1.5 right-1.5 rounded-lg bg-accent/80 dark:bg-accent/40 pointer-events-none transition-all duration-150 ease-out"
+                style="top: {pillTop}px; height: {pillHeight}px; opacity: {pillOpacity};"
+            ></div>
+
+            <div class="flex flex-col gap-0.5 relative z-10">
+                {#each options as opt, i (opt.id)}
+                    {@const isSelected = opt.id === value}
+                    <button
+                        bind:this={itemRefs[i]}
+                        type="button"
+                        role="option"
+                        aria-selected={isSelected}
+                        class={cn(
+                            'group flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm text-left',
+                            'cursor-pointer transition-colors duration-75 select-none relative',
+                            isSelected ? 'font-semibold text-foreground' : 'text-foreground/90 font-medium'
+                        )}
+                        onmouseenter={() => (hoveredIndex = i)}
+                        onclick={() => selectOption(opt)}
+                    >
+                        <div class="flex items-center gap-2 min-w-0">
+                            {#if isSelected}
+                                <Check class="size-4 text-primary shrink-0" />
+                            {:else}
+                                <span class="size-4 shrink-0"></span>
+                            {/if}
+                            <span class="truncate">{opt.title}</span>
+                        </div>
+                        <span class="text-xs text-muted-foreground text-right shrink-0 pl-2">
+                            {opt.subtitle}
+                        </span>
+                    </button>
+                {/each}
+            </div>
+        </div>
+    {/if}
+</div>
