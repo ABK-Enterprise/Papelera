@@ -70,6 +70,7 @@ test('smoke test: instanciacion de punta a punta del modulo de reportes y compat
         'order_number' => 'ORD-SMOKE-01',
         'customer_name' => 'Cliente Smoke',
         'status' => 'entregado',
+        'payment_status' => 'cobrado',
         'subtotal_amount' => 10500.00,
         'total_amount' => 10500.00,
         'created_at' => now(),
@@ -116,26 +117,69 @@ test('smoke test: instanciacion de punta a punta del modulo de reportes y compat
         'created_at' => now(),
     ]);
 
-    // 1. Petición GET al módulo
+    // 1. Petición GET al módulo (Pantalla Inicial)
     $response = $this->actingAs($adminUser)->get(route('tenant.reports.index'));
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
         ->component('tenant/reports/Index')
-        ->where('metrics.sales.total', 10500)
-        ->where('metrics.revenues.total', 10500)
-        ->where('metrics.expenses.total', 4500)
-        ->where('metrics.margin.operating_margin', 6000)
-        ->has('top_products', 2)
-        ->where('top_products.0.name', 'Cinta de Embalar 48mm')
-        ->where('top_products.0.total_subtotal', 8000)
-        ->where('top_products.1.name', 'Bolsa Kraft 20x30')
-        ->where('top_products.1.total_subtotal', 2500)
-        ->has('daily_trend')
-        ->has('monthly_summary', 12)
+        ->where('view', 'inicial')
+        ->where('overview_data.kpis.total_revenues', 10500)
+        ->where('overview_data.kpis.total_expenses', 4500)
+        ->where('overview_data.kpis.operating_margin', 6000)
+        ->has('overview_data.top_products', 2)
+        ->where('overview_data.top_products.0.name', 'Cinta de Embalar 48mm')
+        ->where('overview_data.top_products.0.total_subtotal', 8000)
+        ->where('overview_data.top_products.1.name', 'Bolsa Kraft 20x30')
+        ->where('overview_data.top_products.1.total_subtotal', 2500)
+        ->has('overview_data.top_buyers', 1)
+        ->where('overview_data.top_buyers.0.name', $customer->name)
+        ->has('overview_data.sales_trend')
+        ->has('overview_data.monthly_comparison', 12)
     );
 
-    // 2. Exportación PDF
+    // 2. Petición GET con vista pedidos
+    $responseOrders = $this->actingAs($adminUser)->get(route('tenant.reports.index', ['view' => 'pedidos']));
+    $responseOrders->assertOk();
+    $responseOrders->assertInertia(fn ($page) => $page
+        ->where('view', 'pedidos')
+        ->where('orders_data.kpis.total_orders', 1)
+        ->where('orders_data.kpis.delivered_orders', 1)
+        ->where('orders_data.kpis.collected_orders', 1)
+        ->has('orders_data.orders_trend')
+    );
+
+    // 3. Petición GET con vista clientes
+    $responseCustomers = $this->actingAs($adminUser)->get(route('tenant.reports.index', ['view' => 'clientes']));
+    $responseCustomers->assertOk();
+    $responseCustomers->assertInertia(fn ($page) => $page
+        ->where('view', 'clientes')
+        ->where('customers_data.kpis.total_customers', 1)
+        ->has('customers_data.top_buyers')
+        ->has('customers_data.defaulters')
+    );
+
+    // 4. Petición GET con vista proveedores
+    $responseSuppliers = $this->actingAs($adminUser)->get(route('tenant.reports.index', ['view' => 'proveedores']));
+    $responseSuppliers->assertOk();
+    $responseSuppliers->assertInertia(fn ($page) => $page
+        ->where('view', 'proveedores')
+        ->where('suppliers_data.kpis.total_suppliers', 1)
+        ->where('suppliers_data.kpis.total_expenses', 4500)
+        ->has('suppliers_data.suppliers.data', 1)
+    );
+
+    // 5. Petición GET con vista productos
+    $responseProducts = $this->actingAs($adminUser)->get(route('tenant.reports.index', ['view' => 'productos']));
+    $responseProducts->assertOk();
+    $responseProducts->assertInertia(fn ($page) => $page
+        ->where('view', 'productos')
+        ->where('products_data.kpis.catalog_products_count', 2)
+        ->has('products_data.products_sold_trend')
+        ->has('products_data.top_products', 2)
+    );
+
+    // 6. Exportación PDF
     $pdfResponse = $this->actingAs($adminUser)->get(route('tenant.reports.export-pdf'));
     $pdfResponse->assertOk();
     Pdf::assertRespondedWithPdf(function ($pdf) {

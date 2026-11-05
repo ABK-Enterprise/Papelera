@@ -24,6 +24,12 @@ class ReportController extends Controller
             abort(403, 'Comercio no válido.');
         }
 
+        $view = $request->input('view', 'inicial');
+        $validViews = ['inicial', 'pedidos', 'clientes', 'proveedores', 'productos'];
+        if (! in_array($view, $validViews, true)) {
+            $view = 'inicial';
+        }
+
         $dateFromInput = $request->input('date_from');
         $dateToInput = $request->input('date_to');
         $warehouseId = $request->filled('warehouse_id') ? (int) $request->input('warehouse_id') : null;
@@ -36,25 +42,53 @@ class ReportController extends Controller
         $canViewMargins = $request->user()->can('reportes.ver_costos_margenes');
         $canExport = $request->user()->can('reportes.exportar');
 
-        // Retrieve analytics datasets
-        $metrics = $reportService->getFilteredMetrics($tenant->id, $dateFrom, $dateTo, $warehouseId);
-        $dailyTrend = $reportService->getDailySalesTrend($tenant->id, $dateFrom, $dateTo, $warehouseId);
-        $topProducts = $reportService->getTopProducts($tenant->id, $dateFrom, $dateTo, 10, $warehouseId);
-        $monthlySummary = $reportService->getMonthlySummary($tenant->id, $year);
+        // Always retrieve overview data for overview tab & backward compatibility
+        $overviewData = $reportService->getOverviewData($tenant->id, $dateFrom, $dateTo, $warehouseId, $year);
+        $ordersData = null;
+        $customersData = null;
+        $suppliersData = null;
+        $productsData = null;
+
+        if ($view === 'pedidos') {
+            $ordersData = $reportService->getOrdersData($tenant->id, $dateFrom, $dateTo, $warehouseId);
+        } elseif ($view === 'clientes') {
+            $buyersSort = (string) $request->input('buyers_sort', 'desc');
+            $defaultersSort = (string) $request->input('defaulters_sort', 'desc');
+            $defaultersPage = (int) $request->input('defaulters_page', 1);
+            $customersData = $reportService->getCustomersData(
+                $tenant->id, $dateFrom, $dateTo, $warehouseId, $buyersSort, $defaultersSort, $defaultersPage
+            );
+        } elseif ($view === 'proveedores') {
+            $suppliersSort = (string) $request->input('suppliers_sort', 'desc');
+            $suppliersPage = (int) $request->input('suppliers_page', 1);
+            $suppliersData = $reportService->getSuppliersData(
+                $tenant->id, $dateFrom, $dateTo, $warehouseId, $suppliersSort, $suppliersPage
+            );
+        } elseif ($view === 'productos') {
+            $productsData = $reportService->getProductsData($tenant->id, $dateFrom, $dateTo, $warehouseId);
+        }
 
         // Mask sensitive cost & margin metrics if unauthorized
         if (! $canViewMargins) {
-            $metrics['expenses']['total'] = null;
-            $metrics['expenses']['purchases_count'] = null;
-            $metrics['margin']['operating_margin'] = null;
-            $metrics['margin']['margin_percentage'] = null;
+            $overviewData['kpis']['total_expenses'] = null;
+            $overviewData['kpis']['operating_margin'] = null;
 
-            $monthlySummary = array_map(function ($row) {
+            $overviewData['monthly_comparison'] = array_map(function ($row) {
                 $row['expenses'] = null;
                 $row['operating_margin'] = null;
 
                 return $row;
-            }, $monthlySummary);
+            }, $overviewData['monthly_comparison']);
+
+            if ($suppliersData !== null) {
+                $suppliersData['kpis']['expenses_current_month'] = null;
+                $suppliersData['kpis']['total_expenses'] = null;
+                $suppliersData['suppliers']['data'] = array_map(function ($row) {
+                    $row['total_spent'] = null;
+
+                    return $row;
+                }, $suppliersData['suppliers']['data']);
+            }
         }
 
         $warehouses = Warehouse::where('tenant_id', $tenant->id)
@@ -63,17 +97,55 @@ class ReportController extends Controller
             ->orderBy('name')
             ->get();
 
+        // Legacy metrics adapter for smooth migration & existing tests
+        $legacyMetrics = [
+            'period' => [
+                'from' => $dateFrom->toDateString(),
+                'to' => $dateTo->toDateString(),
+            ],
+            'sales' => [
+                'total' => $overviewData['kpis']['total_revenues'],
+                'orders_count' => count($overviewData['top_buyers']),
+                'average_ticket' => 0.0,
+            ],
+            'revenues' => [
+                'total' => $overviewData['kpis']['total_revenues'],
+                'by_method' => [],
+            ],
+            'expenses' => [
+                'total' => $overviewData['kpis']['total_expenses'],
+                'purchases_count' => 0,
+            ],
+            'margin' => [
+                'operating_margin' => $overviewData['kpis']['operating_margin'],
+                'margin_percentage' => 0.0,
+            ],
+        ];
+
         return Inertia::render('tenant/reports/Index', [
-            'metrics' => $metrics,
-            'daily_trend' => $dailyTrend,
-            'top_products' => $topProducts,
-            'monthly_summary' => $monthlySummary,
+            'view' => $view,
+            'overview_data' => $overviewData,
+            'orders_data' => $ordersData,
+            'customers_data' => $customersData,
+            'suppliers_data' => $suppliersData,
+            'products_data' => $productsData,
+            // Legacy props
+            'metrics' => $legacyMetrics,
+            'daily_trend' => $overviewData['sales_trend'],
+            'top_products' => $overviewData['top_products'],
+            'monthly_summary' => $overviewData['monthly_comparison'],
             'warehouses' => $warehouses,
             'filters' => [
+                'view' => $view,
                 'date_from' => $dateFrom->toDateString(),
                 'date_to' => $dateTo->toDateString(),
                 'warehouse_id' => $warehouseId,
                 'year' => $year,
+                'buyers_sort' => $request->input('buyers_sort', 'desc'),
+                'defaulters_sort' => $request->input('defaulters_sort', 'desc'),
+                'defaulters_page' => (int) $request->input('defaulters_page', 1),
+                'suppliers_sort' => $request->input('suppliers_sort', 'desc'),
+                'suppliers_page' => (int) $request->input('suppliers_page', 1),
             ],
             'permissions' => [
                 'can_view_margins' => $canViewMargins,
