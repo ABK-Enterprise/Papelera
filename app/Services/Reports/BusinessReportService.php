@@ -71,31 +71,44 @@ class BusinessReportService
      *     operating_margin: float
      * }>
      */
-    public function getMonthlySummary(int $tenantId, ?int $year = null): array
+    public function getMonthlySummary(int $tenantId, ?int $year = null, ?int $warehouseId = null): array
     {
         $year = $year ?? (int) now()->year;
-        $startDate = sprintf('%04d-01-01', $year);
-        $endDate = sprintf('%04d-12-31', $year);
+        $startDate = sprintf('%04d-01-01 00:00:00', $year);
+        $endDate = sprintf('%04d-12-31 23:59:59', $year);
+        $dateExpr = $this->getDateExpression('created_at', 'monthly');
 
-        $salesByMonth = DB::table('view_tenant_monthly_sales')
-            ->where('tenant_id', $tenantId)
-            ->whereBetween('period_month', [$startDate, $endDate])
-            ->get()
-            ->keyBy(fn ($item) => substr((string) $item->period_month, 0, 7));
+        // 1. Ingresos / Ventas cobradas o facturadas (criterio homogéneo unificado con KPI)
+        $salesQuery = CustomerOrder::where('tenant_id', $tenantId)
+            ->where('status', '!=', 'cancelado')
+            ->where(function ($q) {
+                $q->where('payment_status', 'cobrado')
+                    ->orWhere('fiscal_status', 'facturado');
+            })
+            ->whereBetween('created_at', [$startDate, $endDate]);
 
-        $revenuesByMonth = DB::table('view_tenant_monthly_revenues')
-            ->where('tenant_id', $tenantId)
-            ->whereBetween('period_month', [$startDate, $endDate])
-            ->selectRaw('period_month, SUM(total_collected) as total_revenues')
-            ->groupBy('period_month')
-            ->get()
-            ->keyBy(fn ($item) => substr((string) $item->period_month, 0, 7));
+        if ($warehouseId !== null) {
+            $salesQuery->where('warehouse_id', $warehouseId);
+        }
 
-        $expensesByMonth = DB::table('view_tenant_monthly_expenses')
-            ->where('tenant_id', $tenantId)
-            ->whereBetween('period_month', [$startDate, $endDate])
+        $salesByMonth = $salesQuery->selectRaw("{$dateExpr} as period_key, COUNT(id) as total_orders, COALESCE(SUM(total_amount), 0) as total_sales, CASE WHEN COUNT(id) > 0 THEN ROUND(COALESCE(SUM(total_amount), 0) / COUNT(id), 2) ELSE 0 END as average_ticket")
+            ->groupBy(DB::raw($dateExpr))
             ->get()
-            ->keyBy(fn ($item) => substr((string) $item->period_month, 0, 7));
+            ->keyBy('period_key');
+
+        // 2. Gastos en compras (órdenes de compra no canceladas - criterio unificado con KPI)
+        $expensesQuery = SupplierOrder::where('tenant_id', $tenantId)
+            ->where('status', '!=', 'cancelado')
+            ->whereBetween('created_at', [$startDate, $endDate]);
+
+        if ($warehouseId !== null) {
+            $expensesQuery->where('warehouse_id', $warehouseId);
+        }
+
+        $expensesByMonth = $expensesQuery->selectRaw("{$dateExpr} as period_key, COUNT(id) as total_purchases, COALESCE(SUM(total_cost), 0) as total_spent")
+            ->groupBy(DB::raw($dateExpr))
+            ->get()
+            ->keyBy('period_key');
 
         $monthNames = [
             1 => 'Ene', 2 => 'Feb', 3 => 'Mar', 4 => 'Abr',
@@ -107,13 +120,11 @@ class BusinessReportService
         for ($m = 1; $m <= 12; $m++) {
             $monthKey = sprintf('%04d-%02d', $year, $m);
             $salesRow = $salesByMonth->get($monthKey);
-            $revenueRow = $revenuesByMonth->get($monthKey);
             $expenseRow = $expensesByMonth->get($monthKey);
 
             $sales = $salesRow ? (float) $salesRow->total_sales : 0.0;
             $ordersCount = $salesRow ? (int) $salesRow->total_orders : 0;
             $averageTicket = $salesRow ? (float) $salesRow->average_ticket : 0.0;
-            $revenues = $revenueRow ? (float) $revenueRow->total_revenues : 0.0;
             $expenses = $expenseRow ? (float) $expenseRow->total_spent : 0.0;
             $margin = round($sales - $expenses, 2);
 
@@ -123,7 +134,7 @@ class BusinessReportService
                 'sales' => round($sales, 2),
                 'orders_count' => $ordersCount,
                 'average_ticket' => round($averageTicket, 2),
-                'revenues' => round($revenues, 2),
+                'revenues' => round($sales, 2),
                 'expenses' => round($expenses, 2),
                 'operating_margin' => $margin,
             ];
@@ -171,7 +182,7 @@ class BusinessReportService
         $salesTrend = $this->getSalesTrendSeries($tenantId, $from, $to, $warehouseId);
 
         // 5. Comparativa mensual (+20px)
-        $monthlyComparison = $this->getMonthlySummary($tenantId, $year ?? (int) $from->year);
+        $monthlyComparison = $this->getMonthlySummary($tenantId, $year ?? (int) $from->year, $warehouseId);
 
         // 6. Detalle de cobranzas registradas
         $receiptsDetail = Receipt::where('tenant_id', $tenantId)

@@ -104,7 +104,7 @@
         labels: overviewData.monthly_comparison.map((m) => m.label.split(' ')[0]),
         datasets: [
             {
-                label: 'Ventas',
+                label: 'Ingresos',
                 data: overviewData.monthly_comparison.map((m) => m.sales),
                 backgroundColor: 'rgba(37, 99, 235, 0.75)',
                 borderRadius: 3,
