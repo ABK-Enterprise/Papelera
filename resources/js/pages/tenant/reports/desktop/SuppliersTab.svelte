@@ -134,10 +134,10 @@
                     value={suppliersSort}
                     onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
                     aria-label="Ordenar proveedores"
-                    class="w-full min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer appearance-none pr-8 truncate font-medium"
+                    class="w-full min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-background dark:bg-card text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer appearance-none pr-8 truncate font-medium"
                 >
-                    <option value="desc">Más comprado</option>
-                    <option value="asc">Menos comprado</option>
+                    <option value="desc" class="bg-card text-foreground">Más comprado</option>
+                    <option value="asc" class="bg-card text-foreground">Menos comprado</option>
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-muted-foreground">
                     <ChevronDown class="size-4 opacity-50" />

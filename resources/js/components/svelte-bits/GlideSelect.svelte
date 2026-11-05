@@ -159,7 +159,7 @@
 </script>
 
 <div class={cn('relative inline-block text-left w-full sm:w-auto', className)}>
-    <!-- Trigger Button (+10px ampliado en Desktop: sm:w-[290px]) -->
+    <!-- Trigger Button (mismo ancho simétrico que el select de depósitos: sm:w-[350px]) -->
     <button
         bind:this={triggerRef}
         type="button"
@@ -169,10 +169,10 @@
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         class={cn(
-            'flex items-center justify-between gap-3 w-full sm:w-[290px] min-h-[40px] px-3.5 py-1.5',
-            'rounded-lg border border-input/80 bg-background text-sm font-medium shadow-xs',
+            'flex items-center justify-between gap-3 w-full sm:w-[350px] min-h-[40px] px-3.5 py-1.5',
+            'rounded-lg border border-input/80 bg-background dark:bg-card text-sm font-medium shadow-xs',
             'transition-colors duration-150 cursor-pointer select-none',
-            'hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
+            'hover:bg-muted/50 dark:hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
             disabled && 'opacity-50 cursor-not-allowed pointer-events-none'
         )}
     >
