@@ -5,23 +5,29 @@
 		return { h: parseFloat(match[1]), s: parseFloat(match[2]), l: parseFloat(match[3]) };
 	}
 
-	export function buildBoxShadow(glowColor: string, intensity: number): string {
+	export function buildBoxShadow(glowColor: string, intensity: number, perimeterBand = 20): string {
 		const { h, s, l } = parseHSL(glowColor);
 		const base = `${h}deg ${s}% ${l}%`;
-		// Capas confinadas estrictamente al borde (máximo 6px a 8px hacia adentro)
+		const b1 = Math.max(1, Math.round(perimeterBand * 0.1));
+		const b2 = Math.max(2, Math.round(perimeterBand * 0.25));
+		const b3 = Math.max(4, Math.round(perimeterBand * 0.5));
+		const b4 = Math.max(6, Math.round(perimeterBand * 0.75));
+		const b5 = perimeterBand; // Límite físico absoluto hacia el interior
+
 		const layers: [number, number, number, number, number, boolean][] = [
-			// Capas Inset (hacia adentro): Micro-resplandor de 1px a 8px únicamente
+			// Capas Inset (hacia adentro): tope físico estricto en perimeterBand (20px)
 			[0, 0, 0, 1, 100, true],
-			[0, 0, 1, 0, 70, true],
-			[0, 0, 3, 0, 45, true],
-			[0, 0, 6, 0, 25, true],
-			[0, 0, 8, 0, 10, true],
-			// Capas Outset (hacia afuera del borde): Destello suave y contenido
+			[0, 0, b1, 0, 80, true],
+			[0, 0, b2, 0, 55, true],
+			[0, 0, b3, 0, 35, true],
+			[0, 0, b4, 0, 20, true],
+			[0, 0, b5, 1, 8, true],
+			// Capas Outset (hacia afuera del borde):
 			[0, 0, 1, 0, 70, false],
 			[0, 0, 3, 0, 50, false],
 			[0, 0, 6, 0, 35, false],
-			[0, 0, 12, 1, 20, false],
-			[0, 0, 18, 1, 10, false]
+			[0, 0, 14, 1, 20, false],
+			[0, 0, 22, 1, 10, false]
 		];
 		return layers
 			.map(([x, y, blur, spread, alpha, inset]) => {
@@ -55,7 +61,7 @@
 	type Props = {
 		children?: Snippet;
 		class?: string;
-		edgeSensitivity?: number;
+		edgeSensitivity?: number; // Distancia de activación en px desde el borde
 		glowColor?: string;
 		backgroundColor?: string;
 		borderRadius?: number;
@@ -65,21 +71,25 @@
 		animated?: boolean;
 		colors?: string[];
 		fillOpacity?: number;
+		perimeterBand?: number; // Límite de penetración hacia adentro en px (default 20px)
+		baseOpacity?: number; // Opacidad base del glow cuando el mouse está en el centro
 	};
 
 	let {
 		children,
 		class: className = '',
-		edgeSensitivity = 30,
+		edgeSensitivity = 80,
 		glowColor,
 		backgroundColor,
 		borderRadius = 28,
-		glowRadius = 20,
+		glowRadius = 24,
 		glowIntensity = 1.0,
-		coneSpread = 15,
+		coneSpread = 18,
 		animated = false,
 		colors,
-		fillOpacity = 0.0
+		fillOpacity = 0.0,
+		perimeterBand = 20,
+		baseOpacity = 0.35
 	}: Props = $props();
 
 	const theme = themeState();
@@ -128,14 +138,17 @@
 		return [width / 2, height / 2];
 	}
 
-	function getEdgeProximity(el: HTMLElement, x: number, y: number) {
-		const [cx, cy] = getCenterOf(el);
-		const dx = x - cx;
-		const dy = y - cy;
-		let kx = Infinity, ky = Infinity;
-		if (dx !== 0) kx = cx / Math.abs(dx);
-		if (dy !== 0) ky = cy / Math.abs(dy);
-		return Math.min(Math.max(1 / Math.min(kx, ky), 0), 1);
+	// Distancia real euclídea/lineal al borde más cercano en píxeles
+	function getEdgeProximity(el: HTMLElement, x: number, y: number, activationDistance = 80) {
+		const { width, height } = el.getBoundingClientRect();
+		const distLeft = x;
+		const distRight = width - x;
+		const distTop = y;
+		const distBottom = height - y;
+		const minDistance = Math.min(distLeft, distRight, distTop, distBottom);
+
+		if (minDistance >= activationDistance) return 0;
+		return Math.max(0, Math.min(1, 1 - (minDistance / activationDistance)));
 	}
 
 	function getCursorAngle(el: HTMLElement, x: number, y: number) {
@@ -154,7 +167,7 @@
 		const rect = cardRef.getBoundingClientRect();
 		const x = e.clientX - rect.left;
 		const y = e.clientY - rect.top;
-		edgeProximity = getEdgeProximity(cardRef, x, y);
+		edgeProximity = getEdgeProximity(cardRef, x, y, edgeSensitivity);
 		cursorAngle = getCursorAngle(cardRef, x, y);
 	}
 
@@ -197,14 +210,19 @@
 		});
 	});
 
-	const colorSensitivity = $derived(edgeSensitivity + 20);
 	const isVisible = $derived(isHovered || sweepActive);
+	
+	// Modulación de intensidad:
+	// - Mouse en el centro (edgeProximity = 0): opacidad base visible (baseOpacity)
+	// - Mouse hacia los bordes: se intensifica progresivamente hasta 1.0
+	// - Mouse hacia adentro: revierte suavemente a baseOpacity
 	const borderOpacity = $derived(
-		isVisible ? Math.max(0, (edgeProximity * 100 - colorSensitivity) / (100 - colorSensitivity)) : 0
+		isVisible ? baseOpacity + (1 - baseOpacity) * edgeProximity : 0
 	);
 	const glowOpacity = $derived(
-		isVisible ? Math.max(0, (edgeProximity * 100 - edgeSensitivity) / (100 - edgeSensitivity)) : 0
+		isVisible ? baseOpacity * 0.8 + (1 - baseOpacity * 0.8) * edgeProximity : 0
 	);
+
 	const meshGradients = $derived(buildMeshGradients(resolvedColors));
 	const borderBg = $derived(meshGradients.map((g) => `${g} border-box`));
 	const fillBg = $derived(meshGradients.map((g) => `${g} padding-box`));
@@ -246,10 +264,12 @@
 	role="presentation"
 	style="background:{resolvedBgColor}; border-radius:{borderRadius}px; transform:translate3d(0,0,0.01px); box-shadow: rgba(0,0,0,0.08) 0 1px 2px, rgba(0,0,0,0.08) 0 2px 4px, rgba(0,0,0,0.08) 0 4px 8px, rgba(0,0,0,0.08) 0 8px 16px, rgba(0,0,0,0.08) 0 16px 32px;"
 >
+	<!-- Borde perimetral animado: recorte de padding-box para que NADA se pinte en el interior -->
 	<div
-		class="absolute inset-0 -z-[1]"
-		style="border-radius:inherit; border:1px solid transparent; background:{borderBgFull}; opacity:{borderOpacity}; -webkit-mask-image:{borderMask}; mask-image:{borderMask}; transition:{transitionStr};"
+		class="absolute inset-0 -z-[1] pointer-events-none"
+		style="border-radius:inherit; border:1.5px solid transparent; background:{borderBgFull}; opacity:{borderOpacity}; -webkit-mask: {borderMask}, linear-gradient(#fff 0 0); -webkit-mask-clip: border-box, padding-box; -webkit-mask-composite: destination-out; mask: {borderMask}, linear-gradient(#fff 0 0); mask-clip: border-box, padding-box; mask-composite: subtract; transition:{transitionStr};"
 	></div>
+
 	{#if fillOpacity > 0}
 		<div
 			class="absolute inset-0 -z-[1]"
@@ -257,13 +277,14 @@
 		></div>
 	{/if}
 
+	<!-- Resplandor luminoso: confinado estrictamente entre el marco exterior y máximo perimeterBand (20px) hacia el interior -->
 	<span
 		class="absolute pointer-events-none z-[1]"
 		style="border-radius:inherit; inset:{-glowRadius}px; -webkit-mask-image:{outerMask}; mask-image:{outerMask}; opacity:{glowOpacity}; mix-blend-mode:{isDark ? 'plus-lighter' : 'normal'}; transition:{transitionStr};"
 	>
 		<span
 			class="absolute"
-			style="border-radius:inherit; inset:{glowRadius}px; box-shadow:{buildBoxShadow(resolvedGlowColor, glowIntensity)};"
+			style="border-radius:inherit; inset:{glowRadius}px; box-shadow:{buildBoxShadow(resolvedGlowColor, glowIntensity, perimeterBand)};"
 		></span>
 	</span>
 

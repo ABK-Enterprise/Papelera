@@ -29,10 +29,12 @@
             <BorderGlow
                 class="w-full p-8 shadow-xl backdrop-blur-2xl transition-all sm:p-10"
                 borderRadius={24}
-                edgeSensitivity={30}
-                glowRadius={20}
-                glowIntensity={0.9}
-                coneSpread={15}
+                edgeSensitivity={80}
+                glowRadius={24}
+                glowIntensity={1.0}
+                coneSpread={18}
+                perimeterBand={20}
+                baseOpacity={0.35}
                 fillOpacity={0.0}
             >
                 <div class="mb-6 flex flex-col space-y-2 text-center">
