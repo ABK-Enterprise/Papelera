@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import {
         Dialog,
         DialogContent,
@@ -60,19 +60,24 @@
 
     let editingItem = $state<OrderItemData | null>(null);
     let isEditItemPriceOpen = $state(false);
+    let activeOrder = $state<OrderData | null>(order);
+
+    $effect(() => {
+        activeOrder = order;
+    });
 
     const isOrderImmutable = $derived.by(() => {
-        if (!order) return true;
+        if (!activeOrder) return true;
         return (
-            order.status === 'entregado' ||
-            order.status === 'cancelado' ||
-            order.fiscal_status === 'facturado'
+            activeOrder.status === 'entregado' ||
+            activeOrder.status === 'cancelado' ||
+            activeOrder.fiscal_status === 'facturado'
         );
     });
 
     const orderSubtotal = $derived.by(() => {
-        if (!order?.items || order.items.length === 0) return 0;
-        return order.items.reduce(
+        if (!activeOrder?.items || activeOrder.items.length === 0) return 0;
+        return activeOrder.items.reduce(
             (sum, item) =>
                 sum +
                 (Number(item.subtotal) ||
@@ -100,12 +105,12 @@
     }
 
     async function handleSaveItemPrice(newPrice: number, mode: 'order_only' | 'catalog') {
-        if (!order || !editingItem) return;
+        if (!activeOrder || !editingItem) return;
 
         const csrfToken =
             (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '';
 
-        const res = await fetch(`/tenant/pedidos/${order.id}/items/${editingItem.id}/precio`, {
+        const res = await fetch(`/tenant/pedidos/${activeOrder.id}/items/${editingItem.id}/precio`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -133,6 +138,7 @@
         );
 
         if (data.order) {
+            activeOrder = data.order;
             onPriceUpdated?.(data.order);
         }
 
@@ -161,14 +167,14 @@
                     </div>
                 </div>
 
-                {#if order}
+                {#if activeOrder}
                     <div class="flex items-center gap-2 shrink-0">
                         <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-primary/10 text-primary tabular-nums">
-                            {order.order_number}
+                            {activeOrder.order_number}
                         </span>
                         <span class="text-xs font-medium text-muted-foreground flex items-center gap-1 truncate max-w-[180px]">
                             <User class="size-3 text-muted-foreground shrink-0" />
-                            {order.customer_name}
+                            {activeOrder.customer_name}
                         </span>
                     </div>
                 {/if}
@@ -185,7 +191,7 @@
                 </div>
             {/if}
 
-            {#if !order?.items || order.items.length === 0}
+            {#if !activeOrder?.items || activeOrder.items.length === 0}
                 <div class="py-10 text-center rounded-xl border border-dashed border-border/80 bg-muted/20 p-6">
                     <Package class="size-8 mx-auto text-muted-foreground/60 mb-2" />
                     <p class="text-xs font-semibold text-foreground">
@@ -194,7 +200,7 @@
                 </div>
             {:else}
                 <div class="space-y-2.5">
-                    {#each order.items as item (item.id)}
+                    {#each activeOrder.items as item (item.id)}
                         {@const productName = item.product_name || item.product?.name || 'Producto'}
                         {@const productSku = item.sku || item.product?.sku}
 

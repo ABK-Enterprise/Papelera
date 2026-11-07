@@ -162,8 +162,25 @@ class CustomerOrderItemsController extends Controller
                     ? (float) $product->bulk_discount_price
                     : $basePrice;
 
-                // Si se proporcionó un precio unitario explícito (ej. modificado vía diálogo de lápiz), se respeta
-                if (! empty($item['unit_price']) && (float) $item['unit_price'] > 0) {
+                $isExplicitPriceChange = ! empty($item['is_price_modified']);
+
+                // Buscar si este producto ya existía previamente en el pedido (en esta u otra presentación)
+                $existingItem = CustomerOrderItem::where('customer_order_id', $lockedOrder->id)
+                    ->where('product_id', $productId)
+                    ->where('packaging_type', $packagingType)
+                    ->first();
+
+                $anyExistingItem = $existingItem ?: CustomerOrderItem::where('customer_order_id', $lockedOrder->id)
+                    ->where('product_id', $productId)
+                    ->first();
+
+                // Si se proporcionó un precio unitario explícito o si el ítem ya existía con precio pactado en el pedido
+                if ($isExplicitPriceChange && ! empty($item['unit_price']) && (float) $item['unit_price'] > 0) {
+                    $unitPrice = (float) $item['unit_price'];
+                } elseif ($anyExistingItem && (float) $anyExistingItem->unit_price > 0) {
+                    // Preservar prioritariamente el precio acordado en el pedido para no resetear al catálogo
+                    $unitPrice = (float) $anyExistingItem->unit_price;
+                } elseif (! empty($item['unit_price']) && (float) $item['unit_price'] > 0) {
                     $unitPrice = (float) $item['unit_price'];
                 } else {
                     $unitPrice = $isBulk ? $bulkPrice : $basePrice;
@@ -177,34 +194,31 @@ class CustomerOrderItemsController extends Controller
                     ? (bool) $item['apply_customer_discount']
                     : (! $isBulk && $customerDiscountPct > 0);
 
-                // 1. Actualizar retroactivamente el precio de otras presentaciones existentes de este producto si difiere
-                $otherExistingItems = CustomerOrderItem::where('customer_order_id', $lockedOrder->id)
-                    ->where('product_id', $productId)
-                    ->where('packaging_type', '!=', $packagingType)
-                    ->get();
+                // 1. Actualizar retroactivamente el precio de otras presentaciones existentes SOLO si hubo modificación explícita de precio
+                if ($isExplicitPriceChange) {
+                    $otherExistingItems = CustomerOrderItem::where('customer_order_id', $lockedOrder->id)
+                        ->where('product_id', $productId)
+                        ->where('packaging_type', '!=', $packagingType)
+                        ->get();
 
-                foreach ($otherExistingItems as $otherItem) {
-                    if (abs((float) $otherItem->unit_price - $unitPrice) > 0.001) {
-                        $otherItem->unit_price = $unitPrice;
-                        $otherBaseSubtotal = round((float) $otherItem->quantity_base * $unitPrice, 2);
-                        $otherItemDiscountAmount = round($otherBaseSubtotal * ((float) ($otherItem->discount_percentage ?? 0) / 100), 2);
-                        $otherNetSubtotal = round($otherBaseSubtotal - $otherItemDiscountAmount, 2);
-                        $otherCustDiscount = 0.00;
-                        if ($otherItem->apply_customer_discount && $customerDiscountPct > 0) {
-                            $otherCustDiscount = round($otherNetSubtotal * ($customerDiscountPct / 100), 2);
+                    foreach ($otherExistingItems as $otherItem) {
+                        if (abs((float) $otherItem->unit_price - $unitPrice) > 0.001) {
+                            $otherItem->unit_price = $unitPrice;
+                            $otherBaseSubtotal = round((float) $otherItem->quantity_base * $unitPrice, 2);
+                            $otherItemDiscountAmount = round($otherBaseSubtotal * ((float) ($otherItem->discount_percentage ?? 0) / 100), 2);
+                            $otherNetSubtotal = round($otherBaseSubtotal - $otherItemDiscountAmount, 2);
+                            $otherCustDiscount = 0.00;
+                            if ($otherItem->apply_customer_discount && $customerDiscountPct > 0) {
+                                $otherCustDiscount = round($otherNetSubtotal * ($customerDiscountPct / 100), 2);
+                            }
+                            $otherItem->discount_amount = round($otherItemDiscountAmount + $otherCustDiscount, 2);
+                            $otherItem->subtotal = round($otherNetSubtotal - $otherCustDiscount, 2);
+                            $otherItem->save();
                         }
-                        $otherItem->discount_amount = round($otherItemDiscountAmount + $otherCustDiscount, 2);
-                        $otherItem->subtotal = round($otherNetSubtotal - $otherCustDiscount, 2);
-                        $otherItem->save();
                     }
                 }
 
                 // 2. Verificar si el producto ya existe en el pedido con la misma presentación para sumar cantidades
-                $existingItem = CustomerOrderItem::where('customer_order_id', $lockedOrder->id)
-                    ->where('product_id', $productId)
-                    ->where('packaging_type', $packagingType)
-                    ->first();
-
                 if ($existingItem) {
                     // Sumar cantidades existentes + nuevas
                     $existingItem->quantity = round((float) $existingItem->quantity + $quantity, 3);

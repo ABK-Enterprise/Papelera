@@ -135,6 +135,12 @@
         const existingInOrder = order?.items?.find((oi: any) => oi.product_id === prod.id);
         const existingOrderQty = existingInOrder ? Number(existingInOrder.quantity) || 0 : 0;
 
+        // Si el producto ya existía en este pedido con un precio pactado, respetamos ese precio pactado
+        const agreedPrice = existingInOrder && Number(existingInOrder.unit_price) > 0
+            ? Number(existingInOrder.unit_price)
+            : regularPrice;
+        const hasCustomPrice = existingInOrder && Math.abs(agreedPrice - regularPrice) > 0.001;
+
         if (existingIndex !== -1) {
             items[existingIndex].quantity += 1;
         } else {
@@ -149,12 +155,12 @@
                     stock: prod.stock,
                     packaging_type: defaultPackaging,
                     quantity: 1,
-                    unit_price: regularPrice,
+                    unit_price: agreedPrice,
                     regular_price: regularPrice,
                     units_per_package: prod.units_per_package || prod.package_size || 1,
                     is_already_in_order: !!existingInOrder,
                     existing_order_quantity: existingOrderQty,
-                    is_price_modified: false,
+                    is_price_modified: hasCustomPrice,
                 },
                 ...items,
             ];
@@ -287,6 +293,7 @@
                 quantity: it.quantity,
                 unit_price: it.unit_price,
                 units_per_package: it.units_per_package,
+                is_price_modified: it.is_price_modified ?? false,
             })),
         };
 
