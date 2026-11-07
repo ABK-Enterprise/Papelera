@@ -9,9 +9,16 @@
     } from '@/components/ui/dialog';
     import { Button } from '@/components/ui/button';
     import { Label } from '@/components/ui/label';
+    import {
+        Tooltip,
+        TooltipContent,
+        TooltipProvider,
+        TooltipTrigger,
+    } from '@/components/ui/tooltip';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import { router } from '@inertiajs/svelte';
     import { toast } from 'svelte-sonner';
+    import Icon from '@iconify/svelte';
     import AlertTriangle from 'lucide-svelte/icons/alert-triangle';
     import Check from 'lucide-svelte/icons/check';
     import Minus from 'lucide-svelte/icons/minus';
@@ -60,6 +67,8 @@
         quantity: number;
         unit_price: number;
         regular_price: number;
+        catalog_price?: number;
+        existing_order_unit_price?: number;
         units_per_package: number;
         is_already_in_order?: boolean;
         existing_order_quantity?: number;
@@ -157,6 +166,8 @@
                     quantity: 1,
                     unit_price: agreedPrice,
                     regular_price: regularPrice,
+                    catalog_price: regularPrice,
+                    existing_order_unit_price: existingInOrder ? Number(existingInOrder.unit_price) || 0 : 0,
                     units_per_package: prod.units_per_package || prod.package_size || 1,
                     is_already_in_order: !!existingInOrder,
                     existing_order_quantity: existingOrderQty,
@@ -218,7 +229,10 @@
         if (editingPriceItemIndex === null || !items[editingPriceItemIndex]) return;
         const it = items[editingPriceItemIndex];
         it.unit_price = newPrice;
-        it.regular_price = newPrice;
+        if (mode === 'catalog') {
+            it.regular_price = newPrice;
+            it.catalog_price = newPrice;
+        }
         it.is_price_modified = true;
         if (mode === 'catalog' && it.product_id) {
             const p = availableProducts.find((prod) => prod.id === it.product_id);
@@ -479,6 +493,31 @@
                                             <span class="text-sm font-semibold text-foreground whitespace-nowrap font-sans tabular-nums">
                                                 {formatPrice(item.unit_price)} {item.sale_type === 'weight' ? '/Kg' : '/u'}
                                             </span>
+
+                                            {#if item.is_already_in_order && Math.abs(item.unit_price - (item.catalog_price ?? item.regular_price)) > 0.001}
+                                                <TooltipProvider delayDuration={100}>
+                                                    <Tooltip>
+                                                        <TooltipTrigger>
+                                                            {#snippet child({ props })}
+                                                                <button
+                                                                    type="button"
+                                                                    {...props}
+                                                                    class="inline-flex items-center justify-center size-5 rounded-full text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-500/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors cursor-help shrink-0"
+                                                                    aria-label="Información de precio del pedido"
+                                                                >
+                                                                    <Icon icon="solar:question-circle-bold-duotone" class="size-4" />
+                                                                </button>
+                                                            {/snippet}
+                                                        </TooltipTrigger>
+                                                        <TooltipContent side="top" class="max-w-xs text-xs font-normal">
+                                                            <p>
+                                                                Este producto ya existe, con el precio de <strong class="font-bold underline underline-offset-2">{formatPrice(item.unit_price)}</strong> en el pedido. Se tomará ese valor automáticamente.
+                                                            </p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+                                            {/if}
+
                                             {#if !item.is_on_the_fly}
                                                 <button
                                                     type="button"
