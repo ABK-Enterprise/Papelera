@@ -659,7 +659,7 @@
                     <!-- Stacked Cards en Mobile (block sm:hidden) -->
                     <div class="block sm:hidden space-y-2.5">
                         {#each order.items ?? [] as item}
-                            <div class="p-3.5 rounded-xl border bg-muted/20 space-y-2.5">
+                            <div class="p-3.5 rounded-xl border border-border/80 bg-muted/40 dark:bg-secondary/35 dark:border-border/90 space-y-2.5">
                                 <div class="flex items-start justify-between gap-2">
                                     <div class="min-w-0 flex-1">
                                         <h5 class="text-sm font-semibold text-foreground leading-tight">

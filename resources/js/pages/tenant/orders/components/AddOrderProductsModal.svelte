@@ -443,7 +443,7 @@
                     <div class="space-y-2.5">
                         {#each items as item, index (item.id)}
                             {@const itemLineSubtotal = (Number(item.quantity) || 0) * (Number(item.unit_price) || 0)}
-                            <div class="order-item-card flex flex-col gap-2.5 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
+                            <div class="order-item-card flex flex-col gap-2.5 p-3.5 rounded-xl border border-border/80 bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 dark:border-border/90 transition-colors shadow-2xs">
                                 <!-- Nivel 1: Información (Icono, Nombre, SKU, Badges, Botón Quitar, Precio Base con Lápiz y Stock) -->
                                 <div class="flex flex-col gap-2">
                                     <div class="flex items-start justify-between gap-2.5 min-w-0">

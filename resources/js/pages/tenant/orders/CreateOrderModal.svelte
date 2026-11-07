@@ -1619,7 +1619,7 @@
                             {@const isDiscountActive = isCustomerDiscountActive || hasBulkDiscount}
                             {@const strikethroughSubtotal = hasBulkDiscount ? regularSubtotal : baseSubtotal}
 
-                            <div class="order-item-card flex flex-col gap-2.5 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
+                            <div class="order-item-card flex flex-col gap-2.5 p-3.5 rounded-xl border border-border/80 bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 dark:border-border/90 transition-colors shadow-2xs">
                                 <!-- Nivel 1: Información (Nombre, SKU, Badges, Precio Base y Stock) -->
                                 <div class="flex flex-col gap-2">
                                     <div class="flex items-start justify-between gap-2.5 min-w-0">
