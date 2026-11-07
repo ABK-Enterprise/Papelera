@@ -283,7 +283,7 @@
                         {@const productSku = item.sku || item.product?.sku}
 
                         <!-- Mobile Card (< sm) -->
-                        <div class="sm:hidden flex flex-col gap-2 p-3.5 rounded-xl border border-border/70 bg-card shadow-2xs">
+                        <div class="sm:hidden flex flex-col gap-2 p-3.5 rounded-xl border border-border/80 bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 dark:border-border/90 shadow-2xs transition-colors">
                             <!-- Renglón 1: Nombre producto arriba izquierda -->
                             <span class="text-sm font-semibold text-foreground leading-snug">
                                 {productName}
@@ -318,7 +318,7 @@
                         </div>
 
                         <!-- Desktop Row (>= sm) -->
-                        <div class="hidden sm:flex items-center justify-between gap-3 p-3.5 rounded-xl border border-border/70 bg-card hover:bg-muted/30 transition-colors">
+                        <div class="hidden sm:flex items-center justify-between gap-3 p-3.5 rounded-xl border border-border/80 bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 dark:border-border/90 shadow-2xs transition-colors">
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-1.5 flex-wrap">
                                     <span class="text-sm font-semibold text-foreground">

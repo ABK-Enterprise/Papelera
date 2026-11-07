@@ -162,8 +162,6 @@ class CustomerOrderItemsController extends Controller
                     ? (float) $product->bulk_discount_price
                     : $basePrice;
 
-                $isExplicitPriceChange = ! empty($item['is_price_modified']);
-
                 // Buscar si este producto ya existía previamente en el pedido (en esta u otra presentación)
                 $existingItem = CustomerOrderItem::where('customer_order_id', $lockedOrder->id)
                     ->where('product_id', $productId)
@@ -173,6 +171,10 @@ class CustomerOrderItemsController extends Controller
                 $anyExistingItem = $existingItem ?: CustomerOrderItem::where('customer_order_id', $lockedOrder->id)
                     ->where('product_id', $productId)
                     ->first();
+
+                $isExplicitPriceChange = array_key_exists('is_price_modified', $item)
+                    ? (bool) $item['is_price_modified']
+                    : (! empty($item['unit_price']) && (! $anyExistingItem || abs((float) $item['unit_price'] - (float) $anyExistingItem->unit_price) > 0.001));
 
                 // Si se proporcionó un precio unitario explícito o si el ítem ya existía con precio pactado en el pedido
                 if ($isExplicitPriceChange && ! empty($item['unit_price']) && (float) $item['unit_price'] > 0) {
