@@ -197,6 +197,7 @@
             minimumFractionDigits: 2,
         }).format(num);
     }
+    const formatCurrency = formatPrice;
 
     function formatDate(dateStr: string): string {
         if (!dateStr) return '-';
@@ -235,7 +236,7 @@
                             <span class="text-xs text-muted-foreground">{cust.tax_id || cust.phone || 'Sin datos adicionales'}</span>
                         </div>
                         <span class="tabular-nums font-bold text-xs shrink-0 {Number(cust.current_balance) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">
-                            {formatCurrency(cust.current_balance)}
+                            {formatPrice(cust.current_balance)}
                         </span>
                     </div>
                 {/snippet}

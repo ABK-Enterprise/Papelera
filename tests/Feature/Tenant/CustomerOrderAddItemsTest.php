@@ -422,3 +422,55 @@ test('updates unit price retroactively when price of existing product is modifie
         ->and((float) $items[0]->subtotal)->toBe(48000.00)
         ->and((float) $order->total_amount)->toBe(48000.00);
 });
+
+test('al agregar un producto existente en el pedido sin modificar explicitamente su precio, se preserva el precio pactado previo y no se resetea al del catalogo', function () {
+    // Producto A vale 5000 en catálogo ($this->productA->price)
+    // Pero en este pedido se pactó a 10000
+    $order = CustomerOrder::create([
+        'tenant_id' => $this->tenant->id,
+        'customer_id' => $this->customer->id,
+        'warehouse_id' => $this->warehouse->id,
+        'order_number' => 'PED-PRESERVE-001',
+        'customer_name' => 'Mariano Caminos',
+        'status' => 'en_preparacion',
+        'subtotal_amount' => 20000.00,
+        'total_amount' => 20000.00,
+    ]);
+
+    CustomerOrderItem::create([
+        'customer_order_id' => $order->id,
+        'product_id' => $this->productA->id,
+        'warehouse_id' => $this->warehouse->id,
+        'packaging_type' => 'unidad',
+        'quantity' => 2,
+        'quantity_base' => 2,
+        'unit_price' => 10000.00,
+        'subtotal' => 20000.00,
+    ]);
+
+    // Agregamos 3 unidades del mismo producto enviando el precio de catálogo (5000) pero is_price_modified = false
+    $response = $this->actingAs($this->user)
+        ->postJson(route('tenant.orders.items.add', $order), [
+            'items' => [
+                [
+                    'product_id' => $this->productA->id,
+                    'quantity' => 3,
+                    'unit_price' => 5000.00,
+                    'packaging_type' => 'unidad',
+                    'is_price_modified' => false,
+                ],
+            ],
+        ]);
+
+    $response->assertOk();
+
+    $order->refresh();
+    $items = $order->items;
+
+    // Las 5 unidades deben quedar al precio pactado previo de 10.000 (5 * 10.000 = 50.000), NO a 5.000
+    expect($items)->toHaveCount(1)
+        ->and((float) $items[0]->quantity)->toBe(5.0)
+        ->and((float) $items[0]->unit_price)->toBe(10000.00)
+        ->and((float) $items[0]->subtotal)->toBe(50000.00)
+        ->and((float) $order->total_amount)->toBe(50000.00);
+});

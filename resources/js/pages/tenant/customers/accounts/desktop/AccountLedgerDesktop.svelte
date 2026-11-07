@@ -229,6 +229,7 @@
             minimumFractionDigits: 2,
         }).format(num);
     }
+    const formatCurrency = formatPrice;
 
     function formatDate(dateStr: string): string {
         if (!dateStr) return '-';

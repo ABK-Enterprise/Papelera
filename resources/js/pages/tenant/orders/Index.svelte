@@ -120,7 +120,10 @@
     let isSearching = $state(false);
 
     $effect(() => {
-        if ((isCreateModalOpen || isAddProductsModalOpen) && !hasLoadedCatalog && !isLoadingCatalog) {
+        const needsCatalog = isCreateModalOpen || isAddProductsModalOpen;
+        const catalogEmpty = !availableProducts || availableProducts.length === 0;
+
+        if (needsCatalog && catalogEmpty && !isLoadingCatalog) {
             isLoadingCatalog = true;
             router.reload({
                 only: ['availableProducts', 'availableCustomers'],
@@ -441,6 +444,9 @@
     order={orderToModify as any}
     {availableProducts}
     onSuccess={(updatedOrder) => {
+        if (orderToModify && orderToModify.id === updatedOrder.id) {
+            orderToModify = updatedOrder;
+        }
         if (selectedOrder && selectedOrder.id === updatedOrder.id) {
             selectedOrder = updatedOrder;
         }
@@ -452,6 +458,7 @@
     bind:open={isPriceEditModalOpen}
     order={editingPriceOrder as any}
     onPriceUpdated={(updatedOrder) => {
+        editingPriceOrder = updatedOrder;
         if (selectedOrder && selectedOrder.id === updatedOrder.id) {
             selectedOrder = updatedOrder;
         }

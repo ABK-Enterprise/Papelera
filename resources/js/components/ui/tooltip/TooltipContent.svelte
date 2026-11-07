@@ -7,11 +7,13 @@
         class: className,
         sideOffset = 4,
         children,
+        arrowClass,
         ...restProps
     }: {
         class?: string;
         sideOffset?: number;
         children?: Snippet;
+        arrowClass?: string;
         [key: string]: unknown;
     } = $props();
 </script>
@@ -26,6 +28,6 @@
         {...restProps}
     >
         {@render children?.()}
-        <Tooltip.Arrow class="fill-foreground" />
+        <Tooltip.Arrow class={cn('fill-foreground', arrowClass)} />
     </Tooltip.Content>
 </Tooltip.Portal>

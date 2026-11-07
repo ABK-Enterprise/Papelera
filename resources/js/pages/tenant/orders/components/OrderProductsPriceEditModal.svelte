@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import {
         Dialog,
         DialogContent,
@@ -8,6 +8,7 @@
         DialogFooter,
     } from '@/components/ui/dialog';
     import { Button } from '@/components/ui/button';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import EditItemPriceModal from '@/components/tenant/products/EditItemPriceModal.svelte';
     import { router } from '@inertiajs/svelte';
     import { toast } from 'svelte-sonner';
@@ -15,7 +16,6 @@
     import Package from 'lucide-svelte/icons/package';
     import Pencil from 'lucide-svelte/icons/pencil';
     import Tag from 'lucide-svelte/icons/tag';
-    import User from 'lucide-svelte/icons/user';
 
     export interface OrderItemData {
         id: number;
@@ -60,19 +60,25 @@
 
     let editingItem = $state<OrderItemData | null>(null);
     let isEditItemPriceOpen = $state(false);
+    let activeOrder = $state<OrderData | null>(order);
+    let searchQuery = $state('');
+
+    $effect(() => {
+        activeOrder = order;
+    });
 
     const isOrderImmutable = $derived.by(() => {
-        if (!order) return true;
+        if (!activeOrder) return true;
         return (
-            order.status === 'entregado' ||
-            order.status === 'cancelado' ||
-            order.fiscal_status === 'facturado'
+            activeOrder.status === 'entregado' ||
+            activeOrder.status === 'cancelado' ||
+            activeOrder.fiscal_status === 'facturado'
         );
     });
 
     const orderSubtotal = $derived.by(() => {
-        if (!order?.items || order.items.length === 0) return 0;
-        return order.items.reduce(
+        if (!activeOrder?.items || activeOrder.items.length === 0) return 0;
+        return activeOrder.items.reduce(
             (sum, item) =>
                 sum +
                 (Number(item.subtotal) ||
@@ -80,6 +86,34 @@
                     0),
             0
         );
+    });
+
+    const comboboxItems = $derived.by(() => {
+        if (!activeOrder?.items) return [];
+        const q = searchQuery.trim().toLowerCase();
+        return activeOrder.items
+            .map((it) => ({
+                id: it.id,
+                name: it.product_name || it.product?.name || 'Producto',
+                sku: it.sku || it.product?.sku || null,
+                unit_price: it.unit_price,
+                quantity: it.quantity,
+            }))
+            .filter((it) => {
+                if (!q) return true;
+                return it.name.toLowerCase().includes(q) || (it.sku && it.sku.toLowerCase().includes(q));
+            });
+    });
+
+    const filteredItems = $derived.by(() => {
+        if (!activeOrder?.items || activeOrder.items.length === 0) return [];
+        const q = searchQuery.trim().toLowerCase();
+        if (!q) return activeOrder.items;
+        return activeOrder.items.filter((item) => {
+            const name = (item.product_name || item.product?.name || '').toLowerCase();
+            const sku = (item.sku || item.product?.sku || '').toLowerCase();
+            return name.includes(q) || sku.includes(q);
+        });
     });
 
     function formatCurrency(amount: number | string): string {
@@ -100,12 +134,12 @@
     }
 
     async function handleSaveItemPrice(newPrice: number, mode: 'order_only' | 'catalog') {
-        if (!order || !editingItem) return;
+        if (!activeOrder || !editingItem) return;
 
         const csrfToken =
             (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '';
 
-        const res = await fetch(`/tenant/pedidos/${order.id}/items/${editingItem.id}/precio`, {
+        const res = await fetch(`/tenant/pedidos/${activeOrder.id}/items/${editingItem.id}/precio`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -133,6 +167,7 @@
         );
 
         if (data.order) {
+            activeOrder = data.order;
             onPriceUpdated?.(data.order);
         }
 
@@ -142,40 +177,73 @@
     function handleClose() {
         open = false;
         editingItem = null;
+        searchQuery = '';
         onclose?.();
     }
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-2xl p-5 sm:p-6 space-y-4 rounded-2xl max-h-[90vh] flex flex-col">
+    <DialogContent class="max-w-2xl px-5 sm:px-6 pt-[15px] pb-[15px] sm:pt-[19px] sm:pb-[19px] space-y-3.5 sm:space-y-4 rounded-2xl max-h-[90vh] flex flex-col">
         <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
-            <div class="flex items-center justify-between gap-3 flex-wrap">
-                <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
-                    <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
-                        <Tag class="size-5 sm:size-6 text-primary" />
-                    </div>
-                    <div class="min-w-0 flex-1 flex items-center">
-                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
-                            Editar precios de productos
-                        </DialogTitle>
-                    </div>
+            <div class="flex items-center gap-2.5 sm:gap-3.5">
+                <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                    <Tag class="size-5 sm:size-6 text-primary" />
                 </div>
-
-                {#if order}
-                    <div class="flex items-center gap-2 shrink-0">
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-primary/10 text-primary tabular-nums">
-                            {order.order_number}
-                        </span>
-                        <span class="text-xs font-medium text-muted-foreground flex items-center gap-1 truncate max-w-[180px]">
-                            <User class="size-3 text-muted-foreground shrink-0" />
-                            {order.customer_name}
-                        </span>
-                    </div>
-                {/if}
+                <div class="min-w-0 flex-1 flex items-center">
+                    <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1">
+                        Editar precios de productos
+                    </DialogTitle>
+                </div>
             </div>
         </DialogHeader>
 
-        <DialogBody class="py-2 space-y-3 flex-1 overflow-y-auto min-h-0">
+        <!-- Buscador Combobox de Productos del Pedido -->
+        {#if activeOrder?.items && activeOrder.items.length > 0}
+            <div class="shrink-0 relative z-30">
+                <SearchCombobox
+                    id="order-products-price-combobox"
+                    bind:value={searchQuery}
+                    items={comboboxItems}
+                    filterLocally={false}
+                    placeholder="Buscar producto por nombre o código SKU..."
+                    showDropdown={true}
+                    onsearch={(q) => (searchQuery = q)}
+                    onselect={(p) => {
+                        searchQuery = p.name;
+                    }}
+                    onclear={() => {
+                        searchQuery = '';
+                    }}
+                    inputClass="h-10 sm:h-10 min-h-[40px] text-xs sm:text-sm font-medium w-full"
+                >
+                    {#snippet itemSnippet(p)}
+                        <div class="flex items-start justify-between gap-2.5 w-full text-left py-0.5">
+                            <div class="min-w-0 flex-1">
+                                <p class="text-sm font-semibold text-foreground line-clamp-1 break-words">
+                                    {p.name}
+                                </p>
+                                <div class="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
+                                    {#if p.sku}
+                                        <span class="tabular-nums">SKU: {p.sku}</span>
+                                    {/if}
+                                    <span class="tabular-nums">• Cant: {p.quantity}</span>
+                                </div>
+                            </div>
+                            <span class="text-xs font-bold text-foreground tabular-nums shrink-0">
+                                {formatCurrency(p.unit_price)}
+                            </span>
+                        </div>
+                    {/snippet}
+                    {#snippet emptySnippet()}
+                        <div class="p-3 text-center text-xs text-muted-foreground">
+                            No se encontraron productos coincidentes en este pedido.
+                        </div>
+                    {/snippet}
+                </SearchCombobox>
+            </div>
+        {/if}
+
+        <DialogBody class="py-2 space-y-3 flex-1 overflow-y-auto min-h-0 relative z-10">
             {#if isOrderImmutable}
                 <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-300">
                     <AlertTriangle class="size-4 text-amber-600 shrink-0 mt-0.5" />
@@ -185,16 +253,32 @@
                 </div>
             {/if}
 
-            {#if !order?.items || order.items.length === 0}
+            {#if !activeOrder?.items || activeOrder.items.length === 0}
                 <div class="py-10 text-center rounded-xl border border-dashed border-border/80 bg-muted/20 p-6">
                     <Package class="size-8 mx-auto text-muted-foreground/60 mb-2" />
                     <p class="text-xs font-semibold text-foreground">
                         No hay productos registrados en este pedido
                     </p>
                 </div>
+            {:else if filteredItems.length === 0}
+                <div class="py-8 text-center rounded-xl border border-dashed border-border/80 bg-muted/20 p-6">
+                    <Package class="size-7 mx-auto text-muted-foreground/60 mb-2" />
+                    <p class="text-xs font-semibold text-foreground">
+                        No se encontraron productos coincidentes con "{searchQuery}"
+                    </p>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        class="mt-2 text-xs font-semibold text-primary cursor-pointer min-h-[36px]"
+                        onclick={() => (searchQuery = '')}
+                    >
+                        Limpiar búsqueda
+                    </Button>
+                </div>
             {:else}
                 <div class="space-y-2.5">
-                    {#each order.items as item (item.id)}
+                    {#each filteredItems as item (item.id)}
                         {@const productName = item.product_name || item.product?.name || 'Producto'}
                         {@const productSku = item.sku || item.product?.sku}
 
@@ -276,19 +360,24 @@
             {/if}
         </DialogBody>
 
-        <!-- Footer: [separador, subtotal, botón de cerrar] -->
-        <DialogFooter class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-border/70 shrink-0">
-            <div class="flex items-center justify-between sm:justify-start gap-2">
-                <span class="text-xs text-muted-foreground font-medium">Subtotal productos:</span>
-                <span class="text-sm font-bold text-foreground tabular-nums">
+        <!-- Separador Horizontal y Nivel Propio del Subtotal -->
+        <div class="border-t border-border/60 pt-2.5 sm:pt-3 shrink-0">
+            <div class="flex items-center justify-between py-0.5 px-0.5">
+                <span class="text-base sm:text-lg font-bold text-foreground tracking-tight">
+                    Subtotal
+                </span>
+                <span class="text-lg sm:text-xl font-bold font-sans tabular-nums text-foreground">
                     {formatCurrency(orderSubtotal)}
                 </span>
             </div>
+        </div>
 
+        <!-- Separador Horizontal y Footer con Botón Cerrar -->
+        <DialogFooter class="pt-2.5 sm:pt-3 border-t border-border/60 shrink-0">
             <Button
                 type="button"
                 variant="outline"
-                class="min-h-[44px] rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto"
+                class="min-h-[44px] rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto ml-auto"
                 onclick={handleClose}
             >
                 Cerrar
