@@ -183,7 +183,7 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-2xl p-5 sm:p-6 space-y-4 rounded-2xl max-h-[90vh] flex flex-col">
+    <DialogContent class="max-w-2xl px-5 sm:px-6 pt-[15px] pb-[15px] sm:pt-[19px] sm:pb-[19px] space-y-3.5 sm:space-y-4 rounded-2xl max-h-[90vh] flex flex-col">
         <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
             <div class="flex items-center gap-2.5 sm:gap-3.5">
                 <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
@@ -361,8 +361,8 @@
         </DialogBody>
 
         <!-- Separador Horizontal y Nivel Propio del Subtotal -->
-        <div class="border-t border-border/60 pt-3.5 shrink-0">
-            <div class="flex items-center justify-between py-1 px-0.5">
+        <div class="border-t border-border/60 pt-2.5 sm:pt-3 shrink-0">
+            <div class="flex items-center justify-between py-0.5 px-0.5">
                 <span class="text-base sm:text-lg font-bold text-foreground tracking-tight">
                     Subtotal
                 </span>
@@ -372,8 +372,8 @@
             </div>
         </div>
 
-        <!-- Footer: Botón Cerrar debajo del nivel del subtotal -->
-        <DialogFooter class="pt-1 sm:pt-2 border-t-0 shrink-0">
+        <!-- Separador Horizontal y Footer con Botón Cerrar -->
+        <DialogFooter class="pt-2.5 sm:pt-3 border-t border-border/60 shrink-0">
             <Button
                 type="button"
                 variant="outline"
