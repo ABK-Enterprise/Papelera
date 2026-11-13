@@ -1,19 +1,35 @@
 <script lang="ts">
-    import type { Snippet } from 'svelte';
+    import { NavigationMenu as NavigationMenuPrimitive } from 'bits-ui';
+    import { cn } from '@/lib/utils';
+    import type { ComponentProps } from 'svelte';
 
     let {
-        href = '#',
-        class: className = 'inline-flex items-center',
+        ref = $bindable(null),
+        class: className,
         children,
-        ...rest
-    }: {
-        href?: string;
-        class?: string;
-        children?: Snippet;
-        [key: string]: unknown;
-    } = $props();
+        child,
+        ...restProps
+    }: ComponentProps<typeof NavigationMenuPrimitive.Link> = $props();
 </script>
 
-<a {href} class={className} {...rest}>
-    {@render children?.()}
-</a>
+{#if child}
+    <NavigationMenuPrimitive.Link
+        bind:ref
+        data-slot="navigation-menu-link"
+        class={cn(className)}
+        {child}
+        {...restProps}
+    />
+{:else}
+    <NavigationMenuPrimitive.Link
+        bind:ref
+        data-slot="navigation-menu-link"
+        class={cn(
+            'inline-flex items-center transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring',
+            className,
+        )}
+        {...restProps}
+    >
+        {@render children?.()}
+    </NavigationMenuPrimitive.Link>
+{/if}

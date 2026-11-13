@@ -4,12 +4,21 @@
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import UserAvatarDropdown from '@/components/navbar/UserAvatarDropdown.svelte';
     import { Button } from '@/components/ui/button';
+    import {
+        NavigationMenu,
+        NavigationMenuContent,
+        NavigationMenuItem,
+        NavigationMenuLink,
+        NavigationMenuList,
+        NavigationMenuTrigger,
+    } from '@/components/ui/navigation-menu';
     import BookOpen from 'lucide-svelte/icons/book-open';
     import UserManualModal from '@/components/manual/UserManualModal.svelte';
     import { toUrl } from '@/lib/utils';
     import { dashboard } from '@/routes';
 
     let isManualModalOpen = $state(false);
+    let activeMenuValue = $state('');
 
     interface SubItem {
         title: string;
@@ -326,67 +335,96 @@
         <!-- Extremo Izquierdo: Mantener balance de distribución flex -->
         <div class="flex items-center"></div>
 
-        <!-- Centro: Navigation Menu con soporte On-Hover Dropdown -->
-        <nav class="flex items-center justify-center gap-1 sm:gap-2">
-            {#each navItems as item (item.href)}
-                {#if item.subItems && item.subItems.length > 0}
-                    <!-- Item con sub-menú flotante al pasar el mouse (Hover Menu) -->
-                    <div class="relative group">
-                        <Link
-                            href={item.href}
-                            class="relative flex items-center gap-1.5 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors rounded-lg {item.active ? 'text-primary bg-primary/10 font-semibold' : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'}"
-                        >
-                            {#if item.icon}
-                                <Icon icon={item.icon} class="size-4 shrink-0" />
-                            {/if}
-                            <span>{item.title}</span>
-                            <ChevronDown class="size-3.5 text-muted-foreground/70 transition-transform duration-200 group-hover:rotate-180" />
-                            {#if item.active}
-                                <span class="absolute bottom-0 left-3 right-3 h-0.5 bg-primary rounded-full"></span>
-                            {/if}
-                        </Link>
-
-                        <!-- Panel Flotante del Navigation Menu -->
-                        <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 ease-out absolute top-full left-1/2 -translate-x-1/2 mt-1.5 w-72 rounded-2xl border border-border/80 bg-popover/98 p-2 shadow-xl backdrop-blur-md z-50">
-                            <div class="space-y-1">
-                                {#each item.subItems as sub}
+        <!-- Centro: Navigation Menu (bits-ui) con soporte On-Hover Dropdown anclado por módulo -->
+        <NavigationMenu bind:value={activeMenuValue} delayDuration={150} skipDelayDuration={250}>
+            <NavigationMenuList class="flex items-center justify-center gap-1 sm:gap-2">
+                {#each navItems as item (item.href)}
+                    {#if item.subItems && item.subItems.length > 0}
+                        <NavigationMenuItem value={item.title} class="relative">
+                            <NavigationMenuTrigger
+                                class="relative {item.active ? 'text-primary bg-primary/15 dark:bg-primary/20 font-semibold' : 'text-muted-foreground'}"
+                            >
+                                {#snippet child({ props })}
                                     <Link
-                                        href={sub.href}
-                                        class="flex items-start gap-3 rounded-xl p-2.5 transition-colors {sub.active ? 'bg-primary/10 text-primary' : 'hover:bg-muted/60 text-foreground'}"
+                                        href={item.href}
+                                        {...props}
+                                        onclick={() => {
+                                            (props.onclick as (() => void) | undefined)?.();
+                                            activeMenuValue = '';
+                                        }}
                                     >
-                                        <div class="flex size-8 shrink-0 items-center justify-center rounded-lg {sub.active ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground'}">
-                                            <Icon icon={sub.icon} class="size-4.5" />
-                                        </div>
-                                        <div class="space-y-0.5">
-                                            <p class="text-sm font-semibold leading-none {sub.active ? 'text-primary' : 'text-foreground'}">
-                                                {sub.title}
-                                            </p>
-                                            <p class="text-xs text-muted-foreground leading-snug">
-                                                {sub.description}
-                                            </p>
-                                        </div>
+                                        {#if item.icon}
+                                            <Icon icon={item.icon} class="size-4 shrink-0" />
+                                        {/if}
+                                        <span>{item.title}</span>
+                                        <ChevronDown
+                                            class="size-3.5 text-muted-foreground/70 transition-transform duration-200 group-data-[state=open]:rotate-180 group-hover:text-primary"
+                                            aria-hidden="true"
+                                        />
+                                        {#if item.active}
+                                            <span class="absolute bottom-0 left-3 right-3 h-0.5 bg-primary rounded-full"></span>
+                                        {/if}
                                     </Link>
-                                {/each}
-                            </div>
-                        </div>
-                    </div>
-                {:else}
-                    <!-- Item simple directo -->
-                    <Link
-                        href={item.href}
-                        class="relative flex items-center gap-1.5 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors rounded-lg {item.active ? 'text-primary bg-primary/10 font-semibold' : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'}"
-                    >
-                        {#if item.icon}
-                            <Icon icon={item.icon} class="size-4 shrink-0" />
-                        {/if}
-                        <span>{item.title}</span>
-                        {#if item.active}
-                            <span class="absolute bottom-0 left-3 right-3 h-0.5 bg-primary rounded-full"></span>
-                        {/if}
-                    </Link>
-                {/if}
-            {/each}
-        </nav>
+                                {/snippet}
+                            </NavigationMenuTrigger>
+
+                            <!-- Panel Flotante anclado debajo del módulo (puente pt-1.5 sin hueco muerto) -->
+                            <NavigationMenuContent
+                                class="absolute top-full left-1/2 -translate-x-1/2 pt-1.5 z-50"
+                            >
+                                <div class="w-72 rounded-2xl border border-border/80 bg-popover/98 p-2 shadow-xl backdrop-blur-md">
+                                    <div class="space-y-1">
+                                        {#each item.subItems as sub (sub.href)}
+                                            <NavigationMenuLink
+                                                active={sub.active}
+                                                onSelect={() => (activeMenuValue = '')}
+                                                class="group/sub flex items-start gap-3 rounded-xl p-2.5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring {sub.active ? 'bg-primary/15 dark:bg-primary/20 text-primary' : 'text-foreground hover:bg-primary/10 dark:hover:bg-primary/15 hover:text-primary focus-visible:bg-primary/10 dark:focus-visible:bg-primary/15 focus-visible:text-primary'}"
+                                            >
+                                                {#snippet child({ props })}
+                                                    <Link href={sub.href} {...props}>
+                                                        <div class="flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors {sub.active ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground group-hover/sub:bg-primary/15 dark:group-hover/sub:bg-primary/20 group-hover/sub:text-primary group-focus-visible/sub:bg-primary/15 group-focus-visible/sub:text-primary'}">
+                                                            <Icon icon={sub.icon} class="size-4.5" />
+                                                        </div>
+                                                        <div class="space-y-0.5">
+                                                            <p class="text-sm font-semibold leading-none transition-colors {sub.active ? 'text-primary' : 'text-foreground group-hover/sub:text-primary group-focus-visible/sub:text-primary'}">
+                                                                {sub.title}
+                                                            </p>
+                                                            <p class="text-xs text-muted-foreground leading-snug transition-colors group-hover/sub:text-foreground/80">
+                                                                {sub.description}
+                                                            </p>
+                                                        </div>
+                                                    </Link>
+                                                {/snippet}
+                                            </NavigationMenuLink>
+                                        {/each}
+                                    </div>
+                                </div>
+                            </NavigationMenuContent>
+                        </NavigationMenuItem>
+                    {:else}
+                        <NavigationMenuItem value={item.title} class="relative">
+                            <NavigationMenuLink
+                                active={item.active}
+                                onSelect={() => (activeMenuValue = '')}
+                                class="relative flex items-center gap-1.5 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring {item.active ? 'text-primary bg-primary/15 dark:bg-primary/20 font-semibold' : 'text-muted-foreground hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/15'}"
+                            >
+                                {#snippet child({ props })}
+                                    <Link href={item.href} {...props}>
+                                        {#if item.icon}
+                                            <Icon icon={item.icon} class="size-4 shrink-0" />
+                                        {/if}
+                                        <span>{item.title}</span>
+                                        {#if item.active}
+                                            <span class="absolute bottom-0 left-3 right-3 h-0.5 bg-primary rounded-full"></span>
+                                        {/if}
+                                    </Link>
+                                {/snippet}
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                    {/if}
+                {/each}
+            </NavigationMenuList>
+        </NavigationMenu>
 
         <!-- Extremo Derecho: Buscador Rápido y Avatar Interactivo -->
         <div class="flex items-center gap-3">
