@@ -38,6 +38,10 @@ class ReportController extends Controller
         $dateFrom = $dateFromInput ? Carbon::parse($dateFromInput)->startOfDay() : now()->startOfMonth();
         $dateTo = $dateToInput ? Carbon::parse($dateToInput)->endOfDay() : now()->endOfDay();
 
+        if ($dateFrom->gt($dateTo)) {
+            $dateTo = $dateFrom->copy()->endOfDay();
+        }
+
         // Security & permissions check for costs/margins
         $canViewMargins = $request->user()->can('reportes.ver_costos_margenes');
         $canExport = $request->user()->can('reportes.exportar');
@@ -172,6 +176,10 @@ class ReportController extends Controller
 
         $dateFrom = $dateFromInput ? Carbon::parse($dateFromInput)->startOfDay() : now()->startOfMonth();
         $dateTo = $dateToInput ? Carbon::parse($dateToInput)->endOfDay() : now()->endOfDay();
+
+        if ($dateFrom->gt($dateTo)) {
+            $dateTo = $dateFrom->copy()->endOfDay();
+        }
 
         $canViewMargins = $request->user()->can('reportes.ver_costos_margenes');
 
