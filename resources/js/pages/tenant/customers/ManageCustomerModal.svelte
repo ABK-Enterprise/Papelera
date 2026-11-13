@@ -247,7 +247,7 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-2xl max-h-[85vh]">
+    <DialogContent class="max-w-[682px] max-h-[85vh]">
         <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
             <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 w-full">
                 <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">

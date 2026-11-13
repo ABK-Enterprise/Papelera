@@ -39,6 +39,7 @@
     import Loader2 from 'lucide-svelte/icons/loader-2';
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import Wallet from 'lucide-svelte/icons/wallet';
+    import X from 'lucide-svelte/icons/x';
     import XCircle from 'lucide-svelte/icons/x-circle';
     import { toast } from 'svelte-sonner';
 
@@ -510,10 +511,10 @@
             aria-labelledby="modal-title"
         >
             <!-- Header (shrink-0) -->
-            <div class="flex items-center justify-between border-b pb-3.5 sm:pb-4 shrink-0">
-                <div class="flex items-center gap-2.5">
-                    <IconContainer size="md" variant="primary" icon="solar:bill-list-bold-duotone" />
-                    <div>
+            <div class="flex items-start sm:items-center justify-between gap-2.5 border-b pb-3.5 sm:pb-4 shrink-0">
+                <div class="flex items-start sm:items-center gap-2.5 min-w-0 flex-1">
+                    <IconContainer size="md" variant="primary" icon="solar:bill-list-bold-duotone" class="shrink-0 mt-0.5 sm:mt-0" />
+                    <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2 flex-wrap">
                             <h2 class="text-base sm:text-lg font-bold text-foreground font-sans tabular-nums">{order.order_number}</h2>
                             {#if order.status === 'en_preparacion'}
@@ -572,6 +573,15 @@
                         </p>
                     </div>
                 </div>
+
+                <button
+                    type="button"
+                    onclick={() => (open = false)}
+                    class="sm:hidden size-11 min-h-[44px] min-w-[44px] -mr-1.5 -mt-1 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    aria-label="Cerrar"
+                >
+                    <X class="size-5" />
+                </button>
             </div>
 
 
@@ -1038,11 +1048,11 @@
                     {:else}
                         <Button
                             type="button"
-                            variant="outline"
-                            class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer text-foreground hover:text-primary hover:border-primary/50 {extraClass}"
+                            variant={canCollect ? 'tertiary' : 'default'}
+                            class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer {extraClass}"
                             onclick={() => (isFiscalPreModalOpen = true)}
                         >
-                            <ReceiptText class="size-4 text-primary shrink-0" />
+                            <ReceiptText class="size-4 {canCollect ? 'text-primary' : 'text-current'} shrink-0" />
                             <span class="truncate">Facturar ARCA</span>
                         </Button>
                     {/if}
@@ -1119,8 +1129,8 @@
             {#snippet btnCerrar(extraClass = '')}
                 <Button
                     type="button"
-                    variant="secondary"
-                    class="min-h-[42px] sm:min-h-[40px] px-3.5 rounded-xl text-sm font-semibold shrink-0 cursor-pointer {extraClass}"
+                    variant="ghost"
+                    class="min-h-[42px] sm:min-h-[40px] px-3.5 rounded-xl text-sm font-semibold text-muted-foreground hover:text-foreground shrink-0 cursor-pointer {extraClass}"
                     onclick={() => (open = false)}
                 >
                     Cerrar
@@ -1209,70 +1219,43 @@
 
                     {#if order.status === 'entregado'}
                         {#if canReturn && hasFiscalAction}
-                            <!-- Grid 2x2: Fila 1 (Facturar ARCA + Remito), Fila 2 (Devolución + Cerrar) -->
                             <div class="grid grid-cols-[1.35fr_1fr] gap-2 w-full">
                                 {@render btnFiscal('w-full justify-center')}
                                 {@render btnRemito('w-full justify-center')}
                             </div>
-                            <div class="grid grid-cols-[1.35fr_1fr] gap-2 w-full">
-                                {@render btnDevolucion('w-full justify-center')}
-                                {@render btnCerrar('w-full justify-center')}
-                            </div>
-                        {:else if canReturn}
-                            <!-- Devolución + Remito + Cerrar -->
                             {@render btnDevolucion('w-full justify-center')}
-                            <div class="grid grid-cols-2 gap-2 w-full">
-                                {@render btnRemito('w-full justify-center')}
-                                {@render btnCerrar('w-full justify-center')}
-                            </div>
+                        {:else if canReturn}
+                            {@render btnDevolucion('w-full justify-center')}
+                            {@render btnRemito('w-full justify-center')}
                         {:else if hasFiscalAction}
-                            <!-- Facturar ARCA + Remito + Cerrar -->
-                            {@render btnFiscal('w-full justify-center')}
-                            <div class="grid grid-cols-2 gap-2 w-full">
+                            <div class="grid grid-cols-[1.35fr_1fr] gap-2 w-full">
+                                {@render btnFiscal('w-full justify-center')}
                                 {@render btnRemito('w-full justify-center')}
-                                {@render btnCerrar('w-full justify-center')}
                             </div>
                         {:else}
-                            <div class="grid grid-cols-2 gap-2 w-full">
-                                {@render btnRemito('w-full justify-center')}
-                                {@render btnCerrar('w-full justify-center')}
-                            </div>
+                            {@render btnRemito('w-full justify-center')}
                         {/if}
                     {:else if order.status !== 'cancelado'}
                         {#if canCollect && hasFiscalAction}
-                            <!-- Grid 2x2: Fila 1 (Facturar ARCA + Cobrar), Fila 2 (Remito + Cerrar) -->
                             <div class="grid grid-cols-[1.35fr_1fr] gap-2 w-full">
                                 {@render btnFiscal('w-full justify-center')}
                                 {@render btnCobrar('w-full justify-center')}
                             </div>
-                            <div class="grid grid-cols-2 gap-2 w-full">
-                                {@render btnRemito('w-full justify-center')}
-                                {@render btnCerrar('w-full justify-center')}
-                            </div>
+                            {@render btnRemito('w-full justify-center')}
                         {:else if canCollect}
                             {@render btnCobrar('w-full justify-center')}
-                            <div class="grid grid-cols-2 gap-2 w-full">
-                                {@render btnRemito('w-full justify-center')}
-                                {@render btnCerrar('w-full justify-center')}
-                            </div>
+                            {@render btnRemito('w-full justify-center')}
                         {:else if hasFiscalAction}
-                            {@render btnFiscal('w-full justify-center')}
-                            <div class="grid grid-cols-2 gap-2 w-full">
+                            <div class="grid grid-cols-[1.35fr_1fr] gap-2 w-full">
+                                {@render btnFiscal('w-full justify-center')}
                                 {@render btnRemito('w-full justify-center')}
-                                {@render btnCerrar('w-full justify-center')}
                             </div>
                         {:else}
-                            <div class="grid grid-cols-2 gap-2 w-full">
-                                {@render btnRemito('w-full justify-center')}
-                                {@render btnCerrar('w-full justify-center')}
-                            </div>
+                            {@render btnRemito('w-full justify-center')}
                         {/if}
                     {:else}
-                        <!-- Cancelado: Remito y Cerrar -->
-                        <div class="grid grid-cols-2 gap-2 w-full">
-                            {@render btnRemito('w-full justify-center')}
-                            {@render btnCerrar('w-full justify-center')}
-                        </div>
+                        <!-- Cancelado: Remito a ancho completo (cierre vía X superior o backdrop) -->
+                        {@render btnRemito('w-full justify-center')}
                     {/if}
                 </div>
             </div>

@@ -14,6 +14,7 @@
     import Printer from 'lucide-svelte/icons/printer';
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import Truck from 'lucide-svelte/icons/truck';
+    import X from 'lucide-svelte/icons/x';
     import XCircle from 'lucide-svelte/icons/x-circle';
 
     interface SupplierOrderItem {
@@ -196,7 +197,7 @@
             aria-labelledby="modal-title"
         >
             <!-- Header (shrink-0) -->
-            <div class="flex items-start sm:items-center justify-between border-b pb-3.5 sm:pb-4 shrink-0">
+            <div class="flex items-start sm:items-center justify-between gap-2.5 border-b pb-3.5 sm:pb-4 shrink-0">
                 <div class="flex items-start sm:items-center gap-2.5 min-w-0 flex-1">
                     <IconContainer size="md" variant="primary" icon="solar:clipboard-list-bold-duotone" class="shrink-0 mt-0.5 sm:mt-0" />
                     <div class="min-w-0 flex-1">
@@ -243,6 +244,15 @@
                         </div>
                     </div>
                 </div>
+
+                <button
+                    type="button"
+                    onclick={() => (open = false)}
+                    class="sm:hidden size-11 min-h-[44px] min-w-[44px] -mr-1.5 -mt-1 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    aria-label="Cerrar"
+                >
+                    <X class="size-5" />
+                </button>
             </div>
 
 
@@ -405,8 +415,8 @@
             {#snippet btnClose(extraClass = '')}
                 <Button
                     type="button"
-                    variant="secondary"
-                    class="min-h-[44px] px-3.5 rounded-xl text-sm font-medium shrink-0 cursor-pointer {extraClass}"
+                    variant="ghost"
+                    class="min-h-[44px] px-3.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground shrink-0 cursor-pointer {extraClass}"
                     onclick={() => (open = false)}
                 >
                     <span class="break-words text-center leading-tight">Cerrar</span>
@@ -437,23 +447,15 @@
                     </div>
                 </div>
 
-                <!-- VISTA MOBILE (< sm) -->
+                <!-- VISTA MOBILE (< sm): Footer limpio solo para acciones de negocio (cierre vía X superior o backdrop) -->
                 <div class="sm:hidden flex flex-col gap-2 w-full">
                     {#if order.status === 'solicitado' && hasPermission('proveedores.pedidos.cancelar')}
-                        <!-- Si hay 3 botones: Fila 1 [Cancelar orden, Ver PDF] y Fila 2 [Cerrar] -->
                         <div class="grid grid-cols-2 gap-2 w-full">
                             {@render btnCancel('w-full justify-center')}
                             {@render btnPdf('w-full justify-center')}
                         </div>
-                        <div class="w-full">
-                            {@render btnClose('w-full justify-center')}
-                        </div>
                     {:else}
-                        <!-- Si no hay cancelar: Fila única con Ver PDF y Cerrar en 2 columnas -->
-                        <div class="grid grid-cols-2 gap-2 w-full">
-                            {@render btnPdf('w-full justify-center')}
-                            {@render btnClose('w-full justify-center')}
-                        </div>
+                        {@render btnPdf('w-full justify-center')}
                     {/if}
                 </div>
             </div>

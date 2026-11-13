@@ -140,7 +140,7 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-8">
+    <DialogContent class="max-w-[682px] max-h-[90vh] overflow-y-auto p-6 sm:p-8">
         <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 pb-4 border-b border-border w-full">
             <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
                 <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
