@@ -37,7 +37,7 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-xl p-0 gap-0 overflow-hidden rounded-2xl sm:rounded-3xl border-border/80 shadow-xl flex flex-col max-h-[85vh]">
+    <DialogContent class="max-w-xl p-0 gap-[1px] overflow-hidden rounded-2xl sm:rounded-3xl border-border/80 shadow-xl flex flex-col max-h-[85vh]">
         <DialogHeader class="p-4 sm:p-5 border-b border-border/50 shrink-0">
             <div class="flex items-center justify-between pr-6">
                 <div class="flex items-center gap-2">

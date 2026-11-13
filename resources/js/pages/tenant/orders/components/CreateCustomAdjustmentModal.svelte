@@ -177,7 +177,7 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="sm:max-w-md max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+    <DialogContent class="sm:max-w-md max-h-[90vh] flex flex-col p-0 gap-[1px] overflow-hidden">
         <DialogHeader class="p-0 border-b border-border/60 shrink-0 bg-card">
             <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 p-4 sm:p-1.5 pb-3.5 sm:pb-1.5 pr-4 sm:pr-4 w-full">
                 <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">

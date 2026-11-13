@@ -105,7 +105,7 @@
 
 <Dialog bind:open>
     <DialogContent class="sm:max-w-[500px]">
-        <form onsubmit={handleSubmit} class="flex flex-col">
+        <form onsubmit={handleSubmit} class="flex flex-col gap-[1px]">
             <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
                 <div class="flex items-center gap-2.5 sm:gap-3.5">
                     <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">

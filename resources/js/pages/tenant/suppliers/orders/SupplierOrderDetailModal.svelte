@@ -191,7 +191,7 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto pointer-events-none">
         <div
             transition:scale={{ start: 0.97, duration: 150 }}
-            class="bg-card text-card-foreground rounded-2xl sm:rounded-3xl border border-border shadow-2xl max-w-4xl w-full p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto pointer-events-auto"
+            class="bg-card text-card-foreground rounded-2xl sm:rounded-3xl border border-border shadow-2xl max-w-4xl w-full p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col gap-2 my-auto pointer-events-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"

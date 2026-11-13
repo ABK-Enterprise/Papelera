@@ -1225,7 +1225,7 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto pointer-events-none">
         <div
             transition:scale={{ start: 0.97, duration: 150 }}
-            class="relative w-full max-w-3xl rounded-2xl sm:rounded-3xl bg-card border border-border shadow-2xl p-4 sm:p-6 max-h-[calc(85vh+4px)] sm:max-h-[calc(88vh+4px)] flex flex-col my-auto pointer-events-auto"
+            class="relative w-full max-w-3xl rounded-2xl sm:rounded-3xl bg-card border border-border shadow-2xl p-4 sm:p-6 max-h-[calc(85vh+4px)] sm:max-h-[calc(88vh+4px)] flex flex-col gap-2 my-auto pointer-events-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
@@ -2455,7 +2455,7 @@
             </form>
 
             <!-- Footer Bento: Total & Botones (shrink-0) -->
-            <div class="border-t border-border/60 pt-4 mt-2 space-y-3 shrink-0">
+            <div class="border-t border-border/60 pt-4 space-y-3 shrink-0">
                 <!-- Contenedor Superior: Resumen de Totales y Descuentos -->
                 <div class="rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 p-3 sm:p-3.5 space-y-1.5 shadow-2xs">
                     <div class="flex items-center justify-between text-sm sm:text-base font-medium text-muted-foreground">

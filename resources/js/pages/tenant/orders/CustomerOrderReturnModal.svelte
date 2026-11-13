@@ -204,7 +204,7 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto pointer-events-none">
         <div
             transition:scale={{ start: 0.97, duration: 150 }}
-            class="relative w-full max-w-2xl rounded-2xl sm:rounded-3xl bg-card border border-border shadow-2xl p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto pointer-events-auto"
+            class="relative w-full max-w-2xl rounded-2xl sm:rounded-3xl bg-card border border-border shadow-2xl p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col gap-2 my-auto pointer-events-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="return-modal-title"
@@ -237,7 +237,7 @@
 
             <!-- Error Banner -->
             {#if errorMessage}
-                <div class="mt-3 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-700 dark:text-rose-400 flex items-center gap-2">
+                <div class="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-700 dark:text-rose-400 flex items-center gap-2">
                     <ShieldAlert class="size-4 shrink-0" />
                     <span>{errorMessage}</span>
                 </div>
