@@ -148,7 +148,7 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto pointer-events-none">
         <div
             transition:scale={{ start: 0.97, duration: 150 }}
-            class="bg-card text-card-foreground rounded-2xl sm:rounded-3xl border border-border shadow-2xl max-w-2xl w-full p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto pointer-events-auto"
+            class="bg-card text-card-foreground rounded-2xl sm:rounded-3xl border border-border shadow-2xl max-w-4xl w-full p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto pointer-events-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
@@ -241,13 +241,13 @@
                 <div class="space-y-2">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Artículos Solicitados</h4>
                     
-                    <!-- Stacked Cards en Mobile (block sm:hidden) -->
-                    <div class="block sm:hidden space-y-2.5">
+                    <!-- Wide-Cards unificadas (Mobile y Desktop) -->
+                    <div class="space-y-2.5">
                         {#each order.items ?? [] as item}
-                            <div class="p-3.5 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 space-y-2.5">
-                                <div class="flex items-start justify-between gap-2">
+                            <div class="p-3.5 sm:px-4 sm:py-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/65 dark:hover:bg-secondary/50 transition-colors flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-4">
+                                <div class="flex items-start sm:items-center justify-between gap-2 sm:gap-3 min-w-0 flex-1">
                                     <div class="min-w-0 flex-1">
-                                        <h5 class="text-sm font-medium text-foreground leading-tight">
+                                        <h5 class="text-sm font-medium text-foreground leading-tight break-words">
                                             {item.product_name}
                                         </h5>
                                         {#if item.product?.sku}
@@ -257,58 +257,22 @@
                                         {/if}
                                     </div>
                                     <div class="shrink-0">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border font-sans tabular-nums">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border font-sans tabular-nums">
                                             {item.quantity} {item.product?.sale_type === 'weight' ? 'Kg' : 'unid.'}
                                         </span>
                                     </div>
                                 </div>
 
-                                <div class="flex items-center justify-between pt-2 border-t border-border/50">
-                                    <div class="text-xs text-muted-foreground font-sans tabular-nums">
+                                <div class="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/50 shrink-0">
+                                    <div class="text-xs text-muted-foreground font-sans tabular-nums sm:text-right">
                                         {Number(item.unit_cost) > 0 ? formatPrice(item.unit_cost) : '-'} × {item.quantity} {item.product?.sale_type === 'weight' ? 'Kg' : 'unid.'}
                                     </div>
-                                    <div class="text-sm font-bold tabular-nums text-foreground">
+                                    <div class="text-sm sm:text-base font-bold tabular-nums text-foreground sm:min-w-[110px] sm:text-right">
                                         {Number(item.subtotal) > 0 ? formatPrice(item.subtotal) : '-'}
                                     </div>
                                 </div>
                             </div>
                         {/each}
-                    </div>
-
-                    <!-- Tabla en Desktop (hidden sm:block) -->
-                    <div class="hidden sm:block rounded-xl border border-border/80 dark:border-border/90 overflow-hidden">
-                        <table class="w-full text-left text-sm font-medium">
-                            <thead class="bg-muted/50 dark:bg-secondary/35 text-muted-foreground border-b border-border/80 dark:border-border/90 text-xs font-semibold uppercase tracking-wider">
-                                <tr>
-                                    <th class="p-2.5">Producto</th>
-                                    <th class="p-2.5 text-center">Cant. Solicitada</th>
-                                    <th class="p-2.5 text-right">Costo Unit.</th>
-                                    <th class="p-2.5 text-right">Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-border/60">
-                                {#each order.items ?? [] as item}
-                                    <tr class="text-sm font-medium hover:bg-muted/40 dark:hover:bg-secondary/30 transition-colors">
-                                        <td class="p-2.5 text-foreground">
-                                            {item.product_name}
-                                            {#if item.product?.sku}
-                                                <span class="text-xs text-muted-foreground block tabular-nums">SKU: {item.product.sku}</span>
-                                            {/if}
-                                        </td>
-                                        <td class="p-2.5 text-center font-sans tabular-nums">
-                                            {item.quantity} {item.product?.sale_type === 'weight' ? 'Kg' : 'unid.'}
-                                        </td>
-                                        <td class="p-2.5 text-right font-sans tabular-nums">
-                                            {Number(item.unit_cost) > 0 ? formatPrice(item.unit_cost) : '-'}
-                                        </td>
-                                        <td class="p-2.5 text-right text-sm font-bold tabular-nums text-foreground">
-                                            {Number(item.subtotal) > 0 ? formatPrice(item.subtotal) : '-'}
-                                        </td>
-                                    </tr>
-                                {/each}
-
-                            </tbody>
-                        </table>
                     </div>
                 </div>
 

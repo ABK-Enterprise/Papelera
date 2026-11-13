@@ -445,7 +445,7 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto pointer-events-none">
         <div
             transition:scale={{ start: 0.97, duration: 150 }}
-            class="bg-card text-card-foreground rounded-2xl sm:rounded-3xl border border-border shadow-2xl max-w-2xl w-full p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto pointer-events-auto"
+            class="bg-card text-card-foreground rounded-2xl sm:rounded-3xl border border-border shadow-2xl max-w-4xl w-full p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto pointer-events-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
@@ -656,13 +656,13 @@
                 <div class="space-y-2">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Productos y Cantidades</h4>
                     
-                    <!-- Stacked Cards en Mobile (block sm:hidden) -->
-                    <div class="block sm:hidden space-y-2.5">
+                    <!-- Wide-Cards unificadas (Mobile y Desktop) -->
+                    <div class="space-y-2.5">
                         {#each order.items ?? [] as item}
-                            <div class="p-3.5 rounded-xl border border-border/80 bg-muted/40 dark:bg-secondary/35 dark:border-border/90 space-y-2.5">
-                                <div class="flex items-start justify-between gap-2">
+                            <div class="p-3.5 sm:px-4 sm:py-3 rounded-xl border border-border/80 bg-muted/40 dark:bg-secondary/35 dark:border-border/90 hover:bg-muted/65 dark:hover:bg-secondary/50 transition-colors flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-4">
+                                <div class="flex items-start justify-between sm:items-center gap-2 sm:gap-3 min-w-0 flex-1">
                                     <div class="min-w-0 flex-1">
-                                        <h5 class="text-sm font-semibold text-foreground leading-tight">
+                                        <h5 class="text-sm font-semibold text-foreground leading-tight break-words">
                                             {item.product?.name || `Producto #${item.product_id}`}
                                         </h5>
                                         {#if item.product?.sku}
@@ -673,29 +673,29 @@
                                     </div>
                                     <div class="shrink-0">
                                         {#if item.packaging_type === 'gram'}
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20">
                                                 Gramos
                                             </span>
                                         {:else if item.packaging_type === 'kg'}
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20">
                                                 Kg
                                             </span>
                                         {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
                                                 Bulto x{item.units_per_package || 1}
                                             </span>
                                         {:else}
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border">
                                                 Unidad
                                             </span>
                                         {/if}
                                     </div>
                                 </div>
 
-                                <div class="flex items-center justify-between pt-2 border-t border-border/50">
-                                    <div class="text-xs text-muted-foreground font-sans tabular-nums">
+                                <div class="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/50 shrink-0">
+                                    <div class="text-xs text-muted-foreground font-sans tabular-nums sm:text-right">
                                         <div>
-                                            {formatPrice(item.unit_price)} × 
+                                            {formatPrice(item.unit_price)} ×
                                             {#if item.packaging_type === 'gram'}
                                                 {item.quantity} g ({item.quantity / 1000} Kg)
                                             {:else if item.packaging_type === 'kg'}
@@ -712,82 +712,12 @@
                                             </span>
                                         {/if}
                                     </div>
-                                    <div class="text-sm font-bold font-sans tabular-nums text-foreground">
+                                    <div class="text-sm sm:text-base font-bold font-sans tabular-nums text-foreground sm:min-w-[110px] sm:text-right">
                                         {formatPrice(item.subtotal)}
                                     </div>
                                 </div>
                             </div>
                         {/each}
-                    </div>
-
-                    <!-- Tabla en Desktop (hidden sm:block) -->
-                    <div class="hidden sm:block rounded-xl border border-border/80 dark:border-border/90 overflow-hidden">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-muted/50 dark:bg-secondary/35 text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border/80 dark:border-border/90">
-                                <tr>
-                                    <th class="p-2.5">Producto</th>
-                                    <th class="p-2.5">Presentación</th>
-                                    <th class="p-2.5 text-center">Cant.</th>
-                                    <th class="p-2.5 text-right">Precio Unit.</th>
-                                    <th class="p-2.5 text-right">Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-border/70">
-                                {#each order.items ?? [] as item}
-                                    <tr class="hover:bg-muted/40 dark:hover:bg-secondary/30 transition-colors">
-                                        <td class="p-2.5 font-medium text-foreground">
-                                            {item.product?.name || `Producto #${item.product_id}`}
-                                            {#if item.product?.sku}
-                                                <span class="text-xs text-muted-foreground block font-sans tabular-nums">SKU: {item.product.sku}</span>
-                                            {/if}
-                                        </td>
-                                        <td class="p-2.5 text-muted-foreground">
-                                            {#if item.packaging_type === 'gram'}
-                                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-sky-700 dark:text-sky-400">
-                                                    Gramos (g)
-                                                </span>
-                                            {:else if item.packaging_type === 'kg'}
-                                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-sky-700 dark:text-sky-400">
-                                                    Kilogramos (Kg)
-                                                </span>
-                                            {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
-                                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-primary">
-                                                    Bulto (x{item.units_per_package || 1})
-                                                </span>
-                                            {:else}
-                                                <span>Unidad</span>
-                                            {/if}
-                                        </td>
-                                        <td class="p-2.5 text-center font-bold font-sans tabular-nums">
-                                            {#if item.packaging_type === 'gram'}
-                                                {item.quantity} g
-                                                <span class="text-xs text-muted-foreground block font-normal">
-                                                    ({item.quantity / 1000} Kg)
-                                                </span>
-                                            {:else if item.packaging_type === 'kg'}
-                                                {item.quantity} Kg
-                                            {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
-                                                {item.quantity} {item.quantity === 1 ? 'bulto' : 'bultos'}
-                                                <span class="text-xs text-muted-foreground block font-normal">
-                                                    ({item.quantity * (item.units_per_package || 1)})
-                                                </span>
-                                            {:else}
-                                                {item.quantity} unid.
-                                            {/if}
-                                        </td>
-                                        <td class="p-2.5 text-right font-sans tabular-nums">
-                                            <div>{formatPrice(item.unit_price)}</div>
-                                            {#if item.product?.price && Math.abs(Number(item.product.price) - Number(item.unit_price)) >= 0.01}
-                                                <span class="text-xs text-amber-700 dark:text-amber-400 block font-normal tabular-nums">
-                                                    Catálogo: {formatPrice(item.product.price)}
-                                                </span>
-                                            {/if}
-                                        </td>
-                                        <td class="p-2.5 text-right font-sans tabular-nums font-bold text-foreground">{formatPrice(item.subtotal)}</td>
-                                    </tr>
-                                {/each}
-                            </tbody>
-                        </table>
                     </div>
                 </div>
 

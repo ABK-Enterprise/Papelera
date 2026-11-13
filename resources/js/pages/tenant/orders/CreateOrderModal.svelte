@@ -820,12 +820,6 @@
     let grandTotal = $derived(
         Math.max(0, Math.round((grossTotal - effectiveCreditBalanceApplied) * 100) / 100)
     );
-    const effectivePaidAmount = $derived(
-        paymentType === 'parcial'
-            ? Math.min(Math.max(0, Math.round((Number(paidAmount) || 0) * 100) / 100), grandTotal)
-            : 0
-    );
-    const remainingToPay = $derived(grandTotal);
     const canShowCreditAppliedInReceipt = $derived(
         useCreditBalance && effectiveCreditBalanceApplied > 0
     );
@@ -882,17 +876,6 @@
         }
     });
 
-    $effect(() => {
-        if (paymentType === 'parcial' && paidAmount !== '') {
-            const num = Number(paidAmount);
-            if (!isNaN(num) && num < 0) {
-                paidAmount = '';
-            } else if (!isNaN(num) && grandTotal > 0 && num > grandTotal) {
-                paidAmount = String(grandTotal);
-            }
-        }
-    });
-
     let showAccountBalanceInOrderSummary = $state(false);
 
     let customerRawBalance = $derived(Number(selectedCustomer?.current_balance ?? 0));
@@ -937,17 +920,6 @@
                 return `${formatPrice(0)} (al día)`;
             }
             return null;
-        } else if (paymentType === 'parcial') {
-            if (grossTotal <= 0) return null;
-            const numericPaid = Math.max(0, Number(paidAmount) || 0);
-            const unpaidAmount = Math.max(0, grossTotal - numericPaid);
-            const projected = customerRawBalance + unpaidAmount;
-            if (projected < 0) {
-                return `${formatPrice(Math.abs(projected))} (a favor)`;
-            } else if (projected > 0) {
-                return `${formatPrice(projected)} (deudor)`;
-            }
-            return `${formatPrice(0)} (al día)`;
         }
         return null;
     });
@@ -1122,8 +1094,6 @@
         deliveryAddress = '';
         notes = '';
         paymentType = selectedCustomerId ? 'cuenta_corriente' : 'contado';
-        paymentMethod = 'efectivo';
-        paidAmount = '';
         errorMessage = null;
         searchQuery = '';
         selectedProductToAdd = null;
@@ -2566,17 +2536,6 @@
                             <span class="text-sm sm:text-base font-bold text-foreground">Total:</span>
                             <span class="text-xl sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
                                 {formatPrice(grandTotal + effectivePreviousDebtCollected)}
-                            </span>
-                        </div>
-                    {:else if paymentType === 'parcial' && effectivePaidAmount > 0}
-                        <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 font-sans tabular-nums border-t border-border/40 pt-1.5">
-                            <span>Pago parcial / Seña:</span>
-                            <span>-{formatPrice(effectivePaidAmount)}</span>
-                        </div>
-                        <div class="flex flex-wrap items-baseline justify-between gap-2 border-t border-border/60 pt-2 mt-1 w-full">
-                            <span class="text-sm sm:text-base font-bold text-foreground">Total:</span>
-                            <span class="text-xl sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">
-                                {formatPrice(Math.max(0, grandTotal - effectivePaidAmount))}
                             </span>
                         </div>
                     {:else}
