@@ -2,7 +2,9 @@
     import { Button } from '@/components/ui/button';
     import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/components/ui/dialog';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
+    import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import PdfPreviewModal from '@/components/common/PdfPreviewModal.svelte';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import CollectOrderModal from './components/CollectOrderModal.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
     import Eye from 'lucide-svelte/icons/eye';
@@ -131,6 +133,63 @@
     let pendingStatus = $state<string | null>(null);
     let isEmittingCreditNote = $state(false);
     let isResolvingPrices = $state(false);
+    let itemSearchQuery = $state('');
+    let onlyDiscrepancyItems = $state(false);
+    let lastAuditedOrderId = $state<number | null>(null);
+
+    $effect(() => {
+        const currentOrderId = order?.id ?? null;
+        if (!open || currentOrderId !== lastAuditedOrderId) {
+            itemSearchQuery = '';
+            onlyDiscrepancyItems = false;
+            lastAuditedOrderId = currentOrderId;
+        }
+    });
+
+    function normalizeSearchText(val: string | number | null | undefined): string {
+        if (val === null || val === undefined) return '';
+        return String(val)
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase();
+    }
+
+    function getItemPackagingSearchText(item: OrderItem): string {
+        if (item.packaging_type === 'gram') return 'gramos';
+        if (item.packaging_type === 'kg') return 'kg';
+        if (item.packaging_type === 'bolson' || item.packaging_type === 'bulto') {
+            return `bulto bolson x${item.units_per_package || 1}`;
+        }
+        return 'unidad';
+    }
+
+    let hasAnyDiscrepancy = $derived(
+        (order?.items ?? []).some((it) =>
+            Boolean(it.product?.price && Math.abs(Number(it.product.price) - Number(it.unit_price)) >= 0.01)
+        )
+    );
+
+    let filteredItems = $derived.by(() => {
+        const items = order?.items ?? [];
+        const query = normalizeSearchText(itemSearchQuery.trim());
+
+        return items.filter((item) => {
+            if (onlyDiscrepancyItems) {
+                const hasDiscrepancy = Boolean(
+                    item.product?.price && Math.abs(Number(item.product.price) - Number(item.unit_price)) >= 0.01
+                );
+                if (!hasDiscrepancy) return false;
+            }
+
+            if (!query) return true;
+
+            const productName = normalizeSearchText(item.product?.name || `Producto #${item.product_id}`);
+            const sku = normalizeSearchText(item.product?.sku);
+            const packagingLabel = normalizeSearchText(getItemPackagingSearchText(item));
+
+            return productName.includes(query) || sku.includes(query) || packagingLabel.includes(query);
+        });
+    });
 
     function confirmDeleteAdHoc(adj: any) {
         adHocToDelete = adj;
@@ -458,56 +517,56 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <h2 class="text-base sm:text-lg font-bold text-foreground font-sans tabular-nums">{order.order_number}</h2>
                             {#if order.status === 'en_preparacion'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-sm font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                                     En Preparación
                                 </span>
                             {:else if order.status === 'preparado'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-sm font-semibold bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/30">
                                     Preparado
                                 </span>
                             {:else if order.status === 'en_camino'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-sm font-semibold bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30">
                                     En Camino
                                 </span>
                             {:else if order.status === 'entregado'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-sm font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                                     Entregado
                                 </span>
                             {:else if order.status === 'cancelado'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-sm font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                                     Cancelado
                                 </span>
                             {/if}
 
                             <!-- Pill Pendiente NC -->
                             {#if order.has_pending_credit_note}
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                                     Pendiente NC
                                 </span>
                             {/if}
 
                             <!-- Badge de Estado Fiscal ARCA -->
                             {#if order.fiscal_status === 'facturado'}
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                                     <ReceiptText class="size-3.5" />
                                     <span>Facturado ARCA</span>
                                 </span>
                             {:else if order.fiscal_status === 'anulado_fiscal'}
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 line-through">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 line-through">
                                     <span>Anulado Fiscal (NC)</span>
                                 </span>
                             {:else if order.fiscal_status === 'error_fiscal'}
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                                     <AlertTriangle class="size-3.5" />
                                     <span>Error Fiscal</span>
                                 </span>
                             {:else}
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border/70">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-muted text-muted-foreground border border-border/70">
                                     <span>Sin Facturar</span>
                                 </span>
                             {/if}
                         </div>
-                        <p class="text-xs text-muted-foreground flex flex-wrap items-center gap-1 break-words leading-relaxed">
+                        <p class="text-sm text-muted-foreground flex flex-wrap items-center gap-1 break-words leading-relaxed">
                             <span>Fecha:</span>
                             <span class="break-words font-sans tabular-nums">{formatDate(order.created_at)}</span>
                         </p>
@@ -524,10 +583,10 @@
                         <div class="flex items-start gap-3">
                             <AlertTriangle class="size-5 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
                             <div class="space-y-1">
-                                <strong class="font-bold text-sm text-foreground block">
+                                <strong class="font-bold text-base text-foreground block">
                                     Discrepancia en Precios de Catálogo
                                 </strong>
-                                <p class="text-xs text-muted-foreground leading-relaxed">
+                                <p class="text-sm text-muted-foreground leading-relaxed">
                                     Uno o más productos incluidos en este pedido tuvieron modificaciones de precio en el catálogo con posterioridad a la creación de la orden. Puedes conservar los valores fijados originalmente o recalcular los ítems al valor vigente del catálogo.
                                 </p>
                             </div>
@@ -538,7 +597,7 @@
                                 type="button"
                                 variant="secondary"
                                 size="sm"
-                                class="min-h-[36px] rounded-lg text-xs font-semibold border border-amber-500/40 hover:bg-amber-500/15 text-foreground cursor-pointer"
+                                class="min-h-[36px] rounded-lg text-sm font-semibold cursor-pointer"
                                 disabled={isResolvingPrices}
                                 onclick={resolveKeepPrices}
                             >
@@ -546,8 +605,9 @@
                             </Button>
                             <Button
                                 type="button"
+                                variant="warning"
                                 size="sm"
-                                class="min-h-[36px] rounded-lg text-xs font-semibold bg-amber-700 hover:bg-amber-800 text-white cursor-pointer gap-1.5"
+                                class="min-h-[36px] rounded-lg text-sm font-semibold cursor-pointer gap-1.5"
                                 disabled={isResolvingPrices}
                                 onclick={resolveUpdatePrices}
                             >
@@ -564,12 +624,12 @@
 
                 <!-- Banner de Inconveniente Fiscal en caso de error previo -->
                 {#if order.fiscal_status === 'error_fiscal' && order.fiscal_error_message}
-                    <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-xs text-amber-800 dark:text-amber-300">
+                    <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-sm text-amber-800 dark:text-amber-300">
                         <AlertTriangle class="size-5 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
                         <div class="space-y-0.5">
-                            <strong class="font-bold block">Inconveniente de facturación ARCA:</strong>
+                            <strong class="font-bold text-base block">Inconveniente de facturación ARCA:</strong>
                             <p class="leading-relaxed">{order.fiscal_error_message}</p>
-                            <p class="text-xs text-muted-foreground pt-1">
+                            <p class="text-sm text-muted-foreground pt-1">
                                 Puedes reintentar la emisión con el botón «Facturar ARCA» al pie de la ventana.
                             </p>
                         </div>
@@ -578,21 +638,21 @@
 
                 <!-- Bloque Informativo de Factura Oficial Aprobada en ARCA -->
                 {#if order.fiscal_status === 'facturado' && order.active_fiscal_invoice}
-                    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
                         <div class="flex items-center gap-2.5">
                             <div class="size-8 rounded-lg bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
                                 <ReceiptText class="size-4.5" />
                             </div>
                             <div>
                                 <div class="flex items-center gap-2">
-                                    <strong class="font-bold text-foreground text-sm font-sans tabular-nums">
+                                    <strong class="font-bold text-foreground text-base font-sans tabular-nums">
                                         {order.active_fiscal_invoice.formatted_number || `Comprobante Nº ${order.active_fiscal_invoice.numero_comprobante}`}
                                     </strong>
-                                    <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+                                    <span class="px-2 py-0.5 rounded-full text-sm font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
                                         CAE Oficial
                                     </span>
                                 </div>
-                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground mt-0.5 font-sans tabular-nums text-xs">
+                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground mt-0.5 font-sans tabular-nums text-sm">
                                     <span>CAE: <strong class="text-foreground">{order.active_fiscal_invoice.cae}</strong></span>
                                     <span>Vencimiento CAE: <strong class="text-foreground">{formatDateOnly(order.active_fiscal_invoice.cae_due_date)}</strong></span>
                                 </div>
@@ -600,9 +660,9 @@
                         </div>
                         <Button
                             type="button"
-                            variant="outline"
+                            variant="success"
                             size="sm"
-                            class="min-h-[36px] px-3 rounded-lg text-xs font-semibold text-emerald-700 dark:text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/15 gap-1.5 cursor-pointer shrink-0"
+                            class="min-h-[36px] px-3 rounded-lg text-sm font-semibold gap-1.5 cursor-pointer shrink-0"
                             onclick={() => (isFiscalPdfModalOpen = true)}
                         >
                             <FileText class="size-3.5" />
@@ -613,25 +673,25 @@
 
                 <!-- Cartel Informativo de Estado Terminal -->
                 {#if order.status === 'cancelado'}
-                    <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-xs text-rose-700 dark:text-rose-300">
+                    <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-sm text-rose-700 dark:text-rose-300">
                         <XCircle class="size-5 text-rose-700 dark:text-rose-400 shrink-0" />
                         <div>
-                            <strong class="font-bold block">Pedido Cancelado Definitivamente</strong>
+                            <strong class="font-bold text-base block">Pedido Cancelado Definitivamente</strong>
                             <span>Este pedido fue cancelado, su stock ya fue reincorporado al catálogo y su registro se encuentra cerrado.</span>
                         </div>
                     </div>
                 {:else if order.status === 'entregado'}
-                    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-xs text-emerald-700 dark:text-emerald-300">
+                    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-sm text-emerald-700 dark:text-emerald-300">
                         <CheckCircle2 class="size-5 text-emerald-700 dark:text-emerald-400 shrink-0" />
                         <div>
-                            <strong class="font-bold block">Pedido Completado y Entregado</strong>
+                            <strong class="font-bold text-base block">Pedido Completado y Entregado</strong>
                             <span>Este pedido fue entregado con éxito al cliente. La operación logística ha finalizado.</span>
                         </div>
                     </div>
                 {/if}
 
                 <!-- Datos del Cliente -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-sm">
                     <div class="space-y-1">
                         <span class="text-muted-foreground flex items-center gap-1">
                             <User class="size-3.5" /> Cliente:
@@ -653,72 +713,124 @@
                 </div>
 
                 <!-- Detalle de Productos -->
-                <div class="space-y-2">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Productos y Cantidades</h4>
-                    
-                    <!-- Wide-Cards unificadas (Mobile y Desktop) -->
-                    <div class="space-y-2.5">
-                        {#each order.items ?? [] as item}
-                            <div class="p-3.5 sm:px-4 sm:py-3 rounded-xl border border-border/80 bg-muted/40 dark:bg-secondary/35 dark:border-border/90 hover:bg-muted/65 dark:hover:bg-secondary/50 transition-colors flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-4">
-                                <div class="flex items-start justify-between sm:items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                                    <div class="min-w-0 flex-1">
-                                        <h5 class="text-sm font-semibold text-foreground leading-tight break-words">
-                                            {item.product?.name || `Producto #${item.product_id}`}
-                                        </h5>
-                                        {#if item.product?.sku}
-                                            <span class="text-xs text-muted-foreground font-sans tabular-nums block mt-0.5">
-                                                SKU: {item.product.sku}
-                                            </span>
-                                        {/if}
-                                    </div>
-                                    <div class="shrink-0">
-                                        {#if item.packaging_type === 'gram'}
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20">
-                                                Gramos
-                                            </span>
-                                        {:else if item.packaging_type === 'kg'}
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20">
-                                                Kg
-                                            </span>
-                                        {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
-                                                Bulto x{item.units_per_package || 1}
-                                            </span>
-                                        {:else}
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border">
-                                                Unidad
-                                            </span>
-                                        {/if}
-                                    </div>
-                                </div>
+                <div class="space-y-2.5">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+                        <h4 class="text-[16px] font-bold uppercase tracking-wider text-muted-foreground">Productos y Cantidades</h4>
 
-                                <div class="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/50 shrink-0">
-                                    <div class="text-xs text-muted-foreground font-sans tabular-nums sm:text-right">
-                                        <div>
-                                            {formatPrice(item.unit_price)} ×
-                                            {#if item.packaging_type === 'gram'}
-                                                {item.quantity} g ({item.quantity / 1000} Kg)
-                                            {:else if item.packaging_type === 'kg'}
-                                                {item.quantity} Kg
-                                            {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
-                                                {item.quantity} {item.quantity === 1 ? 'bulto' : 'bultos'} ({item.quantity * (item.units_per_package || 1)} u)
-                                            {:else}
-                                                {item.quantity} unid.
+                        {#if (order.items?.length ?? 0) >= 2}
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+                                {#if hasAnyDiscrepancy}
+                                    <Button
+                                        type="button"
+                                        variant={onlyDiscrepancyItems ? 'warning' : 'outline'}
+                                        size="sm"
+                                        aria-pressed={onlyDiscrepancyItems}
+                                        class="min-h-[40px] px-3 rounded-xl text-sm font-semibold shrink-0 cursor-pointer"
+                                        onclick={() => (onlyDiscrepancyItems = !onlyDiscrepancyItems)}
+                                    >
+                                        Solo diferencias
+                                    </Button>
+                                {/if}
+                                <SearchCombobox
+                                    showDropdown={false}
+                                    debounceMs={0}
+                                    bind:value={itemSearchQuery}
+                                    onclear={() => (itemSearchQuery = '')}
+                                    placeholder="Buscar producto, SKU o presentación..."
+                                    inputClass="text-sm"
+                                    class="w-full sm:w-72"
+                                />
+                            </div>
+                        {/if}
+                    </div>
+
+                    {#if filteredItems.length !== (order.items?.length ?? 0) || itemSearchQuery.trim() !== '' || onlyDiscrepancyItems}
+                        <p class="text-sm text-muted-foreground tabular-nums">
+                            Mostrando {filteredItems.length} de {order.items?.length ?? 0}
+                        </p>
+                    {/if}
+
+                    {#if (order.items?.length ?? 0) > 0 && filteredItems.length === 0}
+                        <div class="rounded-xl border border-border/70 bg-muted/30 p-4 text-center space-y-2.5 text-sm">
+                            <p class="text-muted-foreground">No se encontraron productos que coincidan con la búsqueda.</p>
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                size="sm"
+                                class="min-h-[40px] px-4 rounded-xl text-sm"
+                                onclick={() => {
+                                    itemSearchQuery = '';
+                                    onlyDiscrepancyItems = false;
+                                }}
+                            >
+                                Limpiar búsqueda
+                            </Button>
+                        </div>
+                    {:else}
+                        <!-- Wide-Cards unificadas (Mobile y Desktop) -->
+                        <div class="space-y-2.5">
+                            {#each filteredItems as item}
+                                <div class="p-3.5 sm:px-4 sm:py-3 rounded-xl border border-border/80 bg-muted/40 dark:bg-secondary/35 dark:border-border/90 hover:bg-muted/65 dark:hover:bg-secondary/50 transition-colors flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-4">
+                                    <div class="flex items-start justify-between sm:items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                                        <div class="min-w-0 flex-1">
+                                            <h5 class="text-base font-semibold text-foreground leading-tight break-words">
+                                                <HighlightMatch text={item.product?.name || `Producto #${item.product_id}`} query={itemSearchQuery} />
+                                            </h5>
+                                            {#if item.product?.sku}
+                                                <span class="text-sm text-muted-foreground font-sans tabular-nums block mt-0.5">
+                                                    SKU: <HighlightMatch text={item.product.sku} query={itemSearchQuery} />
+                                                </span>
                                             {/if}
                                         </div>
-                                        {#if item.product?.price && Math.abs(Number(item.product.price) - Number(item.unit_price)) >= 0.01}
-                                            <span class="text-xs text-amber-700 dark:text-amber-400 font-semibold block mt-0.5">
-                                                Catálogo actual: {formatPrice(item.product.price)}
-                                            </span>
-                                        {/if}
+                                        <div class="shrink-0">
+                                            {#if item.packaging_type === 'gram'}
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-semibold bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20">
+                                                    Gramos
+                                                </span>
+                                            {:else if item.packaging_type === 'kg'}
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-semibold bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20">
+                                                    Kg
+                                                </span>
+                                            {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-semibold bg-primary/10 text-primary border border-primary/20">
+                                                    Bulto x{item.units_per_package || 1}
+                                                </span>
+                                            {:else}
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-semibold bg-muted text-muted-foreground border border-border">
+                                                    Unidad
+                                                </span>
+                                            {/if}
+                                        </div>
                                     </div>
-                                    <div class="text-sm sm:text-base font-bold font-sans tabular-nums text-foreground sm:min-w-[110px] sm:text-right">
-                                        {formatPrice(item.subtotal)}
+
+                                    <div class="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/50 shrink-0">
+                                        <div class="text-sm text-muted-foreground font-sans tabular-nums sm:text-right">
+                                            <div>
+                                                {formatPrice(item.unit_price)} ×
+                                                {#if item.packaging_type === 'gram'}
+                                                    {item.quantity} g ({item.quantity / 1000} Kg)
+                                                {:else if item.packaging_type === 'kg'}
+                                                    {item.quantity} Kg
+                                                {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
+                                                    {item.quantity} {item.quantity === 1 ? 'bulto' : 'bultos'} ({item.quantity * (item.units_per_package || 1)} u)
+                                                {:else}
+                                                    {item.quantity} unid.
+                                                {/if}
+                                            </div>
+                                            {#if item.product?.price && Math.abs(Number(item.product.price) - Number(item.unit_price)) >= 0.01}
+                                                <span class="text-sm text-amber-700 dark:text-amber-400 font-semibold block mt-0.5">
+                                                    Catálogo actual: {formatPrice(item.product.price)}
+                                                </span>
+                                            {/if}
+                                        </div>
+                                        <div class="text-base font-bold font-sans tabular-nums text-foreground sm:min-w-[110px] sm:text-right">
+                                            {formatPrice(item.subtotal)}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        {/each}
-                    </div>
+                            {/each}
+                        </div>
+                    {/if}
                 </div>
 
                 <!-- Sección: Uso de cuenta corriente -->
@@ -726,18 +838,18 @@
                     <div class="space-y-2 pt-2 border-t">
                         <div class="flex items-center gap-1.5 mb-2">
                             <Wallet class="size-3.5 text-primary" />
-                            <span class="text-xs font-bold text-foreground">Uso de cuenta corriente</span>
+                            <span class="text-[16px] font-bold text-foreground">Uso de cuenta corriente</span>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {#if Number(order.credit_balance_applied ?? 0) > 0}
-                                <div class="p-2.5 rounded-xl border flex items-center justify-between text-xs bg-emerald-500/5 border-emerald-500/20">
+                                <div class="p-2.5 rounded-xl border flex items-center justify-between text-sm bg-emerald-500/5 border-emerald-500/20">
                                     <div class="min-w-0 pr-2">
                                         <div class="flex items-center gap-1.5">
                                             <span class="font-semibold text-foreground truncate">Saldo a favor</span>
-                                            <span class="text-xs px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-sans tabular-nums font-medium">Aplicado</span>
+                                            <span class="text-sm px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-sans tabular-nums font-medium">Aplicado</span>
                                         </div>
-                                        <p class="text-xs text-muted-foreground truncate mt-0.5">Deducido del total a pagar</p>
+                                        <p class="text-sm text-muted-foreground truncate mt-0.5">Deducido del total a pagar</p>
                                     </div>
                                     <div class="flex items-center shrink-0 font-sans tabular-nums">
                                         <span class="font-bold text-emerald-700 dark:text-emerald-400">
@@ -748,13 +860,13 @@
                             {/if}
 
                             {#if Number(order.previous_debt_collected ?? 0) > 0}
-                                <div class="p-2.5 rounded-xl border flex items-center justify-between text-xs bg-amber-500/5 border-amber-500/20">
+                                <div class="p-2.5 rounded-xl border flex items-center justify-between text-sm bg-amber-500/5 border-amber-500/20">
                                     <div class="min-w-0 pr-2">
                                         <div class="flex items-center gap-1.5">
                                             <span class="font-semibold text-foreground truncate">Saldo deudor</span>
-                                            <span class="text-xs px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 font-sans tabular-nums font-medium">Cobrado</span>
+                                            <span class="text-sm px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 font-sans tabular-nums font-medium">Cobrado</span>
                                         </div>
-                                        <p class="text-xs text-muted-foreground truncate mt-0.5">Unificado en el cobro</p>
+                                        <p class="text-sm text-muted-foreground truncate mt-0.5">Unificado en el cobro</p>
                                     </div>
                                     <div class="flex items-center shrink-0 font-sans tabular-nums">
                                         <span class="font-bold text-amber-700 dark:text-amber-400">
@@ -772,7 +884,7 @@
                     <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-1.5">
                             <Tag class="size-3.5 text-primary" />
-                            <span class="text-xs font-bold text-foreground">Descuentos y Recargos</span>
+                            <span class="text-[16px] font-bold text-foreground">Descuentos y Recargos</span>
                         </div>
                         {#if order.status !== 'cancelado' && order.status !== 'entregado' && order.fiscal_status !== 'facturado' && hasPermission('pedidos.editar_estado')}
                             <Button
@@ -791,16 +903,16 @@
                     {#if displayedAdjustments.length > 0}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {#each displayedAdjustments as adj}
-                                <div class="p-2.5 rounded-xl border flex items-center justify-between text-xs {adj.type === 'discount' ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-amber-500/5 border-amber-500/20'}">
+                                <div class="p-2.5 rounded-xl border flex items-center justify-between text-sm {adj.type === 'discount' ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-amber-500/5 border-amber-500/20'}">
                                     <div class="min-w-0 pr-2">
                                         <div class="flex items-center gap-1.5">
                                             <span class="font-semibold text-foreground truncate">{adj.name || (adj.type === 'discount' ? 'Descuento' : 'Recargo')}</span>
                                             {#if adj.calculation_type === 'percentage'}
-                                                <span class="text-xs px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-sans tabular-nums font-medium">%{adj.value}</span>
+                                                <span class="text-sm px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-sans tabular-nums font-medium">%{adj.value}</span>
                                             {/if}
                                         </div>
                                         {#if adj.reason}
-                                            <p class="text-xs text-muted-foreground truncate mt-0.5">{adj.reason}</p>
+                                            <p class="text-sm text-muted-foreground truncate mt-0.5">{adj.reason}</p>
                                         {/if}
                                     </div>
                                     <div class="flex items-center gap-2 shrink-0 font-sans tabular-nums">
@@ -822,12 +934,12 @@
                             {/each}
                         </div>
                     {:else}
-                        <p class="text-xs text-muted-foreground italic">Sin recargos ni descuentos adicionales aplicados.</p>
+                        <p class="text-sm text-muted-foreground italic">Sin recargos ni descuentos adicionales aplicados.</p>
                     {/if}
                 </div>
 
                 {#if order.notes}
-                    <div class="p-2.5 rounded-lg bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-xs text-muted-foreground">
+                    <div class="p-2.5 rounded-lg bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-sm text-muted-foreground">
                         <strong class="text-foreground">Notas:</strong> {order.notes}
                     </div>
                 {/if}
@@ -836,7 +948,7 @@
                 {#if order.status !== 'cancelado' && order.status !== 'entregado' && (hasPermission('pedidos.editar_estado') || hasPermission('pedidos.cancelar'))}
                     <div class="space-y-2 pt-2 border-t">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-foreground block">Actualizar estado</span>
+                            <span class="text-[16px] font-bold text-foreground block">Actualizar estado</span>
                         </div>
 
                         <div class="grid grid-cols-1 {order.status === 'preparado' && hasPermission('pedidos.editar_estado') ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-2">
@@ -845,7 +957,7 @@
                                     <button
                                         type="button"
                                         disabled={isUpdatingStatus}
-                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-xs cursor-pointer"
+                                        class="px-3 py-2.5 rounded-xl text-sm font-bold border text-center transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-xs cursor-pointer"
                                         onclick={() => requestStatusChange('preparado')}
                                     >
                                         Pasar a Preparado
@@ -854,7 +966,7 @@
                                     <button
                                         type="button"
                                         disabled={isUpdatingStatus}
-                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs cursor-pointer"
+                                        class="px-3 py-2.5 rounded-xl text-sm font-bold border text-center transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs cursor-pointer"
                                         onclick={() => requestStatusChange('en_camino')}
                                     >
                                         Despachar (En camino)
@@ -862,7 +974,7 @@
                                     <button
                                         type="button"
                                         disabled={isUpdatingStatus}
-                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs cursor-pointer"
+                                        class="px-3 py-2.5 rounded-xl text-sm font-bold border text-center transition-all bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs cursor-pointer"
                                         onclick={() => requestStatusChange('entregado')}
                                     >
                                         Entregar (Retiro en local)
@@ -871,7 +983,7 @@
                                     <button
                                         type="button"
                                         disabled={isUpdatingStatus}
-                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs cursor-pointer"
+                                        class="px-3 py-2.5 rounded-xl text-sm font-bold border text-center transition-all bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs cursor-pointer"
                                         onclick={() => requestStatusChange('entregado')}
                                     >
                                         Marcar Entregado
@@ -881,14 +993,15 @@
 
                             <!-- Botón Cancelar disponible para pedidos activos -->
                             {#if hasPermission('pedidos.cancelar')}
-                                <button
+                                <Button
                                     type="button"
+                                    variant="destructive"
                                     disabled={isUpdatingStatus}
-                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-rose-600/10 hover:bg-rose-600 hover:text-white text-rose-700 dark:text-rose-400 border-rose-500/30 cursor-pointer"
+                                    class="px-3 py-2.5 h-auto rounded-xl text-sm font-bold text-center cursor-pointer"
                                     onclick={() => requestStatusChange('cancelado')}
                                 >
                                     Cancelar Pedido
-                                </button>
+                                </Button>
                             {/if}
                         </div>
                     </div>
@@ -900,8 +1013,8 @@
                 {#if canReturn}
                     <Button
                         type="button"
-                        variant="outline"
-                        class="min-h-[42px] sm:min-h-[40px] px-3.5 rounded-xl text-xs font-semibold text-amber-700 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/10 hover:border-amber-500/50 gap-1.5 shrink-0 cursor-pointer {extraClass}"
+                        variant="warning"
+                        class="min-h-[42px] sm:min-h-[40px] px-3.5 rounded-xl text-sm font-semibold gap-1.5 shrink-0 cursor-pointer {extraClass}"
                         onclick={() => (isConfirmReturnOpen = true)}
                     >
                         <RotateCcw class="size-4 shrink-0" />
@@ -916,7 +1029,7 @@
                         <Button
                             type="button"
                             variant="outline"
-                            class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 bg-muted text-muted-foreground border border-border cursor-not-allowed opacity-60 {extraClass}"
+                            class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-sm font-semibold gap-1.5 shadow-xs shrink-0 bg-muted text-muted-foreground border border-border cursor-not-allowed opacity-60 {extraClass}"
                             onclick={() => toast.error('WSFEv1 (ARCA) requiere comprobantes con importe total mayor a cero ($0.00). Para entregas sin cargo utilice remito interno.')}
                         >
                             <Lock class="size-4 shrink-0" />
@@ -926,7 +1039,7 @@
                         <Button
                             type="button"
                             variant="outline"
-                            class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer text-foreground hover:text-primary hover:border-primary/50 {extraClass}"
+                            class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer text-foreground hover:text-primary hover:border-primary/50 {extraClass}"
                             onclick={() => (isFiscalPreModalOpen = true)}
                         >
                             <ReceiptText class="size-4 text-primary shrink-0" />
@@ -937,7 +1050,7 @@
                     <Button
                         type="button"
                         variant="secondary"
-                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer {extraClass}"
+                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer {extraClass}"
                         onclick={() => (isFiscalPdfModalOpen = true)}
                     >
                         <FileText class="size-4 text-primary shrink-0" />
@@ -950,16 +1063,16 @@
                 {#if order?.has_pending_credit_note && hasPermission('facturas.anular')}
                     <Button
                         type="button"
-                        variant="outline"
+                        variant="destructive"
                         disabled={isEmittingCreditNote}
-                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/30 hover:bg-rose-500/20 {extraClass}"
+                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer {extraClass}"
                         onclick={emitCreditNote}
                     >
                         {#if isEmittingCreditNote}
                             <Loader2 class="size-4 animate-spin shrink-0" />
                             <span class="truncate">Emitiendo NC...</span>
                         {:else}
-                            <ReceiptText class="size-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                            <ReceiptText class="size-4 text-current shrink-0" />
                             <span class="truncate">Emitir Nota de Crédito ARCA</span>
                         {/if}
                     </Button>
@@ -971,7 +1084,7 @@
                     <Button
                         type="button"
                         variant="default"
-                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer {extraClass}"
+                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer {extraClass}"
                         onclick={() => (isCollectModalOpen = true)}
                     >
                         <ReceiptText class="size-4 shrink-0" />
@@ -985,7 +1098,7 @@
                     <Button
                         type="button"
                         variant="secondary"
-                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-l-xl rounded-r-none text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer flex-1 justify-center border-r-0"
+                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-l-xl rounded-r-none text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer flex-1 justify-center border-r-0"
                         onclick={() => (isPdfModalOpen = true)}
                     >
                         <Printer class="size-4 text-primary shrink-0" />
@@ -994,7 +1107,7 @@
                     <Button
                         type="button"
                         variant="secondary"
-                        class="min-h-[42px] sm:min-h-[40px] px-2.5 rounded-r-xl rounded-l-none border-l border-border/60 text-xs sm:text-sm font-semibold shadow-xs shrink-0 cursor-pointer hover:bg-muted dark:hover:bg-secondary/60"
+                        class="min-h-[42px] sm:min-h-[40px] px-2.5 rounded-r-xl rounded-l-none border-l border-border/60 text-sm font-semibold shadow-xs shrink-0 cursor-pointer hover:bg-muted dark:hover:bg-secondary/60"
                         title="Configurar visibilidad en remito"
                         onclick={() => (isReceiptVisibilityModalOpen = true)}
                     >
@@ -1007,7 +1120,7 @@
                 <Button
                     type="button"
                     variant="secondary"
-                    class="min-h-[42px] sm:min-h-[40px] px-3.5 rounded-xl text-xs sm:text-sm font-semibold shrink-0 cursor-pointer {extraClass}"
+                    class="min-h-[42px] sm:min-h-[40px] px-3.5 rounded-xl text-sm font-semibold shrink-0 cursor-pointer {extraClass}"
                     onclick={() => (open = false)}
                 >
                     Cerrar
@@ -1051,11 +1164,11 @@
                 <div class="hidden sm:flex sm:items-center sm:justify-between sm:gap-2 sm:w-full">
                     <div class="flex flex-wrap items-center gap-2">
                         {#if order.return_status === 'total'}
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 shrink-0">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 shrink-0">
                                 Devolución Total
                             </span>
                         {:else if order.return_status === 'parcial'}
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 shrink-0">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 shrink-0">
                                 Devolución Parcial
                             </span>
                         {/if}
@@ -1082,13 +1195,13 @@
                     <!-- Badge de devolución si aplica -->
                     {#if order.return_status === 'total'}
                         <div class="flex items-center justify-start pb-0.5">
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                                 Devolución Total
                             </span>
                         </div>
                     {:else if order.return_status === 'parcial'}
                         <div class="flex items-center justify-start pb-0.5">
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                                 Devolución Parcial
                             </span>
                         </div>
@@ -1247,7 +1360,7 @@
                     </div>
                 </DialogHeader>
 
-                <DialogBody class="space-y-4 text-xs">
+                <DialogBody class="space-y-4 text-sm">
                     <div class="grid grid-cols-2 gap-3 p-3.5 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                         <div class="space-y-1">
                             <span class="text-muted-foreground block font-medium">Monto Facturable (ARCA)</span>
@@ -1265,7 +1378,7 @@
 
                     {#if Number(order.credit_balance_applied ?? 0) > 0}
                         <div class="p-3 rounded-xl bg-primary/10 border border-primary/20 text-primary space-y-1">
-                            <strong class="font-semibold block">Uso de Saldo a Favor</strong>
+                            <strong class="font-semibold text-base block">Uso de Saldo a Favor</strong>
                             <p class="leading-relaxed">
                                 Este pedido aplicó <strong>{formatPrice(order.credit_balance_applied)}</strong> de saldo a favor del cliente como medio de pago anticipado. El saldo restante a cancelar del pedido es de <strong>{formatPrice(order.total_amount)}</strong>, pero la factura fiscal oficial comprende el total vendido de <strong>{formatPrice(order.billable_amount)}</strong>.
                             </p>
@@ -1274,7 +1387,7 @@
 
                     {#if Number(order.previous_debt_collected ?? 0) > 0}
                         <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 space-y-1">
-                            <strong class="font-semibold block">Cobro de Deuda Histórica</strong>
+                            <strong class="font-semibold text-base block">Cobro de Deuda Histórica</strong>
                             <p class="leading-relaxed">
                                 Se incluyeron <strong>{formatPrice(order.previous_debt_collected)}</strong> para regularizar deudas anteriores del cliente. Dicho cobro histórico no integra la factura fiscal de este pedido para preservar la integridad tributaria y evitar doble facturación.
                             </p>
@@ -1286,7 +1399,7 @@
                     <Button
                         type="button"
                         variant="default"
-                        class="w-full min-h-[44px] text-xs font-semibold rounded-xl cursor-pointer"
+                        class="w-full min-h-[44px] text-sm font-semibold rounded-xl cursor-pointer"
                         onclick={() => (isBalanceImpactModalOpen = false)}
                     >
                         Entendido
@@ -1311,13 +1424,13 @@
                     </div>
                 </DialogHeader>
 
-                <DialogBody class="space-y-4 text-xs">
+                <DialogBody class="space-y-4 text-sm">
                     <div class="p-3.5 rounded-xl bg-primary/10 border border-primary/25 space-y-1">
-                        <span class="text-xs text-muted-foreground block font-medium">Monto a facturar legalmente ante AFIP/ARCA:</span>
+                        <span class="text-sm text-muted-foreground block font-medium">Monto a facturar legalmente ante AFIP/ARCA:</span>
                         <span class="text-xl font-bold text-primary tabular-nums block">
                             {formatPrice(order.billable_amount ?? order.total_amount)}
                         </span>
-                        <span class="text-[11px] text-muted-foreground block pt-0.5">
+                        <span class="text-sm text-muted-foreground block pt-0.5">
                             Comprobante electrónico oficial. No incluye cobros de deudas anteriores ni deducciones de créditos previos no fiscales.
                         </span>
                     </div>
@@ -1348,7 +1461,7 @@
                         {/if}
                         <div class="flex items-center justify-between pt-1.5 border-t border-border/50 font-bold text-foreground">
                             <span>Base imponible final:</span>
-                            <span class="tabular-nums text-primary text-sm">{formatPrice(order.billable_amount ?? order.total_amount)}</span>
+                            <span class="tabular-nums text-primary text-base font-bold">{formatPrice(order.billable_amount ?? order.total_amount)}</span>
                         </div>
                     </div>
                 </DialogBody>
@@ -1357,7 +1470,7 @@
                     <Button
                         type="button"
                         variant="secondary"
-                        class="min-h-[44px] w-full text-xs font-semibold rounded-xl cursor-pointer"
+                        class="min-h-[44px] w-full text-sm font-semibold rounded-xl cursor-pointer"
                         onclick={() => (isFiscalPreModalOpen = false)}
                     >
                         Cancelar
@@ -1365,7 +1478,7 @@
                     <Button
                         type="button"
                         variant="default"
-                        class="min-h-[44px] w-full text-xs font-semibold rounded-xl cursor-pointer"
+                        class="min-h-[44px] w-full text-sm font-semibold rounded-xl cursor-pointer"
                         onclick={() => {
                             isFiscalPreModalOpen = false;
                             isFiscalModalOpen = true;

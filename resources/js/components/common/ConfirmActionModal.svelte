@@ -132,15 +132,16 @@
             </Button>
             <Button
                 type="button"
+                variant={isDestructive
+                    ? 'destructive'
+                    : variant === 'warning'
+                      ? 'warning'
+                      : variant === 'success'
+                        ? 'success'
+                        : 'default'}
                 onclick={handleConfirm}
                 disabled={isBusy}
-                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-28 shadow-xs {isDestructive
-                    ? 'bg-rose-600 hover:bg-rose-700 text-white dark:bg-rose-600 dark:hover:bg-rose-700'
-                    : variant === 'warning'
-                      ? 'bg-amber-700 hover:bg-amber-800 text-white'
-                      : variant === 'success'
-                        ? 'bg-emerald-700 hover:bg-emerald-800 text-white dark:bg-emerald-700 dark:hover:bg-emerald-800'
-                        : ''}"
+                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-28 shadow-xs"
             >
                 {isBusy ? 'Procesando...' : confirmText}
             </Button>

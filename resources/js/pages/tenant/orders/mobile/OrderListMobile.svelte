@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { Button } from '@/components/ui/button';
     import AppPagination, { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
@@ -195,15 +196,17 @@
                 </span>
                 <div class="flex items-center gap-2 shrink-0">
                     {#if canCollect(order)}
-                        <button
+                        <Button
                             type="button"
+                            variant="default"
+                            size="icon"
                             onclick={() => onCollectOrder?.(order)}
-                            class="size-11 min-h-[44px] min-w-[44px] rounded-xl border border-primary/40 bg-primary/10 shadow-2xs hover:bg-primary/20 text-primary transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                            class="size-11 min-h-[44px] min-w-[44px] rounded-xl shrink-0 cursor-pointer"
                             aria-label="Cobrar pedido"
                             title="Cobrar pedido"
                         >
                             <ReceiptText class="size-4.5" />
-                        </button>
+                        </Button>
                     {/if}
 
                     <button

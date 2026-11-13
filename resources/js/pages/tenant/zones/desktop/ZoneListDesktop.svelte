@@ -95,7 +95,7 @@
                 <Button
                     variant="destructive"
                     size="sm"
-                    class="min-h-[38px] px-3.5 rounded-xl text-sm font-medium gap-1.5 bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                    class="min-h-[38px] px-3.5 rounded-xl text-sm font-medium gap-1.5"
                     onclick={(e) => {
                         e.stopPropagation();
                         ondelete(zone);

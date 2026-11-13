@@ -173,7 +173,7 @@
                             }}
                             class={`min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                                 form.calculation_type === 'percentage'
-                                    ? 'bg-primary text-primary-foreground border-primary shadow-2xs'
+                                    ? 'bg-primary-solid text-primary-foreground border-primary-solid shadow-2xs'
                                     : 'bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground border-border/80 dark:border-border/90'
                             }`}
                         >
@@ -188,7 +188,7 @@
                             }}
                             class={`min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                                 form.calculation_type === 'fixed'
-                                    ? 'bg-primary text-primary-foreground border-primary shadow-2xs'
+                                    ? 'bg-primary-solid text-primary-foreground border-primary-solid shadow-2xs'
                                     : 'bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground border-border/80 dark:border-border/90'
                             }`}
                         >

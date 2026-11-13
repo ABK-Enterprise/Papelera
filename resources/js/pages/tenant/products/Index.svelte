@@ -236,9 +236,9 @@
                 </div>
             </div>
             <Button
-                variant="outline"
+                variant="warning"
                 size="sm"
-                class="shrink-0 text-xs font-semibold border-amber-500/40 text-foreground"
+                class="shrink-0 text-xs font-semibold"
                 onclick={filterIncompleteQuick}
             >
                 Ver faltantes

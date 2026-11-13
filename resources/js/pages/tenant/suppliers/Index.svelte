@@ -78,7 +78,7 @@
         {#snippet tabs()}
             <div class="flex items-center gap-2 border-b border-border/60 pb-3">
                 <Link href="/tenant/proveedores" class="inline-flex">
-                    <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
+                    <Button variant="tertiary" size="sm" class="gap-2 text-xs font-bold shadow-2xs h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
                         <Users class="size-4" />
                         Directorio de Proveedores ({totalCount})
                     </Button>

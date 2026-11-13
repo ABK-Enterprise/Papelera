@@ -252,7 +252,7 @@
                     </Button>
                 </Link>
                 <Link href="/tenant/proveedores/ordenes" class="inline-flex">
-                    <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
+                    <Button variant="tertiary" size="sm" class="gap-2 text-xs font-bold shadow-2xs h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
                         <Truck class="size-4" />
                         Órdenes de Compra ({stats.total})
                     </Button>

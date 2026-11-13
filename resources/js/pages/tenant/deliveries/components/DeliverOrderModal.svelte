@@ -418,8 +418,8 @@
                                         <div class="space-y-2 p-3 rounded-xl bg-sky-500/10 border border-sky-500/20">
                                             <Button
                                                 type="button"
-                                                variant="default"
-                                                class="w-full h-11 min-h-[44px] rounded-xl font-semibold gap-2 shadow-xs bg-sky-700 hover:bg-sky-800 text-white dark:bg-sky-700 dark:hover:bg-sky-800 cursor-pointer"
+                                                variant="secondary"
+                                                class="w-full h-11 min-h-[44px] rounded-xl font-semibold gap-2 shadow-xs border-transparent bg-sky-700 hover:bg-sky-800 text-white dark:bg-sky-700 dark:hover:bg-sky-800 sm:hover:shadow-lg sm:hover:shadow-sky-700/25 cursor-pointer"
                                                 onclick={() => (isQrModalOpen = true)}
                                             >
                                                 <QrCode class="size-4.5" />
@@ -634,7 +634,8 @@
                 Cancelar
             </Button>
             <Button
-                class="w-full sm:w-auto h-11 min-h-[44px] px-6 text-sm font-semibold gap-2 bg-emerald-700 hover:bg-emerald-800 text-white"
+                variant="success"
+                class="w-full sm:w-auto h-11 min-h-[44px] px-6 text-sm font-semibold gap-2"
                 onclick={triggerSubmit}
                 disabled={isSubmitting}
             >

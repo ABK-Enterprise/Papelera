@@ -381,9 +381,10 @@
                 </Button>
                 <Button
                     type="submit"
+                    variant="secondary"
                     form="create-outcome-form"
                     disabled={form.processing || !form.product_id || isQuantityExceeded}
-                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-medium bg-rose-700 hover:bg-rose-800 text-white shadow-xs whitespace-nowrap cursor-pointer"
+                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-medium border-transparent bg-rose-700 hover:bg-rose-800 dark:hover:bg-rose-800 text-white shadow-xs sm:hover:shadow-lg sm:hover:shadow-rose-700/25 whitespace-nowrap cursor-pointer"
                 >
                     {#if form.processing}
                         <Loader2 class="size-3.5 animate-spin mr-1.5 shrink-0" />

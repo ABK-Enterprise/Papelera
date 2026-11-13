@@ -315,7 +315,7 @@
                     {disabled}
                     class={`min-h-[42px] sm:min-h-[44px] min-w-0 w-full flex flex-col items-center justify-center rounded-xl border text-xs sm:text-sm font-medium tabular-nums transition-colors cursor-pointer select-none touch-manipulation px-0.5 sm:px-1 ${
                         status === 'all'
-                            ? 'bg-primary text-primary-foreground border-primary shadow-2xs font-semibold'
+                            ? 'bg-primary-solid text-primary-foreground border-primary-solid shadow-2xs font-semibold'
                             : status === 'some'
                                 ? 'bg-primary/10 dark:bg-primary/15 text-primary border-primary font-semibold'
                                 : 'bg-card hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground border-border/80 dark:border-border/90'
@@ -386,7 +386,7 @@
                         {disabled}
                         class={`min-h-[28px] sm:min-h-[30px] min-w-0 w-full flex items-center justify-center rounded-md text-xs transition-all select-none cursor-pointer ${
                             isSelected
-                                ? 'bg-primary text-primary-foreground font-bold border border-primary shadow-2xs hover:bg-primary/90'
+                                ? 'bg-primary-solid text-primary-foreground font-bold border border-primary-solid shadow-2xs hover:bg-primary'
                                 : 'text-foreground hover:bg-muted/70 dark:hover:bg-secondary/55'
                         } ${cell.isToday ? 'ring-1 ring-primary' : ''} disabled:cursor-not-allowed disabled:opacity-50`}
                         title={isSelected ? `${cell.dateStr}: Activo (Click para desmarcar)` : `${cell.dateStr} (Click para marcar)`}
@@ -428,7 +428,7 @@
                 type="button"
                 onclick={clearAllDates}
                 {disabled}
-                class="text-2xs text-destructive hover:underline font-medium cursor-pointer shrink-0"
+                class="text-xs font-medium text-rose-700 dark:text-rose-400 hover:underline cursor-pointer shrink-0"
             >
                 Limpiar fechas
             </button>

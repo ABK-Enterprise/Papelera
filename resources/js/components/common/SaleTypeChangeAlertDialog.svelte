@@ -136,9 +136,10 @@
             </Button>
             <Button
                 type="button"
+                variant="warning"
                 onclick={handleConfirm}
                 disabled={loading}
-                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-32 shadow-xs bg-amber-700 hover:bg-amber-800 text-white"
+                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-32 shadow-xs"
             >
                 {loading ? 'Guardando...' : 'Confirmar cambio'}
             </Button>

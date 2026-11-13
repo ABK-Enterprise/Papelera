@@ -120,13 +120,13 @@
 
                 {#if currentUserId !== user.id}
                     <Button
-                        variant="ghost"
+                        variant="destructive"
                         size="sm"
                         onclick={(e) => {
                             e.stopPropagation();
                             ondelete(user);
                         }}
-                        class="min-h-[38px] min-w-[38px] px-3 gap-1.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors justify-center"
+                        class="min-h-[38px] min-w-[38px] px-3 gap-1.5 rounded-xl text-sm font-medium justify-center"
                     >
                         <Trash2 class="h-3.5 w-3.5" />
                         <span class="sr-only">Eliminar</span>

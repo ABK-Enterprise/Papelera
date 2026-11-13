@@ -796,8 +796,9 @@
                 <div class="space-y-2.5 pt-2">
                     {#if hasPermission('cobranzas.crear')}
                         <Button
+                            variant="success"
                             onclick={() => onOpenPayment(selectedCustomer!)}
-                            class="w-full min-h-[38px] h-10 gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium rounded-xl shadow-sm"
+                            class="w-full min-h-[38px] h-10 gap-2 text-sm font-medium rounded-xl shadow-sm"
                         >
                             <Banknote class="size-4" />
                             <span>Registrar Cobro / Abono</span>

@@ -710,8 +710,8 @@
                     <div class="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto justify-end">
                         <Button
                             type="button"
-                            variant="default"
-                            class="h-11 px-6 rounded-xl font-bold w-full sm:w-auto min-h-[44px] gap-2 shadow-sm bg-emerald-700 hover:bg-emerald-800 text-white cursor-pointer"
+                            variant="success"
+                            class="h-11 px-6 rounded-xl font-bold w-full sm:w-auto min-h-[44px] gap-2 shadow-sm cursor-pointer"
                             disabled={isMarkingDelivered}
                             onclick={handleMarkAsDelivered}
                         >
@@ -737,8 +737,8 @@
                 {:else}
                     <Button
                         type="button"
-                        variant="default"
-                        class="h-11 px-8 rounded-xl font-bold w-full sm:w-auto min-h-[44px] gap-2 shadow-sm bg-emerald-700 hover:bg-emerald-800 text-white cursor-pointer"
+                        variant="success"
+                        class="h-11 px-8 rounded-xl font-bold w-full sm:w-auto min-h-[44px] gap-2 shadow-sm cursor-pointer"
                         onclick={handleCompleteSuccess}
                     >
                         <CheckCircle2 class="size-4 shrink-0" />

@@ -87,12 +87,12 @@
 
             <Button
                 type="button"
-                variant={activeCount > 0 ? 'outline' : 'ghost'}
+                variant={activeCount > 0 ? 'secondary' : 'ghost'}
                 size="sm"
                 onclick={onreset}
                 disabled={activeCount === 0}
                 class="min-h-[44px] px-3.5 rounded-xl text-xs font-semibold gap-1.5 transition-colors {activeCount > 0
-                    ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25 shadow-2xs'
+                    ? 'shadow-2xs'
                     : 'text-muted-foreground border-transparent cursor-not-allowed opacity-50'}"
             >
                 <RotateCcw class="size-3.5" />

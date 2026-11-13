@@ -264,15 +264,16 @@
                     </button>
 
                     <!-- Acceso rápido a Cobro QR Mercado Pago -->
-                    <button
+                    <Button
                         type="button"
+                        variant="secondary"
                         onclick={openQrModal}
-                        class="min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold border border-sky-500/40 bg-sky-500/10 text-sky-700 dark:text-sky-400 hover:bg-sky-500/20 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer shadow-xs"
+                        class="min-h-[44px] h-auto px-3 py-2 rounded-xl text-xs font-semibold border-transparent bg-sky-700 hover:bg-sky-800 dark:bg-sky-700 dark:hover:bg-sky-800 text-white flex-col gap-1 cursor-pointer shadow-xs"
                         title="Cobrar presencialmente con QR de Mercado Pago"
                     >
                         <QrCode class="size-4 shrink-0" />
                         <span>QR MP</span>
-                    </button>
+                    </Button>
                 </div>
             </div>
 

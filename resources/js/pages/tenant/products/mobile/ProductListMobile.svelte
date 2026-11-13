@@ -158,7 +158,7 @@
                                     {/if}
                                 {/if}
                                 <DropdownMenuItem
-                                    class="flex items-center gap-2 text-sm font-medium text-destructive cursor-pointer py-2.5 min-h-[44px] focus:text-destructive focus:bg-destructive/10"
+                                    class="flex items-center gap-2 text-sm font-medium text-rose-700 dark:text-rose-400 cursor-pointer py-2.5 min-h-[44px] focus:text-rose-700 dark:focus:text-rose-300 focus:bg-rose-500/10"
                                     onclick={() => promptDelete(product)}
                                 >
                                     <Trash2 class="size-4" />
@@ -321,7 +321,7 @@
                                 {/if}
                                 {#if hasPermission('productos.eliminar') || isAdmin()}
                                     <DropdownMenuItem
-                                        class="flex items-center gap-2 text-sm font-medium text-destructive cursor-pointer py-2.5 min-h-[44px] focus:text-destructive focus:bg-destructive/10"
+                                        class="flex items-center gap-2 text-sm font-medium text-rose-700 dark:text-rose-400 cursor-pointer py-2.5 min-h-[44px] focus:text-rose-700 dark:focus:text-rose-300 focus:bg-rose-500/10"
                                         onclick={() => promptDelete(product)}
                                     >
                                         <Trash2 class="size-4" />
@@ -363,7 +363,7 @@
                                 title="Subir foto"
                                 aria-label={`Subir foto para ${product.name}`}
                             >
-                                <span class="absolute bottom-0 right-0 bg-primary/90 hover:bg-primary text-primary-foreground size-5.5 rounded-tl-lg flex items-center justify-center shadow-xs">
+                                <span class="absolute bottom-0 right-0 bg-primary-solid hover:bg-primary text-primary-foreground size-5.5 rounded-tl-lg flex items-center justify-center shadow-xs">
                                     <Camera class="size-3" />
                                 </span>
                             </button>

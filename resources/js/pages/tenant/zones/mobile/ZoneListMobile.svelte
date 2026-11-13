@@ -75,7 +75,7 @@
                 <Button
                     variant="destructive"
                     size="sm"
-                    class="rounded-xl text-sm font-medium gap-1.5 w-full min-h-[44px] bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                    class="rounded-xl text-sm font-medium gap-1.5 w-full min-h-[44px]"
                     onclick={() => ondelete(zone)}
                 >
                     <Trash2 class="size-3.5" />

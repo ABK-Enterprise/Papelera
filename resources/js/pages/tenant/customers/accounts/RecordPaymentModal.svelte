@@ -259,9 +259,10 @@
                 </Button>
                 <Button
                     type="submit"
+                    variant="success"
                     form="record-payment-form"
                     disabled={isSubmitting || amountNum <= 0}
-                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white min-w-32 shadow-xs"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium gap-1.5 min-w-32 shadow-xs"
                 >
                     <Check class="size-3.5" />
                     <span>Confirmar cobro</span>

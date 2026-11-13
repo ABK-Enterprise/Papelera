@@ -243,7 +243,7 @@
             role="combobox"
             aria-expanded={isOpen}
             aria-controls={isOpen ? listboxId : undefined}
-            class="h-10 w-full rounded-xl border border-input bg-field pl-9 pr-9 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground shadow-2xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all disabled:cursor-not-allowed disabled:bg-muted/40 disabled:border-dashed disabled:text-muted-foreground disabled:opacity-65 {inputClass}"
+            class="h-10 w-full rounded-xl border border-input bg-field pl-9 pr-9 text-sm text-foreground placeholder:text-muted-foreground shadow-2xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all disabled:cursor-not-allowed disabled:bg-muted/40 disabled:border-dashed disabled:text-muted-foreground disabled:opacity-65 {inputClass}"
         />
 
         {#if loading}
@@ -269,7 +269,7 @@
                             type="button"
                             role="option"
                             aria-selected={activeIndex === i}
-                            class="group w-full px-3 py-2 rounded-xl text-left text-xs transition-all flex items-center justify-between gap-2 cursor-pointer max-sm:border-b max-sm:border-border/50 max-sm:last:border-b-0 max-sm:rounded-none max-sm:first:rounded-t-xl max-sm:last:rounded-b-xl {activeIndex === i ? 'bg-accent text-accent-foreground font-semibold shadow-2xs' : 'text-foreground hover:bg-accent/40 hover:text-accent-foreground'}"
+                            class="group w-full px-3 py-2 rounded-xl text-left text-sm transition-all flex items-center justify-between gap-2 cursor-pointer max-sm:border-b max-sm:border-border/50 max-sm:last:border-b-0 max-sm:rounded-none max-sm:first:rounded-t-xl max-sm:last:rounded-b-xl {activeIndex === i ? 'bg-accent text-accent-foreground font-semibold shadow-2xs' : 'text-foreground hover:bg-accent/40 hover:text-accent-foreground'}"
                             onclick={() => selectItem(item)}
                         >
                             {#if itemSnippet}
@@ -280,7 +280,7 @@
                                         <HighlightMatch text={item.name ?? item.title ?? item.product_name ?? item.code ?? JSON.stringify(item)} query={value} />
                                     </span>
                                     {#if item.sku ?? item.product_sku}
-                                        <span class="text-xs text-muted-foreground tabular-nums">
+                                        <span class="text-sm text-muted-foreground tabular-nums">
                                             SKU: <HighlightMatch text={item.sku ?? item.product_sku} query={value} />
                                         </span>
                                     {/if}

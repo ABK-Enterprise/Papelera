@@ -364,9 +364,10 @@
                 </Button>
                 <Button
                     type="submit"
+                    variant="success"
                     form="create-income-form"
                     disabled={form.processing || !form.product_id}
-                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-medium bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs whitespace-nowrap cursor-pointer"
+                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-medium shadow-xs whitespace-nowrap cursor-pointer"
                 >
                     {#if form.processing}
                         <Loader2 class="size-3.5 animate-spin mr-1.5 shrink-0" />

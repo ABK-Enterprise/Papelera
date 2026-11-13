@@ -213,7 +213,7 @@
                     onclick={toggleStatusFilter}
                     class={`min-h-[40px] px-3.5 rounded-xl border text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer ${
                         tableFilters.filters.status === 'active'
-                            ? 'bg-primary/10 dark:bg-primary/15 text-primary border-primary/40 shadow-2xs'
+                            ? 'bg-primary/15 text-foreground dark:text-sky-100 border-primary/40 hover:bg-primary/25 shadow-2xs'
                             : 'bg-card text-muted-foreground border-border/80 dark:border-border/90 hover:bg-muted/70 dark:hover:bg-secondary/55'
                     }`}
                 >

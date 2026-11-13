@@ -279,7 +279,7 @@
                     <Button
                         variant="secondary"
                         onclick={onExportPdf}
-                        class="min-h-[36px] px-3.5 gap-2 text-xs font-semibold rounded-xl border border-border/40 shadow-2xs hover:bg-secondary/90 transition-all ml-auto"
+                        class="min-h-[36px] px-3.5 gap-2 text-xs font-semibold rounded-xl shadow-2xs transition-all ml-auto"
                     >
                         <FileDown class="size-4 text-primary" />
                         <span>Exportar PDF</span>

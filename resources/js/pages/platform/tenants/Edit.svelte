@@ -212,9 +212,9 @@
                 {#if form.is_active}
                     <Button
                         type="button"
-                        variant="outline"
+                        variant="destructive"
                         onclick={() => (showDeactivateModal = true)}
-                        class="min-h-[38px] text-sm font-medium text-rose-700 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300 hover:bg-rose-500/10 border-rose-500/30 gap-1.5"
+                        class="min-h-[38px] text-sm font-medium gap-1.5"
                     >
                         <ShieldAlert class="size-3.5" />
                         <span>Desactivar comercio</span>
@@ -222,9 +222,9 @@
                 {:else}
                     <Button
                         type="button"
-                        variant="outline"
+                        variant="success"
                         onclick={() => (showActivateModal = true)}
-                        class="min-h-[38px] text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 hover:bg-emerald-500/10 border-emerald-500/30 gap-1.5"
+                        class="min-h-[38px] text-sm font-medium gap-1.5"
                     >
                         <ShieldCheck class="size-3.5" />
                         <span>Activar comercio</span>

@@ -476,15 +476,17 @@
                                             </div>
                                         </div>
 
-                                        <button
+                                        <Button
                                             type="button"
-                                            class="size-8 rounded-lg flex items-center justify-center bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-colors cursor-pointer shrink-0"
+                                            variant="destructive"
+                                            size="icon"
+                                            class="size-8 rounded-lg shrink-0 cursor-pointer"
                                             onclick={() => removeItem(index)}
                                             title="Quitar producto"
                                             aria-label="Quitar producto"
                                         >
                                             <Trash2 class="size-3.5" />
-                                        </button>
+                                        </Button>
                                     </div>
 
                                     <!-- Metadatos de precio base y stock -->

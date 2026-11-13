@@ -3,6 +3,7 @@
     import { router } from '@inertiajs/svelte';
     import { toast } from 'svelte-sonner';
     import { cn } from '@/lib/utils';
+    import { Button } from '@/components/ui/button';
     import GlideSelect, { type StatScreenId } from '@/components/svelte-bits/GlideSelect.svelte';
     import { RotateCcw } from 'lucide-svelte';
 
@@ -270,7 +271,7 @@
                     class={cn(
                         'min-h-[40px] px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer select-none',
                         isSelected
-                            ? 'bg-primary text-primary-foreground font-semibold shadow-xs hover:bg-primary/90'
+                            ? 'bg-primary-solid text-primary-foreground font-semibold shadow-xs hover:bg-primary'
                             : 'border border-input bg-field text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/50 hover:text-foreground'
                     )}
                 >
@@ -280,15 +281,16 @@
 
             <!-- Botón Limpiar: Visible ÚNICAMENTE si hay filtro temporal activo -->
             {#if isDateFiltered}
-                <button
+                <Button
                     type="button"
+                    variant="secondary"
                     onclick={resetDateFilters}
                     title="Restablecer fechas al rango por defecto (30 días)"
-                    class="flex items-center gap-1.5 min-h-[40px] px-3 py-1.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer select-none border border-destructive/20 ml-auto lg:ml-2"
+                    class="min-h-[40px] px-3 py-1.5 rounded-lg text-sm font-medium gap-1.5 ml-auto lg:ml-2"
                 >
                     <RotateCcw class="size-3.5 shrink-0" />
                     <span>Limpiar</span>
-                </button>
+                </Button>
             {/if}
         </div>
 

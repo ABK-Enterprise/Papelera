@@ -239,12 +239,12 @@
 
                     <!-- Acciones Operativas (Exclusivamente Edición) -->
                     <Button
-                        variant="outline"
+                        variant="tertiary"
                         onclick={(e) => {
                             e.stopPropagation();
                             onedit(adj);
                         }}
-                        class="min-h-[38px] px-3.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer border-primary/30 bg-primary/5 text-primary hover:bg-primary/10"
+                        class="min-h-[38px] px-3.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer"
                     >
                         <Pencil class="h-3.5 w-3.5" />
                         <span>Editar</span>

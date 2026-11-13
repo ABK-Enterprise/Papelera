@@ -305,9 +305,9 @@
                                 {#if !isOrderImmutable}
                                     <Button
                                         type="button"
-                                        variant="outline"
+                                        variant="tertiary"
                                         size="sm"
-                                        class="min-h-[38px] size-9 p-0 rounded-xl cursor-pointer text-primary border-primary/30 hover:bg-primary/10 dark:hover:bg-primary/20 flex items-center justify-center shrink-0"
+                                        class="min-h-[38px] size-9 p-0 rounded-xl cursor-pointer flex items-center justify-center shrink-0"
                                         aria-label="Editar precio de {productName}"
                                         onclick={() => handleOpenEditPrice(item)}
                                     >
@@ -345,9 +345,9 @@
                             {#if !isOrderImmutable}
                                 <Button
                                     type="button"
-                                    variant="outline"
+                                    variant="tertiary"
                                     size="sm"
-                                    class="min-h-[38px] px-3 rounded-xl text-sm gap-1.5 font-semibold cursor-pointer text-primary border-primary/30 hover:bg-primary/10 dark:hover:bg-primary/20 shrink-0"
+                                    class="min-h-[38px] px-3 rounded-xl text-sm gap-1.5 font-semibold cursor-pointer shrink-0"
                                     onclick={() => handleOpenEditPrice(item)}
                                 >
                                     <Pencil class="size-3.5" />

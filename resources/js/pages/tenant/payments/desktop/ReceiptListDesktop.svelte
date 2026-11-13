@@ -197,10 +197,10 @@
                             {#if !rc.is_cancelled && hasPermission('cobranzas.anular')}
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
-                                    class="flex items-center gap-2 text-sm font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5 px-3"
+                                    class="flex items-center gap-2 text-sm font-medium text-rose-700 dark:text-rose-400 focus:text-rose-700 dark:focus:text-rose-300 focus:bg-rose-500/10 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-500/10 cursor-pointer py-2.5 px-3"
                                     onclick={() => onRequestVoid?.(rc)}
                                 >
-                                    <Ban class="size-4 text-destructive" />
+                                    <Ban class="size-4 text-rose-700 dark:text-rose-400" />
                                     <span>Anular recibo</span>
                                 </DropdownMenuItem>
                             {/if}

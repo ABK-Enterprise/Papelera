@@ -334,7 +334,7 @@
                                         {#snippet children(props)}
                                             <button
                                                 type="button"
-                                                class="{props.class} w-full flex items-center text-destructive focus:text-destructive focus:bg-destructive/10 gap-2 text-xs font-medium cursor-pointer"
+                                                class="{props.class} w-full flex items-center text-rose-700 dark:text-rose-400 focus:text-rose-700 dark:focus:text-rose-300 focus:bg-rose-500/10 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-500/10 gap-2 text-xs font-medium cursor-pointer"
                                                 onclick={() => {
                                                     props.onClick?.();
                                                     showDeleteConfirm = true;

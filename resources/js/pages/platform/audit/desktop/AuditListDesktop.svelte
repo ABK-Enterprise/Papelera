@@ -104,7 +104,7 @@
                     type="button"
                     variant="outline"
                     size="sm"
-                    class="min-h-[38px] px-3.5 gap-1.5 text-sm font-medium shadow-2xs hover:bg-accent"
+                    class="min-h-[38px] px-3.5 gap-1.5 text-sm font-medium shadow-2xs"
                     onclick={() => onview(log)}
                 >
                     <Eye class="size-3.5" />

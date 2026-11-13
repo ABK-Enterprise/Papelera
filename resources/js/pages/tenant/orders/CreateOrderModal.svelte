@@ -1256,7 +1256,7 @@
 
             <!-- Error Banner -->
             {#if errorMessage}
-                <div class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs flex items-center gap-2 shrink-0">
+                <div class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-center gap-2 shrink-0">
                     <AlertCircle class="size-4 shrink-0" />
                     <span class="font-medium">{errorMessage}</span>
                 </div>
@@ -1267,14 +1267,14 @@
                 <!-- Bento Card 1: Cliente & Destino con Autocomplete -->
                 <div class="bg-muted/40 dark:bg-secondary/35 p-4 rounded-xl border border-border/80 dark:border-border/90 space-y-3">
                     <div class="flex items-start justify-between gap-2.5">
-                        <h3 class="min-w-0 flex-1 break-words text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                            <User class="size-3.5 text-primary shrink-0" />
+                        <h3 class="min-w-0 flex-1 break-words text-[16px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                            <User class="size-4 text-primary shrink-0" />
                             Datos del Cliente
                         </h3>
 
                         {#if selectedCustomer}
-                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                                <UserCheck class="size-3" />
+                            <span class="inline-flex items-center gap-1 text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                                <UserCheck class="size-3.5" />
                                 Cliente Registrado
                             </span>
                         {/if}
@@ -1313,7 +1313,7 @@
                                                 <HighlightMatch text={cust.name} query={customerSearchQuery} />
                                             </span>
                                             {#if cust.is_defaulter}
-                                                <span class="shrink-0 inline-flex items-center gap-0.5 text-xs font-semibold text-rose-700 dark:text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20 mt-0.5">
+                                                <span class="shrink-0 inline-flex items-center gap-0.5 text-sm font-semibold text-rose-700 dark:text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20 mt-0.5">
                                                     Moroso
                                                 </span>
                                             {/if}
@@ -1322,17 +1322,17 @@
                                         <!-- Row 2: Tax ID + Tax condition -->
                                         <div class="flex flex-wrap items-center gap-1.5">
                                             {#if cust.tax_id}
-                                                <span class="text-xs font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground shrink-0">
+                                                <span class="text-sm font-sans tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground shrink-0">
                                                     <HighlightMatch text={cust.tax_id} query={customerSearchQuery} />
                                                 </span>
                                             {/if}
-                                            <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                            <span class="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                                                 {cust.tax_condition.replace('_', ' ')}
                                             </span>
                                         </div>
 
                                         <!-- Row 3: Contact -->
-                                        <p class="text-xs text-muted-foreground line-clamp-1 break-words">
+                                        <p class="text-sm text-muted-foreground line-clamp-1 break-words">
                                             {cust.phone || 'Sin teléfono'} • {cust.address || 'Sin dirección'}
                                         </p>
                                     </div>
@@ -1342,14 +1342,14 @@
                                 {#if customerSearchQuery.trim().length > 0}
                                     <button
                                         type="button"
-                                        class="w-full px-1 py-1 text-left text-xs hover:bg-muted/70 dark:hover:bg-secondary/55 transition-colors flex items-center gap-2 text-primary font-semibold cursor-pointer"
+                                        class="w-full px-1 py-1 text-left text-sm hover:bg-muted/70 dark:hover:bg-secondary/55 transition-colors flex items-center gap-2 text-primary font-semibold cursor-pointer"
                                         onclick={() => selectUnregisteredCustomer(customerSearchQuery.trim())}
                                     >
                                         <Plus class="size-3.5 shrink-0" />
                                         <span class="truncate">Usar "<strong>{customerSearchQuery.trim()}</strong>" como cliente no registrado</span>
                                     </button>
                                 {:else}
-                                    <span class="text-xs text-muted-foreground italic">No hay clientes registrados coincidentes.</span>
+                                    <span class="text-sm text-muted-foreground italic">No hay clientes registrados coincidentes.</span>
                                 {/if}
                             {/snippet}
                         </SearchCombobox>
@@ -1357,7 +1357,7 @@
 
                     <!-- Alerta de Morosidad si aplica -->
                     {#if selectedCustomer?.is_defaulter}
-                        <div class="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-xs flex items-center gap-2">
+                        <div class="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-sm flex items-center gap-2">
                             <AlertTriangle class="size-4 shrink-0 text-amber-700 dark:text-amber-400" />
                             <span><strong>Atención:</strong> Este cliente posee condición de moroso o saldo pendiente de regularización.</span>
                         </div>
@@ -1365,7 +1365,7 @@
 
                     <!-- Banner de Descuento Habitual de Cliente si aplica -->
                     {#if customerDiscountPercentage > 0}
-                        <div class="p-2.5 rounded-lg bg-primary/10 border border-primary/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+                        <div class="p-2.5 rounded-lg bg-primary/10 border border-primary/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-sm">
                             <div class="flex items-center gap-2">
                                 <Percent class="size-4 text-primary shrink-0" />
                                 <span class="text-foreground font-medium">
@@ -1462,8 +1462,8 @@
                 <!-- Bento Card 2: Productos del Pedido -->
                 <div class="bg-muted/40 dark:bg-secondary/35 p-4 rounded-xl border border-border/80 dark:border-border/90 space-y-3.5">
                     <div class="flex items-start justify-between gap-2.5">
-                        <h3 class="min-w-0 flex-1 break-words text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                            <Layers class="size-3.5 text-primary shrink-0" />
+                        <h3 class="min-w-0 flex-1 break-words text-[16px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                            <Layers class="size-4 text-primary shrink-0" />
                             Productos del Pedido
                         </h3>
                     </div>
@@ -1486,24 +1486,24 @@
                                     searchQuery = '';
                                     selectedProductToAdd = null;
                                 }}
-                                inputClass="h-11 sm:h-10 min-h-[44px] sm:min-h-[40px] text-xs sm:text-sm font-medium w-full"
+                                inputClass="h-11 sm:h-10 min-h-[44px] sm:min-h-[40px] text-sm font-medium w-full"
                             >
                                 {#snippet itemSnippet(prod)}
                                     <div class="flex items-start justify-between gap-2.5 w-full text-left py-0.5">
                                         <div class="min-w-0 flex-1 space-y-1">
                                             <div class="flex items-center gap-2">
-                                                <span class="font-semibold text-foreground text-xs leading-snug line-clamp-2 break-words">
+                                                <span class="font-semibold text-foreground text-sm leading-snug line-clamp-2 break-words">
                                                     <HighlightMatch text={prod.name} query={searchQuery} />
                                                 </span>
                                                 {#if prod.sale_type === 'weight'}
-                                                    <span class="shrink-0 inline-flex items-center gap-0.5 text-xs font-medium text-sky-700 dark:text-sky-400 bg-sky-500/10 px-1.5 py-0.2 rounded border border-sky-500/20">
-                                                        <Scale class="size-2.5" />
+                                                    <span class="shrink-0 inline-flex items-center gap-0.5 text-sm font-medium text-sky-700 dark:text-sky-400 bg-sky-500/10 px-1.5 py-0.2 rounded border border-sky-500/20">
+                                                        <Scale class="size-3" />
                                                         Pesaje
                                                     </span>
                                                 {/if}
                                             </div>
                                             {#if prod.sku}
-                                                <div class="text-xs font-sans tabular-nums text-muted-foreground mt-0.5">
+                                                <div class="text-sm font-sans tabular-nums text-muted-foreground mt-0.5">
                                                     SKU: <HighlightMatch text={prod.sku} query={searchQuery} />
                                                 </div>
                                             {/if}
@@ -1511,10 +1511,10 @@
 
 
                                         <div class="text-right shrink-0 min-w-[76px] pl-1">
-                                            <span class="font-bold font-sans tabular-nums text-primary text-xs sm:text-sm block">
+                                            <span class="font-bold font-sans tabular-nums text-primary text-sm block">
                                                 {formatPrice(Number(prod.price))}
                                             </span>
-                                            <span class="text-xs font-sans tabular-nums text-muted-foreground block mt-0.5 whitespace-nowrap">
+                                            <span class="text-sm font-sans tabular-nums text-muted-foreground block mt-0.5 whitespace-nowrap">
                                                 {#if prod.sale_type === 'weight'}
                                                     Stock: {prod.stock} Kg
                                                 {:else}
@@ -1525,7 +1525,7 @@
                                     </div>
                                 {/snippet}
                                 {#snippet emptySnippet()}
-                                    <span class="text-xs text-muted-foreground italic">
+                                    <span class="text-sm text-muted-foreground italic">
                                         No se encontraron coincidencias en el catálogo.
                                     </span>
                                 {/snippet}
@@ -1534,14 +1534,14 @@
                                         <div class="p-1.5 border-t border-border/60 bg-muted/40 dark:bg-secondary/35">
                                             <button
                                                 type="button"
-                                                class="w-full flex items-center justify-between gap-2 p-2 rounded-lg text-left text-xs text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+                                                class="w-full flex items-center justify-between gap-2 p-2 rounded-lg text-left text-sm text-primary hover:bg-primary/10 transition-colors cursor-pointer"
                                                 onclick={() => addOnTheFlyProduct(searchQuery.trim())}
                                             >
                                                 <span class="font-semibold flex items-center gap-1.5 truncate">
                                                     <Plus class="size-3.5 shrink-0" />
                                                     <span>Crear "{searchQuery.trim()}" (al vuelo)</span>
                                                 </span>
-                                                <span class="text-xs bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0">
+                                                <span class="text-sm bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0">
                                                     Incompleto
                                                 </span>
                                             </button>
@@ -1555,7 +1555,7 @@
                             type="button"
                             size="sm"
                             variant="default"
-                            class="hidden sm:inline-flex w-full sm:w-auto min-h-[44px] sm:min-h-[40px] sm:h-10 px-5 rounded-xl text-xs sm:text-sm gap-2 font-semibold shrink-0 justify-center shadow-2xs"
+                            class="hidden sm:inline-flex w-full sm:w-auto min-h-[44px] sm:min-h-[40px] sm:h-10 px-5 rounded-xl text-sm gap-2 font-semibold shrink-0 justify-center shadow-2xs"
                             onclick={() => {
                                 if (selectedProductToAdd) {
                                     addSelectedProduct();
@@ -1604,7 +1604,7 @@
                                             <div class="flex flex-wrap items-center gap-2 min-w-0 flex-1">
                                                 <h4 class="text-base font-bold text-foreground line-clamp-2 break-words">{item.product_name}</h4>
                                                 {#if item.is_on_the_fly}
-                                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/80 break-words max-w-full">
+                                                    <span class="text-sm font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/80 break-words max-w-full">
                                                         Al Vuelo (Incompleto)
                                                     </span>
                                                 {/if}
@@ -1614,13 +1614,13 @@
                                                     </span>
                                                 {/if}
                                                 <!-- Tipo de venta: Pesaje o Unidad -->
-                                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 {item.sale_type === 'weight' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'bg-muted text-muted-foreground border border-border/70'}">
+                                                <span class="text-sm font-semibold px-2 py-0.5 rounded-full shrink-0 {item.sale_type === 'weight' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'bg-muted text-muted-foreground border border-border/70'}">
                                                     {item.sale_type === 'weight' ? 'Pesaje' : 'Unidad'}
                                                 </span>
 
                                                 <!-- Mobile: Pill compacto 'X%' al lado del tipo de venta -->
                                                 {#if hasBulkDiscount}
-                                                    <span class="sm:hidden inline-flex items-center text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 shrink-0 font-sans tabular-nums" title="Descuento por Bulto {item.bulk_discount_percentage}% ({item.bulk_discount_type === 'custom' ? 'Personalizado' : 'Heredado'})">
+                                                    <span class="sm:hidden inline-flex items-center text-sm font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 shrink-0 font-sans tabular-nums" title="Descuento por Bulto {item.bulk_discount_percentage}% ({item.bulk_discount_type === 'custom' ? 'Personalizado' : 'Heredado'})">
                                                         {item.bulk_discount_percentage}%
                                                     </span>
                                                 {/if}
@@ -1628,19 +1628,19 @@
                                                 <!-- Desktop: Pill descriptivo completo -->
                                                 {#if isBulk}
                                                     {#if item.bulk_discount_type !== 'none' && item.bulk_discount_percentage > 0}
-                                                        <span class="hidden sm:inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
-                                                            <Percent class="size-3" />
+                                                        <span class="hidden sm:inline-flex items-center gap-1 text-sm font-semibold px-2 py-0.5 rounded-full border bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
+                                                            <Percent class="size-3.5" />
                                                             Desc. Bulto {item.bulk_discount_percentage}% ({item.bulk_discount_type === 'custom' ? 'Personalizado' : 'Heredado'})
                                                         </span>
                                                     {:else}
-                                                        <span class="hidden sm:inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-muted text-muted-foreground border-border">
+                                                        <span class="hidden sm:inline-flex items-center gap-1 text-sm font-semibold px-2 py-0.5 rounded-full border bg-muted text-muted-foreground border-border">
                                                             Sin Descuento por Bulto
                                                         </span>
                                                     {/if}
                                                 {/if}
                                                 {#if (item.discount_percentage || 0) > 0}
-                                                    <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 shrink-0">
-                                                        <Percent class="size-3" />
+                                                    <span class="inline-flex items-center gap-1 text-sm font-semibold px-2 py-0.5 rounded-full border bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 shrink-0">
+                                                        <Percent class="size-3.5" />
                                                         Desc. Ítem {item.discount_percentage}%
                                                     </span>
                                                 {/if}
@@ -1648,10 +1648,10 @@
                                                     <button
                                                         type="button"
                                                         onclick={() => toggleItemCustomerDiscount(index)}
-                                                        class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border transition-colors cursor-pointer {item.apply_customer_discount ? 'bg-primary/15 text-primary border-primary/30' : 'bg-muted text-muted-foreground border-border line-through'}"
+                                                        class="inline-flex items-center gap-1 text-sm font-semibold px-2 py-0.5 rounded-full border transition-colors cursor-pointer {item.apply_customer_discount ? 'bg-primary-solid text-primary-foreground border-primary-solid' : 'bg-muted text-muted-foreground border-border line-through'}"
                                                         title="Click para alternar descuento de cliente en este producto"
                                                     >
-                                                        <Percent class="size-3" />
+                                                        <Percent class="size-3.5" />
                                                         Desc. {customerDiscountPercentage}% {item.apply_customer_discount ? 'Aplicado' : 'Excluido'}
                                                     </button>
                                                 {/if}
@@ -1676,7 +1676,7 @@
                                                 <DropdownMenuContent align="end" class="w-48 shadow-lg">
                                                     {#if item.packaging_type === 'bulto'}
                                                         <DropdownMenuItem
-                                                            class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
+                                                            class="flex items-center gap-2 text-sm font-medium cursor-pointer py-2.5"
                                                             onclick={() => openUnitsPerPackageDialog(index)}
                                                         >
                                                             <Pencil class="size-3.5 shrink-0 text-sky-600 dark:text-sky-400" />
@@ -1684,14 +1684,14 @@
                                                         </DropdownMenuItem>
                                                     {/if}
                                                     <DropdownMenuItem
-                                                        class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
+                                                        class="flex items-center gap-2 text-sm font-medium cursor-pointer py-2.5"
                                                         onclick={() => openEditItemPriceDialog(index)}
                                                     >
                                                         <Tag class="size-3.5 shrink-0 text-primary" />
                                                         <span>Modificar precio</span>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
-                                                        class="flex items-center gap-2 text-xs font-medium cursor-pointer py-2.5"
+                                                        class="flex items-center gap-2 text-sm font-medium cursor-pointer py-2.5"
                                                         onclick={() => openMobileDiscountDialog(index)}
                                                     >
                                                         <Percent class="size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
@@ -1699,7 +1699,7 @@
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem
-                                                        class="flex items-center gap-2 text-xs font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5"
+                                                        class="flex items-center gap-2 text-sm font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5"
                                                         onclick={() => removeItem(index)}
                                                     >
                                                         <Trash2 class="size-3.5 shrink-0" />
@@ -1729,7 +1729,7 @@
                                                     />
                                                 </div>
                                             {:else if hasBulkDiscount}
-                                                <span class="text-xs line-through text-muted-foreground font-sans tabular-nums" title={formatExactPrice(item.regular_price)}>
+                                                <span class="text-sm line-through text-muted-foreground font-sans tabular-nums" title={formatExactPrice(item.regular_price)}>
                                                     {formatPrice(item.regular_price)}
                                                 </span>
                                                 <span class="text-sm font-bold text-emerald-700 dark:text-emerald-400 whitespace-nowrap font-sans tabular-nums" title={formatExactPrice(item.unit_price)}>
@@ -1763,11 +1763,11 @@
                                             <div class="flex items-center gap-1.5 text-sm text-muted-foreground shrink-0">
                                                 <span>Stock: <strong class="font-sans tabular-nums {item.stock < 0 ? 'text-destructive font-bold' : 'text-foreground'}">{item.stock} {item.sale_type === 'weight' ? 'Kg' : 'u'}</strong></span>
                                                 {#if item.stock < 0}
-                                                    <span class="inline-flex items-center gap-1 text-xs font-bold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20 shrink-0">
+                                                    <span class="inline-flex items-center gap-1 text-sm font-bold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20 shrink-0">
                                                         Crítico
                                                     </span>
                                                 {:else if isAtStockLimit}
-                                                    <span class="inline-flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 shrink-0">
+                                                    <span class="inline-flex items-center gap-1 text-sm font-bold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 shrink-0">
                                                         Tope
                                                     </span>
                                                 {/if}
@@ -1782,7 +1782,7 @@
                                 <!-- Nivel 2: Resultado (Subtotal alineado a la derecha) -->
                                 <div class="flex justify-end items-baseline gap-2 py-0.5">
                                     {#if isDiscountActive || (item.discount_percentage || 0) > 0}
-                                        <span class="line-through text-xs text-muted-foreground font-sans tabular-nums" title={formatExactPrice(strikethroughSubtotal)}>
+                                        <span class="line-through text-sm text-muted-foreground font-sans tabular-nums" title={formatExactPrice(strikethroughSubtotal)}>
                                             {formatPrice(strikethroughSubtotal)}
                                         </span>
                                         <span class="font-sans tabular-nums text-base sm:text-lg font-bold text-primary" title={formatExactPrice(finalSubtotal)}>
@@ -1803,18 +1803,20 @@
                                     <!-- Grupo Izquierdo: Acciones & Configuración -->
                                     <div class="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial min-w-[115px] sm:min-w-0">
                                         <!-- Desktop: Trash Button -->
-                                        <button
+                                        <Button
                                             type="button"
-                                            class="hidden sm:flex size-8 rounded-lg items-center justify-center bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-colors cursor-pointer shrink-0"
+                                            variant="destructive"
+                                            size="icon"
+                                            class="hidden sm:flex size-8 rounded-lg shrink-0 cursor-pointer"
                                             onclick={() => removeItem(index)}
                                             title="Quitar de la lista"
                                             aria-label="Quitar producto de la lista"
                                         >
                                             <Trash2 class="size-3.5" />
-                                        </button>
+                                        </Button>
 
                                         <!-- Label visible solo tras wrap vía Container Query -->
-                                        <span class="wrap-field-label text-xs font-semibold text-muted-foreground shrink-0 min-w-[58px]">Tipo:</span>
+                                        <span class="wrap-field-label text-sm font-semibold text-muted-foreground shrink-0 min-w-[58px]">Tipo:</span>
 
                                         <!-- Selector de empaque / unidad -->
                                         <select
@@ -1834,15 +1836,17 @@
 
                                         <!-- Botón Edición Efímera de Unidades por Bulto (Icono compacto) -->
                                         {#if item.packaging_type === 'bulto'}
-                                            <button
+                                            <Button
                                                 type="button"
+                                                variant="tertiary"
+                                                size="icon"
                                                 onclick={() => openUnitsPerPackageDialog(index)}
-                                                class="size-9 rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 transition-colors inline-flex items-center justify-center cursor-pointer shrink-0"
+                                                class="size-9 rounded-xl shrink-0 cursor-pointer"
                                                 title="Modificar unidades por bulto para esta fila ({item.units_per_package || 1} u/bulto)"
                                                 aria-label="Modificar unidades por bulto ({item.units_per_package || 1} u)"
                                             >
                                                 <Pencil class="size-3.5" />
-                                            </button>
+                                            </Button>
                                         {/if}
 
                                         <!-- Desktop: Selector de Descuento por Ítem -->
@@ -1894,7 +1898,7 @@
                                                         class="h-9 w-14 rounded-xl border border-input bg-field px-2 text-sm font-semibold font-sans tabular-nums text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-center"
                                                         title="Porcentaje de descuento personalizado (0-100%)"
                                                     />
-                                                    <span class="text-xs font-bold text-muted-foreground">%</span>
+                                                    <span class="text-sm font-bold text-muted-foreground">%</span>
                                                 </div>
                                             {/if}
                                         </div>
@@ -1902,7 +1906,7 @@
 
                                     <!-- Stepper Táctil Elástico con Label visible solo tras wrap -->
                                     <div class="stepper-wrap-container flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial min-w-[104px] sm:min-w-[120px] sm:w-auto">
-                                        <span class="wrap-field-label text-xs font-semibold text-muted-foreground shrink-0 min-w-[58px]">Cantidad:</span>
+                                        <span class="wrap-field-label text-sm font-semibold text-muted-foreground shrink-0 min-w-[58px]">Cantidad:</span>
                                         <div class="flex items-center border border-input rounded-xl bg-field shadow-2xs h-9 overflow-hidden flex-1 sm:flex-initial min-w-[104px] sm:min-w-[120px] sm:w-auto justify-between">
                                             <button
                                                 type="button"
@@ -1941,7 +1945,7 @@
 
                                 <!-- Advertencia de stock insuficiente / saldo negativo -->
                                 {#if !item.is_on_the_fly && (item.stock <= 0 || getItemQuantityBase(item) > item.stock)}
-                                    <div class="flex items-center gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
+                                    <div class="flex items-center gap-1.5 text-sm font-semibold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
                                         <AlertTriangle class="size-3.5 shrink-0" />
                                         <span>Stock insuficiente en depósito ({item.stock}). La venta registrará saldo negativo.</span>
                                     </div>
@@ -1949,7 +1953,7 @@
 
                                 <!-- Advertencia de exceso temporal durante el tipeo -->
                                 {#if item.quantity > maxAllowed}
-                                    <div class="flex items-center gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
+                                    <div class="flex items-center gap-1.5 text-sm font-semibold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
                                         <AlertTriangle class="size-3.5 shrink-0" />
                                         <span>La cantidad supera el stock disponible (máximo {maxAllowed} {item.sale_type === 'weight' ? (item.packaging_type === 'gram' ? 'g' : 'Kg') : 'u'}).</span>
                                     </div>
@@ -1960,10 +1964,10 @@
 
 
                         {#if items.length === 0}
-                            <div class="rounded-xl border border-dashed border-border/80 dark:border-border/90 p-8 text-center bg-muted/40 dark:bg-secondary/35 text-muted-foreground text-xs space-y-1">
+                            <div class="rounded-xl border border-dashed border-border/80 dark:border-border/90 p-8 text-center bg-muted/40 dark:bg-secondary/35 text-muted-foreground text-sm space-y-1">
                                 <ShoppingBag class="mx-auto size-7 text-muted-foreground/50 mb-1" />
-                                <p class="font-semibold text-foreground">El pedido está vacío</p>
-                                <p class="text-xs">Escribe en el buscador superior para seleccionar y agregar productos al pedido.</p>
+                                <p class="text-base font-semibold text-foreground">El pedido está vacío</p>
+                                <p class="text-sm">Escribe en el buscador superior para seleccionar y agregar productos al pedido.</p>
                             </div>
                         {/if}
 
@@ -2010,8 +2014,8 @@
                 <!-- Bento Card 3: Condición de Pago -->
                 <div class="bg-muted/40 dark:bg-secondary/35 p-4 rounded-xl border border-border/80 dark:border-border/90 space-y-3">
                     <div class="flex items-start justify-between gap-2.5">
-                        <h3 class="min-w-0 flex-1 break-words text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                            <CreditCard class="size-3.5 text-primary shrink-0" />
+                        <h3 class="min-w-0 flex-1 break-words text-[16px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                            <CreditCard class="size-4 text-primary shrink-0" />
                             Condición de Pago
                         </h3>
                     </div>
@@ -2029,8 +2033,8 @@
                                 class="mt-0.5 size-4 text-primary focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                             />
                             <div class="min-w-0">
-                                <span class="text-xs font-medium block">Cuenta Corriente</span>
-                                <span class="text-xs text-muted-foreground block font-normal">
+                                <span class="text-sm font-medium block">Cuenta Corriente</span>
+                                <span class="text-sm text-muted-foreground block font-normal">
                                     {!selectedCustomerId ? 'Disponible solo para clientes registrados' : 'El saldo deudor se asienta al entregar el pedido'}
                                 </span>
                             </div>
@@ -2047,8 +2051,8 @@
                                 class="mt-0.5 size-4 text-primary focus:ring-primary"
                             />
                             <div class="min-w-0">
-                                <span class="text-xs font-medium block">Contado</span>
-                                <span class="text-xs text-muted-foreground block font-normal">Se cobra en mostrador o al finalizar la entrega</span>
+                                <span class="text-sm font-medium block">Contado</span>
+                                <span class="text-sm text-muted-foreground block font-normal">Se cobra en mostrador o al finalizar la entrega</span>
                             </div>
                         </label>
                     </div>
@@ -2062,14 +2066,14 @@
                                 <div class="size-7 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
                                     <Banknote class="size-3.5" />
                                 </div>
-                                <span class="text-xs font-bold text-foreground">Saldo a Favor en Cuenta Corriente</span>
+                                <span class="text-[16px] font-bold text-foreground">Saldo a Favor en Cuenta Corriente</span>
                             </div>
                             {#if hasAvailableCredit}
-                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-sans tabular-nums">
+                                <span class="text-sm font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-sans tabular-nums">
                                     Disponible: {formatPrice(availableCustomerCredit)}
                                 </span>
                             {:else}
-                                <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/50">
+                                <span class="text-sm font-medium px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/50">
                                     Sin saldo a favor
                                 </span>
                             {/if}
@@ -2078,10 +2082,10 @@
                         <!-- Switch / Checkbox de Activación -->
                         <label class="flex items-center justify-between gap-3 p-3 rounded-xl border transition-all {hasAvailableCredit ? (useCreditBalance ? 'border-emerald-500/50 bg-emerald-500/10 dark:bg-emerald-500/15 shadow-2xs cursor-pointer' : 'border-border/80 dark:border-border/90 bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 cursor-pointer') : 'opacity-50 cursor-not-allowed bg-muted/40 dark:bg-secondary/35 border-border/80 dark:border-border/90'}">
                             <div class="min-w-0 flex-1">
-                                <span class="text-xs font-semibold text-foreground block">
+                                <span class="text-sm font-semibold text-foreground block">
                                     Usar saldo a favor de cuenta corriente
                                 </span>
-                                <span class="text-xs text-muted-foreground block font-normal">
+                                <span class="text-sm text-muted-foreground block font-normal">
                                     {!selectedCustomerId ? 'Disponible solo para clientes registrados' : (!hasAvailableCredit ? 'El cliente no posee saldo a favor disponible' : 'Deduce el importe directamente del crédito acumulado del cliente')}
                                 </span>
                             </div>
@@ -2098,7 +2102,7 @@
                             <div class="p-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 space-y-3">
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                                     <div class="min-w-0">
-                                        <span class="text-xs text-muted-foreground block font-medium">Monto a Imputar:</span>
+                                        <span class="text-sm text-muted-foreground block font-medium">Monto a Imputar:</span>
                                         <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-emerald-700 dark:text-emerald-400">
                                             {formatPrice(effectiveCreditBalanceApplied)}
                                         </span>
@@ -2108,7 +2112,7 @@
                                             type="button"
                                             variant="secondary"
                                             size="sm"
-                                            class="min-h-[38px] px-3 rounded-xl text-xs font-semibold cursor-pointer"
+                                            class="min-h-[38px] px-3 rounded-xl text-sm font-semibold cursor-pointer"
                                             onclick={applyFullCreditBalance}
                                             title="Imputar el máximo posible de saldo a favor"
                                         >
@@ -2118,7 +2122,7 @@
                                             type="button"
                                             variant="secondary"
                                             size="sm"
-                                            class="min-h-[38px] px-3 rounded-xl text-xs font-semibold gap-1.5 cursor-pointer"
+                                            class="min-h-[38px] px-3 rounded-xl text-sm font-semibold gap-1.5 cursor-pointer"
                                             onclick={openEditCreditBalanceModal}
                                         >
                                             <Pencil class="size-3.5" />
@@ -2128,7 +2132,7 @@
                                 </div>
 
                                 {#if effectiveCreditBalanceApplied >= grossTotal}
-                                    <div class="text-xs font-medium text-emerald-800 dark:text-emerald-200 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
+                                    <div class="text-sm font-medium text-emerald-800 dark:text-emerald-200 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
                                         El saldo a favor cubre el 100% del pedido. No quedará deuda pendiente.
                                     </div>
                                 {/if}
@@ -2143,10 +2147,10 @@
                                             class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
                                         />
                                         <div class="min-w-0">
-                                            <span class="text-xs font-semibold text-foreground block">
+                                            <span class="text-sm font-semibold text-foreground block">
                                                 Incluir resumen de cuenta corriente en el remito impreso
                                             </span>
-                                            <span class="text-xs text-muted-foreground block">
+                                            <span class="text-sm text-muted-foreground block">
                                                 Muestra en la ficha del cliente el estado de cuenta y saldo disponible.
                                             </span>
                                         </div>
@@ -2161,14 +2165,14 @@
                                             class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
                                         />
                                         <div class="min-w-0">
-                                            <span class="text-xs font-semibold text-foreground block">
+                                            <span class="text-sm font-semibold text-foreground block">
                                                 Mostrar uso de saldo a favor en el remito impreso
                                             </span>
-                                            <span class="text-xs text-muted-foreground block">
+                                            <span class="text-sm text-muted-foreground block">
                                                 Muestra en el bloque de totales la línea de saldo a favor imputado.
                                             </span>
                                             {#if !canShowCreditAppliedInReceipt}
-                                                <span class="text-xs text-amber-700 dark:text-amber-400 block mt-0.5">
+                                                <span class="text-sm text-amber-700 dark:text-amber-400 block mt-0.5">
                                                     Disponible solo si se imputa saldo a favor al pedido.
                                                 </span>
                                             {/if}
@@ -2183,10 +2187,10 @@
                                             class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
                                         />
                                         <div class="min-w-0">
-                                            <span class="text-xs font-semibold text-foreground block">
+                                            <span class="text-sm font-semibold text-foreground block">
                                                 {accountBalanceCheckboxLabel}
                                             </span>
-                                            <span class="text-xs text-muted-foreground block">
+                                            <span class="text-sm text-muted-foreground block">
                                                 El saldo que se muestra es de propósito visual e informativo, y no afecta al subtotal del pedido.
                                             </span>
                                         </div>
@@ -2202,10 +2206,10 @@
                                     class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
                                 />
                                 <div class="min-w-0">
-                                    <span class="text-xs font-semibold text-foreground block">
+                                    <span class="text-sm font-semibold text-foreground block">
                                         Incluir resumen de cuenta corriente en el remito impreso
                                     </span>
-                                    <span class="text-xs text-muted-foreground block">
+                                    <span class="text-sm text-muted-foreground block">
                                         Muestra en la ficha del cliente el estado de cuenta y saldo disponible.
                                     </span>
                                 </div>
@@ -2219,10 +2223,10 @@
                                     class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
                                 />
                                 <div class="min-w-0">
-                                    <span class="text-xs font-semibold text-foreground block">
+                                    <span class="text-sm font-semibold text-foreground block">
                                         {accountBalanceCheckboxLabel}
                                     </span>
-                                    <span class="text-xs text-muted-foreground block">
+                                    <span class="text-sm text-muted-foreground block">
                                         El saldo que se muestra es de propósito visual e informativo, y no afecta al subtotal del pedido.
                                     </span>
                                 </div>
@@ -2237,14 +2241,14 @@
                                 <div class="size-7 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0">
                                     <Receipt class="size-3.5" />
                                 </div>
-                                <span class="text-xs font-bold text-foreground">Cobro de Deuda Anterior</span>
+                                <span class="text-[16px] font-bold text-foreground">Cobro de Deuda Anterior</span>
                             </div>
                             {#if hasAvailableDebt}
-                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 font-sans tabular-nums">
+                                <span class="text-sm font-semibold px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30 font-sans tabular-nums">
                                     Deuda Pendiente: {formatPrice(availableCustomerDebt)}
                                 </span>
                             {:else}
-                                <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                                <span class="text-sm font-medium px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                                     Al día (Sin deuda)
                                 </span>
                             {/if}
@@ -2253,10 +2257,10 @@
                         <!-- Switch / Checkbox de Activación -->
                         <label class="flex items-center justify-between gap-3 p-3 rounded-xl border transition-all {hasAvailableDebt ? (collectPreviousDebt ? 'border-amber-500/50 bg-amber-500/10 dark:bg-amber-500/15 shadow-2xs cursor-pointer' : 'border-border/80 dark:border-border/90 bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 cursor-pointer') : 'opacity-50 cursor-not-allowed bg-muted/40 dark:bg-secondary/35 border-border/80 dark:border-border/90'}">
                             <div class="min-w-0 flex-1">
-                                <span class="text-xs font-semibold text-foreground block">
+                                <span class="text-sm font-semibold text-foreground block">
                                     Cobrar deuda pendiente junto con este pedido
                                 </span>
-                                <span class="text-xs text-muted-foreground block font-normal">
+                                <span class="text-sm text-muted-foreground block font-normal">
                                     {!hasAvailableDebt ? 'El cliente no posee deuda pendiente para cobrar' : 'Permite al cliente saldar su deuda histórica de cuenta corriente en este cobro'}
                                 </span>
                             </div>
@@ -2273,7 +2277,7 @@
                             <div class="p-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 space-y-3">
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                                     <div class="min-w-0">
-                                        <span class="text-xs text-muted-foreground block font-medium">Deuda a Cobrar:</span>
+                                        <span class="text-sm text-muted-foreground block font-medium">Deuda a Cobrar:</span>
                                         <span class="text-base sm:text-lg font-bold font-sans tabular-nums text-amber-700 dark:text-amber-400">
                                             +{formatPrice(effectivePreviousDebtCollected)}
                                         </span>
@@ -2283,7 +2287,7 @@
                                             type="button"
                                             variant="secondary"
                                             size="sm"
-                                            class="min-h-[38px] px-3 rounded-xl text-xs font-semibold cursor-pointer"
+                                            class="min-h-[38px] px-3 rounded-xl text-sm font-semibold cursor-pointer"
                                             onclick={applyFullPreviousDebt}
                                             title="Cobrar el 100% de la deuda histórica"
                                         >
@@ -2293,7 +2297,7 @@
                                             type="button"
                                             variant="secondary"
                                             size="sm"
-                                            class="min-h-[38px] px-3 rounded-xl text-xs font-semibold gap-1.5 cursor-pointer"
+                                            class="min-h-[38px] px-3 rounded-xl text-sm font-semibold gap-1.5 cursor-pointer"
                                             onclick={openEditDebtBalanceModal}
                                         >
                                             <Pencil class="size-3.5" />
@@ -2303,11 +2307,11 @@
                                 </div>
 
                                 {#if effectivePreviousDebtCollected >= availableCustomerDebt}
-                                    <div class="text-xs font-medium text-emerald-800 dark:text-emerald-200 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
+                                    <div class="text-sm font-medium text-emerald-800 dark:text-emerald-200 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
                                         Se cobrará la totalidad de la deuda. La cuenta corriente del cliente quedará al día ($0,00).
                                     </div>
                                 {:else}
-                                    <div class="text-xs font-medium text-muted-foreground bg-muted/40 px-2.5 py-1.5 rounded-lg border border-border/50">
+                                    <div class="text-sm font-medium text-muted-foreground bg-muted/40 px-2.5 py-1.5 rounded-lg border border-border/50">
                                         Quedará un saldo deudor remanente de {formatPrice(availableCustomerDebt - effectivePreviousDebtCollected)}.
                                     </div>
                                 {/if}
@@ -2322,10 +2326,10 @@
                                 class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
                             />
                             <div class="min-w-0">
-                                <span class="text-xs font-semibold text-foreground block">
+                                <span class="text-sm font-semibold text-foreground block">
                                     Incluir resumen de cuenta corriente en el remito impreso
                                 </span>
-                                <span class="text-xs text-muted-foreground block">
+                                <span class="text-sm text-muted-foreground block">
                                     Muestra en la ficha del cliente el estado de cuenta y saldo disponible.
                                 </span>
                             </div>
@@ -2340,14 +2344,14 @@
                                 class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
                             />
                             <div class="min-w-0">
-                                <span class="text-xs font-semibold text-foreground block">
+                                <span class="text-sm font-semibold text-foreground block">
                                     Mostrar cobro de deuda anterior en el remito impreso
                                 </span>
-                                <span class="text-xs text-muted-foreground block">
+                                <span class="text-sm text-muted-foreground block">
                                     Muestra en el bloque de totales la línea de cobro de deuda anterior.
                                 </span>
                                 {#if !canShowDebtCollectedInReceipt}
-                                    <span class="text-xs text-amber-700 dark:text-amber-400 block mt-0.5">
+                                    <span class="text-sm text-amber-700 dark:text-amber-400 block mt-0.5">
                                         Disponible solo si se incluye cobro de deuda anterior al pedido.
                                     </span>
                                 {/if}
@@ -2362,10 +2366,10 @@
                                 class="size-4 mt-0.5 rounded border-border text-primary focus:ring-primary shrink-0"
                             />
                             <div class="min-w-0">
-                                <span class="text-xs font-semibold text-foreground block">
+                                <span class="text-sm font-semibold text-foreground block">
                                     {accountBalanceCheckboxLabel}
                                 </span>
-                                <span class="text-xs text-muted-foreground block">
+                                <span class="text-sm text-muted-foreground block">
                                     El saldo que se muestra es de propósito visual e informativo, y no afecta al subtotal del pedido.
                                 </span>
                             </div>
@@ -2380,13 +2384,13 @@
                             <div class="size-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                                 <Tag class="size-3.5" />
                             </div>
-                            <span class="text-xs font-bold text-foreground">Descuentos y Recargos</span>
+                            <span class="text-[16px] font-bold text-foreground">Descuentos y Recargos</span>
                         </div>
                         <Button
                             type="button"
                             variant="default"
                             size="sm"
-                            class="h-8 px-2.5 rounded-lg text-xs font-semibold gap-1 cursor-pointer"
+                            class="h-8 px-2.5 rounded-lg text-sm font-semibold gap-1 cursor-pointer"
                             onclick={() => (isChooseAdjustmentModalOpen = true)}
                         >
                             <Plus class="size-3.5" />
@@ -2398,16 +2402,16 @@
                     {#if priceAdjustments.length > 0}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                             {#each priceAdjustments as adj (adj.id)}
-                                <div class="p-2.5 rounded-xl border flex items-center justify-between text-xs bg-muted/40 dark:bg-secondary/35 {adj.type === 'discount' ? 'border-emerald-500/30' : 'border-amber-500/30'}">
+                                <div class="p-2.5 rounded-xl border flex items-center justify-between text-sm bg-muted/40 dark:bg-secondary/35 {adj.type === 'discount' ? 'border-emerald-500/30' : 'border-amber-500/30'}">
                                     <div class="min-w-0 pr-2">
                                         <div class="flex items-center gap-1.5">
                                             <span class="font-semibold text-foreground truncate">{adj.name}</span>
                                             {#if adj.calculation_type === 'percentage'}
-                                                <span class="text-xs px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-sans tabular-nums font-medium">%{adj.value}</span>
+                                                <span class="text-sm px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-sans tabular-nums font-medium">%{adj.value}</span>
                                             {/if}
                                         </div>
                                         {#if adj.reason}
-                                            <p class="text-xs text-muted-foreground truncate mt-0.5">{adj.reason}</p>
+                                            <p class="text-sm text-muted-foreground truncate mt-0.5">{adj.reason}</p>
                                         {/if}
                                     </div>
                                     <div class="flex items-center gap-2 shrink-0">
@@ -2417,7 +2421,7 @@
                                         {#if adj.source === 'ad_hoc'}
                                             <button
                                                 type="button"
-                                                class="size-6 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors cursor-pointer"
+                                                class="size-6 rounded-md text-muted-foreground hover:bg-destructive hover:text-destructive-foreground flex items-center justify-center transition-colors cursor-pointer"
                                                 onclick={() => confirmDeleteAdHoc(adj)}
                                                 title="Eliminar ajuste al vuelo"
                                             >
@@ -2429,7 +2433,7 @@
                             {/each}
                         </div>
                     {:else}
-                        <p class="text-xs text-muted-foreground">
+                        <p class="text-sm text-muted-foreground">
                             Podés aplicar recargos o descuentos especiales a este pedido (fletes, bonificaciones, promociones).
                         </p>
                     {/if}
@@ -2462,35 +2466,35 @@
                     </div>
 
                     {#if computedTotals.itemDiscountTotal > 0}
-                        <div class="flex items-center justify-between text-xs text-emerald-700 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
+                        <div class="flex items-center justify-between text-sm text-emerald-700 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
                             <span>Descuentos en productos:</span>
                             <span>-{formatPrice(computedTotals.itemDiscountTotal)}</span>
                         </div>
                     {/if}
 
                     {#if computedTotals.customerDiscountTotal > 0}
-                        <div class="flex items-center justify-between text-xs text-emerald-700 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
+                        <div class="flex items-center justify-between text-sm text-emerald-700 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
                             <span>Descuento de cliente ({customerDiscountPercentage}%):</span>
                             <span>-{formatPrice(computedTotals.customerDiscountTotal)}</span>
                         </div>
                     {/if}
 
                     {#if adjustmentsTotals.discountTotal > 0}
-                        <div class="flex items-center justify-between text-xs text-emerald-700 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
+                        <div class="flex items-center justify-between text-sm text-emerald-700 dark:text-emerald-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
                             <span>Ajustes de descuento:</span>
                             <span>-{formatPrice(adjustmentsTotals.discountTotal)}</span>
                         </div>
                     {/if}
 
                     {#if adjustmentsTotals.surchargeTotal > 0}
-                        <div class="flex items-center justify-between text-xs text-amber-700 dark:text-amber-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
+                        <div class="flex items-center justify-between text-sm text-amber-700 dark:text-amber-400 font-semibold font-sans tabular-nums border-t border-border/40 pt-1.5">
                             <span>Ajustes de recargo:</span>
                             <span>+{formatPrice(adjustmentsTotals.surchargeTotal)}</span>
                         </div>
                     {/if}
 
                     {#if selectedShippingZone && shippingCost > 0}
-                        <div class="flex items-center justify-between text-xs text-primary font-semibold border-t border-border/40 pt-1.5">
+                        <div class="flex items-center justify-between text-sm text-primary font-semibold border-t border-border/40 pt-1.5">
                             <span class="flex items-center gap-1">
                                 <MapPin class="size-3.5" />
                                 Envío ({selectedShippingZone.name} - +{selectedShippingZone.surcharge_percentage}%):
@@ -2500,14 +2504,14 @@
                     {/if}
 
                     {#if showAccountBalanceInOrderSummary && selectedCustomer}
-                        <div class="flex items-center justify-between text-xs sm:text-sm font-medium text-muted-foreground border-t border-border/40 pt-1.5">
+                        <div class="flex items-center justify-between text-sm font-medium text-muted-foreground border-t border-border/40 pt-1.5">
                             <span>Saldo Cta. Cte. actual:</span>
                             <span class="font-bold font-sans tabular-nums text-foreground">
                                 {accountCurrentBalanceFormatted}
                             </span>
                         </div>
                         {#if accountProjectedBalanceFormatted}
-                            <div class="flex items-center justify-between text-xs sm:text-sm font-medium text-muted-foreground pt-1">
+                            <div class="flex items-center justify-between text-sm font-medium text-muted-foreground pt-1">
                                 <span>Saldo Cta. Cte. resultante:</span>
                                 <span class="font-bold font-sans tabular-nums text-foreground">
                                     {accountProjectedBalanceFormatted}
@@ -2517,7 +2521,7 @@
                     {/if}
 
                     {#if effectiveCreditBalanceApplied > 0}
-                        <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 font-sans tabular-nums border-t border-border/40 pt-1.5">
+                        <div class="flex items-center justify-between text-sm font-bold text-emerald-700 dark:text-emerald-400 font-sans tabular-nums border-t border-border/40 pt-1.5">
                             <span>Saldo a favor imputado:</span>
                             <span>-{formatPrice(effectiveCreditBalanceApplied)}</span>
                         </div>
@@ -2528,7 +2532,7 @@
                             </span>
                         </div>
                     {:else if effectivePreviousDebtCollected > 0}
-                        <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-amber-700 dark:text-amber-400 font-sans tabular-nums border-t border-border/40 pt-1.5">
+                        <div class="flex items-center justify-between text-sm font-bold text-amber-700 dark:text-amber-400 font-sans tabular-nums border-t border-border/40 pt-1.5">
                             <span>Cobro de Deuda Anterior:</span>
                             <span>+{formatPrice(effectivePreviousDebtCollected)}</span>
                         </div>
@@ -2550,7 +2554,7 @@
 
                 <!-- Alerta si hay cantidades que exceden el stock disponible -->
                 {#if hasQuantityOverflow}
-                    <div class="flex items-center gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 justify-end w-full">
+                    <div class="flex items-center gap-1.5 text-sm font-semibold text-amber-700 dark:text-amber-400 justify-end w-full">
                         <AlertTriangle class="size-4 shrink-0" />
                         <span>Ajustá las cantidades que superan el stock máximo para poder crear el pedido.</span>
                     </div>
@@ -2561,7 +2565,7 @@
                     <Button
                         type="button"
                         variant="secondary"
-                        class="min-h-[44px] h-auto py-3 px-4 sm:px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto shadow-xs leading-snug text-center"
+                        class="min-h-[44px] h-auto py-3 px-4 sm:px-5 rounded-xl text-sm font-semibold justify-center w-full sm:w-auto shadow-xs leading-snug text-center"
                         onclick={closeModal}
                     >
                         Cancelar
@@ -2569,7 +2573,7 @@
                     <Button
                         type="submit"
                         form="create-order-form"
-                        class="min-h-[44px] h-auto py-3 px-4 sm:px-5 rounded-xl text-xs sm:text-sm font-semibold justify-center w-full sm:w-auto shadow-xs leading-snug text-center gap-2"
+                        class="min-h-[44px] h-auto py-3 px-4 sm:px-5 rounded-xl text-sm font-semibold justify-center w-full sm:w-auto shadow-xs leading-snug text-center gap-2"
                         disabled={isSubmitting || items.length === 0 || hasQuantityOverflow}
                     >
                         {#if isSubmitting}
@@ -2603,8 +2607,8 @@
 
         <DialogBody class="space-y-4 py-1">
             {#if mobileDiscountItemIndex !== null && items[mobileDiscountItemIndex]}
-                <div class="p-2.5 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-xs">
-                    <span class="text-muted-foreground block text-xs">Producto:</span>
+                <div class="p-2.5 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-sm">
+                    <span class="text-muted-foreground block text-sm">Producto:</span>
                     <strong class="text-foreground font-semibold line-clamp-1">{items[mobileDiscountItemIndex].product_name}</strong>
                 </div>
             {/if}
@@ -2619,8 +2623,8 @@
                                 mobileDiscountPreset = preset;
                                 isMobileDiscountCustom = false;
                             }}
-                            class="min-h-[44px] rounded-xl text-xs font-bold border transition-colors flex items-center justify-center cursor-pointer {(!isMobileDiscountCustom && mobileDiscountPreset === preset)
-                                ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                            class="min-h-[44px] rounded-xl text-sm font-bold border transition-colors flex items-center justify-center cursor-pointer {(!isMobileDiscountCustom && mobileDiscountPreset === preset)
+                                ? 'bg-primary-solid text-primary-foreground border-primary-solid shadow-xs'
                                 : 'bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 text-foreground border-border/80 dark:border-border/90'}"
                         >
                             {preset}%
@@ -2632,8 +2636,8 @@
                             isMobileDiscountCustom = true;
                             mobileDiscountPreset = 'custom';
                         }}
-                        class="min-h-[44px] rounded-xl text-xs font-bold border transition-colors flex items-center justify-center cursor-pointer {(isMobileDiscountCustom || mobileDiscountPreset === 'custom')
-                            ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                        class="min-h-[44px] rounded-xl text-sm font-bold border transition-colors flex items-center justify-center cursor-pointer {(isMobileDiscountCustom || mobileDiscountPreset === 'custom')
+                            ? 'bg-primary-solid text-primary-foreground border-primary-solid shadow-xs'
                             : 'bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 text-foreground border-border/80 dark:border-border/90'}"
                     >
                         Otro...
@@ -2707,8 +2711,8 @@
 
         <DialogBody class="space-y-4 py-1">
             {#if editingUnitsItemIndex !== null && items[editingUnitsItemIndex]}
-                <div class="p-2.5 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-xs">
-                    <span class="text-muted-foreground block text-xs">Producto:</span>
+                <div class="p-2.5 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-sm">
+                    <span class="text-muted-foreground block text-sm">Producto:</span>
                     <strong class="text-foreground font-semibold line-clamp-1">{items[editingUnitsItemIndex].product_name}</strong>
                 </div>
             {/if}
@@ -2725,7 +2729,7 @@
                     placeholder="ej. 12"
                     class="h-10 text-sm font-bold font-sans tabular-nums"
                 />
-                <p class="text-xs text-muted-foreground">
+                <p class="text-sm text-muted-foreground">
                     Este cambio se aplica únicamente a esta línea del pedido y no modifica el producto en el catálogo.
                 </p>
             </div>
@@ -2837,14 +2841,14 @@
             <div class="grid grid-cols-2 gap-2 p-1 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90">
                 <button
                     type="button"
-                    class="min-h-[38px] rounded-lg text-xs font-semibold transition-all cursor-pointer {editCreditMode === 'fixed' ? 'bg-field text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
+                    class="min-h-[38px] rounded-lg text-sm font-semibold transition-all cursor-pointer {editCreditMode === 'fixed' ? 'bg-field text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
                     onclick={() => (editCreditMode = 'fixed')}
                 >
                     Monto Fijo
                 </button>
                 <button
                     type="button"
-                    class="min-h-[38px] rounded-lg text-xs font-semibold transition-all cursor-pointer {editCreditMode === 'percentage' ? 'bg-field text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
+                    class="min-h-[38px] rounded-lg text-sm font-semibold transition-all cursor-pointer {editCreditMode === 'percentage' ? 'bg-field text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
                     onclick={() => (editCreditMode = 'percentage')}
                 >
                     Porcentaje
@@ -2869,7 +2873,7 @@
                             class="h-10 pl-7 text-sm font-bold font-sans tabular-nums"
                         />
                     </div>
-                    <p class="text-xs text-muted-foreground">
+                    <p class="text-sm text-muted-foreground">
                         Saldo a favor disponible del cliente: <strong class="tabular-nums text-foreground">{formatPrice(availableCustomerCredit)}</strong>
                     </p>
                 </div>
@@ -2891,7 +2895,7 @@
                         />
                         <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">%</span>
                     </div>
-                    <p class="text-xs text-muted-foreground">
+                    <p class="text-sm text-muted-foreground">
                         Equivalente: <strong class="tabular-nums text-foreground">{formatPrice(Math.round(availableCustomerCredit * (Math.max(0, Math.min(100, Number(editCreditPercentageValue || 0))) / 100) * 100) / 100)}</strong> de saldo a favor disponible ({formatPrice(availableCustomerCredit)})
                     </p>
                 </div>
@@ -2940,14 +2944,14 @@
             <div class="grid grid-cols-2 gap-2 p-1 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90">
                 <button
                     type="button"
-                    class="min-h-[38px] rounded-lg text-xs font-semibold transition-all cursor-pointer {editDebtMode === 'fixed' ? 'bg-field text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
+                    class="min-h-[38px] rounded-lg text-sm font-semibold transition-all cursor-pointer {editDebtMode === 'fixed' ? 'bg-field text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
                     onclick={() => (editDebtMode = 'fixed')}
                 >
                     Monto Fijo
                 </button>
                 <button
                     type="button"
-                    class="min-h-[38px] rounded-lg text-xs font-semibold transition-all cursor-pointer {editDebtMode === 'percentage' ? 'bg-field text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
+                    class="min-h-[38px] rounded-lg text-sm font-semibold transition-all cursor-pointer {editDebtMode === 'percentage' ? 'bg-field text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
                     onclick={() => (editDebtMode = 'percentage')}
                 >
                     Porcentaje
@@ -2972,7 +2976,7 @@
                             class="h-10 pl-7 text-sm font-bold font-sans tabular-nums"
                         />
                     </div>
-                    <p class="text-xs text-muted-foreground">
+                    <p class="text-sm text-muted-foreground">
                         Deuda pendiente del cliente: <strong class="tabular-nums text-foreground">{formatPrice(availableCustomerDebt)}</strong>
                     </p>
                 </div>
@@ -2994,7 +2998,7 @@
                         />
                         <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">%</span>
                     </div>
-                    <p class="text-xs text-muted-foreground">
+                    <p class="text-sm text-muted-foreground">
                         Equivalente: <strong class="tabular-nums text-foreground">{formatPrice(Math.round(availableCustomerDebt * (Math.max(0, Math.min(100, Number(editDebtPercentageValue || 0))) / 100) * 100) / 100)}</strong> de deuda pendiente ({formatPrice(availableCustomerDebt)})
                     </p>
                 </div>

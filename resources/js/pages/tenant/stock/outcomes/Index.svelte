@@ -111,8 +111,9 @@
         {#snippet actions()}
             {#if page.props.auth?.is_admin || page.props.auth?.roles?.includes('admin') || page.props.auth?.permissions?.includes('stock_egreso.crear')}
                 <Button
+                    variant="secondary"
                     onclick={() => (isCreateModalOpen = true)}
-                    class="flex items-center gap-2 font-semibold shadow-sm bg-rose-700 hover:bg-rose-800 text-white sm:hover:shadow-lg sm:hover:shadow-rose-700/25 cursor-pointer"
+                    class="flex items-center gap-2 font-semibold shadow-sm border-transparent bg-rose-700 hover:bg-rose-800 dark:hover:bg-rose-800 text-white sm:hover:shadow-lg sm:hover:shadow-rose-700/25 cursor-pointer"
                 >
                     <Minus class="size-4" />
                     <span>Nuevo egreso</span>

@@ -239,12 +239,12 @@
             <!-- Botonera Operativa Móvil (Exclusivamente Edición con min-h-[44px] A11y Touch Target y text-sm) -->
             <div class="pt-1 border-t border-border/40">
                 <Button
-                    variant="outline"
+                    variant="tertiary"
                     onclick={(e) => {
                         e.stopPropagation();
                         onedit(adj);
                     }}
-                    class="min-h-[44px] w-full rounded-xl text-sm font-semibold flex items-center justify-center gap-2 border-primary/30 bg-primary/10 text-primary shadow-2xs"
+                    class="min-h-[44px] w-full rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-2xs"
                 >
                     <Pencil class="h-4 w-4" />
                     <span>Editar</span>

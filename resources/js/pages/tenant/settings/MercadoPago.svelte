@@ -149,9 +149,9 @@
                 <!-- Call to Action -->
                 <div class="pt-2 flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                     <Button
-                        variant="default"
+                        variant="secondary"
                         size="lg"
-                        class="min-h-[46px] w-full sm:w-auto py-3.5 sm:py-2.5 px-6 rounded-xl font-semibold gap-2 shadow-xs bg-sky-700 hover:bg-sky-800 text-white cursor-pointer"
+                        class="min-h-[46px] w-full sm:w-auto py-3.5 sm:py-2.5 px-6 rounded-xl font-semibold gap-2 shadow-xs border-transparent bg-sky-700 hover:bg-sky-800 dark:hover:bg-sky-800 text-white sm:hover:shadow-lg sm:hover:shadow-sky-700/25 cursor-pointer"
                         onclick={handleConnect}
                     >
                         <span class="inline sm:hidden">Vincular Mercado Pago</span>
@@ -195,8 +195,8 @@
                     </div>
 
                     <Button
-                        variant="outline"
-                        class="min-h-[44px] px-4 rounded-xl text-sm font-medium text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-2 shrink-0 cursor-pointer"
+                        variant="destructive"
+                        class="min-h-[44px] px-4 rounded-xl text-sm font-medium gap-2 shrink-0 cursor-pointer"
                         onclick={() => (isDisconnectModalOpen = true)}
                     >
                         <Unlink class="size-4" />

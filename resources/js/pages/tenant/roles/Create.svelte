@@ -125,13 +125,9 @@
                             {#if mod.permissions.length > 0}
                                 <Button
                                     type="button"
-                                    variant="outline"
+                                    variant={allSelected ? 'tertiary' : 'secondary'}
                                     size="sm"
-                                    class={`min-h-[36px] text-xs font-semibold rounded-xl border transition-all ${
-                                        allSelected
-                                            ? 'bg-primary/15 text-primary border-primary/40 hover:bg-primary/25 dark:bg-primary/20'
-                                            : 'bg-card dark:bg-secondary/40 hover:bg-muted dark:hover:bg-secondary/65 text-foreground border-border/80'
-                                    }`}
+                                    class="min-h-[36px] text-xs font-semibold rounded-xl transition-all"
                                     onclick={() => toggleAllModulePermissions(mod, !allSelected)}
                                 >
                                     {allSelected ? 'Deseleccionar todos' : 'Seleccionar todos'}
@@ -158,7 +154,7 @@
                                             ? 'border-primary/35 bg-primary/10 dark:bg-primary/15 text-foreground shadow-2xs font-semibold'
                                             : 'border-border/80 dark:border-border/90 bg-card/80 dark:bg-card/60 hover:bg-background/70 dark:hover:bg-secondary/60 text-muted-foreground'}"
                                     >
-                                        <div class="size-4.5 rounded-md border flex items-center justify-center transition-colors shrink-0 {isChecked ? 'bg-primary text-primary-foreground border-primary' : 'border-input bg-field'}">
+                                        <div class="size-4.5 rounded-md border flex items-center justify-center transition-colors shrink-0 {isChecked ? 'bg-primary-solid text-primary-foreground border-primary-solid' : 'border-input bg-field'}">
                                             {#if isChecked}
                                                 <Check class="size-3 stroke-[3]" />
                                             {/if}

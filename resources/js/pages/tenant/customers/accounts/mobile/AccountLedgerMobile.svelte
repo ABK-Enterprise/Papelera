@@ -420,12 +420,13 @@
             <div class="space-y-2">
                 {#if hasPermission('cobranzas.crear')}
                     <Button
+                        variant="success"
                         onclick={() => {
                             const cust = selectedCustomerForDrawer;
                             isDrawerOpen = false;
                             if (cust) onOpenPayment(cust);
                         }}
-                        class="w-full min-h-[44px] h-11 gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-xl text-sm"
+                        class="w-full min-h-[44px] h-11 gap-2 font-semibold rounded-xl text-sm"
                     >
                         <Banknote class="size-4" />
                         <span>Registrar Cobro / Abono</span>
@@ -503,7 +504,7 @@
                             type="button"
                             onclick={() => (movementTypeFilter = 'all')}
                             class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all {movementTypeFilter === 'all'
-                                ? 'bg-primary text-primary-foreground font-semibold shadow-2xs'
+                                ? 'bg-primary-solid hover:bg-primary text-primary-foreground font-semibold shadow-2xs'
                                 : 'bg-muted/40 dark:bg-secondary/35 text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/55 border border-border/60'}"
                         >
                             Todos
@@ -512,7 +513,7 @@
                             type="button"
                             onclick={() => (movementTypeFilter = 'charge')}
                             class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all {movementTypeFilter === 'charge'
-                                ? 'bg-rose-700 text-white font-semibold shadow-2xs'
+                                ? 'bg-rose-700 hover:bg-rose-800 text-white font-semibold shadow-2xs'
                                 : 'bg-muted/40 dark:bg-secondary/35 text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/55 border border-border/60'}"
                         >
                             Cargos
@@ -521,7 +522,7 @@
                             type="button"
                             onclick={() => (movementTypeFilter = 'payment')}
                             class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all {movementTypeFilter === 'payment'
-                                ? 'bg-emerald-700 text-white font-semibold shadow-2xs'
+                                ? 'bg-emerald-700 hover:bg-emerald-800 text-white font-semibold shadow-2xs'
                                 : 'bg-muted/40 dark:bg-secondary/35 text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/55 border border-border/60'}"
                         >
                             Cobros
@@ -530,7 +531,7 @@
                             type="button"
                             onclick={() => (movementTypeFilter = 'adjustment')}
                             class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all {movementTypeFilter === 'adjustment'
-                                ? 'bg-amber-700 text-white font-semibold shadow-2xs'
+                                ? 'bg-amber-700 hover:bg-amber-800 text-white font-semibold shadow-2xs'
                                 : 'bg-muted/40 dark:bg-secondary/35 text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/55 border border-border/60'}"
                         >
                             Ajustes

@@ -313,7 +313,8 @@
                         {#if hasPermission('repartos.gestionar')}
                             <div class="flex flex-col gap-2 w-full sm:w-48 shrink-0">
                                 <Button
-                                    class="w-full h-11 min-h-[44px] px-4 font-semibold bg-emerald-700 hover:bg-emerald-800 text-white gap-2 shadow-xs"
+                                    variant="success"
+                                    class="w-full h-11 min-h-[44px] px-4 font-semibold gap-2 shadow-xs"
                                     onclick={() => onDeliverOrder(order)}
                                 >
                                     <PackageCheck class="size-4.5" />
@@ -321,8 +322,8 @@
                                 </Button>
 
                                 <Button
-                                    variant="outline"
-                                    class="w-full h-11 min-h-[44px] px-4 font-semibold text-rose-700 dark:text-rose-400 border-rose-500/35 bg-card dark:bg-rose-950/30 hover:bg-rose-500/15 dark:hover:bg-rose-950/50 gap-2"
+                                    variant="destructive"
+                                    class="w-full h-11 min-h-[44px] px-4 font-semibold gap-2"
                                     onclick={() => onFailDelivery(order)}
                                 >
                                     <AlertTriangle class="size-4" />

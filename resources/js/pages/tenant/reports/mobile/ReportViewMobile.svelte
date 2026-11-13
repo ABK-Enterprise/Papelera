@@ -303,7 +303,7 @@
             <Button
                 variant="secondary"
                 onclick={onExportPdf}
-                class="w-full min-h-[44px] gap-2 text-xs font-semibold rounded-xl border border-border/40 shadow-2xs hover:bg-secondary/90 transition-all"
+                class="w-full min-h-[44px] gap-2 text-xs font-semibold rounded-xl shadow-2xs transition-all"
             >
                 <FileDown class="size-4 text-primary" />
                 <span>Descargar Reporte en PDF</span>

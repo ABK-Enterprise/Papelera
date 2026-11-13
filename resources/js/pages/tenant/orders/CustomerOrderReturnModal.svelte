@@ -406,8 +406,8 @@
 
                     <Button
                         type="button"
-                        variant="default"
-                        class="min-h-[44px] px-5 rounded-xl text-sm font-semibold gap-2 shadow-xs bg-amber-700 hover:bg-amber-800 text-white shrink-0 cursor-pointer disabled:opacity-50"
+                        variant="warning"
+                        class="min-h-[44px] px-5 rounded-xl text-sm font-semibold gap-2 shadow-xs shrink-0 cursor-pointer disabled:opacity-50"
                         onclick={handleSubmit}
                         disabled={isSubmitting || selectedItems.length === 0}
                     >

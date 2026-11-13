@@ -8,6 +8,8 @@
         | 'tertiary'
         | 'ghost'
         | 'destructive'
+        | 'success'
+        | 'warning'
         | 'outline'
         | 'link'
         | 'accent';
@@ -31,6 +33,10 @@
         ghost: 'hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground active:scale-95 transition-all duration-150',
         destructive:
             'bg-destructive text-destructive-foreground shadow hover:bg-destructive/90 sm:hover:shadow-lg sm:hover:shadow-destructive/25 active:scale-95 transition-all duration-150',
+        success:
+            'bg-emerald-700 text-white shadow hover:bg-emerald-800 sm:hover:shadow-lg sm:hover:shadow-emerald-700/25 active:scale-95 transition-all duration-150',
+        warning:
+            'bg-amber-700 text-white shadow hover:bg-amber-800 sm:hover:shadow-lg sm:hover:shadow-amber-700/25 active:scale-95 transition-all duration-150',
         outline:
             'border border-input bg-card hover:bg-muted dark:bg-secondary/40 dark:hover:bg-secondary/65 hover:text-foreground active:scale-95 transition-all duration-150',
         link: 'text-primary underline-offset-4 hover:underline',
