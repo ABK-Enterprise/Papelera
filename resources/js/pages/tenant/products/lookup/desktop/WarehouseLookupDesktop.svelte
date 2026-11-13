@@ -137,7 +137,7 @@
                 <select
                     bind:value={selectedWarehouseId}
                     onchange={onfilterchange}
-                    class="h-10 rounded-xl border border-input bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[110px] max-w-[190px] cursor-pointer"
+                    class="h-10 rounded-xl border border-input bg-field px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[110px] max-w-[190px] cursor-pointer"
                 >
                     <option value="">Todos los Depósitos</option>
                     {#each warehouses as wh (wh.id)}
@@ -151,7 +151,7 @@
                 <select
                     bind:value={selectedCategoryId}
                     onchange={onfilterchange}
-                    class="h-10 rounded-xl border border-input bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[110px] max-w-[180px] cursor-pointer"
+                    class="h-10 rounded-xl border border-input bg-field px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[110px] max-w-[180px] cursor-pointer"
                 >
                     <option value="">Todas las Categorías</option>
                     {#each categories as cat (cat.id)}
@@ -163,7 +163,7 @@
                 <select
                     bind:value={selectedStockStatus}
                     onchange={onfilterchange}
-                    class="h-10 rounded-xl border border-input bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[100px] max-w-[130px] cursor-pointer"
+                    class="h-10 rounded-xl border border-input bg-field px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary flex-1 min-w-[100px] max-w-[130px] cursor-pointer"
                 >
                     <option value="">Todos los Estados</option>
                     <option value="in_stock">Con stock</option>
@@ -178,9 +178,9 @@
 
     <!-- Grid de Resultados / Existencias -->
     {#if items.data.length === 0}
-        <Card class="p-12 text-center border-dashed border-border/80 rounded-2xl">
+        <Card class="p-12 text-center border-dashed border-border/80 dark:border-border/90 rounded-2xl">
             <div class="flex flex-col items-center justify-center max-w-md mx-auto">
-                <div class="size-14 rounded-2xl bg-muted/60 flex items-center justify-center mb-4 text-muted-foreground">
+                <div class="size-14 rounded-2xl bg-muted/60 dark:bg-secondary/50 border border-border/70 flex items-center justify-center mb-4 text-muted-foreground">
                     <PackageSearch class="size-7" />
                 </div>
                 <h3 class="text-lg font-semibold text-foreground mb-1">No se encontraron productos</h3>
@@ -188,7 +188,7 @@
                     {hasActiveFilters ? 'No hay existencias coincidentes con los filtros aplicados.' : 'No hay existencias registradas en los depósitos.'}
                 </p>
                 {#if hasActiveFilters}
-                    <Button variant="outline" size="sm" onclick={onreset} class="gap-1.5 text-xs font-medium">
+                    <Button variant="secondary" size="sm" onclick={onreset} class="gap-1.5 text-xs font-medium rounded-xl">
                         <RotateCcw class="size-3.5" />
                         Restablecer filtros
                     </Button>
@@ -232,11 +232,11 @@
                                     Sin Stock
                                 </Badge>
                             {:else if isLowStock}
-                                <Badge class="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-xs font-medium shrink-0">
+                                <Badge class="bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 text-xs font-medium shrink-0">
                                     Stock Bajo
                                 </Badge>
                             {:else}
-                                <Badge variant="secondary" class="text-xs font-medium shrink-0 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                                <Badge variant="secondary" class="text-xs font-medium shrink-0 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/25">
                                     Disponible
                                 </Badge>
                             {/if}
@@ -249,7 +249,7 @@
                                 <span class="truncate">{item.warehouse_name}</span>
                             </div>
                             {#if item.aisle_location}
-                                <div class="flex items-center gap-1 text-xs bg-muted/60 px-2 py-0.5 rounded-md font-sans tabular-nums">
+                                <div class="flex items-center gap-1 text-xs bg-muted/60 dark:bg-secondary/50 border border-border/60 px-2 py-0.5 rounded-md font-sans tabular-nums">
                                     <MapPin class="size-3 text-muted-foreground" />
                                     <span>{item.aisle_location}</span>
                                 </div>
@@ -258,7 +258,7 @@
                     </div>
 
                     <!-- Pie de la Card: Stock en este depósito, acción de transferir y Stock consolidado -->
-                    <div class="pt-3 border-t border-border/50 flex items-center justify-between gap-2 bg-muted/20 -mx-5 -mb-5 px-5 py-3 rounded-b-2xl">
+                    <div class="pt-3 border-t border-border/70 dark:border-border/80 flex items-center justify-between gap-2 bg-muted/40 dark:bg-secondary/35 -mx-5 -mb-5 px-5 py-3 rounded-b-2xl">
                         <div class="flex flex-col">
                             <span class="text-xs font-normal text-muted-foreground">Stock en este depósito</span>
                             <span class="text-sm font-semibold tabular-nums text-foreground">
@@ -268,9 +268,9 @@
 
                         <Button
                             type="button"
-                            variant="outline"
+                            variant="secondary"
                             size="sm"
-                            class="min-h-[32px] h-8 px-2.5 gap-1.5 text-xs text-foreground font-medium rounded-lg shadow-2xs hover:bg-muted"
+                            class="min-h-[32px] h-8 px-2.5 gap-1.5 text-xs font-medium rounded-lg"
                             onclick={() => ontransfer?.(item)}
                             title="Transferir stock de este producto"
                         >

@@ -140,7 +140,7 @@
                 placeholder="Buscar categoría..."
                 onselect={(cat) => onSelectCategory(cat.id)}
                 onclear={() => onSelectCategory(null)}
-                inputClass="h-9 text-xs rounded-xl border-border/80 bg-background/50 focus:bg-background"
+                inputClass="h-9 text-xs rounded-xl border-input bg-field focus:border-primary focus:ring-1 focus:ring-primary"
             />
         </div>
     {/if}
@@ -149,7 +149,7 @@
         <li>
             <button
                 type="button"
-                class="w-full flex items-center justify-between p-2.5 rounded-xl text-left text-sm transition-colors cursor-pointer select-none {selectedCategoryId === null ? 'bg-primary/15 text-primary font-bold shadow-2xs' : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground dark:hover:bg-primary/15 dark:hover:text-sky-100'}"
+                class="w-full flex items-center justify-between p-2.5 rounded-xl text-left text-sm transition-colors cursor-pointer select-none border {selectedCategoryId === null ? 'bg-primary/10 dark:bg-primary/15 border-primary/25 text-primary font-bold shadow-2xs' : 'border-transparent text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/50 hover:text-foreground'}"
                 onclick={() => onSelectCategory(null)}
             >
                 <div class="flex items-center gap-2.5">
@@ -164,7 +164,7 @@
             <li>
                 <button
                     type="button"
-                    class="w-full flex items-center justify-between p-2.5 rounded-xl text-left text-sm transition-colors cursor-pointer select-none {selectedCategoryId === cat.id ? 'bg-primary/15 text-primary font-bold shadow-2xs' : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground dark:hover:bg-primary/15 dark:hover:text-sky-100'}"
+                    class="w-full flex items-center justify-between p-2.5 rounded-xl text-left text-sm transition-colors cursor-pointer select-none border {selectedCategoryId === cat.id ? 'bg-primary/10 dark:bg-primary/15 border-primary/25 text-primary font-bold shadow-2xs' : 'border-transparent text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/50 hover:text-foreground'}"
                     onclick={() => onSelectCategory(cat.id)}
                 >
                     <div class="flex items-center gap-2.5 min-w-0">
@@ -235,7 +235,7 @@
                     id="modal-cat-name"
                     bind:value={newCategoryName}
                     placeholder="ej. Papelería, Embalaje, Librería..."
-                    class="h-10 text-sm rounded-xl border-border/80 bg-background text-foreground focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+                    class="h-10 text-sm rounded-xl border-input bg-field text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
                     required
                     disabled={isSaving}
                 />

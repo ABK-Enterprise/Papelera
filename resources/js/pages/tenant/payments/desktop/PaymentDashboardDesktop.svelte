@@ -136,7 +136,7 @@
 
         <div class="space-y-2.5 max-h-[660px] overflow-y-auto pr-1 font-sans">
             {#if customers.length === 0}
-                <div class="p-8 text-center text-sm text-muted-foreground bg-card rounded-2xl border border-border/70 font-sans shadow-2xs">
+                <div class="p-8 text-center text-sm text-muted-foreground bg-card rounded-2xl border border-border/80 font-sans shadow-2xs">
                     No se encontraron clientes con saldo pendiente.
                 </div>
             {:else}
@@ -146,7 +146,7 @@
                         onclick={() => onSelectCustomer?.(cust)}
                         class="w-full text-left p-4 rounded-2xl border transition-all duration-150 cursor-pointer font-sans {selectedCustomer?.id === cust.id
                             ? 'bg-primary/10 border-primary/40 shadow-xs'
-                            : 'bg-card border-border/70 hover:border-border hover:bg-muted/40'}"
+                            : 'bg-card border-border/80 hover:border-border hover:bg-muted/40 dark:hover:bg-secondary/35'}"
                     >
                         <div class="flex items-start justify-between gap-2">
                             <div class="space-y-1 min-w-0">
@@ -158,7 +158,7 @@
                                         <span>CUIT: {cust.tax_id}</span>
                                     {/if}
                                     {#if cust.unpaid_orders_count && cust.unpaid_orders_count > 0}
-                                        <span class="inline-flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md font-sans">
+                                        <span class="inline-flex items-center gap-1 font-semibold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md font-sans">
                                             {cust.unpaid_orders_count} {cust.unpaid_orders_count === 1 ? 'pedido' : 'pedidos'}
                                         </span>
                                     {/if}
@@ -171,7 +171,7 @@
                             </div>
 
                             <div class="text-right shrink-0">
-                                <span class="text-sm sm:text-base font-bold font-sans tabular-nums {Number(cust.current_balance) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'}">
+                                <span class="text-sm sm:text-base font-bold font-sans tabular-nums {Number(cust.current_balance) > 0 ? 'text-rose-700 dark:text-rose-400' : 'text-foreground'}">
                                     {formatPrice(cust.current_balance)}
                                 </span>
                             </div>
@@ -190,7 +190,7 @@
                 <ShoppingBag class="size-4 text-primary shrink-0" />
                 <span>Pedidos a Cobrar</span>
                 {#if selectedCustomer && unpaidOrders.length > 0}
-                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-sans tabular-nums">
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 font-sans tabular-nums">
                         {unpaidOrders.length} {unpaidOrders.length === 1 ? 'pedido' : 'pedidos'}
                     </span>
                 {/if}
@@ -200,7 +200,7 @@
                 <button
                     type="button"
                     onclick={() => onDeselectCustomer?.()}
-                    class="text-xs sm:text-sm font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground flex items-center gap-1.5 font-sans transition-colors cursor-pointer py-1 px-2.5 rounded-xl hover:bg-muted border border-border/70 shadow-2xs bg-card"
+                    class="text-xs sm:text-sm font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground flex items-center gap-1.5 font-sans transition-colors cursor-pointer py-1 px-2.5 rounded-xl hover:bg-muted dark:hover:bg-secondary/60 border border-border/80 shadow-2xs bg-card"
                     title="Quitar cliente y ver histórico de cobros"
                 >
                     <X class="size-3.5 text-muted-foreground shrink-0" />
@@ -210,8 +210,8 @@
         </div>
 
         {#if !selectedCustomer}
-            <Card class="p-8 text-center rounded-2xl border border-dashed border-border bg-card/60 flex flex-col items-center justify-center min-h-[380px] font-sans">
-                <div class="size-12 rounded-2xl bg-muted/60 text-muted-foreground flex items-center justify-center mb-3">
+            <Card class="p-8 text-center rounded-2xl border border-dashed border-border/80 bg-card/60 dark:bg-card/50 flex flex-col items-center justify-center min-h-[380px] font-sans">
+                <div class="size-12 rounded-2xl bg-muted/60 dark:bg-secondary/50 text-muted-foreground flex items-center justify-center mb-3">
                     <User class="size-6" />
                 </div>
                 <h3 class="text-base font-bold text-foreground mb-1 font-sans">Selecciona un cliente</h3>
@@ -227,7 +227,7 @@
                         {selectedCustomer.name}
                     </h3>
                     <span class="text-xs sm:text-sm text-muted-foreground font-sans">
-                        Saldo deudor en cuenta: <strong class="text-rose-600 dark:text-rose-400 font-sans tabular-nums">{formatPrice(selectedCustomer.current_balance)}</strong>
+                        Saldo deudor en cuenta: <strong class="text-rose-700 dark:text-rose-400 font-sans tabular-nums">{formatPrice(selectedCustomer.current_balance)}</strong>
                     </span>
                 </div>
 
@@ -255,8 +255,8 @@
             <!-- Listado de Cards de Pedidos Impagos -->
             <div class="space-y-3 max-h-[540px] overflow-y-auto pr-1 font-sans">
                 {#if unpaidOrders.length === 0}
-                    <Card class="p-8 text-center rounded-2xl border border-border/70 bg-card font-sans">
-                        <ShoppingBag class="size-8 text-emerald-500 mx-auto mb-2 opacity-80" />
+                    <Card class="p-8 text-center rounded-2xl border border-border/80 bg-card font-sans">
+                        <ShoppingBag class="size-8 text-emerald-700 dark:text-emerald-400 mx-auto mb-2 opacity-80" />
                         <h4 class="text-sm font-bold text-foreground font-sans">Sin pedidos impagos</h4>
                         <p class="text-xs text-muted-foreground mt-1 font-sans">
                             Este cliente no registra pedidos pendientes de cancelación.
@@ -272,7 +272,7 @@
                             onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') onToggleOrderSelection?.(order.id); }}
                             class="p-4 rounded-2xl border transition-all duration-150 cursor-pointer font-sans {isSelected
                                 ? 'bg-primary/10 border-primary/40 shadow-xs'
-                                : 'bg-card border-border/70 hover:border-border hover:bg-muted/30'}"
+                                : 'bg-card border-border/80 hover:border-border hover:bg-muted/40 dark:hover:bg-secondary/35'}"
                         >
                             <div class="flex items-start justify-between gap-2.5">
                                 <div class="flex items-start gap-3">
@@ -295,7 +295,7 @@
                                                     {order.shipping_zone.name}
                                                 </span>
                                             {/if}
-                                            <span class="text-xs px-2 py-0.5 rounded-md font-semibold font-sans {order.payment_status === 'parcial' ? 'bg-amber-500/10 text-amber-600 border border-amber-500/20' : 'bg-rose-500/10 text-rose-600 border border-rose-500/20'}">
+                                            <span class="text-xs px-2 py-0.5 rounded-md font-semibold font-sans {order.payment_status === 'parcial' ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20' : 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20'}">
                                                 {order.payment_status === 'parcial' ? 'Pago Parcial' : 'Impago'}
                                             </span>
                                         </div>
@@ -308,7 +308,7 @@
 
                                 <div class="text-right shrink-0 font-sans">
                                     <span class="text-xs uppercase font-semibold text-muted-foreground block font-sans">Deuda Pendiente</span>
-                                    <span class="text-sm sm:text-base font-bold font-sans tabular-nums text-rose-600 dark:text-rose-400">
+                                    <span class="text-sm sm:text-base font-bold font-sans tabular-nums text-rose-700 dark:text-rose-400">
                                         {formatPrice(order.debt_amount)}
                                     </span>
                                 </div>
@@ -320,7 +320,7 @@
 
             <!-- Sticky Bottom Action Bar -->
             {#if unpaidOrders.length > 0}
-                <div class="p-4 rounded-2xl bg-card border border-border shadow-md flex items-center justify-between gap-3 font-sans">
+                <div class="p-4 rounded-2xl bg-card/95 backdrop-blur-md border border-border shadow-md flex items-center justify-between gap-3 font-sans">
                     <div class="text-xs sm:text-sm font-sans">
                         <span class="text-muted-foreground font-sans">Seleccionados: <strong class="font-bold text-foreground font-sans">{selectedOrderIds.length}</strong></span>
                         <span class="block font-bold text-foreground text-sm sm:text-base font-sans tabular-nums">
@@ -369,19 +369,19 @@
 
         <div class="space-y-3 max-h-[660px] overflow-y-auto pr-1 font-sans">
             {#if recentReceipts.length === 0}
-                <div class="p-8 text-center text-sm text-muted-foreground bg-card rounded-2xl border border-border/70 font-sans shadow-2xs">
+                <div class="p-8 text-center text-sm text-muted-foreground bg-card rounded-2xl border border-border/80 font-sans shadow-2xs">
                     No hay recibos registrados recientemente.
                 </div>
             {:else}
                 {#each recentReceipts as rc}
-                    <div class="p-4 sm:p-4.5 rounded-2xl border bg-card border-border/80 hover:border-border transition-all duration-150 space-y-3 shadow-2xs font-sans">
+                    <div class="p-4 sm:p-4.5 rounded-2xl border transition-all duration-150 space-y-3 shadow-2xs font-sans {rc.is_cancelled ? 'bg-muted/35 dark:bg-secondary/20 border-border/80 opacity-80' : 'bg-card border-border/80 hover:border-border'}">
                         <!-- Fila 1: Número de Recibo y Badge de Método / Cancelación -->
                         <div class="flex items-center justify-between gap-2">
                             <span class="font-bold text-sm sm:text-base text-foreground font-sans tracking-tight">
                                 {rc.receipt_number}
                             </span>
                             {#if rc.is_cancelled}
-                                <span class="text-xs font-bold text-destructive bg-destructive/10 px-2.5 py-1 rounded-lg border border-destructive/20 line-through font-sans">
+                                <span class="text-xs font-bold text-rose-700 dark:text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-lg border border-rose-500/20 line-through font-sans">
                                     ANULADO
                                 </span>
                             {:else}
@@ -403,7 +403,7 @@
                             <div class="flex flex-wrap items-center gap-1.5 pt-0.5 font-sans">
                                 <span class="text-xs text-muted-foreground font-sans mr-0.5">Imputado:</span>
                                 {#each rc.order_allocations as alloc}
-                                    <span class="text-xs font-sans font-semibold tabular-nums bg-muted/80 px-2.5 py-1 rounded-lg text-foreground border border-border/70">
+                                    <span class="text-xs font-sans font-semibold tabular-nums bg-muted/60 dark:bg-secondary/45 px-2.5 py-1 rounded-lg text-foreground border border-border/80">
                                         {alloc.order.order_number}
                                     </span>
                                 {/each}

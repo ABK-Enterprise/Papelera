@@ -25,7 +25,7 @@
 <AppHead title="Email verification" />
 
 {#if status === 'verification-link-sent'}
-    <div class="mb-4 text-center text-sm font-medium text-green-600">
+    <div class="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-center text-sm font-medium text-emerald-700 dark:text-emerald-400">
         A new verification link has been sent to the email address you provided
         during registration.
     </div>

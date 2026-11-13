@@ -199,7 +199,7 @@
             {/if}
 
             <!-- Resumen de Saldos del Pedido -->
-            <div class="grid grid-cols-2 gap-3 p-3.5 rounded-xl border border-border/70 bg-card dark:bg-slate-900/60">
+            <div class="grid grid-cols-2 gap-3 p-3.5 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                 <div class="space-y-0.5">
                     <span class="text-xs text-muted-foreground block">Total del Pedido</span>
                     <span class="text-sm font-semibold text-foreground tabular-nums">
@@ -221,7 +221,7 @@
                     <button
                         type="button"
                         onclick={() => (paymentMethod = 'efectivo')}
-                        class="min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold border transition-all flex flex-col items-center justify-center gap-1 cursor-pointer {paymentMethod === 'efectivo' ? 'border-primary bg-primary/10 text-primary shadow-xs' : 'border-border/80 bg-background/80 hover:bg-muted text-muted-foreground'}"
+                        class="min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold border transition-all flex flex-col items-center justify-center gap-1 cursor-pointer {paymentMethod === 'efectivo' ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary shadow-xs' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-muted-foreground hover:text-foreground'}"
                     >
                         <Banknote class="size-4 shrink-0" />
                         <span>Efectivo</span>
@@ -230,7 +230,7 @@
                     <button
                         type="button"
                         onclick={() => (paymentMethod = 'transferencia')}
-                        class="min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold border transition-all flex flex-col items-center justify-center gap-1 cursor-pointer {paymentMethod === 'transferencia' ? 'border-primary bg-primary/10 text-primary shadow-xs' : 'border-border/80 bg-background/80 hover:bg-muted text-muted-foreground'}"
+                        class="min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold border transition-all flex flex-col items-center justify-center gap-1 cursor-pointer {paymentMethod === 'transferencia' ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary shadow-xs' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-muted-foreground hover:text-foreground'}"
                     >
                         <Building2 class="size-4 shrink-0" />
                         <span>Transferencia</span>
@@ -239,7 +239,7 @@
                     <button
                         type="button"
                         onclick={() => (paymentMethod = 'debito')}
-                        class="min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold border transition-all flex flex-col items-center justify-center gap-1 cursor-pointer {paymentMethod === 'debito' ? 'border-primary bg-primary/10 text-primary shadow-xs' : 'border-border/80 bg-background/80 hover:bg-muted text-muted-foreground'}"
+                        class="min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold border transition-all flex flex-col items-center justify-center gap-1 cursor-pointer {paymentMethod === 'debito' ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary shadow-xs' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-muted-foreground hover:text-foreground'}"
                     >
                         <CreditCard class="size-4 shrink-0" />
                         <span>Débito</span>
@@ -248,7 +248,7 @@
                     <button
                         type="button"
                         onclick={() => (paymentMethod = 'credito')}
-                        class="min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold border transition-all flex flex-col items-center justify-center gap-1 cursor-pointer {paymentMethod === 'credito' ? 'border-primary bg-primary/10 text-primary shadow-xs' : 'border-border/80 bg-background/80 hover:bg-muted text-muted-foreground'}"
+                        class="min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold border transition-all flex flex-col items-center justify-center gap-1 cursor-pointer {paymentMethod === 'credito' ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary shadow-xs' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-muted-foreground hover:text-foreground'}"
                     >
                         <CreditCard class="size-4 shrink-0" />
                         <span>Crédito</span>
@@ -257,7 +257,7 @@
                     <button
                         type="button"
                         onclick={() => (paymentMethod = 'cheque')}
-                        class="min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold border transition-all flex flex-col items-center justify-center gap-1 cursor-pointer {paymentMethod === 'cheque' ? 'border-primary bg-primary/10 text-primary shadow-xs' : 'border-border/80 bg-background/80 hover:bg-muted text-muted-foreground'}"
+                        class="min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold border transition-all flex flex-col items-center justify-center gap-1 cursor-pointer {paymentMethod === 'cheque' ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary shadow-xs' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-muted-foreground hover:text-foreground'}"
                     >
                         <ReceiptText class="size-4 shrink-0" />
                         <span>Cheque</span>
@@ -267,7 +267,7 @@
                     <button
                         type="button"
                         onclick={openQrModal}
-                        class="min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold border border-sky-500/40 bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer shadow-xs"
+                        class="min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold border border-sky-500/40 bg-sky-500/10 text-sky-700 dark:text-sky-400 hover:bg-sky-500/20 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer shadow-xs"
                         title="Cobrar presencialmente con QR de Mercado Pago"
                     >
                         <QrCode class="size-4 shrink-0" />
@@ -344,7 +344,7 @@
 
             <!-- Switch de Entrega en Mostrador -->
             <div class="pt-1">
-                <div class="flex items-center justify-between p-3 rounded-xl border border-border/70 bg-muted/40">
+                <div class="flex items-center justify-between p-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                     <div class="space-y-0.5 pr-2">
                         <Label for="markAsDelivered" class="text-xs font-semibold text-foreground block cursor-pointer">
                             Marcar como entregado (Retiro en mostrador)
@@ -382,7 +382,7 @@
         <DialogFooter class="grid grid-cols-2 gap-2.5 pt-2">
             <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 class="min-h-[44px] w-full text-xs font-semibold rounded-xl cursor-pointer"
                 disabled={isSubmitting}
                 onclick={() => (open = false)}

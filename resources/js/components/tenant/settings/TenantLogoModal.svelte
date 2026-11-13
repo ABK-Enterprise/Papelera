@@ -202,7 +202,7 @@
         <DialogBody class="space-y-4 pt-1">
             <!-- Imagen actual centrada -->
             <div class="flex flex-col items-center justify-center gap-3">
-                <div class="relative size-32 sm:size-36 rounded-full border-2 border-border/80 bg-muted/30 shadow-inner flex items-center justify-center overflow-hidden shrink-0">
+                <div class="relative size-32 sm:size-36 rounded-full border-2 border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 shadow-inner flex items-center justify-center overflow-hidden shrink-0">
                     {#if activeImage && !imageFailed}
                         <img
                             src={activeImage}
@@ -212,8 +212,8 @@
                         />
                     {:else}
                         <div class="flex flex-col items-center justify-center gap-1.5 text-center select-none px-3">
-                            <ImageOff class="size-7 text-muted-foreground/60" />
-                            <span class="text-xs font-semibold text-muted-foreground/80 tracking-tight">
+                            <ImageOff class="size-7 text-muted-foreground/80" />
+                            <span class="text-xs font-semibold text-muted-foreground tracking-tight">
                                 Sin imagen
                             </span>
                         </div>
@@ -228,7 +228,7 @@
                             size="sm"
                             onclick={() => (showCropModal = true)}
                             disabled={isSubmitting || isDeleting}
-                            class="min-h-[36px] text-xs font-semibold text-foreground hover:bg-muted gap-1.5 px-3 rounded-lg border-border/80"
+                            class="min-h-[36px] text-xs font-semibold text-foreground hover:bg-muted dark:hover:bg-secondary/60 gap-1.5 px-3 rounded-lg border-border/80"
                         >
                             <Crop class="size-3.5 text-primary" />
                             <span>Ajustar</span>
@@ -251,7 +251,7 @@
             <!-- Zona de Carga / Drag & Drop -->
             <div
                 class="relative border-2 border-dashed rounded-xl p-4 transition-all text-center flex flex-col items-center justify-center gap-2 cursor-pointer
-                {isDragging ? 'border-primary bg-primary/5' : 'border-border/80 hover:border-primary/50 hover:bg-muted/30'}"
+                {isDragging ? 'border-primary bg-primary/10 dark:bg-primary/15' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:border-primary/50 hover:bg-muted/70 dark:hover:bg-secondary/55'}"
                 ondragover={handleDragOver}
                 ondragleave={handleDragLeave}
                 ondrop={handleDrop}
@@ -293,7 +293,7 @@
         <DialogFooter class="grid grid-cols-2 gap-2.5 sm:flex sm:justify-end sm:gap-3 pt-2">
             <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 onclick={handleClose}
                 disabled={isSubmitting || isDeleting}
                 class="w-full sm:w-auto min-h-[44px] px-5 rounded-xl font-semibold justify-center"

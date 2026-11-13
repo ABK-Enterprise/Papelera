@@ -223,7 +223,7 @@
     {#if incompleteCount > 0}
         <div class="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-amber-900 dark:text-amber-200">
             <div class="flex items-center gap-3">
-                <div class="flex size-10 items-center justify-center rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0">
+                <div class="flex size-10 items-center justify-center rounded-lg bg-amber-500/20 text-amber-700 dark:text-amber-400 shrink-0">
                     <AlertTriangle class="size-5" />
                 </div>
                 <div>
@@ -238,7 +238,7 @@
             <Button
                 variant="outline"
                 size="sm"
-                class="shrink-0 text-xs font-semibold bg-background hover:bg-muted border-amber-500/40 text-foreground"
+                class="shrink-0 text-xs font-semibold border-amber-500/40 text-foreground"
                 onclick={filterIncompleteQuick}
             >
                 Ver faltantes
@@ -297,7 +297,7 @@
                 <select
                     bind:value={tableFilters.filters.category_id}
                     onchange={applyFilters}
-                    class="h-10 rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[120px] max-w-[150px]"
+                    class="h-10 rounded-xl border border-input bg-field px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-w-[120px] max-w-[150px]"
                 >
                     <option value={null}>Todas las Categorías</option>
                     {#each categories as cat}
@@ -309,7 +309,7 @@
                 <select
                     bind:value={tableFilters.filters.stock_status}
                     onchange={applyFilters}
-                    class="h-10 rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
+                    class="h-10 rounded-xl border border-input bg-field px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
                 >
                     <option value="">Stock: Todos</option>
                     <option value="in_stock">En Stock ({stats.in_stock})</option>
@@ -321,7 +321,7 @@
                 <select
                     bind:value={tableFilters.filters.info_status}
                     onchange={applyFilters}
-                    class="h-10 rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
+                    class="h-10 rounded-xl border border-input bg-field px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-w-[110px] max-w-[140px]"
                 >
                     <option value="">Datos: Todos</option>
                     <option value="complete">Completos</option>
@@ -332,7 +332,7 @@
                 <select
                     bind:value={tableFilters.filters.discount}
                     onchange={applyFilters}
-                    class="h-10 rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[115px] max-w-[145px]"
+                    class="h-10 rounded-xl border border-input bg-field px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-w-[115px] max-w-[145px]"
                 >
                     <option value="all">Descuento: Todos</option>
                     <option value="with_discount">Con descuento</option>

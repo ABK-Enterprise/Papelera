@@ -136,7 +136,7 @@
                     placeholder="Buscar por acción, usuario o entidad..."
                     bind:value={search}
                     onkeydown={handleKeyDown}
-                    class="h-10 pl-9 rounded-lg border-input/60 bg-background text-sm"
+                    class="h-10 pl-9 rounded-lg border-input bg-field text-sm focus:border-primary focus:ring-1 focus:ring-primary"
                 />
             </div>
 
@@ -145,7 +145,7 @@
                 <select
                     bind:value={tenantId}
                     onchange={applyFilters}
-                    class="h-10 w-full rounded-lg border border-input/60 bg-select-background px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+                    class="h-10 w-full rounded-lg border border-input bg-field px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
                 >
                     <option value="">Todos los comercios</option>
                     {#each tenants as t (t.id)}
@@ -159,7 +159,7 @@
                 <select
                     bind:value={entityType}
                     onchange={applyFilters}
-                    class="h-10 w-full rounded-lg border border-input/60 bg-select-background px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+                    class="h-10 w-full rounded-lg border border-input bg-field px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
                 >
                     <option value="">Todas las entidades</option>
                     <option value="comercio">Comercio (Configuración)</option>
@@ -178,14 +178,14 @@
                     type="date"
                     bind:value={fromDate}
                     onchange={applyFilters}
-                    class="h-9 rounded-md border border-input/60 bg-background px-2.5 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    class="h-9 rounded-md border border-input bg-field px-2.5 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:[color-scheme:dark]"
                 />
                 <span class="font-medium text-foreground">hasta:</span>
                 <input
                     type="date"
                     bind:value={toDate}
                     onchange={applyFilters}
-                    class="h-9 rounded-md border border-input/60 bg-background px-2.5 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    class="h-9 rounded-md border border-input bg-field px-2.5 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:[color-scheme:dark]"
                 />
             </div>
 

@@ -196,7 +196,7 @@
     <!-- Backdrop accesible -->
     <div
         transition:fade={{ duration: 150 }}
-        class="fixed inset-0 bg-background/80 backdrop-blur-xs z-50"
+        class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50"
         onclick={closeModal}
         aria-hidden="true"
     ></div>
@@ -213,7 +213,7 @@
             <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 border-b pb-3.5 sm:pb-4 shrink-0 w-full">
                 <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
                     <div class="size-10 sm:size-12 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
-                        <Icon class="size-5 sm:size-6 text-amber-600 dark:text-amber-400" icon="solar:restart-bold-duotone" />
+                        <Icon class="size-5 sm:size-6 text-amber-700 dark:text-amber-400" icon="solar:restart-bold-duotone" />
                     </div>
                     <div class="min-w-0 flex-1 flex flex-col justify-center">
                         <h2 id="return-modal-title" class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
@@ -227,7 +227,7 @@
 
                 <button
                     type="button"
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors shrink-0 cursor-pointer"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 dark:hover:bg-secondary/60 transition-colors shrink-0 cursor-pointer"
                     onclick={closeModal}
                     aria-label="Cerrar modal"
                 >
@@ -237,7 +237,7 @@
 
             <!-- Error Banner -->
             {#if errorMessage}
-                <div class="mt-3 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 flex items-center gap-2">
+                <div class="mt-3 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-700 dark:text-rose-400 flex items-center gap-2">
                     <ShieldAlert class="size-4 shrink-0" />
                     <span>{errorMessage}</span>
                 </div>
@@ -246,7 +246,7 @@
             <!-- Body Scrollable -->
             <div class="flex-1 overflow-y-auto space-y-4 py-4 pr-1">
                 <!-- Selector global y aviso -->
-                <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-muted/20 border border-border/70">
+                <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90">
                     <div class="flex items-center gap-2">
                         <input
                             id="select-all-return"
@@ -268,7 +268,7 @@
                 <div class="space-y-2.5">
                     {#each itemStates as item, index (item.order_item_id)}
                         {@const isExhausted = item.max_quantity <= 0}
-                        <div class="p-3.5 rounded-xl border transition-all {item.selected ? 'bg-primary/5 border-primary/40 shadow-xs' : 'bg-card border-border/70 opacity-90'} {isExhausted ? 'opacity-50 bg-muted/20' : ''}">
+                        <div class="p-3.5 rounded-xl border transition-all {item.selected ? 'bg-primary/10 dark:bg-primary/15 border-primary/50 shadow-xs' : 'bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 border-border/80 dark:border-border/90 opacity-90'} {isExhausted ? 'opacity-50 bg-muted/40 dark:bg-secondary/35' : ''}">
                             <div class="flex items-start gap-3">
                                 <input
                                     type="checkbox"
@@ -314,7 +314,7 @@
                                                 <select
                                                     id="dest_{index}"
                                                     bind:value={item.destination}
-                                                    class="h-8 rounded-lg border border-border/80 bg-select-background px-2 text-sm font-semibold text-foreground focus:outline-none focus:border-primary-500 cursor-pointer shadow-2xs"
+                                                    class="h-8 rounded-lg border border-input bg-field px-2 text-sm font-semibold text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer shadow-2xs"
                                                 >
                                                     <option value="restock">Reingreso a stock</option>
                                                     <option value="scrap">Merma / Dañado (Scrap)</option>
@@ -322,10 +322,10 @@
                                             </div>
 
                                             <!-- Stepper de Cantidad -->
-                                            <div class="flex items-center border rounded-lg bg-background shadow-2xs h-8 overflow-hidden">
+                                            <div class="flex items-center border border-input rounded-lg bg-field shadow-2xs h-8 overflow-hidden">
                                                 <button
                                                     type="button"
-                                                    class="size-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 cursor-pointer"
+                                                    class="size-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-secondary/60 transition-colors disabled:opacity-40 cursor-pointer"
                                                     onclick={() => decrementItemQty(index)}
                                                     disabled={item.quantity <= (item.packaging_type === 'kg' ? 0.1 : (item.packaging_type === 'gram' ? 50 : 1))}
                                                 >
@@ -343,7 +343,7 @@
 
                                                 <button
                                                     type="button"
-                                                    class="size-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 cursor-pointer"
+                                                    class="size-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-secondary/60 transition-colors disabled:opacity-40 cursor-pointer"
                                                     onclick={() => incrementItemQty(index)}
                                                     disabled={item.quantity >= item.max_quantity}
                                                 >
@@ -374,14 +374,14 @@
                         maxlength="255"
                         placeholder="Ej. Producto devuelto por falla de empaque o error de pedido..."
                         rows="2"
-                        class="w-full rounded-xl border border-border/80 bg-background p-2.5 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs"
+                        class="w-full rounded-xl border border-input bg-field p-2.5 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-2xs"
                     ></textarea>
                 </div>
             </div>
 
             <!-- Footer con Resumen y Botones -->
             <div class="pt-3.5 border-t space-y-3 shrink-0">
-                <div class="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/60">
+                <div class="flex items-center justify-between p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90">
                     <div>
                         <span class="text-xs text-muted-foreground font-medium block">Total de Devolución:</span>
                         <span class="text-xs text-muted-foreground">
@@ -396,7 +396,7 @@
                 <div class="flex items-center justify-end gap-2.5">
                     <Button
                         type="button"
-                        variant="outline"
+                        variant="secondary"
                         class="min-h-[44px] px-4 rounded-xl text-sm font-semibold shrink-0 cursor-pointer"
                         onclick={closeModal}
                         disabled={isSubmitting}
@@ -407,7 +407,7 @@
                     <Button
                         type="button"
                         variant="default"
-                        class="min-h-[44px] px-5 rounded-xl text-sm font-semibold gap-2 shadow-xs bg-amber-600 hover:bg-amber-700 text-white shrink-0 cursor-pointer disabled:opacity-50"
+                        class="min-h-[44px] px-5 rounded-xl text-sm font-semibold gap-2 shadow-xs bg-amber-700 hover:bg-amber-800 text-white shrink-0 cursor-pointer disabled:opacity-50"
                         onclick={handleSubmit}
                         disabled={isSubmitting || selectedItems.length === 0}
                     >

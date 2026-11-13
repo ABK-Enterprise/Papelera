@@ -86,7 +86,7 @@
                 {#if modules.includes('stock')}
                     <Link href="/tenant/stock/ingresos?crear=1">
                         <Button variant="secondary" class="min-h-[44px] px-4 gap-2 text-sm font-medium rounded-xl">
-                            <ArrowDownLeft class="size-4 text-emerald-600 dark:text-emerald-400" />
+                            <ArrowDownLeft class="size-4 text-emerald-700 dark:text-emerald-400" />
                             <span>Ingreso de Stock</span>
                         </Button>
                     </Link>

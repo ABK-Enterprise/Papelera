@@ -98,12 +98,12 @@
             <div class="flex items-center justify-between">
                 <span class="text-base font-semibold tracking-normal text-muted-foreground">Clientes Morosos</span>
                 {#if customersData.kpis.defaulter_customers > 0}
-                    <div class="size-7 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                    <div class="size-7 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-700 dark:text-rose-400">
                         <TrendingDown class="size-4" />
                     </div>
                 {/if}
             </div>
-            <div class="text-2xl sm:text-3xl font-bold tabular-nums tracking-tight {customersData.kpis.defaulter_customers > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'}">
+            <div class="text-2xl sm:text-3xl font-bold tabular-nums tracking-tight {customersData.kpis.defaulter_customers > 0 ? 'text-rose-700 dark:text-rose-400' : 'text-foreground'}">
                 {customersData.kpis.defaulter_customers}
             </div>
         </Card>
@@ -121,7 +121,7 @@
                     value={buyersSort}
                     onchange={(e) => updateSort('buyers_sort', (e.target as HTMLSelectElement).value)}
                     aria-label="Ordenar clientes compradores"
-                    class="w-full sm:w-[210px] min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium shrink-0"
+                    class="w-full sm:w-[210px] min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input bg-field text-foreground shadow-xs transition-colors focus:border-primary focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium shrink-0"
                 >
                     <option value="desc">Más compradores</option>
                     <option value="asc">Menos compradores</option>
@@ -135,10 +135,10 @@
             {:else}
                 <div class="flex flex-col gap-2.5">
                     {#each customersData.top_buyers as b, i (b.customer_id)}
-                        <div class="bento-card group flex items-center justify-between gap-4 rounded-xl border border-border/70 bg-card p-4.5 shadow-xs transition-all duration-200 hover:border-primary/40 hover:shadow-md">
+                        <div class="bento-card group flex items-center justify-between gap-4 rounded-xl border border-border/80 dark:border-border/90 bg-card p-4.5 shadow-xs transition-all duration-200 hover:border-primary/40 hover:bg-muted/40 dark:hover:bg-secondary/35 hover:shadow-md">
                             <!-- Lado Izquierdo: Ranking + Info Principal -->
                             <div class="flex items-center gap-3.5 min-w-0 flex-1">
-                                <span class="size-8 rounded-full bg-muted/80 text-foreground text-xs flex items-center justify-center font-bold shrink-0 border border-border/60 tabular-nums">
+                                <span class="size-8 rounded-full bg-muted/40 dark:bg-secondary/35 text-foreground text-xs flex items-center justify-center font-bold shrink-0 border border-border/80 dark:border-border/90 tabular-nums">
                                     #{i + 1}
                                 </span>
 
@@ -150,14 +150,14 @@
                                         </h4>
 
                                         {#if b.is_defaulter}
-                                            <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 border border-rose-200/60 shadow-2xs">
+                                            <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/25 shadow-2xs">
                                                 <span class="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse"></span>
                                                 Moroso
                                             </span>
                                         {/if}
 
                                         {#if b.tax_condition}
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-muted text-muted-foreground border border-border/50">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-muted/40 dark:bg-secondary/35 text-muted-foreground border border-border/80 dark:border-border/90">
                                                 {formatTaxCondition(b.tax_condition)}
                                             </span>
                                         {/if}
@@ -171,13 +171,13 @@
                                         </span>
 
                                         {#if b.tax_id}
-                                            <span class="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-xs font-medium text-foreground/90 border border-border/40 tabular-nums">
+                                            <span class="inline-flex items-center gap-1 rounded-md bg-muted/40 dark:bg-secondary/35 px-2 py-0.5 text-xs font-medium text-foreground/90 border border-border/80 dark:border-border/90 tabular-nums">
                                                 CUIT: {b.tax_id}
                                             </span>
                                         {/if}
 
                                         {#if b.phone}
-                                            <span class="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-xs font-medium text-foreground/90 border border-border/40 tabular-nums">
+                                            <span class="inline-flex items-center gap-1 rounded-md bg-muted/40 dark:bg-secondary/35 px-2 py-0.5 text-xs font-medium text-foreground/90 border border-border/80 dark:border-border/90 tabular-nums">
                                                 <Phone class="size-3 text-muted-foreground" />
                                                 {b.phone}
                                             </span>
@@ -219,7 +219,7 @@
                         value={defaultersSort}
                         onchange={(e) => updateSort('defaulters_sort', (e.target as HTMLSelectElement).value)}
                         aria-label="Ordenar clientes morosos"
-                        class="w-full sm:w-[210px] min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium shrink-0"
+                        class="w-full sm:w-[210px] min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input bg-field text-foreground shadow-xs transition-colors focus:border-primary focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium shrink-0"
                     >
                         <option value="desc">Más deudor</option>
                         <option value="asc">Menos deudor</option>
@@ -233,7 +233,7 @@
                 {:else}
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
-                            <thead>
+                            <thead class="bg-muted/50 dark:bg-secondary/35">
                                 <tr class="border-b border-border/60 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
                                     <th class="text-left py-2.5 px-3">Cliente</th>
                                     <th class="text-left py-2.5 px-3">Teléfono</th>
@@ -242,14 +242,14 @@
                             </thead>
                             <tbody class="divide-y divide-border/40">
                                 {#each customersData.defaulters.data as d (d.id)}
-                                    <tr class="hover:bg-muted/40 transition-colors">
+                                    <tr class="hover:bg-muted/40 dark:hover:bg-secondary/35 transition-colors">
                                         <td class="py-3 px-3 font-medium text-foreground">
                                             {d.name}
                                         </td>
                                         <td class="py-3 px-3 text-muted-foreground tabular-nums">
                                             {d.phone || '—'}
                                         </td>
-                                        <td class="py-3 px-3 text-right font-bold tabular-nums text-rose-600 dark:text-rose-400">
+                                        <td class="py-3 px-3 text-right font-bold tabular-nums text-rose-700 dark:text-rose-400">
                                             {formatMoney(d.current_balance)}
                                         </td>
                                     </tr>
@@ -271,7 +271,7 @@
                             type="button"
                             disabled={customersData.defaulters.current_page <= 1}
                             onclick={() => changeDefaultersPage(customersData.defaulters.current_page - 1)}
-                            class="p-1.5 rounded-lg border border-input/70 bg-background text-foreground hover:bg-muted disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                            class="p-1.5 rounded-lg border border-input bg-field text-foreground hover:bg-muted/60 dark:hover:bg-secondary/45 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                             title="Página anterior"
                         >
                             <ChevronLeft class="size-4" />
@@ -280,7 +280,7 @@
                             type="button"
                             disabled={customersData.defaulters.current_page >= customersData.defaulters.last_page}
                             onclick={() => changeDefaultersPage(customersData.defaulters.current_page + 1)}
-                            class="p-1.5 rounded-lg border border-input/70 bg-background text-foreground hover:bg-muted disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                            class="p-1.5 rounded-lg border border-input bg-field text-foreground hover:bg-muted/60 dark:hover:bg-secondary/45 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                             title="Página siguiente"
                         >
                             <ChevronRight class="size-4" />

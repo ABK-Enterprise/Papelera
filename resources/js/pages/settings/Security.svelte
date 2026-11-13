@@ -48,7 +48,7 @@
                 level: 1,
                 label: score === 0 ? 'Muy débil' : 'Débil',
                 color: 'bg-destructive',
-                textColor: 'text-destructive',
+                textColor: 'text-rose-700 dark:text-rose-400',
             };
         }
         if (score === 2) {
@@ -56,7 +56,7 @@
                 level: 2,
                 label: 'Regular',
                 color: 'bg-amber-500',
-                textColor: 'text-amber-600 dark:text-amber-400',
+                textColor: 'text-amber-700 dark:text-amber-400',
             };
         }
         if (score === 3) {
@@ -64,14 +64,14 @@
                 level: 3,
                 label: 'Buena',
                 color: 'bg-yellow-500',
-                textColor: 'text-yellow-600 dark:text-yellow-400',
+                textColor: 'text-yellow-700 dark:text-yellow-400',
             };
         }
         return {
             level: 4,
             label: score === 5 ? 'Excelente' : 'Muy segura',
             color: 'bg-emerald-500',
-            textColor: 'text-emerald-600 dark:text-emerald-400',
+            textColor: 'text-emerald-700 dark:text-emerald-400',
         };
     });
 </script>
@@ -134,7 +134,7 @@
                 <InputError message={errors.password} />
 
                 {#if newPassword.length > 0}
-                    <div class="mt-2 space-y-2.5 rounded-lg border border-border/60 bg-muted/20 p-3">
+                    <div class="mt-2 space-y-2.5 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-3.5">
                         <div class="flex items-center justify-between text-xs">
                             <span class="text-muted-foreground">Seguridad de la contraseña:</span>
                             <span class="font-semibold {strength.textColor}">{strength.label}</span>
@@ -151,16 +151,16 @@
                         >
                             {#each [1, 2, 3, 4] as step}
                                 <div
-                                    class="h-1.5 rounded-full transition-all duration-300 {step <= strength.level ? strength.color : 'bg-muted dark:bg-neutral-800'}"
+                                    class="h-1.5 rounded-full transition-all duration-300 {step <= strength.level ? strength.color : 'bg-border/70 dark:bg-secondary/60'}"
                                 ></div>
                             {/each}
                         </div>
 
                         <div class="grid grid-cols-1 gap-1.5 pt-1 sm:grid-cols-2">
                             {#each criteria as item (item.id)}
-                                <div class="flex items-center gap-1.5 text-xs transition-colors {item.met ? 'font-medium text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'}">
+                                <div class="flex items-center gap-1.5 text-xs transition-colors {item.met ? 'font-medium text-emerald-700 dark:text-emerald-400' : 'text-muted-foreground'}">
                                     {#if item.met}
-                                        <Check class="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                                        <Check class="h-3.5 w-3.5 shrink-0 text-emerald-700 dark:text-emerald-400" />
                                     {:else}
                                         <span class="mx-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground/40"></span>
                                     {/if}

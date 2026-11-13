@@ -3,6 +3,7 @@
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import { Switch } from '@/components/ui/switch';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
     import { router } from '@inertiajs/svelte';
     import MapPin from 'lucide-svelte/icons/map-pin';
@@ -124,7 +125,7 @@
                     type="text"
                     bind:value={name}
                     placeholder="Ej. Gran Centro, Zona Norte, Periferia"
-                    class="h-11 rounded-xl bg-background border-border/80 text-sm font-medium"
+                    class="h-11 rounded-xl bg-field border-input focus:border-primary focus:ring-1 focus:ring-primary text-sm font-medium"
                     required
                 />
             </div>
@@ -143,7 +144,7 @@
                             min="0"
                             bind:value={distanceKm}
                             placeholder="Ej. 20"
-                            class="h-11 rounded-xl bg-background border-border/80 pr-12 text-sm tabular-nums font-medium"
+                            class="h-11 rounded-xl bg-field border-input focus:border-primary focus:ring-1 focus:ring-primary pr-12 text-sm tabular-nums font-medium"
                             required
                         />
                         <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground">km</span>
@@ -164,7 +165,7 @@
                             max="100"
                             bind:value={surchargePercentage}
                             placeholder="Ej. 5.00"
-                            class="h-11 rounded-xl bg-background border-border/80 pr-10 text-sm tabular-nums font-medium"
+                            class="h-11 rounded-xl bg-field border-input focus:border-primary focus:ring-1 focus:ring-primary pr-10 text-sm tabular-nums font-medium"
                             required
                         />
                         <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground">%</span>
@@ -172,22 +173,19 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-between p-3 rounded-xl border border-border/60 bg-muted/20">
-                <div class="space-y-0.5">
-                    <p class="text-sm font-medium text-foreground">Estado Operativo</p>
+            <div class="flex items-center justify-between gap-3 p-3.5 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
+                <div class="space-y-0.5 min-w-0">
+                    <Label for="zone-active" class="text-sm font-medium text-foreground cursor-pointer">Estado Operativo</Label>
                     <p class="text-xs text-muted-foreground">Habilitar esta zona para su selección en nuevos pedidos</p>
                 </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" bind:checked={isActive} class="sr-only peer" />
-                    <div class="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                </label>
+                <Switch id="zone-active" bind:checked={isActive} />
             </div>
 
             <DialogFooter class="pt-2 flex flex-col-reverse sm:flex-row gap-2.5">
                 <Button
                     type="button"
-                    variant="outline"
-                    class="min-h-[44px] px-5 rounded-xl text-sm font-medium border-border/70 hover:bg-muted/60 transition-colors"
+                    variant="secondary"
+                    class="min-h-[44px] px-5 rounded-xl text-sm font-medium"
                     onclick={onclose}
                     disabled={isSubmitting}
                 >
@@ -208,6 +206,7 @@
 
 <ConfirmActionModal
     bind:open={isConfirmAlertOpen}
+    variant="primary"
     title={mode === 'create' ? '¿Confirmar creación de zona?' : '¿Confirmar actualización de zona?'}
     description={`Se guardará la zona "${name}" con ${distanceKm} km de distancia y un recargo de ${surchargePercentage}%.`}
     confirmText={mode === 'create' ? 'Crear Zona' : 'Guardar Cambios'}

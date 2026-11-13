@@ -82,7 +82,7 @@
                             required
                         />
                         {#if form.errors['tenant.name']}
-                            <p class="text-xs text-destructive">{form.errors['tenant.name']}</p>
+                            <p class="text-xs text-rose-700 dark:text-rose-400">{form.errors['tenant.name']}</p>
                         {/if}
                     </div>
 
@@ -94,7 +94,7 @@
                             placeholder="ej. 30712345678"
                         />
                         {#if form.errors['tenant.cuit_tax_id']}
-                            <p class="text-xs text-destructive">{form.errors['tenant.cuit_tax_id']}</p>
+                            <p class="text-xs text-rose-700 dark:text-rose-400">{form.errors['tenant.cuit_tax_id']}</p>
                         {/if}
                     </div>
                 </CardContent>
@@ -118,7 +118,7 @@
                             required
                         />
                         {#if form.errors['admin.name']}
-                            <p class="text-xs text-destructive">{form.errors['admin.name']}</p>
+                            <p class="text-xs text-rose-700 dark:text-rose-400">{form.errors['admin.name']}</p>
                         {/if}
                     </div>
 
@@ -132,7 +132,7 @@
                             required
                         />
                         {#if form.errors['admin.email']}
-                            <p class="text-xs text-destructive">{form.errors['admin.email']}</p>
+                            <p class="text-xs text-rose-700 dark:text-rose-400">{form.errors['admin.email']}</p>
                         {/if}
                     </div>
 
@@ -146,7 +146,7 @@
                             required
                         />
                         {#if form.errors['admin.password']}
-                            <p class="text-xs text-destructive">{form.errors['admin.password']}</p>
+                            <p class="text-xs text-rose-700 dark:text-rose-400">{form.errors['admin.password']}</p>
                         {/if}
                     </div>
 
@@ -174,7 +174,7 @@
                 <CardContent class="grid grid-cols-1 gap-3 md:grid-cols-2">
                     {#each modules as mod (mod.id)}
                         <label
-                            class="flex items-start gap-3 rounded-lg border p-3.5 transition-colors cursor-pointer hover:bg-accent/50 {form.module_ids.includes(mod.id) ? 'border-primary bg-primary/5' : ''}"
+                            class="flex items-start gap-3 rounded-xl border p-3.5 transition-colors cursor-pointer {form.module_ids.includes(mod.id) ? 'border-primary bg-primary/5' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55'}"
                         >
                             <Checkbox
                                 checked={form.module_ids.includes(mod.id)}
@@ -201,7 +201,7 @@
 
             <div class="flex justify-end gap-3 pt-2">
                 <Link href="/platform/tenants">
-                    <Button type="button" variant="outline">Cancelar</Button>
+                    <Button type="button" variant="secondary">Cancelar</Button>
                 </Link>
                 <Button type="submit" disabled={form.processing} class="min-w-36">
                     {form.processing ? 'Creando...' : 'Crear Comercio'}

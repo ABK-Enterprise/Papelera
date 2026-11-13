@@ -48,7 +48,7 @@
         <div class="flex justify-end w-full">
             <Link
                 href="/tenant/usuarios"
-                class="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-xl border border-border/80 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-sm font-medium shadow-2xs transition-colors"
+                class="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-xl border border-border/70 bg-secondary hover:bg-secondary/80 dark:hover:bg-[#3a3a3a] text-secondary-foreground text-sm font-medium shadow-2xs transition-colors"
             >
                 <ArrowLeft class="h-4 w-4" />
                 <span>Volver</span>
@@ -68,7 +68,7 @@
                         id="user-name"
                         bind:value={form.name}
                         required
-                        class="h-11 rounded-xl border border-border/80 bg-background px-3.5 text-sm font-normal text-foreground transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary"
+                        class="h-11 rounded-xl border border-input bg-field px-3.5 text-sm font-normal text-foreground transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                     {#if form.errors.name}
                         <p class="text-xs font-medium text-destructive">{form.errors.name}</p>
@@ -82,7 +82,7 @@
                         type="email"
                         bind:value={form.email}
                         required
-                        class="h-11 rounded-xl border border-border/80 bg-background px-3.5 text-sm font-normal text-foreground transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary"
+                        class="h-11 rounded-xl border border-input bg-field px-3.5 text-sm font-normal text-foreground transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                     {#if form.errors.email}
                         <p class="text-xs font-medium text-destructive">{form.errors.email}</p>
@@ -94,7 +94,7 @@
                     <select
                         id="user-role"
                         bind:value={form.role}
-                        class="flex h-11 w-full rounded-xl border border-border/80 bg-select-background px-3.5 py-2 text-sm font-normal text-foreground shadow-2xs transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                        class="flex h-11 w-full rounded-xl border border-input bg-field px-3.5 py-2 text-sm font-normal text-foreground shadow-2xs transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                         required
                     >
                         {#each roles as role (role.id)}
@@ -113,7 +113,7 @@
                             id="user-password"
                             bind:value={form.password}
                             placeholder="Dejar en blanco si no cambia"
-                            class="h-11 rounded-xl border border-border/80 bg-background px-3.5 text-sm transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary"
+                            class="h-11 rounded-xl border border-input bg-field px-3.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                         />
                         {#if form.errors.password}
                             <p class="text-xs font-medium text-destructive">{form.errors.password}</p>
@@ -126,7 +126,7 @@
                             id="user-password-confirmation"
                             bind:value={form.password_confirmation}
                             placeholder="Repite la contraseña"
-                            class="h-11 rounded-xl border border-border/80 bg-background px-3.5 text-sm transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary"
+                            class="h-11 rounded-xl border border-input bg-field px-3.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                         />
                     </div>
                 </div>
@@ -136,7 +136,7 @@
         <div class="flex items-center justify-end gap-3">
             <Link
                 href="/tenant/usuarios"
-                class="inline-flex items-center justify-center min-h-[44px] min-w-36 px-5 rounded-xl font-medium border border-border/80 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-sm transition-colors shadow-2xs"
+                class="inline-flex items-center justify-center min-h-[44px] min-w-36 px-5 rounded-xl font-medium border border-border/70 bg-secondary hover:bg-secondary/80 dark:hover:bg-[#3a3a3a] text-secondary-foreground text-sm transition-colors shadow-2xs"
             >
                 Cancelar
             </Link>

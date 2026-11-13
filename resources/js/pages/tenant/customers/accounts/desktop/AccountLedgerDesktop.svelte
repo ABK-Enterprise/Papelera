@@ -320,7 +320,7 @@
                                         </span>
                                     {/if}
                                     <div class="text-right">
-                                        <span class="text-xs font-bold tabular-nums block {bal > 0 ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400'}">
+                                        <span class="text-xs font-bold tabular-nums block {bal > 0 ? 'text-destructive' : 'text-emerald-700 dark:text-emerald-400'}">
                                             {formatPrice(bal)}
                                         </span>
                                         <span class="text-xs text-muted-foreground">Saldo</span>
@@ -337,7 +337,7 @@
                     <select
                         bind:value={defaulterFilter}
                         onchange={applyMasterFilters}
-                        class="h-10 rounded-xl border border-input bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[140px]"
+                        class="h-10 rounded-xl border border-input bg-field px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-w-[140px]"
                     >
                         <option value="">Morosos: Todos</option>
                         <option value="yes">Solo Morosos</option>
@@ -347,7 +347,7 @@
                     <select
                         bind:value={taxConditionFilter}
                         onchange={applyMasterFilters}
-                        class="h-10 rounded-xl border border-input bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[145px]"
+                        class="h-10 rounded-xl border border-input bg-field px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-w-[145px]"
                     >
                         <option value="">Condición IVA: Todas</option>
                         <option value="consumidor_final">Consumidor Final</option>
@@ -360,7 +360,7 @@
                     <select
                         bind:value={sortByFilter}
                         onchange={applyMasterFilters}
-                        class="h-10 rounded-xl border border-input bg-select-background px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[160px]"
+                        class="h-10 rounded-xl border border-input bg-field px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-w-[160px]"
                     >
                         <option value="balance_high">Mayor saldo deudor</option>
                         <option value="balance_low">Menor saldo deudor</option>
@@ -409,18 +409,18 @@
                                     </h3>
 
                                     {#if cust.is_defaulter}
-                                        <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 border border-rose-200/60 shadow-2xs">
+                                        <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 border border-rose-200/60 dark:border-rose-500/30 shadow-2xs">
                                             <span class="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse"></span>
                                             Moroso / Deuda Vencida
                                         </span>
                                     {:else if balanceNum === 0}
-                                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/60">
+                                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-500/30">
                                             <CheckCircle2 class="size-3" />
                                             Al Día
                                         </span>
                                     {/if}
 
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-muted text-muted-foreground border border-border/50">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-muted/40 dark:bg-secondary/35 text-muted-foreground border border-border/80 dark:border-border/90">
                                         {formatTaxCondition(cust.tax_condition)}
                                     </span>
                                 </div>
@@ -445,7 +445,7 @@
                                 <span>Límite de crédito:</span>
                                 <span class="font-semibold text-foreground tabular-nums">{formatPrice(limitNum)}</span>
                             </div>
-                            <div class="h-2 w-full bg-muted rounded-full overflow-hidden">
+                            <div class="h-2 w-full bg-secondary border border-border/50 rounded-full overflow-hidden">
                                 <div
                                     class="h-full transition-all duration-300 rounded-full {usagePercent > 90 ? 'bg-destructive' : usagePercent > 70 ? 'bg-amber-500' : 'bg-primary'}"
                                     style="width: {usagePercent}%;"
@@ -463,7 +463,7 @@
                                 <span class="text-xs text-muted-foreground uppercase tracking-wider block font-semibold">
                                     Saldo Deudor
                                 </span>
-                                <span class="text-lg sm:text-xl font-bold tabular-nums block {balanceNum > 0 ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400'}">
+                                <span class="text-lg sm:text-xl font-bold tabular-nums block {balanceNum > 0 ? 'text-destructive' : 'text-emerald-700 dark:text-emerald-400'}">
                                     {formatPrice(balanceNum)}
                                 </span>
                             </div>
@@ -522,7 +522,7 @@
                         bind:value={customerSearchQuery}
                         onfocus={() => (isDropdownOpen = true)}
                         placeholder="Cambiar de cliente (Nombre, CUIT, Teléfono)..."
-                        class="h-10 w-full rounded-2xl border border-input bg-card pl-10 pr-9 text-sm font-normal text-foreground placeholder:text-muted-foreground shadow-2xs focus:ring-1 focus:ring-primary outline-none transition-all"
+                        class="h-10 w-full rounded-2xl border border-input bg-field pl-10 pr-9 text-sm font-normal text-foreground placeholder:text-muted-foreground shadow-2xs focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
                     />
                     {#if customerSearchQuery}
                         <button
@@ -564,7 +564,7 @@
                                         </p>
                                     </div>
                                     <div class="text-right shrink-0">
-                                        <span class="font-semibold tabular-nums text-sm block {Number(cust.current_balance) > 0 ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400'}">
+                                        <span class="font-semibold tabular-nums text-sm block {Number(cust.current_balance) > 0 ? 'text-destructive' : 'text-emerald-700 dark:text-emerald-400'}">
                                             {formatPrice(cust.current_balance)}
                                         </span>
                                         <span class="text-xs text-muted-foreground">Saldo</span>
@@ -590,7 +590,7 @@
                             Libro Mayor de Movimientos
                         </h2>
                     </div>
-                    <span class="text-xs font-semibold tabular-nums text-muted-foreground bg-muted px-2.5 py-1 rounded-full self-start sm:self-auto">
+                    <span class="text-xs font-semibold tabular-nums text-muted-foreground bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 px-2.5 py-1 rounded-full self-start sm:self-auto">
                         {processedMovements.length} movimientos
                     </span>
                 </div>
@@ -604,7 +604,7 @@
                             type="text"
                             bind:value={movementSearchTerm}
                             placeholder="Buscar en comprobantes, notas..."
-                            class="h-9 w-full rounded-xl border border-input bg-background pl-8 pr-7 text-xs font-normal text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none transition-all"
+                            class="h-9 w-full rounded-xl border border-input bg-field pl-8 pr-7 text-xs font-normal text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
                         />
                         {#if movementSearchTerm}
                             <button
@@ -620,7 +620,7 @@
                     <!-- Tipo de Movimiento -->
                     <select
                         bind:value={movementTypeFilter}
-                        class="h-9 rounded-xl border border-input bg-select-background px-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-auto min-w-[130px]"
+                        class="h-9 rounded-xl border border-input bg-field px-2.5 text-xs font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full sm:w-auto min-w-[130px]"
                     >
                         <option value="all">Todos los tipos</option>
                         <option value="payment">Solo Cobros / Abonos</option>
@@ -631,7 +631,7 @@
                     <!-- Orden Cronológico -->
                     <select
                         bind:value={movementSort}
-                        class="h-9 rounded-xl border border-input bg-select-background px-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-auto min-w-[125px]"
+                        class="h-9 rounded-xl border border-input bg-field px-2.5 text-xs font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full sm:w-auto min-w-[125px]"
                     >
                         <option value="latest">Más recientes</option>
                         <option value="oldest">Más antiguos</option>
@@ -646,9 +646,9 @@
                             {@const isPayment = mov.type === 'payment'}
                             {@const isAdjustment = mov.type === 'adjustment'}
 
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border bg-card shadow-2xs transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 shadow-2xs transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
                                 <div class="flex items-start gap-3.5 min-w-0">
-                                    <div class="size-9 rounded-xl flex items-center justify-center shrink-0 border {isPayment ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400' : isCharge ? 'bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400' : 'bg-sky-500/10 text-sky-600 border-sky-500/20 dark:text-sky-400'}">
+                                    <div class="size-9 rounded-xl flex items-center justify-center shrink-0 border {isPayment ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:text-emerald-400' : isCharge ? 'bg-rose-500/10 text-rose-700 border-rose-500/20 dark:text-rose-400' : 'bg-sky-500/10 text-sky-700 border-sky-500/20 dark:text-sky-400'}">
                                         {#if isPayment}
                                             <ArrowDownLeft class="size-4" />
                                         {:else if isCharge}
@@ -695,7 +695,7 @@
                                 </div>
 
                                 <div class="text-right sm:shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 flex sm:flex-col justify-between sm:justify-center items-end">
-                                    <span class="text-sm font-semibold tabular-nums {isPayment ? 'text-emerald-600 dark:text-emerald-400' : isCharge ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'}">
+                                    <span class="text-sm font-semibold tabular-nums {isPayment ? 'text-emerald-700 dark:text-emerald-400' : isCharge ? 'text-rose-700 dark:text-rose-400' : 'text-foreground'}">
                                         {isPayment ? '-' : '+'}{formatPrice(mov.amount)}
                                     </span>
                                     <span class="text-xs text-muted-foreground tabular-nums mt-0.5">
@@ -712,7 +712,7 @@
                         </div>
                     {/if}
                 {:else}
-                    <div class="py-12 text-center rounded-2xl bg-muted/15 border border-dashed border-border/80 p-6 space-y-2">
+                    <div class="py-12 text-center rounded-2xl bg-muted/40 dark:bg-secondary/35 border border-dashed border-border/80 dark:border-border/90 p-6 space-y-2">
                         <History class="size-8 text-muted-foreground mx-auto opacity-50" />
                         <h4 class="text-xs font-semibold text-foreground">Sin movimientos coincidentes</h4>
                         <p class="text-xs text-muted-foreground max-w-sm mx-auto">
@@ -748,17 +748,17 @@
                 </div>
 
                 <!-- KPI Saldo Deudor -->
-                <div class="p-4 rounded-2xl bg-muted/30 border border-border/70 space-y-3">
+                <div class="p-4 rounded-2xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 space-y-3">
                     <div>
                         <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
                             Saldo Deudor Actual
                         </span>
                         <div class="flex items-baseline gap-2 mt-1">
-                            <span class="text-2xl sm:text-3xl font-bold tabular-nums {currentBalanceNum > 0 ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400'}">
+                            <span class="text-2xl sm:text-3xl font-bold tabular-nums {currentBalanceNum > 0 ? 'text-destructive' : 'text-emerald-700 dark:text-emerald-400'}">
                                 {formatPrice(currentBalanceNum)}
                             </span>
                             {#if currentBalanceNum === 0}
-                                <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                                <span class="text-xs font-medium text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                                     <CheckCircle2 class="size-3.5" />
                                     Al día
                                 </span>
@@ -773,7 +773,7 @@
                             <span class="text-sm font-semibold text-foreground tabular-nums">{formatPrice(creditLimitNum)}</span>
                         </div>
                         
-                        <div class="h-2 w-full bg-muted rounded-full overflow-hidden">
+                        <div class="h-2 w-full bg-secondary border border-border/50 rounded-full overflow-hidden">
                             <div
                                 class="h-full transition-all duration-300 rounded-full {creditUsagePercent > 90 ? 'bg-destructive' : creditUsagePercent > 70 ? 'bg-amber-500' : 'bg-primary'}"
                                 style="width: {creditUsagePercent}%;"
@@ -797,7 +797,7 @@
                     {#if hasPermission('cobranzas.crear')}
                         <Button
                             onclick={() => onOpenPayment(selectedCustomer!)}
-                            class="w-full min-h-[38px] h-10 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-xl shadow-sm"
+                            class="w-full min-h-[38px] h-10 gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium rounded-xl shadow-sm"
                         >
                             <Banknote class="size-4" />
                             <span>Registrar Cobro / Abono</span>
@@ -828,7 +828,7 @@
                 </div>
 
                 <!-- Datos de Contacto Directo -->
-                <div class="p-3.5 rounded-2xl bg-muted/20 border border-border/60 space-y-2 text-xs">
+                <div class="p-3.5 rounded-2xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 space-y-2 text-xs">
                     <div class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Datos de Contacto</div>
                     <div class="text-foreground space-y-1.5">
                         <p class="flex items-center gap-2 truncate text-muted-foreground">

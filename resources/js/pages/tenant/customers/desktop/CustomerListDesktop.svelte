@@ -109,18 +109,18 @@
                         </h3>
 
                         {#if customer.is_defaulter}
-                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 border border-rose-200/60 shadow-2xs">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 border border-rose-200/60 dark:border-rose-500/30 shadow-2xs">
                                 <span class="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse"></span>
                                 Moroso / Saldo Pendiente
                             </span>
                         {/if}
 
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-muted text-muted-foreground border border-border/50">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-muted/40 dark:bg-secondary/35 text-muted-foreground border border-border/80 dark:border-border/90">
                             {formatTaxCondition(customer.tax_condition)}
                         </span>
 
                         {#if customer.is_active}
-                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/50">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/30">
                                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                                 Activo
                             </span>
@@ -135,27 +135,27 @@
                     <!-- Fila 2: CUIT/DNI, Teléfono y Email -->
                     <div class="flex items-center gap-2.5 flex-wrap">
                         {#if customer.tax_id}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/40 dark:bg-secondary/35 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/80 dark:border-border/90 tabular-nums">
                                 <strong>CUIT/DNI:</strong> {customer.tax_id}
                             </span>
                         {/if}
 
                         {#if customer.phone}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40 tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/40 dark:bg-secondary/35 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/80 dark:border-border/90 tabular-nums">
                                 <Phone class="size-3.5 text-muted-foreground" />
                                 {customer.phone}
                             </span>
                         {/if}
 
                         {#if customer.email}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/40">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-muted/40 dark:bg-secondary/35 px-2.5 py-1 text-xs font-medium text-foreground/90 border border-border/80 dark:border-border/90">
                                 <Mail class="size-3.5 text-muted-foreground" />
                                 {customer.email}
                             </span>
                         {/if}
 
                         {#if Number(customer.credit_limit) > 0}
-                            <span class="inline-flex items-center gap-1.5 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 border border-blue-500/20 tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:text-blue-400 border border-blue-500/20 tabular-nums">
                                 <CreditCard class="size-3.5" />
                                 Límite: {formatCurrency(customer.credit_limit)}
                             </span>
@@ -202,7 +202,7 @@
     {/each}
 
     {#if customers.length === 0}
-        <div class="rounded-xl border border-dashed p-12 text-center bg-card/50">
+        <div class="rounded-xl border border-dashed border-border/80 dark:border-border/90 p-12 text-center bg-muted/40 dark:bg-secondary/35">
             <UserCheck class="mx-auto h-12 w-12 text-muted-foreground/40 mb-3" />
             <h3 class="font-semibold text-lg text-foreground">No se encontraron clientes</h3>
             <p class="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">

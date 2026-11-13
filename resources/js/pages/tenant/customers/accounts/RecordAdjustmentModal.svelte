@@ -130,7 +130,7 @@
                     <button
                         type="button"
                         onclick={handleClose}
-                        class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                        class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                         aria-label="Cerrar"
                     >
                         <X class="size-4" />
@@ -147,7 +147,7 @@
                 {/if}
 
                 <!-- Calculador Dinámico de Saldo -->
-                <div class="p-4 rounded-2xl bg-muted/40 border border-border/70 grid grid-cols-2 gap-3 text-xs">
+                <div class="p-4 rounded-2xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 grid grid-cols-2 gap-3 text-xs">
                     <div>
                         <span class="text-muted-foreground block mb-0.5">Saldo actual:</span>
                         <span class="text-sm font-bold text-foreground tabular-nums">
@@ -156,7 +156,7 @@
                     </div>
                     <div class="text-right">
                         <span class="text-muted-foreground block mb-0.5">Saldo resultante:</span>
-                        <span class="text-sm font-bold tabular-nums {type === 'debit' ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">
+                        <span class="text-sm font-bold tabular-nums {type === 'debit' ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}">
                             {formatPrice(resultingBalance)}
                         </span>
                     </div>
@@ -172,7 +172,7 @@
                             <button
                                 type="button"
                                 onclick={() => (type = 'credit')}
-                                class="p-2.5 rounded-xl border text-xs font-semibold transition-all flex flex-col items-center gap-1 {type === 'credit' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500' : 'border-border bg-background text-muted-foreground hover:text-foreground'}"
+                                class="p-2.5 rounded-xl border text-xs font-semibold transition-all flex flex-col items-center gap-1 {type === 'credit' ? 'border-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-muted-foreground hover:text-foreground'}"
                             >
                                 <span>- Descuento / Crédito</span>
                                 <span class="text-xs font-normal opacity-80">Reduce el saldo deudor</span>
@@ -180,7 +180,7 @@
                             <button
                                 type="button"
                                 onclick={() => (type = 'debit')}
-                                class="p-2.5 rounded-xl border text-xs font-semibold transition-all flex flex-col items-center gap-1 {type === 'debit' ? 'border-rose-500 bg-rose-500/10 text-rose-700 dark:text-rose-300 ring-1 ring-rose-500' : 'border-border bg-background text-muted-foreground hover:text-foreground'}"
+                                class="p-2.5 rounded-xl border text-xs font-semibold transition-all flex flex-col items-center gap-1 {type === 'debit' ? 'border-rose-500 bg-rose-500/10 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 ring-1 ring-rose-500' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-muted-foreground hover:text-foreground'}"
                             >
                                 <span>+ Cargo / Débito</span>
                                 <span class="text-xs font-normal opacity-80">Incrementa la deuda</span>
@@ -249,10 +249,10 @@
             <DialogFooter>
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     onclick={handleClose}
                     disabled={isSubmitting}
-                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium border-border/70"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium"
                 >
                     Cancelar
                 </Button>

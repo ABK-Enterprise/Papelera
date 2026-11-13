@@ -140,7 +140,7 @@
     <!-- Backdrop oscuro accesible -->
     <div
         transition:fade={{ duration: 150 }}
-        class="fixed inset-0 bg-background/80 backdrop-blur-xs z-50"
+        class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50"
         onclick={() => (open = false)}
         aria-hidden="true"
     ></div>
@@ -208,16 +208,16 @@
             <div class="flex-1 min-h-0 overflow-y-auto space-y-4 sm:space-y-5 py-2 pr-1">
                 <!-- Cartel de Estado Terminal -->
                 {#if order.status === 'recibido'}
-                    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-xs text-emerald-700 dark:text-emerald-300">
-                        <CheckCircle2 class="size-5 text-emerald-600 shrink-0" />
+                    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-xs text-emerald-700 dark:text-emerald-400">
+                        <CheckCircle2 class="size-5 text-emerald-700 dark:text-emerald-400 shrink-0" />
                         <div>
                             <strong class="font-bold block">Orden Recibida en Stock</strong>
                             <span>Los artículos de esta orden ya fueron incorporados al inventario y registrados en Kardex.</span>
                         </div>
                     </div>
                 {:else if order.status === 'cancelado'}
-                    <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-xs text-rose-700 dark:text-rose-300">
-                        <XCircle class="size-5 text-rose-600 shrink-0" />
+                    <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-xs text-rose-700 dark:text-rose-400">
+                        <XCircle class="size-5 text-rose-700 dark:text-rose-400 shrink-0" />
                         <div>
                             <strong class="font-bold block">Orden Cancelada</strong>
                             <span>Esta orden de compra fue cancelada y no generó movimientos de stock.</span>
@@ -226,7 +226,7 @@
                 {/if}
 
                 <!-- Datos del Proveedor -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-muted/20 border text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-xs">
                     <div class="space-y-1">
                         <span class="text-muted-foreground">Proveedor:</span>
                         <p class="font-bold text-foreground">{order.supplier?.name || 'Proveedor'}</p>
@@ -244,7 +244,7 @@
                     <!-- Stacked Cards en Mobile (block sm:hidden) -->
                     <div class="block sm:hidden space-y-2.5">
                         {#each order.items ?? [] as item}
-                            <div class="p-3.5 rounded-xl border bg-muted/20 space-y-2.5">
+                            <div class="p-3.5 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 space-y-2.5">
                                 <div class="flex items-start justify-between gap-2">
                                     <div class="min-w-0 flex-1">
                                         <h5 class="text-sm font-medium text-foreground leading-tight">
@@ -276,9 +276,9 @@
                     </div>
 
                     <!-- Tabla en Desktop (hidden sm:block) -->
-                    <div class="hidden sm:block rounded-xl border overflow-hidden">
+                    <div class="hidden sm:block rounded-xl border border-border/80 dark:border-border/90 overflow-hidden">
                         <table class="w-full text-left text-sm font-medium">
-                            <thead class="bg-muted/40 text-muted-foreground border-b text-xs font-semibold uppercase tracking-wider">
+                            <thead class="bg-muted/50 dark:bg-secondary/35 text-muted-foreground border-b border-border/80 dark:border-border/90 text-xs font-semibold uppercase tracking-wider">
                                 <tr>
                                     <th class="p-2.5">Producto</th>
                                     <th class="p-2.5 text-center">Cant. Solicitada</th>
@@ -286,9 +286,9 @@
                                     <th class="p-2.5 text-right">Subtotal</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y">
+                            <tbody class="divide-y divide-border/60">
                                 {#each order.items ?? [] as item}
-                                    <tr class="text-sm font-medium">
+                                    <tr class="text-sm font-medium hover:bg-muted/40 dark:hover:bg-secondary/30 transition-colors">
                                         <td class="p-2.5 text-foreground">
                                             {item.product_name}
                                             {#if item.product?.sku}
@@ -313,19 +313,19 @@
                 </div>
 
                 {#if order.notes}
-                    <div class="p-2.5 rounded-lg bg-muted/20 border text-sm text-muted-foreground">
+                    <div class="p-2.5 rounded-lg bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-sm text-muted-foreground">
                         <strong class="text-foreground">Notas:</strong> {order.notes}
                     </div>
                 {/if}
 
                 <!-- Acciones de Estado -->
                 {#if order.status === 'solicitado' && hasPermission('proveedores.pedidos.recibir')}
-                    <div class="p-3 rounded-xl bg-primary/5 border border-primary/20 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="p-3 rounded-xl bg-primary/10 dark:bg-primary/15 border border-primary/30 flex flex-col sm:flex-row items-center justify-between gap-3">
                         <div>
                             <span class="text-xs font-bold text-foreground block">¿Llegó la mercadería al depósito?</span>
                             <p class="text-xs text-muted-foreground">Al marcar como recibido, se sumará el stock de cada artículo en Kardex.</p>
                         </div>
-                        <Button size="sm" class="min-h-[38px] text-sm font-medium gap-1.5 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white" onclick={promptReceive} disabled={isProcessing}>
+                        <Button size="sm" class="min-h-[38px] text-sm font-medium gap-1.5 shrink-0 bg-emerald-700 hover:bg-emerald-800 text-white" onclick={promptReceive} disabled={isProcessing}>
                             <PackageCheck class="size-4" />
                             Marcar como Recibido
                         </Button>
@@ -363,7 +363,7 @@
             {#snippet btnClose(extraClass = '')}
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     class="min-h-[44px] px-3.5 rounded-xl text-sm font-medium shrink-0 cursor-pointer {extraClass}"
                     onclick={() => (open = false)}
                 >

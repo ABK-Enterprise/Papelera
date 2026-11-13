@@ -85,7 +85,7 @@
             <button
                 type="button"
                 onclick={() => (open = false)}
-                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-secondary/60 transition-colors"
                 aria-label="Cerrar modal"
             >
                 <X class="size-4.5" />
@@ -93,7 +93,7 @@
         </div>
 
         <!-- Cuerpo del Modal -->
-        <div class="p-5 sm:p-6 flex-1 overflow-y-auto min-h-[380px] sm:min-h-[500px] flex flex-col bg-background/50">
+        <div class="p-5 sm:p-6 flex-1 overflow-y-auto min-h-[380px] sm:min-h-[500px] flex flex-col bg-muted/30 dark:bg-background/50">
             {#if !isGenerated}
                 <!-- Estado Inicial: Empty State -->
                 <div class="flex-1 flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-border/80 rounded-2xl bg-card my-auto">
@@ -188,7 +188,7 @@
                 <!-- Fila 2 en Mobile (100% ancho) / Primer botón a la izquierda del grupo en Desktop -->
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-medium justify-center order-2 sm:order-1"
                     onclick={() => (open = false)}
                 >

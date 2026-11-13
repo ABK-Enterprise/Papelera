@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
     import { Input } from '@/components/ui/input';
@@ -129,6 +130,24 @@
         },
     };
 
+    let cardBorderColor = $state('#ffffff');
+
+    onMount(() => {
+        const updateCardBorderColor = () => {
+            const val = getComputedStyle(document.documentElement)
+                .getPropertyValue('--card')
+                .trim();
+            cardBorderColor = val || '#171717';
+        };
+        updateCardBorderColor();
+        const observer = new MutationObserver(updateCardBorderColor);
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class', 'data-theme'],
+        });
+        return () => observer.disconnect();
+    });
+
     // Chart 2: Payment Methods
     let paymentMethodsChartData = $derived({
         labels: (metrics.revenues.by_method || []).map((m: any) => m.label),
@@ -137,7 +156,7 @@
                 data: (metrics.revenues.by_method || []).map((m: any) => m.amount),
                 backgroundColor: ['#10b981', '#3b82f6', '#06b6d4', '#8b5cf6', '#f59e0b', '#64748b'],
                 borderWidth: 2,
-                borderColor: '#ffffff',
+                borderColor: cardBorderColor,
             },
         ],
     });
@@ -233,7 +252,7 @@
                 <Input
                     type="date"
                     bind:value={localDateFrom}
-                    class="min-h-[44px] text-xs rounded-xl bg-background"
+                    class="min-h-[44px] text-xs rounded-xl bg-field border-input focus:border-primary focus-visible:border-primary dark:[color-scheme:dark]"
                 />
             </div>
             <div class="space-y-1">
@@ -241,7 +260,7 @@
                 <Input
                     type="date"
                     bind:value={localDateTo}
-                    class="min-h-[44px] text-xs rounded-xl bg-background"
+                    class="min-h-[44px] text-xs rounded-xl bg-field border-input focus:border-primary focus-visible:border-primary dark:[color-scheme:dark]"
                 />
             </div>
         </div>
@@ -251,7 +270,7 @@
             <Label class="text-xs font-medium text-muted-foreground">Sucursal / Depósito</Label>
             <select
                 bind:value={localWarehouseId}
-                class="w-full min-h-[44px] px-3 py-2 text-sm rounded-xl border border-border bg-select-background text-foreground shadow-2xs focus:outline-none focus:ring-2 focus:ring-ring"
+                class="w-full min-h-[44px] px-3 py-2 text-sm rounded-xl border border-input bg-field text-foreground shadow-2xs focus:outline-none focus:border-primary focus-visible:border-primary focus:ring-2 focus:ring-ring"
             >
                 <option value="">Consolidado (Todos los depósitos)</option>
                 {#each warehouses as wh}
@@ -305,7 +324,7 @@
                     {metrics.sales.orders_count} pedidos · Prom: {formatMoney(metrics.sales.average_ticket)}
                 </div>
             </div>
-            <div class="size-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
+            <div class="size-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-700 dark:text-blue-400 shrink-0">
                 <ShoppingBag class="size-5" />
             </div>
         </Card>
@@ -321,7 +340,7 @@
                     Total liquidez percibida
                 </div>
             </div>
-            <div class="size-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 shrink-0">
+            <div class="size-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-700 dark:text-emerald-400 shrink-0">
                 <CreditCard class="size-5" />
             </div>
         </Card>
@@ -338,7 +357,7 @@
                         {metrics.expenses.purchases_count} compras recibidas
                     </div>
                 </div>
-                <div class="size-10 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-600 shrink-0">
+                <div class="size-10 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-700 dark:text-rose-400 shrink-0">
                     <TrendingDown class="size-5" />
                 </div>
             </Card>
@@ -347,14 +366,14 @@
             <Card class="p-4 bg-card border-border/60 shadow-2xs flex items-center justify-between gap-3">
                 <div class="min-w-0 flex-1">
                     <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Margen Operativo</span>
-                    <div class="text-xl font-bold tracking-tight tabular-nums mt-0.5 {metrics.margin.operating_margin >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+                    <div class="text-xl font-bold tracking-tight tabular-nums mt-0.5 {metrics.margin.operating_margin >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}">
                         {formatMoney(metrics.margin.operating_margin)}
                     </div>
                     <div class="text-[11px] text-muted-foreground mt-0.5 tabular-nums">
                         {metrics.margin.margin_percentage}% rendimiento
                     </div>
                 </div>
-                <div class="size-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 shrink-0">
+                <div class="size-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-700 dark:text-emerald-400 shrink-0">
                     <TrendingUp class="size-5" />
                 </div>
             </Card>
@@ -409,7 +428,7 @@
         <h3 class="text-sm font-semibold text-foreground tracking-tight mb-3">Top 10 Productos Más Vendidos</h3>
         <div class="space-y-2.5">
             {#each topProducts as prod}
-                <div class="p-3 rounded-xl bg-muted/30 border border-border/40 flex items-center justify-between gap-3">
+                <div class="p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex items-center justify-between gap-3">
                     <div class="min-w-0 flex-1">
                         <div class="text-xs font-semibold text-foreground line-clamp-2 break-words">{prod.name}</div>
                         <div class="text-[11px] text-muted-foreground mt-0.5">
@@ -433,7 +452,7 @@
         <h3 class="text-sm font-semibold text-foreground tracking-tight mb-3">Detalle de Cobranzas</h3>
         <div class="space-y-2">
             {#each metrics.revenues.by_method as pm}
-                <div class="p-2.5 rounded-xl bg-muted/20 border border-border/30 flex items-center justify-between gap-3">
+                <div class="p-2.5 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex items-center justify-between gap-3">
                     <div class="min-w-0 flex-1">
                         <div class="text-xs font-medium text-foreground">{pm.label}</div>
                         <div class="text-[11px] text-muted-foreground">{pm.count} comprobantes</div>

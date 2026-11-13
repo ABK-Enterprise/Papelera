@@ -271,7 +271,7 @@
                         'min-h-[40px] px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer select-none',
                         isSelected
                             ? 'bg-primary text-primary-foreground font-semibold shadow-xs hover:bg-primary/90'
-                            : 'border border-input/80 bg-select-background text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+                            : 'border border-input bg-field text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/50 hover:text-foreground'
                     )}
                 >
                     {preset.label}
@@ -313,7 +313,7 @@
                     aria-label="Fecha desde"
                     value={localDateFrom}
                     onchange={handleDateFromChange}
-                    class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+                    class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input bg-field text-foreground shadow-xs transition-colors focus:border-primary focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring cursor-pointer dark:[color-scheme:dark]"
                 />
             </div>
         </div>
@@ -327,7 +327,7 @@
                     aria-label="Fecha hasta"
                     value={localDateTo}
                     onchange={handleDateToChange}
-                    class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+                    class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input bg-field text-foreground shadow-xs transition-colors focus:border-primary focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring cursor-pointer dark:[color-scheme:dark]"
                 />
             </div>
         </div>
@@ -338,7 +338,7 @@
                 value={localWarehouseId ?? ''}
                 onchange={handleWarehouseChange}
                 aria-label="Filtrar por depósito"
-                class="w-full min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium"
+                class="w-full min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input bg-field text-foreground shadow-xs transition-colors focus:border-primary focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium"
             >
                 <option value="">Todos los depósitos</option>
                 {#each warehouses as w (w.id)}

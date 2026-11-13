@@ -47,7 +47,7 @@
                 autofocus
                 autocomplete="name"
                 placeholder="Tu nombre completo"
-                class="h-11 rounded-lg border-input/60 bg-muted/40 px-3.5 transition-colors focus:bg-background"
+                class="h-11 rounded-lg border-input bg-field px-3.5 transition-colors"
             />
             <InputError message={form.errors.name} />
         </div>
@@ -61,7 +61,7 @@
                 required
                 autocomplete="username"
                 placeholder="nombre@ejemplo.com"
-                class="h-11 rounded-lg border-input/60 bg-muted/40 px-3.5 transition-colors focus:bg-background"
+                class="h-11 rounded-lg border-input bg-field px-3.5 transition-colors"
             />
             <InputError message={form.errors.email} />
         </div>
@@ -74,7 +74,7 @@
                 required
                 autocomplete="new-password"
                 placeholder="Crea una contraseña segura"
-                class="h-11 rounded-lg border-input/60 bg-muted/40 px-3.5 transition-colors focus:bg-background"
+                class="h-11 rounded-lg border-input bg-field px-3.5 transition-colors"
             />
             <InputError message={form.errors.password} />
         </div>
@@ -89,7 +89,7 @@
                 required
                 autocomplete="new-password"
                 placeholder="Repite tu contraseña"
-                class="h-11 rounded-lg border-input/60 bg-muted/40 px-3.5 transition-colors focus:bg-background"
+                class="h-11 rounded-lg border-input bg-field px-3.5 transition-colors"
             />
             <InputError message={form.errors.password_confirmation} />
         </div>

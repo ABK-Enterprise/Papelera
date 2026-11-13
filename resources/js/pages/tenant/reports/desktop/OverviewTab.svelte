@@ -169,7 +169,7 @@
             <div class="flex items-center justify-between">
                 <span class="text-base font-semibold tracking-normal text-muted-foreground">Gastos Totales</span>
                 {#if canViewMargins}
-                    <div class="size-8 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                    <div class="size-8 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-700 dark:text-rose-400">
                         <TrendingDown class="size-4.5" />
                     </div>
                 {/if}
@@ -189,7 +189,7 @@
         <Card class="p-5 flex flex-col justify-between gap-3 bg-card border-border/70 shadow-xs">
             <div class="flex items-center justify-between">
                 <span class="text-base font-semibold tracking-normal text-muted-foreground">Ingresos Totales</span>
-                <div class="size-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                <div class="size-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
                     <TrendingUp class="size-4.5" />
                 </div>
             </div>
@@ -206,7 +206,7 @@
                 <span class="text-base font-semibold tracking-normal text-muted-foreground">Margen Operativo</span>
                 {#if canViewMargins && overviewData.kpis.operating_margin !== null}
                     {@const isPositive = overviewData.kpis.operating_margin >= 0}
-                    <div class="size-8 rounded-full flex items-center justify-center {isPositive ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'}">
+                    <div class="size-8 rounded-full flex items-center justify-center {isPositive ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-700 dark:text-rose-400'}">
                         {#if isPositive}
                             <TrendingUp class="size-4.5" />
                         {:else}
@@ -217,7 +217,7 @@
             </div>
             <div>
                 {#if canViewMargins}
-                    <div class="text-2xl sm:text-3xl font-bold tabular-nums tracking-tight {overviewData.kpis.operating_margin !== null && overviewData.kpis.operating_margin < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'}">
+                    <div class="text-2xl sm:text-3xl font-bold tabular-nums tracking-tight {overviewData.kpis.operating_margin !== null && overviewData.kpis.operating_margin < 0 ? 'text-rose-700 dark:text-rose-400' : 'text-foreground'}">
                         {formatMoney(overviewData.kpis.operating_margin)}
                     </div>
                 {:else}
@@ -269,7 +269,7 @@
         {:else}
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
-                    <thead>
+                    <thead class="bg-muted/50 dark:bg-secondary/35">
                         <tr class="border-b border-border/60 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
                             <th class="text-left py-2.5 px-3">Recibo</th>
                             <th class="text-left py-2.5 px-3">Método de Pago</th>
@@ -279,7 +279,7 @@
                     </thead>
                     <tbody class="divide-y divide-border/40">
                         {#each overviewData.receipts_detail as r (r.id)}
-                            <tr class="hover:bg-muted/40 transition-colors">
+                            <tr class="hover:bg-muted/40 dark:hover:bg-secondary/35 transition-colors">
                                 <td class="py-2.5 px-3 font-semibold text-foreground">{r.receipt_number}</td>
                                 <td class="py-2.5 px-3 capitalize text-muted-foreground">{r.payment_method.replace('_', ' ')}</td>
                                 <td class="py-2.5 px-3 text-muted-foreground tabular-nums">{r.date}</td>
@@ -311,7 +311,7 @@
                 {:else}
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
-                            <thead>
+                            <thead class="bg-muted/50 dark:bg-secondary/35">
                                 <tr class="border-b border-border/60 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
                                     <th class="text-left py-2 px-2.5">Producto</th>
                                     <th class="text-right py-2 px-2.5">Unidades</th>
@@ -320,10 +320,10 @@
                             </thead>
                             <tbody class="divide-y divide-border/40">
                                 {#each overviewData.top_products as p, i (p.product_id)}
-                                    <tr class="hover:bg-muted/40 transition-colors">
+                                    <tr class="hover:bg-muted/40 dark:hover:bg-secondary/35 transition-colors">
                                         <td class="py-2.5 px-2.5">
                                             <div class="flex items-center gap-2">
-                                                <span class="size-5 rounded-full bg-muted text-muted-foreground text-xs flex items-center justify-center font-bold shrink-0">
+                                                <span class="size-5 rounded-full bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-foreground text-xs flex items-center justify-center font-bold shrink-0 tabular-nums">
                                                     {i + 1}
                                                 </span>
                                                 <div class="min-w-0">
@@ -366,7 +366,7 @@
                 {:else}
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
-                            <thead>
+                            <thead class="bg-muted/50 dark:bg-secondary/35">
                                 <tr class="border-b border-border/60 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
                                     <th class="text-left py-2 px-2.5">Cliente</th>
                                     <th class="text-right py-2 px-2.5">Pedidos</th>
@@ -375,10 +375,10 @@
                             </thead>
                             <tbody class="divide-y divide-border/40">
                                 {#each overviewData.top_buyers as b, i (b.customer_id)}
-                                    <tr class="hover:bg-muted/40 transition-colors">
+                                    <tr class="hover:bg-muted/40 dark:hover:bg-secondary/35 transition-colors">
                                         <td class="py-2.5 px-2.5">
                                             <div class="flex items-center gap-2">
-                                                <span class="size-5 rounded-full bg-muted text-muted-foreground text-xs flex items-center justify-center font-bold shrink-0">
+                                                <span class="size-5 rounded-full bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-foreground text-xs flex items-center justify-center font-bold shrink-0 tabular-nums">
                                                     {i + 1}
                                                 </span>
                                                 <span class="font-medium text-[15px] text-foreground truncate max-w-[220px]" title={b.name}>

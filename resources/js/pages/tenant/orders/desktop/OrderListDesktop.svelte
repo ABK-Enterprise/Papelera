@@ -104,7 +104,7 @@
                         <span class="font-semibold text-base text-foreground tabular-nums">{order.order_number}</span>
                         {#if order.price_review_pending}
                             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/40">
-                                <AlertTriangle class="h-3 w-3 text-amber-600 shrink-0" />
+                                <AlertTriangle class="h-3 w-3 text-amber-700 dark:text-amber-400 shrink-0" />
                                 <span>Revisar precios</span>
                             </span>
                         {/if}
@@ -223,7 +223,7 @@
                     <button
                         type="button"
                         onclick={() => onSelectOrder(order)}
-                        class="w-full min-h-[32px] px-2.5 py-1 text-xs font-semibold rounded-lg border border-border/80 bg-background/80 hover:bg-muted hover:border-border text-foreground transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
+                        class="w-full min-h-[32px] px-2.5 py-1 text-xs font-semibold rounded-lg border border-border/80 dark:border-border/90 bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 text-foreground transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
                         title="Ver detalle del pedido"
                     >
                         <Eye class="size-3.5 text-muted-foreground shrink-0" />
@@ -234,7 +234,7 @@
                         type="button"
                         disabled={!canEditPrices(order)}
                         onclick={() => onEditPrices?.(order)}
-                        class="w-full min-h-[32px] px-2.5 py-1 text-xs font-semibold rounded-lg border border-border/80 bg-background/80 hover:bg-muted hover:border-border text-foreground transition-colors flex items-center justify-center gap-1.5 shadow-2xs {!canEditPrices(order) ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'cursor-pointer'}"
+                        class="w-full min-h-[32px] px-2.5 py-1 text-xs font-semibold rounded-lg border border-border/80 dark:border-border/90 bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 text-foreground transition-colors flex items-center justify-center gap-1.5 shadow-2xs {!canEditPrices(order) ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'cursor-pointer'}"
                         title={!canEditPrices(order) ? 'No se pueden modificar pedidos entregados, cancelados o facturados' : 'Modificar pedido (precios o agregar productos)'}
                     >
                         <Pencil class="size-3.5 text-muted-foreground shrink-0" />

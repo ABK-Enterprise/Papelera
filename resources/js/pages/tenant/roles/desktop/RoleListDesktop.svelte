@@ -61,7 +61,7 @@
             </CardHeader>
 
             <CardContent class="space-y-4 pt-0">
-                <div class="flex items-center justify-between rounded-xl bg-muted/40 p-2.5 text-xs text-muted-foreground">
+                <div class="flex items-center justify-between rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-2.5 text-xs text-muted-foreground">
                     <span class="font-medium">Permisos habilitados:</span>
                     <Badge variant="secondary" class="font-bold text-xs tracking-wide text-foreground px-2 py-0.5 tabular-nums">
                         {role.permissions_count} permisos

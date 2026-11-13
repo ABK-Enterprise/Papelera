@@ -62,7 +62,7 @@
 <div class="flex flex-col gap-3.5">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
-            <div class="flex size-8 items-center justify-center rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+            <div class="flex size-8 items-center justify-center rounded-full bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20">
                 <AlertTriangle class="size-4" />
             </div>
             <div>
@@ -73,12 +73,12 @@
         {#if products.length > 0}
             <div class="flex items-center gap-2">
                 {#if criticalCount > 0}
-                    <span class="inline-flex items-center gap-1.5 rounded-full border border-rose-600/30 bg-rose-600/15 px-3 py-1 text-xs font-bold tracking-wide tabular-nums text-rose-700 dark:text-rose-300">
+                    <span class="inline-flex items-center gap-1.5 rounded-full border border-rose-600/30 bg-rose-600/15 px-3 py-1 text-xs font-bold tracking-wide tabular-nums text-rose-700 dark:text-rose-400">
                         <span class="size-1.5 rounded-full bg-rose-600 animate-pulse"></span>
                         {criticalCount} {criticalCount === 1 ? 'crítico (negativo)' : 'críticos (negativos)'}
                     </span>
                 {/if}
-                <span class="inline-flex items-center gap-1.5 rounded-full border border-rose-500/20 bg-rose-500/10 px-3 py-1 text-xs font-semibold tracking-wide tabular-nums text-rose-600 dark:text-rose-400">
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-rose-500/20 bg-rose-500/10 px-3 py-1 text-xs font-semibold tracking-wide tabular-nums text-rose-700 dark:text-rose-400">
                     {products.length} {products.length === 1 ? 'alerta en total' : 'alertas en total'}
                 </span>
             </div>
@@ -88,8 +88,8 @@
     <MinimalDataTable
         items={paginatedProducts}
         rowClass={(product) => (product.is_critical || product.stock < 0)
-            ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30 hover:bg-rose-500/20'
-            : 'bg-rose-500/8 text-rose-600 dark:text-rose-400 border-rose-500/15 hover:bg-rose-500/12'}
+            ? 'bg-rose-500/12 text-rose-700 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/20'
+            : 'bg-muted/40 dark:bg-secondary/35 text-rose-700 dark:text-rose-400 border-border/80 dark:border-border/90 hover:bg-muted/70 dark:hover:bg-secondary/55'}
     >
         {#snippet header()}
             <th class="py-3.5 px-6 font-semibold">Producto</th>
@@ -102,7 +102,7 @@
             <!-- Columna: Producto -->
             <td class="py-3.5 px-6">
                 <div class="flex items-center gap-3">
-                    <div class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/50 bg-muted/60">
+                    <div class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                         {#if product.image_url}
                             <img src={product.image_url} alt={product.name} class="h-full w-full object-cover" />
                         {:else}
@@ -127,7 +127,7 @@
                         </div>
                         <div class="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                             {#if product.category}
-                                <span class="rounded bg-muted/70 px-1.5 py-0.5 text-xs font-medium text-foreground">
+                                <span class="rounded bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 px-1.5 py-0.5 text-xs font-medium text-foreground">
                                     {product.category.name}
                                 </span>
                             {/if}
@@ -142,7 +142,7 @@
             <!-- Columna: Depósito -->
             <td class="py-3.5 px-6">
                 {#if product.warehouse}
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-muted/80 text-foreground border border-border/80 shadow-2xs">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-muted/40 dark:bg-secondary/35 text-foreground border border-border/80 dark:border-border/90 shadow-2xs">
                         <Building2 class="size-3.5 text-muted-foreground shrink-0" />
                         {product.warehouse.name}
                     </span>
@@ -154,12 +154,12 @@
             <!-- Columna: Stock Actual -->
             <td class="py-3.5 px-6">
                 {#if product.is_critical || product.stock < 0}
-                    <span class="inline-flex items-center gap-1 rounded-md border border-rose-600/40 bg-rose-600/25 px-2.5 py-1 text-sm font-bold tabular-nums text-rose-800 dark:text-rose-200">
+                    <span class="inline-flex items-center gap-1 rounded-md border border-rose-600/40 bg-rose-600/20 px-2.5 py-1 text-sm font-bold tabular-nums text-rose-700 dark:text-rose-400">
                         <span class="size-1.5 rounded-full bg-rose-600 animate-pulse"></span>
                         {product.stock} {product.stock === 1 ? 'unidad' : 'unidades'}
                     </span>
                 {:else}
-                    <span class="inline-flex items-center gap-1 rounded-md border border-rose-500/30 bg-rose-500/20 px-2.5 py-1 text-sm font-bold tabular-nums text-rose-700 dark:text-rose-300">
+                    <span class="inline-flex items-center gap-1 rounded-md border border-rose-500/30 bg-rose-500/15 px-2.5 py-1 text-sm font-bold tabular-nums text-rose-700 dark:text-rose-400">
                         <span class="size-1.5 rounded-full bg-rose-500"></span>
                         {product.stock} {product.stock === 1 ? 'unidad' : 'unidades'}
                     </span>
@@ -176,7 +176,7 @@
 
         {#snippet empty()}
             <div class="flex flex-col items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/5 dark:bg-emerald-950/20 p-8 text-center shadow-xs">
-                <div class="mb-3 flex size-12 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                <div class="mb-3 flex size-12 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
                     <CheckCircle2 class="size-6" />
                 </div>
                 <h3 class="text-base font-semibold text-foreground">Todo en orden</h3>

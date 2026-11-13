@@ -437,7 +437,7 @@
     <!-- Backdrop oscuro accesible -->
     <div
         transition:fade={{ duration: 150 }}
-        class="fixed inset-0 bg-background/80 backdrop-blur-xs z-50"
+        class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50"
         onclick={() => (open = false)}
         aria-hidden="true"
     ></div>
@@ -522,7 +522,7 @@
                 {#if order.price_review_pending}
                     <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-3">
                         <div class="flex items-start gap-3">
-                            <AlertTriangle class="size-5 text-amber-600 shrink-0 mt-0.5" />
+                            <AlertTriangle class="size-5 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
                             <div class="space-y-1">
                                 <strong class="font-bold text-sm text-foreground block">
                                     Discrepancia en Precios de Catálogo
@@ -536,9 +536,9 @@
                         <div class="flex flex-wrap items-center justify-end gap-2.5 pt-2 border-t border-amber-500/20">
                             <Button
                                 type="button"
-                                variant="outline"
+                                variant="secondary"
                                 size="sm"
-                                class="min-h-[36px] rounded-lg text-xs font-semibold border-amber-500/40 hover:bg-amber-500/15 text-foreground cursor-pointer"
+                                class="min-h-[36px] rounded-lg text-xs font-semibold border border-amber-500/40 hover:bg-amber-500/15 text-foreground cursor-pointer"
                                 disabled={isResolvingPrices}
                                 onclick={resolveKeepPrices}
                             >
@@ -547,7 +547,7 @@
                             <Button
                                 type="button"
                                 size="sm"
-                                class="min-h-[36px] rounded-lg text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white cursor-pointer gap-1.5"
+                                class="min-h-[36px] rounded-lg text-xs font-semibold bg-amber-700 hover:bg-amber-800 text-white cursor-pointer gap-1.5"
                                 disabled={isResolvingPrices}
                                 onclick={resolveUpdatePrices}
                             >
@@ -565,7 +565,7 @@
                 <!-- Banner de Inconveniente Fiscal en caso de error previo -->
                 {#if order.fiscal_status === 'error_fiscal' && order.fiscal_error_message}
                     <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-xs text-amber-800 dark:text-amber-300">
-                        <AlertTriangle class="size-5 text-amber-600 shrink-0 mt-0.5" />
+                        <AlertTriangle class="size-5 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
                         <div class="space-y-0.5">
                             <strong class="font-bold block">Inconveniente de facturación ARCA:</strong>
                             <p class="leading-relaxed">{order.fiscal_error_message}</p>
@@ -614,7 +614,7 @@
                 <!-- Cartel Informativo de Estado Terminal -->
                 {#if order.status === 'cancelado'}
                     <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-xs text-rose-700 dark:text-rose-300">
-                        <XCircle class="size-5 text-rose-600 shrink-0" />
+                        <XCircle class="size-5 text-rose-700 dark:text-rose-400 shrink-0" />
                         <div>
                             <strong class="font-bold block">Pedido Cancelado Definitivamente</strong>
                             <span>Este pedido fue cancelado, su stock ya fue reincorporado al catálogo y su registro se encuentra cerrado.</span>
@@ -622,7 +622,7 @@
                     </div>
                 {:else if order.status === 'entregado'}
                     <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-xs text-emerald-700 dark:text-emerald-300">
-                        <CheckCircle2 class="size-5 text-emerald-600 shrink-0" />
+                        <CheckCircle2 class="size-5 text-emerald-700 dark:text-emerald-400 shrink-0" />
                         <div>
                             <strong class="font-bold block">Pedido Completado y Entregado</strong>
                             <span>Este pedido fue entregado con éxito al cliente. La operación logística ha finalizado.</span>
@@ -631,7 +631,7 @@
                 {/if}
 
                 <!-- Datos del Cliente -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-muted/20 border text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-xs">
                     <div class="space-y-1">
                         <span class="text-muted-foreground flex items-center gap-1">
                             <User class="size-3.5" /> Cliente:
@@ -673,11 +673,11 @@
                                     </div>
                                     <div class="shrink-0">
                                         {#if item.packaging_type === 'gram'}
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20">
                                                 Gramos
                                             </span>
                                         {:else if item.packaging_type === 'kg'}
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20">
                                                 Kg
                                             </span>
                                         {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
@@ -707,7 +707,7 @@
                                             {/if}
                                         </div>
                                         {#if item.product?.price && Math.abs(Number(item.product.price) - Number(item.unit_price)) >= 0.01}
-                                            <span class="text-xs text-amber-600 dark:text-amber-400 font-semibold block mt-0.5">
+                                            <span class="text-xs text-amber-700 dark:text-amber-400 font-semibold block mt-0.5">
                                                 Catálogo actual: {formatPrice(item.product.price)}
                                             </span>
                                         {/if}
@@ -721,9 +721,9 @@
                     </div>
 
                     <!-- Tabla en Desktop (hidden sm:block) -->
-                    <div class="hidden sm:block rounded-xl border overflow-hidden">
+                    <div class="hidden sm:block rounded-xl border border-border/80 dark:border-border/90 overflow-hidden">
                         <table class="w-full text-left text-sm">
-                            <thead class="bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b">
+                            <thead class="bg-muted/50 dark:bg-secondary/35 text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border/80 dark:border-border/90">
                                 <tr>
                                     <th class="p-2.5">Producto</th>
                                     <th class="p-2.5">Presentación</th>
@@ -732,9 +732,9 @@
                                     <th class="p-2.5 text-right">Subtotal</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y">
+                            <tbody class="divide-y divide-border/70">
                                 {#each order.items ?? [] as item}
-                                    <tr>
+                                    <tr class="hover:bg-muted/40 dark:hover:bg-secondary/30 transition-colors">
                                         <td class="p-2.5 font-medium text-foreground">
                                             {item.product?.name || `Producto #${item.product_id}`}
                                             {#if item.product?.sku}
@@ -743,11 +743,11 @@
                                         </td>
                                         <td class="p-2.5 text-muted-foreground">
                                             {#if item.packaging_type === 'gram'}
-                                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-sky-600 dark:text-sky-400">
+                                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-sky-700 dark:text-sky-400">
                                                     Gramos (g)
                                                 </span>
                                             {:else if item.packaging_type === 'kg'}
-                                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-sky-600 dark:text-sky-400">
+                                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-sky-700 dark:text-sky-400">
                                                     Kilogramos (Kg)
                                                 </span>
                                             {:else if item.packaging_type === 'bolson' || item.packaging_type === 'bulto'}
@@ -778,7 +778,7 @@
                                         <td class="p-2.5 text-right font-sans tabular-nums">
                                             <div>{formatPrice(item.unit_price)}</div>
                                             {#if item.product?.price && Math.abs(Number(item.product.price) - Number(item.unit_price)) >= 0.01}
-                                                <span class="text-xs text-amber-600 dark:text-amber-400 block font-normal tabular-nums">
+                                                <span class="text-xs text-amber-700 dark:text-amber-400 block font-normal tabular-nums">
                                                     Catálogo: {formatPrice(item.product.price)}
                                                 </span>
                                             {/if}
@@ -847,9 +847,9 @@
                         {#if order.status !== 'cancelado' && order.status !== 'entregado' && order.fiscal_status !== 'facturado' && hasPermission('pedidos.editar_estado')}
                             <Button
                                 type="button"
-                                variant="outline"
+                                variant="default"
                                 size="sm"
-                                class="h-8 px-3 rounded-lg text-sm font-semibold gap-1.5 text-primary border-primary/40 hover:bg-primary/10 cursor-pointer shadow-2xs"
+                                class="h-8 px-3 rounded-lg text-sm font-semibold gap-1.5 cursor-pointer shadow-2xs"
                                 onclick={() => (isChooseAdjustmentModalOpen = true)}
                             >
                                 <Plus class="size-3.5" />
@@ -897,7 +897,7 @@
                 </div>
 
                 {#if order.notes}
-                    <div class="p-2.5 rounded-lg bg-muted/20 border text-xs text-muted-foreground">
+                    <div class="p-2.5 rounded-lg bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-xs text-muted-foreground">
                         <strong class="text-foreground">Notas:</strong> {order.notes}
                     </div>
                 {/if}
@@ -932,7 +932,7 @@
                                     <button
                                         type="button"
                                         disabled={isUpdatingStatus}
-                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer"
+                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs cursor-pointer"
                                         onclick={() => requestStatusChange('entregado')}
                                     >
                                         Entregar (Retiro en local)
@@ -941,7 +941,7 @@
                                     <button
                                         type="button"
                                         disabled={isUpdatingStatus}
-                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer"
+                                        class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs cursor-pointer"
                                         onclick={() => requestStatusChange('entregado')}
                                     >
                                         Marcar Entregado
@@ -954,7 +954,7 @@
                                 <button
                                     type="button"
                                     disabled={isUpdatingStatus}
-                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-rose-600/10 hover:bg-rose-600 hover:text-white text-rose-600 border-rose-500/30 cursor-pointer"
+                                    class="px-3 py-2.5 rounded-xl text-xs font-bold border text-center transition-all bg-rose-600/10 hover:bg-rose-600 hover:text-white text-rose-700 dark:text-rose-400 border-rose-500/30 cursor-pointer"
                                     onclick={() => requestStatusChange('cancelado')}
                                 >
                                     Cancelar Pedido
@@ -971,7 +971,7 @@
                     <Button
                         type="button"
                         variant="outline"
-                        class="min-h-[42px] sm:min-h-[40px] px-3.5 rounded-xl text-xs font-semibold text-amber-600 border-amber-500/30 hover:bg-amber-500/10 hover:border-amber-500/50 gap-1.5 shrink-0 cursor-pointer {extraClass}"
+                        class="min-h-[42px] sm:min-h-[40px] px-3.5 rounded-xl text-xs font-semibold text-amber-700 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/10 hover:border-amber-500/50 gap-1.5 shrink-0 cursor-pointer {extraClass}"
                         onclick={() => (isConfirmReturnOpen = true)}
                     >
                         <RotateCcw class="size-4 shrink-0" />
@@ -1041,7 +1041,7 @@
                     <Button
                         type="button"
                         variant="default"
-                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs bg-primary text-primary-foreground hover:bg-primary/90 shrink-0 cursor-pointer {extraClass}"
+                        class="min-h-[42px] sm:min-h-[40px] px-3 rounded-xl text-xs sm:text-sm font-semibold gap-1.5 shadow-xs shrink-0 cursor-pointer {extraClass}"
                         onclick={() => (isCollectModalOpen = true)}
                     >
                         <ReceiptText class="size-4 shrink-0" />
@@ -1064,7 +1064,7 @@
                     <Button
                         type="button"
                         variant="secondary"
-                        class="min-h-[42px] sm:min-h-[40px] px-2.5 rounded-r-xl rounded-l-none border-l border-border/60 text-xs sm:text-sm font-semibold shadow-xs shrink-0 cursor-pointer hover:bg-muted"
+                        class="min-h-[42px] sm:min-h-[40px] px-2.5 rounded-r-xl rounded-l-none border-l border-border/60 text-xs sm:text-sm font-semibold shadow-xs shrink-0 cursor-pointer hover:bg-muted dark:hover:bg-secondary/60"
                         title="Configurar visibilidad en remito"
                         onclick={() => (isReceiptVisibilityModalOpen = true)}
                     >
@@ -1076,7 +1076,7 @@
             {#snippet btnCerrar(extraClass = '')}
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     class="min-h-[42px] sm:min-h-[40px] px-3.5 rounded-xl text-xs sm:text-sm font-semibold shrink-0 cursor-pointer {extraClass}"
                     onclick={() => (open = false)}
                 >
@@ -1107,7 +1107,7 @@
                             <button
                                 type="button"
                                 onclick={() => (isBalanceImpactModalOpen = true)}
-                                class="size-7 sm:size-8 min-h-[28px] min-w-[28px] sm:min-h-[32px] sm:min-w-[32px] rounded-lg border border-border/90 bg-muted/80 hover:bg-muted hover:border-primary/50 text-foreground hover:text-primary shadow-2xs transition-colors flex items-center justify-center cursor-pointer inline-flex align-middle ml-1"
+                                class="size-7 sm:size-8 min-h-[28px] min-w-[28px] sm:min-h-[32px] sm:min-w-[32px] rounded-lg border border-border/80 dark:border-border/90 bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 hover:border-primary/50 text-foreground hover:text-primary shadow-2xs transition-colors flex items-center justify-center cursor-pointer inline-flex align-middle ml-1"
                                 title="Ver desglose de monto facturable vs monto capaz de cobrar"
                                 aria-label="Ver desglose financiero"
                             >
@@ -1318,7 +1318,7 @@
                 </DialogHeader>
 
                 <DialogBody class="space-y-4 text-xs">
-                    <div class="grid grid-cols-2 gap-3 p-3.5 rounded-xl border border-border/70 bg-card dark:bg-slate-900/60">
+                    <div class="grid grid-cols-2 gap-3 p-3.5 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                         <div class="space-y-1">
                             <span class="text-muted-foreground block font-medium">Monto Facturable (ARCA)</span>
                             <span class="text-base font-bold text-foreground tabular-nums block">
@@ -1393,7 +1393,7 @@
                     </div>
 
                     <!-- Resumen del Pedido -->
-                    <div class="space-y-1.5 p-3 rounded-xl border border-border/70 bg-muted/30">
+                    <div class="space-y-1.5 p-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                         <div class="flex items-center justify-between text-muted-foreground">
                             <span>Subtotal de mercadería:</span>
                             <span class="tabular-nums font-medium text-foreground">{formatPrice(order.subtotal_amount ?? 0)}</span>
@@ -1405,13 +1405,13 @@
                             </div>
                         {/if}
                         {#if Number(order.discount_total ?? 0) > 0 || Number(order.customer_discount_amount ?? 0) > 0}
-                            <div class="flex items-center justify-between text-emerald-600 dark:text-emerald-400">
+                            <div class="flex items-center justify-between text-emerald-700 dark:text-emerald-400">
                                 <span>Descuentos aplicados:</span>
                                 <span class="tabular-nums font-medium">-{formatPrice(Number(order.discount_total ?? 0) + Number(order.customer_discount_amount ?? 0))}</span>
                             </div>
                         {/if}
                         {#if Number(order.surcharge_total ?? 0) > 0}
-                            <div class="flex items-center justify-between text-amber-600 dark:text-amber-400">
+                            <div class="flex items-center justify-between text-amber-700 dark:text-amber-400">
                                 <span>Recargos comerciales:</span>
                                 <span class="tabular-nums font-medium">+{formatPrice(order.surcharge_total)}</span>
                             </div>
@@ -1426,7 +1426,7 @@
                 <DialogFooter class="grid grid-cols-2 gap-2.5 pt-1">
                     <Button
                         type="button"
-                        variant="outline"
+                        variant="secondary"
                         class="min-h-[44px] w-full text-xs font-semibold rounded-xl cursor-pointer"
                         onclick={() => (isFiscalPreModalOpen = false)}
                     >

@@ -63,7 +63,7 @@
     <!-- Encabezado con Icono Danger, Título y Stack Vertical de Pills [X mínimo, Y crítico] -->
     <div class="flex items-center justify-between gap-3">
         <div class="flex items-center gap-2.5 min-w-0 flex-1">
-            <div class="flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+            <div class="flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20">
                 <AlertTriangle class="size-4" />
             </div>
             <h2 class="text-sm font-semibold tracking-tight text-foreground leading-snug break-words">
@@ -76,7 +76,7 @@
                 <span class="inline-flex items-center justify-center rounded-full border border-amber-500/30 bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold tracking-wide tabular-nums text-amber-700 dark:text-amber-400 shrink-0 whitespace-nowrap">
                     {minimumCount} mínimo
                 </span>
-                <span class="inline-flex items-center justify-center gap-1 rounded-full border border-rose-600/30 bg-rose-600/15 px-2.5 py-0.5 text-xs font-bold tracking-wide tabular-nums text-rose-700 dark:text-rose-300 shrink-0 whitespace-nowrap">
+                <span class="inline-flex items-center justify-center gap-1 rounded-full border border-rose-600/30 bg-rose-600/15 px-2.5 py-0.5 text-xs font-bold tracking-wide tabular-nums text-rose-700 dark:text-rose-400 shrink-0 whitespace-nowrap">
                     {#if criticalCount > 0}
                         <span class="size-1.5 rounded-full bg-rose-600 animate-pulse"></span>
                     {/if}
@@ -92,12 +92,12 @@
                 {@const isCrit = product.is_critical || product.stock < 0}
                 <div class={`flex flex-col gap-2.5 rounded-xl border p-3.5 shadow-xs ${
                     isCrit
-                        ? 'border-rose-600/30 bg-rose-600/15 text-rose-700 dark:text-rose-300'
-                        : 'border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                        ? 'border-rose-600/35 bg-rose-500/12 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400'
+                        : 'border-border/80 dark:border-border/90 bg-card text-rose-700 dark:text-rose-400'
                 }`}>
                     <div class="flex items-start justify-between gap-2">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border/50 bg-background/60">
+                            <div class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                                 {#if product.image_url}
                                     <img src={product.image_url} alt={product.name} class="h-full w-full object-cover rounded-full" />
                                 {:else}
@@ -115,7 +115,7 @@
                                 </div>
                                 <div class="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5 flex-wrap">
                                     {#if product.category}
-                                        <span class="rounded bg-background/80 px-1.5 py-0.5 font-medium text-foreground">
+                                        <span class="rounded bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 px-1.5 py-0.5 font-medium text-foreground">
                                             {product.category.name}
                                         </span>
                                     {/if}
@@ -128,7 +128,7 @@
 
                         <Link
                             href={`/tenant/productos/${product.id}/editar`}
-                            class="flex size-9 items-center justify-center rounded-full bg-background/80 text-muted-foreground hover:text-foreground border border-border/60 hover:bg-background transition-colors shrink-0 shadow-2xs cursor-pointer"
+                            class="flex size-9 items-center justify-center rounded-full bg-muted/40 dark:bg-secondary/35 text-muted-foreground hover:text-foreground border border-border/80 dark:border-border/90 hover:bg-muted/70 dark:hover:bg-secondary/55 transition-colors shrink-0 shadow-2xs cursor-pointer"
                             title="Editar producto"
                         >
                             <Edit2 class="size-3.5" />
@@ -138,7 +138,7 @@
                     <!-- Fila de Depósito y Métricas de Stock -->
                     <div class="flex items-center justify-between gap-2 pt-0.5">
                         {#if product.warehouse}
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-background/80 text-foreground border border-border/80 shadow-2xs">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted/40 dark:bg-secondary/35 text-foreground border border-border/80 dark:border-border/90 shadow-2xs">
                                 <Building2 class="size-3 text-muted-foreground shrink-0" />
                                 {product.warehouse.name}
                             </span>
@@ -147,13 +147,13 @@
                         {/if}
                     </div>
 
-                    <div class={`grid grid-cols-2 gap-2 rounded-lg bg-background/50 p-2 border ${
-                        isCrit ? 'border-rose-600/25' : 'border-rose-500/15'
+                    <div class={`grid grid-cols-2 gap-2 rounded-lg bg-muted/40 dark:bg-secondary/35 p-2.5 border ${
+                        isCrit ? 'border-rose-600/30' : 'border-border/80 dark:border-border/90'
                     }`}>
                         <div class="flex flex-col">
                             <span class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Stock actual</span>
                             <span class={`text-sm font-bold tabular-nums ${
-                                isCrit ? 'text-rose-700 dark:text-rose-300 font-extrabold' : 'text-rose-600 dark:text-rose-400'
+                                isCrit ? 'text-rose-700 dark:text-rose-400 font-extrabold' : 'text-rose-700 dark:text-rose-400'
                             }`}>
                                 {#if isCrit}
                                     <span class="inline-block size-1.5 rounded-full bg-rose-600 animate-pulse mr-1 align-middle"></span>
@@ -212,7 +212,7 @@
     {:else}
         <!-- Estado Positivo Vacío -->
         <div class="flex flex-col items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/5 dark:bg-emerald-950/20 p-6 text-center shadow-xs">
-            <div class="mb-2 flex size-10 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <div class="mb-2 flex size-10 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
                 <CheckCircle2 class="size-5" />
             </div>
             <h3 class="text-sm font-semibold text-foreground">Todo en orden</h3>

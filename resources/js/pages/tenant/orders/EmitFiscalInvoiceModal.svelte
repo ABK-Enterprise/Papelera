@@ -224,7 +224,7 @@
                         {/if}
                     </div>
                 </div>
-                <DialogClose class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0">
+                <DialogClose class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0">
                     <X class="size-4" />
                 </DialogClose>
             </div>
@@ -244,7 +244,7 @@
 
             {#if totalAmount <= 0}
                 <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5 text-xs text-amber-800 dark:text-amber-300">
-                    <AlertTriangle class="size-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+                    <AlertTriangle class="size-4 shrink-0 mt-0.5 text-amber-700 dark:text-amber-400" />
                     <div class="flex-1 leading-relaxed space-y-0.5">
                         <strong class="font-bold block">Imposibilidad fiscal de facturación ($0.00)</strong>
                         <span>El servicio WSFEv1 de ARCA no admite la emisión de comprobantes fiscales con importe total menor o igual a cero ($0.00). Para pedidos bonificados al 100% o sin cargo, debe utilizarse el remito interno de traslado.</span>
@@ -254,7 +254,7 @@
 
             {#if order}
                 <!-- Resumen de la Orden y Receptor -->
-                <div class="p-3.5 rounded-xl bg-muted/20 border border-border/70 space-y-2 text-xs">
+                <div class="p-3.5 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 space-y-2 text-xs">
                     <div class="flex items-center justify-between">
                         <span class="text-muted-foreground">Número de Pedido:</span>
                         <strong class="font-bold text-foreground font-sans tabular-nums text-sm">
@@ -289,7 +289,7 @@
                 </div>
 
                 <!-- Desglose de Importes -->
-                <div class="bg-muted/30 p-3.5 rounded-xl border border-border/80 space-y-2 text-xs">
+                <div class="bg-muted/40 dark:bg-secondary/35 p-3.5 rounded-xl border border-border/80 dark:border-border/90 space-y-2 text-xs">
                     <div class="flex items-center justify-between font-medium text-muted-foreground pb-1 border-b border-border/50">
                         <span>Concepto a Emitir:</span>
                         <span class="text-foreground font-semibold">{invoiceTypeName}</span>
@@ -322,7 +322,7 @@
                 {#if requiresDocIdentification}
                     <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-3">
                         <div class="flex items-start gap-2 text-xs text-amber-800 dark:text-amber-300">
-                            <AlertTriangle class="size-4 shrink-0 mt-0.5 text-amber-600" />
+                            <AlertTriangle class="size-4 shrink-0 mt-0.5 text-amber-700 dark:text-amber-400" />
                             <div class="leading-relaxed">
                                 <strong class="font-bold block">Identificación Obligatoria por Monto</strong>
                                 <span>Por normativa de ARCA, ventas a consumidor final superiores a {formatCurrency(LEGAL_THRESHOLD)} requieren identificar al cliente con DNI o CUIT.</span>
@@ -337,7 +337,7 @@
                                 <select
                                     id="doc-type"
                                     bind:value={docTipo}
-                                    class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm font-medium text-foreground shadow-2xs focus:outline-none focus:ring-1 focus:ring-primary"
+                                    class="h-10 w-full rounded-xl border border-input bg-field px-3 py-2 text-sm font-medium text-foreground shadow-2xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                                 >
                                     <option value="96">DNI</option>
                                     <option value="80">CUIT</option>
@@ -371,7 +371,7 @@
         <DialogFooter class="p-4 sm:p-6 border-t border-border bg-card flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5">
             <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 class="min-h-[44px] px-5 rounded-xl text-sm font-semibold w-full sm:w-auto cursor-pointer"
                 onclick={() => (open = false)}
                 disabled={isSubmitting}

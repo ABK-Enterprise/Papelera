@@ -129,7 +129,7 @@
     <ModuleHeader title="Buscar en Depósito" badge={items.total}>
         {#snippet actions()}
             <Link href="/tenant/productos">
-                <Button variant="secondary" class="min-h-[38px] px-3.5 gap-2 rounded-xl text-sm font-medium shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all">
+                <Button variant="secondary" class="min-h-[38px] px-3.5 gap-2 rounded-xl text-sm font-medium">
                     <Box class="size-4 text-primary" />
                     <span>Catálogo de productos</span>
                 </Button>

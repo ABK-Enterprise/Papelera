@@ -157,11 +157,11 @@
                                 Gestión de Proveedor
                             </DialogTitle>
                             {#if form.is_active}
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                                     Activo
                                 </span>
                             {:else}
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20">
                                     Inactivo
                                 </span>
                             {/if}
@@ -183,7 +183,7 @@
                                     <button
                                         {...props}
                                         type="button"
-                                        class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                                        class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer"
                                         aria-label="Más opciones"
                                     >
                                         <MoreHorizontal class="size-4" />
@@ -197,7 +197,7 @@
                                             {#snippet children(props)}
                                                 <button
                                                     type="button"
-                                                    class="{props.class} w-full flex items-center text-rose-600 dark:text-rose-400 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30 gap-2 text-xs font-medium cursor-pointer"
+                                                    class="{props.class} w-full flex items-center text-rose-700 dark:text-rose-400 focus:text-rose-700 dark:focus:text-rose-400 focus:bg-rose-50 dark:focus:bg-rose-950/30 gap-2 text-xs font-medium cursor-pointer"
                                                     onclick={() => {
                                                         props.onClick?.();
                                                         showDeactivateConfirm = true;
@@ -213,7 +213,7 @@
                                             {#snippet children(props)}
                                                 <button
                                                     type="button"
-                                                    class="{props.class} w-full flex items-center text-emerald-600 dark:text-emerald-400 focus:text-emerald-600 focus:bg-emerald-50 dark:focus:bg-emerald-950/30 gap-2 text-xs font-medium cursor-pointer"
+                                                    class="{props.class} w-full flex items-center text-emerald-700 dark:text-emerald-400 focus:text-emerald-700 dark:focus:text-emerald-400 focus:bg-emerald-50 dark:focus:bg-emerald-950/30 gap-2 text-xs font-medium cursor-pointer"
                                                     onclick={() => {
                                                         props.onClick?.();
                                                         showActivateConfirm = true;
@@ -253,7 +253,7 @@
                     <button
                         type="button"
                         onclick={handleClose}
-                        class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                        class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                         aria-label="Cerrar"
                     >
                         <X class="size-4" />
@@ -358,7 +358,7 @@
         </DialogBody>
 
         <DialogFooter class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2">
-            <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-medium">
+            <Button type="button" variant="secondary" onclick={handleClose} disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-medium">
                 Cancelar
             </Button>
             {#if canEdit}

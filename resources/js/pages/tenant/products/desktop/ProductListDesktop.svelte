@@ -130,7 +130,7 @@
         {@const isWeighable = product.sale_type === 'weight'}
         {@const isIncomplete = Boolean(product.is_incomplete)}
         <div
-            class="flex items-center justify-between p-4 rounded-2xl border transition-all duration-200 hover:shadow-lg hover:shadow-accent/20 hover:border-border gap-4 bg-card shadow-xs {isIncomplete ? 'border-amber-300 dark:border-amber-700/60 bg-amber-50/20 dark:bg-amber-950/10' : 'border-border/70'}"
+            class="flex items-center justify-between p-4 rounded-2xl border transition-all duration-200 hover:shadow-lg hover:shadow-accent/20 hover:border-border gap-4 bg-card shadow-xs {isIncomplete ? 'border-amber-300 dark:border-amber-700/60 bg-amber-50/20 dark:bg-amber-950/10' : 'border-border/70 hover:bg-muted/40 dark:hover:bg-secondary/30'}"
         >
 
             <!-- Lado Izquierdo: Imagen / Avatar Placeholder + Info Principal -->
@@ -162,7 +162,7 @@
                         {/if}
                     </div>
                 {:else}
-                    <div class="relative group size-12 rounded-xl border border-dashed border-border/80 hover:border-primary/50 overflow-hidden shrink-0 flex items-center justify-center bg-muted/20">
+                    <div class="relative group size-12 rounded-xl border border-dashed border-border/80 hover:border-primary/50 overflow-hidden shrink-0 flex items-center justify-center bg-muted/40 dark:bg-secondary/35">
                         <IconContainer
                             size="lg"
                             variant={isWeighable ? 'info' : 'primary'}
@@ -198,7 +198,7 @@
 
                         {#if isIncomplete}
                             <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
-                                <AlertTriangle class="h-3 w-3 text-amber-600" />
+                                <AlertTriangle class="h-3 w-3 text-amber-700 dark:text-amber-400" />
                                 Requiere completar datos
                             </span>
                         {/if}
@@ -222,7 +222,7 @@
                                 Cat: <strong class="text-foreground font-semibold">{product.category.name}</strong>
                             </span>
                         {:else}
-                            <span class="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">
                                 Sin categoría
                             </span>
                         {/if}
@@ -246,7 +246,7 @@
 
                         <!-- Estado y cantidad de stock físico -->
                         {#if product.stock <= 0}
-                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-sm font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-sm font-semibold bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 tabular-nums">
                                 <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
                                 Stock: Agotado
                             </span>
@@ -280,7 +280,7 @@
                         {formatPrice(product.price)} {isWeighable ? '/Kg' : ''}
                     </span>
                     {#if (product.effective_bulk_discount_percentage ?? 0) > 0}
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 tabular-nums">
+                        <span class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 tabular-nums">
                             Bulto (-{product.effective_bulk_discount_percentage}%): {formatPrice(product.bulk_discount_price ?? product.price)}
                         </span>
                     {/if}
@@ -299,7 +299,7 @@
                                 <button
                                     {...props}
                                     type="button"
-                                    class="inline-flex items-center justify-center min-h-[40px] min-w-[40px] size-10 rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
+                                    class="inline-flex items-center justify-center min-h-[40px] min-w-[40px] size-10 rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 dark:hover:bg-secondary/60 transition-colors shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
                                     aria-label={`Opciones de ${product.name}`}
                                 >
                                     <MoreVertical class="h-4 w-4" />

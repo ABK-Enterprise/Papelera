@@ -71,8 +71,8 @@
 
     const typeOptions = [
         { value: '', label: 'Todos los movimientos' },
-        { value: 'income', label: 'Solo Ingresos de Stock', icon: ArrowDownLeft, color: 'text-emerald-600 dark:text-emerald-400' },
-        { value: 'outcome', label: 'Solo Egresos de Stock', icon: ArrowUpRight, color: 'text-rose-600 dark:text-rose-400' },
+        { value: 'income', label: 'Solo Ingresos de Stock', icon: ArrowDownLeft, color: 'text-emerald-700 dark:text-emerald-400' },
+        { value: 'outcome', label: 'Solo Egresos de Stock', icon: ArrowUpRight, color: 'text-rose-700 dark:text-rose-400' },
     ];
 
     const sortOptions = [
@@ -128,8 +128,8 @@
                     type="button"
                     onclick={() => (localType = opt.value)}
                     class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {isSelected
-                        ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                        : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                        ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                        : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/60 dark:hover:bg-secondary/50 text-foreground'}"
                 >
                     <div class="flex items-center gap-2">
                         {#if OptIcon}
@@ -154,8 +154,8 @@
                     type="button"
                     onclick={() => (localSortBy = opt.value)}
                     class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {isSelected
-                        ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                        : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                        ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                        : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/60 dark:hover:bg-secondary/50 text-foreground'}"
                 >
                     <span>{opt.label}</span>
                     {#if isSelected}
@@ -175,7 +175,7 @@
                     id="mobile-date-from"
                     type="date"
                     bind:value={localDateFrom}
-                    class="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs min-h-[44px]"
+                    class="w-full rounded-xl border border-input bg-field px-3 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs min-h-[44px] dark:[color-scheme:dark]"
                 />
             </div>
             <div class="space-y-1.5">
@@ -184,7 +184,7 @@
                     id="mobile-date-to"
                     type="date"
                     bind:value={localDateTo}
-                    class="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs min-h-[44px]"
+                    class="w-full rounded-xl border border-input bg-field px-3 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs min-h-[44px] dark:[color-scheme:dark]"
                 />
             </div>
         </div>

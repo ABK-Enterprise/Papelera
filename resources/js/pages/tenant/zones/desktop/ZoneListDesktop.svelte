@@ -44,7 +44,7 @@
                     </div>
                     <div>
                         {#if zone.is_active}
-                            <Badge variant="outline" class="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+                            <Badge variant="outline" class="border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
                                 Activa
                             </Badge>
                         {:else}
@@ -56,7 +56,7 @@
                 </div>
 
                 <!-- Fila 2, Columna 1: Distancia (ej. 20 km) -->
-                <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-card/50 p-3 flex flex-col justify-center">
+                <div class="rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-3 flex flex-col justify-center">
                     <span class="text-xs font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
                         <Navigation class="size-3 text-primary" />
                         Distancia
@@ -67,7 +67,7 @@
                 </div>
 
                 <!-- Fila 2, Columna 2: Porcentaje de Recargo (ej. 5%) -->
-                <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-card/50 p-3 flex flex-col justify-center">
+                <div class="rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-3 flex flex-col justify-center">
                     <span class="text-xs font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
                         <Percent class="size-3 text-primary" />
                         Recargo

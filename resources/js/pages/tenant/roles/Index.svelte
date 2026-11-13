@@ -76,7 +76,7 @@
 
     <!-- Barra de Búsqueda de Roles -->
     {#if roles.length > 0}
-        <Card class="rounded-xl p-3 sm:p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-border/60">
+        <Card class="rounded-xl p-3 sm:p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-border/70 bg-card">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div class="w-full sm:w-80">
                     <SearchCombobox
@@ -115,11 +115,11 @@
             <RoleListMobile roles={filteredRoles} ondelete={promptDelete} />
         </div>
     {:else if searchTerm}
-        <div class="rounded-xl border border-dashed border-border/80 p-8 text-center bg-card/40 flex flex-col items-center justify-center shadow-xs">
-            <Shield class="size-8 text-muted-foreground/50 mb-2 stroke-[1.5]" />
+        <div class="rounded-xl border border-dashed border-border/80 p-8 text-center bg-card flex flex-col items-center justify-center shadow-xs">
+            <Shield class="size-8 text-muted-foreground mb-2 stroke-[1.5]" />
             <h3 class="text-sm font-semibold text-foreground">No se encontraron perfiles de roles</h3>
             <p class="text-xs text-muted-foreground mt-1">Intenta con otro término o borra el filtro de búsqueda.</p>
-            <Button variant="outline" size="sm" class="mt-4 text-xs min-h-[36px]" onclick={() => (searchTerm = '')}>
+            <Button variant="secondary" size="sm" class="mt-4 text-xs min-h-[36px]" onclick={() => (searchTerm = '')}>
                 Limpiar búsqueda
             </Button>
         </div>

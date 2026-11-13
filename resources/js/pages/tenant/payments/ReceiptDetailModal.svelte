@@ -106,43 +106,43 @@
                 return {
                     label: 'Efectivo',
                     classes:
-                        'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+                        'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20',
                 };
             case 'mercadopago':
             case 'mercado_pago':
                 return {
                     label: 'Mercado Pago',
-                    classes: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20',
+                    classes: 'bg-sky-500/10 text-sky-700 dark:text-sky-400 border-sky-500/20',
                 };
             case 'transferencia':
                 return {
                     label: 'Transferencia',
                     classes:
-                        'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
+                        'bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-500/20',
                 };
             case 'cheque':
                 return {
                     label: 'Cheque',
-                    classes: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+                    classes: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20',
                 };
             case 'debito':
             case 'débito':
                 return {
                     label: 'Débito',
                     classes:
-                        'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
+                        'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20',
                 };
             case 'credito':
             case 'crédito':
                 return {
                     label: 'Crédito',
                     classes:
-                        'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20',
+                        'bg-violet-500/10 text-violet-700 dark:text-violet-400 border-violet-500/20',
                 };
             case 'cuenta_corriente':
                 return {
                     label: 'Cuenta Corriente',
-                    classes: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+                    classes: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
                 };
             default:
                 return {
@@ -188,11 +188,11 @@
                                     Recibo {receipt.receipt_number}
                                 </DialogTitle>
                                 {#if receipt.is_cancelled}
-                                    <span class="bg-destructive/10 text-destructive border border-destructive/20 text-xs font-bold px-2 py-0.5 rounded-full line-through shrink-0">
+                                    <span class="bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 text-xs font-bold px-2 py-0.5 rounded-full line-through shrink-0">
                                         Anulado
                                     </span>
                                 {:else}
-                                    <span class="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
+                                    <span class="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
                                         Válido
                                     </span>
                                 {/if}
@@ -209,7 +209,7 @@
                                 {...props}
                                 variant="ghost"
                                 size="icon"
-                                class="size-9 rounded-xl text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
+                                class="size-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-secondary/60 shrink-0 cursor-pointer"
                             >
                                 <X class="size-4" />
                                 <span class="sr-only">Cerrar</span>
@@ -221,7 +221,7 @@
 
             <DialogBody class="p-5 sm:p-6 space-y-4 overflow-y-auto">
                 <!-- Bloque de Monto Destacado -->
-                <div class="p-4 sm:p-5 rounded-2xl bg-muted/40 border border-border/70 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="p-4 sm:p-5 rounded-2xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div class="space-y-0.5">
                         <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider block font-sans">
                             Monto Percibido
@@ -241,7 +241,7 @@
                 <!-- Grid de Metadatos -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <!-- Fecha de emisión -->
-                    <div class="p-3.5 sm:p-4 rounded-xl bg-card border border-border/70 space-y-1">
+                    <div class="p-3.5 sm:p-4 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 space-y-1">
                         <div class="flex items-center gap-1.5 text-muted-foreground text-xs font-semibold">
                             <Calendar class="size-4 text-primary shrink-0" />
                             <span class="uppercase tracking-wider">Fecha de emisión</span>
@@ -252,7 +252,7 @@
                     </div>
 
                     <!-- Cajero / Operador -->
-                    <div class="p-3.5 sm:p-4 rounded-xl bg-card border border-border/70 space-y-1">
+                    <div class="p-3.5 sm:p-4 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 space-y-1">
                         <div class="flex items-center gap-1.5 text-muted-foreground text-xs font-semibold">
                             <User class="size-4 text-primary shrink-0" />
                             <span class="uppercase tracking-wider">Cajero / Operador</span>
@@ -263,7 +263,7 @@
                     </div>
 
                     <!-- Cliente -->
-                    <div class="p-3.5 sm:p-4 rounded-xl bg-card border border-border/70 space-y-1">
+                    <div class="p-3.5 sm:p-4 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 space-y-1">
                         <div class="flex items-center gap-1.5 text-muted-foreground text-xs font-semibold">
                             <User class="size-4 text-primary shrink-0" />
                             <span class="uppercase tracking-wider">Cliente</span>
@@ -285,7 +285,7 @@
                     </div>
 
                     <!-- Referencia / Transacción -->
-                    <div class="p-3.5 sm:p-4 rounded-xl bg-card border border-border/70 space-y-1">
+                    <div class="p-3.5 sm:p-4 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 space-y-1">
                         <div class="flex items-center justify-between gap-1.5 text-muted-foreground text-xs font-semibold">
                             <div class="flex items-center gap-1.5">
                                 <Hash class="size-4 text-primary shrink-0" />
@@ -294,13 +294,13 @@
                             {#if receipt.reference_number}
                                 <button
                                     type="button"
-                                    class="size-6 rounded-md inline-flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                                    class="size-6 rounded-md inline-flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-secondary/60 transition-colors cursor-pointer"
                                     onclick={copyReference}
                                     title={copiedReference ? 'Copiado al portapapeles' : 'Copiar referencia'}
                                     aria-label="Copiar referencia al portapapeles"
                                 >
                                     {#if copiedReference}
-                                        <Check class="size-3.5 text-emerald-600 dark:text-emerald-400" />
+                                        <Check class="size-3.5 text-emerald-700 dark:text-emerald-400" />
                                     {:else}
                                         <Copy class="size-3.5" />
                                     {/if}
@@ -321,28 +321,28 @@
 
                 <!-- Sección de Auditoría (si está anulado) -->
                 {#if receipt.is_cancelled}
-                    <div class="p-4 rounded-2xl bg-destructive/10 border border-destructive/25 space-y-2.5">
-                        <div class="flex items-center gap-2 text-destructive font-bold text-xs sm:text-sm">
+                    <div class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/25 space-y-2.5">
+                        <div class="flex items-center gap-2 text-rose-700 dark:text-rose-400 font-bold text-xs sm:text-sm">
                             <Ban class="size-4 shrink-0" />
                             <span>Comprobante Anulado</span>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs sm:text-sm">
                             <div>
-                                <span class="block text-xs font-semibold text-destructive/80">Fecha de anulación:</span>
+                                <span class="block text-xs font-semibold text-rose-700 dark:text-rose-400">Fecha de anulación:</span>
                                 <span class="font-semibold text-foreground tabular-nums font-sans">
                                     {formatDate(receipt.cancelled_at)}
                                 </span>
                             </div>
                             <div>
-                                <span class="block text-xs font-semibold text-destructive/80">Anulado por:</span>
+                                <span class="block text-xs font-semibold text-rose-700 dark:text-rose-400">Anulado por:</span>
                                 <span class="font-semibold text-foreground font-sans">
                                     {receipt.cancelled_by_user?.name || 'Sistema'}
                                 </span>
                             </div>
                         </div>
                         {#if receipt.cancellation_reason}
-                            <div class="pt-2 border-t border-destructive/20 text-xs sm:text-sm">
-                                <span class="block text-xs font-semibold text-destructive/80">Motivo de anulación:</span>
+                            <div class="pt-2 border-t border-rose-500/20 text-xs sm:text-sm">
+                                <span class="block text-xs font-semibold text-rose-700 dark:text-rose-400">Motivo de anulación:</span>
                                 <p class="text-foreground font-medium mt-0.5 whitespace-pre-wrap leading-relaxed font-sans">
                                     {receipt.cancellation_reason}
                                 </p>
@@ -364,9 +364,9 @@
                             </span>
                         </div>
 
-                        <div class="divide-y divide-border/60 rounded-xl border border-border/70 bg-card overflow-hidden">
+                        <div class="divide-y divide-border/70 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 overflow-hidden">
                             {#each receipt.orders as order (order.id)}
-                                <div class="p-3 sm:p-3.5 flex items-center justify-between gap-3 text-xs sm:text-sm hover:bg-muted/20 transition-colors">
+                                <div class="p-3 sm:p-3.5 flex items-center justify-between gap-3 text-xs sm:text-sm hover:bg-muted/60 dark:hover:bg-secondary/50 transition-colors">
                                     <div class="flex items-center gap-2.5 min-w-0">
                                         <span class="size-2 rounded-full bg-primary shrink-0"></span>
                                         <span class="font-bold font-sans text-sm sm:text-base text-foreground tabular-nums truncate">
@@ -386,7 +386,7 @@
 
                 <!-- Notas / Observaciones -->
                 {#if receipt.notes && receipt.notes.trim()}
-                    <div class="p-3.5 rounded-xl bg-muted/30 border border-border/60 space-y-1 text-xs">
+                    <div class="p-3.5 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 space-y-1 text-xs">
                         <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground block flex items-center gap-1.5">
                             <FileText class="size-3.5" />
                             <span>Notas / Observaciones</span>
@@ -401,7 +401,7 @@
             <DialogFooter class="p-4 sm:p-6 border-t border-border flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2.5 bg-card shrink-0">
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     class="h-11 min-h-[44px] px-4 rounded-xl font-semibold text-xs sm:text-sm w-full sm:w-auto cursor-pointer"
                     onclick={() => (open = false)}
                 >

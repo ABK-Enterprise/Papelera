@@ -54,15 +54,15 @@
 
         <DialogBody class="p-0 flex-1 min-h-0 overflow-hidden flex flex-row bg-card">
             <!-- Columna Izquierda: Pestañas de Navegación de Filtros -->
-            <nav class="w-[36%] sm:w-[32%] shrink-0 border-r border-border/60 bg-muted/30 p-1.5 flex flex-col gap-1 overflow-y-auto custom-scrollbar">
+            <nav class="w-[36%] sm:w-[32%] shrink-0 border-r border-border/80 bg-muted/50 dark:bg-background/60 p-1.5 flex flex-col gap-1 overflow-y-auto custom-scrollbar">
                 {#each tabs as tab (tab.id)}
                     {@const TabIcon = tab.icon}
                     <button
                         type="button"
                         onclick={() => (activeTab = tab.id)}
                         class="w-full flex items-center justify-between gap-1.5 px-2.5 py-3 rounded-xl text-left text-xs font-medium transition-all {activeTab === tab.id
-                            ? 'bg-card text-foreground shadow-xs font-semibold border border-border/60'
-                            : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}"
+                            ? 'bg-card dark:bg-secondary/70 text-foreground shadow-xs font-semibold border border-border/80'
+                            : 'text-muted-foreground hover:bg-muted dark:hover:bg-secondary/40 hover:text-foreground'}"
                     >
                         <div class="flex items-center gap-2 min-w-0">
                             {#if TabIcon}
@@ -93,7 +93,7 @@
                 disabled={activeCount === 0}
                 class="min-h-[44px] px-3.5 rounded-xl text-xs font-semibold gap-1.5 transition-colors {activeCount > 0
                     ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25 shadow-2xs'
-                    : 'text-muted-foreground/60 border-transparent cursor-not-allowed opacity-50'}"
+                    : 'text-muted-foreground border-transparent cursor-not-allowed opacity-50'}"
             >
                 <RotateCcw class="size-3.5" />
                 <span>Limpiar</span>

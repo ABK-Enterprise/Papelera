@@ -50,14 +50,14 @@
         <DialogBody class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-3.5">
             {#if order}
                 <!-- Resumen de Cliente -->
-                <div class="flex items-center justify-between p-3 rounded-xl bg-background/50 border border-border/70 text-xs">
+                <div class="flex items-center justify-between p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-xs">
                     <span class="font-semibold text-foreground">{order.customer_name}</span>
                     <span class="text-muted-foreground font-sans font-bold tabular-nums">#{order.order_number}</span>
                 </div>
 
                 <!-- 1. Notas de Venta / Instrucciones de Entrega -->
                 {#if order.notes}
-                    <div class="rounded-2xl border border-border/80 bg-background/40 p-3.5 space-y-1.5">
+                    <div class="rounded-2xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-3.5 space-y-1.5">
                         <div class="flex items-center gap-2 text-xs font-semibold text-foreground">
                             <FileText class="size-4 text-primary shrink-0" />
                             <span>Instrucciones de venta / entrega</span>
@@ -83,7 +83,7 @@
 
                 <!-- 3. Observaciones del Chofer / Repartidor -->
                 {#if order.delivery_notes}
-                    <div class="rounded-2xl border border-border/80 bg-background/40 p-3.5 space-y-1.5">
+                    <div class="rounded-2xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-3.5 space-y-1.5">
                         <div class="flex items-center gap-2 text-xs font-semibold text-foreground">
                             <Truck class="size-4 text-sky-500 shrink-0" />
                             <span>Observaciones del chofer / repartidor</span>
@@ -95,7 +95,7 @@
                 {/if}
 
                 {#if !order.notes && !order.delivery_failure_reason && !order.delivery_notes}
-                    <div class="p-8 text-center text-xs text-muted-foreground border border-dashed border-border/80 rounded-2xl">
+                    <div class="p-8 text-center text-xs text-muted-foreground border border-dashed border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 rounded-2xl">
                         Este pedido no cuenta con notas ni observaciones registradas.
                     </div>
                 {/if}

@@ -126,7 +126,7 @@
             {#if page.props.auth?.is_admin || page.props.auth?.roles?.includes('admin') || page.props.auth?.permissions?.includes('stock_ingreso.crear')}
                 <Button
                     onclick={() => (isCreateModalOpen = true)}
-                    class="flex items-center gap-2 font-semibold shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white sm:hover:shadow-lg sm:hover:shadow-emerald-600/25 cursor-pointer"
+                    class="flex items-center gap-2 font-semibold shadow-sm bg-emerald-700 hover:bg-emerald-800 text-white sm:hover:shadow-lg sm:hover:shadow-emerald-700/25 cursor-pointer"
                 >
                     <Plus class="size-4" />
                     <span>Nuevo ingreso</span>

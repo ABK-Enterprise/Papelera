@@ -81,12 +81,12 @@
                 <div class="flex items-center gap-2">
                     <h1 class="text-2xl font-bold tracking-tight text-foreground">{tenant.name}</h1>
                     {#if form.is_active}
-                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                           <span class="size-1.5 rounded-full bg-emerald-500"></span>
                           Activo
                         </span>
                     {:else}
-                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20">
                           <span class="size-1.5 rounded-full bg-rose-500"></span>
                           Inactivo
                         </span>
@@ -122,7 +122,7 @@
                         class="text-sm shadow-2xs"
                     />
                     {#if form.errors.name}
-                        <p class="text-xs text-rose-500 font-medium">{form.errors.name}</p>
+                        <p class="text-xs text-rose-700 dark:text-rose-400 font-medium">{form.errors.name}</p>
                     {/if}
                 </div>
 
@@ -137,7 +137,7 @@
                         class="text-sm shadow-2xs font-sans tabular-nums"
                     />
                     {#if form.errors.cuit_tax_id}
-                        <p class="text-xs text-rose-500 font-medium">{form.errors.cuit_tax_id}</p>
+                        <p class="text-xs text-rose-700 dark:text-rose-400 font-medium">{form.errors.cuit_tax_id}</p>
                     {/if}
                 </div>
             </CardContent>
@@ -164,10 +164,10 @@
                         onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleModule(mod.id)}
                         class="relative flex items-start gap-3 rounded-xl border p-4 transition-all cursor-pointer select-none {isSelected
                             ? 'border-primary bg-primary/5 text-foreground shadow-2xs ring-1 ring-primary/20'
-                            : 'border-border/60 bg-card hover:bg-muted/30 text-muted-foreground'}"
+                            : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-muted-foreground'}"
                     >
                         <!-- Indicador Checkbox visual -->
-                        <div class="mt-0.5 size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 {isSelected ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-background'}">
+                        <div class="mt-0.5 size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 {isSelected ? 'bg-primary text-primary-foreground border-primary' : 'border-input bg-field'}">
                             {#if isSelected}
                                 <Check class="size-3 stroke-[3]" />
                             {/if}
@@ -214,7 +214,7 @@
                         type="button"
                         variant="outline"
                         onclick={() => (showDeactivateModal = true)}
-                        class="min-h-[38px] text-sm font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 border-rose-200 dark:border-rose-900/40 gap-1.5"
+                        class="min-h-[38px] text-sm font-medium text-rose-700 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300 hover:bg-rose-500/10 border-rose-500/30 gap-1.5"
                     >
                         <ShieldAlert class="size-3.5" />
                         <span>Desactivar comercio</span>
@@ -224,7 +224,7 @@
                         type="button"
                         variant="outline"
                         onclick={() => (showActivateModal = true)}
-                        class="min-h-[38px] text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/40 gap-1.5"
+                        class="min-h-[38px] text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 hover:bg-emerald-500/10 border-emerald-500/30 gap-1.5"
                     >
                         <ShieldCheck class="size-3.5" />
                         <span>Activar comercio</span>
@@ -235,7 +235,7 @@
             <!-- Botones a la Derecha (Cancelar y Guardar Cambios) -->
             <div class="flex items-center justify-end gap-3">
                 <Link href="/platform/tenants">
-                    <Button type="button" variant="outline" class="min-h-[38px] text-sm font-medium">
+                    <Button type="button" variant="secondary" class="min-h-[38px] text-sm font-medium">
                         Cancelar
                     </Button>
                 </Link>

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
     import { Input } from '@/components/ui/input';
@@ -137,6 +138,24 @@
         },
     };
 
+    let cardBorderColor = $state('#ffffff');
+
+    onMount(() => {
+        const updateCardBorderColor = () => {
+            const val = getComputedStyle(document.documentElement)
+                .getPropertyValue('--card')
+                .trim();
+            cardBorderColor = val || '#171717';
+        };
+        updateCardBorderColor();
+        const observer = new MutationObserver(updateCardBorderColor);
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class', 'data-theme'],
+        });
+        return () => observer.disconnect();
+    });
+
     // Chart 2: Doughnut Chart Data (Payment Methods)
     let paymentMethodsChartData = $derived({
         labels: (metrics.revenues.by_method || []).map((m: any) => m.label),
@@ -152,7 +171,7 @@
                     '#64748b', // slate
                 ],
                 borderWidth: 2,
-                borderColor: '#ffffff',
+                borderColor: cardBorderColor,
             },
         ],
     });
@@ -278,7 +297,7 @@
                     <Input
                         type="date"
                         bind:value={localDateFrom}
-                        class="min-h-[38px] text-sm rounded-xl bg-background"
+                        class="min-h-[38px] text-sm rounded-xl bg-field border-input focus:border-primary focus-visible:border-primary dark:[color-scheme:dark]"
                     />
                 </div>
 
@@ -290,7 +309,7 @@
                     <Input
                         type="date"
                         bind:value={localDateTo}
-                        class="min-h-[38px] text-sm rounded-xl bg-background"
+                        class="min-h-[38px] text-sm rounded-xl bg-field border-input focus:border-primary focus-visible:border-primary dark:[color-scheme:dark]"
                     />
                 </div>
 
@@ -301,7 +320,7 @@
                     </Label>
                     <select
                         bind:value={localWarehouseId}
-                        class="w-full min-h-[38px] px-3 py-1.5 text-sm rounded-xl border border-border bg-select-background text-foreground shadow-2xs focus:outline-none focus:ring-2 focus:ring-ring"
+                        class="w-full min-h-[38px] px-3 py-1.5 text-sm rounded-xl border border-input bg-field text-foreground shadow-2xs focus:outline-none focus:border-primary focus-visible:border-primary focus:ring-2 focus:ring-ring"
                     >
                         <option value="">Consolidado (Todos los depósitos)</option>
                         {#each warehouses as wh}
@@ -338,7 +357,7 @@
         <Card class="p-4 bg-card border-border/60 shadow-2xs flex flex-col justify-between">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Ventas Brutas</span>
-                <div class="size-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600">
+                <div class="size-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-700 dark:text-blue-400">
                     <ShoppingBag class="size-4" />
                 </div>
             </div>
@@ -356,7 +375,7 @@
         <Card class="p-4 bg-card border-border/60 shadow-2xs flex flex-col justify-between">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Ingresos Cobrados</span>
-                <div class="size-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                <div class="size-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
                     <CreditCard class="size-4" />
                 </div>
             </div>
@@ -375,7 +394,7 @@
             <Card class="p-4 bg-card border-border/60 shadow-2xs flex flex-col justify-between">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gastos / Compras</span>
-                    <div class="size-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-600">
+                    <div class="size-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-700 dark:text-rose-400">
                         <TrendingDown class="size-4" />
                     </div>
                 </div>
@@ -393,12 +412,12 @@
             <Card class="p-4 bg-card border-border/60 shadow-2xs flex flex-col justify-between">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Margen Operativo</span>
-                    <div class="size-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                    <div class="size-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
                         <TrendingUp class="size-4" />
                     </div>
                 </div>
                 <div class="mt-3">
-                    <div class="text-2xl font-bold tracking-tight tabular-nums {metrics.margin.operating_margin >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+                    <div class="text-2xl font-bold tracking-tight tabular-nums {metrics.margin.operating_margin >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}">
                         {formatMoney(metrics.margin.operating_margin)}
                     </div>
                     <div class="text-xs text-muted-foreground mt-1 tabular-nums">
@@ -474,21 +493,21 @@
             <h3 class="text-base font-semibold text-foreground tracking-tight mb-4">Top 10 Productos Más Vendidos</h3>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
-                    <thead>
+                    <thead class="bg-muted/50 dark:bg-secondary/35">
                         <tr class="border-b border-border/60 text-xs font-semibold text-muted-foreground uppercase">
-                            <th class="pb-2.5">Código</th>
-                            <th class="pb-2.5">Producto</th>
-                            <th class="pb-2.5 text-right">Cantidad</th>
-                            <th class="pb-2.5 text-right">Total Facturado</th>
+                            <th class="py-2.5 px-2.5">Código</th>
+                            <th class="py-2.5 px-2.5">Producto</th>
+                            <th class="py-2.5 px-2.5 text-right">Cantidad</th>
+                            <th class="py-2.5 px-2.5 text-right">Total Facturado</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border/40">
                         {#each topProducts as prod}
-                            <tr class="hover:bg-muted/30 transition-colors">
-                                <td class="py-2.5 font-mono text-xs text-muted-foreground tabular-nums">{prod.sku || '-'}</td>
-                                <td class="py-2.5 font-medium text-foreground">{prod.name}</td>
-                                <td class="py-2.5 text-right tabular-nums text-foreground">{prod.total_quantity}</td>
-                                <td class="py-2.5 text-right tabular-nums font-semibold text-foreground">{formatMoney(prod.total_subtotal)}</td>
+                            <tr class="hover:bg-muted/40 dark:hover:bg-secondary/35 transition-colors">
+                                <td class="py-2.5 px-2.5 font-mono text-xs text-muted-foreground tabular-nums">{prod.sku || '-'}</td>
+                                <td class="py-2.5 px-2.5 font-medium text-foreground">{prod.name}</td>
+                                <td class="py-2.5 px-2.5 text-right tabular-nums text-foreground">{prod.total_quantity}</td>
+                                <td class="py-2.5 px-2.5 text-right tabular-nums font-semibold text-foreground">{formatMoney(prod.total_subtotal)}</td>
                             </tr>
                         {:else}
                             <tr>
@@ -507,19 +526,19 @@
             <h3 class="text-base font-semibold text-foreground tracking-tight mb-4">Detalle de Cobranzas</h3>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
-                    <thead>
+                    <thead class="bg-muted/50 dark:bg-secondary/35">
                         <tr class="border-b border-border/60 text-xs font-semibold text-muted-foreground uppercase">
-                            <th class="pb-2.5">Medio</th>
-                            <th class="pb-2.5 text-center">Cant.</th>
-                            <th class="pb-2.5 text-right">Total</th>
+                            <th class="py-2.5 px-2.5">Medio</th>
+                            <th class="py-2.5 px-2.5 text-center">Cant.</th>
+                            <th class="py-2.5 px-2.5 text-right">Total</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border/40">
                         {#each metrics.revenues.by_method as pm}
-                            <tr class="hover:bg-muted/30 transition-colors">
-                                <td class="py-2.5 font-medium text-foreground">{pm.label}</td>
-                                <td class="py-2.5 text-center tabular-nums text-muted-foreground">{pm.count}</td>
-                                <td class="py-2.5 text-right tabular-nums font-semibold text-foreground">
+                            <tr class="hover:bg-muted/40 dark:hover:bg-secondary/35 transition-colors">
+                                <td class="py-2.5 px-2.5 font-medium text-foreground">{pm.label}</td>
+                                <td class="py-2.5 px-2.5 text-center tabular-nums text-muted-foreground">{pm.count}</td>
+                                <td class="py-2.5 px-2.5 text-right tabular-nums font-semibold text-foreground">
                                     <div>{formatMoney(pm.amount)}</div>
                                     <div class="text-[11px] font-normal text-muted-foreground">{pm.percentage}%</div>
                                 </td>

@@ -235,7 +235,7 @@
                             <span class="truncate font-semibold text-foreground text-sm">{cust.name}</span>
                             <span class="text-xs text-muted-foreground">{cust.tax_id || cust.phone || 'Sin datos adicionales'}</span>
                         </div>
-                        <span class="tabular-nums font-bold text-xs shrink-0 {Number(cust.current_balance) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">
+                        <span class="tabular-nums font-bold text-xs shrink-0 {Number(cust.current_balance) > 0 ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}">
                             {formatPrice(cust.current_balance)}
                         </span>
                     </div>
@@ -311,7 +311,7 @@
                     </div>
 
                     <div class="text-right shrink-0">
-                        <span class="text-sm font-bold tabular-nums block {balanceNum > 0 ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400'}">
+                        <span class="text-sm font-bold tabular-nums block {balanceNum > 0 ? 'text-destructive' : 'text-emerald-700 dark:text-emerald-400'}">
                             {formatPrice(balanceNum)}
                         </span>
                         <span class="text-xs text-muted-foreground">Saldo Deudor</span>
@@ -324,7 +324,7 @@
                         <span>Límite: {formatPrice(limitNum)}</span>
                         <span class="font-medium text-foreground">Disp: {formatPrice(cust.available_credit ?? Math.max(0, limitNum - balanceNum))}</span>
                     </div>
-                    <div class="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                    <div class="h-1.5 w-full bg-secondary border border-border/50 rounded-full overflow-hidden">
                         <div
                             class="h-full rounded-full transition-all {usagePercent > 90 ? 'bg-destructive' : usagePercent > 70 ? 'bg-amber-500' : 'bg-primary'}"
                             style="width: {usagePercent}%;"
@@ -381,11 +381,11 @@
 
         <div class="space-y-4">
             <!-- Saldo y Límites -->
-            <div class="p-4 rounded-2xl bg-muted/40 border border-border/70 space-y-3">
+            <div class="p-4 rounded-2xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 space-y-3">
                 <div class="flex items-baseline justify-between">
                     <div>
                         <span class="text-xs text-muted-foreground block">Saldo deudor actual:</span>
-                        <span class="text-2xl font-bold tabular-nums {balanceNum > 0 ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400'}">
+                        <span class="text-2xl font-bold tabular-nums {balanceNum > 0 ? 'text-destructive' : 'text-emerald-700 dark:text-emerald-400'}">
                             {formatPrice(balanceNum)}
                         </span>
                     </div>
@@ -402,7 +402,7 @@
                         <span>Límite: {formatPrice(limitNum)}</span>
                         <span>Disponible: <strong class="text-foreground">{formatPrice(selectedCustomerForDrawer.available_credit ?? Math.max(0, limitNum - balanceNum))}</strong></span>
                     </div>
-                    <div class="h-2 w-full bg-muted rounded-full overflow-hidden">
+                    <div class="h-2 w-full bg-secondary border border-border/50 rounded-full overflow-hidden">
                         <div
                             class="h-full rounded-full {usagePercent > 90 ? 'bg-destructive' : usagePercent > 70 ? 'bg-amber-500' : 'bg-primary'}"
                             style="width: {usagePercent}%;"
@@ -425,7 +425,7 @@
                             isDrawerOpen = false;
                             if (cust) onOpenPayment(cust);
                         }}
-                        class="w-full min-h-[44px] h-11 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm"
+                        class="w-full min-h-[44px] h-11 gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-xl text-sm"
                     >
                         <Banknote class="size-4" />
                         <span>Registrar Cobro / Abono</span>
@@ -482,7 +482,7 @@
                         type="text"
                         bind:value={movementSearchTerm}
                         placeholder="Buscar en descripción, orden, método..."
-                        class="h-9 w-full rounded-lg border border-input bg-card pl-8.5 pr-8 text-xs font-normal text-foreground placeholder:text-muted-foreground shadow-2xs focus:ring-1 focus:ring-primary outline-none"
+                        class="h-9 w-full rounded-lg border border-input bg-field pl-8.5 pr-8 text-xs font-normal text-foreground placeholder:text-muted-foreground shadow-2xs focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                     />
                     {#if movementSearchTerm}
                         <button
@@ -504,7 +504,7 @@
                             onclick={() => (movementTypeFilter = 'all')}
                             class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all {movementTypeFilter === 'all'
                                 ? 'bg-primary text-primary-foreground font-semibold shadow-2xs'
-                                : 'bg-muted/60 text-muted-foreground hover:bg-muted'}"
+                                : 'bg-muted/40 dark:bg-secondary/35 text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/55 border border-border/60'}"
                         >
                             Todos
                         </button>
@@ -512,8 +512,8 @@
                             type="button"
                             onclick={() => (movementTypeFilter = 'charge')}
                             class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all {movementTypeFilter === 'charge'
-                                ? 'bg-rose-600 text-white font-semibold shadow-2xs'
-                                : 'bg-muted/60 text-muted-foreground hover:bg-muted'}"
+                                ? 'bg-rose-700 text-white font-semibold shadow-2xs'
+                                : 'bg-muted/40 dark:bg-secondary/35 text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/55 border border-border/60'}"
                         >
                             Cargos
                         </button>
@@ -521,8 +521,8 @@
                             type="button"
                             onclick={() => (movementTypeFilter = 'payment')}
                             class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all {movementTypeFilter === 'payment'
-                                ? 'bg-emerald-600 text-white font-semibold shadow-2xs'
-                                : 'bg-muted/60 text-muted-foreground hover:bg-muted'}"
+                                ? 'bg-emerald-700 text-white font-semibold shadow-2xs'
+                                : 'bg-muted/40 dark:bg-secondary/35 text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/55 border border-border/60'}"
                         >
                             Cobros
                         </button>
@@ -530,8 +530,8 @@
                             type="button"
                             onclick={() => (movementTypeFilter = 'adjustment')}
                             class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all {movementTypeFilter === 'adjustment'
-                                ? 'bg-amber-600 text-white font-semibold shadow-2xs'
-                                : 'bg-muted/60 text-muted-foreground hover:bg-muted'}"
+                                ? 'bg-amber-700 text-white font-semibold shadow-2xs'
+                                : 'bg-muted/40 dark:bg-secondary/35 text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/55 border border-border/60'}"
                         >
                             Ajustes
                         </button>
@@ -540,7 +540,7 @@
                     <button
                         type="button"
                         onclick={() => (movementSort = movementSort === 'latest' ? 'oldest' : 'latest')}
-                        class="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-muted/60 text-foreground hover:bg-muted border border-border/50 shrink-0"
+                        class="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-muted/40 dark:bg-secondary/35 text-foreground hover:bg-muted/70 dark:hover:bg-secondary/55 border border-border/80 dark:border-border/90 shrink-0"
                     >
                         <ArrowUpDown class="size-3 text-muted-foreground" />
                         <span>{movementSort === 'latest' ? 'Recientes' : 'Antiguos'}</span>
@@ -559,12 +559,12 @@
                             {@const isPayment = mov.type === 'payment'}
                             {@const isCharge = mov.type === 'charge'}
 
-                            <div class="p-3 rounded-xl border bg-card text-xs space-y-1">
+                            <div class="p-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 text-xs space-y-1">
                                 <div class="flex items-center justify-between">
                                     <span class="font-semibold text-foreground truncate pr-2">
                                         {mov.description}
                                     </span>
-                                    <span class="font-bold tabular-nums {isPayment ? 'text-emerald-600 dark:text-emerald-400' : isCharge ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'}">
+                                    <span class="font-bold tabular-nums {isPayment ? 'text-emerald-700 dark:text-emerald-400' : isCharge ? 'text-rose-700 dark:text-rose-400' : 'text-foreground'}">
                                         {isPayment ? '-' : '+'}{formatPrice(mov.amount)}
                                     </span>
                                 </div>
@@ -576,7 +576,7 @@
                         {/each}
                     </div>
                 {:else}
-                    <p class="text-xs text-muted-foreground italic py-4 text-center border border-dashed rounded-xl">
+                    <p class="text-xs text-muted-foreground italic py-4 text-center border border-dashed border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 rounded-xl">
                         {movementSearchTerm || movementTypeFilter !== 'all' ? 'No se encontraron movimientos con los filtros aplicados.' : 'Sin movimientos registrados.'}
                     </p>
                 {/if}

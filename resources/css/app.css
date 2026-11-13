@@ -45,6 +45,7 @@
     --color-popover-foreground: var(--popover-foreground);
 
     --color-primary: var(--primary);
+    --color-primary-solid: var(--primary-solid);
     --color-primary-foreground: var(--primary-foreground);
 
     --color-secondary: var(--secondary);
@@ -62,6 +63,7 @@
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
+    --color-field: var(--field);
     --color-select-background: var(--select-background);
 
     --color-chart-1: var(--chart-1);
@@ -238,42 +240,44 @@
     --accent-900: #04122f;
     --accent-950: #020917;
 
-    --background: #f7faf7;
+    --background: #f4f7f4;
     --foreground: #0b0f0b;
     --card: #ffffff;
     --card-foreground: #0b0f0b;
     --popover: #ffffff;
     --popover-foreground: #0b0f0b;
-    --primary: #54785d;
+    --primary: #486b51;
+    --primary-solid: #486b51;
     --primary-foreground: #ffffff;
-    --secondary: #e4eae1;
+    --secondary: #e2e9df;
     --secondary-foreground: #151e16;
-    --muted: #f1f5f0;
-    --muted-foreground: #557759;
-    --accent: #d0defb;
+    --muted: #eaf0e8;
+    --muted-foreground: #4c6b50;
+    --accent: #dce7fc;
     --accent-foreground: #04122f;
-    --destructive: hsl(0 84.2% 60.2%);
+    --destructive: #dc2626;
     --destructive-foreground: #ffffff;
     --border: #c9d5c3;
-    --input: #c9d5c3;
-    --select-background: #ffffff;
+    --input: #a3b59b;
+    --field: #ffffff;
+    --select-background: var(--field);
     --ring: #1659e9;
     --chart-1: #1659e9;
-    --chart-2: #54785d;
+    --chart-2: #486b51;
     --chart-3: #789669;
     --chart-4: #447aee;
     --chart-5: #607854;
     --radius: 0.75rem;
 
-    --sidebar-background: #f1f5f0;
+    --sidebar-background: #eaf0e8;
     --sidebar-foreground: #151e16;
-    --sidebar-primary: #54785d;
+    --sidebar-primary: #486b51;
     --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #e4eae1;
+    --sidebar-accent: #e2e9df;
     --sidebar-accent-foreground: #0b0f0b;
     --sidebar-border: #c9d5c3;
     --sidebar-ring: #1659e9;
-    --sidebar: #f1f5f0;
+    --sidebar: #eaf0e8;
 }
 
 :root[data-theme="dark"],
@@ -340,23 +344,25 @@
 
     --background: #0d0d0d;
     --foreground: #f0f3f4;
-    --card: #1a1a1a;
+    --card: #171717;
     --card-foreground: #f0f3f4;
-    --popover: #1a1a1a;
+    --popover: #282828;
     --popover-foreground: #f0f3f4;
     --primary: #0d8bf2;
+    --primary-solid: #0a71c7;
     --primary-foreground: #ffffff;
-    --secondary: #333333;
-    --secondary-foreground: #e6e6e6;
-    --muted: #1a1a1a;
-    --muted-foreground: #899ca9;
-    --accent: #1e4844;
-    --accent-foreground: #edf8f7;
-    --destructive: hsl(0 75% 58%);
+    --secondary: #2e2e2e;
+    --secondary-foreground: #ededed;
+    --muted: #222222;
+    --muted-foreground: #94a6b3;
+    --accent: #182c42;
+    --accent-foreground: #e7f3fe;
+    --destructive: #dc2626;
     --destructive-foreground: #ffffff;
     --border: #333333;
-    --input: #333333;
-    --select-background: #242424;
+    --input: #454545;
+    --field: #242424;
+    --select-background: var(--field);
     --ring: #0d8bf2;
     --chart-1: hsl(207 90% 50%);
     --chart-2: hsl(173 58% 50%);
@@ -368,7 +374,7 @@
     --sidebar-foreground: #f0f3f4;
     --sidebar-primary: #0d8bf2;
     --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #1a1a1a;
+    --sidebar-accent: #171717;
     --sidebar-accent-foreground: #f0f3f4;
     --sidebar-border: #333333;
     --sidebar-ring: #0d8bf2;
@@ -413,7 +419,7 @@
 
 .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
+    scrollbar-color: color-mix(in srgb, var(--muted-foreground) 35%, transparent) transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -426,12 +432,12 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--muted-foreground) / 0.35);
+    background-color: color-mix(in srgb, var(--muted-foreground) 35%, transparent);
     border-radius: 9999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(var(--muted-foreground) / 0.55);
+    background-color: color-mix(in srgb, var(--muted-foreground) 55%, transparent);
 }
 
 .no-scrollbar {

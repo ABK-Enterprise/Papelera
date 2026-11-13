@@ -101,7 +101,7 @@
             class={`relative group rounded-2xl border p-5 transition-all text-left select-none cursor-pointer ${
                 adj.is_active
                     ? 'border-border/80 shadow-xs hover:border-primary/40 hover:shadow-md'
-                    : 'border-border/40 opacity-75 bg-muted/15 hover:opacity-90'
+                    : 'border-border/80 dark:border-border/90 opacity-75 bg-muted/40 dark:bg-secondary/35 hover:opacity-90'
             }`}
         >
             <div class="flex items-center justify-between gap-5">
@@ -127,7 +127,7 @@
 
                         <!-- Indicador de Estado Activo / Pausado -->
                         <span class={`inline-flex items-center gap-1.5 text-2xs font-semibold ${
-                            adj.is_active ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'
+                            adj.is_active ? 'text-emerald-700 dark:text-emerald-400' : 'text-muted-foreground'
                         }`}>
                             <span class={`h-2 w-2 rounded-full ${adj.is_active ? 'bg-emerald-500' : 'bg-muted-foreground'}`}></span>
                             <span>{adj.is_active ? 'Activo' : 'Pausado'}</span>
@@ -155,7 +155,7 @@
                             Valor
                         </span>
                         <span class={`text-2xl font-black tabular-nums tracking-tight ${
-                            isDiscount ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'
+                            isDiscount ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'
                         }`}>
                             {formatValue(adj)}
                         </span>
@@ -166,7 +166,7 @@
                         <!-- Días recurrentes -->
                         <div class="flex items-center gap-1 flex-wrap">
                             {#if !adj.days_of_week || adj.days_of_week.length === 0}
-                                <span class="text-2xs font-medium px-2 py-0.5 rounded-md bg-muted/60 text-foreground">
+                                <span class="text-2xs font-medium px-2 py-0.5 rounded-md bg-muted/40 dark:bg-secondary/35 border border-border/60 text-foreground">
                                     Todos los días
                                 </span>
                             {:else}
@@ -177,7 +177,7 @@
                                             class={`h-5 w-5 rounded flex items-center justify-center text-2xs font-bold transition-all ${
                                                 hasDay
                                                     ? 'bg-primary text-primary-foreground shadow-2xs'
-                                                    : 'bg-muted/40 text-muted-foreground/30'
+                                                    : 'bg-muted/40 dark:bg-secondary/35 text-muted-foreground'
                                             }`}
                                             title={DAY_NAMES[dayId]}
                                         >
@@ -211,7 +211,7 @@
                                         e.stopPropagation();
                                         props.onclick?.(e);
                                     }}
-                                    class="size-8 rounded-xl border border-border/80 bg-background/80 shadow-2xs hover:bg-muted hover:border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center"
+                                    class="size-8 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 shadow-2xs hover:bg-muted/70 dark:hover:bg-secondary/55 hover:border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center"
                                     aria-label="Más opciones"
                                 >
                                     <MoreHorizontal class="size-4" />

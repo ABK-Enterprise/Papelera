@@ -295,7 +295,7 @@
     });
 </script>
 
-<div class="w-full space-y-3.5 sm:space-y-4 rounded-xl border border-border/70 bg-card p-3 sm:p-4 overflow-hidden box-border">
+<div class="w-full space-y-3.5 sm:space-y-4 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-3 sm:p-4 overflow-hidden box-border">
     <!-- Header: Días de la Semana Recurrentes en el Año Activo -->
     <div>
         <div class="flex items-center justify-between gap-2 mb-2">
@@ -317,8 +317,8 @@
                         status === 'all'
                             ? 'bg-primary text-primary-foreground border-primary shadow-2xs font-semibold'
                             : status === 'some'
-                                ? 'bg-primary/15 text-primary border-primary/40 font-semibold ring-1 ring-primary/30'
-                                : 'bg-background hover:bg-muted/60 text-foreground border-border/80'
+                                ? 'bg-primary/10 dark:bg-primary/15 text-primary border-primary font-semibold'
+                                : 'bg-card hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground border-border/80 dark:border-border/90'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                     aria-label={`Alternar ${day.name} en todo ${viewYear}`}
                     title={`Alternar ${day.name} en todo ${viewYear}`}
@@ -342,7 +342,7 @@
                 <button
                     type="button"
                     onclick={prevMonth}
-                    class="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+                    class="p-1 rounded-md hover:bg-muted dark:hover:bg-secondary/60 text-muted-foreground hover:text-foreground cursor-pointer"
                     aria-label="Mes anterior"
                 >
                     <ChevronLeft class="h-3.5 w-3.5" />
@@ -350,7 +350,7 @@
                 <button
                     type="button"
                     onclick={nextMonth}
-                    class="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+                    class="p-1 rounded-md hover:bg-muted dark:hover:bg-secondary/60 text-muted-foreground hover:text-foreground cursor-pointer"
                     aria-label="Mes siguiente"
                 >
                     <ChevronRight class="h-3.5 w-3.5" />
@@ -366,7 +366,7 @@
                     type="button"
                     onclick={() => toggleWeekdayInActiveMonth(day.id)}
                     {disabled}
-                    class="text-2xs font-semibold py-1 rounded-md transition-colors cursor-pointer select-none hover:bg-muted/60 {status === 'all' ? 'text-primary font-bold' : status === 'some' ? 'text-primary font-semibold' : 'text-muted-foreground'}"
+                    class="text-2xs font-semibold py-1 rounded-md transition-colors cursor-pointer select-none hover:bg-muted/70 dark:hover:bg-secondary/55 {status === 'all' ? 'text-primary font-bold' : status === 'some' ? 'text-primary font-semibold' : 'text-muted-foreground'}"
                     aria-label={`Alternar columna ${day.name} en ${monthNames[viewMonth]}`}
                     title={`Alternar columna ${day.name} en ${monthNames[viewMonth]}`}
                 >
@@ -387,15 +387,15 @@
                         class={`min-h-[28px] sm:min-h-[30px] min-w-0 w-full flex items-center justify-center rounded-md text-xs transition-all select-none cursor-pointer ${
                             isSelected
                                 ? 'bg-primary text-primary-foreground font-bold border border-primary shadow-2xs hover:bg-primary/90'
-                                : 'text-foreground/80 hover:bg-muted/60'
-                        } ${cell.isToday ? 'ring-1 ring-primary-500/60' : ''} disabled:cursor-not-allowed disabled:opacity-50`}
+                                : 'text-foreground hover:bg-muted/70 dark:hover:bg-secondary/55'
+                        } ${cell.isToday ? 'ring-1 ring-primary' : ''} disabled:cursor-not-allowed disabled:opacity-50`}
                         title={isSelected ? `${cell.dateStr}: Activo (Click para desmarcar)` : `${cell.dateStr} (Click para marcar)`}
                     >
                         <span class="tabular-nums">{cell.dayNumber}</span>
                     </button>
                 {:else}
                     <div
-                        class="min-h-[28px] sm:min-h-[30px] min-w-0 w-full flex items-center justify-center rounded-md text-xs text-muted-foreground/30 opacity-40 select-none"
+                        class="min-h-[28px] sm:min-h-[30px] min-w-0 w-full flex items-center justify-center rounded-md text-xs text-muted-foreground/60 select-none"
                     >
                         <span class="tabular-nums">{cell.dayNumber}</span>
                     </div>
@@ -418,7 +418,7 @@
                     {/if}
                 </span>
             {:else}
-                <span class="text-muted-foreground/75 italic">
+                <span class="text-muted-foreground italic">
                     Sin fechas seleccionadas (Vigencia permanente en todos los pedidos)
                 </span>
             {/if}

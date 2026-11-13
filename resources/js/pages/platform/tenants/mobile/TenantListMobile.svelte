@@ -69,12 +69,12 @@
                     </div>
 
                     {#if tenant.is_active}
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
                             <span class="size-1.5 rounded-full bg-emerald-500"></span>
                             Activo
                         </span>
                     {:else}
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 shrink-0">
                             <span class="size-1.5 rounded-full bg-rose-500"></span>
                             Suspendido
                         </span>
@@ -110,7 +110,7 @@
                     <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Módulos contratados</span>
                     <div class="flex flex-wrap gap-1.5 pt-0.5">
                         {#each tenant.modules as mod}
-                            <Badge variant="outline" class="text-xs font-medium tracking-wide bg-muted/40 px-2 py-0.5">
+                            <Badge variant="outline" class="text-xs font-medium tracking-wide bg-muted/50 dark:bg-secondary/40 border-border/80 px-2 py-0.5">
                                 {mod.name}
                             </Badge>
                         {:else}

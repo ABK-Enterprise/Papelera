@@ -310,7 +310,7 @@
             <div class="flex items-center justify-center gap-2 w-full max-w-[280px]">
                 <button
                     type="button"
-                    class="size-11 rounded-xl border border-border/80 bg-background/80 hover:bg-muted text-foreground flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    class="size-11 rounded-xl border border-border/80 bg-card dark:bg-secondary/40 hover:bg-muted dark:hover:bg-secondary/70 text-foreground flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     onclick={() => zoom = Math.max(1, Number((zoom - 0.1).toFixed(2)))}
                     disabled={zoom <= 1 || !imageLoaded}
                     aria-label="Alejar imagen"
@@ -328,13 +328,13 @@
                         bind:value={zoom}
                         disabled={!imageLoaded}
                         aria-label="Nivel de acercamiento"
-                        class="w-full accent-primary h-2 bg-muted rounded-lg cursor-pointer disabled:cursor-not-allowed"
+                        class="w-full accent-primary h-2 bg-secondary dark:bg-secondary rounded-lg cursor-pointer disabled:cursor-not-allowed"
                     />
                 </div>
 
                 <button
                     type="button"
-                    class="size-11 rounded-xl border border-border/80 bg-background/80 hover:bg-muted text-foreground flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    class="size-11 rounded-xl border border-border/80 bg-card dark:bg-secondary/40 hover:bg-muted dark:hover:bg-secondary/70 text-foreground flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     onclick={() => zoom = Math.min(3, Number((zoom + 0.1).toFixed(2)))}
                     disabled={zoom >= 3 || !imageLoaded}
                     aria-label="Acercar imagen"
@@ -344,7 +344,7 @@
 
                 <button
                     type="button"
-                    class="size-11 rounded-xl border border-border/80 bg-background/80 hover:bg-muted text-foreground flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    class="size-11 rounded-xl border border-border/80 bg-card dark:bg-secondary/40 hover:bg-muted dark:hover:bg-secondary/70 text-foreground flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     onclick={resetTransform}
                     disabled={zoom === 1 && panX === 0 && panY === 0}
                     aria-label="Restablecer posición y zoom"
@@ -358,7 +358,7 @@
         <DialogFooter class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:justify-end pt-2 border-t border-border/60">
             <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 class="min-h-[44px] w-full sm:w-auto rounded-xl text-xs font-semibold"
                 onclick={handleClose}
                 disabled={isProcessing}

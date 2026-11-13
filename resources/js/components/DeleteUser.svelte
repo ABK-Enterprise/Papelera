@@ -38,7 +38,7 @@
                     >Delete account</Button
                 >
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent class="p-5 sm:p-6">
                 <Form
                     {...ProfileController.destroy.form()}
                     class="space-y-6"

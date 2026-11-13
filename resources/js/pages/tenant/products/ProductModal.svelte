@@ -276,7 +276,7 @@
                 <button
                     type="button"
                     onclick={handleClose}
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
@@ -316,11 +316,11 @@
                                 Cálculo de Bulto
                             </span>
                             {#if form.is_active}
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                                     Activo
                                 </span>
                             {:else}
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20">
                                     Inactivo
                                 </span>
                             {/if}
@@ -358,10 +358,10 @@
                                 <h3 class="text-xs font-bold text-primary uppercase tracking-wider">1. Información Básica</h3>
 
                                 <!-- Segmented Switcher Unidad / Peso -->
-                                <div class="inline-flex items-center p-0.5 rounded-xl bg-muted/80 border border-border/80 text-xs">
+                                <div class="inline-flex items-center p-0.5 rounded-xl bg-muted/80 dark:bg-secondary/35 border border-border/80 text-xs">
                                     <button
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs transition-all {form.sale_type === 'unit' ? 'bg-background text-foreground font-bold shadow-2xs' : 'text-muted-foreground hover:text-foreground font-medium'}"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs transition-all {form.sale_type === 'unit' ? 'bg-card dark:bg-secondary border border-border/70 text-foreground font-bold shadow-2xs' : 'border border-transparent text-muted-foreground hover:text-foreground font-medium'}"
                                         onclick={() => (form.sale_type = 'unit')}
                                     >
                                         <Package class="size-3.5 text-primary" />
@@ -369,7 +369,7 @@
                                     </button>
                                     <button
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs transition-all {form.sale_type === 'weight' ? 'bg-background text-foreground font-bold shadow-2xs' : 'text-muted-foreground hover:text-foreground font-medium'}"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs transition-all {form.sale_type === 'weight' ? 'bg-card dark:bg-secondary border border-border/70 text-foreground font-bold shadow-2xs' : 'border border-transparent text-muted-foreground hover:text-foreground font-medium'}"
                                         onclick={() => (form.sale_type = 'weight')}
                                     >
                                         <Scale class="size-3.5 text-sky-600 dark:text-sky-400" />
@@ -412,13 +412,13 @@
                                     <div class="flex items-center justify-between">
                                         <Label for="modal-prod-cat" class="text-sm font-medium text-foreground">Categoría</Label>
                                         {#if isProductIncomplete && !form.category_id}
-                                            <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">Dato faltante</span>
+                                            <span class="text-xs font-semibold text-amber-700 dark:text-amber-400">Dato faltante</span>
                                         {/if}
                                     </div>
                                     <select
                                         id="modal-prod-cat"
                                         bind:value={form.category_id}
-                                        class="h-10 w-full rounded-xl border bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none transition-colors {isProductIncomplete && !form.category_id ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus:border-amber-600' : 'border-border/80 focus:border-primary-500 focus:ring-1 focus:ring-primary'}"
+                                        class="h-10 w-full rounded-xl border bg-field px-3 text-sm font-medium text-foreground focus:outline-none transition-colors {isProductIncomplete && !form.category_id ? 'border-amber-500 ring-2 ring-amber-500/20 dark:border-amber-400 focus:border-amber-600' : 'border-input focus:border-primary focus:ring-1 focus:ring-primary'}"
                                     >
                                         <option value="">Sin categoría asignada</option>
                                         {#each categories as cat}
@@ -445,7 +445,7 @@
                                             Precio de venta ({form.sale_type === 'weight' ? 'kilo' : 'unid.'}) <span class="text-destructive">*</span>
                                         </Label>
                                         {#if isProductIncomplete && (!form.price || Number(form.price) <= 0)}
-                                            <span class="text-xs font-semibold text-amber-600 dark:text-amber-400 shrink-0">Dato faltante</span>
+                                            <span class="text-xs font-semibold text-amber-700 dark:text-amber-400 shrink-0">Dato faltante</span>
                                         {/if}
                                     </div>
                                     <div class="relative">
@@ -525,7 +525,7 @@
                                         id="modal-prod-iva"
                                         bind:value={form.iva_rate}
                                         onchange={handleIvaChange}
-                                        class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary font-sans tabular-nums"
+                                        class="h-10 w-full rounded-xl border border-input bg-field px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-sans tabular-nums"
                                     >
                                         <option value={21.00}>21.0% (General)</option>
                                         <option value={10.50}>10.5% (Reducido)</option>
@@ -550,7 +550,7 @@
                                     <select
                                         id="modal-prod-warehouse"
                                         bind:value={form.warehouse_id}
-                                        class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                        class="h-10 w-full rounded-xl border border-input bg-field px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                                     >
 
                                         {#each warehouses as wh (wh.id)}
@@ -590,7 +590,7 @@
                                         }}
                                         bind:value={form.stock}
                                         disabled={!!product}
-                                        class="h-10 text-sm rounded-xl text-center font-semibold font-sans tabular-nums {product ? 'bg-muted/50 cursor-not-allowed opacity-80' : ''}"
+                                        class="h-10 text-sm rounded-xl text-center font-semibold font-sans tabular-nums {product ? 'disabled:bg-muted/40 disabled:text-muted-foreground disabled:opacity-65' : ''}"
                                         title={product ? 'El stock físico se ajusta mediante Ingresos/Egresos auditados en Kardex' : 'Stock inicial'}
                                     />
                                     {#if form.errors.stock}
@@ -661,14 +661,14 @@
                                     rows="2"
                                     maxlength="255"
                                     placeholder="Especificaciones técnicas, medidas, gramaje..."
-                                    class="w-full bg-background rounded-xl p-3 text-sm border border-border/80 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
+                                    class="w-full bg-field rounded-xl p-3 text-sm border border-input focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
                                 ></textarea>
 
 
                             </div>
 
                             <!-- Toggle de Estado Activo -->
-                            <div class="flex items-center justify-between p-3 rounded-xl bg-muted/20 border border-border/70">
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90">
                                 <div>
                                     <span class="text-sm font-medium text-foreground block">Producto Activo</span>
                                     <span class="text-xs text-muted-foreground">Disponible para ventas y pedidos en el sistema.</span>
@@ -689,8 +689,8 @@
         <DialogFooter class="gap-2 sm:gap-2">
             <Button
                 type="button"
-                variant="outline"
-                class="min-h-[44px] px-5 rounded-xl text-sm font-medium border-border/70 hover:bg-muted/60 transition-colors"
+                variant="secondary"
+                class="min-h-[44px] px-5 rounded-xl text-sm font-medium transition-colors"
                 onclick={handleClose}
                 disabled={form.processing}
             >

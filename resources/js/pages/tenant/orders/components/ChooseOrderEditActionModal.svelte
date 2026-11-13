@@ -79,7 +79,7 @@
                 <button
                     type="button"
                     onclick={handleChooseEditPrices}
-                    class="flex flex-col items-center justify-center text-center p-4 rounded-xl border border-border/80 bg-card hover:bg-primary/5 hover:border-primary/50 transition-all cursor-pointer min-h-[110px] group"
+                    class="flex flex-col items-center justify-center text-center p-4 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 hover:border-primary/50 transition-all cursor-pointer min-h-[110px] group"
                 >
                     <div class="size-10 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
                         <Pencil class="size-5" />
@@ -95,7 +95,7 @@
                 <button
                     type="button"
                     onclick={handleChooseAddProducts}
-                    class="flex flex-col items-center justify-center text-center p-4 rounded-xl border border-border/80 bg-card hover:bg-primary/5 hover:border-primary/50 transition-all cursor-pointer min-h-[110px] group"
+                    class="flex flex-col items-center justify-center text-center p-4 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 hover:border-primary/50 transition-all cursor-pointer min-h-[110px] group"
                 >
                     <div class="size-10 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
                         <PackagePlus class="size-5" />
@@ -113,7 +113,7 @@
         <DialogFooter class="flex justify-end pt-2 border-t border-border/70">
             <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 class="min-h-[44px] rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto"
                 onclick={handleClose}
             >

@@ -64,7 +64,7 @@
     {:else}
         {#each receipts as rc (rc.id)}
             <div
-                class="flex items-center justify-between p-4.5 rounded-2xl border border-border/70 bg-card shadow-xs hover:border-border transition-all duration-200 gap-4 select-none {rc.is_cancelled ? 'opacity-70 bg-muted/10' : ''}"
+                class="flex items-center justify-between p-4.5 rounded-2xl border shadow-xs transition-all duration-200 gap-4 select-none {rc.is_cancelled ? 'bg-muted/35 dark:bg-secondary/20 border-border/80 opacity-80' : 'border-border/80 bg-card hover:border-border hover:bg-muted/40 dark:hover:bg-secondary/30'}"
             >
                 <!-- Lado Izquierdo: Icono temático + Nº de Recibo y Método -->
                 <div class="flex items-center gap-3.5 min-w-[200px] shrink-0">
@@ -107,7 +107,7 @@
                         <!-- Fila 1: Primeros 2 pedidos -->
                         <div class="flex items-center gap-1.5 flex-wrap">
                             {#each rc.orders.slice(0, 2) as ord (ord.id)}
-                                <span class="text-xs font-semibold tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
+                                <span class="text-xs font-semibold tabular-nums px-2 py-0.5 rounded-md bg-muted/60 dark:bg-secondary/45 text-foreground border border-border/80 inline-block shadow-2xs">
                                     {ord.order_number}
                                 </span>
                             {/each}
@@ -116,7 +116,7 @@
                         <!-- Fila 2: 3er pedido + indicador '+ X' si hay más -->
                         {#if rc.orders.length > 2}
                             <div class="flex items-center gap-1.5 flex-wrap">
-                                <span class="text-xs font-semibold tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
+                                <span class="text-xs font-semibold tabular-nums px-2 py-0.5 rounded-md bg-muted/60 dark:bg-secondary/45 text-foreground border border-border/80 inline-block shadow-2xs">
                                     {rc.orders[2].order_number}
                                 </span>
                                 {#if rc.orders.length > 3}
@@ -131,7 +131,7 @@
                         {/if}
                     {:else if rc.reference_number}
                         <span
-                            class="text-xs tabular-nums text-muted-foreground bg-muted/50 px-2 py-1 rounded-lg border border-border/50 max-w-[150px] truncate inline-block"
+                            class="text-xs tabular-nums text-muted-foreground bg-muted/60 dark:bg-secondary/45 px-2 py-1 rounded-lg border border-border/80 max-w-[150px] truncate inline-block"
                             title={rc.reference_number}
                         >
                             {truncateRef(rc.reference_number, 14)}
@@ -146,12 +146,12 @@
                     {#if rc.is_cancelled}
                         <span
                             title={rc.cancellation_reason ? `Motivo: ${rc.cancellation_reason}` : undefined}
-                            class="bg-destructive/10 text-destructive border border-destructive/20 text-xs font-semibold px-2.5 py-1 rounded-full line-through uppercase tracking-wider font-sans"
+                            class="bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 text-xs font-semibold px-2.5 py-1 rounded-full line-through uppercase tracking-wider font-sans"
                         >
                             Anulado
                         </span>
                     {:else}
-                        <span class="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider font-sans">
+                        <span class="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider font-sans">
                             Válido
                         </span>
                     {/if}
@@ -172,7 +172,7 @@
                                 <button
                                     {...props}
                                     type="button"
-                                    class="size-10 min-h-[40px] min-w-[40px] rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shadow-2xs flex items-center justify-center cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
+                                    class="size-10 min-h-[40px] min-w-[40px] rounded-xl border border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/60 dark:hover:bg-secondary/60 transition-colors shadow-2xs flex items-center justify-center cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
                                     aria-label={`Opciones para recibo ${rc.receipt_number}`}
                                 >
                                     <MoreVertical class="size-4" />

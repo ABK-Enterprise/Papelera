@@ -144,8 +144,8 @@
     {/each}
 
     {#if orders.length === 0}
-        <div class="rounded-xl border border-dashed p-12 text-center bg-card/50">
-            <Package class="mx-auto size-12 text-muted-foreground/50 mb-3" />
+        <div class="rounded-xl border border-dashed border-border/80 dark:border-border/90 p-12 text-center bg-muted/30 dark:bg-secondary/20">
+            <Package class="mx-auto size-12 text-muted-foreground/80 mb-3" />
             <h3 class="font-semibold text-lg text-foreground">No se encontraron órdenes de compra</h3>
             <p class="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
                 No hay pedidos a proveedores registrados con los filtros seleccionados.

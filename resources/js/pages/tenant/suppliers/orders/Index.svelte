@@ -132,9 +132,9 @@
     function getSupplierOrderStatusBadge(status: string) {
         switch (status) {
             case 'solicitado':
-                return { label: 'Solicitado', class: 'bg-amber-500/10 text-amber-600 border-amber-500/20' };
+                return { label: 'Solicitado', class: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20' };
             case 'recibido':
-                return { label: 'Recibido', class: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' };
+                return { label: 'Recibido', class: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20' };
             case 'cancelado':
                 return { label: 'Cancelado', class: 'bg-destructive/10 text-destructive border-destructive/20' };
             default:
@@ -348,7 +348,7 @@
                 <select
                     bind:value={selectedStatus}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-select-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[160px]"
+                    class="h-10 rounded-lg border border-input bg-field px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-w-[160px]"
                 >
                     <option value="all">Todos los estados ({stats.total})</option>
                     <option value="solicitado">Solicitado ({stats.solicitado})</option>

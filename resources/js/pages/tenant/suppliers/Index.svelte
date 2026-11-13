@@ -131,7 +131,7 @@
                                 </div>
                                 <div class="flex items-center gap-1.5 shrink-0">
                                     {#if supp.is_active}
-                                        <span class="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                        <span class="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                                             Activo
                                         </span>
                                     {:else}
@@ -170,7 +170,7 @@
                 <select
                     bind:value={tableFilters.filters.status}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-select-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[150px]"
+                    class="h-10 rounded-lg border border-input bg-field px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-w-[150px]"
                 >
                     <option value="">Estado: Todos</option>
                     <option value="active">Solo Activos</option>

@@ -121,7 +121,7 @@
         {#snippet actions()}
             <Button
                 variant="secondary"
-                class="min-h-[38px] px-3.5 rounded-xl text-sm font-medium gap-2 shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all w-full sm:w-auto justify-center"
+                class="min-h-[38px] px-3.5 rounded-xl text-sm font-medium gap-2 transition-all w-full sm:w-auto justify-center"
                 onclick={() => router.get('/tenant/cobranzas/facturas')}
             >
                 <FileText class="size-4" />
@@ -130,7 +130,7 @@
 
             <Button
                 variant="secondary"
-                class="min-h-[38px] px-3.5 rounded-xl text-sm font-medium gap-2 shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all w-full sm:w-auto justify-center"
+                class="min-h-[38px] px-3.5 rounded-xl text-sm font-medium gap-2 transition-all w-full sm:w-auto justify-center"
                 onclick={() => router.get('/tenant/cobranzas/recibos')}
             >
                 <History class="size-4" />

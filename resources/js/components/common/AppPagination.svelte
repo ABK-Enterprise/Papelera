@@ -73,7 +73,7 @@
 
                     <div class="flex items-center justify-center gap-1.5">
                         <Pagination.PrevButton
-                            class="inline-flex size-8 items-center justify-center rounded-xl border border-input bg-background text-foreground hover:bg-muted disabled:opacity-30 disabled:pointer-events-none transition-all shadow-2xs text-xs"
+                            class="inline-flex size-8 items-center justify-center rounded-xl border border-input bg-card text-foreground hover:bg-muted dark:hover:bg-secondary/50 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-2xs text-xs"
                             aria-label="Página anterior"
                         >
                             <ChevronLeft class="size-4" />
@@ -87,7 +87,7 @@
                             {:else}
                                 <Pagination.Page
                                     page={pageItem}
-                                    class="inline-flex size-8 items-center justify-center rounded-xl border text-xs font-semibold tabular-nums transition-all shadow-2xs {pageItem.value === effectivePage ? 'bg-primary text-primary-foreground border-primary shadow-xs scale-105' : 'border-input bg-background text-foreground hover:bg-muted'}"
+                                    class="inline-flex size-8 items-center justify-center rounded-xl border text-xs font-semibold tabular-nums transition-all shadow-2xs {pageItem.value === effectivePage ? 'bg-primary-solid text-primary-foreground border-primary-solid shadow-xs scale-105' : 'border-input bg-card text-foreground hover:bg-muted dark:hover:bg-secondary/50'}"
                                     aria-label={`Página ${pageItem.value}`}
                                 >
                                     {pageItem.value}
@@ -96,7 +96,7 @@
                         {/each}
 
                         <Pagination.NextButton
-                            class="inline-flex size-8 items-center justify-center rounded-xl border border-input bg-background text-foreground hover:bg-muted disabled:opacity-30 disabled:pointer-events-none transition-all shadow-2xs text-xs"
+                            class="inline-flex size-8 items-center justify-center rounded-xl border border-input bg-card text-foreground hover:bg-muted dark:hover:bg-secondary/50 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-2xs text-xs"
                             aria-label="Página siguiente"
                         >
                             <ChevronRight class="size-4" />

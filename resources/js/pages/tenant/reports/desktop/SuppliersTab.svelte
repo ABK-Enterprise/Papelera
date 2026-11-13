@@ -80,7 +80,7 @@
             <div class="flex items-center justify-between">
                 <span class="text-base font-semibold tracking-normal text-muted-foreground">Gastos (Mes Actual)</span>
                 {#if canViewMargins}
-                    <div class="size-7 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                    <div class="size-7 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-700 dark:text-rose-400">
                         <TrendingDown class="size-4" />
                     </div>
                 {/if}
@@ -101,7 +101,7 @@
             <div class="flex items-center justify-between">
                 <span class="text-base font-semibold tracking-normal text-muted-foreground">Gastos Totales</span>
                 {#if canViewMargins}
-                    <div class="size-7 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                    <div class="size-7 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-700 dark:text-rose-400">
                         <TrendingDown class="size-4" />
                     </div>
                 {/if}
@@ -133,7 +133,7 @@
                 value={suppliersSort}
                 onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
                 aria-label="Ordenar proveedores"
-                class="w-full sm:w-[210px] min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium shrink-0"
+                class="w-full sm:w-[210px] min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input bg-field text-foreground shadow-xs transition-colors focus:border-primary focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium shrink-0"
             >
                 <option value="desc">Más comprado</option>
                 <option value="asc">Menos comprado</option>
@@ -148,10 +148,10 @@
             <div class="flex flex-col gap-2.5">
                 {#each suppliersData.suppliers.data as s, i (s.supplier_id)}
                     {@const rank = (suppliersData.suppliers.current_page - 1) * suppliersData.suppliers.per_page + i + 1}
-                    <div class="bento-card group flex items-center justify-between gap-4 rounded-xl border border-border/70 bg-card p-4.5 shadow-xs transition-all duration-200 hover:border-primary/40 hover:shadow-md">
+                    <div class="bento-card group flex items-center justify-between gap-4 rounded-xl border border-border/80 dark:border-border/90 bg-card p-4.5 shadow-xs transition-all duration-200 hover:border-primary/40 hover:bg-muted/40 dark:hover:bg-secondary/35 hover:shadow-md">
                         <!-- Lado Izquierdo: Ranking + Info Principal -->
                         <div class="flex items-center gap-3.5 min-w-0 flex-1">
-                            <span class="size-8 rounded-full bg-muted/80 text-foreground text-xs flex items-center justify-center font-bold shrink-0 border border-border/60 tabular-nums">
+                            <span class="size-8 rounded-full bg-muted/40 dark:bg-secondary/35 text-foreground text-xs flex items-center justify-center font-bold shrink-0 border border-border/80 dark:border-border/90 tabular-nums">
                                 #{rank}
                             </span>
 
@@ -171,20 +171,20 @@
                                     </span>
 
                                     {#if s.tax_id}
-                                        <span class="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-xs font-medium text-foreground/90 border border-border/40 tabular-nums">
+                                        <span class="inline-flex items-center gap-1 rounded-md bg-muted/40 dark:bg-secondary/35 px-2 py-0.5 text-xs font-medium text-foreground/90 border border-border/80 dark:border-border/90 tabular-nums">
                                             CUIT: {s.tax_id}
                                         </span>
                                     {/if}
 
                                     {#if s.contact_number}
-                                        <span class="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-xs font-medium text-foreground/90 border border-border/40 tabular-nums">
+                                        <span class="inline-flex items-center gap-1 rounded-md bg-muted/40 dark:bg-secondary/35 px-2 py-0.5 text-xs font-medium text-foreground/90 border border-border/80 dark:border-border/90 tabular-nums">
                                             <Phone class="size-3 text-muted-foreground" />
                                             {s.contact_number}
                                         </span>
                                     {/if}
 
                                     {#if s.email}
-                                        <span class="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-xs font-medium text-foreground/90 border border-border/40">
+                                        <span class="inline-flex items-center gap-1 rounded-md bg-muted/40 dark:bg-secondary/35 px-2 py-0.5 text-xs font-medium text-foreground/90 border border-border/80 dark:border-border/90">
                                             <Mail class="size-3 text-muted-foreground" />
                                             {s.email}
                                         </span>
@@ -223,7 +223,7 @@
                             type="button"
                             disabled={suppliersData.suppliers.current_page <= 1}
                             onclick={() => changePage(suppliersData.suppliers.current_page - 1)}
-                            class="p-1.5 rounded-lg border border-input/70 bg-background text-foreground hover:bg-muted disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                            class="p-1.5 rounded-lg border border-input bg-field text-foreground hover:bg-muted/60 dark:hover:bg-secondary/45 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                             title="Página anterior"
                         >
                             <ChevronLeft class="size-4" />
@@ -232,7 +232,7 @@
                             type="button"
                             disabled={suppliersData.suppliers.current_page >= suppliersData.suppliers.last_page}
                             onclick={() => changePage(suppliersData.suppliers.current_page + 1)}
-                            class="p-1.5 rounded-lg border border-input/70 bg-background text-foreground hover:bg-muted disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                            class="p-1.5 rounded-lg border border-input bg-field text-foreground hover:bg-muted/60 dark:hover:bg-secondary/45 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                             title="Página siguiente"
                         >
                             <ChevronRight class="size-4" />

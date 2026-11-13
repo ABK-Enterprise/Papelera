@@ -98,7 +98,7 @@
         >
             {#if order.price_review_pending}
                 <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-semibold">
-                    <AlertTriangle class="size-3.5 text-amber-600 shrink-0" />
+                    <AlertTriangle class="size-3.5 text-amber-700 dark:text-amber-400 shrink-0" />
                     <span>Precios de catálogo desactualizados</span>
                 </div>
             {/if}
@@ -209,7 +209,7 @@
                     <button
                         type="button"
                         onclick={() => onSelectOrder(order)}
-                        class="size-11 min-h-[44px] min-w-[44px] rounded-xl border border-border/80 bg-background/80 shadow-2xs hover:bg-muted hover:border-border text-foreground transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                        class="size-11 min-h-[44px] min-w-[44px] rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 shadow-2xs text-foreground transition-colors cursor-pointer flex items-center justify-center shrink-0"
                         aria-label="Ver detalle"
                         title="Ver detalle"
                     >
@@ -220,7 +220,7 @@
                         type="button"
                         disabled={!canEditPrices(order)}
                         onclick={() => onEditPrices?.(order)}
-                        class="size-11 min-h-[44px] min-w-[44px] rounded-xl border border-border/80 bg-background/80 shadow-2xs hover:bg-muted hover:border-border text-foreground transition-colors flex items-center justify-center shrink-0 {!canEditPrices(order) ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'cursor-pointer'}"
+                        class="size-11 min-h-[44px] min-w-[44px] rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 shadow-2xs text-foreground transition-colors flex items-center justify-center shrink-0 {!canEditPrices(order) ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'cursor-pointer'}"
                         aria-label="Modificar pedido"
                         title={!canEditPrices(order) ? 'No se pueden modificar pedidos entregados, cancelados o facturados' : 'Modificar pedido (precios o agregar productos)'}
                     >

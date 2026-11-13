@@ -282,7 +282,7 @@
         <DialogBody class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
             {#if order}
                 <!-- Resumen de Pedido y Destinatario -->
-                <div class="rounded-2xl border border-border/70 bg-background/50 p-4 space-y-2.5">
+                <div class="rounded-2xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-4 space-y-2.5">
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-semibold text-foreground">{order.customer_name}</span>
                         <span class="text-xs font-sans font-bold text-primary tabular-nums">#{order.order_number}</span>
@@ -311,7 +311,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <button
                                 type="button"
-                                class="flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all min-h-[44px] cursor-pointer {paymentMode === 'paid_now' ? 'border-primary bg-primary/10 text-foreground font-semibold shadow-2xs' : 'border-border/80 bg-background/40 hover:bg-muted/30 text-muted-foreground'}"
+                                class="flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all min-h-[44px] cursor-pointer {paymentMode === 'paid_now' ? 'border-primary bg-primary/10 dark:bg-primary/15 text-foreground font-semibold shadow-2xs' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-muted-foreground'}"
                                 onclick={() => (paymentMode = 'paid_now')}
                             >
                                 <Banknote class="size-4.5 text-primary shrink-0" />
@@ -324,7 +324,7 @@
                             <button
                                 type="button"
                                 disabled={!order.customer_has_credit}
-                                class="flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all min-h-[44px] {paymentMode === 'on_credit' ? 'border-primary bg-primary/10 text-foreground font-semibold shadow-2xs' : 'border-border/80 bg-background/40 text-muted-foreground'} {!order.customer_has_credit ? 'opacity-40 cursor-not-allowed' : 'hover:bg-muted/30 cursor-pointer'}"
+                                class="flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all min-h-[44px] {paymentMode === 'on_credit' ? 'border-primary bg-primary/10 dark:bg-primary/15 text-foreground font-semibold shadow-2xs' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 text-muted-foreground'} {!order.customer_has_credit ? 'opacity-40 cursor-not-allowed' : 'hover:bg-muted/70 dark:hover:bg-secondary/55 cursor-pointer'}"
                                 onclick={() => {
                                     if (order?.customer_has_credit) paymentMode = 'on_credit';
                                 }}
@@ -340,13 +340,13 @@
 
                     <!-- Si cobra en el acto, mostrar campos de pago -->
                     {#if paymentMode === 'paid_now'}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl border border-border/80 bg-background/40">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                             <div class="space-y-1.5">
                                 <Label for="delivery-payment-method" class="text-sm font-medium text-foreground">Método de cobro</Label>
                                 <select
                                     id="delivery-payment-method"
                                     bind:value={paymentMethod}
-                                    class="w-full h-11 px-3 text-sm rounded-xl border border-border/80 bg-select-background text-foreground focus:outline-none focus:border-primary-500 transition-all min-h-[44px]"
+                                    class="w-full h-11 px-3 text-sm rounded-xl border border-input bg-field text-foreground focus:outline-none focus:border-primary transition-all min-h-[44px]"
                                 >
                                     <option value="efectivo">Efectivo</option>
                                     <option value="transferencia">Transferencia bancaria</option>
@@ -371,7 +371,7 @@
                                         maxlength="9"
                                         oninput={handleAmountInput}
                                         bind:value={amountToPay}
-                                        class="pl-7 h-11 tabular-nums font-semibold min-h-[44px] bg-background border-border/80 {isFavorableBalanceExceeded ? 'border-destructive focus-visible:ring-destructive' : ''}"
+                                        class="pl-7 h-11 tabular-nums font-semibold min-h-[44px] bg-field border-input {isFavorableBalanceExceeded ? 'border-destructive focus-visible:ring-destructive' : ''}"
                                     />
                                 </div>
                             </div>
@@ -390,7 +390,7 @@
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                             <button
                                                 type="button"
-                                                class="flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all min-h-[44px] cursor-pointer {mpMode === 'qr' ? 'border-sky-500 bg-sky-500/10 text-foreground font-semibold shadow-2xs' : 'border-border/80 bg-background/40 hover:bg-muted/30 text-muted-foreground'}"
+                                                class="flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all min-h-[44px] cursor-pointer {mpMode === 'qr' ? 'border-sky-500 bg-sky-500/10 dark:bg-sky-500/15 text-foreground font-semibold shadow-2xs' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-muted-foreground'}"
                                                 onclick={() => (mpMode = 'qr')}
                                             >
                                                 <QrCode class="size-4.5 text-sky-500 shrink-0" />
@@ -402,7 +402,7 @@
 
                                             <button
                                                 type="button"
-                                                class="flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all min-h-[44px] cursor-pointer {mpMode === 'transfer' ? 'border-sky-500 bg-sky-500/10 text-foreground font-semibold shadow-2xs' : 'border-border/80 bg-background/40 hover:bg-muted/30 text-muted-foreground'}"
+                                                class="flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all min-h-[44px] cursor-pointer {mpMode === 'transfer' ? 'border-sky-500 bg-sky-500/10 dark:bg-sky-500/15 text-foreground font-semibold shadow-2xs' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-muted-foreground'}"
                                                 onclick={() => (mpMode = 'transfer')}
                                             >
                                                 <ArrowRightLeft class="size-4.5 text-sky-500 shrink-0" />
@@ -419,7 +419,7 @@
                                             <Button
                                                 type="button"
                                                 variant="default"
-                                                class="w-full h-11 min-h-[44px] rounded-xl font-semibold gap-2 shadow-xs bg-sky-600 hover:bg-sky-700 text-white dark:bg-sky-600 dark:hover:bg-sky-700 cursor-pointer"
+                                                class="w-full h-11 min-h-[44px] rounded-xl font-semibold gap-2 shadow-xs bg-sky-700 hover:bg-sky-800 text-white dark:bg-sky-700 dark:hover:bg-sky-800 cursor-pointer"
                                                 onclick={() => (isQrModalOpen = true)}
                                             >
                                                 <QrCode class="size-4.5" />
@@ -440,7 +440,7 @@
                                                 placeholder="Ej: 1049283741"
                                                 bind:value={referenceNumber}
                                                 maxlength="100"
-                                                class="h-11 min-h-[44px] bg-background border-border/80"
+                                                class="h-11 min-h-[44px] bg-field border-input"
                                             />
                                             <p class="text-xs text-muted-foreground">
                                                 Opcional. Puedes anotar el número de operación o comprobante provisto por el cliente.
@@ -485,7 +485,7 @@
                                          placeholder="Ej: TRANSF-987213"
                                          bind:value={referenceNumber}
                                          maxlength="100"
-                                         class="h-11 min-h-[44px] bg-background border-border/80"
+                                         class="h-11 min-h-[44px] bg-field border-input"
                                      />
                                  </div>
                             {/if}
@@ -499,7 +499,7 @@
 
                     <!-- Switch para saldar saldo a favor / cuenta corriente si el cliente tiene cuenta -->
                     {#if hasAccount}
-                        <div class="p-4 rounded-2xl border border-border/80 bg-background/40 space-y-3">
+                        <div class="p-4 rounded-2xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 space-y-3">
                             <div class="flex items-center justify-between gap-3">
                                 <div class="space-y-0.5">
                                     <Label for="switch-extra-balance" class="text-sm font-medium text-foreground cursor-pointer">
@@ -519,7 +519,7 @@
                                         <select
                                             id="extra-payment-method"
                                             bind:value={paymentMethod}
-                                            class="w-full h-11 px-3 text-sm rounded-xl border border-border/80 bg-select-background text-foreground focus:outline-none focus:border-primary-500 transition-all min-h-[44px]"
+                                            class="w-full h-11 px-3 text-sm rounded-xl border border-input bg-field text-foreground focus:outline-none focus:border-primary transition-all min-h-[44px]"
                                         >
                                             <option value="efectivo">Efectivo</option>
                                             <option value="transferencia">Transferencia bancaria</option>
@@ -542,7 +542,7 @@
                                                 maxlength="9"
                                                 oninput={handleAmountInput}
                                                 bind:value={amountToPay}
-                                                class="pl-7 h-11 tabular-nums font-semibold min-h-[44px] bg-background border-border/80 {isFavorableBalanceExceeded ? 'border-destructive focus-visible:ring-destructive' : ''}"
+                                                class="pl-7 h-11 tabular-nums font-semibold min-h-[44px] bg-field border-input {isFavorableBalanceExceeded ? 'border-destructive focus-visible:ring-destructive' : ''}"
                                             />
                                         </div>
                                     </div>
@@ -577,7 +577,7 @@
                                                 placeholder="Ej: 1049283741"
                                                 bind:value={referenceNumber}
                                                 maxlength="100"
-                                                class="h-11 min-h-[44px] bg-background border-border/80"
+                                                class="h-11 min-h-[44px] bg-field border-input"
                                             />
                                             <p class="text-xs text-muted-foreground">
                                                 Opcional. Puedes anotar el número de operación o comprobante si deseas dejar constancia.
@@ -592,7 +592,7 @@
                                                 placeholder="Ej: TRANSF-987213"
                                                 bind:value={referenceNumber}
                                                 maxlength="100"
-                                                class="h-11 min-h-[44px] bg-background border-border/80"
+                                                class="h-11 min-h-[44px] bg-field border-input"
                                             />
                                         </div>
                                     {/if}
@@ -611,7 +611,7 @@
                         maxlength="255"
                         placeholder="Ej: Recibió guardia, portería, firma conforme..."
                         bind:value={deliveryNotes}
-                        class="resize-none bg-background border-border/80 text-sm rounded-xl"
+                        class="resize-none bg-field border-input text-sm rounded-xl"
                     />
                 </div>
 
@@ -634,7 +634,7 @@
                 Cancelar
             </Button>
             <Button
-                class="w-full sm:w-auto h-11 min-h-[44px] px-6 text-sm font-semibold gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+                class="w-full sm:w-auto h-11 min-h-[44px] px-6 text-sm font-semibold gap-2 bg-emerald-700 hover:bg-emerald-800 text-white"
                 onclick={triggerSubmit}
                 disabled={isSubmitting}
             >

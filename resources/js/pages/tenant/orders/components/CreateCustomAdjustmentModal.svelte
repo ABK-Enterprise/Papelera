@@ -181,7 +181,7 @@
         <DialogHeader class="p-0 border-b border-border/60 shrink-0 bg-card">
             <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 p-4 sm:p-1.5 pb-3.5 sm:pb-1.5 pr-4 sm:pr-4 w-full">
                 <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
-                    <div class="size-10 sm:size-12 rounded-xl {type === 'discount' ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 border border-amber-500/20'} flex items-center justify-center shrink-0">
+                    <div class="size-10 sm:size-12 rounded-xl {type === 'discount' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20'} flex items-center justify-center shrink-0">
                         <Tag class="size-5 sm:size-6" />
                     </div>
                     <div class="min-w-0 flex-1 flex items-center">
@@ -193,7 +193,7 @@
                 <button
                     type="button"
                     onclick={() => (open = false)}
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar modal"
                 >
                     <X class="size-4" />
@@ -208,7 +208,7 @@
                 <div class="grid grid-cols-2 gap-2">
                     <button
                         type="button"
-                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-all cursor-pointer {type === 'discount' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500 shadow-xs' : 'bg-card text-muted-foreground border-border hover:bg-muted/50'}"
+                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-all cursor-pointer {type === 'discount' ? 'bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500 shadow-xs' : 'bg-muted/40 dark:bg-secondary/35 text-muted-foreground border-border/80 dark:border-border/90 hover:bg-muted/70 dark:hover:bg-secondary/55 hover:text-foreground'}"
                         onclick={() => (type = 'discount')}
                     >
                         <MinusCircle class="size-4" />
@@ -216,7 +216,7 @@
                     </button>
                     <button
                         type="button"
-                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-all cursor-pointer {type === 'surcharge' ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500 shadow-xs' : 'bg-card text-muted-foreground border-border hover:bg-muted/50'}"
+                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-all cursor-pointer {type === 'surcharge' ? 'bg-amber-500/10 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500 shadow-xs' : 'bg-muted/40 dark:bg-secondary/35 text-muted-foreground border-border/80 dark:border-border/90 hover:bg-muted/70 dark:hover:bg-secondary/55 hover:text-foreground'}"
                         onclick={() => (type = 'surcharge')}
                     >
                         <PlusCircle class="size-4" />
@@ -246,7 +246,7 @@
                 <div class="grid grid-cols-2 gap-2">
                     <button
                         type="button"
-                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-all cursor-pointer {calculationType === 'percentage' ? 'bg-primary/10 text-primary border-primary shadow-xs' : 'bg-card text-muted-foreground border-border hover:bg-muted/50'}"
+                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-all cursor-pointer {calculationType === 'percentage' ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary shadow-xs' : 'bg-muted/40 dark:bg-secondary/35 text-muted-foreground border-border/80 dark:border-border/90 hover:bg-muted/70 dark:hover:bg-secondary/55 hover:text-foreground'}"
                         onclick={() => {
                             calculationType = 'percentage';
                             if (Number(value) > 100) value = 100;
@@ -257,7 +257,7 @@
                     </button>
                     <button
                         type="button"
-                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-all cursor-pointer {calculationType === 'fixed' ? 'bg-primary/10 text-primary border-primary shadow-xs' : 'bg-card text-muted-foreground border-border hover:bg-muted/50'}"
+                        class="min-h-[44px] flex items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-all cursor-pointer {calculationType === 'fixed' ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary shadow-xs' : 'bg-muted/40 dark:bg-secondary/35 text-muted-foreground border-border/80 dark:border-border/90 hover:bg-muted/70 dark:hover:bg-secondary/55 hover:text-foreground'}"
                         onclick={() => {
                             calculationType = 'fixed';
                             if (Number(value) > 100_000_000) value = 100_000_000;
@@ -333,12 +333,12 @@
                     rows="2"
                     maxlength="255"
                     placeholder="Detalle o justificación para el cliente o auditoría..."
-                    class="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                    class="w-full rounded-xl border border-input bg-field px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
                 ></textarea>
             </div>
 
             <!-- Checkbox Visibilidad en Remito -->
-            <label class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-muted/40 transition-colors cursor-pointer">
+            <label class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-muted/50 dark:hover:bg-secondary/40 transition-colors cursor-pointer">
                 <input
                     type="checkbox"
                     bind:checked={showInReceipt}
@@ -357,7 +357,7 @@
             {#if onBack}
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     disabled={isSubmitting}
                     class="min-h-[44px] px-4 rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto gap-1.5"
                     onclick={handleBack}
@@ -368,7 +368,7 @@
             {:else}
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     disabled={isSubmitting}
                     class="min-h-[44px] px-4 rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto"
                     onclick={() => (open = false)}

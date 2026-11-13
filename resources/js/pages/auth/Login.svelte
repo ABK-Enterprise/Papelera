@@ -33,7 +33,7 @@
 <AppHead title="Ingresa a ABK Solutions!" />
 
 {#if status}
-    <div class="mb-4 rounded-lg bg-emerald-50 p-3 text-center text-sm font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+    <div class="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-center text-sm font-medium text-emerald-700 dark:text-emerald-400 shadow-2xs">
         {status}
     </div>
 {/if}
@@ -54,7 +54,7 @@
                     required
                     autocomplete="email"
                     placeholder="nombre@empresa.com"
-                    class="h-11 rounded-lg border-input/60 bg-muted/40 px-3.5 transition-colors focus:bg-background"
+                    class="h-11 rounded-lg border-input bg-field px-3.5 transition-colors"
                 />
                 <InputError message={errors.email === 'auth.failed' ? 'El correo electrónico o la contraseña son incorrectos.' : errors.email} />
             </div>
@@ -69,7 +69,7 @@
                     required
                     autocomplete="current-password"
                     placeholder="••••••••"
-                    class="h-11 rounded-lg border-input/60 bg-muted/40 px-3.5 transition-colors focus:bg-background"
+                    class="h-11 rounded-lg border-input bg-field px-3.5 transition-colors"
                 />
                 <InputError message={errors.password} />
             </div>
@@ -105,14 +105,14 @@
                     <span class="w-full border-t border-border/70"></span>
                 </div>
                 <div class="relative flex justify-center text-xs uppercase">
-                    <span class="rounded-md border border-primary-200/80 bg-primary-50 px-2.5 py-0.5 font-semibold text-primary-700 shadow-2xs dark:border-secondary-300/40 dark:bg-secondary-200/80 dark:text-secondary-700">o</span>
+                    <span class="rounded-md border border-border/80 bg-card px-2.5 py-0.5 font-semibold text-muted-foreground shadow-2xs">o</span>
                 </div>
             </div>
 
             <a
                 href="/auth/google/redirect"
                 aria-label="Continuar con Google"
-                class="inline-flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-input/70 bg-background/80 px-4 text-sm font-medium shadow-xs transition-all hover:bg-accent hover:text-accent-foreground hover:shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                class="inline-flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-input bg-card dark:bg-secondary/50 px-4 text-sm font-medium text-foreground shadow-xs transition-all hover:bg-muted dark:hover:bg-secondary/75 hover:shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 data-test="google-login-button"
             >
                 <svg class="h-4 w-4 shrink-0" aria-hidden="true" viewBox="0 0 24 24">

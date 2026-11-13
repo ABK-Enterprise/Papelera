@@ -191,7 +191,7 @@
         <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
             <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 w-full">
                 <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
-                    <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                    <div class="size-10 sm:size-12 rounded-xl bg-primary/10 dark:bg-primary/15 text-primary border border-primary/25 dark:border-primary/35 flex items-center justify-center shrink-0">
                         <Icon class="size-5 sm:size-6 text-primary" icon="solar:transfer-horizontal-bold-duotone" />
                     </div>
                     <div class="min-w-0 flex-1 flex items-center">
@@ -203,7 +203,7 @@
                 <button
                     type="button"
                     onclick={closeModal}
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
@@ -244,7 +244,7 @@
                         {/snippet}
                     </SearchCombobox>
                     {#if form.errors.product_id}
-                        <p class="text-xs text-rose-500 font-medium">{form.errors.product_id}</p>
+                        <p class="text-xs text-destructive font-medium">{form.errors.product_id}</p>
                     {/if}
                 </div>
 
@@ -259,7 +259,7 @@
                             id="transfer-origin"
                             value={form.origin_warehouse_id}
                             onchange={onOriginChange}
-                            class="w-full rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
+                            class="w-full rounded-xl border border-input bg-field px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
                         >
                             {#each warehouses as wh (wh.id)}
                                 <option value={String(wh.id)}>
@@ -268,13 +268,13 @@
                             {/each}
                         </select>
                         {#if form.errors.origin_warehouse_id}
-                            <p class="text-xs text-rose-500 font-medium">{form.errors.origin_warehouse_id}</p>
+                            <p class="text-xs text-destructive font-medium">{form.errors.origin_warehouse_id}</p>
                         {/if}
                     </div>
 
                     <!-- Icono de dobles flechas (Iconify: solar:transfer-horizontal-bold-duotone) solo visible en Desktop -->
                     <div class="hidden sm:flex items-center justify-center shrink-0 sm:mb-1">
-                        <div class="size-10 rounded-xl bg-primary-500/10 border border-primary-500/20 text-primary-600 dark:text-primary-400 flex items-center justify-center shadow-2xs">
+                        <div class="size-10 rounded-xl bg-primary/10 dark:bg-primary/15 border border-primary/25 dark:border-primary/35 text-primary flex items-center justify-center shadow-2xs">
                             <Icon icon="solar:transfer-horizontal-bold-duotone" class="size-5" />
                         </div>
                     </div>
@@ -288,7 +288,7 @@
                             id="transfer-destination"
                             bind:value={form.destination_warehouse_id}
                             disabled={availableDestinations.length === 0}
-                            class="w-full rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px] disabled:opacity-60 disabled:cursor-not-allowed"
+                            class="w-full rounded-xl border border-input bg-field px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px] disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             {#if availableDestinations.length === 0}
                                 <option value="" disabled selected>No hay depósito destino</option>
@@ -301,21 +301,21 @@
                             {/if}
                         </select>
                         {#if form.errors.destination_warehouse_id}
-                            <p class="text-xs text-rose-500 font-medium">{form.errors.destination_warehouse_id}</p>
+                            <p class="text-xs text-destructive font-medium">{form.errors.destination_warehouse_id}</p>
                         {/if}
                     </div>
                 </div>
 
                 <!-- Tarjeta Visual de Trayecto -->
                 {#if originWarehouse && destinationWarehouse}
-                    <div class="p-3.5 rounded-xl bg-primary-500/5 border border-primary-500/20 flex items-center justify-between gap-2.5">
+                    <div class="p-3.5 rounded-xl bg-primary/10 dark:bg-primary/15 border border-primary/25 dark:border-primary/35 flex items-center justify-between gap-2.5">
                         <div class="min-w-0 flex-1">
                             <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider block">Sale de</span>
                             <span class="text-xs sm:text-sm font-semibold text-foreground truncate block">{originWarehouse.name}</span>
                         </div>
                         <div class="flex flex-col items-center justify-center shrink-0 px-2">
-                            <ArrowRight class="size-4 text-primary-500" />
-                            <span class="text-xs font-bold text-primary-600 dark:text-primary-400 tabular-nums">
+                            <ArrowRight class="size-4 text-primary" />
+                            <span class="text-xs font-bold text-primary tabular-nums">
                                 {form.quantity || 0} u.
                             </span>
                         </div>
@@ -350,10 +350,10 @@
                         <Label for="transfer-qty" class="text-sm font-medium text-foreground whitespace-nowrap">
                             Cantidad:
                         </Label>
-                        <div class="flex items-center border border-border/80 rounded-xl bg-background shadow-2xs h-9 overflow-hidden">
+                        <div class="flex items-center border border-input rounded-xl bg-field focus-within:border-primary focus-within:ring-1 focus-within:ring-primary shadow-2xs h-9 overflow-hidden">
                             <button
                                 type="button"
-                                class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer"
+                                class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-secondary/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer"
                                 onclick={decrementQuantity}
                                 disabled={Number(form.quantity) <= 1}
                                 aria-label="Disminuir cantidad"
@@ -384,7 +384,7 @@
                             />
                             <button
                                 type="button"
-                                class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer"
+                                class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-secondary/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer"
                                 onclick={incrementQuantity}
                                 disabled={Number(form.quantity) >= 10000}
                                 aria-label="Aumentar cantidad"
@@ -395,13 +395,13 @@
                     </div>
                 </div>
                 {#if form.errors.quantity}
-                    <p class="text-xs text-rose-500 font-medium text-right">{form.errors.quantity}</p>
+                    <p class="text-xs text-destructive font-medium text-right">{form.errors.quantity}</p>
                 {/if}
 
                 <!-- Alerta de Stock Negativo en Origen -->
                 {#if isNegativeOriginWarning}
-                    <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5 text-xs text-amber-700 dark:text-amber-400">
-                        <AlertTriangle class="size-4 shrink-0 mt-0.5 text-amber-500" />
+                    <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 dark:border-amber-500/30 flex items-start gap-2.5 text-xs text-amber-700 dark:text-amber-400">
+                        <AlertTriangle class="size-4 shrink-0 mt-0.5 text-amber-700 dark:text-amber-400" />
                         <div>
                             <span class="font-semibold block">Advertencia de saldo insuficiente:</span>
                             <span>
@@ -421,11 +421,11 @@
                         rows="2"
                         maxlength="255"
                         bind:value={form.notes}
-                        class="w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs resize-none"
+                        class="w-full rounded-xl border border-input bg-field px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-2xs resize-none"
                         placeholder="Ej. Reabastecimiento a sucursal, redistribución de mercadería..."
                     ></textarea>
                     {#if form.errors.notes}
-                        <p class="text-xs text-rose-500 font-medium">{form.errors.notes}</p>
+                        <p class="text-xs text-destructive font-medium">{form.errors.notes}</p>
                     {/if}
                 </div>
             </form>
@@ -435,10 +435,10 @@
             <div class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:w-auto sm:justify-end sm:items-center">
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     onclick={closeModal}
                     disabled={form.processing}
-                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-medium border-border/70 whitespace-nowrap cursor-pointer"
+                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-medium whitespace-nowrap cursor-pointer"
                 >
                     Cancelar
                 </Button>

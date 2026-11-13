@@ -128,12 +128,12 @@
         <div class="rounded-xl border border-border/80 bg-card p-6 sm:p-7 space-y-5 shadow-xs">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
-                    <div class="size-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <div class="size-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400 shrink-0">
                         <ShieldCheck class="size-6" />
                     </div>
                     <div class="flex items-center gap-2">
                         <h2 class="text-lg font-bold text-foreground">Ticket de Acceso Activo</h2>
-                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                             <span class="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
                             Operativo
                         </span>
@@ -148,7 +148,7 @@
             <!-- Código y Cuenta Regresiva -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
                 <!-- Código del Ticket -->
-                <div class="rounded-lg border border-border/70 bg-muted/30 p-4 space-y-1.5">
+                <div class="rounded-lg border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-4 space-y-1.5">
                     <span class="text-xs text-muted-foreground block font-medium">Código del Ticket (WSAA Unique ID)</span>
                     <div class="flex items-center justify-between gap-2">
                         <span class="text-xl sm:text-2xl font-bold text-foreground tabular-nums">
@@ -162,7 +162,7 @@
                             onclick={copyTicketCode}
                         >
                             {#if copiedCode}
-                                <Check class="size-3.5 text-emerald-600" />
+                                <Check class="size-3.5 text-emerald-700 dark:text-emerald-400" />
                                 <span>Copiado</span>
                             {:else}
                                 <Copy class="size-3.5" />
@@ -178,10 +178,10 @@
                 </div>
 
                 <!-- Cronómetro Regresivo -->
-                <div class="rounded-lg border border-border/70 bg-muted/30 p-4 space-y-2">
+                <div class="rounded-lg border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-4 space-y-2">
                     <span class="text-xs text-muted-foreground block font-medium">Vigencia y Tiempo Restante</span>
                     <div class="flex items-center gap-2">
-                        <Clock class="size-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <Clock class="size-5 text-emerald-700 dark:text-emerald-400 shrink-0" />
                         <span class="text-xl sm:text-2xl font-bold text-foreground tabular-nums">
                             {formattedRemainingTime}
                         </span>
@@ -215,7 +215,7 @@
         <!-- Estado Sin Ticket Activo -->
         <div class="rounded-xl border border-dashed border-border bg-card p-6 sm:p-7 space-y-3 shadow-xs">
             <div class="flex items-start gap-3">
-                <div class="size-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                <div class="size-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0">
                     <AlertCircle class="size-5" />
                 </div>
                 <div class="space-y-1">

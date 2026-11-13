@@ -33,13 +33,13 @@
     function getActionTone(action: string): { bg: string; text: string; border: string } {
         const lower = action.toLowerCase();
         if (lower.includes('cancelac') || lower.includes('elimin')) {
-            return { bg: 'bg-destructive/10', text: 'text-destructive', border: 'border-destructive/20' };
+            return { bg: 'bg-rose-500/10', text: 'text-rose-700 dark:text-rose-400', border: 'border-rose-500/20' };
         }
         if (lower.includes('emis') || lower.includes('creac') || lower.includes('entrega')) {
             return { bg: 'bg-emerald-500/10', text: 'text-emerald-700 dark:text-emerald-400', border: 'border-emerald-500/20' };
         }
         if (lower.includes('comercial') || lower.includes('actualiz')) {
-            return { bg: 'bg-primary-500/10', text: 'text-primary-700 dark:text-primary-400', border: 'border-primary-500/20' };
+            return { bg: 'bg-primary/10', text: 'text-primary', border: 'border-primary/25' };
         }
         return { bg: 'bg-muted/80', text: 'text-muted-foreground', border: 'border-border' };
     }

@@ -70,7 +70,7 @@
             </CardHeader>
 
             <CardContent class="space-y-4 pt-0">
-                <div class="space-y-1.5 rounded-xl bg-muted/40 p-2.5 text-xs text-muted-foreground">
+                <div class="space-y-1.5 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-2.5 text-xs text-muted-foreground">
                     <div class="flex items-center justify-between">
                         <span class="font-medium flex items-center gap-1.5">
                             <Building2 class="h-3.5 w-3.5 text-muted-foreground" />

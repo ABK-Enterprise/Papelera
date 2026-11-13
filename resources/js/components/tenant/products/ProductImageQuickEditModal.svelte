@@ -278,7 +278,7 @@
         <DialogBody class="space-y-4 pt-1">
             <!-- Visualizador y Enfoque de Imagen -->
             <div class="flex flex-col items-center justify-center gap-3">
-                <div class="relative size-36 sm:size-40 rounded-2xl border-2 border-border/80 bg-background shadow-xs flex items-center justify-center overflow-hidden shrink-0">
+                <div class="relative size-36 sm:size-40 rounded-2xl border-2 border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 shadow-xs flex items-center justify-center overflow-hidden shrink-0">
                     {#if activeDisplayImage}
                         <img
                             src={activeDisplayImage}
@@ -287,8 +287,8 @@
                         />
                     {:else}
                         <div class="flex flex-col items-center justify-center gap-1.5 text-center select-none px-3">
-                            <ImageOff class="size-8 text-muted-foreground/60" />
-                            <span class="text-xs font-semibold text-muted-foreground/80 tracking-tight">
+                            <ImageOff class="size-8 text-muted-foreground" />
+                            <span class="text-xs font-semibold text-muted-foreground tracking-tight">
                                 Sin imagen
                             </span>
                         </div>
@@ -300,11 +300,11 @@
                     <div class="flex items-center gap-2">
                         <Button
                             type="button"
-                            variant="outline"
+                            variant="secondary"
                             size="sm"
                             onclick={() => (isCropperOpen = true)}
                             disabled={isSubmitting || isDeleting}
-                            class="min-h-[36px] text-xs font-semibold text-foreground hover:bg-muted gap-1.5 px-3 rounded-lg border-border/80"
+                            class="min-h-[36px] text-xs font-semibold gap-1.5 px-3 rounded-lg"
                             title="Ajustar encuadre sin recortar la foto original"
                         >
                             <Crop class="size-3.5 text-primary" />
@@ -338,7 +338,7 @@
             <!-- Zona de Carga / Drag & Drop -->
             <div
                 class="relative border-2 border-dashed rounded-xl p-4 transition-all text-center flex flex-col items-center justify-center gap-2 cursor-pointer
-                {isDragging ? 'border-primary bg-primary/5 ring-2 ring-primary/20' : 'border-border/80 hover:border-primary/50 hover:bg-muted/30'}"
+                {isDragging ? 'border-primary bg-primary/10 dark:bg-primary/15 ring-2 ring-primary/20' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:border-primary/50 hover:bg-muted/70 dark:hover:bg-secondary/55'}"
                 ondragover={handleDragOver}
                 ondragleave={handleDragLeave}
                 ondrop={handleDrop}
@@ -381,7 +381,7 @@
         <DialogFooter class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 pt-2">
             <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 class="min-h-[44px] text-xs font-semibold rounded-xl"
                 onclick={handleClose}
                 disabled={isSubmitting || isDeleting}

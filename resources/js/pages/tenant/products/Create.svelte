@@ -134,7 +134,7 @@
         </div>
         <div class="flex justify-end w-full">
             <Link href="/tenant/productos">
-                <Button class="gap-2 text-sm rounded-xl font-medium min-h-[42px] h-auto py-2.5 px-4 shadow-2xs leading-snug text-center flex items-center justify-center dark:bg-secondary dark:text-secondary-foreground dark:border dark:border-border/80 dark:hover:bg-secondary/80">
+                <Button variant="secondary" class="gap-2 text-sm rounded-xl font-medium min-h-[42px] h-auto py-2.5 px-4 shadow-2xs leading-snug text-center flex items-center justify-center">
                     <ArrowLeft class="size-4 shrink-0" />
                     <span>Volver al catálogo</span>
                 </Button>
@@ -147,7 +147,7 @@
     <!-- Contenedor 2 Columnas Stitch Layout -->
     <div class="bg-card text-card-foreground rounded-3xl border border-border/80 shadow-[0px_10px_40px_rgba(0,0,0,0.03)] overflow-hidden flex flex-col md:flex-row">
         <!-- Columna Izquierda: Imagen y Empaque (+20px simétrico) -->
-        <div class="w-full md:w-[310px] lg:w-[330px] bg-muted/25 p-6 sm:p-8 flex flex-col border-b md:border-b-0 md:border-r border-border/70 shrink-0">
+        <div class="w-full md:w-[310px] lg:w-[330px] bg-muted/40 dark:bg-secondary/35 p-6 sm:p-8 flex flex-col border-b md:border-b-0 md:border-r border-border/80 dark:border-border/90 shrink-0">
             <div class="mb-4">
                 <h2 class="text-base sm:text-lg font-semibold text-foreground flex items-center gap-2 leading-snug">
                     <Package class="size-5 text-primary" />
@@ -171,11 +171,11 @@
                         Cálculo de bulto
                     </span>
                     {#if form.is_active}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                             Activo
                         </span>
                     {:else}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20">
                             Inactivo
                         </span>
                     {/if}
@@ -209,11 +209,11 @@
                         <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">1. Información básica</h3>
                         
                         <!-- Segmented Pill Switcher Minimalista -->
-                        <div class="inline-flex items-center p-0.5 rounded-xl bg-muted/80 border border-border/80 text-xs">
+                        <div class="inline-flex items-center p-0.5 rounded-xl bg-muted/80 dark:bg-secondary/35 border border-border/80 text-xs">
                             <button
                                 type="button"
                                 onclick={() => form.sale_type = 'unit'}
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs transition-all {form.sale_type === 'unit' ? 'bg-background text-foreground font-bold shadow-2xs' : 'text-muted-foreground hover:text-foreground font-medium'}"
+                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs transition-all {form.sale_type === 'unit' ? 'bg-card dark:bg-secondary border border-border/70 text-foreground font-bold shadow-2xs' : 'border border-transparent text-muted-foreground hover:text-foreground font-medium'}"
                             >
                                 <Package class="size-3.5 text-primary" />
                                 <span>Por unidad</span>
@@ -221,7 +221,7 @@
                             <button
                                 type="button"
                                 onclick={() => form.sale_type = 'weight'}
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs transition-all {form.sale_type === 'weight' ? 'bg-background text-foreground font-bold shadow-2xs' : 'text-muted-foreground hover:text-foreground font-medium'}"
+                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs transition-all {form.sale_type === 'weight' ? 'bg-card dark:bg-secondary border border-border/70 text-foreground font-bold shadow-2xs' : 'border border-transparent text-muted-foreground hover:text-foreground font-medium'}"
                             >
                                 <Scale class="size-3.5 text-sky-600 dark:text-sky-400" />
                                 <span>Por pesaje (Kg)</span>
@@ -264,7 +264,7 @@
                             <select
                                 id="create-prod-cat"
                                 bind:value={form.category_id}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                class="h-10 w-full rounded-xl border border-input bg-field px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                             >
                                 <option value="">Sin categoría asignada</option>
                                 {#each categories as cat}
@@ -369,7 +369,7 @@
                                 id="create-prod-iva"
                                 bind:value={form.iva_rate}
                                 onchange={handleIvaChange}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary tabular-nums font-sans"
+                                class="h-10 w-full rounded-xl border border-input bg-field px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary tabular-nums font-sans"
                             >
                                 <option value={21.00}>21.0% (General)</option>
                                 <option value={10.50}>10.5% (Reducido)</option>
@@ -387,7 +387,7 @@
                     <div class="flex items-center justify-between">
                         <h3 class="text-xs font-semibold text-primary uppercase tracking-wide">Descuento por Bulto</h3>
                         {#if effectiveDiscountPercent > 0}
-                            <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                            <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 tabular-nums">
                                 -{effectiveDiscountPercent}% aplicado
                             </span>
                         {/if}
@@ -398,7 +398,7 @@
                             <select
                                 id="create-prod-discount-type"
                                 bind:value={form.bulk_discount_type}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                class="h-10 w-full rounded-xl border border-input bg-field px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                             >
                                 <option value="inherited">Heredar global ({tenantDefaultBulkDiscount}%)</option>
                                 <option value="custom">Personalizado (% específico)</option>
@@ -442,7 +442,7 @@
                             <select
                                 id="create-prod-warehouse"
                                 bind:value={form.warehouse_id}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                                class="h-10 w-full rounded-xl border border-input bg-field px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                             >
                                 {#each warehouses as wh (wh.id)}
                                     <option value={wh.id}>
@@ -564,7 +564,7 @@
                                 rows="2"
                                 maxlength="255"
                                 placeholder="Especificaciones de tamaño, gramaje, características..."
-                                class="w-full bg-background rounded-xl p-3 text-xs border border-border/80 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
+                                class="w-full bg-field rounded-xl p-3 text-xs border border-input focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
                             ></textarea>
 
                         </div>
@@ -585,7 +585,7 @@
                     <!-- Footer Acciones -->
                     <div class="flex items-center justify-end gap-3 pt-4 border-t">
                         <Link href="/tenant/productos">
-                            <Button type="button" variant="outline" class="min-h-[44px] px-5 rounded-xl text-sm font-medium border-border/70 hover:bg-muted/60 transition-colors">
+                            <Button type="button" variant="secondary" class="min-h-[44px] px-5 rounded-xl text-sm font-medium transition-colors">
                                 Cancelar
                             </Button>
                         </Link>

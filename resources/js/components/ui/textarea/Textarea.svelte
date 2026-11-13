@@ -14,7 +14,7 @@
     {rows}
     bind:value
     class={cn(
-        'flex min-h-[80px] w-full rounded-xl border border-border/80 bg-background p-3 text-sm text-foreground shadow-2xs transition-colors placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:bg-transparent disabled:border-dashed disabled:text-muted-foreground/60 disabled:opacity-60 resize-none',
+        'flex min-h-[80px] w-full rounded-xl border border-input bg-field p-3 text-sm text-foreground shadow-2xs transition-colors placeholder:text-muted-foreground focus:outline-none focus:border-primary focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:bg-muted/40 disabled:border-dashed disabled:text-muted-foreground disabled:opacity-65 resize-none',
         className,
     )}
     {...rest}

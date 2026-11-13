@@ -23,15 +23,16 @@
 
     const variants: Record<Variant, string> = {
         default:
-            'bg-primary text-primary-foreground shadow hover:bg-primary/90 sm:hover:shadow-lg sm:hover:shadow-primary/25 active:scale-95 transition-all duration-150',
+            'bg-primary-solid text-primary-foreground shadow hover:bg-primary sm:hover:shadow-lg sm:hover:shadow-primary/25 active:scale-95 transition-all duration-150',
         secondary:
-            'bg-secondary text-secondary-foreground shadow-2xs hover:bg-secondary/80 border border-secondary/40 active:scale-95 transition-all duration-150',
+            'bg-secondary text-secondary-foreground shadow-2xs hover:bg-secondary/80 dark:hover:bg-[#3a3a3a] border border-border/70 active:scale-95 transition-all duration-150',
         tertiary:
-            'border border-primary/30 bg-primary/15 text-primary hover:bg-primary/25 hover:text-primary dark:text-sky-100 dark:border-primary/40 font-semibold shadow-2xs transition-colors',
-        ghost: 'hover:bg-muted hover:text-foreground active:scale-95 transition-all duration-150',
+            'border border-primary/35 bg-primary/15 text-foreground hover:bg-primary/25 hover:text-foreground dark:text-sky-100 dark:border-primary/40 font-semibold shadow-2xs transition-colors',
+        ghost: 'hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground active:scale-95 transition-all duration-150',
         destructive:
             'bg-destructive text-destructive-foreground shadow hover:bg-destructive/90 sm:hover:shadow-lg sm:hover:shadow-destructive/25 active:scale-95 transition-all duration-150',
-        outline: 'border border-input bg-background hover:bg-muted hover:text-foreground active:scale-95 transition-all duration-150',
+        outline:
+            'border border-input bg-card hover:bg-muted dark:bg-secondary/40 dark:hover:bg-secondary/65 hover:text-foreground active:scale-95 transition-all duration-150',
         link: 'text-primary underline-offset-4 hover:underline',
         accent: 'bg-accent/80 text-accent-foreground border border-accent/40 shadow-2xs hover:bg-accent hover:border-accent/60 sm:hover:shadow-lg sm:hover:shadow-accent/25 active:scale-95 transition-all duration-150',
     };

@@ -99,7 +99,7 @@
                     </div>
 
                     <div class="shrink-0 text-right">
-                        <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                        <span class="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider">
                             {invoice.status}
                         </span>
                     </div>
@@ -109,7 +109,7 @@
 
             <DialogBody class="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
                 <!-- 1. Bloque de Auditoría Fiscal ARCA -->
-                <Card class="p-4 rounded-xl border border-border/80 bg-muted/20 space-y-3">
+                <Card class="p-4 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 space-y-3">
                     <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground border-b border-border/60 pb-2">
                         <ShieldCheck class="size-4 text-primary" />
                         <span>Datos Fiscales Oficiales</span>
@@ -125,12 +125,12 @@
                                 </span>
                                 <button
                                     type="button"
-                                    class="text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-muted cursor-pointer"
+                                    class="text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-muted dark:hover:bg-secondary/60 cursor-pointer"
                                     onclick={copyCae}
                                     title="Copiar CAE"
                                 >
                                     {#if copiedCae}
-                                        <Check class="size-3.5 text-emerald-600" />
+                                        <Check class="size-3.5 text-emerald-700 dark:text-emerald-400" />
                                     {:else}
                                         <Copy class="size-3.5" />
                                     {/if}
@@ -174,7 +174,7 @@
                 </Card>
 
                 <!-- 2. Datos del Receptor / Cliente -->
-                <Card class="p-4 rounded-xl border border-border/80 bg-card space-y-3">
+                <Card class="p-4 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 space-y-3">
                     <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground border-b border-border/60 pb-2">
                         <User class="size-4 text-primary" />
                         <span>Receptor del Comprobante</span>
@@ -217,13 +217,13 @@
 
                 <!-- 3. Pedido Asociado -->
                 {#if invoice.customer_order}
-                    <Card class="p-4 rounded-xl border border-border/80 bg-card space-y-2">
+                    <Card class="p-4 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 space-y-2">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                                 <ShoppingBag class="size-4 text-primary" />
                                 <span>Pedido Asociado</span>
                             </div>
-                            <span class="text-xs font-semibold font-sans tabular-nums px-2 py-0.5 rounded-md bg-muted text-foreground border border-border">
+                            <span class="text-xs font-semibold font-sans tabular-nums px-2 py-0.5 rounded-md bg-card dark:bg-secondary/60 text-foreground border border-border/80">
                                 {invoice.customer_order.order_number}
                             </span>
                         </div>
@@ -231,7 +231,7 @@
                 {/if}
 
                 <!-- 4. Cuadro de Totales y Desglose Impositivo -->
-                <Card class="p-4 rounded-xl border border-border/80 bg-card space-y-2">
+                <Card class="p-4 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 space-y-2">
                     <div class="space-y-1.5 text-xs">
                         <div class="flex items-center justify-between text-muted-foreground">
                             <span>Importe Neto Gravado:</span>

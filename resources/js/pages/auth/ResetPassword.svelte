@@ -44,7 +44,7 @@
                     name="email"
                     autocomplete="email"
                     value={email}
-                    class="mt-1 block w-full"
+                    class="mt-1 block w-full bg-field border-input"
                     readonly
                 />
                 <InputError message={errors.email} class="mt-2" />
@@ -56,7 +56,7 @@
                     id="password"
                     name="password"
                     autocomplete="new-password"
-                    class="mt-1 block w-full"
+                    class="mt-1 block w-full bg-field border-input"
                     placeholder="Password"
                     passwordrules={passwordRules}
                 />
@@ -69,7 +69,7 @@
                     id="password_confirmation"
                     name="password_confirmation"
                     autocomplete="new-password"
-                    class="mt-1 block w-full"
+                    class="mt-1 block w-full bg-field border-input"
                     placeholder="Confirm password"
                     passwordrules={passwordRules}
                 />

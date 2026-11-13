@@ -10,7 +10,7 @@
         text = '',
         query = '',
         class: className = '',
-        highlightClass = 'font-bold text-primary underline decoration-primary/40 underline-offset-2',
+        highlightClass = 'font-bold text-primary group-aria-selected:text-accent-foreground underline decoration-primary/40 group-aria-selected:decoration-accent-foreground/60 underline-offset-2',
     }: Props = $props();
 
     function removeDiacritics(str: string): string {

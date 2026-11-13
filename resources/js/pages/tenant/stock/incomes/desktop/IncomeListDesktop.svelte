@@ -123,26 +123,26 @@
 
 <div class="space-y-4">
     <!-- Toolbar de Filtros y Búsqueda -->
-    <div class="p-4 rounded-2xl border border-border/70 bg-card shadow-[0px_10px_30px_rgba(0,0,0,0.02)] flex items-center justify-between gap-3">
+    <div class="p-4 rounded-2xl border border-border/80 dark:border-border/90 bg-card shadow-[0px_10px_30px_rgba(0,0,0,0.02)] flex items-center justify-between gap-3">
         <!-- Pills de Filtro Rápido -->
         <div class="flex items-center gap-1.5">
             <button
                 type="button"
-                class="px-3.5 py-1.5 rounded-full text-sm font-medium transition-all {selectedPeriod === 'all' ? 'bg-primary text-primary-foreground shadow-2xs' : 'text-muted-foreground hover:bg-muted/80'}"
+                class="px-3.5 py-1.5 rounded-full text-sm font-medium transition-all {selectedPeriod === 'all' ? 'bg-primary-solid text-primary-foreground shadow-2xs' : 'text-muted-foreground hover:bg-muted/80 dark:hover:bg-secondary/60 hover:text-foreground'}"
                 onclick={() => (selectedPeriod = 'all')}
             >
                 Todos ({pagination ? pagination.total : movements.length})
             </button>
             <button
                 type="button"
-                class="px-3.5 py-1.5 rounded-full text-sm font-medium transition-all {selectedPeriod === 'week' ? 'bg-primary text-primary-foreground shadow-2xs' : 'text-muted-foreground hover:bg-muted/80'}"
+                class="px-3.5 py-1.5 rounded-full text-sm font-medium transition-all {selectedPeriod === 'week' ? 'bg-primary-solid text-primary-foreground shadow-2xs' : 'text-muted-foreground hover:bg-muted/80 dark:hover:bg-secondary/60 hover:text-foreground'}"
                 onclick={() => (selectedPeriod = 'week')}
             >
                 Esta semana
             </button>
             <button
                 type="button"
-                class="px-3.5 py-1.5 rounded-full text-sm font-medium transition-all {selectedPeriod === 'month' ? 'bg-primary text-primary-foreground shadow-2xs' : 'text-muted-foreground hover:bg-muted/80'}"
+                class="px-3.5 py-1.5 rounded-full text-sm font-medium transition-all {selectedPeriod === 'month' ? 'bg-primary-solid text-primary-foreground shadow-2xs' : 'text-muted-foreground hover:bg-muted/80 dark:hover:bg-secondary/60 hover:text-foreground'}"
                 onclick={() => (selectedPeriod = 'month')}
             >
                 Mes actual
@@ -168,7 +168,7 @@
                             <span class="truncate font-medium text-foreground">{mov.product?.name ?? 'Sin producto'}</span>
                             <span class="text-xs text-muted-foreground tabular-nums">{formatReason(mov.reason)} · {formatDateTime(mov.created_at)}</span>
                         </div>
-                        <span class="tabular-nums font-bold text-emerald-600 dark:text-emerald-400 text-xs shrink-0">
+                        <span class="tabular-nums font-bold text-emerald-700 dark:text-emerald-400 text-xs shrink-0">
                             +{mov.quantity}
                         </span>
                     </div>
@@ -180,12 +180,12 @@
     <!-- Lista de Wide Cards (Jerarquía Visual de Elementos) -->
     <div class="flex flex-col gap-3">
         {#each filteredMovements as mov (mov.id)}
-            <div class="bento-card group flex items-center justify-between gap-6 rounded-2xl border border-border/70 bg-card p-4.5 shadow-[0px_10px_30px_rgba(0,0,0,0.02)] transition-all duration-200 hover:shadow-lg hover:shadow-accent/20 hover:border-primary/40">
+            <div class="bento-card group flex items-center justify-between gap-6 rounded-2xl border border-border/80 dark:border-border/90 bg-card p-4.5 shadow-[0px_10px_30px_rgba(0,0,0,0.02)] transition-all duration-200 hover:shadow-lg hover:shadow-accent/20 hover:border-primary/40">
 
                 <!-- Lado Izquierdo: Icon Avatar + Datos Principales -->
                 <div class="flex items-center gap-4.5 min-w-0 flex-1">
                     <!-- Icon Avatar Badge -->
-                    <div class="size-13 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs transition-transform group-hover:scale-105">
+                    <div class="size-13 rounded-2xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/25 dark:border-emerald-500/30 flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs transition-transform group-hover:scale-105">
                         {getInitials(mov.product?.name)}
                     </div>
 
@@ -198,18 +198,18 @@
                             </h3>
 
                             {#if mov.product?.sku}
-                                <span class="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-xs tracking-wide text-muted-foreground border border-border/50 tabular-nums">
+                                <span class="inline-flex items-center rounded-md bg-muted/60 dark:bg-secondary/40 px-2 py-0.5 text-xs tracking-wide text-muted-foreground border border-border/70 dark:border-border/80 tabular-nums">
                                      SKU: {mov.product.sku}
                                  </span>
                             {/if}
 
-                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/50">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-500/25 dark:border-emerald-500/30">
                                 <Tag class="size-3" />
                                 {formatReason(mov.reason)}
                             </span>
 
                             {#if mov.warehouse}
-                                <span class="inline-flex items-center gap-1 rounded-md bg-muted/80 px-2 py-0.5 text-xs font-semibold text-foreground border border-border/70 shadow-2xs">
+                                <span class="inline-flex items-center gap-1 rounded-md bg-muted/80 dark:bg-secondary/50 px-2 py-0.5 text-xs font-semibold text-foreground border border-border/70 dark:border-border/80 shadow-2xs">
                                     <Building2 class="size-3 text-muted-foreground shrink-0" />
                                     {mov.warehouse.name}
                                 </span>
@@ -219,7 +219,7 @@
                         <!-- Fila 2: Notas y Detalles -->
                         {#if mov.notes}
                             <p class="text-xs text-muted-foreground line-clamp-1 flex items-center gap-1.5">
-                                <FileText class="size-3 text-muted-foreground/60 shrink-0" />
+                                <FileText class="size-3 text-muted-foreground/80 shrink-0" />
                                 <span>{mov.notes}</span>
                             </p>
                         {/if}
@@ -227,12 +227,12 @@
                         <!-- Fila 3: Metadatos (Responsable y Fecha) -->
                         <div class="flex items-center gap-4 text-xs text-muted-foreground mt-0.5">
                             <div class="flex items-center gap-1.5">
-                                <User class="size-3.5 text-muted-foreground/70" />
+                                <User class="size-3.5 text-muted-foreground/80" />
                                 <span>Registrado por: <strong class="text-foreground font-medium">{mov.user?.name ?? 'Sistema'}</strong></span>
                             </div>
                             <span class="text-border">•</span>
                             <div class="flex items-center gap-1.5 text-sm tabular-nums">
-                                <Calendar class="size-3.5 text-muted-foreground/70" />
+                                <Calendar class="size-3.5 text-muted-foreground/80" />
                                 <span>{formatDate(mov.created_at)}</span>
                             </div>
                         </div>
@@ -243,7 +243,7 @@
                 <div class="flex items-center gap-4 shrink-0 pl-4 border-l border-border/60">
                     <div class="text-right flex flex-col items-end gap-1">
                         <!-- Badge de Cantidad Ingresada -->
-                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 tabular-nums shadow-2xs">
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/25 dark:border-emerald-500/30 tabular-nums shadow-2xs">
                             <ArrowDownLeft class="size-3.5" />
                             +{mov.quantity} u.
                         </span>
@@ -252,7 +252,7 @@
                         <div class="flex items-center gap-1 text-sm tabular-nums text-muted-foreground">
                             <span>Stock:</span>
                             <span class="text-muted-foreground font-semibold">{mov.previous_stock}</span>
-                            <ArrowRight class="size-3 text-muted-foreground/60" />
+                            <ArrowRight class="size-3 text-muted-foreground/80" />
                             <span class="font-bold text-foreground text-sm">{mov.current_stock}</span>
                         </div>
                     </div>

@@ -27,7 +27,7 @@
         <div class="flex items-center justify-between gap-4 rounded-xl border border-border/70 bg-card p-4 sm:p-5 shadow-2xs hover:shadow-xs transition-shadow">
             <!-- Columna 1: Código del Ticket -->
             <div class="flex items-center gap-3 min-w-[240px]">
-                <div class="size-9 rounded-lg bg-primary-500/10 border border-primary-500/20 flex items-center justify-center text-primary shrink-0">
+                <div class="size-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
                     <KeyRound class="size-4" />
                 </div>
                 <div class="space-y-0.5">
@@ -36,7 +36,7 @@
                             #{ticket.unique_id}
                         </span>
                         {#if ticket.status === 'active'}
-                            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                                 <span class="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Activo
                             </span>
