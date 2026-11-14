@@ -143,7 +143,7 @@
         {#snippet actions()}
             <Button
                 variant="secondary"
-                class="min-h-[38px] px-3.5 rounded-xl font-medium gap-2 shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all w-full sm:w-auto justify-center"
+                class="min-h-[38px] px-3.5 rounded-xl font-medium gap-2 transition-all w-full sm:w-auto justify-center"
                 onclick={() => router.get('/tenant/cobranzas')}
             >
                 <ArrowLeft class="size-4" />
@@ -254,7 +254,7 @@
                 <select
                     bind:value={selectedCbteTipo}
                     onchange={applyFilters}
-                    class="h-11 w-full rounded-xl border border-border/80 bg-select-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                    class="h-11 w-full rounded-xl border border-input bg-field px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
                 >
                     {#each cbteTipoOptions as opt}
                         <option value={opt.value}>{opt.label}</option>
@@ -263,25 +263,25 @@
             </div>
 
             <!-- Rango Fecha Desde con Label Explícito -->
-            <div class="flex items-center gap-1.5 bg-background border border-border/80 rounded-xl px-3 h-11 shadow-2xs">
+            <div class="flex items-center gap-1.5 bg-field border border-input rounded-xl px-3 h-11 shadow-2xs focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
                 <span class="text-xs font-semibold text-muted-foreground whitespace-nowrap">Desde:</span>
                 <input
                     type="date"
                     bind:value={dateFrom}
                     onchange={applyFilters}
-                    class="bg-transparent border-0 p-0 text-xs font-medium text-foreground focus:outline-none focus:ring-0 cursor-pointer"
+                    class="bg-transparent border-0 p-0 text-xs font-medium text-foreground focus:outline-none focus:ring-0 cursor-pointer dark:[color-scheme:dark]"
                     aria-label="Fecha desde"
                 />
             </div>
 
             <!-- Rango Fecha Hasta con Label Explícito -->
-            <div class="flex items-center gap-1.5 bg-background border border-border/80 rounded-xl px-3 h-11 shadow-2xs">
+            <div class="flex items-center gap-1.5 bg-field border border-input rounded-xl px-3 h-11 shadow-2xs focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
                 <span class="text-xs font-semibold text-muted-foreground whitespace-nowrap">Hasta:</span>
                 <input
                     type="date"
                     bind:value={dateTo}
                     onchange={applyFilters}
-                    class="bg-transparent border-0 p-0 text-xs font-medium text-foreground focus:outline-none focus:ring-0 cursor-pointer"
+                    class="bg-transparent border-0 p-0 text-xs font-medium text-foreground focus:outline-none focus:ring-0 cursor-pointer dark:[color-scheme:dark]"
                     aria-label="Fecha hasta"
                 />
             </div>
@@ -291,7 +291,7 @@
                 <select
                     bind:value={sortBy}
                     onchange={applyFilters}
-                    class="h-11 w-full rounded-xl border border-border/80 bg-select-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                    class="h-11 w-full rounded-xl border border-input bg-field px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
                     title="Criterio de Ordenamiento"
                 >
                     {#each sortOptions as s}

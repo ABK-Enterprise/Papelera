@@ -101,7 +101,7 @@
                 <button
                     type="button"
                     onclick={handleCancel}
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
@@ -123,24 +123,25 @@
         <DialogFooter>
             <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 onclick={handleCancel}
                 disabled={isBusy}
-                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70"
+                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold"
             >
                 {cancelText}
             </Button>
             <Button
                 type="button"
+                variant={isDestructive
+                    ? 'destructive'
+                    : variant === 'warning'
+                      ? 'warning'
+                      : variant === 'success'
+                        ? 'success'
+                        : 'default'}
                 onclick={handleConfirm}
                 disabled={isBusy}
-                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-28 shadow-xs {isDestructive
-                    ? 'bg-rose-600 hover:bg-rose-700 text-white dark:bg-rose-600 dark:hover:bg-rose-700'
-                    : variant === 'warning'
-                      ? 'bg-amber-600 hover:bg-amber-700 text-white'
-                      : variant === 'success'
-                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-700'
-                        : ''}"
+                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-28 shadow-xs"
             >
                 {isBusy ? 'Procesando...' : confirmText}
             </Button>

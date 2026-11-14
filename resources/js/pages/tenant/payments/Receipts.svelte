@@ -178,7 +178,7 @@
         {#snippet actions()}
             <Button
                 variant="secondary"
-                class="min-h-[38px] px-3.5 rounded-xl font-medium gap-2 shadow-2xs hover:bg-secondary/90 border border-border/30 transition-all"
+                class="min-h-[38px] px-3.5 rounded-xl font-medium gap-2 transition-all"
                 onclick={() => router.get('/tenant/cobranzas')}
             >
                 <ArrowLeft class="size-4" />
@@ -233,7 +233,7 @@
                 <select
                     bind:value={selectedMethod}
                     onchange={applyFilters}
-                    class="h-11 w-full rounded-xl border border-border/80 bg-select-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                    class="h-11 w-full rounded-xl border border-input bg-field px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
                 >
                     {#each paymentMethods as m}
                         <option value={m.value}>{m.label}</option>
@@ -246,7 +246,7 @@
                 <select
                     bind:value={selectedStatus}
                     onchange={applyFilters}
-                    class="h-11 w-full rounded-xl border border-border/80 bg-select-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                    class="h-11 w-full rounded-xl border border-input bg-field px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
                 >
                     {#each statusOptions as s}
                         <option value={s.value}>{s.label}</option>
@@ -329,7 +329,7 @@
         </DialogHeader>
 
         {#if voidErrorMessage}
-            <div class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs flex items-center gap-2">
+            <div class="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-400 text-xs flex items-center gap-2">
                 <AlertCircle class="size-4 shrink-0" />
                 <span class="font-medium">{voidErrorMessage}</span>
             </div>
@@ -338,7 +338,7 @@
         <form onsubmit={handleVoidSubmit} class="space-y-4">
             <div class="space-y-1.5">
                 <Label for="void-reason" class="text-xs font-semibold text-foreground">
-                    Motivo de Anulación <span class="text-destructive">*</span>
+                    Motivo de Anulación <span class="text-rose-700 dark:text-rose-400">*</span>
                 </Label>
                 <textarea
                     id="void-reason"
@@ -346,7 +346,7 @@
                     rows="3"
                     maxlength="255"
                     placeholder="Ej. Cheque rechazado, error en monto imputado, duplicado..."
-                    class="w-full rounded-xl border border-border/80 bg-background p-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                    class="w-full rounded-xl border border-input bg-field p-3 text-xs font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                     required
                 ></textarea>
             </div>

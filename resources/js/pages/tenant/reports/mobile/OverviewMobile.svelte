@@ -164,7 +164,7 @@
                 {/if}
             </div>
             {#if canViewMargins}
-                <div class="size-8 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                <div class="size-8 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-700 dark:text-rose-400">
                     <TrendingDown class="size-4" />
                 </div>
             {/if}
@@ -178,7 +178,7 @@
                     {formatMoney(overviewData.kpis.total_revenues)}
                 </div>
             </div>
-            <div class="size-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+            <div class="size-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
                 <TrendingUp class="size-4" />
             </div>
         </Card>
@@ -188,7 +188,7 @@
             <div>
                 <span class="text-sm font-semibold text-muted-foreground">Margen Operativo</span>
                 {#if canViewMargins}
-                    <div class="text-xl font-bold tabular-nums {overviewData.kpis.operating_margin !== null && overviewData.kpis.operating_margin < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'} mt-0.5">
+                    <div class="text-xl font-bold tabular-nums {overviewData.kpis.operating_margin !== null && overviewData.kpis.operating_margin < 0 ? 'text-rose-700 dark:text-rose-400' : 'text-foreground'} mt-0.5">
                         {formatMoney(overviewData.kpis.operating_margin)}
                     </div>
                 {:else}
@@ -197,7 +197,7 @@
             </div>
             {#if canViewMargins && overviewData.kpis.operating_margin !== null}
                 {@const isPositive = overviewData.kpis.operating_margin >= 0}
-                <div class="size-8 rounded-full flex items-center justify-center {isPositive ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'}">
+                <div class="size-8 rounded-full flex items-center justify-center {isPositive ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-700 dark:text-rose-400'}">
                     {#if isPositive}
                         <TrendingUp class="size-4" />
                     {:else}
@@ -238,9 +238,9 @@
                 No se registraron cobranzas en este período.
             </div>
         {:else}
-            <div class="flex flex-col divide-y divide-border/40">
+            <div class="flex flex-col gap-2">
                 {#each overviewData.receipts_detail.slice(0, 5) as r (r.id)}
-                    <div class="py-2.5 flex items-center justify-between text-xs">
+                    <div class="p-2.5 rounded-lg bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex items-center justify-between text-xs">
                         <div class="min-w-0">
                             <span class="font-semibold text-foreground block">{r.receipt_number}</span>
                             <span class="text-muted-foreground capitalize">{r.payment_method.replace('_', ' ')} • {r.date}</span>
@@ -262,11 +262,11 @@
                 No hay ventas de productos registradas.
             </div>
         {:else}
-            <div class="flex flex-col divide-y divide-border/40">
+            <div class="flex flex-col gap-2">
                 {#each overviewData.top_products as p, i (p.product_id)}
-                    <div class="py-2.5 flex items-center justify-between text-xs">
+                    <div class="p-2.5 rounded-lg bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex items-center justify-between text-xs">
                         <div class="flex items-center gap-2 min-w-0">
-                            <span class="size-4.5 rounded-full bg-muted text-muted-foreground text-[10px] flex items-center justify-center font-bold shrink-0">
+                            <span class="size-5 rounded-full bg-card dark:bg-secondary/60 border border-border/80 dark:border-border/90 text-foreground text-[10px] flex items-center justify-center font-bold shrink-0 tabular-nums">
                                 {i + 1}
                             </span>
                             <div class="min-w-0">
@@ -291,11 +291,11 @@
                 No hay clientes compradores registrados.
             </div>
         {:else}
-            <div class="flex flex-col divide-y divide-border/40">
+            <div class="flex flex-col gap-2">
                 {#each overviewData.top_buyers as b, i (b.customer_id)}
-                    <div class="py-2.5 flex items-center justify-between text-xs">
+                    <div class="p-2.5 rounded-lg bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex items-center justify-between text-xs">
                         <div class="flex items-center gap-2 min-w-0">
-                            <span class="size-4.5 rounded-full bg-muted text-muted-foreground text-[10px] flex items-center justify-center font-bold shrink-0">
+                            <span class="size-5 rounded-full bg-card dark:bg-secondary/60 border border-border/80 dark:border-border/90 text-foreground text-[10px] flex items-center justify-center font-bold shrink-0 tabular-nums">
                                 {i + 1}
                             </span>
                             <div class="min-w-0">

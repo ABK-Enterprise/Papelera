@@ -71,7 +71,7 @@
                             </div>
                         </div>
                     </div>
-                    <DialogClose class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0">
+                    <DialogClose class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0">
                         <X class="size-4" />
                     </DialogClose>
                 </div>
@@ -80,14 +80,14 @@
             <DialogBody class="space-y-4 py-3 overflow-y-auto max-h-[60vh]">
                 <!-- Descripción -->
                 {#if module.description}
-                    <div class="p-3.5 rounded-xl border border-border/60 bg-muted/20">
+                    <div class="p-3.5 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                         <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1">Descripción</span>
                         <p class="text-sm text-foreground leading-relaxed">{module.description}</p>
                     </div>
                 {/if}
 
                 <!-- Cobertura -->
-                <div class="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-xl border border-border/50 bg-muted/20 tabular-nums">
+                <div class="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 tabular-nums">
                     <Icon icon="solar:shop-bold-duotone" class="size-4 text-muted-foreground/80" />
                     <span>Contratado por: <strong class="text-foreground font-semibold">{module.tenants_count ?? 0}</strong> {module.tenants_count === 1 ? 'comercio' : 'comercios'}</span>
                 </div>
@@ -98,9 +98,9 @@
                         Permisos asignados ({module.permissions.length})
                     </span>
 
-                    <div class="flex flex-wrap gap-1.5 p-3 rounded-xl border border-border/50 bg-card max-h-40 overflow-y-auto">
+                    <div class="flex flex-wrap gap-1.5 p-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 max-h-40 overflow-y-auto">
                         {#each module.permissions as perm (perm.id)}
-                            <span class="inline-flex items-center text-xs tabular-nums bg-muted/50 border border-border/60 text-foreground px-2.5 py-1 rounded-lg">
+                            <span class="inline-flex items-center text-xs tabular-nums bg-card dark:bg-secondary/70 border border-border/80 text-foreground px-2.5 py-1 rounded-lg">
                                 {perm.name}
                             </span>
                         {/each}
@@ -115,7 +115,7 @@
             <DialogFooter class="pt-3 border-t border-border/50">
                 <DialogClose class="w-full" asChild>
                     {#snippet children({ onClick })}
-                        <Button variant="outline" class="w-full min-h-[44px] rounded-xl text-sm font-medium" onclick={onClick}>
+                        <Button variant="secondary" class="w-full min-h-[44px] rounded-xl text-sm font-medium" onclick={onClick}>
                             Cerrar
                         </Button>
                     {/snippet}

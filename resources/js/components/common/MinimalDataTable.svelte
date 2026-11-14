@@ -50,7 +50,7 @@
         <div class="overflow-x-auto">
             <table class={cn('w-full text-left border-collapse', tableClass)}>
                 {#if header || headers}
-                    <thead class="bg-muted/40">
+                    <thead class="bg-muted/50 dark:bg-secondary/35">
                         <tr class={cn('border-b border-border/80 text-xs font-semibold text-muted-foreground uppercase tracking-wider', headerClass)}>
                             {@render (header ?? headers)?.()}
                         </tr>
@@ -58,7 +58,7 @@
                 {/if}
                 <tbody class={cn('divide-y divide-border/40 text-sm', bodyClass)}>
                     {#each items as item, index (getItemKey(item, index))}
-                        <tr class={cn('transition-colors hover:bg-muted/30', getRowClass(item, index))}>
+                        <tr class={cn('transition-colors hover:bg-muted/40 dark:hover:bg-secondary/35', getRowClass(item, index))}>
                             {@render (row ?? children)?.(item, index)}
                         </tr>
                     {/each}
@@ -70,7 +70,7 @@
     {#if empty}
         {@render empty()}
     {:else}
-        <div class={cn('rounded-xl border border-dashed border-border/80 p-8 text-center bg-card/40 flex flex-col items-center justify-center shadow-xs', className)}>
+        <div class={cn('rounded-xl border border-dashed border-border/80 p-8 text-center bg-card/80 dark:bg-card flex flex-col items-center justify-center shadow-xs', className)}>
             <p class="text-sm text-muted-foreground">{emptyText}</p>
         </div>
     {/if}

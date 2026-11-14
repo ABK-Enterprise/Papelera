@@ -105,7 +105,7 @@
 
 <Dialog bind:open>
     <DialogContent class="sm:max-w-[500px]">
-        <form onsubmit={handleSubmit} class="flex flex-col">
+        <form onsubmit={handleSubmit} class="flex flex-col gap-[1px]">
             <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
                 <div class="flex items-center gap-2.5 sm:gap-3.5">
                     <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
@@ -164,7 +164,7 @@
                         <select
                             id="wh-branch"
                             bind:value={form.branch_id}
-                            class="w-full h-10 rounded-xl border border-border/80 bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                            class="w-full h-10 rounded-xl border border-input bg-field px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                         >
                             <option value={null}>Sin sucursal asignada (Depósito Independiente)</option>
                             {#each branches as br}
@@ -198,7 +198,7 @@
                 </div>
 
                 <!-- Switches con Separador Vertical y Centrados -->
-                <div class="rounded-2xl border border-border/70 bg-muted/30 p-3.5 sm:p-4 mt-2">
+                <div class="rounded-2xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-3.5 sm:p-4 mt-2">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-around gap-4">
                         <!-- Switch 1: Activo -->
                         <div class="flex items-center justify-between sm:justify-center gap-3">
@@ -235,11 +235,11 @@
                 </div>
             </DialogBody>
 
-            <DialogFooter class="p-5 sm:p-6 border-t border-border/60 gap-2.5 sm:gap-2.5 bg-muted/10">
+            <DialogFooter class="p-5 sm:p-6 border-t border-border/60 gap-2.5 sm:gap-2.5 bg-muted/20 dark:bg-secondary/20">
                 <Button
                     type="button"
-                    variant="outline"
-                    class="min-h-[44px] px-5 rounded-xl text-sm font-medium border-border/70 hover:bg-muted/60 transition-colors"
+                    variant="secondary"
+                    class="min-h-[44px] px-5 rounded-xl text-sm font-medium"
                     onclick={() => (open = false)}
                 >
                     Cancelar

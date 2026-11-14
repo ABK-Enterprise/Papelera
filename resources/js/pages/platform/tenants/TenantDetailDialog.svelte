@@ -61,7 +61,7 @@
                             </span>
                         </div>
                     </div>
-                    <DialogClose class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0">
+                    <DialogClose class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0">
                         <X class="size-4" />
                     </DialogClose>
                 </div>
@@ -70,15 +70,15 @@
 
             <DialogBody class="space-y-4 py-3 overflow-y-auto max-h-[60vh]">
                 <!-- Estado -->
-                <div class="flex items-center justify-between p-3 rounded-xl bg-muted/40 border border-border/50">
+                <div class="flex items-center justify-between p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90">
                     <span class="text-xs font-medium text-muted-foreground">Estado del comercio</span>
                     {#if tenant.is_active}
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                             <span class="size-1.5 rounded-full bg-emerald-500"></span>
                             Activo
                         </span>
                     {:else}
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20">
                             <span class="size-1.5 rounded-full bg-rose-500"></span>
                             Suspendido
                         </span>
@@ -87,7 +87,7 @@
 
                 <!-- Métricas -->
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="p-3.5 rounded-xl border border-border/60 bg-muted/20">
+                    <div class="p-3.5 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                         <div class="flex items-center gap-2 text-muted-foreground text-xs font-medium">
                             <Icon icon="solar:users-group-rounded-bold-duotone" class="size-3.5" />
                             <span>Usuarios</span>
@@ -96,7 +96,7 @@
                             {tenant.users_count ?? 0}
                         </div>
                     </div>
-                    <div class="p-3.5 rounded-xl border border-border/60 bg-muted/20">
+                    <div class="p-3.5 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                         <div class="flex items-center gap-2 text-muted-foreground text-xs font-medium">
                             <Icon icon="solar:box-minimalistic-bold-duotone" class="size-3.5" />
                             <span>Productos</span>
@@ -108,7 +108,7 @@
                 </div>
 
                 <!-- Fecha de alta -->
-                <div class="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-xl border border-border/50 bg-muted/20">
+                <div class="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                     <Icon icon="solar:calendar-bold-duotone" class="size-4 text-muted-foreground/70" />
                     <span>Fecha de alta: <span class="tabular-nums">{formatDate(tenant.created_at)}</span></span>
                 </div>
@@ -119,7 +119,7 @@
                         <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Módulos contratados</span>
                         <div class="flex flex-wrap gap-1.5">
                             {#each tenant.modules as mod}
-                                <Badge variant="outline" class="text-xs font-medium tracking-wide bg-muted/50 px-2.5 py-0.5">
+                                <Badge variant="outline" class="text-xs font-medium tracking-wide bg-muted/60 dark:bg-secondary/50 border-border/80 px-2.5 py-0.5">
                                     {mod.name}
                                 </Badge>
                             {/each}

@@ -96,7 +96,7 @@
         <DialogBody class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
             {#if order}
                 <!-- Resumen de Pedido -->
-                <div class="rounded-2xl border border-border/70 bg-background/50 p-4 space-y-2">
+                <div class="rounded-2xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-4 space-y-2">
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-semibold text-foreground">{order.customer_name}</span>
                         <span class="text-xs font-sans font-bold text-primary tabular-nums">#{order.order_number}</span>
@@ -107,7 +107,7 @@
                         </p>
                     {/if}
                     {#if order.delivery_notes}
-                        <p class="text-xs text-muted-foreground italic bg-background/60 p-2 rounded-xl border border-border/40">
+                        <p class="text-xs text-muted-foreground italic bg-muted/60 dark:bg-secondary/50 p-2 rounded-xl border border-border/80 dark:border-border/90">
                             Notas del chofer: "{order.delivery_notes}"
                         </p>
                     {/if}
@@ -121,8 +121,8 @@
                         <button
                             type="button"
                             class="flex items-start gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer {destination === 'en_preparacion'
-                                ? 'border-primary bg-primary/10 text-foreground shadow-2xs'
-                                : 'border-border/80 bg-background/40 hover:bg-muted/30 text-muted-foreground'}"
+                                ? 'border-primary bg-primary/10 dark:bg-primary/15 text-foreground shadow-2xs'
+                                : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-muted-foreground'}"
                             onclick={() => (destination = 'en_preparacion')}
                         >
                             <div class="size-9 rounded-xl flex items-center justify-center shrink-0 {destination === 'en_preparacion' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}">
@@ -145,8 +145,8 @@
                         <button
                             type="button"
                             class="flex items-start gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer {destination === 'cancelado'
-                                ? 'border-destructive bg-destructive/10 text-foreground shadow-2xs'
-                                : 'border-border/80 bg-background/40 hover:bg-muted/30 text-muted-foreground'}"
+                                ? 'border-destructive bg-destructive/10 dark:bg-destructive/15 text-foreground shadow-2xs'
+                                : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-muted-foreground'}"
                             onclick={() => (destination = 'cancelado')}
                         >
                             <div class="size-9 rounded-xl flex items-center justify-center shrink-0 {destination === 'cancelado' ? 'bg-destructive text-destructive-foreground' : 'bg-muted text-muted-foreground'}">
@@ -176,7 +176,7 @@
                         maxlength="255"
                         placeholder="Ej: Cliente acordó reprogramación para mañana / mercadería devuelta a depósito..."
                         bind:value={reason}
-                        class="resize-none bg-background border-border/80 text-sm rounded-xl"
+                        class="resize-none bg-field border-input text-sm rounded-xl"
                     />
                 </div>
 

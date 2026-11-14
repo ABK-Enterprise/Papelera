@@ -89,14 +89,14 @@
                         <AlertTriangle class="size-5 sm:size-6 text-rose-600 dark:text-rose-400" />
                     </div>
                     <div class="min-w-0 flex-1 flex flex-col justify-center">
-                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate text-rose-600 dark:text-rose-400">
+                        <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight leading-snug sm:leading-normal py-0.5 sm:py-1 truncate text-rose-700 dark:text-rose-400">
                             Registrar visita fallida
                         </DialogTitle>
                         <DialogDescription class="sr-only">Indica la causa por la que no se pudo completar la entrega en el domicilio</DialogDescription>
                     </div>
                 </div>
                 {#if order}
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold font-sans tabular-nums bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold font-sans tabular-nums bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/20 shrink-0">
                         #{order.order_number}
                     </span>
                 {/if}
@@ -105,7 +105,7 @@
 
         <DialogBody class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
             {#if order}
-                <div class="rounded-xl border border-border/70 bg-background/50 p-4 space-y-2 text-xs">
+                <div class="rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-4 space-y-2 text-xs">
                     <div class="flex items-center justify-between">
                         <span class="font-semibold text-foreground text-sm">{order.customer_name}</span>
                         <span class="font-sans font-bold text-muted-foreground tabular-nums">#{order.order_number}</span>
@@ -121,7 +121,7 @@
                     <select
                         id="failure-reason"
                         bind:value={failureReason}
-                        class="w-full h-11 px-3 text-sm rounded-xl border border-border/80 bg-select-background text-foreground focus:outline-none focus:border-rose-500 transition-all min-h-[44px]"
+                        class="w-full h-11 px-3 text-sm rounded-xl border border-input bg-field text-foreground focus:outline-none focus:border-primary transition-all min-h-[44px]"
                     >
                         {#each reasons as r}
                             <option value={r.value}>{r.label}</option>
@@ -138,7 +138,7 @@
                         maxlength="255"
                         placeholder="Describe lo ocurrido (ej: Timbre no funciona, se intentó llamar por celular sin respuesta...)"
                         bind:value={deliveryNotes}
-                        class="resize-none bg-background border-border/80 text-sm"
+                        class="resize-none bg-field border-input text-sm"
                     />
                 </div>
 

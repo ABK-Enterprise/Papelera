@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { Button } from '@/components/ui/button';
     import AppPagination, { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import EmptyState from '@/components/common/EmptyState.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
@@ -98,7 +99,7 @@
         >
             {#if order.price_review_pending}
                 <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-semibold">
-                    <AlertTriangle class="size-3.5 text-amber-600 shrink-0" />
+                    <AlertTriangle class="size-3.5 text-amber-700 dark:text-amber-400 shrink-0" />
                     <span>Precios de catálogo desactualizados</span>
                 </div>
             {/if}
@@ -195,21 +196,23 @@
                 </span>
                 <div class="flex items-center gap-2 shrink-0">
                     {#if canCollect(order)}
-                        <button
+                        <Button
                             type="button"
+                            variant="default"
+                            size="icon"
                             onclick={() => onCollectOrder?.(order)}
-                            class="size-11 min-h-[44px] min-w-[44px] rounded-xl border border-primary/40 bg-primary/10 shadow-2xs hover:bg-primary/20 text-primary transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                            class="size-11 min-h-[44px] min-w-[44px] rounded-xl shrink-0 cursor-pointer"
                             aria-label="Cobrar pedido"
                             title="Cobrar pedido"
                         >
                             <ReceiptText class="size-4.5" />
-                        </button>
+                        </Button>
                     {/if}
 
                     <button
                         type="button"
                         onclick={() => onSelectOrder(order)}
-                        class="size-11 min-h-[44px] min-w-[44px] rounded-xl border border-border/80 bg-background/80 shadow-2xs hover:bg-muted hover:border-border text-foreground transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                        class="size-11 min-h-[44px] min-w-[44px] rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 shadow-2xs text-foreground transition-colors cursor-pointer flex items-center justify-center shrink-0"
                         aria-label="Ver detalle"
                         title="Ver detalle"
                     >
@@ -220,7 +223,7 @@
                         type="button"
                         disabled={!canEditPrices(order)}
                         onclick={() => onEditPrices?.(order)}
-                        class="size-11 min-h-[44px] min-w-[44px] rounded-xl border border-border/80 bg-background/80 shadow-2xs hover:bg-muted hover:border-border text-foreground transition-colors flex items-center justify-center shrink-0 {!canEditPrices(order) ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'cursor-pointer'}"
+                        class="size-11 min-h-[44px] min-w-[44px] rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 shadow-2xs text-foreground transition-colors flex items-center justify-center shrink-0 {!canEditPrices(order) ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'cursor-pointer'}"
                         aria-label="Modificar pedido"
                         title={!canEditPrices(order) ? 'No se pueden modificar pedidos entregados, cancelados o facturados' : 'Modificar pedido (precios o agregar productos)'}
                     >

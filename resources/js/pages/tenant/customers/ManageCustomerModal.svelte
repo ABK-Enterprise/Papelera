@@ -247,11 +247,11 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-2xl max-h-[85vh]">
+    <DialogContent class="max-w-[682px] max-h-[85vh]">
         <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
             <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 w-full">
                 <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
-                    <div class="size-10 sm:size-12 rounded-xl {form.is_defaulter ? 'bg-amber-500/10 text-amber-600 border border-amber-500/20' : 'bg-primary/10 text-primary border border-primary/20'} flex items-center justify-center shrink-0">
+                    <div class="size-10 sm:size-12 rounded-xl {form.is_defaulter ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20' : 'bg-primary/10 text-primary border border-primary/20'} flex items-center justify-center shrink-0">
                         <Icon class="size-5 sm:size-6" icon={form.is_defaulter ? 'solar:danger-triangle-bold-duotone' : 'solar:shop-bold-duotone'} />
                     </div>
                     <div class="min-w-0 flex-1 flex items-center gap-2 flex-wrap">
@@ -259,12 +259,12 @@
                             Gestión de Cliente
                         </DialogTitle>
                         {#if form.is_defaulter}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                                 Moroso
                             </span>
                         {/if}
                         {#if form.is_active}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                                 Activo
                             </span>
                         {:else}
@@ -283,7 +283,7 @@
                                     <button
                                         {...props}
                                         type="button"
-                                        class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                                        class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer"
                                         aria-label="Más opciones"
                                     >
                                         <MoreHorizontal class="size-4" />
@@ -297,7 +297,7 @@
                                             {#snippet children(props)}
                                                 <button
                                                     type="button"
-                                                    class="{props.class} w-full flex items-center text-rose-600 dark:text-rose-400 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30 gap-2 text-xs font-medium cursor-pointer"
+                                                    class="{props.class} w-full flex items-center text-rose-700 dark:text-rose-400 focus:text-rose-700 dark:focus:text-rose-300 focus:bg-rose-500/10 dark:focus:bg-rose-500/15 gap-2 text-xs font-medium cursor-pointer"
                                                     onclick={() => {
                                                         props.onClick?.();
                                                         showDeactivateConfirm = true;
@@ -313,7 +313,7 @@
                                             {#snippet children(props)}
                                                 <button
                                                     type="button"
-                                                    class="{props.class} w-full flex items-center text-emerald-600 dark:text-emerald-400 focus:text-emerald-600 focus:bg-emerald-50 dark:focus:bg-emerald-950/30 gap-2 text-xs font-medium cursor-pointer"
+                                                    class="{props.class} w-full flex items-center text-emerald-700 dark:text-emerald-400 focus:text-emerald-700 dark:focus:text-emerald-300 focus:bg-emerald-500/10 dark:focus:bg-emerald-500/15 gap-2 text-xs font-medium cursor-pointer"
                                                     onclick={() => {
                                                         props.onClick?.();
                                                         showActivateConfirm = true;
@@ -334,7 +334,7 @@
                                         {#snippet children(props)}
                                             <button
                                                 type="button"
-                                                class="{props.class} w-full flex items-center text-destructive focus:text-destructive focus:bg-destructive/10 gap-2 text-xs font-medium cursor-pointer"
+                                                class="{props.class} w-full flex items-center text-rose-700 dark:text-rose-400 focus:text-rose-700 dark:focus:text-rose-300 focus:bg-rose-500/10 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-500/10 gap-2 text-xs font-medium cursor-pointer"
                                                 onclick={() => {
                                                     props.onClick?.();
                                                     showDeleteConfirm = true;
@@ -353,7 +353,7 @@
                     <button
                         type="button"
                         onclick={handleClose}
-                        class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                        class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                         aria-label="Cerrar"
                     >
                         <X class="size-4" />
@@ -409,7 +409,7 @@
                         <select
                             id="manage-customer-tax-condition"
                             bind:value={form.tax_condition}
-                            class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:bg-transparent disabled:border-dashed"
+                            class="h-10 w-full rounded-xl border border-input bg-field px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:bg-muted/40 disabled:text-muted-foreground disabled:opacity-65"
                         >
 
                             <option value="consumidor_final">Consumidor Final</option>
@@ -486,7 +486,7 @@
                             id="manage-customer-province"
                             bind:value={form.province}
                             onchange={onProvinceChange}
-                            class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                            class="h-10 w-full rounded-xl border border-input bg-field px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
                         >
                             <option value="">Selecciona provincia...</option>
                             {#each provinces.length > 0 ? provinces : ARGENTINE_PROVINCES_FALLBACK.map(p => ({ id: p, name: p })) as prov}
@@ -505,7 +505,7 @@
                             bind:value={selectedDepartmentId}
                             onchange={onDepartmentChange}
                             disabled={!form.province || isLoadingDepartments}
-                            class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            class="h-10 w-full rounded-xl border border-input bg-field px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:bg-muted/40 disabled:text-muted-foreground disabled:opacity-65 disabled:cursor-not-allowed cursor-pointer"
                         >
                             <option value="">
                                 {#if isLoadingDepartments}
@@ -545,7 +545,7 @@
                                 id="manage-customer-city"
                                 bind:value={form.city}
                                 disabled={(!selectedDepartmentId && localities.length === 0) || isLoadingLocalities}
-                                class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="h-10 w-full rounded-xl border border-input bg-field px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:bg-muted/40 disabled:text-muted-foreground disabled:opacity-65 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <option value="">
                                     {#if isLoadingLocalities}
@@ -571,7 +571,7 @@
                 </div>
 
                 <!-- Límite de Crédito & Descuento Habitual & Flags -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 p-3.5 rounded-xl border bg-muted/15">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 p-3.5 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                     <div class="space-y-1.5">
                         <Label for="manage-customer-credit" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                             <CreditCard class="h-3.5 w-3.5 text-muted-foreground" />
@@ -625,7 +625,7 @@
                                 bind:checked={form.is_defaulter}
                                 class="size-4 rounded border-border text-rose-600 focus:ring-rose-500"
                             />
-                            <span class="flex items-center gap-1 text-rose-600 dark:text-rose-400">
+                            <span class="flex items-center gap-1 text-rose-700 dark:text-rose-400">
                                 <AlertTriangle class="size-3.5" />
                                 Moroso / Riesgo
                             </span>
@@ -654,7 +654,7 @@
                         rows="2"
                         maxlength="255"
                         placeholder="ej. Preferencias de entrega o historial crediticio..."
-                        class="w-full rounded-xl border border-border/80 bg-background p-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:bg-transparent disabled:border-dashed resize-none"
+                        class="w-full rounded-xl border border-input bg-field p-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:bg-muted/40 disabled:text-muted-foreground disabled:opacity-65 resize-none"
                     ></textarea>
 
                     {#if form.errors.notes}
@@ -665,7 +665,7 @@
         </DialogBody>
 
         <DialogFooter class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2">
-            <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-medium">
+            <Button type="button" variant="secondary" onclick={handleClose} disabled={form.processing || isDeleting} class="min-h-[44px] px-4 rounded-xl text-sm font-medium">
                 Cancelar
             </Button>
             {#if canEdit}

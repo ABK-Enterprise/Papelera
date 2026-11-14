@@ -111,7 +111,7 @@
         <Card class="p-5 flex flex-col justify-between bg-card border-border/70 shadow-xs col-span-2 md:col-span-1">
             <div class="flex items-center justify-between">
                 <span class="text-base font-semibold tracking-normal text-muted-foreground">Ingresos Totales</span>
-                <div class="size-7 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                <div class="size-7 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
                     <TrendingUp class="size-4" />
                 </div>
             </div>

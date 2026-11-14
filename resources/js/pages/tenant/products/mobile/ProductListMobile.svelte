@@ -158,7 +158,7 @@
                                     {/if}
                                 {/if}
                                 <DropdownMenuItem
-                                    class="flex items-center gap-2 text-sm font-medium text-destructive cursor-pointer py-2.5 min-h-[44px] focus:text-destructive focus:bg-destructive/10"
+                                    class="flex items-center gap-2 text-sm font-medium text-rose-700 dark:text-rose-400 cursor-pointer py-2.5 min-h-[44px] focus:text-rose-700 dark:focus:text-rose-300 focus:bg-rose-500/10"
                                     onclick={() => promptDelete(product)}
                                 >
                                     <Trash2 class="size-4" />
@@ -201,7 +201,7 @@
                                     title="Subir foto"
                                     aria-label={`Subir foto para ${product.name}`}
                                 >
-                                    <span class="absolute bottom-0 right-0 bg-amber-600 hover:bg-amber-700 text-white size-5.5 rounded-tl-lg flex items-center justify-center shadow-xs">
+                                    <span class="absolute bottom-0 right-0 bg-amber-700 hover:bg-amber-800 text-white size-5.5 rounded-tl-lg flex items-center justify-center shadow-xs">
                                         <Camera class="size-3" />
                                     </span>
                                 </button>
@@ -232,7 +232,7 @@
                                     {formatPrice(product.price)} {isWeighable ? '/Kg' : ''}
                                 </span>
                             {:else}
-                                <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">
+                                <span class="text-xs font-semibold text-amber-700 dark:text-amber-400">
                                     Sin precio de venta
                                 </span>
                             {/if}
@@ -249,7 +249,7 @@
                 <div class="flex items-center justify-between gap-3 pt-2 border-t border-amber-500/20">
                     <div class="flex items-center gap-1.5 flex-wrap text-xs min-w-0">
                         {#if product.stock <= 0}
-                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wider bg-rose-500/10 text-rose-600 dark:text-rose-400 tabular-nums">
+                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wider bg-rose-500/10 text-rose-700 dark:text-rose-400 tabular-nums">
                                 Stock: {product.stock} {isWeighable ? 'Kg' : 'u'}
                             </span>
                         {:else}
@@ -267,7 +267,7 @@
                     {#if hasPermission('productos.editar') || isAdmin()}
                         <Link
                             href={`/tenant/productos/${product.id}/editar`}
-                            class="inline-flex items-center justify-center min-h-[44px] px-4 text-sm font-medium bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white rounded-xl shadow-xs transition-colors shrink-0"
+                            class="inline-flex items-center justify-center min-h-[44px] px-4 text-sm font-medium bg-amber-700 hover:bg-amber-800 active:bg-amber-900 text-white rounded-xl shadow-xs transition-colors shrink-0"
                         >
                             <span>Completar</span>
                         </Link>
@@ -286,7 +286,7 @@
                                     <button
                                         {...props}
                                         type="button"
-                                        class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] size-11 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
+                                        class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] size-11 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/60 dark:hover:bg-secondary/60 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
                                         aria-label={`Acciones para ${product.name}`}
                                     >
                                         <MoreVertical class="size-4" />
@@ -321,7 +321,7 @@
                                 {/if}
                                 {#if hasPermission('productos.eliminar') || isAdmin()}
                                     <DropdownMenuItem
-                                        class="flex items-center gap-2 text-sm font-medium text-destructive cursor-pointer py-2.5 min-h-[44px] focus:text-destructive focus:bg-destructive/10"
+                                        class="flex items-center gap-2 text-sm font-medium text-rose-700 dark:text-rose-400 cursor-pointer py-2.5 min-h-[44px] focus:text-rose-700 dark:focus:text-rose-300 focus:bg-rose-500/10"
                                         onclick={() => promptDelete(product)}
                                     >
                                         <Trash2 class="size-4" />
@@ -349,7 +349,7 @@
                         {/if}
                     </div>
                 {:else}
-                    <div class="relative size-12 shrink-0 rounded-xl border border-dashed border-border/80 overflow-hidden flex items-center justify-center bg-muted/20">
+                    <div class="relative size-12 shrink-0 rounded-xl border border-dashed border-border/80 overflow-hidden flex items-center justify-center bg-muted/40 dark:bg-secondary/35">
                         <IconContainer
                             size="lg"
                             variant={isWeighable ? 'info' : 'primary'}
@@ -363,7 +363,7 @@
                                 title="Subir foto"
                                 aria-label={`Subir foto para ${product.name}`}
                             >
-                                <span class="absolute bottom-0 right-0 bg-primary/90 hover:bg-primary text-primary-foreground size-5.5 rounded-tl-lg flex items-center justify-center shadow-xs">
+                                <span class="absolute bottom-0 right-0 bg-primary-solid hover:bg-primary text-primary-foreground size-5.5 rounded-tl-lg flex items-center justify-center shadow-xs">
                                     <Camera class="size-3" />
                                 </span>
                             </button>
@@ -389,14 +389,14 @@
                     </span>
 
                     {#if (product.effective_bulk_discount_percentage ?? 0) > 0}
-                        <span class="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 tabular-nums">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 tabular-nums">
                             Bulto (-{product.effective_bulk_discount_percentage}%): {formatPrice(product.bulk_discount_price ?? product.price)}
                         </span>
                     {/if}
 
                     <div class="flex items-center gap-1.5 mt-1.5 flex-wrap text-xs">
                         {#if product.stock <= 0}
-                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wider bg-rose-500/10 text-rose-600 dark:text-rose-400 tabular-nums">
+                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wider bg-rose-500/10 text-rose-700 dark:text-rose-400 tabular-nums">
                                 Agotado
                             </span>
                         {:else if product.stock <= product.min_stock}

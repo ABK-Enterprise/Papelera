@@ -146,8 +146,8 @@
         <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
             <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 w-full">
                 <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
-                    <div class="size-10 sm:size-12 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                        <Icon class="size-5 sm:size-6 text-emerald-600 dark:text-emerald-400" icon="solar:archive-down-minimalistic-bold-duotone" />
+                    <div class="size-10 sm:size-12 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/25 dark:border-emerald-500/30 flex items-center justify-center shrink-0">
+                        <Icon class="size-5 sm:size-6 text-emerald-700 dark:text-emerald-400" icon="solar:archive-down-minimalistic-bold-duotone" />
                     </div>
                     <div class="min-w-0 flex-1 flex items-center">
                         <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
@@ -161,7 +161,7 @@
                 <button
                     type="button"
                     onclick={closeModal}
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
@@ -201,12 +201,12 @@
                         {/snippet}
                     </SearchCombobox>
                     {#if form.errors.product_id}
-                        <p class="text-xs text-rose-500 font-medium">{form.errors.product_id}</p>
+                        <p class="text-xs text-destructive font-medium">{form.errors.product_id}</p>
                     {/if}
                 </div>
 
                 {#if selectedProduct}
-                    <div class="p-3 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between text-xs">
+                    <div class="p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex items-center justify-between text-xs">
                         <span class="text-muted-foreground">Stock actual registrado:</span>
                         <span class="font-semibold text-foreground tabular-nums">{selectedProduct.stock} unidades</span>
                     </div>
@@ -221,7 +221,7 @@
                         <select
                             id="income-warehouse"
                             bind:value={form.warehouse_id}
-                            class="w-full rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
+                            class="w-full rounded-xl border border-input bg-field px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
                         >
                             {#each warehouses as wh (wh.id)}
                                 <option value={String(wh.id)}>
@@ -230,7 +230,7 @@
                             {/each}
                         </select>
                         {#if form.errors.warehouse_id}
-                            <p class="text-xs text-rose-500 font-medium">{form.errors.warehouse_id}</p>
+                            <p class="text-xs text-destructive font-medium">{form.errors.warehouse_id}</p>
                         {/if}
                     </div>
                 {/if}
@@ -257,7 +257,7 @@
                         class="text-sm shadow-2xs tabular-nums"
                     />
                     {#if form.errors.quantity}
-                        <p class="text-xs text-rose-500 font-medium">{form.errors.quantity}</p>
+                        <p class="text-xs text-destructive font-medium">{form.errors.quantity}</p>
                     {/if}
                 </div>
 
@@ -269,7 +269,7 @@
                     <select
                         id="income-reason"
                         bind:value={form.reason}
-                        class="w-full rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
+                        class="w-full rounded-xl border border-input bg-field px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px]"
                     >
                         <option value="ingreso_manual">Ingreso manual / Ajuste inicial</option>
                         <option value="compra_proveedor">Compra de mercadería / Proveedor</option>
@@ -277,7 +277,7 @@
                         <option value="transferencia_deposito">Transferencia desde otro depósito</option>
                     </select>
                     {#if form.errors.reason}
-                        <p class="text-xs text-rose-500 font-medium">{form.errors.reason}</p>
+                        <p class="text-xs text-destructive font-medium">{form.errors.reason}</p>
                     {/if}
                 </div>
 
@@ -292,7 +292,7 @@
                             id="income-origin-warehouse"
                             bind:value={form.origin_warehouse_id}
                             disabled={availableOrigins.length === 0}
-                            class="w-full rounded-xl border border-border/80 bg-select-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px] disabled:opacity-60 disabled:cursor-not-allowed"
+                            class="w-full rounded-xl border border-input bg-field px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-2xs cursor-pointer min-h-[42px] disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             {#if availableOrigins.length === 0}
                                 <option value="" disabled selected>No hay depósito origen</option>
@@ -305,20 +305,20 @@
                             {/if}
                         </select>
                         {#if form.errors.origin_warehouse_id}
-                            <p class="text-xs text-rose-500 font-medium">{form.errors.origin_warehouse_id}</p>
+                            <p class="text-xs text-destructive font-medium">{form.errors.origin_warehouse_id}</p>
                         {/if}
                     </div>
 
                     <!-- Indicador visual con flechas de dirección -->
                     {#if originWarehouse && destWarehouse}
-                        <div class="p-3.5 rounded-xl bg-primary-500/5 border border-primary-500/20 flex items-center justify-between gap-2.5">
+                        <div class="p-3.5 rounded-xl bg-primary/10 dark:bg-primary/15 border border-primary/25 dark:border-primary/35 flex items-center justify-between gap-2.5">
                             <div class="min-w-0 flex-1">
                                 <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider block">Sale de</span>
                                 <span class="text-xs sm:text-sm font-semibold text-foreground truncate block">{originWarehouse.name}</span>
                             </div>
                             <div class="flex flex-col items-center justify-center shrink-0 px-2">
-                                <ArrowRight class="size-4 text-primary-500" />
-                                <span class="text-xs font-bold text-primary-600 dark:text-primary-400 tabular-nums">
+                                <ArrowRight class="size-4 text-primary" />
+                                <span class="text-xs font-bold text-primary tabular-nums">
                                     {form.quantity || 0} u.
                                 </span>
                             </div>
@@ -340,12 +340,12 @@
                         rows="3"
                         maxlength="255"
                         bind:value={form.notes}
-                        class="w-full rounded-xl border border-border/80 bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs resize-none"
+                        class="w-full rounded-xl border border-input bg-field px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-2xs resize-none"
                         placeholder="Detalles adicionales, número de remito o factura..."
                     ></textarea>
 
                     {#if form.errors.notes}
-                        <p class="text-xs text-rose-500 font-medium">{form.errors.notes}</p>
+                        <p class="text-xs text-destructive font-medium">{form.errors.notes}</p>
                     {/if}
                 </div>
             </form>
@@ -355,18 +355,19 @@
             <div class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:w-auto sm:justify-end sm:items-center">
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     onclick={closeModal}
                     disabled={form.processing}
-                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-medium border-border/70 whitespace-nowrap cursor-pointer"
+                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-medium whitespace-nowrap cursor-pointer"
                 >
                     Cancelar
                 </Button>
                 <Button
                     type="submit"
+                    variant="success"
                     form="create-income-form"
                     disabled={form.processing || !form.product_id}
-                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs whitespace-nowrap cursor-pointer"
+                    class="w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm font-medium shadow-xs whitespace-nowrap cursor-pointer"
                 >
                     {#if form.processing}
                         <Loader2 class="size-3.5 animate-spin mr-1.5 shrink-0" />

@@ -56,8 +56,8 @@
             <Link
                 href={tab.href}
                 class="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] text-xs font-semibold rounded-xl border transition-all {tabs.length === 1 ? 'col-span-2' : tab.gridClass} {isActive
-                    ? 'border-primary/40 bg-primary/10 text-primary shadow-xs'
-                    : 'border-border/60 bg-card/60 text-muted-foreground hover:bg-muted/60 hover:text-foreground'}"
+                    ? 'border-primary-solid bg-primary-solid text-primary-foreground shadow-xs'
+                    : 'border-border/80 dark:border-border/90 bg-card/80 dark:bg-secondary/35 text-muted-foreground hover:bg-muted/60 dark:hover:bg-secondary/60 hover:text-foreground'}"
             >
                 <Icon class="size-4 shrink-0" />
                 <span class="truncate">{tab.shortName}</span>
@@ -73,8 +73,8 @@
             <Link
                 href={tab.href}
                 class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-t-xl transition-colors border-b-2 whitespace-nowrap {isActive
-                    ? 'border-primary text-primary bg-primary/5 font-semibold'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/40'}"
+                    ? 'border-primary text-primary bg-primary/10 dark:bg-primary/15 font-semibold'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 dark:hover:bg-secondary/35'}"
             >
                 <Icon class="size-4 shrink-0" />
                 <span>{tab.name}</span>

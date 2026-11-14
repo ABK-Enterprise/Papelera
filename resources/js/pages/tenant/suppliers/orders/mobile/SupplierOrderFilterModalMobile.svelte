@@ -112,8 +112,8 @@
                     type="button"
                     onclick={() => (localSortBy = opt.value)}
                     class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {isSelected
-                        ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                        : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                        ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                        : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                 >
                     <span>{opt.label}</span>
                     {#if isSelected}
@@ -135,8 +135,8 @@
                     type="button"
                     onclick={() => (localStatus = opt.value)}
                     class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {isSelected
-                        ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                        : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                        ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                        : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                 >
                     <div class="flex items-center gap-2">
                         <span class="h-2 w-2 rounded-full {opt.color} shrink-0"></span>

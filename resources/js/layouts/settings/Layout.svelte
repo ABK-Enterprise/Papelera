@@ -108,8 +108,8 @@
                                 <Button
                                     variant="ghost"
                                     class="w-full justify-start min-h-[40px] px-3 rounded-xl gap-2.5 text-sm transition-colors {isActive
-                                        ? 'bg-primary/10 text-primary font-semibold hover:bg-primary/15'
-                                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'}"
+                                        ? 'bg-muted dark:bg-secondary/60 text-foreground font-semibold hover:bg-muted/80 dark:hover:bg-secondary/75'
+                                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/60 dark:hover:bg-secondary/35'}"
                                     asChild
                                 >
                                     {#snippet children(props)}
@@ -136,8 +136,8 @@
                             <Button
                                 variant="ghost"
                                 class="w-full justify-start min-h-[40px] px-3 rounded-xl gap-2.5 text-sm transition-colors {isActive
-                                    ? 'bg-primary/10 text-primary font-semibold hover:bg-primary/15'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'}"
+                                    ? 'bg-muted dark:bg-secondary/60 text-foreground font-semibold hover:bg-muted/80 dark:hover:bg-secondary/75'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/60 dark:hover:bg-secondary/35'}"
                                 asChild
                             >
                                 {#snippet children(props)}

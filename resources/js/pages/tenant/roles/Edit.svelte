@@ -76,7 +76,7 @@
         <div class="flex justify-end w-full">
             <Link
                 href="/tenant/roles"
-                class="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-xl border border-border/80 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-sm font-medium shadow-2xs transition-colors"
+                class="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-xl border border-border/70 bg-secondary hover:bg-secondary/80 dark:hover:bg-[#3a3a3a] text-secondary-foreground text-sm font-medium shadow-2xs transition-colors"
             >
                 <ArrowLeft class="size-4" />
                 <span>Volver</span>
@@ -96,7 +96,7 @@
                         id="role-name"
                         bind:value={form.name}
                         required
-                        class="h-11 rounded-xl border border-border/80 bg-background px-3.5 text-sm font-normal text-foreground transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary"
+                        class="h-11 rounded-xl border border-input bg-field px-3.5 text-sm font-normal text-foreground transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                     {#if form.errors.name}
                         <p class="text-xs font-medium text-destructive">{form.errors.name}</p>
@@ -130,13 +130,9 @@
                             {#if mod.permissions.length > 0}
                                 <Button
                                     type="button"
-                                    variant="outline"
+                                    variant={allSelected ? 'tertiary' : 'secondary'}
                                     size="sm"
-                                    class={`min-h-[36px] text-xs font-semibold rounded-xl border transition-all ${
-                                        allSelected
-                                            ? 'bg-primary/15 text-primary border-primary/40 hover:bg-primary/25'
-                                            : 'bg-background hover:bg-muted text-foreground border-border/80'
-                                    }`}
+                                    class="min-h-[36px] text-xs font-semibold rounded-xl transition-all"
                                     onclick={() => toggleAllModulePermissions(mod, !allSelected)}
                                 >
                                     {allSelected ? 'Deseleccionar todos' : 'Seleccionar todos'}
@@ -145,7 +141,7 @@
                         </div>
 
                         <!-- Caja / Contenedor del módulo con distinción de superficie tonal escalonada -->
-                        <div class="rounded-2xl border border-border/80 p-4 space-y-3.5 bg-background/80 dark:bg-card/50 shadow-xs">
+                        <div class="rounded-2xl border border-border/80 dark:border-border/90 p-4 space-y-3.5 bg-muted/40 dark:bg-secondary/35 shadow-xs">
                             <div class="flex items-center justify-between gap-3 border-b border-border/60 pb-3">
                                 <h4 class="font-bold text-sm text-foreground truncate flex-1">{mod.name}</h4>
                                 <Badge variant="secondary" class="text-xs font-sans tracking-wide px-2.5 py-0.5 shrink-0 border border-border/60">
@@ -160,10 +156,10 @@
                                         type="button"
                                         onclick={() => togglePermission(perm.name)}
                                         class="flex min-h-[44px] items-center gap-3 rounded-xl border p-2.5 sm:px-3.5 text-left text-sm cursor-pointer select-none transition-all {isChecked
-                                            ? 'border-primary bg-primary/10 text-foreground shadow-2xs font-semibold'
-                                            : 'border-border/80 bg-card hover:bg-muted/60 text-muted-foreground'}"
+                                            ? 'border-primary/35 bg-primary/10 dark:bg-primary/15 text-foreground shadow-2xs font-semibold'
+                                            : 'border-border/80 dark:border-border/90 bg-card/80 dark:bg-card/60 hover:bg-background/70 dark:hover:bg-secondary/60 text-muted-foreground'}"
                                     >
-                                        <div class="size-4.5 rounded-md border flex items-center justify-center transition-colors shrink-0 {isChecked ? 'bg-primary text-primary-foreground border-primary' : 'border-border/80 bg-background'}">
+                                        <div class="size-4.5 rounded-md border flex items-center justify-center transition-colors shrink-0 {isChecked ? 'bg-primary-solid text-primary-foreground border-primary-solid' : 'border-input bg-field'}">
                                             {#if isChecked}
                                                 <Check class="size-3 stroke-[3]" />
                                             {/if}
@@ -172,7 +168,7 @@
                                             <span class="text-sm leading-snug break-words {isChecked ? 'text-foreground font-medium' : 'text-muted-foreground'}">
                                                 {getPermissionLabel(perm.name)}
                                             </span>
-                                            <span class="text-xs tabular-nums text-muted-foreground/70 shrink-0 hidden sm:inline-block">
+                                            <span class="text-xs tabular-nums text-muted-foreground shrink-0 hidden sm:inline-block">
                                                 {perm.name}
                                             </span>
                                         </div>
@@ -203,7 +199,7 @@
         <div class="flex items-center justify-end gap-3">
             <Link
                 href="/tenant/roles"
-                class="inline-flex items-center justify-center min-h-[44px] min-w-36 px-5 rounded-xl font-medium border border-border/80 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-sm transition-colors shadow-2xs"
+                class="inline-flex items-center justify-center min-h-[44px] min-w-36 px-5 rounded-xl font-medium border border-border/70 bg-secondary hover:bg-secondary/80 dark:hover:bg-[#3a3a3a] text-secondary-foreground text-sm transition-colors shadow-2xs"
             >
                 Cancelar
             </Link>

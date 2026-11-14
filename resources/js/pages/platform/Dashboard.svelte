@@ -225,12 +225,12 @@
                                         <div class="flex items-center gap-2.5">
                                             <h3 class="font-semibold text-base text-foreground truncate">{tenant.name}</h3>
                                             {#if tenant.is_active}
-                                                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                                                     <span class="size-1.5 rounded-full bg-emerald-500"></span>
                                                     Activo
                                                 </span>
                                             {:else}
-                                                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                                                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20">
                                                     <span class="size-1.5 rounded-full bg-rose-500"></span>
                                                     Suspendido
                                                 </span>
@@ -336,15 +336,15 @@
                     </div>
 
                     <!-- Estado -->
-                    <div class="flex items-center justify-between p-3 rounded-xl bg-muted/40 border border-border/50">
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90">
                         <span class="text-xs font-medium text-muted-foreground">Estado del comercio</span>
                         {#if selectedTenant.is_active}
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                                 <span class="size-1.5 rounded-full bg-emerald-500"></span>
                                 Activo
                             </span>
                         {:else}
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20">
                                 <span class="size-1.5 rounded-full bg-rose-500"></span>
                                 Suspendido
                             </span>
@@ -353,7 +353,7 @@
 
                     <!-- Métricas -->
                     <div class="grid grid-cols-2 gap-2.5">
-                        <div class="p-3 rounded-xl border border-border/60 bg-card">
+                        <div class="p-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                             <div class="flex items-center gap-2 text-muted-foreground text-xs font-medium">
                                 <Users class="size-3.5" />
                                 <span>Usuarios</span>
@@ -362,7 +362,7 @@
                                 {selectedTenant.users_count}
                             </div>
                         </div>
-                        <div class="p-3 rounded-xl border border-border/60 bg-card">
+                        <div class="p-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                             <div class="flex items-center gap-2 text-muted-foreground text-xs font-medium">
                                 <Package class="size-3.5" />
                                 <span>Productos</span>
@@ -374,7 +374,7 @@
                     </div>
 
                     <!-- Fecha de alta -->
-                    <div class="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-xl border border-border/50 bg-muted/20 tabular-nums">
+                    <div class="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 tabular-nums">
                         <Calendar class="size-4 text-muted-foreground/70" />
                         <span>Fecha de alta: {formatDate(selectedTenant.created_at)}</span>
                     </div>

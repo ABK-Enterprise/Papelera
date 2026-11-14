@@ -267,7 +267,7 @@
             }
         }}
         class="relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-4 sm:p-6 transition-all duration-200 outline-none
-            {isDragging ? 'border-primary bg-primary/5 ring-2 ring-primary/20 scale-[0.99]' : 'border-border/80 bg-card hover:border-border hover:bg-muted/30'}
+            {isDragging ? 'border-primary bg-primary/10 dark:bg-primary/15 ring-2 ring-primary/20 scale-[0.99]' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:border-border hover:bg-muted/70 dark:hover:bg-secondary/55'}
             {disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}"
         ondragover={onDragOver}
         ondragleave={onDragLeave}
@@ -283,7 +283,7 @@
         {:else if activePreview}
             <!-- Image Loaded State -->
             <div class="relative w-full flex flex-col items-center">
-                <div class="relative w-44 h-44 sm:w-52 sm:h-52 rounded-xl overflow-hidden bg-background border border-border/70 shadow-2xs flex items-center justify-center">
+                <div class="relative w-44 h-44 sm:w-52 sm:h-52 rounded-xl overflow-hidden bg-background/90 dark:bg-background/70 border border-border/80 dark:border-border/90 shadow-2xs flex items-center justify-center">
                     <img
                         src={activePreview}
                         alt="Vista previa del producto"
@@ -293,7 +293,7 @@
 
                 <!-- Size Metrics Pill -->
                 {#if optimizedSizeKb}
-                    <div class="mt-2.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold tabular-nums">
+                    <div class="mt-2.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/25 text-xs font-semibold tabular-nums">
                         <span>WebP optimizado:</span>
                         <span>{optimizedSizeKb} KB</span>
                         {#if originalSizeKb && originalSizeKb > optimizedSizeKb}
@@ -328,9 +328,9 @@
                     </p>
                 </div>
                 <div class="inline-flex items-center gap-2 pt-1 text-xs font-medium text-muted-foreground">
-                    <span class="px-2 py-0.5 rounded-md bg-muted border border-border/60">JPG</span>
-                    <span class="px-2 py-0.5 rounded-md bg-muted border border-border/60">PNG</span>
-                    <span class="px-2 py-0.5 rounded-md bg-muted border border-border/60">WebP</span>
+                    <span class="px-2 py-0.5 rounded-md bg-background/80 dark:bg-secondary/60 border border-border/70">JPG</span>
+                    <span class="px-2 py-0.5 rounded-md bg-background/80 dark:bg-secondary/60 border border-border/70">PNG</span>
+                    <span class="px-2 py-0.5 rounded-md bg-background/80 dark:bg-secondary/60 border border-border/70">WebP</span>
                     <span>Hasta 15 MB</span>
                 </div>
             </div>
@@ -343,8 +343,8 @@
             {#if removeImage}
                 <Button
                     type="button"
-                    variant="outline"
-                    class="min-h-[44px] flex-1 rounded-xl text-xs font-semibold gap-2 border-border/80"
+                    variant="secondary"
+                    class="min-h-[44px] flex-1 rounded-xl text-xs font-semibold gap-2"
                     onclick={handleRestore}
                     {disabled}
                 >
@@ -354,8 +354,8 @@
             {:else}
                 <Button
                     type="button"
-                    variant="outline"
-                    class="min-h-[44px] flex-1 rounded-xl text-xs font-semibold gap-2 border-border/80 hover:bg-muted/70"
+                    variant="secondary"
+                    class="min-h-[44px] flex-1 rounded-xl text-xs font-semibold gap-2"
                     onclick={openCropper}
                     {disabled}
                     title="Ajustar encuadre y zoom de la foto"
@@ -366,8 +366,8 @@
 
                 <Button
                     type="button"
-                    variant="outline"
-                    class="min-h-[44px] flex-1 rounded-xl text-xs font-semibold gap-2 border-border/80 hover:bg-muted/70"
+                    variant="secondary"
+                    class="min-h-[44px] flex-1 rounded-xl text-xs font-semibold gap-2"
                     onclick={triggerFileInput}
                     {disabled}
                     title="Seleccionar otra imagen"

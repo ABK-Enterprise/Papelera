@@ -61,12 +61,12 @@
 {#if movements.length > 0}
     <div class="flex flex-col gap-3">
         {#each movements as mov (mov.id)}
-            <div class="rounded-xl border border-border/70 bg-card p-4 shadow-xs transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
+            <div class="rounded-xl border border-border/80 dark:border-border/90 bg-card p-4 shadow-xs transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
 
                 <!-- Header de Card Mobile: Producto y Cantidad -->
-                <div class="flex items-start justify-between gap-3 pb-3 border-b border-border/40">
+                <div class="flex items-start justify-between gap-3 pb-3 border-b border-border/60">
                     <div class="flex items-center gap-2.5 min-w-0">
-                        <div class="size-9 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0">
+                        <div class="size-9 rounded-lg bg-rose-500/10 border border-rose-500/25 dark:border-rose-500/30 flex items-center justify-center text-rose-700 dark:text-rose-400 shrink-0">
                             <Package class="size-4" />
                         </div>
                         <div class="min-w-0">
@@ -80,7 +80,7 @@
                                     </span>
                                 {/if}
                                 {#if mov.warehouse}
-                                    <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-semibold bg-muted/80 text-foreground border border-border/70 shadow-2xs">
+                                    <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-semibold bg-muted/80 dark:bg-secondary/50 text-foreground border border-border/70 dark:border-border/80 shadow-2xs">
                                         <Building2 class="size-2.5 text-muted-foreground shrink-0" />
                                         {mov.warehouse.name}
                                     </span>
@@ -89,7 +89,7 @@
                         </div>
                     </div>
 
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0 tabular-nums">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-bold bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/25 dark:border-rose-500/30 shrink-0 tabular-nums">
                         <ArrowUpRight class="size-3" />
                         -{mov.quantity}
                     </span>
@@ -104,10 +104,10 @@
                     </div>
                     <div>
                         <span class="text-muted-foreground block text-xs">Motivo</span>
-                        <span class={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${
+                        <span class={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border ${
                             mov.reason === 'merma_devolucion_cliente'
-                                ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30'
-                                : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                                ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30'
+                                : 'bg-rose-500/10 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border-rose-500/25 dark:border-rose-500/30'
                         }`}>
                             {mov.reason === 'merma_devolucion_cliente'
                                 ? 'Merma (Devolución Cliente)'
@@ -119,19 +119,19 @@
                 </div>
 
                 <!-- Footer: Responsable y Fecha -->
-                <div class="flex items-center justify-between pt-3 mt-3 border-t border-border/40 text-xs text-muted-foreground">
+                <div class="flex items-center justify-between pt-3 mt-3 border-t border-border/60 text-xs text-muted-foreground">
                     <div class="flex items-center gap-1.5 truncate">
-                        <User class="size-3 text-muted-foreground/70" />
+                        <User class="size-3 text-muted-foreground/80" />
                         <span>{mov.user?.name ?? 'Sistema'}</span>
                     </div>
                     <div class="flex items-center gap-1.5 shrink-0 tabular-nums">
-                        <Calendar class="size-3 text-muted-foreground/70" />
+                        <Calendar class="size-3 text-muted-foreground/80" />
                         <span>{formatDate(mov.created_at)}</span>
                     </div>
                 </div>
 
                 {#if mov.notes}
-                    <div class="mt-2 text-xs text-muted-foreground bg-muted/40 p-2 rounded-lg">
+                    <div class="mt-2 text-xs text-muted-foreground bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 p-2 rounded-lg">
                         <span class="font-medium text-foreground">Nota:</span> {mov.notes}
                     </div>
                 {/if}

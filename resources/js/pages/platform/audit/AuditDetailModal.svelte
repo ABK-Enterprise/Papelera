@@ -6,7 +6,9 @@
         DialogContent,
         DialogHeader,
         DialogTitle,
+        DialogBody,
         DialogFooter,
+        DialogClose,
     } from '@/components/ui/dialog';
     import ArrowRight from 'lucide-svelte/icons/arrow-right';
     import ShieldAlert from 'lucide-svelte/icons/shield-alert';
@@ -14,6 +16,7 @@
     import User from 'lucide-svelte/icons/user';
     import Building2 from 'lucide-svelte/icons/building-2';
     import Globe from 'lucide-svelte/icons/globe';
+    import X from 'lucide-svelte/icons/x';
 
     interface AuditLogItem {
         id: number;
@@ -91,9 +94,9 @@
 </script>
 
 <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-    <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto p-5 sm:p-6 space-y-4">
-        <DialogHeader class="pb-3 border-b border-border/60 shrink-0 text-left space-y-1">
-            <div class="flex items-center gap-2.5 sm:gap-3.5 w-full">
+    <DialogContent class="max-w-2xl max-h-[90vh]">
+        <DialogHeader class="pb-3 border-b border-border/60 shrink-0 text-left">
+            <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 w-full">
                 <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
                     <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
                         <ShieldAlert class="size-5 sm:size-6 text-primary" />
@@ -114,13 +117,16 @@
                         </div>
                     </div>
                 </div>
+                <DialogClose class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0">
+                    <X class="size-4" />
+                </DialogClose>
             </div>
         </DialogHeader>
 
-        {#if log}
-            <div class="space-y-5">
+        <DialogBody class="space-y-5">
+            {#if log}
                 <!-- Metadata Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-xl border border-border/70 bg-muted/30 p-3.5 sm:p-4 text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-3.5 sm:p-4 text-xs">
                     <div class="flex items-center gap-2">
                         <User class="size-4 text-muted-foreground shrink-0" />
                         <span class="text-muted-foreground">Operador:</span>
@@ -167,7 +173,7 @@
                             {#each changedKeys as key}
                                 {@const oldVal = log.old_values ? log.old_values[key] : undefined}
                                 {@const newVal = log.new_values ? log.new_values[key] : undefined}
-                                <div class="rounded-lg border border-border/70 bg-card p-3 space-y-1.5 shadow-2xs">
+                                <div class="rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-3 space-y-1.5 shadow-2xs">
                                     <span class="text-xs font-semibold text-foreground block">
                                         {formatFieldLabel(key)}
                                     </span>
@@ -175,7 +181,7 @@
                                     {#if oldVal !== undefined && newVal !== undefined}
                                         <!-- Transformation row -->
                                         <div class="flex flex-col sm:flex-row sm:items-center gap-2 text-xs">
-                                            <div class="flex-1 rounded-md bg-destructive/10 border border-destructive/20 px-2.5 py-1 text-destructive line-through break-all">
+                                            <div class="flex-1 rounded-md bg-rose-500/10 border border-rose-500/20 px-2.5 py-1 text-rose-700 dark:text-rose-400 line-through break-all">
                                                 {formatDisplayValue(oldVal)}
                                             </div>
                                             <ArrowRight class="size-3.5 text-muted-foreground shrink-0 self-center hidden sm:block" />
@@ -190,7 +196,7 @@
                                         </div>
                                     {:else if oldVal !== undefined}
                                         <!-- Only old value (Deletion) -->
-                                        <div class="rounded-md bg-destructive/10 border border-destructive/20 px-2.5 py-1 text-xs text-destructive line-through break-all">
+                                        <div class="rounded-md bg-rose-500/10 border border-rose-500/20 px-2.5 py-1 text-xs text-rose-700 dark:text-rose-400 line-through break-all">
                                             {formatDisplayValue(oldVal)}
                                         </div>
                                     {/if}
@@ -203,13 +209,13 @@
                         </div>
                     {/if}
                 </div>
-            </div>
-        {/if}
+            {/if}
+        </DialogBody>
 
-        <DialogFooter class="pt-2">
+        <DialogFooter>
             <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 class="w-full sm:w-auto min-h-[44px] px-6 text-sm font-medium"
                 onclick={() => handleOpenChange(false)}
             >

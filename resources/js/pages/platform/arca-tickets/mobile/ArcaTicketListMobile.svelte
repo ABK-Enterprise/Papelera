@@ -35,7 +35,7 @@
                 </div>
 
                 {#if ticket.status === 'active'}
-                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
                         <span class="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                         Activo
                     </span>

@@ -101,7 +101,7 @@
             class={`rounded-2xl border p-4 transition-all text-left select-none cursor-pointer flex flex-col justify-between gap-4 ${
                 adj.is_active
                     ? 'border-border/80 shadow-xs active:scale-[0.99] bg-card'
-                    : 'border-border/40 opacity-80 bg-muted/15'
+                    : 'border-border/80 dark:border-border/90 opacity-80 bg-muted/40 dark:bg-secondary/35'
             }`}
         >
             <!-- Cabecera Superior: Badges, Estado y Menú de Opciones '...' -->
@@ -127,7 +127,7 @@
 
                         <!-- Indicador de Estado Activo / Pausado -->
                         <span class={`inline-flex items-center gap-1.5 text-xs font-semibold ${
-                            adj.is_active ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'
+                            adj.is_active ? 'text-emerald-700 dark:text-emerald-400' : 'text-muted-foreground'
                         }`}>
                             <span class={`h-2 w-2 rounded-full ${adj.is_active ? 'bg-emerald-500' : 'bg-muted-foreground'}`}></span>
                             <span>{adj.is_active ? 'Activo' : 'Pausado'}</span>
@@ -146,7 +146,7 @@
                                             e.stopPropagation();
                                             props.onclick?.(e);
                                         }}
-                                        class="size-8 rounded-xl border border-border/80 bg-background/80 shadow-2xs hover:bg-muted hover:border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center"
+                                        class="size-8 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 shadow-2xs hover:bg-muted/70 dark:hover:bg-secondary/55 hover:border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center"
                                         aria-label="Más opciones"
                                     >
                                         <MoreHorizontal class="size-4" />
@@ -192,7 +192,7 @@
                             Valor
                         </span>
                         <span class={`text-xl font-black tabular-nums tracking-tight ${
-                            isDiscount ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'
+                            isDiscount ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'
                         }`}>
                             {formatValue(adj)}
                         </span>
@@ -201,7 +201,7 @@
             </div>
 
             <!-- Fila de Calendario y Días Recurrentes en Mobile -->
-            <div class="rounded-xl bg-muted/40 p-2.5 space-y-2 border border-border/40">
+            <div class="rounded-xl bg-muted/40 dark:bg-secondary/35 p-2.5 space-y-2 border border-border/80 dark:border-border/90">
                 {#if adj.specific_dates?.length || adj.starts_at || adj.ends_at}
                     <div class="flex items-center justify-between gap-2 flex-wrap text-2xs">
                         <div class="flex items-center gap-1.5 text-muted-foreground">
@@ -214,7 +214,7 @@
                 <!-- Chips de Días -->
                 <div class="flex items-center gap-1 flex-wrap pt-0.5">
                     {#if !adj.days_of_week || adj.days_of_week.length === 0}
-                        <span class="text-2xs font-medium px-2 py-0.5 rounded bg-background text-foreground border border-border/60">
+                        <span class="text-2xs font-medium px-2 py-0.5 rounded bg-card text-foreground border border-border/80">
                             Aplica todos los días
                         </span>
                     {:else}
@@ -225,7 +225,7 @@
                                     class={`h-6 w-6 rounded-lg flex items-center justify-center text-xs font-bold ${
                                         hasDay
                                             ? 'bg-primary text-primary-foreground shadow-2xs'
-                                            : 'bg-background/80 text-muted-foreground/30 border border-border/40'
+                                            : 'bg-card text-muted-foreground border border-border/80'
                                     }`}
                                 >
                                     {DAY_NAMES[dayId]?.slice(0, 1)}
@@ -239,12 +239,12 @@
             <!-- Botonera Operativa Móvil (Exclusivamente Edición con min-h-[44px] A11y Touch Target y text-sm) -->
             <div class="pt-1 border-t border-border/40">
                 <Button
-                    variant="outline"
+                    variant="tertiary"
                     onclick={(e) => {
                         e.stopPropagation();
                         onedit(adj);
                     }}
-                    class="min-h-[44px] w-full rounded-xl text-sm font-semibold flex items-center justify-center gap-2 border-primary/30 bg-primary/10 text-primary shadow-2xs"
+                    class="min-h-[44px] w-full rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-2xs"
                 >
                     <Pencil class="h-4 w-4" />
                     <span>Editar</span>

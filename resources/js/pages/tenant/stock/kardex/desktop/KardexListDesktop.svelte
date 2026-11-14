@@ -93,12 +93,12 @@
     <!-- Bento Grid de Métricas Clave (diseño-stitch-stock-kardex.html) -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <!-- Tarjeta 1: Total Ingresos -->
-        <div class="p-5 rounded-2xl bg-card border border-border/70 shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
+        <div class="p-5 rounded-2xl bg-card border border-border/80 dark:border-border/90 shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
             <div class="flex items-center justify-between">
-                <div class="size-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                <div class="size-9 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/25 dark:border-emerald-500/30">
                     <ArrowDownLeft class="size-5" />
                 </div>
-                <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-950/50 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-950/50 px-2.5 py-0.5 rounded-full border border-emerald-500/25 dark:border-emerald-500/30">
                     Entradas
                 </span>
             </div>
@@ -109,12 +109,12 @@
         </div>
 
         <!-- Tarjeta 2: Total Salidas -->
-        <div class="p-5 rounded-2xl bg-card border border-border/70 shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
+        <div class="p-5 rounded-2xl bg-card border border-border/80 dark:border-border/90 shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
             <div class="flex items-center justify-between">
-                <div class="size-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-500/20">
+                <div class="size-9 rounded-xl bg-rose-500/10 text-rose-700 dark:text-rose-400 flex items-center justify-center border border-rose-500/25 dark:border-rose-500/30">
                     <ArrowUpRight class="size-5" />
                 </div>
-                <span class="text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-500/10 dark:bg-rose-950/50 px-2.5 py-0.5 rounded-full border border-rose-500/20">
+                <span class="text-xs font-semibold text-rose-700 dark:text-rose-400 bg-rose-500/10 dark:bg-rose-950/50 px-2.5 py-0.5 rounded-full border border-rose-500/25 dark:border-rose-500/30">
                     Salidas
                 </span>
             </div>
@@ -125,13 +125,13 @@
         </div>
 
         <!-- Tarjeta 3: Balance Neto -->
-        <div class="p-5 rounded-2xl bg-card border border-border/70 shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
+        <div class="p-5 rounded-2xl bg-card border border-border/80 dark:border-border/90 shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
 
             <div class="flex items-center justify-between">
-                <div class="size-9 rounded-xl bg-primary/10 text-primary dark:text-primary-300 flex items-center justify-center border border-primary/20">
+                <div class="size-9 rounded-xl bg-primary/10 dark:bg-primary/15 text-primary flex items-center justify-center border border-primary/25 dark:border-primary/35">
                     <RefreshCw class="size-5" />
                 </div>
-                <span class="text-xs font-semibold text-primary dark:text-primary-300 bg-primary/10 dark:bg-primary-950/60 px-2.5 py-0.5 rounded-full border border-primary/20">
+                <span class="text-xs font-semibold text-primary bg-primary/10 dark:bg-primary/15 px-2.5 py-0.5 rounded-full border border-primary/25 dark:border-primary/35">
                     Flujo de Stock
                 </span>
             </div>
@@ -146,12 +146,12 @@
 
 
     <!-- Contenedor de Tabla sin controles redundantes -->
-    <div class="bg-card text-card-foreground rounded-2xl shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/70 overflow-hidden">
+    <div class="bg-card text-card-foreground rounded-2xl shadow-[0px_10px_40px_rgba(0,0,0,0.03)] border border-border/80 dark:border-border/90 overflow-hidden">
         <!-- Tabla Minimalista -->
         <div class="w-full overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="border-b border-border/60 bg-muted/10 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    <tr class="border-b border-border/70 bg-muted/50 dark:bg-secondary/35 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                         <th class="py-3.5 px-6 text-left min-w-[140px]">Fecha y hora</th>
                         <th class="py-3.5 px-6 text-left min-w-[200px]">Producto</th>
                         <th class="py-3.5 px-6 text-center min-w-[100px]">Tipo</th>
@@ -161,12 +161,12 @@
                         <th class="py-3.5 px-6 text-right min-w-[110px]">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-border/40 text-sm font-medium text-foreground">
+                <tbody class="divide-y divide-border/50 text-sm font-medium text-foreground">
                     {#if filteredMovements.length === 0}
                         <tr>
                             <td colspan="7" class="py-12 text-center text-muted-foreground">
                                 <div class="flex flex-col items-center justify-center gap-2">
-                                    <div class="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                                    <div class="size-10 rounded-xl bg-primary/10 dark:bg-primary/15 text-primary border border-primary/25 dark:border-primary/35 flex items-center justify-center">
                                         <History class="size-5" />
                                     </div>
                                     <span class="font-medium text-xs">No se encontraron movimientos en el historial.</span>
@@ -175,11 +175,11 @@
                         </tr>
                     {:else}
                         {#each filteredMovements as mov (mov.id)}
-                            <tr class="hover:bg-muted/30 transition-colors group">
+                            <tr class="hover:bg-muted/40 dark:hover:bg-secondary/30 transition-colors group">
                                 <!-- Fecha -->
                                 <td class="py-4 px-6 text-muted-foreground whitespace-nowrap text-left">
                                     <div class="flex items-center gap-1.5 text-sm tabular-nums">
-                                        <Calendar class="size-3.5 text-muted-foreground/60" />
+                                        <Calendar class="size-3.5 text-muted-foreground/80" />
                                         <span>{formatDate(mov.created_at)}</span>
                                     </div>
                                 </td>
@@ -187,7 +187,7 @@
                                 <!-- Producto con Avatar de Iniciales -->
                                 <td class="py-4 px-6 text-left">
                                     <div class="flex items-center gap-3">
-                                        <div class="size-8 rounded-full {mov.type === 'income' ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-300' : 'bg-rose-500/15 border-rose-500/30 text-rose-700 dark:text-rose-300'} border flex items-center justify-center font-bold text-xs shrink-0">
+                                        <div class="size-8 rounded-full {mov.type === 'income' ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-400' : 'bg-rose-500/15 border-rose-500/30 text-rose-700 dark:text-rose-400'} border flex items-center justify-center font-bold text-xs shrink-0">
                                             {getInitials(mov.product?.name)}
                                         </div>
                                         <div class="min-w-0">
@@ -202,12 +202,12 @@
                                 <!-- Tipo Badge -->
                                 <td class="py-4 px-6 text-center whitespace-nowrap">
                                     {#if mov.type === 'income'}
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/25 dark:border-emerald-500/30">
                                             <ArrowDownLeft class="size-3" />
                                             Ingreso
                                         </span>
                                     {:else}
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/25 dark:border-rose-500/30">
                                             <ArrowUpRight class="size-3" />
                                             Egreso
                                         </span>
@@ -215,7 +215,7 @@
                                 </td>
 
                                 <!-- Cantidad -->
-                                <td class="py-4 px-6 text-right whitespace-nowrap font-semibold text-sm tabular-nums {mov.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+                                <td class="py-4 px-6 text-right whitespace-nowrap font-semibold text-sm tabular-nums {mov.type === 'income' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}">
                                     {mov.type === 'income' ? `+${mov.quantity}` : `-${mov.quantity}`} u.
                                 </td>
 
@@ -228,7 +228,7 @@
                                 <!-- Responsable -->
                                 <td class="py-4 px-6 text-muted-foreground whitespace-nowrap text-left text-sm">
                                     <div class="flex items-center gap-1.5">
-                                        <User class="size-3 text-muted-foreground/60" />
+                                        <User class="size-3 text-muted-foreground/80" />
                                         <span>{mov.user?.name ?? 'Sistema'}</span>
                                     </div>
                                 </td>
@@ -254,11 +254,11 @@
 
         <!-- Footer -->
         {#if pagination && pagination.total > pagination.per_page}
-            <div class="px-6 py-2 border-t border-border/60 bg-muted/10">
+            <div class="px-6 py-2 border-t border-border/70 bg-muted/30 dark:bg-secondary/25">
                 <AppPagination {pagination} />
             </div>
         {:else}
-            <div class="p-4 border-t border-border/60 bg-muted/10 flex items-center justify-between text-xs text-muted-foreground">
+            <div class="p-4 border-t border-border/70 bg-muted/30 dark:bg-secondary/25 flex items-center justify-between text-xs text-muted-foreground">
                 <div>Mostrando <strong class="text-foreground tabular-nums font-semibold">{filteredMovements.length}</strong> de <strong class="text-foreground tabular-nums font-semibold">{pagination ? pagination.total : movements.length}</strong> movimientos</div>
                 <div class="text-xs tabular-nums">Kardex Audit Trail</div>
             </div>

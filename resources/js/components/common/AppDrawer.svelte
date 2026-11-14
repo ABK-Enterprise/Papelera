@@ -45,7 +45,7 @@
         role="dialog"
         aria-modal="true"
         aria-labelledby="drawer-title"
-        class="fixed inset-x-0 bottom-0 z-50 max-h-[90vh] flex flex-col rounded-t-[20px] border-t border-border/80 bg-card text-card-foreground shadow-2xl overflow-hidden focus:outline-none"
+        class="fixed inset-x-0 bottom-0 z-50 max-h-[90vh] flex flex-col gap-[1px] rounded-t-[20px] border-t border-border/80 bg-card text-card-foreground shadow-2xl overflow-hidden focus:outline-none"
         transition:fly={{ y: '100%', duration: 280 }}
 
     >

@@ -139,8 +139,8 @@
                             onclick={() => form.type = 'discount'}
                             class={`min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                                 form.type === 'discount'
-                                    ? 'bg-emerald-500 text-white border-emerald-600 shadow-2xs'
-                                    : 'bg-background hover:bg-muted text-foreground border-border/80'
+                                    ? 'bg-emerald-700 hover:bg-emerald-800 text-white border-emerald-700 shadow-2xs'
+                                    : 'bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground border-border/80 dark:border-border/90'
                             }`}
                         >
                             <MinusCircle class="h-4 w-4" />
@@ -151,8 +151,8 @@
                             onclick={() => form.type = 'surcharge'}
                             class={`min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                                 form.type === 'surcharge'
-                                    ? 'bg-amber-600 text-white border-amber-700 shadow-2xs'
-                                    : 'bg-background hover:bg-muted text-foreground border-border/80'
+                                    ? 'bg-amber-700 hover:bg-amber-800 text-white border-amber-700 shadow-2xs'
+                                    : 'bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground border-border/80 dark:border-border/90'
                             }`}
                         >
                             <PlusCircle class="h-4 w-4" />
@@ -173,8 +173,8 @@
                             }}
                             class={`min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                                 form.calculation_type === 'percentage'
-                                    ? 'bg-primary text-primary-foreground border-primary shadow-2xs'
-                                    : 'bg-background hover:bg-muted text-foreground border-border/80'
+                                    ? 'bg-primary-solid text-primary-foreground border-primary-solid shadow-2xs'
+                                    : 'bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground border-border/80 dark:border-border/90'
                             }`}
                         >
                             <Percent class="h-4 w-4" />
@@ -188,8 +188,8 @@
                             }}
                             class={`min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                                 form.calculation_type === 'fixed'
-                                    ? 'bg-primary text-primary-foreground border-primary shadow-2xs'
-                                    : 'bg-background hover:bg-muted text-foreground border-border/80'
+                                    ? 'bg-primary-solid text-primary-foreground border-primary-solid shadow-2xs'
+                                    : 'bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground border-border/80 dark:border-border/90'
                             }`}
                         >
                             <DollarSign class="h-4 w-4" />
@@ -277,7 +277,7 @@
             <DialogFooter class="grid grid-cols-2 gap-2.5 sm:flex sm:justify-end pt-2">
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     onclick={handleClose}
                     disabled={form.processing}
                     class="min-h-[44px] text-xs font-medium"

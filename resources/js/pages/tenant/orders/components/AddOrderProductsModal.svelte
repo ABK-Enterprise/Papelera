@@ -409,7 +409,7 @@
                         {#if searchQuery.trim()}
                             <Button
                                 type="button"
-                                variant="outline"
+                                variant="secondary"
                                 size="sm"
                                 class="mt-2 text-xs font-semibold rounded-lg cursor-pointer min-h-[36px]"
                                 onclick={() => addOnTheFlyProduct(searchQuery)}
@@ -434,7 +434,7 @@
                 </div>
 
                 {#if items.length === 0}
-                    <div class="border border-dashed border-border/80 rounded-xl p-6 text-center text-muted-foreground flex flex-col items-center justify-center gap-2 bg-muted/20">
+                    <div class="border border-dashed border-border/80 dark:border-border/90 rounded-xl p-6 text-center text-muted-foreground flex flex-col items-center justify-center gap-2 bg-muted/40 dark:bg-secondary/35">
                         <PackagePlus class="size-8 opacity-40 text-primary" />
                         <p class="text-sm font-medium">No has seleccionado ningún producto todavía.</p>
                         <p class="text-xs text-muted-foreground">Utilizá el buscador de arriba para añadir artículos a este pedido.</p>
@@ -470,21 +470,23 @@
                                                         {item.sku}
                                                     </span>
                                                 {/if}
-                                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 {item.sale_type === 'weight' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground border border-border/70'}">
+                                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 {item.sale_type === 'weight' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'bg-muted text-muted-foreground border border-border/70'}">
                                                     {item.sale_type === 'weight' ? 'Pesaje' : 'Unidad'}
                                                 </span>
                                             </div>
                                         </div>
 
-                                        <button
+                                        <Button
                                             type="button"
-                                            class="size-8 rounded-lg flex items-center justify-center bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-colors cursor-pointer shrink-0"
+                                            variant="destructive"
+                                            size="icon"
+                                            class="size-8 rounded-lg shrink-0 cursor-pointer"
                                             onclick={() => removeItem(index)}
                                             title="Quitar producto"
                                             aria-label="Quitar producto"
                                         >
                                             <Trash2 class="size-3.5" />
-                                        </button>
+                                        </Button>
                                     </div>
 
                                     <!-- Metadatos de precio base y stock -->
@@ -497,7 +499,7 @@
                                                 <button
                                                     type="button"
                                                     onclick={() => openEditItemPriceDialog(index)}
-                                                    class="inline-flex items-center justify-center size-6 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                                                    class="inline-flex items-center justify-center size-6 rounded-md hover:bg-primary/10 dark:hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                                                     title="Modificar precio del producto"
                                                     aria-label="Modificar precio del producto"
                                                 >
@@ -529,7 +531,7 @@
                                                         <button
                                                             type="button"
                                                             {...props}
-                                                            class="inline-flex items-center justify-center size-5 rounded-full text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-500/15 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors cursor-help shrink-0"
+                                                            class="inline-flex items-center justify-center size-5 rounded-full text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 hover:bg-amber-500/15 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors cursor-help shrink-0"
                                                             aria-label="Información de precio del pedido"
                                                         >
                                                             <Icon icon="solar:question-circle-bold-duotone" class="size-4" />
@@ -559,7 +561,7 @@
                                         <span class="text-xs font-semibold text-muted-foreground shrink-0">Presentación:</span>
                                         <select
                                             bind:value={item.packaging_type}
-                                            class="h-9 rounded-xl border border-border/80 bg-select-background px-2.5 text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                                            class="h-9 rounded-xl border border-input bg-field px-2.5 text-sm font-semibold text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
                                         >
                                             {#if item.sale_type === 'weight'}
                                                 <option value="kg">Kg</option>
@@ -574,10 +576,10 @@
 
                                     <div class="flex items-center gap-2">
                                         <span class="text-xs font-semibold text-muted-foreground shrink-0">Cantidad:</span>
-                                        <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden">
+                                        <div class="flex items-center border border-border/80 dark:border-border/90 rounded-xl bg-muted/40 dark:bg-secondary/35 shadow-2xs h-9 overflow-hidden">
                                             <button
                                                 type="button"
-                                                class="w-8 sm:w-9 h-full flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                                                class="w-8 sm:w-9 h-full flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-secondary/60 transition-colors cursor-pointer"
                                                 onclick={() => updateQuantity(index, -1)}
                                                 aria-label="Disminuir cantidad"
                                             >
@@ -592,7 +594,7 @@
                                             />
                                             <button
                                                 type="button"
-                                                class="w-8 sm:w-9 h-full flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                                                class="w-8 sm:w-9 h-full flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-secondary/60 transition-colors cursor-pointer"
                                                 onclick={() => updateQuantity(index, 1)}
                                                 aria-label="Aumentar cantidad"
                                             >
@@ -609,14 +611,14 @@
 
             <!-- Resumen Financiero -->
             {#if items.length > 0}
-                <div class="p-3.5 rounded-xl border border-border/80 bg-muted/40 dark:bg-slate-900/60 space-y-1.5">
+                <div class="p-3.5 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 space-y-1.5">
                     <div class="flex items-center justify-between text-xs text-muted-foreground">
                         <span>Total actual del pedido:</span>
                         <span class="font-semibold tabular-nums text-foreground">{formatPrice(currentOrderTotal)}</span>
                     </div>
                     <div class="flex items-center justify-between text-xs text-muted-foreground">
                         <span>Nuevos productos a sumar:</span>
-                        <span class="font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">+{formatPrice(newItemsSubtotal)}</span>
+                        <span class="font-semibold tabular-nums text-emerald-700 dark:text-emerald-400">+{formatPrice(newItemsSubtotal)}</span>
                     </div>
                     <div class="border-t border-border/60 my-1"></div>
                     <div class="flex items-center justify-between text-sm">
@@ -631,7 +633,7 @@
         <DialogFooter class="shrink-0 pt-2 border-t border-border/70 flex flex-col sm:flex-row gap-2 justify-end">
             <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 class="min-h-[44px] rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto"
                 disabled={isSubmitting}
                 onclick={handleClose}

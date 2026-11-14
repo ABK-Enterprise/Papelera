@@ -419,7 +419,7 @@
         <button
             type="button"
             onclick={handleClose}
-            class="absolute top-4 right-4 sm:top-5 sm:right-6 size-9 sm:size-10 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer z-20"
+            class="absolute top-4 right-4 sm:top-5 sm:right-6 size-9 sm:size-10 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-secondary/60 transition-colors cursor-pointer z-20"
             aria-label="Cerrar modal"
         >
             <X class="size-4.5" />
@@ -447,7 +447,7 @@
             {#if currentStep === 'amount_setup' || currentStep === 'generating'}
                 <div class="space-y-3">
                     {#if order?.customer_name}
-                        <div class="p-3 rounded-xl bg-muted/40 border border-border/70 flex items-center justify-between text-xs">
+                        <div class="p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex items-center justify-between text-xs">
                             <div class="flex items-center gap-2">
                                 <User class="size-4 text-muted-foreground" />
                                 <span class="font-semibold text-foreground">{order.customer_name}</span>
@@ -482,7 +482,7 @@
                                 min="0.01"
                                 bind:value={amountToCharge}
                                 placeholder="0.00"
-                                class="h-11 rounded-xl bg-background border-border/80 pl-8 text-base font-bold font-sans tabular-nums text-foreground"
+                                class="h-11 rounded-xl bg-field border-input pl-8 text-base font-bold font-sans tabular-nums text-foreground"
                                 disabled={currentStep === 'generating'}
                             />
                         </div>
@@ -581,10 +581,10 @@
                         </p>
                     </div>
 
-                    <div class="w-full p-3.5 rounded-2xl bg-muted/30 border border-border/80 space-y-2 text-xs">
+                    <div class="w-full p-3.5 rounded-2xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 space-y-2 text-xs">
                         <div class="flex justify-between">
                             <span class="text-muted-foreground">Monto recibido:</span>
-                            <strong class="text-emerald-600 dark:text-emerald-400 font-sans tabular-nums text-sm">
+                            <strong class="text-emerald-700 dark:text-emerald-400 font-sans tabular-nums text-sm">
                                 {formatCurrency(paidReceipt?.amount ?? amountToCharge)}
                             </strong>
                         </div>
@@ -633,7 +633,7 @@
             {#if currentStep === 'amount_setup'}
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     class="h-11 px-5 rounded-xl font-semibold w-full sm:w-auto min-h-[44px]"
                     onclick={handleClose}
                 >
@@ -652,7 +652,7 @@
             {:else if currentStep === 'waiting_payment'}
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     class="h-11 px-4 rounded-xl font-semibold w-full sm:w-auto sm:flex-1 min-h-[44px] justify-center text-xs sm:text-sm whitespace-nowrap"
                     onclick={handleClose}
                 >
@@ -680,7 +680,7 @@
             {:else if currentStep === 'processing'}
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     class="h-11 px-6 rounded-xl font-semibold w-full sm:w-auto min-h-[44px] gap-2 opacity-70 cursor-not-allowed"
                     disabled={true}
                 >
@@ -690,7 +690,7 @@
             {:else if currentStep === 'expired' || currentStep === 'error'}
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     class="h-11 px-5 rounded-xl font-semibold w-full sm:w-auto min-h-[44px]"
                     onclick={handleClose}
                 >
@@ -710,8 +710,8 @@
                     <div class="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto justify-end">
                         <Button
                             type="button"
-                            variant="default"
-                            class="h-11 px-6 rounded-xl font-bold w-full sm:w-auto min-h-[44px] gap-2 shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+                            variant="success"
+                            class="h-11 px-6 rounded-xl font-bold w-full sm:w-auto min-h-[44px] gap-2 shadow-sm cursor-pointer"
                             disabled={isMarkingDelivered}
                             onclick={handleMarkAsDelivered}
                         >
@@ -725,8 +725,8 @@
                         </Button>
                         <Button
                             type="button"
-                            variant="outline"
-                            class="h-11 px-6 rounded-xl font-semibold w-full sm:w-auto min-h-[44px] gap-2 text-foreground border-border hover:bg-muted cursor-pointer"
+                            variant="secondary"
+                            class="h-11 px-6 rounded-xl font-semibold w-full sm:w-auto min-h-[44px] gap-2 cursor-pointer"
                             disabled={isMarkingDelivered}
                             onclick={handleCompleteSuccess}
                         >
@@ -737,8 +737,8 @@
                 {:else}
                     <Button
                         type="button"
-                        variant="default"
-                        class="h-11 px-8 rounded-xl font-bold w-full sm:w-auto min-h-[44px] gap-2 shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+                        variant="success"
+                        class="h-11 px-8 rounded-xl font-bold w-full sm:w-auto min-h-[44px] gap-2 shadow-sm cursor-pointer"
                         onclick={handleCompleteSuccess}
                     >
                         <CheckCircle2 class="size-4 shrink-0" />

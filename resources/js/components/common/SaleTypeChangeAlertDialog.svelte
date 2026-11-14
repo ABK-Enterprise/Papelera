@@ -63,7 +63,7 @@
             <button
                 type="button"
                 onclick={handleCancel}
-                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                 aria-label="Cerrar"
             >
                 <X class="size-4" />
@@ -76,7 +76,7 @@
             </DialogDescription>
 
             <!-- Comparativa Visual X -> Y -->
-            <div class="flex items-center justify-between p-3 rounded-xl bg-muted/50 border border-border/80 text-xs">
+            <div class="flex items-center justify-between p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-xs">
                 <div class="flex items-center gap-1.5 font-medium text-foreground">
                     {#if fromType === 'unit'}
                         <Package class="size-4 text-primary" />
@@ -127,18 +127,19 @@
         <DialogFooter>
             <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 onclick={handleCancel}
                 disabled={loading}
-                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold border-border/70"
+                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold"
             >
                 Cancelar
             </Button>
             <Button
                 type="button"
+                variant="warning"
                 onclick={handleConfirm}
                 disabled={loading}
-                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-32 shadow-xs bg-amber-600 hover:bg-amber-700 text-white"
+                class="min-h-[44px] px-4 rounded-xl text-sm font-semibold min-w-32 shadow-xs"
             >
                 {loading ? 'Guardando...' : 'Confirmar cambio'}
             </Button>

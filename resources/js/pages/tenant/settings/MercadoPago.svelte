@@ -95,7 +95,7 @@
     <div class="flex flex-col gap-1">
         <div class="flex items-center gap-2.5">
             <h2 class="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-                <div class="flex size-9 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400">
+                <div class="flex size-9 items-center justify-center rounded-xl bg-sky-500/10 text-sky-700 dark:text-sky-400">
                     <CreditCard class="size-5" />
                 </div>
                 <span>Mercado Pago</span>
@@ -120,7 +120,7 @@
         <!-- ESTADO A: Cuenta No Vinculada (Empty State) -->
         <Card class="rounded-2xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs">
             <div class="max-w-2xl mx-auto text-center flex flex-col items-center gap-5">
-                <div class="flex size-16 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-600 dark:text-sky-400 shadow-inner">
+                <div class="flex size-16 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-700 dark:text-sky-400 shadow-inner">
                     <QrCode class="size-8" />
                 </div>
 
@@ -135,7 +135,7 @@
 
                 <!-- Alerta de Requisito: Datos Comerciales y Geográficos -->
                 <div class="w-full text-left p-4 sm:p-5 rounded-2xl border border-amber-500/25 bg-amber-500/10 text-amber-950 dark:text-amber-200 flex items-start gap-3.5 text-xs leading-relaxed">
-                    <Building2 class="size-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                    <Building2 class="size-4 shrink-0 text-amber-700 dark:text-amber-400 mt-0.5" />
                     <div class="space-y-1.5 w-full">
                         <strong class="font-semibold text-foreground text-xs sm:text-sm block">
                             Requisito: Correspondencia geográfica estricta de tu comercio
@@ -149,9 +149,9 @@
                 <!-- Call to Action -->
                 <div class="pt-2 flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                     <Button
-                        variant="default"
+                        variant="secondary"
                         size="lg"
-                        class="min-h-[46px] w-full sm:w-auto py-3.5 sm:py-2.5 px-6 rounded-xl font-semibold gap-2 shadow-xs bg-sky-600 hover:bg-sky-700 text-white cursor-pointer"
+                        class="min-h-[46px] w-full sm:w-auto py-3.5 sm:py-2.5 px-6 rounded-xl font-semibold gap-2 shadow-xs border-transparent bg-sky-700 hover:bg-sky-800 dark:hover:bg-sky-800 text-white sm:hover:shadow-lg sm:hover:shadow-sky-700/25 cursor-pointer"
                         onclick={handleConnect}
                     >
                         <span class="inline sm:hidden">Vincular Mercado Pago</span>
@@ -165,7 +165,7 @@
         <!-- ESTADO B: Cuenta Vinculada (Ficha Oficial) -->
         <div class="space-y-6">
             <!-- Recordatorio Geográfico en Estado Vinculado -->
-            <div class="p-4 rounded-xl border border-border/80 bg-muted/30 flex items-start gap-3 text-xs leading-relaxed">
+            <div class="p-4 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 flex items-start gap-3 text-xs leading-relaxed">
                 <Building2 class="size-4 shrink-0 text-primary mt-0.5" />
                 <div class="space-y-1">
                     <span class="font-semibold text-foreground block">Datos Geográficos del Comercio</span>
@@ -178,7 +178,7 @@
             <Card class="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-border/60">
                     <div class="flex items-center gap-3.5 min-w-0">
-                        <div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                        <div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
                             <CheckCircle2 class="size-6" />
                         </div>
                         <div class="min-w-0">
@@ -195,8 +195,8 @@
                     </div>
 
                     <Button
-                        variant="outline"
-                        class="min-h-[44px] px-4 rounded-xl text-sm font-medium text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-2 shrink-0 cursor-pointer"
+                        variant="destructive"
+                        class="min-h-[44px] px-4 rounded-xl text-sm font-medium gap-2 shrink-0 cursor-pointer"
                         onclick={() => (isDisconnectModalOpen = true)}
                     >
                         <Unlink class="size-4" />
@@ -206,7 +206,7 @@
 
                 <!-- Detalle de Datos Oficiales -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-5">
-                    <div class="p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col gap-1">
+                    <div class="p-4 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex flex-col gap-1">
                         <span class="text-xs text-muted-foreground flex items-center gap-1.5 font-medium">
                             <Building2 class="size-3.5" />
                             Titular / Razón Social
@@ -221,7 +221,7 @@
                         {/if}
                     </div>
 
-                    <div class="p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col gap-1">
+                    <div class="p-4 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex flex-col gap-1">
                         <span class="text-xs text-muted-foreground flex items-center gap-1.5 font-medium">
                             <Mail class="size-3.5" />
                             Email Registrado
@@ -251,7 +251,7 @@
                             id="pos_id"
                             bind:value={currentPosId}
                             placeholder="Ej: SUC01POS01"
-                            class="h-10 rounded-xl font-sans text-sm uppercase bg-background"
+                            class="h-10 rounded-xl font-sans text-sm uppercase bg-field border-input focus:border-primary focus:ring-1 focus:ring-primary"
                             required
                         />
                     </div>

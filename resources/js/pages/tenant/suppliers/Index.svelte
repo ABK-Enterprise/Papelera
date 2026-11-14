@@ -3,15 +3,14 @@
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
     import { Badge } from '@/components/ui/badge';
-    import { Link, router } from '@inertiajs/svelte';
+    import { router } from '@inertiajs/svelte';
     import { hasPermission } from '@/lib/permissions';
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
-    import Truck from 'lucide-svelte/icons/truck';
-    import Users from 'lucide-svelte/icons/users';
     import { ClearFilterButton, ModuleHeader } from '@/components/common';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
+    import SuppliersNavigationTabs from './SuppliersNavigationTabs.svelte';
     import SupplierFilterModalMobile from './mobile/SupplierFilterModalMobile.svelte';
     import SupplierListDesktop from './desktop/SupplierListDesktop.svelte';
     import SupplierListMobile from './mobile/SupplierListMobile.svelte';
@@ -76,20 +75,7 @@
     <!-- Header y Pestañas de Navegación del Módulo Proveedores -->
     <ModuleHeader title="Gestión de Proveedores">
         {#snippet tabs()}
-            <div class="flex items-center gap-2 border-b border-border/60 pb-3">
-                <Link href="/tenant/proveedores" class="inline-flex">
-                    <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
-                        <Users class="size-4" />
-                        Directorio de Proveedores ({totalCount})
-                    </Button>
-                </Link>
-                <Link href="/tenant/proveedores/ordenes" class="inline-flex">
-                    <Button variant="ghost" size="sm" class="gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
-                        <Truck class="size-4" />
-                        Órdenes de Compra
-                    </Button>
-                </Link>
-            </div>
+            <SuppliersNavigationTabs activeTab="directory" count={totalCount} />
         {/snippet}
 
         {#snippet actions()}
@@ -131,7 +117,7 @@
                                 </div>
                                 <div class="flex items-center gap-1.5 shrink-0">
                                     {#if supp.is_active}
-                                        <span class="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                        <span class="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                                             Activo
                                         </span>
                                     {:else}
@@ -170,7 +156,7 @@
                 <select
                     bind:value={tableFilters.filters.status}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-select-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[150px]"
+                    class="h-10 rounded-lg border border-input bg-field px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-w-[150px]"
                 >
                     <option value="">Estado: Todos</option>
                     <option value="active">Solo Activos</option>

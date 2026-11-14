@@ -83,7 +83,7 @@
                 <button
                     type="button"
                     onclick={() => (open = false)}
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
@@ -93,7 +93,7 @@
 
             <DialogBody class="space-y-4 text-sm">
                 <!-- Información del Producto -->
-                <div class="p-3.5 rounded-xl bg-muted/40 border border-border/60">
+                <div class="p-3.5 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90">
                     <span class="text-xs text-muted-foreground font-semibold uppercase tracking-wide block mb-1">
                         Producto Afectado
                     </span>
@@ -113,22 +113,22 @@
 
                 <!-- Tipo, Cantidad y Balance de Stock -->
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="p-3 rounded-xl bg-muted/30 border border-border/60">
+                    <div class="p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90">
                         <span class="text-xs text-muted-foreground block mb-1">Tipo de Operación</span>
                         {#if movement.type === 'income'}
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/25 dark:border-emerald-500/30 tabular-nums">
                                 <ArrowDownLeft class="size-3.5" />
                                 Ingreso (+{movement.quantity})
                             </span>
                         {:else}
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 tabular-nums">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/25 dark:border-rose-500/30 tabular-nums">
                                 <ArrowUpRight class="size-3.5" />
                                 Egreso (-{movement.quantity})
                             </span>
                         {/if}
                     </div>
 
-                    <div class="p-3 rounded-xl bg-muted/30 border border-border/60">
+                    <div class="p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90">
                         <span class="text-xs text-muted-foreground block mb-1">Balance de Stock</span>
                         <div class="font-semibold text-foreground text-sm tabular-nums">
                             {movement.previous_stock} ➔ {movement.current_stock}
@@ -140,7 +140,7 @@
                 </div>
 
                 <!-- Motivo / Concepto -->
-                <div class="p-3 rounded-xl bg-muted/30 border border-border/60">
+                <div class="p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90">
                     <span class="text-xs text-muted-foreground block mb-1">Motivo / Concepto</span>
                     <span class="font-semibold text-foreground capitalize">
                         {movement.reason ? movement.reason.replace(/_/g, ' ') : 'Movimiento estándar'}
@@ -148,7 +148,7 @@
                 </div>
 
                 <!-- Usuario Responsable y Fecha -->
-                <div class="p-3.5 rounded-xl bg-muted/40 border border-border/60 space-y-2">
+                <div class="p-3.5 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 space-y-2">
                     <span class="text-xs text-muted-foreground font-semibold uppercase tracking-wide block">
                         Auditoría y Ejecución
                     </span>
@@ -164,7 +164,7 @@
                             </div>
                         {/if}
                     </div>
-                    <div class="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t border-border/40 tabular-nums">
+                    <div class="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t border-border/60 tabular-nums">
                         <Calendar class="size-3.5 text-muted-foreground" />
                         <span>Fecha y hora: {formatFullDate(movement.created_at)}</span>
                     </div>
@@ -172,7 +172,7 @@
 
                 <!-- Observaciones -->
                 {#if movement.notes}
-                    <div class="p-3 rounded-xl bg-muted/30 border border-border/60">
+                    <div class="p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90">
                         <span class="text-xs text-muted-foreground block mb-1">Notas / Observaciones</span>
                         <p class="text-xs text-foreground whitespace-pre-wrap">{movement.notes}</p>
                     </div>
@@ -182,9 +182,9 @@
             <DialogFooter>
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     onclick={() => (open = false)}
-                    class="min-h-[44px] px-5 rounded-xl text-sm font-semibold border-border/70"
+                    class="min-h-[44px] px-5 rounded-xl text-sm font-semibold"
                 >
                     Cerrar
                 </Button>

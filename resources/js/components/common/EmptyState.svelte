@@ -27,12 +27,12 @@
 
 <div
     class={cn(
-        'flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 bg-muted/20 p-8 md:p-12 text-center transition-all',
+        'flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 bg-card/80 dark:bg-secondary/20 p-8 md:p-12 text-center transition-all',
         className
     )}
 >
     {#if Icon}
-        <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted/60 text-muted-foreground shadow-xs ring-1 ring-border/50">
+        <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted dark:bg-secondary/50 text-muted-foreground shadow-xs ring-1 ring-border/60">
             <Icon class="h-7 w-7 stroke-[1.75]" />
         </div>
     {/if}

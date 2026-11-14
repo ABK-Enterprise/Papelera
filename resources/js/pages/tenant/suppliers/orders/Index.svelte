@@ -2,13 +2,11 @@
     import AppHead from '@/components/AppHead.svelte';
     import { Button } from '@/components/ui/button';
     import { Card } from '@/components/ui/card';
-    import { Link, router, page } from '@inertiajs/svelte';
+    import { router, page } from '@inertiajs/svelte';
     import { echo } from '@/lib/echo';
     import Plus from 'lucide-svelte/icons/plus';
     import Search from 'lucide-svelte/icons/search';
     import SlidersHorizontal from 'lucide-svelte/icons/sliders-horizontal';
-    import Truck from 'lucide-svelte/icons/truck';
-    import Users from 'lucide-svelte/icons/users';
     import { ClearFilterButton, ModuleHeader } from '@/components/common';
     import { type PaginationMeta } from '@/components/common/AppPagination.svelte';
     import SearchCombobox from '@/components/common/SearchCombobox.svelte';
@@ -16,6 +14,7 @@
     import { formatDateTime } from '@/lib/utils';
     import { hasPermission } from '@/lib/permissions';
     import CreateSupplierOrderModal from './CreateSupplierOrderModal.svelte';
+    import SuppliersNavigationTabs from '../SuppliersNavigationTabs.svelte';
     import SupplierOrderDetailModal from './SupplierOrderDetailModal.svelte';
     import SupplierOrderFilterModalMobile from './mobile/SupplierOrderFilterModalMobile.svelte';
     import SupplierOrderListDesktop from './desktop/SupplierOrderListDesktop.svelte';
@@ -132,9 +131,9 @@
     function getSupplierOrderStatusBadge(status: string) {
         switch (status) {
             case 'solicitado':
-                return { label: 'Solicitado', class: 'bg-amber-500/10 text-amber-600 border-amber-500/20' };
+                return { label: 'Solicitado', class: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20' };
             case 'recibido':
-                return { label: 'Recibido', class: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' };
+                return { label: 'Recibido', class: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20' };
             case 'cancelado':
                 return { label: 'Cancelado', class: 'bg-destructive/10 text-destructive border-destructive/20' };
             default:
@@ -244,20 +243,7 @@
     <!-- Header y Pestañas de Navegación del Módulo Proveedores -->
     <ModuleHeader title="Órdenes de Compra a Proveedores">
         {#snippet tabs()}
-            <div class="flex items-center gap-2 border-b border-border/60 pb-3">
-                <Link href="/tenant/proveedores" class="inline-flex">
-                    <Button variant="ghost" size="sm" class="gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
-                        <Users class="size-4" />
-                        Directorio de Proveedores
-                    </Button>
-                </Link>
-                <Link href="/tenant/proveedores/ordenes" class="inline-flex">
-                    <Button variant="secondary" size="sm" class="gap-2 text-xs font-bold text-primary bg-primary/10 shadow-2xs h-auto min-h-8 py-[2px] sm:h-8 sm:py-0">
-                        <Truck class="size-4" />
-                        Órdenes de Compra ({stats.total})
-                    </Button>
-                </Link>
-            </div>
+            <SuppliersNavigationTabs activeTab="orders" count={stats.total} />
         {/snippet}
 
         {#snippet actions()}
@@ -348,7 +334,7 @@
                 <select
                     bind:value={selectedStatus}
                     onchange={applyFilters}
-                    class="h-10 rounded-lg border border-input bg-select-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary min-w-[160px]"
+                    class="h-10 rounded-lg border border-input bg-field px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-w-[160px]"
                 >
                     <option value="all">Todos los estados ({stats.total})</option>
                     <option value="solicitado">Solicitado ({stats.solicitado})</option>

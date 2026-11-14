@@ -12,7 +12,9 @@
         <link rel="icon" href="/logo-provisorio-papelera.png?v=2" type="image/png">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
 
-        <link rel="preload" href="/fonts/GoogleSans-VariableFont.woff2" as="font" type="font/woff2" crossorigin>
+        @if (! \Illuminate\Support\Facades\Vite::isRunningHot())
+            <link rel="preload" href="/fonts/GoogleSans-VariableFont.woff2" as="font" type="font/woff2" crossorigin>
+        @endif
 
         @vite(['resources/css/app.css', 'resources/js/app.ts'])
         <x-inertia::head>

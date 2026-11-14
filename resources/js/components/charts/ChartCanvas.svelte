@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onDestroy } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
     import {
         Chart,
         type ChartTypeRegistry,
@@ -11,7 +11,32 @@
 
     // Apply Google Sans and design tokens globally for all charts
     Chart.defaults.font.family = "'Google Sans', sans-serif";
-    Chart.defaults.color = '#64748b'; // slate-500
+    Chart.defaults.color = '#64748b'; // slate-500 fallback
+
+    function syncChartThemeDefaults() {
+        if (typeof document === 'undefined') return;
+        const mutedFg = getComputedStyle(document.documentElement)
+            .getPropertyValue('--muted-foreground')
+            .trim();
+        if (mutedFg) {
+            Chart.defaults.color = mutedFg;
+        }
+        if (chart) {
+            chart.update('none');
+        }
+    }
+
+    onMount(() => {
+        syncChartThemeDefaults();
+        const observer = new MutationObserver(() => {
+            syncChartThemeDefaults();
+        });
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class', 'data-theme'],
+        });
+        return () => observer.disconnect();
+    });
 
     let {
         type = 'line',

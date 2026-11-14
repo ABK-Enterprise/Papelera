@@ -132,8 +132,8 @@
                     type="button"
                     onclick={() => (localCbteTipo = opt.value)}
                     class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {isSelected
-                        ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                        : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                        ? 'border-primary/40 bg-primary/15 text-foreground dark:text-sky-100 font-semibold shadow-2xs'
+                        : 'border-border/80 dark:border-border/90 bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 text-foreground'}"
                 >
                     <span>{opt.label}</span>
                     {#if isSelected}
@@ -156,7 +156,7 @@
                     id="invoice-date-from"
                     type="date"
                     bind:value={localDateFrom}
-                    class="h-11 rounded-xl text-xs"
+                    class="h-11 rounded-xl text-xs dark:[color-scheme:dark]"
                 />
             </div>
             <div class="space-y-1.5">
@@ -165,7 +165,7 @@
                     id="invoice-date-to"
                     type="date"
                     bind:value={localDateTo}
-                    class="h-11 rounded-xl text-xs"
+                    class="h-11 rounded-xl text-xs dark:[color-scheme:dark]"
                 />
             </div>
         </div>
@@ -183,8 +183,8 @@
                     type="button"
                     onclick={() => (localSortBy = opt.value)}
                     class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {isSelected
-                        ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                        : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                        ? 'border-primary/40 bg-primary/15 text-foreground dark:text-sky-100 font-semibold shadow-2xs'
+                        : 'border-border/80 dark:border-border/90 bg-muted/40 hover:bg-muted/70 dark:bg-secondary/35 dark:hover:bg-secondary/55 text-foreground'}"
                 >
                     <span>{opt.label}</span>
                     {#if isSelected}

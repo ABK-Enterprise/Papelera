@@ -119,7 +119,7 @@
             </div>
 
             <Button
-                variant={activeFiltersCount > 0 ? 'default' : 'outline'}
+                variant={activeFiltersCount > 0 ? 'default' : 'secondary'}
                 size="icon"
                 onclick={() => (isFilterModalOpen = true)}
                 class="size-11 min-h-[44px] min-w-[44px] rounded-xl relative shrink-0"
@@ -164,9 +164,9 @@
 
     <!-- Lista de Cards en Mobile -->
     {#if items.data.length === 0}
-        <Card class="p-8 text-center border-dashed border-border/80 rounded-2xl">
+        <Card class="p-8 text-center border-dashed border-border/80 dark:border-border/90 rounded-2xl">
             <div class="flex flex-col items-center justify-center">
-                <div class="size-12 rounded-2xl bg-muted/60 flex items-center justify-center mb-3 text-muted-foreground">
+                <div class="size-12 rounded-2xl bg-muted/60 dark:bg-secondary/50 border border-border/70 flex items-center justify-center mb-3 text-muted-foreground">
                     <PackageSearch class="size-6" />
                 </div>
                 <h3 class="text-base font-semibold text-foreground mb-1">No se encontraron productos</h3>
@@ -174,7 +174,7 @@
                     {hasActiveFilters ? 'No hay existencias coincidentes con los filtros.' : 'No hay existencias registradas.'}
                 </p>
                 {#if hasActiveFilters}
-                    <Button variant="outline" size="sm" onclick={onreset} class="gap-1.5 text-xs">
+                    <Button variant="secondary" size="sm" onclick={onreset} class="gap-1.5 text-xs rounded-xl">
                         <RotateCcw class="size-3" />
                         Restablecer filtros
                     </Button>
@@ -219,11 +219,11 @@
                                     Sin Stock
                                 </Badge>
                             {:else if isLowStock}
-                                <Badge class="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-xs font-medium shrink-0">
+                                <Badge class="bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 text-xs font-medium shrink-0">
                                     Stock Bajo
                                 </Badge>
                             {:else}
-                                <Badge variant="secondary" class="text-xs font-medium shrink-0 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                                <Badge variant="secondary" class="text-xs font-medium shrink-0 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/25">
                                     Disponible
                                 </Badge>
                             {/if}
@@ -236,7 +236,7 @@
                                 <span class="truncate">{item.warehouse_name}</span>
                             </div>
                             {#if item.aisle_location}
-                                <div class="flex items-center gap-1 text-xs bg-muted/60 px-1.5 py-0.5 rounded font-sans tabular-nums">
+                                <div class="flex items-center gap-1 text-xs bg-muted/60 dark:bg-secondary/50 border border-border/60 px-1.5 py-0.5 rounded font-sans tabular-nums">
                                     <MapPin class="size-3 text-muted-foreground" />
                                     <span>{item.aisle_location}</span>
                                 </div>
@@ -245,7 +245,7 @@
                     </div>
 
                     <!-- Pie de la Card: Mismo tamaño de fuente para stock depósito y stock comercio -->
-                    <div class="pt-2.5 border-t border-border/50 flex items-center justify-between gap-2 bg-muted/20 -mx-4 -mb-4 px-4 py-2.5 rounded-b-2xl">
+                    <div class="pt-2.5 border-t border-border/70 dark:border-border/80 flex items-center justify-between gap-2 bg-muted/40 dark:bg-secondary/35 -mx-4 -mb-4 px-4 py-2.5 rounded-b-2xl">
                         <div class="flex flex-col">
                             <span class="text-xs font-normal text-muted-foreground">Stock en este depósito</span>
                             <span class="text-sm font-semibold tabular-nums text-foreground">
@@ -255,9 +255,9 @@
 
                         <Button
                             type="button"
-                            variant="outline"
+                            variant="secondary"
                             size="sm"
-                            class="min-h-[36px] h-9 px-2.5 gap-1.5 text-xs text-foreground font-medium rounded-lg shadow-2xs hover:bg-muted"
+                            class="min-h-[36px] h-9 px-2.5 gap-1.5 text-xs font-medium rounded-lg"
                             onclick={() => ontransfer?.(item)}
                             title="Transferir stock de este producto"
                         >

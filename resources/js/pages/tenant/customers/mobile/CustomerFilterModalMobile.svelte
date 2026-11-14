@@ -148,8 +148,8 @@
                     type="button"
                     onclick={() => (localStatus = opt.value)}
                     class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-sm transition-all {isSelected
-                        ? 'border-primary bg-primary/10 text-primary font-medium shadow-2xs'
-                        : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                        ? 'border-primary/40 bg-primary/15 text-foreground dark:text-sky-100 font-medium shadow-2xs'
+                        : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                 >
                     <span>{opt.label}</span>
                     {#if isSelected}
@@ -172,8 +172,8 @@
                     type="button"
                     onclick={() => (localDefaulter = opt.value)}
                     class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-sm transition-all {isSelected
-                        ? 'border-primary bg-primary/10 text-primary font-medium shadow-2xs'
-                        : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                        ? 'border-primary/40 bg-primary/15 text-foreground dark:text-sky-100 font-medium shadow-2xs'
+                        : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                 >
                     <div class="flex items-center gap-2">
                         {#if opt.value === 'yes'}
@@ -203,8 +203,8 @@
                     type="button"
                     onclick={() => (localTaxCondition = opt.value)}
                     class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-sm transition-all {isSelected
-                        ? 'border-primary bg-primary/10 text-primary font-medium shadow-2xs'
-                        : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                        ? 'border-primary/40 bg-primary/15 text-foreground dark:text-sky-100 font-medium shadow-2xs'
+                        : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                 >
                     <span>{opt.label}</span>
                     {#if isSelected}
@@ -227,8 +227,8 @@
                     type="button"
                     onclick={() => (localSort = opt.value)}
                     class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-sm transition-all {isSelected
-                        ? 'border-primary bg-primary/10 text-primary font-medium shadow-2xs'
-                        : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                        ? 'border-primary/40 bg-primary/15 text-foreground dark:text-sky-100 font-medium shadow-2xs'
+                        : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                 >
                     <span>{opt.label}</span>
                     {#if isSelected}

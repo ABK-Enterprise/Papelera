@@ -76,7 +76,7 @@
                 <button
                     type="button"
                     onclick={handleClose}
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
@@ -185,10 +185,10 @@
                         onclick={toggleActive}
                         onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleActive()}
                         class="flex items-center gap-3 rounded-xl border p-3.5 cursor-pointer select-none transition-all {form.is_active
-                            ? 'border-primary/60 bg-primary/5 shadow-2xs'
-                            : 'border-border/60 bg-card hover:bg-muted/40'}"
+                            ? 'border-primary bg-primary/10 dark:bg-primary/15 shadow-2xs'
+                            : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55'}"
                     >
-                        <div class="size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 {form.is_active ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-background'}">
+                        <div class="size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 {form.is_active ? 'bg-primary text-primary-foreground border-primary' : 'border-input bg-field'}">
                             {#if form.is_active}
                                 <Check class="size-3 stroke-[3]" />
                             {/if}
@@ -210,7 +210,7 @@
         </DialogBody>
 
         <DialogFooter>
-            <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-medium">
+            <Button type="button" variant="secondary" onclick={handleClose} disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-medium">
                 Cancelar
             </Button>
             <Button type="submit" form="create-supplier-form" disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-medium min-w-32">

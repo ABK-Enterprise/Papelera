@@ -110,11 +110,11 @@
 >
     <!-- Contenido según Pestaña Activa -->
     {#if activeTab === 'warehouse'}
-        <div class="space-y-1">
+        <div class="space-y-1.5">
             <button
                 type="button"
                 onclick={() => (localWarehouseId = '')}
-                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-xs sm:text-sm font-medium transition-colors {localWarehouseId === '' ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-muted text-foreground'}"
+                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-left text-xs sm:text-sm font-medium transition-colors {localWarehouseId === '' ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-bold' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
             >
                 <span>Todos los Depósitos</span>
                 {#if localWarehouseId === ''}
@@ -125,7 +125,7 @@
                 <button
                     type="button"
                     onclick={() => (localWarehouseId = wh.id)}
-                    class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-xs sm:text-sm font-medium transition-colors {String(localWarehouseId) === String(wh.id) ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-muted text-foreground'}"
+                    class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-left text-xs sm:text-sm font-medium transition-colors {String(localWarehouseId) === String(wh.id) ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-bold' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                 >
                     <div class="flex flex-col min-w-0 pr-2">
                         <span class="truncate">{wh.name}</span>
@@ -138,11 +138,11 @@
             {/each}
         </div>
     {:else if activeTab === 'category'}
-        <div class="space-y-1">
+        <div class="space-y-1.5">
             <button
                 type="button"
                 onclick={() => (localCategoryId = '')}
-                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-xs sm:text-sm font-medium transition-colors {localCategoryId === '' ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-muted text-foreground'}"
+                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-left text-xs sm:text-sm font-medium transition-colors {localCategoryId === '' ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-bold' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
             >
                 <span>Todas las Categorías</span>
                 {#if localCategoryId === ''}
@@ -153,7 +153,7 @@
                 <button
                     type="button"
                     onclick={() => (localCategoryId = cat.id)}
-                    class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-xs sm:text-sm font-medium transition-colors {String(localCategoryId) === String(cat.id) ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-muted text-foreground'}"
+                    class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-left text-xs sm:text-sm font-medium transition-colors {String(localCategoryId) === String(cat.id) ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-bold' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                 >
                     <span class="truncate pr-2">{cat.name}</span>
                     {#if String(localCategoryId) === String(cat.id)}
@@ -163,11 +163,11 @@
             {/each}
         </div>
     {:else if activeTab === 'stock'}
-        <div class="space-y-1">
+        <div class="space-y-1.5">
             <button
                 type="button"
                 onclick={() => (localStockStatus = '')}
-                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-xs sm:text-sm font-medium transition-colors {localStockStatus === '' ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-muted text-foreground'}"
+                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-left text-xs sm:text-sm font-medium transition-colors {localStockStatus === '' ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-bold' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
             >
                 <span>Todos los Estados</span>
                 {#if localStockStatus === ''}
@@ -177,7 +177,7 @@
             <button
                 type="button"
                 onclick={() => (localStockStatus = 'in_stock')}
-                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-xs sm:text-sm font-medium transition-colors {localStockStatus === 'in_stock' ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-muted text-foreground'}"
+                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-left text-xs sm:text-sm font-medium transition-colors {localStockStatus === 'in_stock' ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-bold' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
             >
                 <div class="flex flex-col">
                     <span>Con stock</span>
@@ -190,7 +190,7 @@
             <button
                 type="button"
                 onclick={() => (localStockStatus = 'low_stock')}
-                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-xs sm:text-sm font-medium transition-colors {localStockStatus === 'low_stock' ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-muted text-foreground'}"
+                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-left text-xs sm:text-sm font-medium transition-colors {localStockStatus === 'low_stock' ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-bold' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
             >
                 <div class="flex flex-col">
                     <span>Stock bajo</span>
@@ -203,7 +203,7 @@
             <button
                 type="button"
                 onclick={() => (localStockStatus = 'out_of_stock')}
-                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-xs sm:text-sm font-medium transition-colors {localStockStatus === 'out_of_stock' ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-muted text-foreground'}"
+                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-left text-xs sm:text-sm font-medium transition-colors {localStockStatus === 'out_of_stock' ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-bold' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
             >
                 <div class="flex flex-col">
                     <span>Sin stock</span>

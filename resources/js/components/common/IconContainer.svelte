@@ -49,7 +49,7 @@
         warning: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30 dark:bg-amber-950/40 dark:border-amber-500/35',
         destructive: 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/30 dark:bg-rose-950/40 dark:border-rose-500/35',
         info: 'bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/30 dark:bg-sky-950/40 dark:border-sky-500/35',
-        secondary: 'bg-secondary text-secondary-foreground border border-secondary-300 dark:border-secondary-700',
+        secondary: 'bg-secondary text-secondary-foreground border border-border/80 dark:border-border/90',
         neutral: 'bg-neutral-500/10 text-neutral-700 dark:text-neutral-300 border border-neutral-500/30 dark:bg-neutral-950/40 dark:border-neutral-500/35',
     };
 </script>

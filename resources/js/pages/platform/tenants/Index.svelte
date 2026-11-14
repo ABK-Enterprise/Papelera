@@ -145,7 +145,7 @@
                 <select
                     value={statusFilter}
                     onchange={handleStatusChange}
-                    class="w-full rounded-xl border border-border bg-select-background px-3.5 py-2 text-xs sm:text-sm font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+                    class="w-full rounded-xl border border-input bg-field px-3.5 py-2 text-xs sm:text-sm font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
                 >
                     <option value="all">Todos los estados</option>
                     <option value="activo">Activo</option>
@@ -158,7 +158,7 @@
                 <select
                     value={sortFilter}
                     onchange={handleSortChange}
-                    class="w-full rounded-xl border border-border bg-select-background px-3.5 py-2 text-xs sm:text-sm font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+                    class="w-full rounded-xl border border-input bg-field px-3.5 py-2 text-xs sm:text-sm font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
                 >
                     <option value="latest">Más recientes</option>
                     <option value="oldest">Más antiguos</option>
@@ -187,12 +187,12 @@
                                 </span>
                             </div>
                             {#if item.is_active}
-                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
                                     <span class="size-1.5 rounded-full bg-emerald-500"></span>
                                     Activo
                                 </span>
                             {:else}
-                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0">
+                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 shrink-0">
                                     <span class="size-1.5 rounded-full bg-rose-500"></span>
                                     Suspendido
                                 </span>

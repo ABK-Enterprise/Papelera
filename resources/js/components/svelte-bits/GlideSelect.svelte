@@ -170,9 +170,9 @@
         aria-expanded={isOpen}
         class={cn(
             'flex items-center justify-between gap-3 w-full sm:w-[350px] min-h-[40px] px-3.5 py-1.5',
-            'rounded-lg border border-input/80 bg-select-background text-sm font-medium shadow-xs',
+            'rounded-lg border border-input bg-field text-sm font-medium shadow-xs',
             'transition-colors duration-150 cursor-pointer select-none',
-            'hover:bg-muted/50 dark:hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
+            'hover:bg-muted/50 dark:hover:bg-secondary/40 focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
             disabled && 'opacity-50 cursor-not-allowed pointer-events-none'
         )}
     >
@@ -180,7 +180,7 @@
             <span class="font-semibold text-foreground truncate">
                 {activeOption.title}
             </span>
-            <span class="text-xs text-muted-foreground bg-muted/80 dark:bg-muted/50 px-2 py-0.5 rounded-md shrink-0 tabular-nums">
+            <span class="text-xs text-muted-foreground bg-muted/80 dark:bg-secondary/50 px-2 py-0.5 rounded-md shrink-0 tabular-nums">
                 {activeOption.subtitle}
             </span>
         </div>
@@ -193,7 +193,7 @@
             bind:this={menuRef}
             class={cn(
                 'absolute right-0 z-50 mt-1.5 w-full sm:w-[330px] rounded-xl border border-border/80',
-                'bg-popover p-1.5 text-popover-foreground shadow-lg backdrop-blur-md',
+                'bg-popover p-1.5 text-popover-foreground shadow-xl ring-1 ring-black/5 dark:ring-white/10 backdrop-blur-md',
                 'animate-in fade-in-0 zoom-in-95 duration-100 ease-out origin-top-right'
             )}
             role="listbox"

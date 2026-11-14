@@ -41,7 +41,7 @@
             <button
                 type="button"
                 onclick={() => handleOpenChange(false)}
-                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0 cursor-pointer"
+                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-secondary/60 transition-colors shrink-0 cursor-pointer"
                 aria-label="Cerrar modal"
             >
                 <X class="size-4.5" />
@@ -50,7 +50,7 @@
 
         <!-- Cuerpo del Dialog: Icono centrado y oración descriptiva -->
         <div class="flex flex-col items-center justify-center text-center py-4 sm:py-6 space-y-4">
-            <div class="size-16 sm:size-20 rounded-2xl bg-primary-500/10 border border-primary-500/20 flex items-center justify-center text-primary shrink-0 shadow-2xs">
+            <div class="size-16 sm:size-20 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 shadow-2xs">
                 <BookOpen class="size-8 sm:size-10" />
             </div>
             <p class="text-sm sm:text-base text-muted-foreground max-w-xs sm:max-w-sm leading-relaxed">
@@ -63,7 +63,7 @@
             <div class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:w-auto">
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     class="min-h-[44px] px-5 gap-2 font-medium w-full sm:w-auto justify-center"
                     onclick={() => handleActionClick('ver')}
                 >

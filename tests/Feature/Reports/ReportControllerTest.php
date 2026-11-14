@@ -299,3 +299,17 @@ test('comercio sin modulo reportes asignado por el superusuario es bloqueado por
         ->getJson(route('tenant.reports.index'))
         ->assertForbidden();
 });
+
+test('rango de fechas invertido por url se normaliza para evitar inconsistencias', function () {
+    $response = $this->actingAs($this->adminUser)
+        ->get(route('tenant.reports.index', [
+            'date_from' => '2026-11-20',
+            'date_to' => '2026-11-10',
+        ]));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->where('filters.date_from', '2026-11-20')
+        ->where('filters.date_to', '2026-11-20')
+    );
+});

@@ -149,7 +149,7 @@
                 value={productsSort}
                 onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
                 aria-label="Ordenar productos"
-                class="w-full sm:w-[210px] min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium shrink-0"
+                class="w-full sm:w-[210px] min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input bg-field text-foreground shadow-xs transition-colors focus:border-primary focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium shrink-0"
             >
                 <option value="desc">Más vendidos</option>
                 <option value="asc">Menos vendidos</option>
@@ -163,16 +163,16 @@
         {:else}
             <div class="flex flex-col gap-2.5">
                 {#each productsData.top_products as p, i (p.product_id)}
-                    <div class="bento-card group flex items-center justify-between gap-4 rounded-xl border border-border/70 bg-card p-4.5 shadow-xs transition-all duration-200 hover:border-primary/40 hover:shadow-md">
+                    <div class="bento-card group flex items-center justify-between gap-4 rounded-xl border border-border/80 dark:border-border/90 bg-card p-4.5 shadow-xs transition-all duration-200 hover:border-primary/40 hover:bg-muted/40 dark:hover:bg-secondary/35 hover:shadow-md">
                         <!-- Lado Izquierdo: Ranking + Imagen/Icono + Info Principal -->
                         <div class="flex items-center gap-3.5 min-w-0 flex-1">
-                            <span class="size-8 rounded-full bg-muted/80 text-foreground text-xs flex items-center justify-center font-bold shrink-0 border border-border/60 tabular-nums">
+                            <span class="size-8 rounded-full bg-muted/40 dark:bg-secondary/35 text-foreground text-xs flex items-center justify-center font-bold shrink-0 border border-border/80 dark:border-border/90 tabular-nums">
                                 #{i + 1}
                             </span>
 
                             <!-- Imagen o placeholder de producto -->
                             {#if p.thumbnail_url || p.image_url}
-                                <div class="relative size-12 rounded-xl border border-border/80 overflow-hidden shrink-0 bg-muted/30">
+                                <div class="relative size-12 rounded-xl border border-border/80 dark:border-border/90 overflow-hidden shrink-0 bg-muted/40 dark:bg-secondary/35">
                                     <img
                                         src={p.thumbnail_url || p.image_url}
                                         alt={p.name}
@@ -181,7 +181,7 @@
                                     />
                                 </div>
                             {:else}
-                                <div class="relative size-12 rounded-xl border border-dashed border-border/80 flex items-center justify-center bg-muted/20 shrink-0 text-muted-foreground">
+                                <div class="relative size-12 rounded-xl border border-dashed border-border/80 dark:border-border/90 flex items-center justify-center bg-muted/40 dark:bg-secondary/35 shrink-0 text-muted-foreground">
                                     {#if p.sale_type === 'weight'}
                                         <Scale class="size-5 text-primary/80" />
                                     {:else}
@@ -220,13 +220,13 @@
                                     </span>
 
                                     {#if p.sku}
-                                        <span class="bg-muted/60 px-2 py-0.5 rounded text-xs tabular-nums font-mono border border-border/40">
+                                        <span class="bg-muted/40 dark:bg-secondary/35 px-2 py-0.5 rounded text-xs tabular-nums font-mono border border-border/80 dark:border-border/90">
                                             SKU: {p.sku}
                                         </span>
                                     {/if}
 
                                     {#if p.barcode}
-                                        <span class="bg-muted/60 px-2 py-0.5 rounded text-xs tabular-nums border border-border/40">
+                                        <span class="bg-muted/40 dark:bg-secondary/35 px-2 py-0.5 rounded text-xs tabular-nums border border-border/80 dark:border-border/90">
                                             BAR: {p.barcode}
                                         </span>
                                     {/if}

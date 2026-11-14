@@ -53,7 +53,7 @@
 
 {#if formattedStatus}
     <div class="mb-5 flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-center text-sm font-medium text-emerald-700 dark:text-emerald-400 shadow-2xs">
-        <CheckCircle2 class="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+        <CheckCircle2 class="size-4 shrink-0 text-emerald-700 dark:text-emerald-400" />
         <span>{formattedStatus}</span>
     </div>
 {/if}
@@ -70,7 +70,7 @@
                     required
                     autocomplete="email"
                     placeholder="nombre@empresa.com"
-                    class="h-11 rounded-lg border-input/60 bg-muted/40 px-3.5 transition-colors focus:bg-background"
+                    class="h-11 rounded-lg border-input bg-field px-3.5 transition-colors"
                 />
                 <InputError message={formatError(errors.email)} />
             </div>

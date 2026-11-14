@@ -95,18 +95,18 @@
             {#if supplier.tax_id || supplier.contact_number || supplier.email}
                 <div class="flex items-center gap-2 flex-wrap pt-1 border-t border-border/40">
                     {#if supplier.tax_id}
-                        <span class="inline-flex items-center gap-1 text-xs tabular-nums bg-muted/60 px-2 py-0.5 rounded text-foreground font-medium">
+                        <span class="inline-flex items-center gap-1 text-xs tabular-nums bg-muted/40 dark:bg-secondary/35 border border-border/60 dark:border-border/80 px-2 py-0.5 rounded text-foreground font-medium">
                             CUIT: {supplier.tax_id}
                         </span>
                     {/if}
                     {#if supplier.contact_number}
-                        <span class="inline-flex items-center gap-1 text-xs tabular-nums bg-muted/60 px-2 py-0.5 rounded text-foreground">
+                        <span class="inline-flex items-center gap-1 text-xs tabular-nums bg-muted/40 dark:bg-secondary/35 border border-border/60 dark:border-border/80 px-2 py-0.5 rounded text-foreground">
                             <Phone class="size-3 text-muted-foreground" />
                             {supplier.contact_number}
                         </span>
                     {/if}
                     {#if supplier.email}
-                        <span class="inline-flex items-center gap-1 text-xs bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[200px]">
+                        <span class="inline-flex items-center gap-1 text-xs bg-muted/40 dark:bg-secondary/35 border border-border/60 dark:border-border/80 px-2 py-0.5 rounded text-foreground truncate max-w-[200px]">
                             <Mail class="size-3 text-muted-foreground" />
                             {supplier.email}
                         </span>
@@ -117,7 +117,7 @@
             <!-- Dirección -->
             {#if supplier.address}
                 <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <MapPin class="size-3.5 shrink-0 text-muted-foreground/70" />
+                    <MapPin class="size-3.5 shrink-0 text-muted-foreground" />
                     <span class="truncate">{supplier.address}</span>
                 </div>
             {/if}
@@ -125,8 +125,8 @@
     {/each}
 
     {#if suppliers.length === 0}
-        <div class="rounded-xl border border-dashed p-8 text-center bg-card/40">
-            <Truck class="mx-auto h-10 w-10 text-muted-foreground/40 mb-2" />
+        <div class="rounded-xl border border-dashed border-border/80 dark:border-border/90 p-8 text-center bg-muted/30 dark:bg-secondary/20">
+            <Truck class="mx-auto h-10 w-10 text-muted-foreground/80 mb-2" />
             <p class="text-xs text-muted-foreground font-medium">No se encontraron proveedores.</p>
             {#if hasPermission('proveedores.crear')}
                 <Button size="sm" class="mt-3 gap-1.5 min-h-[44px] text-sm font-medium" onclick={onOpenCreate}>

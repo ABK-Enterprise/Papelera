@@ -136,7 +136,7 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-xl p-0 gap-0 overflow-hidden rounded-2xl sm:rounded-3xl border-border/80 shadow-xl flex flex-col max-h-[85vh]">
+    <DialogContent class="max-w-xl p-0 gap-[1px] overflow-hidden rounded-2xl sm:rounded-3xl border-border/80 shadow-xl flex flex-col max-h-[85vh]">
         <DialogHeader class="p-4 sm:p-5 border-b border-border/50 shrink-0">
             <div class="flex items-center justify-between pr-6">
                 <div class="flex items-center gap-2">
@@ -156,16 +156,16 @@
         </DialogHeader>
 
         <!-- Split Layout de 2 Columnas -->
-        <DialogBody class="p-0 flex-1 min-h-0 overflow-hidden flex flex-row bg-card">
+        <DialogBody class="p-0 flex-1 min-h-0 overflow-hidden flex flex-row">
             <!-- Columna Izquierda: Pestañas de Filtro (~1/4 del ancho) -->
-            <nav class="w-[34%] sm:w-[30%] shrink-0 border-r border-border/60 bg-muted/30 p-1.5 flex flex-col gap-1 overflow-y-auto custom-scrollbar">
+            <nav class="w-[34%] sm:w-[30%] shrink-0 border-r border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-1.5 flex flex-col gap-1 overflow-y-auto custom-scrollbar">
                 <!-- Tab Ordenar -->
                 <button
                     type="button"
                     onclick={() => (activeTab = 'sort')}
                     class="w-full flex items-center justify-between gap-1.5 px-2.5 py-3 rounded-xl text-left text-xs font-medium transition-all {activeTab === 'sort'
-                        ? 'bg-card text-foreground shadow-xs font-semibold border border-border/60'
-                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}"
+                        ? 'bg-card dark:bg-secondary text-foreground shadow-xs font-semibold border border-border/70'
+                        : 'border border-transparent text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/55 hover:text-foreground'}"
                 >
                     <div class="flex items-center gap-2 min-w-0">
                         <ArrowUpDown class="h-4 w-4 shrink-0 {activeTab === 'sort' ? 'text-primary' : 'text-muted-foreground'}" />
@@ -181,8 +181,8 @@
                     type="button"
                     onclick={() => (activeTab = 'category')}
                     class="w-full flex items-center justify-between gap-1.5 px-2.5 py-3 rounded-xl text-left text-xs font-medium transition-all {activeTab === 'category'
-                        ? 'bg-card text-foreground shadow-xs font-semibold border border-border/60'
-                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}"
+                        ? 'bg-card dark:bg-secondary text-foreground shadow-xs font-semibold border border-border/70'
+                        : 'border border-transparent text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/55 hover:text-foreground'}"
                 >
                     <div class="flex items-center gap-2 min-w-0">
                         <Tag class="h-4 w-4 shrink-0 {activeTab === 'category' ? 'text-primary' : 'text-muted-foreground'}" />
@@ -198,8 +198,8 @@
                     type="button"
                     onclick={() => (activeTab = 'stock')}
                     class="w-full flex items-center justify-between gap-1.5 px-2.5 py-3 rounded-xl text-left text-xs font-medium transition-all {activeTab === 'stock'
-                        ? 'bg-card text-foreground shadow-xs font-semibold border border-border/60'
-                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}"
+                        ? 'bg-card dark:bg-secondary text-foreground shadow-xs font-semibold border border-border/70'
+                        : 'border border-transparent text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/55 hover:text-foreground'}"
                 >
                     <div class="flex items-center gap-2 min-w-0">
                         <Boxes class="h-4 w-4 shrink-0 {activeTab === 'stock' ? 'text-primary' : 'text-muted-foreground'}" />
@@ -215,8 +215,8 @@
                     type="button"
                     onclick={() => (activeTab = 'info')}
                     class="w-full flex items-center justify-between gap-1.5 px-2.5 py-3 rounded-xl text-left text-xs font-medium transition-all {activeTab === 'info'
-                        ? 'bg-card text-foreground shadow-xs font-semibold border border-border/60'
-                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}"
+                        ? 'bg-card dark:bg-secondary text-foreground shadow-xs font-semibold border border-border/70'
+                        : 'border border-transparent text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/55 hover:text-foreground'}"
                 >
                     <div class="flex items-center gap-2 min-w-0">
                         <AlertTriangle class="h-4 w-4 shrink-0 {activeTab === 'info' ? 'text-primary' : 'text-muted-foreground'}" />
@@ -232,8 +232,8 @@
                     type="button"
                     onclick={() => (activeTab = 'discount')}
                     class="w-full flex items-center justify-between gap-1.5 px-2.5 py-3 rounded-xl text-left text-xs font-medium transition-all {activeTab === 'discount'
-                        ? 'bg-card text-foreground shadow-xs font-semibold border border-border/60'
-                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}"
+                        ? 'bg-card dark:bg-secondary text-foreground shadow-xs font-semibold border border-border/70'
+                        : 'border border-transparent text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/55 hover:text-foreground'}"
                 >
                     <div class="flex items-center gap-2 min-w-0">
                         <Percent class="h-4 w-4 shrink-0 {activeTab === 'discount' ? 'text-primary' : 'text-muted-foreground'}" />
@@ -259,8 +259,8 @@
                                 type="button"
                                 onclick={() => (localSortBy = opt.value)}
                                 class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localSortBy === opt.value
-                                    ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                                    : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                                    ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                                    : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                             >
                                 <span>{opt.label}</span>
                                 {#if localSortBy === opt.value}
@@ -291,7 +291,7 @@
                                 placeholder="Buscar categoría..."
                                 onselect={(cat) => (localCategoryId = cat.id)}
                                 onclear={() => (localCategoryId = null)}
-                                inputClass="h-9 text-xs rounded-xl border-border/80 bg-background/50 focus:bg-background"
+                                inputClass="h-9 text-xs rounded-xl border-input bg-field focus:border-primary focus:ring-1 focus:ring-primary"
                             />
                         </div>
 
@@ -300,8 +300,8 @@
                             type="button"
                             onclick={() => (localCategoryId = null)}
                             class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localCategoryId === null
-                                ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                                : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                                ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                                : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                         >
                             <span>Todas las categorías</span>
                             <div class="flex items-center gap-2">
@@ -318,8 +318,8 @@
                                     type="button"
                                     onclick={() => (localCategoryId = cat.id)}
                                     class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localCategoryId === cat.id
-                                        ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                                        : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                                        ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                                        : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                                 >
                                     <span class="truncate">{cat.name}</span>
                                     <div class="flex items-center gap-2 shrink-0">
@@ -375,8 +375,8 @@
                             type="button"
                             onclick={() => (localStockStatus = '')}
                             class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localStockStatus === ''
-                                ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                                : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                                ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                                : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                         >
                             <span>Todos los niveles de stock</span>
                             <div class="flex items-center gap-2">
@@ -392,8 +392,8 @@
                             type="button"
                             onclick={() => (localStockStatus = 'in_stock')}
                             class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localStockStatus === 'in_stock'
-                                ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                                : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                                ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                                : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                         >
                             <div class="flex items-center gap-2">
                                 <span class="h-2 w-2 rounded-full bg-emerald-500 shrink-0"></span>
@@ -412,8 +412,8 @@
                             type="button"
                             onclick={() => (localStockStatus = 'low_stock')}
                             class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localStockStatus === 'low_stock'
-                                ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                                : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                                ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                                : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                         >
                             <div class="flex items-center gap-2">
                                 <span class="h-2 w-2 rounded-full bg-amber-500 shrink-0"></span>
@@ -432,8 +432,8 @@
                             type="button"
                             onclick={() => (localStockStatus = 'out_of_stock')}
                             class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localStockStatus === 'out_of_stock'
-                                ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                                : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                                ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                                : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                         >
                             <div class="flex items-center gap-2">
                                 <span class="h-2 w-2 rounded-full bg-rose-500 shrink-0"></span>
@@ -461,8 +461,8 @@
                             type="button"
                             onclick={() => (localInfoStatus = '')}
                             class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localInfoStatus === ''
-                                ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                                : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                                ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                                : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                         >
                             <span>Todos los datos</span>
                             {#if localInfoStatus === ''}
@@ -475,8 +475,8 @@
                             type="button"
                             onclick={() => (localInfoStatus = 'complete')}
                             class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localInfoStatus === 'complete'
-                                ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                                : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                                ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                                : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                         >
                             <span>Datos completos</span>
                             {#if localInfoStatus === 'complete'}
@@ -489,8 +489,8 @@
                             type="button"
                             onclick={() => (localInfoStatus = 'incomplete')}
                             class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localInfoStatus === 'incomplete'
-                                ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                                : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                                ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                                : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                         >
                             <div class="flex items-center gap-2">
                                 <span class="h-2 w-2 rounded-full bg-amber-500 shrink-0"></span>
@@ -518,8 +518,8 @@
                             type="button"
                             onclick={() => (localDiscount = 'all')}
                             class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localDiscount === 'all'
-                                ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                                : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                                ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                                : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                         >
                             <span>Todos los productos</span>
                             {#if localDiscount === 'all'}
@@ -532,8 +532,8 @@
                             type="button"
                             onclick={() => (localDiscount = 'with_discount')}
                             class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localDiscount === 'with_discount'
-                                ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                                : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                                ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                                : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                         >
                             <div class="flex items-center gap-2">
                                 <span class="h-2 w-2 rounded-full bg-emerald-500 shrink-0"></span>
@@ -549,8 +549,8 @@
                             type="button"
                             onclick={() => (localDiscount = 'without_discount')}
                             class="w-full flex items-center justify-between min-h-[44px] px-3 py-2.5 rounded-xl border text-left text-xs transition-all {localDiscount === 'without_discount'
-                                ? 'border-primary bg-primary/10 text-primary font-semibold shadow-2xs'
-                                : 'border-border/60 bg-card hover:bg-muted/40 text-foreground'}"
+                                ? 'border-primary bg-primary/10 dark:bg-primary/15 text-primary font-semibold shadow-2xs'
+                                : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 text-foreground'}"
                         >
                             <div class="flex items-center gap-2">
                                 <span class="h-2 w-2 rounded-full bg-muted-foreground/50 shrink-0"></span>
@@ -565,15 +565,15 @@
             </div>
         </DialogBody>
 
-        <DialogFooter class="p-3 sm:p-4 border-t border-border/50 bg-card flex flex-row items-center justify-between gap-2 shrink-0">
+        <DialogFooter class="p-3 sm:p-4 border-t border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 flex flex-row items-center justify-between gap-2 shrink-0">
             <Button
                 type="button"
-                variant={localActiveCount > 0 ? 'outline' : 'ghost'}
+                variant={localActiveCount > 0 ? 'secondary' : 'ghost'}
                 size="sm"
                 onclick={handleReset}
                 disabled={localActiveCount === 0}
                 class="min-h-[44px] px-3.5 rounded-xl text-xs font-semibold gap-1.5 transition-colors {localActiveCount > 0
-                    ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 dark:hover:bg-blue-500/25 shadow-2xs'
+                    ? 'shadow-2xs'
                     : 'text-muted-foreground/60 border-transparent cursor-not-allowed opacity-50'}"
             >
                 <RotateCcw class="h-3.5 w-3.5" />

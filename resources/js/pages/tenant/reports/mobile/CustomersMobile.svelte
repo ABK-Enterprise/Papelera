@@ -76,12 +76,12 @@
         <Card class="p-3.5 bg-card border-border/70 shadow-xs flex items-center justify-between">
             <div>
                 <span class="text-xs font-semibold text-muted-foreground">Morosos</span>
-                <div class="text-xl font-bold tabular-nums {customersData.kpis.defaulter_customers > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'} mt-0.5">
+                <div class="text-xl font-bold tabular-nums {customersData.kpis.defaulter_customers > 0 ? 'text-rose-700 dark:text-rose-400' : 'text-foreground'} mt-0.5">
                     {customersData.kpis.defaulter_customers}
                 </div>
             </div>
             {#if customersData.kpis.defaulter_customers > 0}
-                <div class="size-6 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                <div class="size-6 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-700 dark:text-rose-400">
                     <TrendingDown class="size-3.5" />
                 </div>
             {/if}
@@ -95,7 +95,7 @@
             <select
                 value={buyersSort}
                 onchange={(e) => updateSort('buyers_sort', (e.target as HTMLSelectElement).value)}
-                class="min-h-[34px] px-2 py-0.5 text-xs rounded-md border border-input/80 bg-select-background text-foreground"
+                class="min-h-[34px] px-2 py-0.5 text-xs rounded-md border border-input bg-field text-foreground focus:border-primary focus-visible:border-primary"
             >
                 <option value="desc">Más</option>
                 <option value="asc">Menos</option>
@@ -105,11 +105,11 @@
         {#if customersData.top_buyers.length === 0}
             <div class="py-6 text-center text-xs text-muted-foreground">Sin registros.</div>
         {:else}
-            <div class="flex flex-col divide-y divide-border/40">
+            <div class="flex flex-col gap-2">
                 {#each customersData.top_buyers as b, i (b.customer_id)}
-                    <div class="py-2.5 flex items-center justify-between text-xs">
+                    <div class="p-2.5 rounded-lg bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex items-center justify-between text-xs">
                         <div class="flex items-center gap-2 min-w-0">
-                            <span class="size-5 rounded-full bg-muted text-muted-foreground text-[10px] flex items-center justify-center font-bold shrink-0">
+                            <span class="size-5 rounded-full bg-card dark:bg-secondary/60 border border-border/80 dark:border-border/90 text-foreground text-[10px] flex items-center justify-center font-bold shrink-0 tabular-nums">
                                 {i + 1}
                             </span>
                             <div class="min-w-0">
@@ -133,7 +133,7 @@
             <select
                 value={defaultersSort}
                 onchange={(e) => updateSort('defaulters_sort', (e.target as HTMLSelectElement).value)}
-                class="min-h-[34px] px-2 py-0.5 text-xs rounded-md border border-input/80 bg-select-background text-foreground"
+                class="min-h-[34px] px-2 py-0.5 text-xs rounded-md border border-input bg-field text-foreground focus:border-primary focus-visible:border-primary"
             >
                 <option value="desc">Mayor deuda</option>
                 <option value="asc">Menor deuda</option>
@@ -143,14 +143,14 @@
         {#if customersData.defaulters.data.length === 0}
             <div class="py-6 text-center text-xs text-muted-foreground">Sin clientes morosos.</div>
         {:else}
-            <div class="flex flex-col divide-y divide-border/40">
+            <div class="flex flex-col gap-2">
                 {#each customersData.defaulters.data as d (d.id)}
-                    <div class="py-2.5 flex items-center justify-between text-xs">
+                    <div class="p-2.5 rounded-lg bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex items-center justify-between text-xs">
                         <div class="min-w-0">
                             <span class="font-medium text-foreground truncate block max-w-[160px]">{d.name}</span>
                             <span class="text-muted-foreground">{d.phone || 'Sin tel.'}</span>
                         </div>
-                        <span class="font-bold text-rose-600 dark:text-rose-400 tabular-nums text-sm shrink-0 pl-2">
+                        <span class="font-bold text-rose-700 dark:text-rose-400 tabular-nums text-sm shrink-0 pl-2">
                             {formatMoney(d.current_balance)}
                         </span>
                     </div>
@@ -165,7 +165,7 @@
                             type="button"
                             disabled={customersData.defaulters.current_page <= 1}
                             onclick={() => changeDefaultersPage(customersData.defaulters.current_page - 1)}
-                            class="p-1 rounded border border-input/70 bg-background disabled:opacity-40"
+                            class="p-1 rounded border border-input bg-field hover:bg-muted/60 dark:hover:bg-secondary/45 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                         >
                             <ChevronLeft class="size-3.5" />
                         </button>
@@ -173,7 +173,7 @@
                             type="button"
                             disabled={customersData.defaulters.current_page >= customersData.defaulters.last_page}
                             onclick={() => changeDefaultersPage(customersData.defaulters.current_page + 1)}
-                            class="p-1 rounded border border-input/70 bg-background disabled:opacity-40"
+                            class="p-1 rounded border border-input bg-field hover:bg-muted/60 dark:hover:bg-secondary/45 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                         >
                             <ChevronRight class="size-3.5" />
                         </button>

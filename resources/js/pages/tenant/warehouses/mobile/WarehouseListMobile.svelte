@@ -52,7 +52,7 @@
                     </Badge>
                 </div>
 
-                <div class="space-y-1 rounded-xl bg-muted/40 p-2.5 text-xs text-muted-foreground">
+                <div class="space-y-1 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-2.5 text-xs text-muted-foreground">
                     <div class="flex items-center justify-between">
                         <span class="flex items-center gap-1.5 font-medium">
                             <Building2 class="h-3 w-3 text-muted-foreground" />

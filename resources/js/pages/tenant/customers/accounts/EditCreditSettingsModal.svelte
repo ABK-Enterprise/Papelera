@@ -113,7 +113,7 @@
                     <button
                         type="button"
                         onclick={handleClose}
-                        class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                        class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                         aria-label="Cerrar"
                     >
                         <X class="size-4" />
@@ -174,7 +174,7 @@
 
                     <!-- Toggle Morosidad -->
                     <div class="pt-1">
-                        <label class="flex items-start gap-3 p-3 rounded-xl border border-border/80 bg-muted/20 hover:bg-muted/40 cursor-pointer transition-colors">
+                        <label class="flex items-start gap-3 p-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55 cursor-pointer transition-colors">
                             <input
                                 type="checkbox"
                                 bind:checked={isDefaulter}
@@ -182,7 +182,7 @@
                             />
                             <div class="space-y-0.5 text-xs">
                                 <span class="font-semibold text-foreground flex items-center gap-1.5">
-                                    <AlertTriangle class="size-3.5 text-amber-600" />
+                                    <AlertTriangle class="size-3.5 text-amber-700 dark:text-amber-400" />
                                     Marcar como cliente moroso
                                 </span>
                                 <p class="text-muted-foreground text-xs">
@@ -197,10 +197,10 @@
             <DialogFooter>
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     onclick={handleClose}
                     disabled={isSubmitting}
-                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium border-border/70"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium"
                 >
                     Cancelar
                 </Button>

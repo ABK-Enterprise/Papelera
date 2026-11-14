@@ -140,7 +140,7 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-8">
+    <DialogContent class="max-w-[682px] max-h-[90vh] overflow-y-auto p-6 sm:p-8">
         <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 pb-4 border-b border-border w-full">
             <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
                 <div class="size-10 sm:size-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
@@ -155,7 +155,7 @@
             <button
                 type="button"
                 onclick={handleClose}
-                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                 aria-label="Cerrar"
             >
                 <X class="size-4" />
@@ -204,7 +204,7 @@
                     <select
                         id="create-customer-tax-condition"
                         bind:value={form.tax_condition}
-                        class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:bg-transparent disabled:border-dashed"
+                        class="h-10 w-full rounded-xl border border-input bg-field px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:bg-muted/40 disabled:text-muted-foreground disabled:opacity-65"
                     >
 
                         <option value="consumidor_final">Consumidor Final</option>
@@ -281,7 +281,7 @@
                         id="create-customer-province"
                         bind:value={form.province}
                         onchange={onProvinceChange}
-                        class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary cursor-pointer"
+                        class="h-10 w-full rounded-xl border border-input bg-field px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
                     >
                         <option value="">Selecciona provincia...</option>
                         {#each provinces.length > 0 ? provinces : ARGENTINE_PROVINCES_FALLBACK.map(p => ({ id: p, name: p })) as prov}
@@ -300,7 +300,7 @@
                         bind:value={selectedDepartmentId}
                         onchange={onDepartmentChange}
                         disabled={!form.province || isLoadingDepartments}
-                        class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        class="h-10 w-full rounded-xl border border-input bg-field px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:bg-muted/40 disabled:text-muted-foreground disabled:opacity-65 disabled:cursor-not-allowed cursor-pointer"
                     >
                         <option value="">
                             {#if isLoadingDepartments}
@@ -340,7 +340,7 @@
                             id="create-customer-city"
                             bind:value={form.city}
                             disabled={(!selectedDepartmentId && localities.length === 0) || isLoadingLocalities}
-                            class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            class="h-10 w-full rounded-xl border border-input bg-field px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:bg-muted/40 disabled:text-muted-foreground disabled:opacity-65 disabled:cursor-not-allowed cursor-pointer"
                         >
                             <option value="">
                                 {#if isLoadingLocalities}
@@ -363,7 +363,7 @@
             </div>
 
             <!-- Límite de Crédito & Descuento Habitual & Flags -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 p-3.5 rounded-xl border bg-muted/15">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 p-3.5 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                 <div class="space-y-1.5">
                     <Label for="create-customer-credit" class="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <CreditCard class="h-3.5 w-3.5 text-muted-foreground" />
@@ -417,7 +417,7 @@
                             bind:checked={form.is_defaulter}
                             class="size-4 rounded border-border text-rose-600 focus:ring-rose-500"
                         />
-                        <span class="flex items-center gap-1 text-rose-600 dark:text-rose-400">
+                        <span class="flex items-center gap-1 text-rose-700 dark:text-rose-400">
                             <AlertTriangle class="size-3.5" />
                             Moroso / Riesgo
                         </span>
@@ -446,7 +446,7 @@
                     rows="2"
                     maxlength="255"
                     placeholder="ej. Horarios de recepción, condiciones de pago convenidas..."
-                    class="w-full rounded-xl border border-border/80 bg-background p-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary disabled:bg-transparent disabled:border-dashed resize-none"
+                    class="w-full rounded-xl border border-input bg-field p-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:bg-muted/40 disabled:text-muted-foreground disabled:opacity-65 resize-none"
                 ></textarea>
 
                 {#if form.errors.notes}
@@ -456,7 +456,7 @@
 
             <!-- Footer: Botones -->
             <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-border mt-6">
-                <Button type="button" variant="outline" onclick={handleClose} disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-medium">
+                <Button type="button" variant="secondary" onclick={handleClose} disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-medium">
                     Cancelar
                 </Button>
                 <Button type="submit" disabled={form.processing} class="min-h-[44px] px-4 rounded-xl text-sm font-medium min-w-32">

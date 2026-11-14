@@ -61,7 +61,7 @@
             </CardHeader>
 
             <CardContent class="space-y-4 pt-0">
-                <div class="flex items-center justify-between rounded-xl bg-muted/40 p-2.5 text-xs text-muted-foreground">
+                <div class="flex items-center justify-between rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-2.5 text-xs text-muted-foreground">
                     <span class="font-medium">Permisos habilitados:</span>
                     <Badge variant="secondary" class="font-bold text-xs tracking-wide text-foreground px-2 py-0.5 tabular-nums">
                         {role.permissions_count} permisos
@@ -79,13 +79,13 @@
                     </Link>
 
                     <Button
-                        variant="ghost"
+                        variant="destructive"
                         size="sm"
                         onclick={(e) => {
                             e.stopPropagation();
                             ondelete(role);
                         }}
-                        class="min-h-[38px] min-w-[38px] px-3 gap-1.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 hover:text-destructive justify-center"
+                        class="min-h-[38px] min-w-[38px] px-3 gap-1.5 rounded-xl text-sm font-medium justify-center"
                     >
                         <Trash2 class="h-3.5 w-3.5" />
                         <span class="sr-only">Eliminar</span>

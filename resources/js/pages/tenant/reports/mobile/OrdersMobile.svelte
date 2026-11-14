@@ -86,7 +86,7 @@
                 <span class="text-xs font-semibold text-muted-foreground">Ingresos Totales</span>
                 <div class="text-xl font-bold tabular-nums text-foreground mt-0.5">{formatMoney(ordersData.kpis.total_revenues)}</div>
             </div>
-            <div class="size-7 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+            <div class="size-7 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
                 <TrendingUp class="size-4" />
             </div>
         </Card>

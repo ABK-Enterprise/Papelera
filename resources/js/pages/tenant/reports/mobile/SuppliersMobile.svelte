@@ -79,7 +79,7 @@
                 {/if}
             </div>
             {#if canViewMargins}
-                <div class="size-6 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                <div class="size-6 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-700 dark:text-rose-400">
                     <TrendingDown class="size-3.5" />
                 </div>
             {/if}
@@ -97,7 +97,7 @@
                 {/if}
             </div>
             {#if canViewMargins}
-                <div class="size-7 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                <div class="size-7 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-700 dark:text-rose-400">
                     <TrendingDown class="size-4" />
                 </div>
             {/if}
@@ -111,7 +111,7 @@
             <select
                 value={suppliersSort}
                 onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
-                class="min-h-[34px] px-2 py-0.5 text-xs rounded-md border border-input/80 bg-select-background text-foreground"
+                class="min-h-[34px] px-2 py-0.5 text-xs rounded-md border border-input bg-field text-foreground focus:border-primary focus-visible:border-primary"
             >
                 <option value="desc">Más</option>
                 <option value="asc">Menos</option>
@@ -121,12 +121,12 @@
         {#if suppliersData.suppliers.data.length === 0}
             <div class="py-6 text-center text-xs text-muted-foreground">Sin registros de compras.</div>
         {:else}
-            <div class="flex flex-col divide-y divide-border/40">
+            <div class="flex flex-col gap-2">
                 {#each suppliersData.suppliers.data as s, i (s.supplier_id)}
                     {@const rank = (suppliersData.suppliers.current_page - 1) * suppliersData.suppliers.per_page + i + 1}
-                    <div class="py-2.5 flex items-center justify-between text-xs">
+                    <div class="p-2.5 rounded-lg bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex items-center justify-between text-xs">
                         <div class="flex items-center gap-2 min-w-0">
-                            <span class="size-5 rounded-full bg-muted text-muted-foreground text-[10px] flex items-center justify-center font-bold shrink-0">
+                            <span class="size-5 rounded-full bg-card dark:bg-secondary/60 border border-border/80 dark:border-border/90 text-foreground text-[10px] flex items-center justify-center font-bold shrink-0 tabular-nums">
                                 {rank}
                             </span>
                             <div class="min-w-0">
@@ -149,7 +149,7 @@
                             type="button"
                             disabled={suppliersData.suppliers.current_page <= 1}
                             onclick={() => changePage(suppliersData.suppliers.current_page - 1)}
-                            class="p-1 rounded border border-input/70 bg-background disabled:opacity-40"
+                            class="p-1 rounded border border-input bg-field hover:bg-muted/60 dark:hover:bg-secondary/45 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                         >
                             <ChevronLeft class="size-3.5" />
                         </button>
@@ -157,7 +157,7 @@
                             type="button"
                             disabled={suppliersData.suppliers.current_page >= suppliersData.suppliers.last_page}
                             onclick={() => changePage(suppliersData.suppliers.current_page + 1)}
-                            class="p-1 rounded border border-input/70 bg-background disabled:opacity-40"
+                            class="p-1 rounded border border-input bg-field hover:bg-muted/60 dark:hover:bg-secondary/45 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                         >
                             <ChevronRight class="size-3.5" />
                         </button>

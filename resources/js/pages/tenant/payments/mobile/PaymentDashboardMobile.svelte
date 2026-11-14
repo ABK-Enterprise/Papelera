@@ -77,13 +77,13 @@
 
 <div class="space-y-4">
     <!-- Pestañas Superiores Mobile -->
-    <div class="grid grid-cols-3 gap-1.5 p-1 bg-muted/40 rounded-xl border border-border/60">
+    <div class="grid grid-cols-3 gap-1.5 p-1 bg-muted/80 dark:bg-card rounded-xl border border-border/80">
         <button
             type="button"
             onclick={() => (activeTab = 'customers')}
             class="py-2.5 px-2 rounded-lg text-sm font-medium transition-all duration-150 {activeTab === 'customers'
-                ? 'bg-card text-foreground shadow-2xs'
-                : 'text-muted-foreground hover:text-foreground'}"
+                ? 'bg-card dark:bg-secondary/70 border border-border/80 text-foreground shadow-xs'
+                : 'border border-transparent text-muted-foreground hover:text-foreground'}"
         >
             Clientes ({customers.length})
         </button>
@@ -92,8 +92,8 @@
             type="button"
             onclick={() => (activeTab = 'orders')}
             class="py-2.5 px-2 rounded-lg text-sm font-medium transition-all duration-150 {activeTab === 'orders'
-                ? 'bg-card text-foreground shadow-2xs'
-                : 'text-muted-foreground hover:text-foreground'}"
+                ? 'bg-card dark:bg-secondary/70 border border-border/80 text-foreground shadow-xs'
+                : 'border border-transparent text-muted-foreground hover:text-foreground'}"
         >
             Pedidos ({unpaidOrders.length})
         </button>
@@ -102,8 +102,8 @@
             type="button"
             onclick={() => (activeTab = 'receipts')}
             class="py-2.5 px-2 rounded-lg text-sm font-medium transition-all duration-150 {activeTab === 'receipts'
-                ? 'bg-card text-foreground shadow-2xs'
-                : 'text-muted-foreground hover:text-foreground'}"
+                ? 'bg-card dark:bg-secondary/70 border border-border/80 text-foreground shadow-xs'
+                : 'border border-transparent text-muted-foreground hover:text-foreground'}"
         >
             Recibos ({recentReceipts.length})
         </button>
@@ -123,7 +123,7 @@
 
             <div class="space-y-2">
                 {#if customers.length === 0}
-                    <Card class="p-6 text-center text-xs text-muted-foreground">
+                    <Card class="p-6 text-center text-xs text-muted-foreground border-border/80 bg-card">
                         No hay clientes con saldo pendiente.
                     </Card>
                 {:else}
@@ -131,7 +131,9 @@
                         <button
                             type="button"
                             onclick={() => selectCustomerAndSwitchTab(cust)}
-                            class="w-full text-left p-3.5 rounded-xl border bg-card border-border/80 shadow-2xs transition-all active:scale-[0.98]"
+                            class="w-full text-left p-3.5 rounded-xl border transition-all active:scale-[0.98] shadow-2xs {selectedCustomer?.id === cust.id
+                                ? 'bg-primary/10 border-primary/40'
+                                : 'bg-card border-border/80 hover:bg-muted/40 dark:hover:bg-secondary/35'}"
                         >
                             <div class="flex items-start justify-between gap-2">
                                 <div class="space-y-1 min-w-0">
@@ -143,7 +145,7 @@
                                             <span>CUIT: {cust.tax_id}</span>
                                         {/if}
                                         {#if cust.unpaid_orders_count && cust.unpaid_orders_count > 0}
-                                            <span class="font-semibold text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded text-xs">
+                                            <span class="font-semibold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded text-xs">
                                                 {cust.unpaid_orders_count} ped.
                                             </span>
                                         {/if}
@@ -151,7 +153,7 @@
                                 </div>
 
                                 <div class="text-right shrink-0">
-                                    <span class="text-sm font-bold font-sans tabular-nums text-rose-600 dark:text-rose-400">
+                                    <span class="text-sm font-bold font-sans tabular-nums text-rose-700 dark:text-rose-400">
                                         {formatPrice(cust.current_balance)}
                                     </span>
                                     <span class="text-xs text-primary font-medium flex items-center justify-end gap-0.5 mt-0.5">
@@ -170,7 +172,7 @@
     {#if activeTab === 'orders'}
         <div class="space-y-3">
             {#if !selectedCustomer}
-                <Card class="p-8 text-center rounded-2xl border border-dashed border-border bg-card">
+                <Card class="p-8 text-center rounded-2xl border border-dashed border-border/80 bg-muted/40 dark:bg-secondary/25">
                     <User class="size-8 text-muted-foreground mx-auto mb-2 opacity-60" />
                     <h3 class="text-sm font-semibold text-foreground">Ningún cliente seleccionado</h3>
                     <p class="text-xs text-muted-foreground mt-1 mb-3">
@@ -187,11 +189,11 @@
                 </Card>
             {:else}
                 <!-- Cabecera del Cliente -->
-                <div class="p-3 rounded-xl bg-card border border-border/80 flex items-center justify-between">
+                <div class="p-3.5 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex items-center justify-between gap-3">
                     <div>
                         <span class="text-sm font-semibold text-foreground block">{selectedCustomer.name}</span>
                         <span class="text-xs text-muted-foreground">
-                            Deuda: <strong class="text-sm font-bold text-rose-600 font-sans tabular-nums">{formatPrice(selectedCustomer.current_balance)}</strong>
+                            Deuda: <strong class="text-sm font-bold text-rose-700 dark:text-rose-400 font-sans tabular-nums">{formatPrice(selectedCustomer.current_balance)}</strong>
                         </span>
                     </div>
 
@@ -217,7 +219,7 @@
                 <!-- Lista de Pedidos -->
                 <div class="space-y-2 pb-20">
                     {#if unpaidOrders.length === 0}
-                        <Card class="p-6 text-center text-xs text-muted-foreground">
+                        <Card class="p-6 text-center text-xs text-muted-foreground border-border/80 bg-card">
                             No hay pedidos impagos para este cliente.
                         </Card>
                     {:else}
@@ -229,8 +231,8 @@
                                 onclick={() => onToggleOrderSelection?.(order.id)}
                                 onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') onToggleOrderSelection?.(order.id); }}
                                 class="p-3 rounded-xl border transition-all active:scale-[0.98] {isSelected
-                                    ? 'bg-primary/10 border-primary/40'
-                                    : 'bg-card border-border/80'}"
+                                    ? 'bg-primary/10 border-primary/40 shadow-xs'
+                                    : 'bg-card border-border/80 hover:bg-muted/40 dark:hover:bg-secondary/35'}"
                             >
                                 <div class="flex items-start justify-between gap-2">
                                     <div class="flex items-start gap-2.5">
@@ -259,7 +261,7 @@
 
                                     <div class="text-right shrink-0">
                                         <span class="text-xs uppercase font-semibold text-muted-foreground block">Deuda</span>
-                                        <span class="text-sm font-bold font-sans tabular-nums text-rose-600 dark:text-rose-400">
+                                        <span class="text-sm font-bold font-sans tabular-nums text-rose-700 dark:text-rose-400">
                                             {formatPrice(order.debt_amount)}
                                         </span>
                                     </div>
@@ -271,7 +273,7 @@
 
                 <!-- Barra Flotante Inferior de Cobro Mobile -->
                 {#if unpaidOrders.length > 0}
-                    <div class="fixed bottom-0 inset-x-0 p-3 bg-card/95 backdrop-blur-md border-t border-border shadow-lg z-40 flex items-center justify-between gap-3">
+                    <div class="fixed bottom-0 inset-x-0 p-3 bg-card/95 backdrop-blur-md border-t border-border shadow-xl z-40 flex items-center justify-between gap-3">
                         <div>
                             <span class="text-xs text-muted-foreground block">
                                 Seleccionados: <strong>{selectedOrderIds.length}</strong>
@@ -317,20 +319,20 @@
 
             <div class="space-y-2">
                 {#if recentReceipts.length === 0}
-                    <Card class="p-6 text-center text-xs text-muted-foreground">
+                    <Card class="p-6 text-center text-xs text-muted-foreground border-border/80 bg-card">
                         No hay recibos registrados recientemente.
                     </Card>
                 {:else}
                     {#each recentReceipts as rc}
-                        <div class="p-3 rounded-xl border bg-card border-border/80 space-y-1 shadow-2xs">
+                        <div class="p-3.5 rounded-xl border space-y-1.5 shadow-2xs {rc.is_cancelled ? 'bg-muted/35 dark:bg-secondary/20 border-border/80 opacity-80' : 'bg-card border-border/80'}">
                             <div class="flex items-center justify-between">
                                 <span class="font-bold text-xs tabular-nums text-foreground font-sans">{rc.receipt_number}</span>
                                 {#if rc.is_cancelled}
-                                    <span class="text-xs font-bold text-destructive bg-destructive/10 px-1.5 py-0.2 rounded line-through">
+                                    <span class="text-xs font-bold text-rose-700 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded line-through">
                                         ANULADO
                                     </span>
                                 {:else}
-                                    <span class="text-xs font-semibold text-emerald-600 bg-emerald-500/10 px-1.5 py-0.2 rounded uppercase">
+                                    <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded uppercase">
                                         {rc.payment_method}
                                     </span>
                                 {/if}
@@ -345,7 +347,7 @@
                             {#if rc.order_allocations && rc.order_allocations.length > 0}
                                 <div class="flex flex-wrap gap-1 mt-0.5">
                                     {#each rc.order_allocations as alloc}
-                                        <span class="text-xs font-semibold tabular-nums bg-muted px-1.5 py-0.5 rounded text-muted-foreground border border-border/50">
+                                        <span class="text-xs font-semibold tabular-nums bg-muted/60 dark:bg-secondary/45 px-1.5 py-0.5 rounded text-foreground border border-border/80">
                                             {alloc.order.order_number}
                                         </span>
                                     {/each}

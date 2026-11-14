@@ -335,7 +335,7 @@
                     </Button>
                 </div>
             {:else if totalConfigured === 0}
-                <div class="py-10 text-center rounded-xl border border-dashed border-border/80 bg-muted/20 p-6 space-y-2">
+                <div class="py-10 text-center rounded-xl border border-dashed border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-6 space-y-2">
                     <Tag class="size-8 mx-auto text-muted-foreground/60 mb-2" />
                     <p class="text-xs font-semibold text-foreground">
                         No hay ajustes cargados en el comercio.
@@ -345,7 +345,7 @@
                     </p>
                 </div>
             {:else if filteredAdjustments.length === 0}
-                <div class="py-10 text-center rounded-xl border border-dashed border-border/80 bg-muted/20 p-6 space-y-2">
+                <div class="py-10 text-center rounded-xl border border-dashed border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-6 space-y-2">
                     <Tag class="size-8 mx-auto text-muted-foreground/60 mb-2" />
                     <p class="text-xs font-semibold text-foreground">
                         {searchQuery ? 'No se encontraron ajustes con ese criterio' : 'No hay ajustes comerciales activos para esta fecha'}
@@ -360,7 +360,7 @@
                         {@const isSelected = selectedIds.includes(adj.id)}
                         {@const previewAmount = calculatePreviewAmount(adj)}
                         <label
-                            class="flex items-start sm:items-center justify-between gap-3 p-3 rounded-xl border transition-all cursor-pointer {isSelected ? 'border-primary bg-primary/5 ring-1 ring-primary/30' : 'border-border/70 bg-card hover:bg-muted/40'}"
+                            class="flex items-start sm:items-center justify-between gap-3 p-3 rounded-xl border transition-all cursor-pointer {isSelected ? 'border-primary bg-primary/10 dark:bg-primary/15 ring-1 ring-primary/30' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55'}"
                         >
                             <div class="flex items-start sm:items-center gap-3 min-w-0 flex-1">
                                 <input
@@ -407,7 +407,7 @@
                                     {adj.calculation_type === 'percentage' ? `${adj.value}%` : formatCurrency(adj.value)}
                                 </div>
                                 {#if netProductsAmount > 0}
-                                    <div class="text-xs font-semibold tabular-nums {adj.type === 'discount' ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}">
+                                    <div class="text-xs font-semibold tabular-nums {adj.type === 'discount' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}">
                                         {adj.type === 'discount' ? '-' : '+'}{formatCurrency(previewAmount)}
                                     </div>
                                 {/if}
@@ -422,7 +422,7 @@
             {#if onBack}
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     class="min-h-[44px] rounded-xl text-sm font-semibold cursor-pointer gap-1.5"
                     disabled={isSubmitting}
                     onclick={handleBack}
@@ -433,7 +433,7 @@
             {:else}
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     class="min-h-[44px] rounded-xl text-sm font-semibold cursor-pointer"
                     disabled={isSubmitting}
                     onclick={handleClose}

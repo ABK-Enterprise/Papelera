@@ -71,13 +71,13 @@
             <span class="text-xl font-bold tracking-tight">Papelera Cloud</span>
         </div>
 
-        <Card class="border-border/60 shadow-lg text-center overflow-hidden">
+        <Card class="bg-card border-border/80 shadow-xl text-center overflow-hidden">
             <!-- Barra superior en degradé anaranjado -->
             <div class="h-2 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600"></div>
 
             <CardHeader class="pt-8 pb-4">
                 <div class="flex justify-center mb-3">
-                    <div class="flex size-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                    <div class="flex size-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
                         <ShieldAlert class="size-7" />
                     </div>
                 </div>
@@ -88,7 +88,7 @@
 
                 <!-- Subtítulo anaranjado destacado -->
                 <div class="pt-2.5">
-                    <span class="inline-flex items-center px-3.5 py-1 rounded-md text-xs font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 tracking-wide uppercase">
+                    <span class="inline-flex items-center px-3.5 py-1 rounded-md text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 tracking-wide uppercase">
                         {subtitle}
                     </span>
                 </div>
@@ -99,7 +99,7 @@
             </CardHeader>
 
             <CardContent class="pb-2">
-                <div class="rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground border border-border/40">
+                <div class="rounded-xl bg-muted/40 dark:bg-secondary/35 p-3.5 text-xs text-muted-foreground border border-border/80 dark:border-border/90">
                     Si consideras que esto es un error, por favor contacta al administrador del sistema indicando tu correo electrónico registrado.
                 </div>
             </CardContent>
@@ -107,7 +107,7 @@
             <CardFooter class="pt-4 pb-6 flex flex-wrap justify-center gap-2 border-t border-border/40 mt-2">
                 {#if auth?.user && auth?.tenant?.is_active}
                     <Link href="/dashboard">
-                        <Button variant="default" size="sm" class="text-xs font-semibold gap-1.5">
+                        <Button variant="default" size="sm" class="min-h-[38px] text-xs font-semibold gap-1.5">
                             <LayoutGrid class="size-3.5" />
                             Ir al panel principal
                         </Button>
@@ -115,19 +115,19 @@
                 {/if}
                 <Link href="/login">
                     <Button
-                        variant={auth?.user && auth?.tenant?.is_active ? "outline" : "default"}
+                        variant={auth?.user && auth?.tenant?.is_active ? "secondary" : "default"}
                         size="sm"
-                        class="text-xs font-semibold gap-1.5"
+                        class="min-h-[38px] text-xs font-semibold gap-1.5"
                     >
                         Volver al inicio de sesión
                     </Button>
                 </Link>
                 {#if reason !== 'account_deactivated' && reason !== 'google_account_not_found' && reason !== 'google_email_unverified'}
                     <Button
-                        variant="outline"
+                        variant="secondary"
                         size="sm"
                         onclick={logout}
-                        class="text-xs font-semibold gap-1.5"
+                        class="min-h-[38px] text-xs font-semibold gap-1.5"
                     >
                         <LogOut class="size-3.5" />
                         Cerrar sesión

@@ -112,8 +112,8 @@
             <DialogHeader class="pb-3 border-b border-border/60 shrink-0">
                 <div class="flex items-center justify-between gap-2.5 sm:gap-3.5 w-full">
                     <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
-                        <div class="size-10 sm:size-12 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                            <Banknote class="size-5 sm:size-6 text-emerald-600 dark:text-emerald-400" />
+                        <div class="size-10 sm:size-12 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                            <Banknote class="size-5 sm:size-6 text-emerald-700 dark:text-emerald-400" />
                         </div>
                         <div class="min-w-0 flex-1 flex flex-col justify-center">
                             <DialogTitle class="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug sm:leading-normal py-0.5 sm:py-1 truncate">
@@ -127,7 +127,7 @@
                     <button
                         type="button"
                         onclick={handleClose}
-                        class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                        class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                         aria-label="Cerrar"
                     >
                         <X class="size-4" />
@@ -143,7 +143,7 @@
                 {/if}
 
                 <!-- Calculador Dinámico de Saldo -->
-                <div class="p-4 rounded-2xl bg-muted/40 border border-border/70 grid grid-cols-2 gap-3 text-xs">
+                <div class="p-4 rounded-2xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 grid grid-cols-2 gap-3 text-xs">
                     <div>
                         <span class="text-muted-foreground block mb-0.5">Saldo deudor actual:</span>
                         <span class="text-sm font-bold text-foreground tabular-nums">
@@ -152,7 +152,7 @@
                     </div>
                     <div class="text-right">
                         <span class="text-muted-foreground block mb-0.5">Saldo restante:</span>
-                        <span class="text-sm font-bold tabular-nums {resultingBalance === 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-primary'}">
+                        <span class="text-sm font-bold tabular-nums {resultingBalance === 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-primary'}">
                             {formatPrice(resultingBalance)}
                         </span>
                     </div>
@@ -205,7 +205,7 @@
                         <select
                             id="payment-method"
                             bind:value={paymentMethod}
-                            class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary shadow-2xs"
+                            class="h-10 w-full rounded-xl border border-input bg-field px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-2xs"
                         >
 
                             <option value="efectivo">Efectivo</option>
@@ -250,18 +250,19 @@
             <DialogFooter>
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     onclick={handleClose}
                     disabled={isSubmitting}
-                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium border-border/70"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium"
                 >
                     Cancelar
                 </Button>
                 <Button
                     type="submit"
+                    variant="success"
                     form="record-payment-form"
                     disabled={isSubmitting || amountNum <= 0}
-                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white min-w-32 shadow-xs"
+                    class="min-h-[44px] px-4 rounded-xl text-sm font-medium gap-1.5 min-w-32 shadow-xs"
                 >
                     <Check class="size-3.5" />
                     <span>Confirmar cobro</span>

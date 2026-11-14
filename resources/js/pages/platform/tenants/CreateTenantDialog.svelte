@@ -90,7 +90,7 @@
                 <button
                     type="button"
                     onclick={handleClose}
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
@@ -106,7 +106,7 @@
                         <Building2 class="size-4 text-primary" />
                         <span>1. Datos del Comercio</span>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 bg-muted/20 p-3.5 rounded-lg border border-border/50">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 bg-muted/40 dark:bg-secondary/35 p-3.5 rounded-xl border border-border/80 dark:border-border/90">
                         <div class="space-y-1.5">
                             <Label for="modal-tenant-name" class="text-sm font-medium text-foreground">Nombre o Razón Social *</Label>
                             <Input
@@ -117,7 +117,7 @@
                                 class="h-9 text-sm font-medium"
                             />
                             {#if form.errors['tenant.name']}
-                                <p class="text-xs text-destructive">{form.errors['tenant.name']}</p>
+                                <p class="text-xs text-rose-700 dark:text-rose-400">{form.errors['tenant.name']}</p>
                             {/if}
                         </div>
 
@@ -132,7 +132,7 @@
                                 class="h-9 text-sm font-sans tabular-nums"
                             />
                             {#if form.errors['tenant.cuit_tax_id']}
-                                <p class="text-xs text-destructive">{form.errors['tenant.cuit_tax_id']}</p>
+                                <p class="text-xs text-rose-700 dark:text-rose-400">{form.errors['tenant.cuit_tax_id']}</p>
                             {/if}
                         </div>
                     </div>
@@ -144,7 +144,7 @@
                         <User class="size-4 text-primary" />
                         <span>2. Administrador Inicial</span>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 bg-muted/20 p-3.5 rounded-lg border border-border/50">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 bg-muted/40 dark:bg-secondary/35 p-3.5 rounded-xl border border-border/80 dark:border-border/90">
                         <div class="space-y-1.5">
                             <Label for="modal-admin-name" class="text-sm font-medium text-foreground">Nombre y Apellido *</Label>
                             <Input
@@ -155,7 +155,7 @@
                                 class="h-9 text-sm font-medium"
                             />
                             {#if form.errors['admin.name']}
-                                <p class="text-xs text-destructive">{form.errors['admin.name']}</p>
+                                <p class="text-xs text-rose-700 dark:text-rose-400">{form.errors['admin.name']}</p>
                             {/if}
                         </div>
 
@@ -170,7 +170,7 @@
                                 class="h-9 text-sm"
                             />
                             {#if form.errors['admin.email']}
-                                <p class="text-xs text-destructive">{form.errors['admin.email']}</p>
+                                <p class="text-xs text-rose-700 dark:text-rose-400">{form.errors['admin.email']}</p>
                             {/if}
                         </div>
 
@@ -185,7 +185,7 @@
                                 class="h-9 text-sm"
                             />
                             {#if form.errors['admin.password']}
-                                <p class="text-xs text-destructive">{form.errors['admin.password']}</p>
+                                <p class="text-xs text-rose-700 dark:text-rose-400">{form.errors['admin.password']}</p>
                             {/if}
                         </div>
 
@@ -219,9 +219,9 @@
                                 onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleModule(mod.id)}
                                 class="flex items-start gap-2.5 rounded-lg border p-2.5 transition-colors cursor-pointer select-none {isSelected
                                     ? 'border-primary/60 bg-primary/5 shadow-2xs'
-                                    : 'border-border/60 bg-card hover:bg-muted/50'}"
+                                    : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55'}"
                             >
-                                <div class="mt-0.5 size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 {isSelected ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-background'}">
+                                <div class="mt-0.5 size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 {isSelected ? 'bg-primary text-primary-foreground border-primary' : 'border-input bg-field'}">
                                     {#if isSelected}
                                         <Check class="size-3 stroke-[3]" />
                                     {/if}
@@ -257,7 +257,7 @@
         </DialogBody>
 
         <DialogFooter>
-            <Button type="button" variant="outline" size="sm" onclick={handleClose} disabled={form.processing} class="min-h-[38px] text-sm font-medium">
+            <Button type="button" variant="secondary" size="sm" onclick={handleClose} disabled={form.processing} class="min-h-[38px] text-sm font-medium">
                 Cancelar
             </Button>
             <Button type="submit" form="create-tenant-form" size="sm" disabled={form.processing} class="min-h-[38px] min-w-32 text-sm font-medium">

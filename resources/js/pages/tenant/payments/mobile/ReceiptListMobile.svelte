@@ -48,7 +48,7 @@
     {:else}
         {#each receipts as rc (rc.id)}
             <div
-                class="p-4 rounded-2xl border border-border/70 bg-card shadow-xs space-y-3 {rc.is_cancelled ? 'opacity-70 bg-muted/10' : ''}"
+                class="p-4 rounded-2xl border shadow-xs space-y-3 {rc.is_cancelled ? 'bg-muted/35 dark:bg-secondary/20 border-border/80 opacity-80' : 'border-border/80 bg-card'}"
             >
                 <!-- Fila Superior: Nº Recibo + Estado + Menú '...' -->
                 <div class="flex items-center justify-between gap-2">
@@ -59,12 +59,12 @@
                         {#if rc.is_cancelled}
                             <span
                                 title={rc.cancellation_reason ? `Motivo: ${rc.cancellation_reason}` : undefined}
-                                class="bg-destructive/10 text-destructive border border-destructive/20 text-xs font-bold px-2 py-0.5 rounded-full line-through shrink-0"
+                                class="bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 text-xs font-bold px-2 py-0.5 rounded-full line-through shrink-0"
                             >
                                 Anulado
                             </span>
                         {:else}
-                            <span class="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
+                            <span class="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
                                 Válido
                             </span>
                         {/if}
@@ -77,7 +77,7 @@
                                 <button
                                     {...props}
                                     type="button"
-                                    class="min-h-[44px] min-w-[44px] size-11 rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shadow-2xs flex items-center justify-center cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
+                                    class="min-h-[44px] min-w-[44px] size-11 rounded-xl border border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/60 dark:hover:bg-secondary/60 transition-colors shadow-2xs flex items-center justify-center cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
                                     aria-label={`Opciones para recibo ${rc.receipt_number}`}
                                 >
                                     <MoreVertical class="size-4" />
@@ -102,10 +102,10 @@
                             {#if !rc.is_cancelled}
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
-                                    class="flex items-center gap-2 text-sm font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5"
+                                    class="flex items-center gap-2 text-sm font-medium text-rose-700 dark:text-rose-400 focus:text-rose-700 dark:focus:text-rose-300 focus:bg-rose-500/10 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-500/10 cursor-pointer py-2.5"
                                     onclick={() => onRequestVoid?.(rc)}
                                 >
-                                    <Ban class="size-4 text-destructive" />
+                                    <Ban class="size-4 text-rose-700 dark:text-rose-400" />
                                     <span>Anular recibo</span>
                                 </DropdownMenuItem>
                             {/if}
@@ -143,7 +143,7 @@
                     <!-- Pedidos Imputados (Máx 1 en Mobile + indicador '+ X') / Referencia -->
                     {#if rc.orders && rc.orders.length > 0}
                         <div class="flex items-center gap-1.5 flex-wrap pt-0.5">
-                            <span class="text-xs font-semibold tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
+                            <span class="text-xs font-semibold tabular-nums px-2 py-0.5 rounded-md bg-muted/60 dark:bg-secondary/45 text-foreground border border-border/80 inline-block shadow-2xs">
                                 {rc.orders[0].order_number}
                             </span>
                             {#if rc.orders.length > 1}
@@ -159,7 +159,7 @@
                         <div class="flex items-center gap-1.5 pt-0.5">
                             <span class="text-xs font-medium text-muted-foreground">Ref:</span>
                             <span
-                                class="text-xs tabular-nums text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md border border-border/50 truncate max-w-[200px] inline-block"
+                                class="text-xs tabular-nums text-muted-foreground bg-muted/60 dark:bg-secondary/45 px-2 py-0.5 rounded-md border border-border/80 truncate max-w-[200px] inline-block"
                                 title={rc.reference_number}
                             >
                                 {truncateRef(rc.reference_number, 14)}

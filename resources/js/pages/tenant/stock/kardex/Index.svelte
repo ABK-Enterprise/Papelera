@@ -212,7 +212,7 @@
     </ModuleHeader>
 
     <!-- Filter / Action Toolbar -->
-    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3.5 bg-card/60 backdrop-blur-sm p-3.5 rounded-xl border border-border/60 shadow-xs">
+    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3.5 bg-card/80 dark:bg-card backdrop-blur-sm p-3.5 rounded-xl border border-border/80 dark:border-border/90 shadow-xs">
         <div class="flex flex-wrap items-center gap-2.5 flex-1 w-full min-w-0">
             <!-- Buscador por Producto / SKU + Disparador Mobile -->
             <div class="flex-1 min-w-[240px]">
@@ -246,12 +246,12 @@
                     variant={activeFiltersCount > 0 ? 'secondary' : 'outline'}
                     size="icon"
                     onclick={() => (isFilterModalOpen = true)}
-                    class="relative h-10 w-10 shrink-0 rounded-xl border border-border/70 shadow-2xs"
+                    class="relative h-10 w-10 shrink-0 rounded-xl border border-border/80 dark:border-border/90 shadow-2xs"
                     aria-label="Abrir filtros"
                 >
                     <SlidersHorizontal class="h-4 w-4 text-foreground" />
                     {#if activeFiltersCount > 0}
-                        <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground tabular-nums shadow-xs">
+                        <span class="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary-solid px-1 text-xs font-bold text-primary-foreground tabular-nums shadow-xs">
                             {activeFiltersCount}
                         </span>
                     {/if}
@@ -264,7 +264,7 @@
                     <select
                         value={typeFilter}
                         onchange={handleTypeChange}
-                        class="w-full rounded-lg border border-border bg-select-background px-3 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
+                        class="w-full rounded-lg border border-input bg-field px-3 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
                     >
                         <option value="">Todos los tipos</option>
                         <option value="income">Solo Ingresos</option>
@@ -277,7 +277,7 @@
                     <select
                         value={sortBy}
                         onchange={handleSortChange}
-                        class="w-full rounded-lg border border-border bg-select-background px-3 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
+                        class="w-full rounded-lg border border-input bg-field px-3 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
                     >
                         <option value="latest">Más recientes</option>
                         <option value="oldest">Más antiguos</option>
@@ -293,7 +293,7 @@
                         value={dateFrom}
                         onchange={handleDateFromChange}
                         title="Fecha desde"
-                        class="rounded-lg border border-border bg-background px-2.5 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
+                        class="rounded-lg border border-input bg-field px-2.5 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10 dark:[color-scheme:dark]"
                     />
                     <span class="text-xs text-muted-foreground">-</span>
                     <input
@@ -301,7 +301,7 @@
                         value={dateTo}
                         onchange={handleDateToChange}
                         title="Fecha hasta"
-                        class="rounded-lg border border-border bg-background px-2.5 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10"
+                        class="rounded-lg border border-input bg-field px-2.5 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs h-10 dark:[color-scheme:dark]"
                     />
                 </div>
 

@@ -257,7 +257,7 @@
         <form onsubmit={handleFormSubmit} class="space-y-4 overflow-y-auto flex-1 min-h-0 pr-1">
             <!-- Bento Box: Resumen de Cliente y Deuda -->
             {#if customer}
-                <div class="rounded-xl bg-muted/20 border border-border/80 p-3 sm:p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+                <div class="rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 p-3 sm:p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
                     <div class="flex items-center gap-2.5">
                         <div class="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                             <User class="size-4" />
@@ -272,7 +272,7 @@
 
                     <div class="text-left sm:text-right">
                         <span class="text-xs uppercase font-semibold text-muted-foreground block">Saldo en Cuenta</span>
-                        <span class="text-sm sm:text-base font-bold font-sans tabular-nums {Number(customer.current_balance) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600'}">
+                        <span class="text-sm sm:text-base font-bold font-sans tabular-nums {Number(customer.current_balance) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}">
                             {formatPrice(customer.current_balance || 0)}
                         </span>
                     </div>
@@ -306,7 +306,7 @@
                             value={amount}
                             oninput={(e) => handleAmountChange((e.target as HTMLInputElement).value)}
                             placeholder="0.00"
-                            class="h-11 rounded-xl bg-background border-border/80 pl-8 text-base font-bold font-sans tabular-nums text-foreground"
+                            class="h-11 rounded-xl bg-field border-input pl-8 text-base font-bold font-sans tabular-nums text-foreground"
                             required
                         />
                     </div>
@@ -319,7 +319,7 @@
                     <select
                         id="receipt-method"
                         bind:value={paymentMethod}
-                        class="h-11 w-full rounded-xl border border-border/80 bg-select-background px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                        class="h-11 w-full rounded-xl border border-input bg-field px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                         required
                     >
                         {#each paymentMethods as m}
@@ -341,7 +341,7 @@
                         bind:value={referenceNumber}
                         maxlength="100"
                         placeholder="Ej. TRF-889911, CHQ-4455"
-                        class="h-10 rounded-xl bg-background border-border/80 text-sm font-medium text-foreground"
+                        class="h-10 rounded-xl bg-field border-input text-sm font-medium text-foreground"
                     />
                 </div>
 
@@ -353,7 +353,7 @@
                         bind:value={notes}
                         maxlength="255"
                         placeholder="Comentarios adicionales del cobro..."
-                        class="h-10 rounded-xl bg-background border-border/80 text-sm text-foreground"
+                        class="h-10 rounded-xl bg-field border-input text-sm text-foreground"
                     />
                 </div>
             </div>
@@ -381,13 +381,13 @@
                         </Button>
                     </div>
 
-                    <div class="rounded-xl border border-border/70 overflow-hidden divide-y divide-border/50 bg-background/50">
+                    <div class="rounded-xl border border-border/80 dark:border-border/90 overflow-hidden divide-y divide-border/50 bg-muted/40 dark:bg-secondary/25">
                         {#each allocations as item, idx}
                             <div class="p-2.5 sm:p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
                                 <div class="space-y-0.5">
                                     <div class="flex items-center gap-2">
                                         <span class="font-bold text-foreground">{item.order_number}</span>
-                                        <span class="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground tabular-nums">
+                                        <span class="text-xs bg-background/80 dark:bg-secondary/60 border border-border/60 px-1.5 py-0.5 rounded text-muted-foreground tabular-nums">
                                             Total: {formatPrice(item.total_amount)}
                                         </span>
                                     </div>
@@ -407,7 +407,7 @@
                                             max={item.debt_amount}
                                             value={item.amount}
                                             oninput={(e) => handleManualAllocationChange(idx, Number((e.target as HTMLInputElement).value) || 0)}
-                                            class="h-8 rounded-lg bg-background border-border/80 pl-6 text-sm font-bold font-sans tabular-nums text-right"
+                                            class="h-8 rounded-lg bg-field border-input pl-6 text-sm font-bold font-sans tabular-nums text-right"
                                         />
                                     </div>
                                 </div>
@@ -416,7 +416,7 @@
                     </div>
 
                     <!-- Discrepancia / Balance de Imputaciones -->
-                    <div class="flex items-center justify-between p-2.5 rounded-xl {hasDiscrepancy ? 'bg-destructive/10 border border-destructive/20 text-destructive' : 'bg-muted/40 text-foreground'} text-xs">
+                    <div class="flex items-center justify-between p-2.5 rounded-xl {hasDiscrepancy ? 'bg-destructive/10 border border-destructive/30 text-destructive dark:text-rose-400' : 'bg-muted/40 dark:bg-secondary/35 border border-border/80 text-foreground'} text-xs">
                         <span class="font-semibold">
                             Total Imputado: <strong class="font-sans tabular-nums">{formatPrice(allocatedTotal)}</strong>
                         </span>

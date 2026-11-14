@@ -125,9 +125,9 @@
             </div>
 
             <!-- Avatar / Logo del Comercio con Indicador de Edición -->
-            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 p-4 rounded-xl bg-muted/20 border border-border/50">
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 p-4 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90">
                 <div
-                    class="relative size-24 sm:size-28 rounded-full border-2 border-border/80 bg-muted/50 shadow-xs cursor-pointer group shrink-0 flex items-center justify-center"
+                    class="relative size-24 sm:size-28 rounded-full border-2 border-border/80 dark:border-border/90 bg-card shadow-xs cursor-pointer group shrink-0 flex items-center justify-center"
                     onclick={() => (showLogoModal = true)}
                     onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') showLogoModal = true; }}
                     role="button"
@@ -135,7 +135,7 @@
                     aria-label="Editar logo del comercio"
                     title="Editar logo del comercio"
                 >
-                    <div class="size-full rounded-full overflow-hidden flex items-center justify-center bg-muted/40">
+                    <div class="size-full rounded-full overflow-hidden flex items-center justify-center">
                         {#if logoUrl && !imageFailed}
                             <img
                                 src={logoUrl}
@@ -145,7 +145,7 @@
                             />
                         {:else}
                             <div class="flex flex-col items-center justify-center gap-1 text-center select-none px-2">
-                                <ImageOff class="size-5 text-muted-foreground/60 group-hover:text-primary/70 transition-colors" />
+                                <ImageOff class="size-5 text-muted-foreground/80 group-hover:text-primary transition-colors" />
                                 <span class="text-xs font-medium text-muted-foreground tracking-tight leading-tight">
                                     Sin imagen
                                 </span>
@@ -235,7 +235,7 @@
                     <select
                         id="company-tax-condition"
                         bind:value={form.tax_condition}
-                        class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                        class="h-10 w-full rounded-xl border border-input bg-field px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                     >
                         <option value="responsable_inscripto">Responsable Inscripto</option>
                         <option value="monotributo">Monotributo</option>
@@ -433,7 +433,7 @@
                         id="company-start-date"
                         type="date"
                         bind:value={form.start_activity_date}
-                        class="h-10 text-sm font-sans tabular-nums"
+                        class="h-10 text-sm font-sans tabular-nums dark:[color-scheme:dark]"
                     />
                     {#if form.errors.start_activity_date}
                         <p class="text-xs text-destructive">{form.errors.start_activity_date}</p>

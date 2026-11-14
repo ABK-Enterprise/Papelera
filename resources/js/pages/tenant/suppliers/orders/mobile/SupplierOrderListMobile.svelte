@@ -111,7 +111,7 @@
 
             <div class="flex items-center justify-between text-xs text-muted-foreground">
                 <span>{order.items?.length ?? 0} {order.items?.length === 1 ? 'producto' : 'productos'}</span>
-                <span class="border border-primary/30 bg-primary/15 text-foreground dark:text-sky-100 dark:border-primary/40 px-2.5 py-0.5 rounded-lg text-xs font-medium flex items-center gap-0.5 shadow-2xs">
+                <span class="border border-primary/30 bg-primary/10 dark:bg-primary/15 text-primary px-2.5 py-0.5 rounded-lg text-xs font-medium flex items-center gap-0.5 shadow-2xs">
                     Ver detalle &rarr;
                 </span>
             </div>
@@ -121,8 +121,8 @@
     {/each}
 
     {#if orders.length === 0}
-        <div class="rounded-xl border border-dashed p-8 text-center bg-card/40">
-            <Package class="mx-auto size-10 text-muted-foreground/50 mb-2" />
+        <div class="rounded-xl border border-dashed border-border/80 dark:border-border/90 p-8 text-center bg-muted/30 dark:bg-secondary/20">
+            <Package class="mx-auto size-10 text-muted-foreground/80 mb-2" />
             <p class="text-xs text-muted-foreground">No se encontraron órdenes de compra.</p>
         </div>
     {/if}

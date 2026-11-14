@@ -123,7 +123,7 @@
                 value={productsSort}
                 onchange={(e) => updateSort((e.target as HTMLSelectElement).value)}
                 aria-label="Ordenar productos"
-                class="min-h-[36px] px-2.5 py-1 text-xs rounded-lg border border-input/80 bg-select-background text-foreground font-medium cursor-pointer"
+                class="min-h-[36px] px-2.5 py-1 text-xs rounded-lg border border-input bg-field text-foreground font-medium cursor-pointer focus:border-primary focus-visible:border-primary"
             >
                 <option value="desc">Más vendidos</option>
                 <option value="asc">Menos vendidos</option>
@@ -133,11 +133,11 @@
         {#if productsData.top_products.length === 0}
             <div class="py-6 text-center text-xs text-muted-foreground">Sin ventas registradas.</div>
         {:else}
-            <div class="flex flex-col divide-y divide-border/40">
+            <div class="flex flex-col gap-2">
                 {#each productsData.top_products as p, i (p.product_id)}
-                    <div class="py-2.5 flex items-center justify-between text-xs">
+                    <div class="p-2.5 rounded-lg bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex items-center justify-between text-xs">
                         <div class="flex items-center gap-2 min-w-0">
-                            <span class="size-5 rounded-full bg-muted text-muted-foreground text-[10px] flex items-center justify-center font-bold shrink-0 tabular-nums">
+                            <span class="size-5 rounded-full bg-card dark:bg-secondary/60 border border-border/80 dark:border-border/90 text-foreground text-[10px] flex items-center justify-center font-bold shrink-0 tabular-nums">
                                 {i + 1}
                             </span>
                             <div class="min-w-0">

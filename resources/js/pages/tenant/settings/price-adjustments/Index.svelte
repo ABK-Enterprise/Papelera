@@ -160,7 +160,7 @@
                                     </span>
                                 {/if}
                             </div>
-                            <span class={`text-xs font-bold shrink-0 ml-3 tabular-nums ${adj.type === 'discount' ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                            <span class={`text-xs font-bold shrink-0 ml-3 tabular-nums ${adj.type === 'discount' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>
                                 {adj.calculation_type === 'percentage' ? `${Number(adj.value)}%` : `$${Number(adj.value).toLocaleString('es-AR')}`}
                             </span>
                         </div>
@@ -171,13 +171,13 @@
             <!-- Filtros Desktop con Escala Tipográfica Aumentada text-sm font-semibold -->
             <div class="hidden md:flex items-center gap-2.5">
                 <!-- Filtro de Tipo -->
-                <div class="flex items-center rounded-xl border border-border/80 bg-muted/30 p-1">
+                <div class="flex items-center rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-1">
                     <button
                         type="button"
                         onclick={() => setTypeFilter('')}
                         class={`min-h-[36px] px-3.5 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                             !tableFilters.filters.type
-                                ? 'bg-background text-foreground shadow-2xs'
+                                ? 'bg-card dark:bg-secondary text-foreground shadow-2xs'
                                 : 'text-muted-foreground hover:text-foreground'
                         }`}
                     >
@@ -188,7 +188,7 @@
                         onclick={() => setTypeFilter('discount')}
                         class={`min-h-[36px] px-3.5 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                             tableFilters.filters.type === 'discount'
-                                ? 'bg-emerald-500 text-white shadow-2xs'
+                                ? 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-2xs'
                                 : 'text-muted-foreground hover:text-foreground'
                         }`}
                     >
@@ -199,7 +199,7 @@
                         onclick={() => setTypeFilter('surcharge')}
                         class={`min-h-[36px] px-3.5 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                             tableFilters.filters.type === 'surcharge'
-                                ? 'bg-amber-600 text-white shadow-2xs'
+                                ? 'bg-amber-700 hover:bg-amber-800 text-white shadow-2xs'
                                 : 'text-muted-foreground hover:text-foreground'
                         }`}
                     >
@@ -213,8 +213,8 @@
                     onclick={toggleStatusFilter}
                     class={`min-h-[40px] px-3.5 rounded-xl border text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer ${
                         tableFilters.filters.status === 'active'
-                            ? 'bg-primary/10 text-primary border-primary/30 shadow-2xs'
-                            : 'bg-background text-muted-foreground border-border/80 hover:bg-muted'
+                            ? 'bg-primary/15 text-foreground dark:text-sky-100 border-primary/40 hover:bg-primary/25 shadow-2xs'
+                            : 'bg-card text-muted-foreground border-border/80 dark:border-border/90 hover:bg-muted/70 dark:hover:bg-secondary/55'
                     }`}
                 >
                     <CheckCircle2 class="h-4 w-4" />
@@ -277,8 +277,8 @@
         </div>
     {:else}
         <!-- Estado Vacío -->
-        <div class="rounded-2xl border border-dashed border-border/80 p-8 sm:p-12 text-center bg-card/50">
-            <div class="mx-auto h-12 w-12 rounded-2xl bg-muted/60 flex items-center justify-center text-muted-foreground mb-4">
+        <div class="rounded-2xl border border-dashed border-border/80 dark:border-border/90 p-8 sm:p-12 text-center bg-muted/30 dark:bg-secondary/20">
+            <div class="mx-auto h-12 w-12 rounded-2xl bg-muted/50 dark:bg-secondary/40 flex items-center justify-center text-muted-foreground mb-4">
                 <Tag class="h-6 w-6" />
             </div>
             <h3 class="text-base font-bold text-foreground">

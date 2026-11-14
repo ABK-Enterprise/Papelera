@@ -96,7 +96,7 @@
                             </h4>
                         </div>
                         <div class="flex items-center gap-2 mt-0.5">
-                            <span class="text-xs font-semibold bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                            <span class="text-xs font-semibold bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 px-1.5 py-0.5 rounded text-muted-foreground">
                                 {formatTaxCondition(customer.tax_condition)}
                             </span>
                             {#if customer.created_at}
@@ -132,18 +132,18 @@
             <!-- CUIT, Teléfono y Email -->
             <div class="flex items-center gap-2 flex-wrap pt-1 border-t border-border/40">
                 {#if customer.tax_id}
-                    <span class="inline-flex items-center gap-1 text-xs tabular-nums bg-muted/60 px-2 py-0.5 rounded text-foreground font-semibold">
+                    <span class="inline-flex items-center gap-1 text-xs tabular-nums bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 px-2 py-0.5 rounded text-foreground font-semibold">
                         CUIT: {customer.tax_id}
                     </span>
                 {/if}
                 {#if customer.phone}
-                    <span class="inline-flex items-center gap-1 text-xs tabular-nums bg-muted/60 px-2 py-0.5 rounded text-foreground">
+                    <span class="inline-flex items-center gap-1 text-xs tabular-nums bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 px-2 py-0.5 rounded text-foreground">
                         <Phone class="size-3 text-muted-foreground" />
                         {customer.phone}
                     </span>
                 {/if}
                 {#if customer.email}
-                    <span class="inline-flex items-center gap-1 text-xs bg-muted/60 px-2 py-0.5 rounded text-foreground truncate max-w-[180px]">
+                    <span class="inline-flex items-center gap-1 text-xs bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 px-2 py-0.5 rounded text-foreground truncate max-w-[180px]">
                         <Mail class="size-3 text-muted-foreground" />
                         {customer.email}
                     </span>
@@ -161,7 +161,7 @@
     {/each}
 
     {#if customers.length === 0}
-        <div class="rounded-xl border border-dashed p-8 text-center bg-card/40">
+        <div class="rounded-xl border border-dashed border-border/80 dark:border-border/90 p-8 text-center bg-muted/40 dark:bg-secondary/35">
             <UserCheck class="mx-auto h-10 w-10 text-muted-foreground/40 mb-2" />
             <p class="text-xs text-muted-foreground font-medium">No se encontraron clientes.</p>
             {#if hasPermission('clientes.crear')}

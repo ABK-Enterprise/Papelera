@@ -62,12 +62,12 @@
 {#if movements.length > 0}
     <div class="flex flex-col gap-3">
         {#each movements as mov (mov.id)}
-            <div class="rounded-xl border border-border/70 bg-card p-4 shadow-xs transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
+            <div class="rounded-xl border border-border/80 dark:border-border/90 bg-card p-4 shadow-xs transition-all duration-200 hover:shadow-lg hover:shadow-accent/20">
 
                 <!-- Header Card Mobile: Producto y Badge de Operación -->
-                <div class="flex items-start justify-between gap-3 pb-3 border-b border-border/40">
+                <div class="flex items-start justify-between gap-3 pb-3 border-b border-border/60">
                     <div class="flex items-center gap-2.5 min-w-0">
-                        <div class="size-9 rounded-lg {mov.type === 'income' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400'} border flex items-center justify-center shrink-0">
+                        <div class="size-9 rounded-lg {mov.type === 'income' ? 'bg-emerald-500/10 border-emerald-500/25 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400' : 'bg-rose-500/10 border-rose-500/25 dark:border-rose-500/30 text-rose-700 dark:text-rose-400'} border flex items-center justify-center shrink-0">
                             {#if mov.type === 'income'}
                                 <ArrowDownLeft class="size-4" />
                             {:else}
@@ -86,7 +86,7 @@
                         </div>
                     </div>
 
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-bold tabular-nums shrink-0 {mov.type === 'income' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'}">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-bold tabular-nums shrink-0 {mov.type === 'income' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/25 dark:border-emerald-500/30' : 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/25 dark:border-rose-500/30'}">
                         {mov.type === 'income' ? `+${mov.quantity}` : `-${mov.quantity}`}
                     </span>
                 </div>
@@ -110,14 +110,14 @@
                 </div>
 
                 <!-- Footer: Responsable, Fecha y Botón Ver Detalle -->
-                <div class="flex items-center justify-between pt-3 mt-3 border-t border-border/40 text-xs text-muted-foreground">
+                <div class="flex items-center justify-between pt-3 mt-3 border-t border-border/60 text-xs text-muted-foreground">
                     <div class="flex flex-col gap-0.5 min-w-0">
                         <div class="flex items-center gap-1 text-foreground font-medium truncate">
-                            <User class="size-3 text-muted-foreground/70" />
+                            <User class="size-3 text-muted-foreground/80" />
                             <span>{mov.user?.name ?? 'Sistema'}</span>
                         </div>
                         <div class="flex items-center gap-1 text-xs text-muted-foreground tabular-nums">
-                            <Calendar class="size-3 text-muted-foreground/70" />
+                            <Calendar class="size-3 text-muted-foreground/80" />
                             <span>{formatDate(mov.created_at)}</span>
                         </div>
                     </div>

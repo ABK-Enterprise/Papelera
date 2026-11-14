@@ -156,7 +156,7 @@
 
         <DialogBody class="space-y-4 py-1">
             {#if product}
-                <div class="p-3 rounded-xl bg-muted/40 border border-border/60 text-xs">
+                <div class="p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-xs">
                     <span class="text-xs text-muted-foreground block">Producto:</span>
                     <strong class="text-foreground font-semibold text-sm">{product.name}</strong>
                     {#if product.sku}
@@ -211,7 +211,7 @@
                         <button
                             type="button"
                             onclick={() => (updateMode = 'order_only')}
-                            class="flex flex-col p-3 rounded-xl border text-left transition-all cursor-pointer {updateMode === 'order_only' ? 'border-primary bg-primary/5 ring-2 ring-primary/20' : 'border-border/70 bg-card hover:bg-muted/40'}"
+                            class="flex flex-col p-3 rounded-xl border text-left transition-all cursor-pointer {updateMode === 'order_only' ? 'border-primary bg-primary/10 dark:bg-primary/15 ring-2 ring-primary/20' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55'}"
                         >
                             <div class="flex items-center gap-2 mb-1">
                                 <ShoppingBag class="size-4 {updateMode === 'order_only' ? 'text-primary' : 'text-muted-foreground'}" />
@@ -225,7 +225,7 @@
                         <button
                             type="button"
                             onclick={() => (updateMode = 'catalog')}
-                            class="flex flex-col p-3 rounded-xl border text-left transition-all cursor-pointer {updateMode === 'catalog' ? 'border-primary bg-primary/5 ring-2 ring-primary/20' : 'border-border/70 bg-card hover:bg-muted/40'}"
+                            class="flex flex-col p-3 rounded-xl border text-left transition-all cursor-pointer {updateMode === 'catalog' ? 'border-primary bg-primary/10 dark:bg-primary/15 ring-2 ring-primary/20' : 'border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/70 dark:hover:bg-secondary/55'}"
                         >
                             <div class="flex items-center gap-2 mb-1">
                                 <Store class="size-4 {updateMode === 'catalog' ? 'text-primary' : 'text-muted-foreground'}" />
@@ -242,7 +242,7 @@
             <!-- Banner Informativo para el modo Catálogo -->
             {#if updateMode === 'catalog'}
                 <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-300">
-                    <AlertTriangle class="size-4 text-amber-600 shrink-0 mt-0.5" />
+                    <AlertTriangle class="size-4 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
                     <p class="leading-relaxed">
                         Este cambio se aplicará a todo el catálogo. Aquellos pedidos en preparación no facturados que incluyan este producto serán marcados para revisión de precios.
                     </p>
@@ -260,7 +260,7 @@
         <DialogFooter class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:justify-end sm:w-auto pt-2 border-t border-border/70">
             <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 class="min-h-[44px] rounded-xl text-sm font-medium cursor-pointer"
                 disabled={isSubmitting}
                 onclick={handleClose}

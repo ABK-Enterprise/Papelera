@@ -208,7 +208,7 @@
 </script>
 
 <Dialog bind:open>
-    <DialogContent class="sm:max-w-xl max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+    <DialogContent class="sm:max-w-xl max-h-[90vh] flex flex-col p-0 gap-[1px] overflow-hidden">
         <DialogHeader class="p-0 border-b border-border/60 shrink-0 bg-card">
             <div class="flex items-center gap-2.5 sm:gap-3.5 p-4 sm:p-1.5 pb-3.5 sm:pb-1.5 pr-4 sm:pr-4 w-full">
                 <!-- Contenedor del Icono Desacoplado: Mobile size-10 (40px) y margenes de OrderDetailModal, Desktop 48px (sm:size-12) con 3px de margen -->
@@ -227,9 +227,9 @@
 
         <DialogBody class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
             <!-- Árbol Jerárquico de Elementos -->
-            <div class="rounded-xl border border-border/70 divide-y divide-border/60 bg-card overflow-hidden">
+            <div class="rounded-xl border border-border/80 dark:border-border/90 divide-y divide-border/60 bg-muted/40 dark:bg-secondary/35 overflow-hidden">
                 <!-- 1. Nodo Cuenta Corriente -->
-                <div class="p-3.5 sm:p-4 space-y-3 {order?.customer_id ? '' : 'bg-muted/20 opacity-60'}">
+                <div class="p-3.5 sm:p-4 space-y-3 {order?.customer_id ? '' : 'bg-muted/40 dark:bg-secondary/35 opacity-60'}">
                     <label class="flex items-start gap-3 cursor-pointer {order?.customer_id ? '' : 'cursor-not-allowed'}">
                         <input
                             type="checkbox"
@@ -245,7 +245,7 @@
                                 Muestra el saldo deudor actual de la cuenta corriente como un ítem en la boleta y lo suma al total del pedido.
                             </p>
                             {#if !order?.customer_id}
-                                <div class="mt-1.5 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                                <div class="mt-1.5 flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400">
                                     <AlertCircle class="size-3.5 shrink-0" />
                                     <span>No disponible: El pedido no tiene un cliente con cuenta corriente asignada.</span>
                                 </div>
@@ -255,7 +255,7 @@
                 </div>
 
                 <!-- 2. Nodo Descuentos (Padre con Hijos) -->
-                <div class="p-3.5 sm:p-4 space-y-2.5 {discounts.length === 0 ? 'bg-muted/20 opacity-60' : ''}">
+                <div class="p-3.5 sm:p-4 space-y-2.5 {discounts.length === 0 ? 'bg-muted/40 dark:bg-secondary/35 opacity-60' : ''}">
                     <div class="flex items-center justify-between">
                         <button
                             type="button"
@@ -280,7 +280,7 @@
                             <button
                                 type="button"
                                 onclick={() => (isDiscountsExpanded = !isDiscountsExpanded)}
-                                class="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors shrink-0 ml-2 cursor-pointer"
+                                class="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70 dark:hover:bg-secondary/60 transition-colors shrink-0 ml-2 cursor-pointer"
                                 aria-label={isDiscountsExpanded ? 'Contraer descuentos' : 'Expandir descuentos'}
                             >
                                 <ChevronRight class="size-4 transition-transform duration-200 {isDiscountsExpanded ? 'rotate-90' : ''}" />
@@ -296,7 +296,7 @@
                         <!-- Sub-items indentados con línea de conexión de árbol -->
                         <div class="ml-2 pl-4 border-l-2 border-border/60 space-y-2 pt-1">
                             {#each discounts as disc (disc.id)}
-                                <label class="flex items-center justify-between gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors cursor-pointer border border-transparent hover:border-border/60">
+                                <label class="flex items-center justify-between gap-3 p-2.5 rounded-xl hover:bg-muted/70 dark:hover:bg-secondary/55 transition-colors cursor-pointer border border-transparent hover:border-border/80 dark:hover:border-border/90">
                                     <div class="flex items-center gap-3 min-w-0">
                                         <input
                                             type="checkbox"
@@ -316,7 +316,7 @@
                                         </div>
                                     </div>
                                     <div class="text-right shrink-0 font-sans tabular-nums">
-                                        <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                        <span class="text-sm font-bold text-emerald-700 dark:text-emerald-400">
                                             -{formatCurrency(disc.applied_amount)}
                                         </span>
                                         {#if disc.calculation_type === 'percentage'}
@@ -332,7 +332,7 @@
                 </div>
 
                 <!-- 3. Nodo Recargos (Padre con Hijos) -->
-                <div class="p-3.5 sm:p-4 space-y-2.5 {surcharges.length === 0 ? 'bg-muted/20 opacity-60' : ''}">
+                <div class="p-3.5 sm:p-4 space-y-2.5 {surcharges.length === 0 ? 'bg-muted/40 dark:bg-secondary/35 opacity-60' : ''}">
                     <div class="flex items-center justify-between">
                         <button
                             type="button"
@@ -357,7 +357,7 @@
                             <button
                                 type="button"
                                 onclick={() => (isSurchargesExpanded = !isSurchargesExpanded)}
-                                class="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors shrink-0 ml-2 cursor-pointer"
+                                class="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70 dark:hover:bg-secondary/60 transition-colors shrink-0 ml-2 cursor-pointer"
                                 aria-label={isSurchargesExpanded ? 'Contraer recargos' : 'Expandir recargos'}
                             >
                                 <ChevronRight class="size-4 transition-transform duration-200 {isSurchargesExpanded ? 'rotate-90' : ''}" />
@@ -373,7 +373,7 @@
                         <!-- Sub-items indentados con línea de conexión de árbol -->
                         <div class="ml-2 pl-4 border-l-2 border-border/60 space-y-2 pt-1">
                             {#each surcharges as sur (sur.id)}
-                                <label class="flex items-center justify-between gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors cursor-pointer border border-transparent hover:border-border/60">
+                                <label class="flex items-center justify-between gap-3 p-2.5 rounded-xl hover:bg-muted/70 dark:hover:bg-secondary/55 transition-colors cursor-pointer border border-transparent hover:border-border/80 dark:hover:border-border/90">
                                     <div class="flex items-center gap-3 min-w-0">
                                         <input
                                             type="checkbox"
@@ -393,7 +393,7 @@
                                         </div>
                                     </div>
                                     <div class="text-right shrink-0 font-sans tabular-nums">
-                                        <span class="text-sm font-bold text-amber-600 dark:text-amber-400">
+                                        <span class="text-sm font-bold text-amber-700 dark:text-amber-400">
                                             +{formatCurrency(sur.applied_amount)}
                                         </span>
                                         {#if sur.calculation_type === 'percentage'}
@@ -413,7 +413,7 @@
         <DialogFooter class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 p-4 sm:p-5 border-t border-border/60 bg-card shrink-0">
             <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 disabled={isSaving}
                 class="min-h-[44px] px-4 rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto"
                 onclick={() => (open = false)}

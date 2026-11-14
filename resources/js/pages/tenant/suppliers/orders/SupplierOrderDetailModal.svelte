@@ -1,8 +1,10 @@
 <script lang="ts">
     import { Button } from '@/components/ui/button';
     import ConfirmActionModal from '@/components/common/ConfirmActionModal.svelte';
-    import PdfPreviewModal from '@/components/common/PdfPreviewModal.svelte';
+    import HighlightMatch from '@/components/common/HighlightMatch.svelte';
     import IconContainer from '@/components/common/IconContainer.svelte';
+    import PdfPreviewModal from '@/components/common/PdfPreviewModal.svelte';
+    import SearchCombobox from '@/components/common/SearchCombobox.svelte';
     import { router } from '@inertiajs/svelte';
     import { hasPermission } from '@/lib/permissions';
     import { fade, scale } from 'svelte/transition';
@@ -12,6 +14,7 @@
     import Printer from 'lucide-svelte/icons/printer';
     import Trash2 from 'lucide-svelte/icons/trash-2';
     import Truck from 'lucide-svelte/icons/truck';
+    import X from 'lucide-svelte/icons/x';
     import XCircle from 'lucide-svelte/icons/x-circle';
 
     interface SupplierOrderItem {
@@ -26,6 +29,7 @@
             name: string;
             sku: string | null;
             stock: number;
+            sale_type?: string;
         };
     }
 
@@ -58,7 +62,46 @@
     let isReceiveModalOpen = $state(false);
     let isCancelModalOpen = $state(false);
     let isPdfModalOpen = $state(false);
+    let itemSearchQuery = $state('');
+    let lastOrderId = $state<number | null>(null);
     let orderVersion = $derived(order?.updated_at ? new Date(order.updated_at).getTime() : Date.now());
+
+    $effect(() => {
+        const currentOrderId = order?.id ?? null;
+
+        if (!open || currentOrderId !== lastOrderId) {
+            itemSearchQuery = '';
+            lastOrderId = currentOrderId;
+        }
+    });
+
+    function normalizeSearchText(value: string | null | undefined): string {
+        return (value ?? '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim();
+    }
+
+    let filteredItems = $derived.by(() => {
+        const items = order?.items ?? [];
+        const query = normalizeSearchText(itemSearchQuery);
+
+        if (!query) {
+            return items;
+        }
+
+        return items.filter((item) => {
+            const unitText = item.product?.sale_type === 'weight' ? 'kg' : 'unidad unid.';
+
+            return (
+                normalizeSearchText(item.product_name).includes(query) ||
+                normalizeSearchText(item.product?.name).includes(query) ||
+                normalizeSearchText(item.product?.sku).includes(query) ||
+                unitText.includes(query)
+            );
+        });
+    });
 
     function formatPrice(amount: string | number) {
         return new Intl.NumberFormat('es-AR', {
@@ -140,7 +183,7 @@
     <!-- Backdrop oscuro accesible -->
     <div
         transition:fade={{ duration: 150 }}
-        class="fixed inset-0 bg-background/80 backdrop-blur-xs z-50"
+        class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50"
         onclick={() => (open = false)}
         aria-hidden="true"
     ></div>
@@ -148,13 +191,13 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto pointer-events-none">
         <div
             transition:scale={{ start: 0.97, duration: 150 }}
-            class="bg-card text-card-foreground rounded-2xl sm:rounded-3xl border border-border shadow-2xl max-w-2xl w-full p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto pointer-events-auto"
+            class="bg-card text-card-foreground rounded-2xl sm:rounded-3xl border border-border shadow-2xl max-w-4xl w-full p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col gap-2 my-auto pointer-events-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
         >
             <!-- Header (shrink-0) -->
-            <div class="flex items-start sm:items-center justify-between border-b pb-3.5 sm:pb-4 shrink-0">
+            <div class="flex items-start sm:items-center justify-between gap-2.5 border-b pb-3.5 sm:pb-4 shrink-0">
                 <div class="flex items-start sm:items-center gap-2.5 min-w-0 flex-1">
                     <IconContainer size="md" variant="primary" icon="solar:clipboard-list-bold-duotone" class="shrink-0 mt-0.5 sm:mt-0" />
                     <div class="min-w-0 flex-1">
@@ -164,19 +207,19 @@
                                 {order.order_number}
                             </h2>
                             {#if order.status === 'solicitado'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-sm font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                                     Solicitado
                                 </span>
                             {:else if order.status === 'recibido'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-sm font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                                     Recibido
                                 </span>
                             {:else if order.status === 'cancelado'}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                                <span class="px-2.5 py-0.5 rounded-full text-sm font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                                     Cancelado
                                 </span>
                             {/if}
-                            <p class="text-xs text-muted-foreground mt-0.5">Fecha: {formatDate(order.created_at)}</p>
+                            <p class="text-sm text-muted-foreground mt-0.5">Fecha: {formatDate(order.created_at)}</p>
                         </div>
 
                         <!-- Desktop (sm:): Row horizontal con ID y Pill, luego Fecha -->
@@ -184,23 +227,32 @@
                             <div class="flex items-center gap-2">
                                 <h2 class="text-lg font-bold text-foreground font-sans tabular-nums">{order.order_number}</h2>
                                 {#if order.status === 'solicitado'}
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                                    <span class="px-2.5 py-0.5 rounded-full text-sm font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                                         Solicitado
                                     </span>
                                 {:else if order.status === 'recibido'}
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                                    <span class="px-2.5 py-0.5 rounded-full text-sm font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                                         Recibido
                                     </span>
                                 {:else if order.status === 'cancelado'}
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                                    <span class="px-2.5 py-0.5 rounded-full text-sm font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
                                         Cancelado
                                     </span>
                                 {/if}
                             </div>
-                            <p class="text-xs text-muted-foreground mt-0.5">Fecha: {formatDate(order.created_at)}</p>
+                            <p class="text-sm text-muted-foreground mt-0.5">Fecha: {formatDate(order.created_at)}</p>
                         </div>
                     </div>
                 </div>
+
+                <button
+                    type="button"
+                    onclick={() => (open = false)}
+                    class="sm:hidden size-11 min-h-[44px] min-w-[44px] -mr-1.5 -mt-1 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    aria-label="Cerrar"
+                >
+                    <X class="size-5" />
+                </button>
             </div>
 
 
@@ -208,25 +260,25 @@
             <div class="flex-1 min-h-0 overflow-y-auto space-y-4 sm:space-y-5 py-2 pr-1">
                 <!-- Cartel de Estado Terminal -->
                 {#if order.status === 'recibido'}
-                    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-xs text-emerald-700 dark:text-emerald-300">
-                        <CheckCircle2 class="size-5 text-emerald-600 shrink-0" />
+                    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-sm text-emerald-700 dark:text-emerald-400">
+                        <CheckCircle2 class="size-5 text-emerald-700 dark:text-emerald-400 shrink-0" />
                         <div>
-                            <strong class="font-bold block">Orden Recibida en Stock</strong>
+                            <strong class="text-base font-bold block">Orden Recibida en Stock</strong>
                             <span>Los artículos de esta orden ya fueron incorporados al inventario y registrados en Kardex.</span>
                         </div>
                     </div>
                 {:else if order.status === 'cancelado'}
-                    <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-xs text-rose-700 dark:text-rose-300">
-                        <XCircle class="size-5 text-rose-600 shrink-0" />
+                    <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-sm text-rose-700 dark:text-rose-400">
+                        <XCircle class="size-5 text-rose-700 dark:text-rose-400 shrink-0" />
                         <div>
-                            <strong class="font-bold block">Orden Cancelada</strong>
+                            <strong class="text-base font-bold block">Orden Cancelada</strong>
                             <span>Esta orden de compra fue cancelada y no generó movimientos de stock.</span>
                         </div>
                     </div>
                 {/if}
 
                 <!-- Datos del Proveedor -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-muted/20 border text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-sm">
                     <div class="space-y-1">
                         <span class="text-muted-foreground">Proveedor:</span>
                         <p class="font-bold text-foreground">{order.supplier?.name || 'Proveedor'}</p>
@@ -238,94 +290,94 @@
                 </div>
 
                 <!-- Detalle de Artículos -->
-                <div class="space-y-2">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Artículos Solicitados</h4>
-                    
-                    <!-- Stacked Cards en Mobile (block sm:hidden) -->
-                    <div class="block sm:hidden space-y-2.5">
-                        {#each order.items ?? [] as item}
-                            <div class="p-3.5 rounded-xl border bg-muted/20 space-y-2.5">
-                                <div class="flex items-start justify-between gap-2">
-                                    <div class="min-w-0 flex-1">
-                                        <h5 class="text-sm font-medium text-foreground leading-tight">
-                                            {item.product_name}
-                                        </h5>
-                                        {#if item.product?.sku}
-                                            <span class="text-xs text-muted-foreground tabular-nums block mt-0.5">
-                                                SKU: {item.product.sku}
-                                            </span>
-                                        {/if}
-                                    </div>
-                                    <div class="shrink-0">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border font-sans tabular-nums">
-                                            {item.quantity} {item.product?.sale_type === 'weight' ? 'Kg' : 'unid.'}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center justify-between pt-2 border-t border-border/50">
-                                    <div class="text-xs text-muted-foreground font-sans tabular-nums">
-                                        {Number(item.unit_cost) > 0 ? formatPrice(item.unit_cost) : '-'} × {item.quantity} {item.product?.sale_type === 'weight' ? 'Kg' : 'unid.'}
-                                    </div>
-                                    <div class="text-sm font-bold tabular-nums text-foreground">
-                                        {Number(item.subtotal) > 0 ? formatPrice(item.subtotal) : '-'}
-                                    </div>
-                                </div>
-                            </div>
-                        {/each}
+                <div class="space-y-2.5">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+                        <h4 class="text-[16px] font-bold uppercase tracking-wider text-muted-foreground">Artículos Solicitados</h4>
+                        {#if (order.items?.length ?? 0) >= 2}
+                            <SearchCombobox
+                                showDropdown={false}
+                                debounceMs={0}
+                                bind:value={itemSearchQuery}
+                                onclear={() => (itemSearchQuery = '')}
+                                placeholder="Buscar artículo o SKU..."
+                                inputClass="text-sm"
+                                class="w-full sm:w-72"
+                            />
+                        {/if}
                     </div>
 
-                    <!-- Tabla en Desktop (hidden sm:block) -->
-                    <div class="hidden sm:block rounded-xl border overflow-hidden">
-                        <table class="w-full text-left text-sm font-medium">
-                            <thead class="bg-muted/40 text-muted-foreground border-b text-xs font-semibold uppercase tracking-wider">
-                                <tr>
-                                    <th class="p-2.5">Producto</th>
-                                    <th class="p-2.5 text-center">Cant. Solicitada</th>
-                                    <th class="p-2.5 text-right">Costo Unit.</th>
-                                    <th class="p-2.5 text-right">Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y">
-                                {#each order.items ?? [] as item}
-                                    <tr class="text-sm font-medium">
-                                        <td class="p-2.5 text-foreground">
-                                            {item.product_name}
+                    {#if itemSearchQuery.trim() !== ''}
+                        <p class="text-sm text-muted-foreground tabular-nums">
+                            Mostrando {filteredItems.length} de {order.items?.length ?? 0}
+                        </p>
+                    {/if}
+
+                    {#if (order.items?.length ?? 0) > 0 && filteredItems.length === 0}
+                        <div class="flex flex-col items-center justify-center gap-3 py-8 px-4 text-center rounded-xl border border-dashed border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
+                            <p class="text-sm text-muted-foreground">
+                                No se encontraron artículos que coincidan con "{itemSearchQuery.trim()}".
+                            </p>
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                size="sm"
+                                class="min-h-[40px] px-4 rounded-xl text-sm"
+                                onclick={() => (itemSearchQuery = '')}
+                            >
+                                Limpiar búsqueda
+                            </Button>
+                        </div>
+                    {:else}
+                        <!-- Wide-Cards unificadas (Mobile y Desktop) -->
+                        <div class="space-y-2.5">
+                            {#each filteredItems as item (item.id)}
+                                <div class="p-3.5 sm:px-4 sm:py-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 hover:bg-muted/65 dark:hover:bg-secondary/50 transition-colors flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-4">
+                                    <div class="flex items-start sm:items-center justify-between gap-2 sm:gap-3 min-w-0 flex-1">
+                                        <div class="min-w-0 flex-1">
+                                            <h5 class="text-base font-semibold text-foreground leading-tight break-words">
+                                                <HighlightMatch text={item.product_name} query={itemSearchQuery} />
+                                            </h5>
                                             {#if item.product?.sku}
-                                                <span class="text-xs text-muted-foreground block tabular-nums">SKU: {item.product.sku}</span>
+                                                <span class="text-sm text-muted-foreground tabular-nums block mt-0.5">
+                                                    SKU: <HighlightMatch text={item.product.sku} query={itemSearchQuery} />
+                                                </span>
                                             {/if}
-                                        </td>
-                                        <td class="p-2.5 text-center font-sans tabular-nums">
-                                            {item.quantity} {item.product?.sale_type === 'weight' ? 'Kg' : 'unid.'}
-                                        </td>
-                                        <td class="p-2.5 text-right font-sans tabular-nums">
-                                            {Number(item.unit_cost) > 0 ? formatPrice(item.unit_cost) : '-'}
-                                        </td>
-                                        <td class="p-2.5 text-right text-sm font-bold tabular-nums text-foreground">
-                                            {Number(item.subtotal) > 0 ? formatPrice(item.subtotal) : '-'}
-                                        </td>
-                                    </tr>
-                                {/each}
+                                        </div>
+                                        <div class="shrink-0">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-semibold bg-muted text-muted-foreground border border-border font-sans tabular-nums">
+                                                {item.quantity} {item.product?.sale_type === 'weight' ? 'Kg' : 'unid.'}
+                                            </span>
+                                        </div>
+                                    </div>
 
-                            </tbody>
-                        </table>
-                    </div>
+                                    <div class="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/50 shrink-0">
+                                        <div class="text-sm text-muted-foreground font-sans tabular-nums sm:text-right">
+                                            {Number(item.unit_cost) > 0 ? formatPrice(item.unit_cost) : '-'} × {item.quantity} {item.product?.sale_type === 'weight' ? 'Kg' : 'unid.'}
+                                        </div>
+                                        <div class="text-base font-bold tabular-nums text-foreground sm:min-w-[110px] sm:text-right">
+                                            {Number(item.subtotal) > 0 ? formatPrice(item.subtotal) : '-'}
+                                        </div>
+                                    </div>
+                                </div>
+                            {/each}
+                        </div>
+                    {/if}
                 </div>
 
                 {#if order.notes}
-                    <div class="p-2.5 rounded-lg bg-muted/20 border text-sm text-muted-foreground">
+                    <div class="p-2.5 rounded-lg bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 text-sm text-muted-foreground">
                         <strong class="text-foreground">Notas:</strong> {order.notes}
                     </div>
                 {/if}
 
                 <!-- Acciones de Estado -->
                 {#if order.status === 'solicitado' && hasPermission('proveedores.pedidos.recibir')}
-                    <div class="p-3 rounded-xl bg-primary/5 border border-primary/20 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="p-3 rounded-xl bg-primary/10 dark:bg-primary/15 border border-primary/30 flex flex-col sm:flex-row items-center justify-between gap-3">
                         <div>
-                            <span class="text-xs font-bold text-foreground block">¿Llegó la mercadería al depósito?</span>
-                            <p class="text-xs text-muted-foreground">Al marcar como recibido, se sumará el stock de cada artículo en Kardex.</p>
+                            <span class="text-base font-bold text-foreground block">¿Llegó la mercadería al depósito?</span>
+                            <p class="text-sm text-muted-foreground">Al marcar como recibido, se sumará el stock de cada artículo en Kardex.</p>
                         </div>
-                        <Button size="sm" class="min-h-[38px] text-sm font-medium gap-1.5 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white" onclick={promptReceive} disabled={isProcessing}>
+                        <Button variant="success" size="sm" class="min-h-[38px] text-sm font-medium gap-1.5 shrink-0" onclick={promptReceive} disabled={isProcessing}>
                             <PackageCheck class="size-4" />
                             Marcar como Recibido
                         </Button>
@@ -337,8 +389,8 @@
                 {#if order.status === 'solicitado' && hasPermission('proveedores.pedidos.cancelar')}
                     <Button
                         type="button"
-                        variant="outline"
-                        class="min-h-[44px] px-3 rounded-xl text-sm font-medium text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-1.5 cursor-pointer {extraClass}"
+                        variant="destructive"
+                        class="min-h-[44px] px-3 rounded-xl text-sm font-medium gap-1.5 cursor-pointer {extraClass}"
                         onclick={promptCancel}
                         disabled={isProcessing}
                     >
@@ -363,8 +415,8 @@
             {#snippet btnClose(extraClass = '')}
                 <Button
                     type="button"
-                    variant="outline"
-                    class="min-h-[44px] px-3.5 rounded-xl text-sm font-medium shrink-0 cursor-pointer {extraClass}"
+                    variant="ghost"
+                    class="min-h-[44px] px-3.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground shrink-0 cursor-pointer {extraClass}"
                     onclick={() => (open = false)}
                 >
                     <span class="break-words text-center leading-tight">Cerrar</span>
@@ -375,8 +427,8 @@
             <div class="flex flex-col gap-2.5 pt-3 border-t shrink-0">
                 <!-- Fila de Costo Total (separado de los botones) -->
                 <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-border/40 min-w-0">
-                    <span class="text-xs text-muted-foreground font-medium">Costo Total:</span>
-                    <span class="text-sm font-bold tabular-nums text-primary">
+                    <span class="text-sm text-muted-foreground font-medium">Costo Total:</span>
+                    <span class="text-lg sm:text-xl font-bold font-sans tabular-nums text-primary">
                         {formatPrice(order.total_cost)}
                     </span>
                 </div>
@@ -395,23 +447,15 @@
                     </div>
                 </div>
 
-                <!-- VISTA MOBILE (< sm) -->
+                <!-- VISTA MOBILE (< sm): Footer limpio solo para acciones de negocio (cierre vía X superior o backdrop) -->
                 <div class="sm:hidden flex flex-col gap-2 w-full">
                     {#if order.status === 'solicitado' && hasPermission('proveedores.pedidos.cancelar')}
-                        <!-- Si hay 3 botones: Fila 1 [Cancelar orden, Ver PDF] y Fila 2 [Cerrar] -->
                         <div class="grid grid-cols-2 gap-2 w-full">
                             {@render btnCancel('w-full justify-center')}
                             {@render btnPdf('w-full justify-center')}
                         </div>
-                        <div class="w-full">
-                            {@render btnClose('w-full justify-center')}
-                        </div>
                     {:else}
-                        <!-- Si no hay cancelar: Fila única con Ver PDF y Cerrar en 2 columnas -->
-                        <div class="grid grid-cols-2 gap-2 w-full">
-                            {@render btnPdf('w-full justify-center')}
-                            {@render btnClose('w-full justify-center')}
-                        </div>
+                        {@render btnPdf('w-full justify-center')}
                     {/if}
                 </div>
             </div>

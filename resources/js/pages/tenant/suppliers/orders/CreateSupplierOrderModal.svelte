@@ -288,7 +288,7 @@
     <!-- Backdrop oscuro accesible -->
     <div
         transition:fade={{ duration: 150 }}
-        class="fixed inset-0 bg-background/80 backdrop-blur-xs z-50"
+        class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50"
         onclick={closeModal}
         aria-hidden="true"
     ></div>
@@ -296,7 +296,7 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto pointer-events-none">
         <div
             transition:scale={{ start: 0.97, duration: 150 }}
-            class="relative w-full max-w-3xl rounded-2xl sm:rounded-3xl bg-card border border-border shadow-2xl p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto pointer-events-auto"
+            class="relative w-full max-w-3xl rounded-2xl sm:rounded-3xl bg-card border border-border shadow-2xl p-4 sm:p-6 max-h-[85vh] sm:max-h-[88vh] flex flex-col gap-2 my-auto pointer-events-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="supplier-order-modal-title"
@@ -315,7 +315,7 @@
                 <button
                     type="button"
                     onclick={closeModal}
-                    class="size-10 min-h-[40px] min-w-[40px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
+                    class="size-10 min-h-[40px] min-w-[40px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-secondary/60 transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar modal"
                 >
                     <X class="size-4" />
@@ -324,7 +324,7 @@
 
             <!-- Error Banner (shrink-0) -->
             {#if errorMessage}
-                <div class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs flex items-center gap-2 shrink-0">
+                <div class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-center gap-2 shrink-0">
                     <AlertCircle class="size-4 shrink-0" />
                     <span class="font-medium">{errorMessage}</span>
                 </div>
@@ -333,8 +333,8 @@
             <!-- Form Content (Scrollable) -->
             <form id="create-supplier-order-form" onsubmit={submitOrder} class="space-y-4 overflow-y-auto flex-1 min-h-0 pr-1">
                 <!-- Bento Card 1: Proveedor -->
-                <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3">
-                    <h3 class="min-w-0 flex-1 flex items-start gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground break-words">
+                <div class="bg-muted/40 dark:bg-secondary/35 p-4 rounded-xl border border-border/80 dark:border-border/90 space-y-3">
+                    <h3 class="min-w-0 flex-1 flex items-start gap-1.5 text-[16px] font-bold uppercase tracking-wider text-muted-foreground break-words">
                         <Truck class="size-3.5 text-primary shrink-0 mt-0.5" />
                         <span>Proveedor Destino</span>
                     </h3>
@@ -346,7 +346,7 @@
                         <select
                             id="supplier-select"
                             bind:value={selectedSupplierId}
-                            class="h-10 w-full rounded-xl border border-border/80 bg-select-background px-3 text-xs font-medium text-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary"
+                            class="h-10 w-full rounded-xl border border-input bg-field px-3 text-sm font-medium text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                             required
                         >
 
@@ -360,14 +360,14 @@
 
 
                 <!-- Bento Card 2: Productos -->
-                <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-3.5">
+                <div class="bg-muted/40 dark:bg-secondary/35 p-4 rounded-xl border border-border/80 dark:border-border/90 space-y-3.5">
                     <div class="flex items-center justify-between gap-2.5">
-                        <h3 class="min-w-0 flex-1 text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                        <h3 class="min-w-0 flex-1 text-[16px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                             <Layers class="size-3.5 text-primary shrink-0" />
                             <span class="truncate">Productos a Solicitar</span>
                         </h3>
                         {#if items.length > 0}
-                            <span class="text-xs font-medium text-muted-foreground font-sans tabular-nums">
+                            <span class="text-sm font-medium text-muted-foreground font-sans tabular-nums">
                                 {items.length} {items.length === 1 ? 'producto' : 'productos'}
                             </span>
                         {/if}
@@ -388,29 +388,29 @@
                                     searchQuery = '';
                                     selectedProductToAdd = null;
                                 }}
-                                inputClass="h-10 text-xs font-medium w-full"
+                                inputClass="h-10 text-sm font-medium w-full"
                             >
                                 {#snippet itemSnippet(prod)}
                                     <div class="flex flex-col gap-1 w-full text-left py-1">
                                         <!-- Fila superior: Título y Precio -->
                                         <div class="flex justify-between items-start gap-2 w-full">
-                                            <span class="font-semibold text-foreground text-xs leading-snug min-w-0 flex-1 line-clamp-2 break-words">
+                                            <span class="font-semibold text-foreground text-sm leading-snug min-w-0 flex-1 line-clamp-2 break-words">
                                                 <HighlightMatch text={prod.name} query={searchQuery} />
                                             </span>
-                                            <div class="shrink-0 text-right font-sans tabular-nums font-bold min-w-[70px] text-xs text-foreground">
+                                            <div class="shrink-0 text-right font-sans tabular-nums font-bold min-w-[70px] text-sm text-foreground">
                                                 {#if prod.cost_price !== undefined && prod.cost_price !== null && prod.cost_price !== ''}
                                                     {formatPrice(Number(prod.cost_price))}
                                                 {:else if prod.price !== undefined && prod.price !== null && prod.price !== ''}
                                                     {formatPrice(Number(prod.price))}
                                                 {:else}
-                                                    <span class="text-muted-foreground font-normal text-xs">$ 0,00</span>
+                                                    <span class="text-muted-foreground font-normal text-sm">$ 0,00</span>
                                                 {/if}
                                             </div>
                                         </div>
                                         <!-- Fila inferior: Metadatos -->
-                                        <div class="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
+                                        <div class="flex items-center gap-2 flex-wrap text-sm text-muted-foreground">
                                             {#if prod.sale_type === 'weight'}
-                                                <span class="font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded shrink-0">
+                                                <span class="font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded shrink-0">
                                                     Kg
                                                 </span>
                                             {:else}
@@ -431,13 +431,13 @@
                                 {/snippet}
                                 {#snippet emptySnippet()}
                                     <div class="flex flex-col gap-2 p-2 w-full text-left">
-                                        <span class="text-xs text-muted-foreground italic">
+                                        <span class="text-sm text-muted-foreground italic">
                                             No se encontraron productos coincidentes.
                                         </span>
                                         {#if searchQuery.trim()}
                                             <button
                                                 type="button"
-                                                class="flex items-center gap-1.5 text-xs text-primary font-semibold hover:underline cursor-pointer text-left"
+                                                class="flex items-center gap-1.5 text-sm text-primary font-semibold hover:underline cursor-pointer text-left"
                                                 onclick={() => addOnTheFlyProduct(searchQuery.trim())}
                                             >
                                                 <Plus class="size-3.5 shrink-0" />
@@ -450,7 +450,7 @@
                             {#if searchQuery.trim() && !searchResults.some((p) => p.name.toLowerCase() === searchQuery.trim().toLowerCase())}
                                 <button
                                     type="button"
-                                    class="mt-1.5 flex items-center gap-1.5 text-xs text-primary font-medium hover:underline cursor-pointer text-left"
+                                    class="mt-1.5 flex items-center gap-1.5 text-sm text-primary font-medium hover:underline cursor-pointer text-left"
                                     onclick={() => addOnTheFlyProduct(searchQuery.trim())}
                                 >
                                     <Plus class="size-3.5 shrink-0" />
@@ -463,7 +463,7 @@
                             type="button"
                             size="sm"
                             variant="secondary"
-                            class="hidden sm:inline-flex w-full sm:w-auto min-h-[44px] sm:min-h-[40px] px-4 rounded-xl text-xs gap-1.5 font-semibold shrink-0 justify-center shadow-2xs cursor-pointer"
+                            class="hidden sm:inline-flex w-full sm:w-auto min-h-[44px] sm:min-h-[40px] px-4 rounded-xl text-sm gap-1.5 font-semibold shrink-0 justify-center shadow-2xs cursor-pointer"
                             onclick={() => addSelectedProduct()}
                             disabled={!selectedProductToAdd && !searchQuery.trim()}
                         >
@@ -474,17 +474,17 @@
 
                     <!-- Lista de Productos Seleccionados -->
                     {#if items.length === 0}
-                        <div class="flex flex-col items-center justify-center py-8 px-4 text-center rounded-xl border border-dashed border-border/70 bg-card/40">
-                            <Package class="size-8 text-muted-foreground/50 mb-2" />
-                            <p class="text-xs font-medium text-foreground">No hay productos añadidos a la orden</p>
-                            <p class="text-xs text-muted-foreground mt-0.5">Utiliza el buscador superior para seleccionar productos a solicitar</p>
+                        <div class="flex flex-col items-center justify-center py-8 px-4 text-center rounded-xl border border-dashed border-border/80 dark:border-border/90 bg-card">
+                            <Package class="size-8 text-muted-foreground/80 mb-2" />
+                            <p class="text-base font-medium text-foreground">No hay productos añadidos a la orden</p>
+                            <p class="text-sm text-muted-foreground mt-0.5">Utiliza el buscador superior para seleccionar productos a solicitar</p>
                         </div>
                     {:else}
                         <div class="space-y-2.5">
                             {#each items as item, index (item.id || index)}
                                 {@const lineSubtotal = (Number(item.quantity) || 0) * (Number(item.unit_cost) || 0)}
                                 {@const isWeight = item.sale_type === 'weight'}
-                                <div class="flex flex-col gap-2.5 p-3.5 rounded-xl border bg-card hover:bg-muted/10 transition-colors shadow-2xs">
+                                <div class="flex flex-col gap-2.5 p-3.5 rounded-xl border border-border/80 dark:border-border/90 bg-card hover:border-primary/40 transition-colors shadow-2xs">
                                     <!-- Fila 1: Texto estático limpio (Nombre, Badges, SKU, Botón Eliminar) -->
                                     <div class="flex items-start justify-between gap-2.5">
                                         <div class="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
@@ -498,7 +498,7 @@
                                                     {item.product_name}
                                                 </span>
                                                 {#if item.is_on_the_fly}
-                                                    <span class="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20 shrink-0">
+                                                    <span class="text-sm font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20 shrink-0">
                                                         Al vuelo
                                                     </span>
                                                 {/if}
@@ -508,7 +508,7 @@
                                                     </span>
                                                 {/if}
                                                 {#if isWeight}
-                                                    <span class="text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded shrink-0">
+                                                    <span class="text-sm font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded shrink-0">
                                                         Kg
                                                     </span>
                                                 {/if}
@@ -521,7 +521,7 @@
                                                     <button
                                                         {...props}
                                                         type="button"
-                                                        class="size-9 min-h-[36px] min-w-[36px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
+                                                        class="size-9 min-h-[36px] min-w-[36px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-secondary/60 transition-colors cursor-pointer shrink-0"
                                                         aria-label="Opciones de producto"
                                                     >
                                                         <MoreVertical class="size-4" />
@@ -530,7 +530,7 @@
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" class="w-44 shadow-lg">
                                                 <DropdownMenuItem
-                                                    class="flex items-center gap-2 text-xs font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5"
+                                                    class="flex items-center gap-2 text-sm font-medium text-destructive focus:text-destructive focus:bg-destructive/10 hover:text-destructive hover:bg-destructive/10 cursor-pointer py-2.5"
                                                     onclick={() => removeItem(index)}
                                                 >
                                                     <Trash2 class="size-3.5 shrink-0" />
@@ -570,10 +570,10 @@
                                         <!-- Cantidad con stepper -->
                                         <div class="flex items-center gap-2 min-w-0">
                                             <Label for={`prod-qty-${index}`} class="text-sm font-medium text-foreground whitespace-nowrap shrink-0">Cant.:</Label>
-                                            <div class="flex items-center border rounded-xl bg-background shadow-2xs h-9 overflow-hidden">
+                                            <div class="flex items-center border border-input rounded-xl bg-field shadow-2xs h-9 overflow-hidden">
                                                 <button
                                                     type="button"
-                                                    class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer"
+                                                    class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-secondary/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer"
                                                     onclick={() => decrementQuantity(index)}
                                                     disabled={item.quantity <= (isWeight ? 0.01 : 1)}
                                                     aria-label="Disminuir cantidad"
@@ -615,7 +615,7 @@
                                                 />
                                                 <button
                                                     type="button"
-                                                    class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 shrink-0 cursor-pointer"
+                                                    class="size-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-secondary/60 transition-colors disabled:opacity-40 shrink-0 cursor-pointer"
                                                     onclick={() => incrementQuantity(index)}
                                                     disabled={item.quantity >= 10000}
                                                     aria-label="Aumentar cantidad"
@@ -638,7 +638,7 @@
                 </div>
 
                 <!-- Bento Card 3: Observaciones -->
-                <div class="bg-muted/20 p-4 rounded-xl border border-border/70 space-y-2">
+                <div class="bg-muted/40 dark:bg-secondary/35 p-4 rounded-xl border border-border/80 dark:border-border/90 space-y-2">
                     <Label for="supplier-order-notes" class="text-sm font-medium text-foreground break-words">
                         Observaciones / Notas de Entrega <span class="text-muted-foreground font-normal whitespace-nowrap">(Opcional)</span>
                     </Label>
@@ -648,7 +648,7 @@
                         rows="2"
                         maxlength="255"
                         placeholder="ej. Entrega pactada para el viernes por la tarde..."
-                        class="w-full rounded-xl border border-border/80 bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary resize-none"
+                        class="w-full rounded-xl border border-input bg-field p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
                     ></textarea>
 
                 </div>
@@ -657,14 +657,14 @@
             <!-- Footer Bento: Total Estimado & Botones (shrink-0) -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 border-t border-border/70 pt-4 shrink-0 w-full">
                 <div class="flex flex-wrap items-baseline justify-between sm:justify-start gap-2 w-full sm:w-auto">
-                    <span class="text-xs font-semibold text-muted-foreground">Total Estimado:</span>
+                    <span class="text-sm font-semibold text-muted-foreground">Total Estimado:</span>
                     <span class="text-xl sm:text-2xl font-bold font-sans tabular-nums text-primary break-all">{formatPrice(computedTotal)}</span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2.5 w-full sm:flex sm:w-auto sm:items-center">
                     <Button
                         type="button"
-                        variant="outline"
+                        variant="secondary"
                         class="min-h-[44px] h-auto py-3 px-4 sm:px-5 rounded-xl text-sm font-medium justify-center w-full sm:w-auto shadow-xs leading-snug text-center"
                         onclick={closeModal}
                     >

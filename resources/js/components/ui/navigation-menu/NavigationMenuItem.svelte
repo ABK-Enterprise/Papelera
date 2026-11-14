@@ -1,16 +1,21 @@
 <script lang="ts">
-    import type { Snippet } from 'svelte';
+    import { NavigationMenu as NavigationMenuPrimitive } from 'bits-ui';
     import { cn } from '@/lib/utils';
+    import type { ComponentProps } from 'svelte';
 
     let {
-        class: className = '',
+        ref = $bindable(null),
+        class: className,
         children,
-    }: {
-        class?: string;
-        children?: Snippet;
-    } = $props();
+        ...restProps
+    }: ComponentProps<typeof NavigationMenuPrimitive.Item> = $props();
 </script>
 
-<li class={cn('list-none', className)}>
+<NavigationMenuPrimitive.Item
+    bind:ref
+    data-slot="navigation-menu-item"
+    class={cn('relative list-none', className)}
+    {...restProps}
+>
     {@render children?.()}
-</li>
+</NavigationMenuPrimitive.Item>

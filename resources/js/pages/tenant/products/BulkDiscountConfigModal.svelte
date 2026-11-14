@@ -72,7 +72,7 @@
                 <button
                     type="button"
                     onclick={() => (open = false)}
-                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0"
+                    class="size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted dark:hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer shrink-0"
                     aria-label="Cerrar"
                 >
                     <X class="size-4" />
@@ -100,7 +100,7 @@
                     </div>
                 </div>
 
-                <div class="rounded-xl border border-border/60 bg-muted/30 p-3.5 text-xs text-muted-foreground space-y-1.5">
+                <div class="rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-3.5 text-xs text-muted-foreground space-y-1.5">
                     <p class="text-xs font-medium text-foreground flex items-center gap-1.5">
                         <Tag class="size-3.5 text-primary" />
                         ¿Cómo funciona este ajuste?
@@ -112,7 +112,7 @@
             </div>
 
             <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-border">
-                <Button type="button" variant="outline" class="min-h-[44px] px-4 rounded-xl text-sm font-medium" onclick={() => (open = false)} disabled={isSubmitting}>
+                <Button type="button" variant="secondary" class="min-h-[44px] px-4 rounded-xl text-sm font-medium" onclick={() => (open = false)} disabled={isSubmitting}>
                     Cancelar
                 </Button>
                 <Button type="submit" disabled={isSubmitting} class="min-h-[44px] px-4 rounded-xl text-sm font-medium gap-1.5">

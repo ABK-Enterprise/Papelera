@@ -93,7 +93,7 @@
 
     <!-- Barra de Búsqueda de Depósitos -->
     {#if warehouses.length > 0}
-        <Card class="rounded-xl p-3 sm:p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-border/60">
+        <Card class="rounded-xl p-3 sm:p-4 shadow-[0px_10px_40px_rgba(0,0,0,0.02)] border border-border/70 bg-card">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div class="w-full sm:w-80">
                     <SearchCombobox

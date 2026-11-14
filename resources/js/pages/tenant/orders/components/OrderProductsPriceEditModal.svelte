@@ -246,7 +246,7 @@
         <DialogBody class="py-2 space-y-3 flex-1 overflow-y-auto min-h-0 relative z-10">
             {#if isOrderImmutable}
                 <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-300">
-                    <AlertTriangle class="size-4 text-amber-600 shrink-0 mt-0.5" />
+                    <AlertTriangle class="size-4 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
                     <p class="leading-relaxed">
                         Este pedido se encuentra en estado definitivo o posee comprobante fiscal emitido con CAE. Los precios de sus artículos no admiten modificaciones directas.
                     </p>
@@ -254,14 +254,14 @@
             {/if}
 
             {#if !activeOrder?.items || activeOrder.items.length === 0}
-                <div class="py-10 text-center rounded-xl border border-dashed border-border/80 bg-muted/20 p-6">
+                <div class="py-10 text-center rounded-xl border border-dashed border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-6">
                     <Package class="size-8 mx-auto text-muted-foreground/60 mb-2" />
                     <p class="text-xs font-semibold text-foreground">
                         No hay productos registrados en este pedido
                     </p>
                 </div>
             {:else if filteredItems.length === 0}
-                <div class="py-8 text-center rounded-xl border border-dashed border-border/80 bg-muted/20 p-6">
+                <div class="py-8 text-center rounded-xl border border-dashed border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-6">
                     <Package class="size-7 mx-auto text-muted-foreground/60 mb-2" />
                     <p class="text-xs font-semibold text-foreground">
                         No se encontraron productos coincidentes con "{searchQuery}"
@@ -305,9 +305,9 @@
                                 {#if !isOrderImmutable}
                                     <Button
                                         type="button"
-                                        variant="outline"
+                                        variant="tertiary"
                                         size="sm"
-                                        class="min-h-[38px] size-9 p-0 rounded-xl cursor-pointer text-primary border-primary/30 hover:bg-primary/10 flex items-center justify-center shrink-0"
+                                        class="min-h-[38px] size-9 p-0 rounded-xl cursor-pointer flex items-center justify-center shrink-0"
                                         aria-label="Editar precio de {productName}"
                                         onclick={() => handleOpenEditPrice(item)}
                                     >
@@ -345,9 +345,9 @@
                             {#if !isOrderImmutable}
                                 <Button
                                     type="button"
-                                    variant="outline"
+                                    variant="tertiary"
                                     size="sm"
-                                    class="min-h-[38px] px-3 rounded-xl text-sm gap-1.5 font-semibold cursor-pointer text-primary border-primary/30 hover:bg-primary/10 shrink-0"
+                                    class="min-h-[38px] px-3 rounded-xl text-sm gap-1.5 font-semibold cursor-pointer shrink-0"
                                     onclick={() => handleOpenEditPrice(item)}
                                 >
                                     <Pencil class="size-3.5" />
@@ -376,7 +376,7 @@
         <DialogFooter class="pt-2.5 sm:pt-3 border-t border-border/60 shrink-0">
             <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 class="min-h-[44px] rounded-xl text-sm font-semibold cursor-pointer w-full sm:w-auto ml-auto"
                 onclick={handleClose}
             >

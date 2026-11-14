@@ -124,7 +124,7 @@
         </div>
 
         <div class="grid grid-cols-2 gap-2">
-            <div class="p-2.5 rounded-xl bg-background/60 border border-border/50 flex items-center gap-2">
+            <div class="p-2.5 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex items-center gap-2">
                 <Banknote class="size-4 text-emerald-500 shrink-0" />
                 <div class="min-w-0">
                     <p class="text-xs text-muted-foreground">Efectivo</p>
@@ -134,7 +134,7 @@
                 </div>
             </div>
 
-            <div class="p-2.5 rounded-xl bg-background/60 border border-border/50 flex items-center gap-2">
+            <div class="p-2.5 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90 flex items-center gap-2">
                 <QrCode class="size-4 text-primary shrink-0" />
                 <div class="min-w-0">
                     <p class="text-xs text-muted-foreground">Transfer / QR</p>
@@ -152,10 +152,10 @@
     </div>
 
     <!-- Segmented Tabs Mobile -->
-    <div class="grid grid-cols-3 gap-1.5 p-1 bg-muted/60 rounded-xl">
+    <div class="grid grid-cols-3 gap-1.5 p-1 bg-muted/80 dark:bg-card border border-border/80 rounded-xl">
         <button
             type="button"
-            class="py-2.5 px-2 rounded-lg text-xs font-bold transition-all min-h-[44px] flex flex-col items-center justify-center gap-0.5 {activeTab === 'my_route' ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'}"
+            class="py-2.5 px-2 rounded-lg text-xs font-bold transition-all min-h-[44px] flex flex-col items-center justify-center gap-0.5 {activeTab === 'my_route' ? 'bg-card dark:bg-secondary/70 border border-border/80 text-foreground shadow-xs' : 'border border-transparent text-muted-foreground hover:text-foreground'}"
             onclick={() => (activeTab = 'my_route')}
         >
             <span>Mis pedidos</span>
@@ -164,7 +164,7 @@
 
         <button
             type="button"
-            class="py-2.5 px-2 rounded-lg text-xs font-bold transition-all min-h-[44px] flex flex-col items-center justify-center gap-0.5 {activeTab === 'available' ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'}"
+            class="py-2.5 px-2 rounded-lg text-xs font-bold transition-all min-h-[44px] flex flex-col items-center justify-center gap-0.5 {activeTab === 'available' ? 'bg-card dark:bg-secondary/70 border border-border/80 text-foreground shadow-xs' : 'border border-transparent text-muted-foreground hover:text-foreground'}"
             onclick={() => (activeTab = 'available')}
         >
             <span>Disponibles</span>
@@ -173,7 +173,7 @@
 
         <button
             type="button"
-            class="py-2.5 px-2 rounded-lg text-xs font-bold transition-all min-h-[44px] flex flex-col items-center justify-center gap-0.5 {activeTab === 'failed' ? 'bg-card text-rose-600 dark:text-rose-400 shadow-xs' : 'text-muted-foreground hover:text-foreground'}"
+            class="py-2.5 px-2 rounded-lg text-xs font-bold transition-all min-h-[44px] flex flex-col items-center justify-center gap-0.5 {activeTab === 'failed' ? 'bg-card dark:bg-secondary/70 border border-rose-500/35 text-rose-700 dark:text-rose-400 shadow-xs' : 'border border-transparent text-muted-foreground hover:text-foreground'}"
             onclick={() => (activeTab = 'failed')}
         >
             <span>No entregados</span>
@@ -184,7 +184,7 @@
     <!-- Pestaña Mis Pedidos Mobile -->
     {#if activeTab === 'my_route'}
         {#if myRouteOrders.length === 0}
-            <div class="flex flex-col items-center justify-center p-8 text-center rounded-2xl border border-dashed border-border/80 bg-card/40">
+            <div class="flex flex-col items-center justify-center p-8 text-center rounded-2xl border border-dashed border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                 <Truck class="size-10 text-muted-foreground/40 mb-2" />
                 <h3 class="text-sm font-semibold text-foreground">Sin pedidos en tu ruta actual</h3>
                 <p class="text-xs text-muted-foreground mt-1 mb-3">
@@ -221,7 +221,7 @@
 
                         <!-- Dirección y Contacto Clickeables -->
                         {#if order.delivery_address}
-                            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-background/50 border border-border/50">
+                            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90">
                                 <div class="flex items-start gap-1.5 min-w-0">
                                     <MapPin class="size-3.5 text-primary shrink-0 mt-0.5" />
                                     <p class="text-xs text-foreground line-clamp-2">{order.delivery_address}</p>
@@ -251,7 +251,7 @@
                             {/if}
                         </div>
                         {#if order.notes}
-                            <div class="flex items-center gap-2 bg-background/50 p-2 rounded-xl border border-border/50 text-xs">
+                            <div class="flex items-center gap-2 bg-muted/40 dark:bg-secondary/35 p-2 rounded-xl border border-border/80 dark:border-border/90 text-xs">
                                 <p class="text-muted-foreground italic truncate flex-1 min-w-0">
                                     Nota: {order.notes}
                                 </p>
@@ -272,8 +272,8 @@
                         {#if hasPermission('repartos.gestionar')}
                             <div class="grid grid-cols-2 gap-2 pt-1 border-t border-border/50">
                                 <Button
-                                    variant="outline"
-                                    class="w-full h-11 min-h-[44px] text-xs font-semibold text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 gap-1.5"
+                                    variant="destructive"
+                                    class="w-full h-11 min-h-[44px] text-xs font-semibold gap-1.5"
                                     onclick={() => onFailDelivery(order)}
                                 >
                                     <AlertTriangle class="size-3.5" />
@@ -281,7 +281,8 @@
                                 </Button>
 
                                 <Button
-                                    class="w-full h-11 min-h-[44px] text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 shadow-xs"
+                                    variant="success"
+                                    class="w-full h-11 min-h-[44px] text-xs font-semibold gap-1.5 shadow-xs"
                                     onclick={() => onDeliverOrder(order)}
                                 >
                                     <PackageCheck class="size-4" />
@@ -295,7 +296,7 @@
         {/if}
     {:else if activeTab === 'available'}
         {#if availableOrders.length > 0 && hasPermission('repartos.gestionar')}
-            <div class="flex items-center justify-between p-3 rounded-xl border border-border/80 bg-background/50">
+            <div class="flex items-center justify-between p-3 rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                 <button
                     type="button"
                     class="flex items-center gap-2 text-xs font-semibold text-foreground cursor-pointer min-h-[44px]"
@@ -322,7 +323,7 @@
         {/if}
 
         {#if availableOrders.length === 0}
-            <div class="flex flex-col items-center justify-center p-8 text-center rounded-2xl border border-dashed border-border/80 bg-card/40">
+            <div class="flex flex-col items-center justify-center p-8 text-center rounded-2xl border border-dashed border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                 <PackageCheck class="size-10 text-muted-foreground/40 mb-2" />
                 <h3 class="text-sm font-semibold text-foreground">No hay pedidos disponibles</h3>
                 <p class="text-xs text-muted-foreground mt-1">
@@ -350,9 +351,9 @@
                                 <div class="flex items-center justify-between gap-1">
                                     <span class="text-xs font-sans font-bold text-primary tabular-nums">#{order.order_number}</span>
                                     {#if Number(order.debt_amount) <= 0}
-                                        <Badge variant="outline" class="text-xs font-bold text-emerald-600">PAGADO</Badge>
+                                        <Badge variant="outline" class="text-xs font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">PAGADO</Badge>
                                     {:else}
-                                        <Badge variant="outline" class="text-xs font-bold text-rose-600 tabular-nums">
+                                        <Badge variant="outline" class="text-xs font-bold bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/30 tabular-nums">
                                             ${Number(order.debt_amount).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                                         </Badge>
                                     {/if}
@@ -384,7 +385,7 @@
         {/if}
     {:else if activeTab === 'failed'}
         {#if failedOrders.length === 0}
-            <div class="flex flex-col items-center justify-center p-8 text-center rounded-2xl border border-dashed border-border/80 bg-card/40">
+            <div class="flex flex-col items-center justify-center p-8 text-center rounded-2xl border border-dashed border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35">
                 <AlertTriangle class="size-10 text-muted-foreground/40 mb-2" />
                 <h3 class="text-sm font-semibold text-foreground">No hay pedidos no entregados</h3>
                 <p class="text-xs text-muted-foreground mt-1">
@@ -408,7 +409,7 @@
 
                         <!-- Dirección y Contacto Clickeables -->
                         {#if order.delivery_address}
-                            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-background/50 border border-border/50">
+                            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/40 dark:bg-secondary/35 border border-border/80 dark:border-border/90">
                                 <div class="flex items-start gap-1.5 min-w-0">
                                     <MapPin class="size-3.5 text-primary shrink-0 mt-0.5" />
                                     <p class="text-xs text-foreground line-clamp-2">{order.delivery_address}</p>
@@ -452,7 +453,7 @@
                         </div>
 
                         {#if order.delivery_notes}
-                            <div class="flex items-center gap-2 bg-background/50 p-2 rounded-xl border border-border/50 text-xs">
+                            <div class="flex items-center gap-2 bg-muted/40 dark:bg-secondary/35 p-2 rounded-xl border border-border/80 dark:border-border/90 text-xs">
                                 <p class="text-muted-foreground italic truncate flex-1 min-w-0">
                                     Nota: "{order.delivery_notes}"
                                 </p>
@@ -472,7 +473,8 @@
                         {#if hasPermission('repartos.gestionar')}
                             <div class="pt-1">
                                 <Button
-                                    class="w-full h-11 min-h-[44px] text-xs font-semibold gap-2 bg-primary"
+                                    variant="default"
+                                    class="w-full h-11 min-h-[44px] text-xs font-semibold gap-2"
                                     onclick={() => onRescheduleOrder ? onRescheduleOrder(order) : handleReschedule(order.id)}
                                 >
                                     <RefreshCw class="size-4" />

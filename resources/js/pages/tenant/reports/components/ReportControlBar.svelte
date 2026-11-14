@@ -1,6 +1,9 @@
 <script lang="ts">
+    import { untrack } from 'svelte';
     import { router } from '@inertiajs/svelte';
+    import { toast } from 'svelte-sonner';
     import { cn } from '@/lib/utils';
+    import { Button } from '@/components/ui/button';
     import GlideSelect, { type StatScreenId } from '@/components/svelte-bits/GlideSelect.svelte';
     import { RotateCcw } from 'lucide-svelte';
 
@@ -44,24 +47,26 @@
     thirtyDaysAgo.setDate(today.getDate() - 29);
     const defaultFrom = formatDate(thirtyDaysAgo);
 
-    // Local reactive filter state
-    let localView = $state<StatScreenId>(view);
-    let localDateFrom = $state<string>(dateFrom || defaultFrom);
-    let localDateTo = $state<string>(dateTo || defaultTo);
-    let localWarehouseId = $state<number | null>(warehouseId);
+    // Local reactive filter state (initialized via untrack; subsequent prop changes sync via $effect)
+    let localView = $state<StatScreenId>(untrack(() => view));
+    let localDateFrom = $state<string>(untrack(() => dateFrom) || defaultFrom);
+    let localDateTo = $state<string>(untrack(() => dateTo) || defaultTo);
+    let localWarehouseId = $state<number | null>(untrack(() => warehouseId));
 
-    // Sync from parent props when they update
+    // Sync from parent props when they update from server (untracked local state avoids reverting user input)
     $effect(() => {
         localView = view;
     });
     $effect(() => {
-        if (dateFrom && dateFrom !== localDateFrom) {
-            localDateFrom = dateFrom;
+        const incomingFrom = dateFrom;
+        if (incomingFrom && incomingFrom !== untrack(() => localDateFrom)) {
+            localDateFrom = incomingFrom;
         }
     });
     $effect(() => {
-        if (dateTo && dateTo !== localDateTo) {
-            localDateTo = dateTo;
+        const incomingTo = dateTo;
+        if (incomingTo && incomingTo !== untrack(() => localDateTo)) {
+            localDateTo = incomingTo;
         }
     });
     $effect(() => {
@@ -177,13 +182,47 @@
     }
 
     function handleDateFromChange(e: Event) {
-        const val = (e.target as HTMLInputElement).value;
+        const input = e.currentTarget as HTMLInputElement;
+        const val = input.value;
+
+        if (!val) {
+            input.value = localDateFrom;
+            return;
+        }
+
+        if (localDateTo && val > localDateTo) {
+            input.value = localDateFrom;
+            toast.warning('El rango de "fecha desde" es mayor al rango "fecha hasta".');
+            return;
+        }
+
+        if (val === localDateFrom) {
+            return;
+        }
+
         localDateFrom = val;
         triggerFilterUpdate({ date_from: val });
     }
 
     function handleDateToChange(e: Event) {
-        const val = (e.target as HTMLInputElement).value;
+        const input = e.currentTarget as HTMLInputElement;
+        const val = input.value;
+
+        if (!val) {
+            input.value = localDateTo;
+            return;
+        }
+
+        if (localDateFrom && val < localDateFrom) {
+            input.value = localDateTo;
+            toast.warning('El rango de "fecha hasta" es menor al rango "fecha desde".');
+            return;
+        }
+
+        if (val === localDateTo) {
+            return;
+        }
+
         localDateTo = val;
         triggerFilterUpdate({ date_to: val });
     }
@@ -232,8 +271,8 @@
                     class={cn(
                         'min-h-[40px] px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer select-none',
                         isSelected
-                            ? 'bg-primary text-primary-foreground font-semibold shadow-xs hover:bg-primary/90'
-                            : 'border border-input/80 bg-select-background text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+                            ? 'bg-primary-solid text-primary-foreground font-semibold shadow-xs hover:bg-primary'
+                            : 'border border-input bg-field text-muted-foreground hover:bg-muted/70 dark:hover:bg-secondary/50 hover:text-foreground'
                     )}
                 >
                     {preset.label}
@@ -242,15 +281,16 @@
 
             <!-- Botón Limpiar: Visible ÚNICAMENTE si hay filtro temporal activo -->
             {#if isDateFiltered}
-                <button
+                <Button
                     type="button"
+                    variant="secondary"
                     onclick={resetDateFilters}
                     title="Restablecer fechas al rango por defecto (30 días)"
-                    class="flex items-center gap-1.5 min-h-[40px] px-3 py-1.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer select-none border border-destructive/20 ml-auto lg:ml-2"
+                    class="min-h-[40px] px-3 py-1.5 rounded-lg text-sm font-medium gap-1.5 ml-auto lg:ml-2"
                 >
                     <RotateCcw class="size-3.5 shrink-0" />
                     <span>Limpiar</span>
-                </button>
+                </Button>
             {/if}
         </div>
 
@@ -272,9 +312,10 @@
             <div class="relative w-full">
                 <input
                     type="date"
-                    bind:value={localDateFrom}
+                    aria-label="Fecha desde"
+                    value={localDateFrom}
                     onchange={handleDateFromChange}
-                    class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+                    class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input bg-field text-foreground shadow-xs transition-colors focus:border-primary focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring cursor-pointer dark:[color-scheme:dark]"
                 />
             </div>
         </div>
@@ -285,9 +326,10 @@
             <div class="relative w-full">
                 <input
                     type="date"
-                    bind:value={localDateTo}
+                    aria-label="Fecha hasta"
+                    value={localDateTo}
                     onchange={handleDateToChange}
-                    class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+                    class="w-full min-h-[40px] px-3 py-1.5 text-sm rounded-lg border border-input bg-field text-foreground shadow-xs transition-colors focus:border-primary focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring cursor-pointer dark:[color-scheme:dark]"
                 />
             </div>
         </div>
@@ -298,7 +340,7 @@
                 value={localWarehouseId ?? ''}
                 onchange={handleWarehouseChange}
                 aria-label="Filtrar por depósito"
-                class="w-full min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input/80 bg-select-background text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium"
+                class="w-full min-h-[40px] px-3.5 py-1.5 text-sm rounded-lg border border-input bg-field text-foreground shadow-xs transition-colors focus:border-primary focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring cursor-pointer truncate font-medium"
             >
                 <option value="">Todos los depósitos</option>
                 {#each warehouses as w (w.id)}

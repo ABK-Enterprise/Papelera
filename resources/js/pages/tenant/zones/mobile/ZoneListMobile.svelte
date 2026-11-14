@@ -28,7 +28,7 @@
                         {zone.name}
                     </h3>
                     {#if zone.is_active}
-                        <Badge variant="outline" class="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold px-2 py-0.5 rounded-full">
+                        <Badge variant="outline" class="border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-semibold px-2 py-0.5 rounded-full">
                             Activa
                         </Badge>
                     {:else}
@@ -39,7 +39,7 @@
                 </div>
 
                 <!-- Fila 2, Col 1: Distancia -->
-                <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-card/50 p-2.5 flex flex-col justify-center">
+                <div class="rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-2.5 flex flex-col justify-center">
                     <span class="text-xs font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
                         <Navigation class="size-3 text-primary" />
                         Distancia
@@ -50,7 +50,7 @@
                 </div>
 
                 <!-- Fila 2, Col 2: Recargo -->
-                <div class="rounded-xl border border-border/80 bg-background/80 dark:bg-card/50 p-2.5 flex flex-col justify-center">
+                <div class="rounded-xl border border-border/80 dark:border-border/90 bg-muted/40 dark:bg-secondary/35 p-2.5 flex flex-col justify-center">
                     <span class="text-xs font-semibold text-muted-foreground flex items-center gap-1 uppercase tracking-wider">
                         <Percent class="size-3 text-primary" />
                         Recargo
@@ -75,7 +75,7 @@
                 <Button
                     variant="destructive"
                     size="sm"
-                    class="rounded-xl text-sm font-medium gap-1.5 w-full min-h-[44px] bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                    class="rounded-xl text-sm font-medium gap-1.5 w-full min-h-[44px]"
                     onclick={() => ondelete(zone)}
                 >
                     <Trash2 class="size-3.5" />

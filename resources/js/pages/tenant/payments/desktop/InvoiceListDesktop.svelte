@@ -91,15 +91,15 @@
     function getCbteBadgeStyle(cbteTipo: number) {
         switch (cbteTipo) {
             case 1: // Factura A
-                return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20';
+                return 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20';
             case 6: // Factura B
-                return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
+                return 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20';
             case 11: // Factura C
-                return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
+                return 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20';
             case 3: // NC A
             case 8: // NC B
             case 13: // NC C
-                return 'bg-destructive/10 text-destructive border-destructive/20';
+                return 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20';
             default:
                 return 'bg-muted text-muted-foreground border-border/80';
         }
@@ -122,7 +122,7 @@
         {#each invoices as inv (inv.id)}
             {@const isCreditNote = [3, 8, 13].includes(inv.cbte_tipo)}
             <div
-                class="flex items-center justify-between p-4.5 rounded-2xl border border-border/70 bg-card shadow-xs hover:border-border transition-all duration-200 gap-4 select-none"
+                class="flex items-center justify-between p-4.5 rounded-2xl border border-border/80 bg-card shadow-xs hover:border-border hover:bg-muted/40 dark:hover:bg-secondary/30 transition-all duration-200 gap-4 select-none"
             >
                 <!-- Lado Izquierdo: Icono + Comprobante y Letra -->
                 <div class="flex items-center gap-3.5 min-w-[210px] shrink-0">
@@ -155,7 +155,7 @@
                 <div class="min-w-[160px] max-w-[210px] flex flex-col gap-1">
                     <div class="flex items-center gap-1.5 flex-wrap">
                         {#if inv.customer_order}
-                            <span class="text-xs font-semibold font-sans tabular-nums px-2 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/70 inline-block shadow-2xs">
+                            <span class="text-xs font-semibold font-sans tabular-nums px-2 py-0.5 rounded-md bg-muted/60 dark:bg-secondary/45 text-foreground border border-border/80 inline-block shadow-2xs">
                                 {inv.customer_order.order_number}
                             </span>
                         {/if}
@@ -171,7 +171,7 @@
                 <!-- Estado Fiscal -->
                 <div class="min-w-[95px] flex items-center justify-center">
                     {#if inv.status === 'aprobado'}
-                        <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider font-sans">
+                        <span class="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider font-sans">
                             Aprobado
                         </span>
                     {:else}
@@ -183,7 +183,7 @@
 
                 <!-- Importe Total -->
                 <div class="min-w-[140px] text-right">
-                    <span class="font-sans font-bold text-base sm:text-lg tabular-nums block {isCreditNote ? 'text-destructive' : 'text-foreground'}">
+                    <span class="font-sans font-bold text-base sm:text-lg tabular-nums block {isCreditNote ? 'text-rose-700 dark:text-rose-400' : 'text-foreground'}">
                         {isCreditNote ? '-' : ''}{formatPrice(inv.importe_total)}
                     </span>
                     <span class="text-xs text-muted-foreground block font-sans tabular-nums font-medium">
@@ -209,7 +209,7 @@
                                 <button
                                     {...props}
                                     type="button"
-                                    class="size-9 min-h-[36px] min-w-[36px] rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shadow-2xs flex items-center justify-center cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
+                                    class="size-9 min-h-[36px] min-w-[36px] rounded-xl border border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/60 dark:hover:bg-secondary/60 transition-colors shadow-2xs flex items-center justify-center cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-hidden"
                                     aria-label={`Opciones para comprobante ${inv.formatted_number}`}
                                 >
                                     <MoreVertical class="size-4" />
